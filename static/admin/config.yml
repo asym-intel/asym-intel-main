@@ -1,0 +1,138 @@
+backend:
+  name: github
+  repo: asym-intel/asym-intel-main
+  branch: main
+  base_url: REPLACE_WITH_OAUTH_BASE_URL   # filled in Stage 5b
+
+media_folder: "static/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+
+  # ── Monitor briefings ──────────────────────────────────────────────────────
+  # One collection per monitor so each has its own labelled sidebar entry.
+  # Files land at: content/monitors/{monitor-slug}/YYYY-MM-DD-{title-slug}.md
+
+  - name: "ai-governance"
+    label: "AI Governance"
+    folder: "content/monitors/ai-governance"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string",
+         hint: "e.g. AI Governance — Week of 29 March 2026"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  - name: "democratic-integrity"
+    label: "Democratic Integrity"
+    folder: "content/monitors/democratic-integrity"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  - name: "european-strategic-autonomy"
+    label: "European Strategic Autonomy"
+    folder: "content/monitors/european-strategic-autonomy"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  - name: "illicit-finance"
+    label: "Illicit Finance & Financial Crime"
+    folder: "content/monitors/illicit-finance"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  - name: "global-governance"
+    label: "Global Governance Under Stress"
+    folder: "content/monitors/global-governance"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  - name: "rule-of-law"
+    label: "Rule of Law & Judicial Independence"
+    folder: "content/monitors/rule-of-law"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  - name: "technology-society"
+    label: "Philosophy & Politics of Technology"
+    folder: "content/monitors/technology-society"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  # ── Topic pages ────────────────────────────────────────────────────────────
+  - name: "topics"
+    label: "Topic Pages"
+    folder: "content/topics"
+    create: false    # Topic pages are pre-created — edit only, not create
+    fields:
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Last Updated", name: "date", widget: "datetime"}
+      - {label: "Connected Monitor", name: "relatedMonitor", widget: "string",
+         hint: "Slug of the related monitor, e.g. ai-governance"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Content", name: "body", widget: "markdown"}
+
+  # ── Site pages ─────────────────────────────────────────────────────────────
+  - name: "pages"
+    label: "Site Pages"
+    files:
+      - label: "Homepage"
+        name: "home"
+        file: "content/_index.md"
+        fields:
+          - {label: "Title", name: "title", widget: "string"}
+          - {label: "Description", name: "description", widget: "text"}
+          - {label: "Content", name: "body", widget: "markdown"}
+      - label: "About"
+        name: "about"
+        file: "content/about.md"
+        fields:
+          - {label: "Title", name: "title", widget: "string"}
+          - {label: "Description", name: "description", widget: "text"}
+          - {label: "Content", name: "body", widget: "markdown"}
