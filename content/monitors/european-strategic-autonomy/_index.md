@@ -1,5 +1,5 @@
 ---
 title: "European Strategic Autonomy"
-description: "Weekly executive briefing on European Strategic Autonomy. Published every Wednesday."
+description: "Weekly briefing on hybrid threats, European defence, and the geopolitical contest over European strategic independence. Published every Wednesday."
 publishDay: "Wednesday"
 ---

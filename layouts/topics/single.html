@@ -1,0 +1,85 @@
+{{ define "main" }}
+<main class="topic">
+
+  {{/* ── Header ─────────────────────────────────────────────────── */}}
+  <header class="topic__header">
+    <div class="container">
+      <div class="topic__meta">
+        <a class="topic__back" href="/topics/">All topics</a>
+        {{ with .Params.publishDay }}
+        <span class="topic__cadence">Monitor publishes every {{ . }}</span>
+        {{ end }}
+      </div>
+      <h1 class="topic__title">{{ .Title }}</h1>
+      {{ with .Description }}
+        <p class="topic__description">{{ . }}</p>
+      {{ end }}
+    </div>
+  </header>
+
+  {{/* ── Body: editorial frame ───────────────────────────────────── */}}
+  {{ if .Content }}
+  <section class="topic__body">
+    <div class="container topic__prose">
+      {{ .Content }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* ── Monitor link card ───────────────────────────────────────── */}}
+  {{ with .Params.relatedMonitor }}
+  {{ $monitorSlug := . }}
+  {{ with site.GetPage (printf "/monitors/%s" $monitorSlug) }}
+  <section class="topic__monitor-section">
+    <div class="container">
+      <div class="topic__monitor-card">
+        <div class="topic__monitor-card-label">Weekly monitor</div>
+        <h2 class="topic__monitor-card-title">{{ .Title }}</h2>
+        {{ with .Description }}
+          <p class="topic__monitor-card-desc">{{ . }}</p>
+        {{ end }}
+        <a class="topic__monitor-card-link" href="{{ .RelPermalink }}">
+          View all briefings →
+        </a>
+      </div>
+    </div>
+  </section>
+  {{ end }}
+  {{ end }}
+
+  {{/* ── Recent briefings feed ───────────────────────────────────── */}}
+  {{ with .Params.relatedMonitor }}
+  {{ $monitorSlug := . }}
+  {{ with site.GetPage (printf "/monitors/%s" $monitorSlug) }}
+  {{ $posts := .Pages.ByDate.Reverse }}
+  {{ if $posts }}
+  <section class="topic__feed">
+    <div class="container">
+      <h2 class="topic__feed-heading">Recent briefings</h2>
+      {{ range first 5 $posts }}
+      <article class="feed-card">
+        <div class="feed-card__meta">
+          <time class="feed-card__date" datetime="{{ .Date.Format "2006-01-02" }}">
+            {{ .Date.Format "2 January 2006" }}
+          </time>
+        </div>
+        <h3 class="feed-card__title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h3>
+        {{ with .Params.summary }}
+          <p class="feed-card__summary">{{ . }}</p>
+        {{ end }}
+        <a class="feed-card__read-more" href="{{ .RelPermalink }}">Read briefing →</a>
+      </article>
+      {{ end }}
+      {{ if gt (len $posts) 5 }}
+      <a class="topic__feed-all" href="{{ .RelPermalink }}">All {{ .Title }} briefings →</a>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+  {{ end }}
+  {{ end }}
+
+</main>
+{{ end }}
