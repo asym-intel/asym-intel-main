@@ -30,34 +30,60 @@
   border-bottom: 1px solid var(--nb-border);
   font-family: var(--nb-font);
   font-size: 13px;
-  line-height: var(--nb-height);
+  letter-spacing: 0.02em;
 }
 
 .network-bar__inner {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
   height: 100%;
 }
 
-.network-bar__mark {
+/* Brand link — SVG mark + name */
+.network-bar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
+  color: var(--nb-hover);
+  font-weight: 500;
   flex-shrink: 0;
 }
 
-.network-bar__mark-text {
+.network-bar__svg {
   color: var(--nb-teal);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  flex-shrink: 0;
 }
 
-.network-bar__links {
+.network-bar__name {
+  color: var(--nb-hover);
+}
+
+/* Optional section label (set via .Site.Params.sectionName) */
+.network-bar__sep {
+  color: #3d3c3a;
+  margin: 0 0.1rem;
+}
+
+.network-bar__section {
+  color: #6b6a67;
+  font-size: 0.7rem;
+}
+
+/* Pushes nav to the right */
+.network-bar__spacer {
+  flex: 1;
+}
+
+/* Cross-site nav links */
+.network-bar__nav {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 1.25rem;
 }
 
 .network-bar__link {
@@ -69,6 +95,12 @@
 .network-bar__link:hover,
 .network-bar__link--active {
   color: var(--nb-hover);
+}
+
+/* Responsive: hide nav and name on small screens */
+@media (max-width: 640px) {
+  .network-bar__nav  { display: none; }
+  .network-bar__name { display: none; }
 }
 
 /* ── Body baseline (stub) ────────────────────────────────────────────────── */

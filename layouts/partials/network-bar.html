@@ -3,28 +3,49 @@
   ─────────────────────────────────────────────────────────────────────────────
   THE NETWORK BAR — identical on every page across the entire asym-intel network.
   NEVER modify colours, height, font, or structure per-section.
+  NEVER add inline styles here — all tokens live in assets/css/main.css.
 
-  Canonical values:
-    background:    #1a1918
-    border-bottom: 1px solid #2d2c2a
-    text:          #a8a7a4
-    hover:         #e0dfdc
-    teal mark:     #4f98a3
-    font:          Satoshi, Inter, sans-serif
-    height:        40px exactly
+  Canonical values (in CSS as custom properties):
+    --nb-bg:      #1a1918
+    --nb-border:  #2d2c2a
+    --nb-text:    #a8a7a4
+    --nb-hover:   #e0dfdc
+    --nb-teal:    #4f98a3
+    --nb-height:  40px
+    --nb-font:    'Satoshi', 'Inter', sans-serif
 */}}
-<nav class="network-bar" aria-label="Asymmetric Intelligence network">
+<header class="network-bar" role="banner" aria-label="Asymmetric Intelligence network">
   <div class="network-bar__inner">
-    <a class="network-bar__mark" href="{{ .Site.Params.networkBar.mainSite }}">
-      <span class="network-bar__mark-text">asym-intel</span>
+
+    {{/* Brand mark + name */}}
+    <a class="network-bar__brand" href="{{ .Site.Params.networkBar.mainSite }}"
+       aria-label="Asymmetric Intelligence home">
+      <svg class="network-bar__svg" width="18" height="18"
+           viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="currentColor"/>
+        <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="currentColor" opacity="0.65"/>
+        <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="currentColor" opacity="0.35"/>
+      </svg>
+      <span class="network-bar__name">Asymmetric Intelligence</span>
     </a>
-    <div class="network-bar__links">
+
+    {{/* Optional per-site section label — set via .Site.Params.sectionName */}}
+    {{ with .Site.Params.sectionName }}
+    <span class="network-bar__sep" aria-hidden="true">·</span>
+    <span class="network-bar__section">{{ . }}</span>
+    {{ end }}
+
+    <div class="network-bar__spacer"></div>
+
+    {{/* Cross-site navigation */}}
+    <nav class="network-bar__nav" aria-label="Platform sections">
       <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.mainSite "/") }} network-bar__link--active{{ end }}"
-         href="{{ .Site.Params.networkBar.mainSite }}">Intelligence</a>
+         href="{{ .Site.Params.networkBar.mainSite }}/monitors/">Monitors</a>
       <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.compossible "/") }} network-bar__link--active{{ end }}"
          href="{{ .Site.Params.networkBar.compossible }}">Compossible</a>
       <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.whitespace "/") }} network-bar__link--active{{ end }}"
          href="{{ .Site.Params.networkBar.whitespace }}">The White Space</a>
-    </div>
+    </nav>
+
   </div>
-</nav>
+</header>
