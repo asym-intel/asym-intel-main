@@ -1,4 +1,24 @@
 {{ define "main" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ .Title | jsonify }},
+  "description": {{ with .Params.summary }}{{ . | jsonify }}{{ else }}{{ .Summary | jsonify }}{{ end }},
+  "datePublished": "{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}",
+  "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
+  "url": "{{ .Permalink }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Asymmetric Intelligence",
+    "url": "https://asym-intel.info"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ .Permalink }}"
+  }
+}
+</script>
 <main class="single">
   <article class="post">
     <header class="post__header">
