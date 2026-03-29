@@ -1,0 +1,31 @@
+{{ define "main" }}
+<main class="list">
+  <header class="list__header">
+    <h1 class="list__title">{{ .Title }}</h1>
+    {{ with .Content }}<div class="list__description">{{ . }}</div>{{ end }}
+  </header>
+
+  <section class="list__posts">
+    {{ range .Pages.ByDate.Reverse }}
+    <article class="feed-card">
+      <div class="feed-card__meta">
+        <time class="feed-card__date" datetime="{{ .Date.Format "2006-01-02" }}">
+          {{ .Date.Format "2 January 2006" }}
+        </time>
+      </div>
+      <h2 class="feed-card__title">
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </h2>
+      {{ with .Params.summary }}
+        <p class="feed-card__summary">{{ . }}</p>
+      {{ else }}
+        <p class="feed-card__summary">{{ .Summary }}</p>
+      {{ end }}
+      <a class="feed-card__read-more" href="{{ .RelPermalink }}">Read briefing →</a>
+    </article>
+    {{ end }}
+  </section>
+
+  {{ template "_internal/pagination.html" . }}
+</main>
+{{ end }}

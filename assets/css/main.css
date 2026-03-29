@@ -1,0 +1,80 @@
+/*
+  main.css — asym-intel.info
+  ─────────────────────────────────────────────────────────────────────────────
+  STUB — full design system added in Stage 4.
+  Only the network bar styles are canonical here.
+*/
+
+/* ── Reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  /* Network bar — CANONICAL, never change */
+  --nb-bg:           #1a1918;
+  --nb-border:       #2d2c2a;
+  --nb-text:         #a8a7a4;
+  --nb-hover:        #e0dfdc;
+  --nb-teal:         #4f98a3;
+  --nb-height:       40px;
+  --nb-font:         'Satoshi', 'Inter', sans-serif;
+}
+
+/* ── Network bar ─────────────────────────────────────────────────────────── */
+.network-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: var(--nb-height);
+  background: var(--nb-bg);
+  border-bottom: 1px solid var(--nb-border);
+  font-family: var(--nb-font);
+  font-size: 13px;
+  line-height: var(--nb-height);
+}
+
+.network-bar__inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 100%;
+}
+
+.network-bar__mark {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.network-bar__mark-text {
+  color: var(--nb-teal);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.network-bar__links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.network-bar__link {
+  color: var(--nb-text);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.network-bar__link:hover,
+.network-bar__link--active {
+  color: var(--nb-hover);
+}
+
+/* ── Body baseline (stub) ────────────────────────────────────────────────── */
+body {
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  background: #0f0e0d;
+  color: #e0dfdc;
+  min-height: 100vh;
+}

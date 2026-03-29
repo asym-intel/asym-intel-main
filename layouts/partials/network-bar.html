@@ -1,0 +1,30 @@
+{{/*
+  network-bar.html
+  ─────────────────────────────────────────────────────────────────────────────
+  THE NETWORK BAR — identical on every page across the entire asym-intel network.
+  NEVER modify colours, height, font, or structure per-section.
+
+  Canonical values:
+    background:    #1a1918
+    border-bottom: 1px solid #2d2c2a
+    text:          #a8a7a4
+    hover:         #e0dfdc
+    teal mark:     #4f98a3
+    font:          Satoshi, Inter, sans-serif
+    height:        40px exactly
+*/}}
+<nav class="network-bar" aria-label="Asymmetric Intelligence network">
+  <div class="network-bar__inner">
+    <a class="network-bar__mark" href="{{ .Site.Params.networkBar.mainSite }}">
+      <span class="network-bar__mark-text">asym-intel</span>
+    </a>
+    <div class="network-bar__links">
+      <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.mainSite "/") }} network-bar__link--active{{ end }}"
+         href="{{ .Site.Params.networkBar.mainSite }}">Intelligence</a>
+      <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.compossible "/") }} network-bar__link--active{{ end }}"
+         href="{{ .Site.Params.networkBar.compossible }}">Compossible</a>
+      <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.whitespace "/") }} network-bar__link--active{{ end }}"
+         href="{{ .Site.Params.networkBar.whitespace }}">The White Space</a>
+    </div>
+  </div>
+</nav>

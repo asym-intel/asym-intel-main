@@ -1,0 +1,57 @@
+baseURL = "https://asym-intel.info/"
+languageCode = "en-GB"
+title = "Asymmetric Intelligence"
+# Output to docs/ for GitHub Pages
+publishDir = "docs"
+
+# Pagination
+[pagination]
+  pagerSize = 10
+
+# Don't create robots.txt automatically — we'll manage it
+enableRobotsTXT = true
+
+# Syntax highlighting (for any code blocks)
+pygmentsUseClasses = true
+
+[params]
+  description = "A public intelligence commons. Seven monitors. One weekly briefing each."
+  author = "Asymmetric Intelligence"
+  # Network bar is rendered via the network-bar partial on every page
+
+[params.networkBar]
+  # These values are canonical — used by the network-bar partial
+  # DO NOT change per-section. This bar is identical across the entire network.
+  mainSite   = "https://asym-intel.info"
+  compossible = "https://compossible.asym-intel.info"
+  whitespace  = "https://whitespace.asym-intel.info"
+
+[taxonomies]
+  monitor = "monitors"
+  tag = "tags"
+
+[menu]
+  [[menu.main]]
+    name = "Monitors"
+    url = "/monitors/"
+    weight = 10
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 20
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  page = ["HTML"]
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true  # Allow HTML in markdown (needed for some CMS content)
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+  [markup.highlight]
+    style = "github"
+    noClasses = false

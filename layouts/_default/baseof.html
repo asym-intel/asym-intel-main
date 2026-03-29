@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode | default "en" }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  {{/* Network bar — ALWAYS first, ALWAYS identical, NEVER moved */}}
+  {{ partial "network-bar.html" . }}
+
+  {{/* Page content injected here */}}
+  {{ block "main" . }}{{ end }}
+
+  {{ partial "footer.html" . }}
+</body>
+</html>

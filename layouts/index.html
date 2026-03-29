@@ -1,0 +1,61 @@
+{{ define "main" }}
+<main class="home">
+
+  <header class="home__hero">
+    <div class="home__hero-inner">
+      <h1 class="home__title">Asymmetric Intelligence</h1>
+      <p class="home__subtitle">A public intelligence commons. Seven monitors. One weekly briefing each.</p>
+    </div>
+  </header>
+
+  <section class="home__feed">
+    <div class="home__feed-inner">
+      <h2 class="home__feed-heading">Latest briefings</h2>
+
+      {{/* Collect the most recent post from each monitor section */}}
+      {{ $monitors := slice
+        "ai-governance"
+        "democratic-integrity"
+        "european-strategic-autonomy"
+        "illicit-finance"
+        "global-governance"
+        "rule-of-law"
+        "technology-society"
+      }}
+
+      {{ $latest := slice }}
+      {{ range $monitors }}
+        {{ $section := . }}
+        {{ with site.GetPage (printf "/monitors/%s" $section) }}
+          {{ range (.Pages.ByDate.Reverse | first 1) }}
+            {{ $latest = $latest | append . }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+
+      {{/* Sort by date descending */}}
+      {{ range sort $latest "Date" "desc" }}
+      <article class="feed-card">
+        <div class="feed-card__meta">
+          <span class="feed-card__monitor">{{ .Section }}</span>
+          <time class="feed-card__date" datetime="{{ .Date.Format "2006-01-02" }}">
+            {{ .Date.Format "2 January 2006" }}
+          </time>
+        </div>
+        <h3 class="feed-card__title">
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </h3>
+        {{ with .Params.summary }}
+          <p class="feed-card__summary">{{ . }}</p>
+        {{ else }}
+          <p class="feed-card__summary">{{ .Summary }}</p>
+        {{ end }}
+        <a class="feed-card__read-more" href="{{ .RelPermalink }}">Read briefing →</a>
+      </article>
+      {{ end }}
+
+    </div>
+  </section>
+
+</main>
+{{ end }}
