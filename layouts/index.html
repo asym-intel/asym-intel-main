@@ -1,43 +1,44 @@
 {{ define "main" }}
-<main class="home">
 
-  <header class="home__hero">
-    <div class="home__hero-inner">
-      <h1 class="home__title">Asymmetric Intelligence</h1>
-      <p class="home__subtitle">A public intelligence commons. Seven monitors. One weekly briefing each.</p>
-    </div>
-  </header>
+<section class="home__hero">
+  <div class="container">
+    <h1 class="home__title">Understanding what is actually happening — and what it means.</h1>
+    <p class="home__subtitle">
+      Seven monitors. Structured analysis, weekly executive briefings, and living
+      knowledge pages on AI governance, democracy, geopolitics, and the present.
+    </p>
+  </div>
+</section>
 
-  <section class="home__feed">
-    <div class="home__feed-inner">
-      <h2 class="home__feed-heading">Latest briefings</h2>
+<section class="home__feed">
+  <div class="container">
+    <h2 class="home__feed-heading">Latest briefings</h2>
 
-      {{/* Collect the most recent post from each monitor section */}}
-      {{ $monitors := slice
-        "ai-governance"
-        "democratic-integrity"
-        "european-strategic-autonomy"
-        "illicit-finance"
-        "global-governance"
-        "rule-of-law"
-        "technology-society"
-      }}
+    {{/* Collect the most recent post from each monitor section */}}
+    {{ $monitors := slice
+      "ai-governance"
+      "democratic-integrity"
+      "european-strategic-autonomy"
+      "illicit-finance"
+      "global-governance"
+      "rule-of-law"
+      "technology-society"
+    }}
 
-      {{ $latest := slice }}
-      {{ range $monitors }}
-        {{ $section := . }}
-        {{ with site.GetPage (printf "/monitors/%s" $section) }}
-          {{ range (.Pages.ByDate.Reverse | first 1) }}
-            {{ $latest = $latest | append . }}
-          {{ end }}
+    {{ $latest := slice }}
+    {{ range $monitors }}
+      {{ with site.GetPage (printf "/monitors/%s" .) }}
+        {{ range (.Pages.ByDate.Reverse | first 1) }}
+          {{ $latest = $latest | append . }}
         {{ end }}
       {{ end }}
+    {{ end }}
 
-      {{/* Sort by date descending */}}
+    {{ if $latest }}
       {{ range sort $latest "Date" "desc" }}
       <article class="feed-card">
         <div class="feed-card__meta">
-          <span class="feed-card__monitor">{{ .Section }}</span>
+          <span class="feed-card__monitor">{{ .Parent.Title }}</span>
           <time class="feed-card__date" datetime="{{ .Date.Format "2006-01-02" }}">
             {{ .Date.Format "2 January 2006" }}
           </time>
@@ -53,9 +54,13 @@
         <a class="feed-card__read-more" href="{{ .RelPermalink }}">Read briefing →</a>
       </article>
       {{ end }}
+    {{ else }}
+      <p style="color:var(--color-text-muted); padding-block: var(--space-8);">
+        Monitor briefings will appear here as they are published.
+      </p>
+    {{ end }}
 
-    </div>
-  </section>
+  </div>
+</section>
 
-</main>
 {{ end }}
