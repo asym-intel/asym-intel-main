@@ -1,0 +1,19 @@
+---
+title: "World Democracy Monitor — 30 March 2026"
+date: 2026-03-30T06:00:00Z
+summary: "V-Dem 2026 records the largest single-year LDI decline in US history; CPAC Hungary 2026 (51 countries, March 21) formally networked Georgian Dream alongside Fidesz, Milei, AfD and Vox; and Uganda's terrorism-framed NGO funding framework extends the anti-civil-society legislative wave to East Africa ahead of presidential elections."
+draft: false
+monitor: "democratic-integrity"
+---
+
+The week of 31 March 2026 sees three dominant analytical threads emerge from the new source layer.
+
+First, the V-Dem 2026 Report (published March 17) provides the most authoritative quantification of the current wave. The United States' LDI score fell from 0.75 to 0.57 — a 24% decline, the largest single-year drop in US history — while its world rank fell from 20th to 51st. Six of the ten new autocratizing countries identified are in Europe and North America, including Italy and the United Kingdom. V-Dem's Lindberg states directly: 'The fact that many populous and economically powerful countries are autocratizing is especially worrying — several of these countries have the economic and political weight to reshape international organisations, norms, and trade, effectively reshaping the global order.' The 2026 US midterms are now identified as a critical test: if electoral indicators also decline, the US will fall further in world rankings. The DOJ's attempted criminal indictment of six Democratic Congress members — rejected by a Washington DC grand jury on February 11 — illustrates precisely the structural stress V-Dem is measuring.
+
+Second, the global anti-NGO offensive has reached a new institutional theatre. Amnesty International's March 23 report on Latin American anti-NGO laws — covering Ecuador, El Salvador, Nicaragua, Paraguay, Peru and Venezuela — is now joined by a new African entry point in Uganda, where government crackdowns on civil society organisations (labelled 'terrorist-linked') and a proposed NGO Funding Regulation Framework emerged 23–24 March with minimal international coverage. The timing against Uganda's 2026 presidential election mirrors the pre-election civic space closure sequence documented in Georgia, El Salvador and Tanzania. More strikingly, the UN NGO Committee — which controls civil society access to the UN system — is now documented by HRW and ISHR as a 'de facto anti-NGO committee', with an abusive-government majority voting to revoke NGO accreditations within four days in January 2026. The April 2026 membership elections for this committee are therefore a critical multilateral battleground that has received almost no public attention.
+
+Third, South Korea has now completed a full year of democratic recovery from Yoon's December 2024 martial law attempt and provides the most significant positive deviant case of this cycle. The Constitutional Court's unanimous impeachment upholding, Yoon's arrest (the first sitting president to be detained in Korean history), and the successful prosecution of multiple military and cabinet officials provides a replicable institutional model: rapid constitutional accountability for an executive coup attempt. Against the backdrop of the V-Dem findings, the Serbian student movement's transition from street protest to electoral preparation, and the approaching Hungarian elections — which for the first time in 16 years present a genuine possibility of Fidesz electoral defeat — South Korea's trajectory is the most consequential positive data point of this monitoring cycle.
+
+---
+
+*Full interactive dashboard with heatmap, severity scores, media capture tracker, legislative watch, networks analysis and 360° research tiers: [World Democracy Monitor](https://www.perplexity.ai/computer/a/world-democracy-monitor-24-mar-BCmofOpyS76BDucgqje7RA)*
