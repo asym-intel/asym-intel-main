@@ -838,19 +838,19 @@ a:hover { color: var(--color-primary-hover); }
   .tn-story:last-child { border-bottom: none; }
 }
 .tn-story {
-  padding: var(--space-6) var(--space-6) var(--space-6) 0;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   position: relative;
 }
-.tn-story:not(:last-child) {
+/* Right border: items 1, 2, 4, 5 (not 3rd or 6th in a 3-col grid) */
+.tn-story:not(:nth-child(3n)) {
   border-right: 1px solid var(--color-border);
-  padding-right: var(--space-6);
-  margin-right: 0;
 }
-.tn-story:not(:first-child) {
-  padding-left: var(--space-6);
+/* Row separator: items in row 2 (items 4, 5, 6) get a top border */
+.tn-story:nth-child(n+4) {
+  border-top: 1px solid var(--color-border);
 }
 .tn-story__meta {
   display: flex;
