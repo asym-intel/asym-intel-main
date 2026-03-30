@@ -468,31 +468,46 @@ function renderM11_Ethics(data) {
   }).join('');
 }
 
-/* ── M12 — Technical Standards ────────────────────────────── */
+/* ── M12 — Information Operations ───────────────────────────── */
 function renderM12(data) {
   const m = data.module_12;
   if (!m) return noContent();
   let html = '';
 
-  if (m.bodies && m.bodies.length) {
-    html += m.bodies.map(function (body) {
-      if (!body.updates || !body.updates.length) return '';
-      return `<div class="section-label">${esc(body.name)}</div>` +
-        body.updates.map(function (upd) {
-          return `<div class="card">
-            <div class="card__label">${esc(upd.standard || '')} · ${esc(upd.status || '')}</div>
-            <div class="card__title">${esc(upd.title)}</div>
-            <div class="card__body">${esc(upd.summary || '')} ${upd.source_url ? sourceLink(upd.source_label || 'Source', upd.source_url) : ''}</div>
-            ${upd.friction ? callout('⚙️ Technical Friction', esc(upd.friction), 'friction') : ''}
-            ${upd.asymmetric ? callout('Asymmetric Signal', esc(upd.asymmetric), 'asymmetric') : ''}
-          </div>`;
-        }).join('');
-    }).join('<div class="divider"></div>');
+  const actorCls = {
+    state_actor: 'red', synthetic_media: 'amber', narrative_manipulation: 'threshold',
+    platform_response: 'signal', detection: 'primary'
+  };
+
+  if (m.items && m.items.length) {
+    html += m.items.map(function (item) {
+      const cls = actorCls[item.category] || 'muted';
+      return `<div class="card">
+        <div class="card__label">
+          ${badge(item.category || '', cls)}
+          ${esc(item.actor_type || '')}
+          ${item.region ? ' · ' + esc(item.region) : ''}
+        </div>
+        <div class="card__title">${esc(item.title)}</div>
+        <div class="card__body">${esc(item.summary || '')} ${item.source_url ? sourceLink('Source', item.source_url) : ''}</div>
+        ${item.asymmetric ? callout('Asymmetric Signal', esc(item.asymmetric), 'asymmetric') : ''}
+      </div>`;
+    }).join('');
+  }
+
+  if (m.capability_watch && m.capability_watch.length) {
+    html += `<div class="divider"></div><div class="section-label">Capability Watch</div>`;
+    html += m.capability_watch.map(function (item) {
+      return `<div class="card">
+        <div class="card__label">${esc(item.capability || '')}</div>
+        <div class="card__body">${esc(item.detail || '')} ${item.source_url ? sourceLink('Source', item.source_url) : ''}</div>
+      </div>`;
+    }).join('');
   }
 
   if (m.asymmetric_flags && m.asymmetric_flags.length) {
     html += `<div class="divider"></div>
-    <div class="section-label">Standards Asymmetric Flags</div>
+    <div class="section-label">Asymmetric Flags</div>
     <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
       ${m.asymmetric_flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
     </ul>`;
@@ -501,45 +516,45 @@ function renderM12(data) {
   return html || noContent();
 }
 
-/* ── M13 — Litigation Tracker ──────────────────────────────── */
+/* ── M13 — AI & Society ─────────────────────────────────────── */
 function renderM13(data) {
   const m = data.module_13;
   if (!m) return noContent();
   let html = '';
 
-  const caseTypeCls = {
-    Copyright: 'primary', Platform_Reg: 'signal', Export_Control: 'red',
-    Competition: 'amber', Constitutional: 'amber', Privacy: 'muted'
+  const catCls = {
+    labour: 'amber', education: 'signal', public_trust: 'threshold',
+    social_cohesion: 'primary', inequality: 'red', demographic: 'muted'
   };
 
-  const statusCls = { Active: 'signal', Watch: 'amber', Resolved: 'muted' };
-
-  if (m.cases && m.cases.length) {
-    html += m.cases.map(function (c) {
-      const typeCls = caseTypeCls[c.case_type] || 'muted';
-      const sCls = statusCls[c.status] || 'muted';
+  if (m.items && m.items.length) {
+    html += m.items.map(function (item) {
+      const cls = catCls[item.category] || 'muted';
       return `<div class="card">
         <div class="card__label">
-          ${badge(c.case_type || '', typeCls)}
-          ${badge(c.status || '', sCls)}
-          ${esc(c.jurisdiction || '')}
+          ${badge(item.category || '', cls)}
+          ${item.affected_groups ? ' · ' + esc(item.affected_groups) : ''}
         </div>
-        <div class="card__title">${esc(c.case_name || c.title)}</div>
-        <div class="card__body">
-          ${esc(c.summary || '')}
-          ${c.source_url ? ' ' + sourceLink(c.source_label || 'Court Document', c.source_url) : ''}
-        </div>
-        ${c.friction ? callout('⚙️ Technical Friction', esc(c.friction), 'friction') : ''}
-        ${c.asymmetric ? callout('Asymmetric Signal', esc(c.asymmetric), 'asymmetric') : ''}
+        <div class="card__title">${esc(item.title)}</div>
+        <div class="card__body">${esc(item.summary || '')} ${item.source_url ? sourceLink('Source', item.source_url) : ''}</div>
+        ${item.asymmetric ? callout('Asymmetric Signal', esc(item.asymmetric), 'asymmetric') : ''}
       </div>`;
     }).join('');
   }
 
-  if (m.no_change && m.no_change.length) {
+  if (m.structural_trends && m.structural_trends.length) {
     html += `<div class="divider"></div>
-    <div class="section-label">No Material Activity This Week</div>
-    <ul style="font-size:var(--text-sm);color:var(--color-text-muted);line-height:1.8">
-      ${m.no_change.map(function (c) { return `<li>${esc(c)}</li>`; }).join('')}
+    <div class="section-label">Structural Trends</div>
+    <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
+      ${m.structural_trends.map(function (t) { return `<li>${esc(t)}</li>`; }).join('')}
+    </ul>`;
+  }
+
+  if (m.asymmetric_flags && m.asymmetric_flags.length) {
+    html += `<div class="divider"></div>
+    <div class="section-label">Asymmetric Flags</div>
+    <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
+      ${m.asymmetric_flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
     </ul>`;
   }
 
