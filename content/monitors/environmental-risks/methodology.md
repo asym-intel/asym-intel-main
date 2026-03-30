@@ -1,7 +1,7 @@
 ---
 title: "Methodology — Global Environmental Risks & Planetary Boundaries Monitor"
 description: "Evidentiary standards, source hierarchy, analytical filters, and attribution framework for the GERP Monitor."
-date: 2026-03-29
+date: 2020-01-01
 monitor: "environmental-risks"
 type: "methodology"
 draft: false
