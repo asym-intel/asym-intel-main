@@ -32,8 +32,15 @@ jobs:
 
           CHANGED=0
 
-          for DASHBOARD in static/monitors/*/dashboard.html; do
+          # Inject into dashboard.html OR index.html (whichever exists as entry point)
+          for DASHBOARD in static/monitors/*/dashboard.html static/monitors/*/index.html; do
             if [ ! -f "$DASHBOARD" ]; then continue; fi
+            # Skip non-entry-point index.html files (only process monitor root index)
+            if [[ "$DASHBOARD" == *"/index.html" ]]; then
+              MONITOR_DIR=$(dirname "$DASHBOARD")
+              # Only process if this is a monitor with no separate dashboard.html
+              if [ -f "${MONITOR_DIR}/dashboard.html" ]; then continue; fi
+            fi
 
             # Skip if bar already injected with current version (position:fixed)
             if grep -q 'data-asym-network-bar' "$DASHBOARD" && grep -q 'position:fixed' "$DASHBOARD"; then

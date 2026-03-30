@@ -30,4 +30,4 @@ The week of 30 March 2026 adds two new heatmap entries, advances major legislati
 
 ---
 
-*Full interactive dashboard with heatmap, severity scores, media capture tracker, legislative watch, and networks analysis: [World Democracy Monitor](https://www.perplexity.ai/computer/a/world-democracy-monitor-30-mar-BCmofOpyS76BDucgqje7RA)*
+*Full interactive dashboard: [World Democracy Monitor](https://asym-intel.info/monitors/democratic-integrity/dashboard.html)*
