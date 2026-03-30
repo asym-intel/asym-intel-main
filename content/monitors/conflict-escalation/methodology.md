@@ -115,7 +115,8 @@ Each weekly edition produces:
 | [European Geopolitical & Hybrid Threat](https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html) | Spoke — receives I2/I5 escalation signals for European theatre conflicts |
 | [World Democracy Monitor](https://asym-intel.info/monitors/democratic-integrity/dashboard.html) | Spoke — receives election-period conflict escalation signals |
 | [Global Environmental Risks](https://asym-intel.info/monitors/environmental-risks/dashboard.html) | Spoke — receives I6 displacement and I4 resource-conflict signals |
-| [Ramparts Global Macro](https://asym-intel.info/monitors/macro/dashboard.html) | Spoke — receives I4 economic warfare and sanctions signals |
+| [Macro Monitor](https://asym-intel.info/monitors/macro-monitor/dashboard.html) | Spoke — receives I4 economic warfare and sanctions signals |
+| [AI Governance](https://asym-intel.info/monitors/ai-governance/dashboard.html) | Spoke — receives signals where conflict intersects AI infrastructure or autonomous weapons |
 
 ---
 
