@@ -25,21 +25,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Write strip helper script
-        run: |
-          cat > /tmp/strip_bar.py << 'EOF'
-import sys, re
-path = sys.argv[1]
-with open(path, 'r') as f:
-    c = f.read()
-pattern = r'(<style>body{padding-top:40px!important}</style>)?<nav data-asym-network-bar[^>]*>.*?</nav>'
-c = re.sub(pattern, '', c, flags=re.DOTALL)
-with open(path, 'w') as f:
-    f.write(c)
-EOF
-
       - name: Inject network bar into all dashboards
+        env:
+          STRIP_SCRIPT: |
+            import sys, re
+            path = sys.argv[1]
+            with open(path, 'r') as f:
+                c = f.read()
+            c = re.sub(r'(<style>body\{padding-top:40px!important\}</style>)?<nav data-asym-network-bar[^>]*>.*?</nav>', '', c, flags=re.DOTALL)
+            with open(path, 'w') as f:
+                f.write(c)
         run: |
+          echo "$STRIP_SCRIPT" > /tmp/strip_bar.py
           NETWORK_BAR=$(cat .github/network-bar.html)
           CHANGED=0
 
