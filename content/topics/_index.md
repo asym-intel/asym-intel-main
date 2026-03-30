@@ -1,4 +1,5 @@
 ---
 title: "Topics"
-description: "Deep context on the seven domains monitored by Asymmetric Intelligence."
+description: "Deep context on the eight domains monitored by Asymmetric Intelligence."
+layout: "list"
 ---
