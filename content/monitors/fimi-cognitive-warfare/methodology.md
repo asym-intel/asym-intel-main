@@ -1,7 +1,7 @@
 ---
 title: "Methodology — Global FIMI & Cognitive Warfare Monitor"
 description: "Analytical standards, source hierarchy, attribution confidence framework, and actor inclusion criteria for the Global FIMI & Cognitive Warfare Monitor."
-date: 2026-03-30
+date: 2020-01-01
 monitor: "fimi-cognitive-warfare"
 type: "methodology"
 draft: false
