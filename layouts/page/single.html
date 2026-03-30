@@ -1,0 +1,31 @@
+{{ define "main" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": {{ .Title | jsonify }},
+  "description": {{ with .Description }}{{ . | jsonify }}{{ else }}{{ .Summary | jsonify }}{{ end }},
+  "url": "{{ .Permalink }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Asymmetric Intelligence",
+    "url": "https://asym-intel.info"
+  }
+}
+</script>
+<main class="static-page">
+  <div class="container">
+    <header class="static-page__header">
+      <h1 class="static-page__title">{{ .Title }}</h1>
+      {{ with .Description }}
+        <p class="static-page__desc">{{ . }}</p>
+      {{ end }}
+    </header>
+    {{ if .Content }}
+    <div class="static-page__body post__body">
+      {{ .Content }}
+    </div>
+    {{ end }}
+  </div>
+</main>
+{{ end }}
