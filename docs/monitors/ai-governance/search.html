@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — AI Frontier Monitor · Asymmetric Intelligence</title>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <script src="assets/js/theme.js"></script>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="site-nav__wordmark" href="index.html">ASYM<span>·</span>INTEL <span style="font-weight:300;opacity:0.5">/ AI Monitor</span></a>
+  <ul class="site-nav__links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="search.html" class="active">Search</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="digest.html">Digest</a></li>
+  </ul>
+  <div class="site-nav__actions">
+    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="3"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="8" y1="13" x2="8" y2="15"/>
+        <line x1="1" y1="8" x2="3" y2="8"/><line x1="13" y1="8" x2="15" y2="8"/>
+        <line x1="2.93" y1="2.93" x2="4.34" y2="4.34"/><line x1="11.66" y1="11.66" x2="13.07" y2="13.07"/>
+        <line x1="2.93" y1="13.07" x2="4.34" y2="11.66"/><line x1="11.66" y1="4.34" x2="13.07" y2="2.93"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 1a7 7 0 1 0 7 7A7 7 0 0 0 8 1zm0 13A6 6 0 1 1 12.93 3.07 7 7 0 0 0 8 14z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="page-header">
+    <div class="page-header__label">AI Frontier Monitor · Asymmetric Intelligence</div>
+    <h1 class="page-header__title">Search</h1>
+    <p class="page-header__sub">Full-text search across all published issues.</p>
+  </div>
+
+  <div class="search-bar">
+    <input type="search" class="search-input" id="search-input" placeholder="Search across all issues — try 'AISI', 'AlphaFold', 'EU AI Act'…" autocomplete="off">
+  </div>
+
+  <div id="search-status" style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)"></div>
+  <div id="search-results"></div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-wordmark">ASYM<span>·</span>INTEL</div>
+      <div class="footer-desc">AI Frontier Monitor — Asymmetric Intelligence.</div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__title">Monitor</div>
+      <ul>
+        <li><a href="report.html">Latest Issue</a></li>
+        <li><a href="archive.html">Archive</a></li>
+        <li><a href="digest.html">Email Digest</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__title">About</div>
+      <ul>
+        <li><a href="about.html">Editorial Standards</a></li>
+        <li><a href="https://ramparts.gi/ai-frontier-monitor/" target="_blank" rel="noopener">Ramparts Edition</a></li>
+      </ul>
+    </div>
+    <div class="footer-col"></div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025–2026 Peter Howitt, asym-intel.info</span>
+  </div>
+</footer>
+
+<script>
+  // Flatten JSON report into searchable items
+  function flattenReport(data, slug) {
+    var items = [];
+    function extract(obj, module, path) {
+      if (!obj) return;
+      if (Array.isArray(obj)) {
+        obj.forEach(function(item) { extract(item, module, path); });
+        return;
+      }
+      if (typeof obj === 'object') {
+        var text = '';
+        ['title', 'headline', 'summary', 'detail', 'body', 'description', 'note', 'significance'].forEach(function(k) {
+          if (obj[k] && typeof obj[k] === 'string') text += ' ' + obj[k];
+        });
+        if (text.trim()) {
+          items.push({ module: module, text: text.trim(), slug: slug });
+        }
+        Object.keys(obj).forEach(function(k) {
+          if (typeof obj[k] === 'object') extract(obj[k], module, path + '.' + k);
+        });
+      }
+    }
+    var moduleNames = {
+      module_0:'M00 The Signal', module_1:'M01 Executive Insight', module_2:'M02 Model Frontier',
+      module_3:'M03 Investment', module_4:'M04 Sector Penetration', module_5:'M05 European & China',
+      module_6:'M06 AI in Science', module_7:'M07 Risk Indicators', module_8:'M08 Military AI',
+      module_9:'M09 Law & Guidance', module_10:'M10 AI Governance', module_11:'M11 Ethics',
+      module_12:'M12 Tech Standards', module_13:'M13 Litigation', module_14:'M14 Personnel'
+    };
+    Object.keys(moduleNames).forEach(function(key) {
+      if (data[key]) extract(data[key], moduleNames[key], key);
+    });
+    return items;
+  }
+
+  var corpus = [];
+  var loaded = false;
+
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function highlight(text, query) {
+    var re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+    return esc(text).replace(re, '<mark style="background:var(--color-amber-bg);color:var(--color-amber);padding:0 2px;border-radius:2px">$1</mark>');
+  }
+
+  function doSearch(q) {
+    q = q.trim();
+    var status = document.getElementById('search-status');
+    var results = document.getElementById('search-results');
+    if (!q) { results.innerHTML = ''; status.textContent = ''; return; }
+    if (!loaded) { status.textContent = 'Loading corpus…'; return; }
+    var lower = q.toLowerCase();
+    var matches = corpus.filter(function(item) {
+      return item.text.toLowerCase().indexOf(lower) > -1;
+    });
+    status.textContent = matches.length + ' result' + (matches.length !== 1 ? 's' : '') + ' for "' + q + '"';
+    if (!matches.length) {
+      results.innerHTML = '<p class="text-muted text-sm" style="padding:var(--space-6) 0">No results found.</p>';
+      return;
+    }
+    // Deduplicate by text+slug combo, limit to 50
+    var seen = {};
+    var deduped = [];
+    matches.forEach(function(m) {
+      var key = m.slug + '|' + m.text.slice(0,80);
+      if (!seen[key]) { seen[key] = true; deduped.push(m); }
+    });
+    results.innerHTML = deduped.slice(0,50).map(function(item) {
+      var preview = item.text.length > 220 ? item.text.slice(0,220) + '…' : item.text;
+      return '<div class="search-result">' +
+        '<div class="search-result__module">' + esc(item.module) + ' · Issue ' + esc(item.slug) + '</div>' +
+        '<div class="search-result__body">' + highlight(preview, q) + '</div>' +
+        '<div style="margin-top:var(--space-2)"><a class="source-link" href="report.html">View issue</a></div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Load all reports from archive.json
+  fetch('data/archive.json')
+    .then(function(r) { return r.json(); })
+    .then(function(archive) {
+      var promises = (archive||[]).map(function(issue) {
+        return fetch('data/report-' + issue.slug + '.json')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            flattenReport(data, issue.slug).forEach(function(item) { corpus.push(item); });
+          })
+          .catch(function() {});
+      });
+      return Promise.all(promises);
+    })
+    .then(function() {
+      loaded = true;
+      var status = document.getElementById('search-status');
+      status.textContent = corpus.length + ' searchable items loaded across all issues.';
+      var q = document.getElementById('search-input').value;
+      if (q) doSearch(q);
+    })
+    .catch(function() {
+      loaded = true;
+      // Try loading just the latest report
+      fetch('data/report-latest.json')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          flattenReport(data, 'latest').forEach(function(item) { corpus.push(item); });
+          loaded = true;
+          document.getElementById('search-status').textContent = corpus.length + ' items loaded.';
+        })
+        .catch(function() {
+          document.getElementById('search-status').textContent = 'No issues available to search.';
+        });
+    });
+
+  var debounce;
+  document.getElementById('search-input').addEventListener('input', function(e) {
+    clearTimeout(debounce);
+    debounce = setTimeout(function() { doSearch(e.target.value); }, 250);
+  });
+</script>
+</body>
+</html>
