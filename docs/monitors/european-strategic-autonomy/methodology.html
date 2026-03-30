@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodology — European Geopolitical &amp; Hybrid Threat Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Methodology, source hierarchy, four-actor framework, and attribution standards for the European Geopolitical &amp; Hybrid Threat Monitor (EGHTM).">
+  <style>
+/* ============================================================
+   EGHTM Methodology — Asymmetric Intelligence
+   Self-contained design system
+   ============================================================ */
+
+/* ─── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
+/* ─── Design Tokens ─────────────────────────────────────────── */
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  --text-xs:   clamp(0.65rem, 0.6rem + 0.25vw, 0.72rem);
+  --text-sm:   clamp(0.78rem, 0.72rem + 0.3vw,  0.875rem);
+  --text-base: clamp(0.875rem, 0.82rem + 0.28vw, 1rem);
+  --text-md:   clamp(1rem, 0.92rem + 0.4vw, 1.125rem);
+  --text-lg:   clamp(1.1rem, 0.95rem + 0.75vw, 1.375rem);
+  --text-xl:   clamp(1.25rem, 1rem + 1.25vw, 1.75rem);
+  --text-2xl:  clamp(1.5rem, 1.1rem + 2vw, 2.25rem);
+
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-sm: 2px;
+  --radius:    4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Light mode */
+  --color-bg:            #f9f8f6;
+  --color-bg-alt:        #f0ede8;
+  --color-surface:       #ffffff;
+  --color-surface-raised:#fafaf8;
+  --color-border:        #d8d4cd;
+  --color-border-subtle: #e8e4de;
+
+  --color-text:          #1a1917;
+  --color-text-secondary:#5a564f;
+  --color-text-muted:    #8a857c;
+  --color-text-faint:    #b5b0a8;
+
+  /* Brand: deep navy-blue (geopolitical/strategic) */
+  --color-primary:       #1e3a5f;
+  --color-primary-mid:   #2a4f7a;
+  --color-primary-light: #e8eef6;
+  --color-primary-text:  #12243d;
+
+  --color-amber:         #b45309;
+  --color-amber-bg:      #fef3c7;
+  --color-amber-border:  #fcd34d;
+
+  --color-red:           #991b1b;
+  --color-red-bg:        #fef2f2;
+  --color-red-border:    #fca5a5;
+
+  --color-signal:        #1e5799;
+  --color-signal-bg:     #eff6ff;
+  --color-signal-border: #bfdbfe;
+
+  --shadow-sm:    0 1px 2px rgba(26,25,23,0.06);
+  --shadow:       0 2px 8px rgba(26,25,23,0.08);
+  --shadow-md:    0 4px 16px rgba(26,25,23,0.10);
+
+  --nav-height: 52px;
+}
+
+[data-theme="dark"] {
+  --color-bg:            #080e18;
+  --color-bg-alt:        #0d1421;
+  --color-surface:       #111d2e;
+  --color-surface-raised:#152030;
+  --color-border:        #1e2d3e;
+  --color-border-subtle: #162030;
+
+  --color-text:          #e2e8f0;
+  --color-text-secondary:#8fa3b8;
+  --color-text-muted:    #5a7090;
+  --color-text-faint:    #2a3a50;
+
+  --color-primary:       #3a7bc8;
+  --color-primary-mid:   #4a90de;
+  --color-primary-light: #0a1828;
+  --color-primary-text:  #93c5fd;
+
+  --color-amber:         #d97706;
+  --color-amber-bg:      #1c1200;
+  --color-amber-border:  #6b4c00;
+
+  --color-red:           #ef4444;
+  --color-red-bg:        #1c0a0a;
+  --color-red-border:    #7f1d1d;
+
+  --color-signal:        #38bdf8;
+  --color-signal-bg:     #021220;
+  --color-signal-border: #0c3a5a;
+
+  --shadow-sm:    0 1px 2px rgba(0,0,0,0.3);
+  --shadow:       0 2px 8px rgba(0,0,0,0.35);
+  --shadow-md:    0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* ─── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.65;
+  color: var(--color-text);
+  background: var(--color-bg);
+  transition: background 0.2s, color 0.2s;
+}
+a { color: var(--color-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { max-width: 100%; display: block; }
+ul, ol { padding-left: var(--space-6); }
+p + p { margin-top: var(--space-3); }
+strong { font-weight: 600; }
+
+/* ─── Navigation ─────────────────────────────────────────────── */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--nav-height);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-6);
+  gap: var(--space-6);
+}
+.site-nav__wordmark {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+.site-nav__wordmark span { color: var(--color-primary); }
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.site-nav__links a {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+}
+.site-nav__links a:hover,
+.site-nav__links a.active {
+  color: var(--color-text);
+  background: var(--color-bg-alt);
+}
+.site-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ─── Theme Toggle ───────────────────────────────────────────── */
+.theme-toggle-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  padding: 5px 7px;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+  width: 32px;
+  height: 28px;
+}
+.theme-toggle-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.theme-toggle-btn svg { width: 14px; height: 14px; display: block; }
+[data-theme="light"] .icon-moon { display: none; }
+[data-theme="dark"]  .icon-sun  { display: none; }
+
+/* ─── Page Wrapper ───────────────────────────────────────────── */
+.page-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-6) var(--space-16);
+}
+
+/* ─── Page Header ────────────────────────────────────────────── */
+.page-header {
+  padding: var(--space-10) 0 var(--space-10);
+  border-bottom: 2px solid var(--color-primary);
+  margin-bottom: var(--space-12);
+}
+.page-header__breadcrumb {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+.page-header__breadcrumb a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+.page-header__breadcrumb a:hover { color: var(--color-primary); }
+.page-header__breadcrumb span { color: var(--color-primary); }
+.page-header__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+.page-header__title {
+  font-family: var(--font-sans);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: var(--space-3);
+}
+.page-header__sub {
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+  font-weight: 300;
+  line-height: 1.6;
+  max-width: 640px;
+}
+
+/* ─── Section Label ──────────────────────────────────────────── */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+/* ─── Cards ──────────────────────────────────────────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+}
+.card__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
+}
+.card__title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+  line-height: 1.35;
+}
+.card__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+/* ─── Data Table ─────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.data-table th {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  background: var(--color-bg-alt);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+.data-table td {
+  padding: var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  vertical-align: top;
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ─── Badges ─────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+.badge--signal {
+  background: var(--color-signal-bg);
+  color: var(--color-signal);
+  border: 1px solid var(--color-signal-border);
+}
+.badge--muted {
+  background: var(--color-bg-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.badge--amber {
+  background: var(--color-amber-bg);
+  color: var(--color-amber);
+  border: 1px solid var(--color-amber-border);
+}
+.badge--red {
+  background: var(--color-red-bg);
+  color: var(--color-red);
+  border: 1px solid var(--color-red-border);
+}
+.badge--primary {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  border: 1px solid var(--color-signal-border);
+}
+
+/* ─── Actor Pills ─────────────────────────────────────────────── */
+.actor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+.actor-card {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border-left: 3px solid var(--color-primary);
+}
+.actor-card--ru { border-left-color: #dc2626; }
+.actor-card--cn { border-left-color: #d97706; }
+.actor-card--us { border-left-color: #1d4ed8; }
+.actor-card--il { border-left-color: #15803d; }
+.actor-card__code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-1);
+}
+.actor-card--ru .actor-card__code { color: #dc2626; }
+.actor-card--cn .actor-card__code { color: #d97706; }
+.actor-card--us .actor-card__code { color: #1d4ed8; }
+.actor-card--il .actor-card__code { color: #15803d; }
+.actor-card__name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+.actor-card__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+/* ─── Confidence Labels ──────────────────────────────────────── */
+.confidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+@media (max-width: 600px) {
+  .confidence-grid { grid-template-columns: 1fr; }
+}
+.conf-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+.conf-card__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  margin-bottom: var(--space-3);
+}
+.conf-card__label--possible {
+  background: var(--color-bg-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+.conf-card__label--probable {
+  background: var(--color-amber-bg);
+  color: var(--color-amber);
+  border: 1px solid var(--color-amber-border);
+}
+.conf-card__label--confirmed {
+  background: var(--color-red-bg);
+  color: var(--color-red);
+  border: 1px solid var(--color-red-border);
+}
+.conf-card__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* ─── Dimension Table ────────────────────────────────────────── */
+.dim-list {
+  list-style: none;
+  padding: 0;
+  margin-top: var(--space-4);
+}
+.dim-list li {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+  align-items: flex-start;
+}
+.dim-list li:last-child { border-bottom: none; }
+.dim-list__num {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-faint);
+  width: 2.2rem;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.dim-list__name {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  min-width: 180px;
+  flex-shrink: 0;
+}
+.dim-list__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* ─── Companion Monitor Cards ────────────────────────────────── */
+.companion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+.companion-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: block;
+}
+.companion-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow);
+  text-decoration: none;
+}
+.companion-card__tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
+}
+.companion-card__title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.35;
+  margin-bottom: var(--space-2);
+}
+.companion-card__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+/* ─── Callout ────────────────────────────────────────────────── */
+.callout {
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-signal-border);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+.callout strong { color: var(--color-text); }
+
+/* ─── Footer ─────────────────────────────────────────────────── */
+.site-footer {
+  background: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-12) 0 var(--space-8);
+  margin-top: var(--space-16);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: var(--space-8);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 540px) {
+  .footer-grid { grid-template-columns: 1fr; }
+}
+.footer-col__title {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+.footer-col ul { list-style: none; padding: 0; }
+.footer-col ul li { margin-bottom: var(--space-2); }
+.footer-col ul li a {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-col ul li a:hover { color: var(--color-primary); }
+.footer-wordmark {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-text);
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-3);
+}
+.footer-wordmark span { color: var(--color-primary); }
+.footer-desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  max-width: 260px;
+}
+.footer-bottom {
+  max-width: 1280px;
+  margin: var(--space-8) auto 0;
+  padding: var(--space-4) var(--space-6) 0;
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+/* ─── Utilities ──────────────────────────────────────────────── */
+.text-xs   { font-size: var(--text-xs); }
+.text-sm   { font-size: var(--text-sm); }
+.mono      { font-family: var(--font-mono); }
+.divider   { height: 1px; background: var(--color-border-subtle); margin: var(--space-6) 0; }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .actor-grid { grid-template-columns: 1fr 1fr; }
+  .dim-list__name { min-width: 130px; }
+}
+@media (max-width: 600px) {
+  .site-nav { padding: 0 var(--space-4); }
+  .site-nav__links { display: none; }
+  .page-wrapper { padding: var(--space-6) var(--space-4) var(--space-12); }
+  .actor-grid { grid-template-columns: 1fr; }
+  .dim-list li { flex-direction: column; gap: var(--space-1); }
+  .dim-list__num { width: auto; }
+  .dim-list__name { min-width: auto; }
+}
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a class="site-nav__wordmark" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 36 36" fill="none" style="vertical-align:middle;margin-right:6px;flex-shrink:0">
+      <rect x="3" y="3" width="30" height="30" rx="3" stroke="#1e3a5f" stroke-width="1.5" fill="none"/>
+      <rect x="8" y="8" width="8" height="8" rx="1" fill="#1e3a5f" opacity="0.9"/>
+      <rect x="20" y="8" width="8" height="8" rx="1" fill="#1e3a5f" opacity="0.6"/>
+      <rect x="8" y="20" width="8" height="8" rx="1" fill="#1e3a5f" opacity="0.6"/>
+      <rect x="20" y="20" width="8" height="8" rx="1" fill="#1e3a5f" opacity="0.3"/>
+      <line x1="12" y1="16" x2="12" y2="20" stroke="#1e3a5f" stroke-width="1.5"/>
+      <line x1="24" y1="16" x2="24" y2="20" stroke="#1e3a5f" stroke-width="1.5"/>
+      <line x1="16" y1="12" x2="20" y2="12" stroke="#1e3a5f" stroke-width="1.5"/>
+    </svg>ASYM<span>·</span>INTEL <span style="font-weight:300;opacity:0.5">/ European Strategic Autonomy</span></a>
+  <ul class="site-nav__links">
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="methodology.html" class="active">Methodology</a></li>
+  </ul>
+  <div class="site-nav__actions">
+    <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle dark mode">
+      <svg class="icon-sun" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="8" cy="8" r="3"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="8" y1="13" x2="8" y2="15"/>
+        <line x1="1" y1="8" x2="3" y2="8"/><line x1="13" y1="8" x2="15" y2="8"/>
+        <line x1="2.93" y1="2.93" x2="4.34" y2="4.34"/><line x1="11.66" y1="11.66" x2="13.07" y2="13.07"/>
+        <line x1="2.93" y1="13.07" x2="4.34" y2="11.66"/><line x1="11.66" y1="4.34" x2="13.07" y2="2.93"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M8 1a7 7 0 1 0 7 7A7 7 0 0 0 8 1zm0 13A6 6 0 1 1 12.93 3.07 7 7 0 0 0 8 14z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+
+  <div class="page-header">
+    <div class="page-header__breadcrumb">
+      <a href="https://asym-intel.info">ASYM·INTEL</a>
+      <span> / </span>
+      <a href="dashboard.html">European Strategic Autonomy</a>
+      <span> / </span>
+      Methodology
+    </div>
+    <div class="page-header__label">European Geopolitical &amp; Hybrid Threat Monitor · EGHTM</div>
+    <h1 class="page-header__title">Methodology</h1>
+    <p class="page-header__sub">Source hierarchy, four-actor framework, attribution confidence standards, and analytical dimensions. Coverage period: Q1 2026. Updated weekly, Sunday 20:00 Gibraltar time.</p>
+  </div>
+
+  <!-- 1. Editorial Standards -->
+  <section id="editorial" style="margin-bottom:var(--space-12)">
+    <div class="section-label">01 · Editorial Standards</div>
+    <div class="card" style="margin-bottom:var(--space-4)">
+      <div class="card__label">Editor &amp; Publisher</div>
+      <div class="card__title">Peter Howitt · asym-intel.info · Gibraltar</div>
+      <div class="card__body">
+        Peter Howitt is the editor of the European Geopolitical &amp; Hybrid Threat Monitor — Asymmetric Intelligence, published at <a href="https://asym-intel.info" target="_blank" rel="noopener">asym-intel.info</a>. He writes and advises on geopolitical strategy, hybrid warfare, intelligence operations, and European strategic autonomy. Based in Gibraltar.
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:var(--space-4)">
+      <div class="card__label">Inclusion Standard</div>
+      <div class="card__body">
+        An item is included in any analytical dimension if and only if: (1) it is new within the 7-day window or materially updates a tracked trend; (2) a senior policymaker, intelligence professional, or strategic analyst in the target audience would need to know about it; (3) it carries a primary or Tier 1–3 source link; and (4) it is not duplicated by another item in the same reporting period. There are no arbitrary item caps. If a threat dimension yields six signal-quality incidents in a week, all six are documented.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__label">Separation of Fact and Assessment</div>
+      <div class="card__body">
+        Factual reporting (what was observed, documented, or officially attributed) is always distinguished from analytical assessment (what the pattern implies, what the risk trajectory suggests). Attribution confidence labels — <strong>Possible</strong>, <strong>Probable</strong>, <strong>Confirmed</strong> — are applied to every claim involving actor attribution. Assessment language is explicit: phrases such as "assessed as," "probable indication of," or "consistent with documented doctrine" flag the analytical layer. Claims lacking a source chain are not published.
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Source Hierarchy -->
+  <section id="sources" style="margin-bottom:var(--space-12)">
+    <div class="section-label">02 · Source Hierarchy</div>
+    <div class="card" style="margin-bottom:var(--space-4)">
+      <div class="card__label">Five-Tier Intelligence Source Standard</div>
+      <div class="card__title">Each tier represents a distinct analytical lens</div>
+      <div class="card__body">
+        <p>The EGHTM operates a five-tier source hierarchy. Cross-referencing across tiers is standard practice: it exposes attribution gaps where institutional findings diverge from investigative ground truth. Where such gaps exist — for example, when investigative outlets name a perpetrator months before institutional bodies issue formal attribution — the gap itself is documented and analysed.</p>
+        <table class="data-table" style="margin-top:var(--space-5)">
+          <thead>
+            <tr>
+              <th style="width:3.5rem">Tier</th>
+              <th style="width:11rem">Category</th>
+              <th>Named Sources</th>
+              <th>Rule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--signal">T1</span></td>
+              <td class="text-sm"><strong>Institutional &amp; Diplomatic</strong></td>
+              <td class="text-sm">EEAS 4th FIMI Threat Report; NATO StratCom CoE Attribution Framework (IIAF); ENISA Threat Landscape; EU Hybrid Fusion Cell; European Commission policy documents; official national security assessments</td>
+              <td class="text-sm"><strong>Always use.</strong> Link directly to primary institutional source. Never cite press coverage of a document when the document itself is available.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--signal">T2</span></td>
+              <td class="text-sm"><strong>Real-Time Threat Data</strong></td>
+              <td class="text-sm">ACLED Conflict Index; GDELT Analysis Service; EEAS FIMI Explorer (interactive incident dashboard); Ukrainian General Staff daily loss data; OSC/FBIS monitoring services</td>
+              <td class="text-sm">Use when no Tier 1 document covers the specific incident or metric. Cross-reference against T1 where possible.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--muted">T3</span></td>
+              <td class="text-sm"><strong>Investigative &amp; Forensic</strong></td>
+              <td class="text-sm">Vsquare; Lighthouse Reports; Bellingcat; Politico (EU edition); Byline Times; IJ4EU; Mediapart; EUvsDisinfo; DFRLab; OCCRP</td>
+              <td class="text-sm">Primary use for incident attribution ahead of institutional acknowledgement. Attribution lag between T3 findings and T1 formal attribution is itself tracked as a methodological signal.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--muted">T4</span></td>
+              <td class="text-sm"><strong>Infrastructure &amp; Technical</strong></td>
+              <td class="text-sm">NetBlocks Europe (internet disruption); MarineTraffic Baltic Sea monitoring; Mandiant M-Trends; CrowdStrike Global Threat Report; Shodan; national CERTs</td>
+              <td class="text-sm">Use for cyber, infrastructure sabotage, and technical attribution. Combined with T3 for full incident picture.</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge--amber">T5</span></td>
+              <td class="text-sm"><strong>Strategic Defence Research</strong></td>
+              <td class="text-sm">Hybrid CoE (Helsinki); RUSI; DGAP; ECFR; IISS; Chatham House; Carnegie Europe; CIDOB (Barcelona); SWP; RAND Europe</td>
+              <td class="text-sm">Used for strategic framing, trend interpretation, and doctrine analysis. Named as T5 in citations. Not used as primary attribution for specific incidents.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="callout">
+      <strong>Attribution lag as a signal:</strong> Where Tier 3 investigative outlets have identified incidents or named perpetrators that Tier 1 institutional bodies have not yet formally acknowledged, the gap is documented explicitly. This pattern — illustrated by the GRU Parcel Bomb Network (Vsquare named GRU in September 2025; Eurojust confirmed publicly March 2026, approximately 18 months after the incidents) — reveals the political and evidentiary thresholds that delay official attribution. Both the investigative finding and the institutional silence are part of the analytical record.
+    </div>
+  </section>
+
+  <!-- 3. Four-Actor Framework -->
+  <section id="four-actor" style="margin-bottom:var(--space-12)">
+    <div class="section-label">03 · Four-Actor Framework</div>
+    <div class="card" style="margin-bottom:var(--space-4)">
+      <div class="card__label">Methodological Differentiator</div>
+      <div class="card__title">Expanding beyond the EEAS two-actor ceiling</div>
+      <div class="card__body">
+        <p>The EEAS Foreign Information Manipulation and Interference (FIMI) framework — as operationalised in successive annual threat reports and the FIMI Explorer incident database — formally tracks <strong>Russia and China only</strong>. This constraint is institutional and political, not analytical. It reflects the diplomatic parameters under which the EEAS operates, not the actual threat landscape facing European democratic institutions.</p>
+        <p style="margin-top:var(--space-3)">The EGHTM explicitly monitors FIMI and hybrid operations across four state actors. CIDOB (Barcelona Centre for International Affairs) has formally identified the EU's two-actor limitation as a critical analytical gap in published research. This monitor operationalises the correction.</p>
+        <div class="actor-grid" style="margin-top:var(--space-5)">
+          <div class="actor-card actor-card--ru">
+            <div class="actor-card__code">RU · Russia</div>
+            <div class="actor-card__name">Russian Federation</div>
+            <div class="actor-card__desc">Primary FIMI actor. GRU, FSB, SVR active operations. Active kinetic and hybrid war in Ukraine. 540 EEAS-documented incidents (4th Annual Report, Q1 2026). Full T1 institutional coverage.</div>
+          </div>
+          <div class="actor-card actor-card--cn">
+            <div class="actor-card__code">CN · China</div>
+            <div class="actor-card__name">People's Republic of China</div>
+            <div class="actor-card__desc">EEAS-tracked. CRI network amplification, influencer laundering, state media penetration. ECFR "Borrowed Mouths" report documents five core techniques. Growing European infrastructure investment leverage.</div>
+          </div>
+          <div class="actor-card actor-card--us">
+            <div class="actor-card__code">US · United States</div>
+            <div class="actor-card__name">United States of America</div>
+            <div class="actor-card__desc">Not tracked by EEAS. US NSS contains explicit interference doctrine. 2025–26 conduct includes: tariff coercion tied to regulatory compliance, Vance threats to NATO support over DSA enforcement, Big Tech allied with far-right MEPs, 66 multilateral withdrawals. Documented from Carnegie, ECFR, CIDOB, and national intelligence.</div>
+          </div>
+          <div class="actor-card actor-card--il">
+            <div class="actor-card__code">IL · Israel</div>
+            <div class="actor-card__name">State of Israel</div>
+            <div class="actor-card__desc">Not tracked by EEAS. Hasbara operations documented at $725M annual budget. Black Cube election interference operations documented. ELNET institutional lobbying network in EU. Operations documented from IJ4EU, Mediapart, DW Fact Check, and OCCRP investigations.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__label">Scope Boundary</div>
+      <div class="card__body">
+        This monitor covers European-theatre operations by these four actors: interference in EU member state democratic processes, hybrid attacks on EU/NATO infrastructure, legislative and regulatory capture, economic coercion affecting European strategic autonomy, and narrative operations targeting European public opinion. For global FIMI campaign attribution across all six actors (including Iran and Gulf states), actor doctrine, commercial cognitive warfare operators, and cross-jurisdictional platform responses, see the <a href="https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html" target="_blank" rel="noopener">Global FIMI &amp; Cognitive Warfare Monitor</a> — the dedicated hub monitor for FIMI intelligence across the asym-intel.info suite.
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Analytical Dimensions -->
+  <section id="dimensions" style="margin-bottom:var(--space-12)">
+    <div class="section-label">04 · Analytical Dimensions</div>
+    <div class="card">
+      <div class="card__label">Dashboard Sections &amp; Analytical Scope</div>
+      <div class="card__title">What this monitor tracks</div>
+      <div class="card__body">
+        <ul class="dim-list">
+          <li>
+            <span class="dim-list__num">S.01</span>
+            <span class="dim-list__name">Ukraine War Situation</span>
+            <span class="dim-list__desc">Front-line status, Russian military losses (Ukrainian General Staff primary source, cross-referenced ACLED), ceasefire framework tracking, NATO posture, nuclear doctrine signals. The Trump-Witkoff settlement framework is tracked as a European strategic risk event.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.02</span>
+            <span class="dim-list__name">FIMI Incident Tracking</span>
+            <span class="dim-list__desc">Cross-referenced to the EEAS 540-incident framework but expanded to cover all four actors. Each incident carries attribution confidence label and source tier. Incidents where T3 attribution precedes T1 formal acknowledgement are explicitly flagged.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.03</span>
+            <span class="dim-list__name">Election Threat Assessment</span>
+            <span class="dim-list__desc">Per-country risk ratings for EU member states with scheduled elections. Vectors assessed: FIMI operations, infrastructure attacks, financial flows to political actors, algorithmic amplification, and disinformation narrative seeding. Rating: Critical / High / Elevated / Monitored.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.04</span>
+            <span class="dim-list__name">State Capture Risk</span>
+            <span class="dim-list__desc">Tracked for six member states at elevated risk: HU (Hungary), GE (Georgia), SK (Slovakia), RS (Serbia), AT (Austria), CY (Cyprus). Dimensions: executive capture, judicial independence erosion, media control, foreign financial dependency, and veto leverage within EU institutions. Scoring model details are not published.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.05</span>
+            <span class="dim-list__name">Democratic Health Scoring</span>
+            <span class="dim-list__desc">1–10 composite score per tracked member state. Drawn from V-Dem, Freedom House, Reporters Without Borders, and Hybrid CoE data, supplemented by original analysis. Scores are directional indicators, not precision measurements.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.06</span>
+            <span class="dim-list__name">Network &amp; Infrastructure Analysis</span>
+            <span class="dim-list__desc">Hybrid attack networks: sabotage incidents, arson, subsea cable interference, cyberattacks on critical infrastructure. Baltic Sea monitoring (MarineTraffic). NetBlocks data for internet disruption events. CCD tracker: 151+ Russian-linked hybrid attacks across Europe since February 2022.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.07</span>
+            <span class="dim-list__name">EU Legislation Impact</span>
+            <span class="dim-list__desc">Impact scoring of major EU legislation (DSA, DMA, AI Act, NIS2, CER Directive, AI Liability Directive) across all four tracked actors. Assessed: compliance pressure, regulatory capture attempts, lobbying expenditure, and legal challenge vectors.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.08</span>
+            <span class="dim-list__name">Lagrange Point Framework</span>
+            <span class="dim-list__desc">Measures European strategic autonomy progress across five policy vectors: defence industrial base, energy independence, digital sovereignty, financial instruments, and diplomatic capability. Progress scored against threshold levels. Detailed weighting methodology is not published.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.09</span>
+            <span class="dim-list__name">Weekly Intelligence Brief</span>
+            <span class="dim-list__desc">Top 10 items selected by strategic significance across all dimensions. Ranking is editorial, not algorithmic. Each item carries source tier, attribution confidence (where applicable), and a one-sentence strategic significance statement. Published Sunday 20:00 Gibraltar time.</span>
+          </li>
+          <li>
+            <span class="dim-list__num">S.10</span>
+            <span class="dim-list__name">Strategic Response Tracking</span>
+            <span class="dim-list__desc">EU institutional responses: European Defence Fund allocations, PESCO developments, ReArm Europe mechanism, FIMI Deterrence Playbook implementation, counter-hybrid operations. NATO posture and Article 5 trigger thresholds. Member state defence spending trajectories.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Attribution Confidence -->
+  <section id="attribution" style="margin-bottom:var(--space-12)">
+    <div class="section-label">05 · Attribution Confidence</div>
+    <div class="card">
+      <div class="card__label">Three-Level Confidence Standard</div>
+      <div class="card__title">Applied to all actor attribution claims</div>
+      <div class="card__body">
+        <p>Every claim involving attribution of an operation, incident, or influence activity to a specific state actor carries an explicit confidence label. Labels reflect the evidentiary basis, not political sensitivity. An operation formally attributed by institutional sources may carry lower confidence than one with strong multi-source forensic documentation if the institutional attribution is itself contested or politically motivated.</p>
+        <div class="confidence-grid">
+          <div class="conf-card">
+            <div class="conf-card__label conf-card__label--possible">POSSIBLE</div>
+            <div class="conf-card__desc">Circumstantial indicators consistent with the actor's known doctrine, capability, and historical patterns. No direct forensic link. One or more plausible alternative attributions exist. Reported as: <em>"consistent with documented [actor] doctrine"</em> or <em>"assessed as possible [actor] operation."</em></div>
+          </div>
+          <div class="conf-card">
+            <div class="conf-card__label conf-card__label--probable">PROBABLE</div>
+            <div class="conf-card__desc">Multiple independent indicators converge. T3 forensic investigation and/or T4 technical analysis point to the actor. No formal T1 institutional attribution yet, or formal attribution is pending. Reported as: <em>"probable [actor] attribution"</em> or <em>"assessed as probable."</em></div>
+          </div>
+          <div class="conf-card">
+            <div class="conf-card__label conf-card__label--confirmed">CONFIRMED</div>
+            <div class="conf-card__desc">Formal T1 institutional attribution (EEAS, member state intelligence service, court proceeding, official sanctions listing) and/or independently corroborated forensic evidence. Reported as: <em>"confirmed [actor] attribution"</em> or citing the specific institutional finding by name and date.</div>
+          </div>
+        </div>
+        <p style="margin-top:var(--space-5)">Attribution labels are reviewed when new evidence emerges. Where a label is upgraded — for example, from Possible to Confirmed following a formal EEAS or Eurojust statement — the original assessment and the upgrading evidence are both retained in the record.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Coverage & Limitations -->
+  <section id="limitations" style="margin-bottom:var(--space-12)">
+    <div class="section-label">06 · Coverage &amp; Limitations</div>
+    <div class="card" style="margin-bottom:var(--space-4)">
+      <div class="card__label">Coverage Scope</div>
+      <div class="card__body">
+        <p><strong>Geographic scope:</strong> European Union member states and candidate countries; NATO European members; European Economic Area. Operations by tracked actors that originate externally but target European populations, institutions, or infrastructure.</p>
+        <p><strong>Temporal scope:</strong> Current coverage period is Q1 2026, with contextual references to earlier events where required for pattern analysis. The Ukraine war is tracked from February 2022 as the baseline strategic event. Update cadence is weekly; substantive breaking events trigger immediate annotation.</p>
+        <p><strong>Actor scope:</strong> Russia (RU), China (CN), United States (US), Israel (IL). These four actors are tracked for European-theatre operations. Other actors (Iran, Gulf states, domestic far-right networks) are referenced where they intersect with tracked actors or EU institutions, but are not primary tracking subjects of this monitor. See the Global FIMI &amp; Cognitive Warfare Monitor for full multi-actor coverage.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:var(--space-4)">
+      <div class="card__label">Stated Limitations</div>
+      <div class="card__body">
+        <p><strong>Open-source ceiling:</strong> This monitor uses exclusively open-source intelligence. Classified assessments from EU, NATO, or member state intelligence services are not available. Where classified products are referenced in published T1 sources (for example, the EU Hybrid Fusion Cell), the public summary is used.</p>
+        <p><strong>US and IL attribution gap:</strong> Because neither the United States nor Israel is formally tracked by EEAS or equivalent EU bodies, attribution for their operations relies predominantly on T3 investigative journalism and T5 strategic research, rather than T1 institutional sources. This asymmetry is disclosed where it affects confidence levels.</p>
+        <p><strong>Real-time data latency:</strong> The dashboard reflects the state of open-source data as of the most recent Sunday update cycle. Rapidly developing events (breaking military actions, major cyberattacks, election night interference incidents) may not be fully integrated until the following weekly update.</p>
+        <p><strong>Scoring model opacity:</strong> The Democratic Health Score (1–10), Lagrange Point Progress assessments, and State Capture risk ratings are composite editorial judgements drawing on the sources listed. The detailed weighting models are not published in order to prevent gaming. Direction and magnitude of change are more reliable than absolute scores.</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__label">What This Monitor Is Not</div>
+      <div class="card__body">
+        This is an open-source intelligence synthesis product, not a classified intelligence assessment, academic research output, or legal document. It does not carry the authority of an institutional attribution. Nothing in this monitor should be read as a finding of fact for legal or regulatory purposes. Users seeking institutional-grade attribution should consult the primary T1 sources cited.
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Companion Monitors -->
+  <section id="companions" style="margin-bottom:var(--space-12)">
+    <div class="section-label">07 · Companion Monitors</div>
+    <div class="card">
+      <div class="card__label">Asymmetric Intelligence Monitor Suite</div>
+      <div class="card__title">Cross-linked analytical coverage</div>
+      <div class="card__body">
+        <p>The EGHTM is one of four monitors published under the Asymmetric Intelligence brand at asym-intel.info. Each monitor covers a distinct analytical domain; they cross-link where coverage intersects.</p>
+        <div class="companion-grid">
+          <a class="companion-card" href="https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html" target="_blank" rel="noopener">
+            <div class="companion-card__tag">Hub Monitor</div>
+            <div class="companion-card__title">Global FIMI &amp; Cognitive Warfare Monitor</div>
+            <div class="companion-card__desc">Full actor attribution, campaign tracking, platform regulatory responses, and doctrinal frameworks — covering Russia, China, Iran, Gulf states, United States, and Israel globally. The dedicated hub for FIMI intelligence across the suite. This monitor's FIMI material cross-links here for depth.</div>
+          </a>
+          <a class="companion-card" href="https://asym-intel.info/monitors/ai-governance/dashboard.html" target="_blank" rel="noopener">
+            <div class="companion-card__tag">AI Governance Monitor</div>
+            <div class="companion-card__title">AI Frontier Monitor</div>
+            <div class="companion-card__desc">AI regulation, model frontier, military AI, investment, and governance — global weekly intelligence synthesis. Covers EU AI Act implementation, US–China AI competition, and AI in FIMI operations. Three-tier source standard.</div>
+          </a>
+          <a class="companion-card" href="https://asym-intel.info/monitors/democratic-integrity/dashboard.html" target="_blank" rel="noopener">
+            <div class="companion-card__tag">Democratic Integrity Monitor</div>
+            <div class="companion-card__title">World Democracy Monitor</div>
+            <div class="companion-card__desc">Democratic backsliding, rule of law trajectories, and institutional resilience globally. Provides the comparative democratic health baseline against which EGHTM state capture risk assessments are calibrated.</div>
+          </a>
+          <a class="companion-card" href="https://asym-intel.info/monitors/macro-monitor/dashboard.html" target="_blank" rel="noopener">
+            <div class="companion-card__tag">Macro Monitor</div>
+            <div class="companion-card__title">Geopolitical Macro Monitor</div>
+            <div class="companion-card__desc">Economic coercion instruments, sanctions architecture, trade dependencies, and financial warfare. Provides the economic sovereignty dimension that complements EGHTM's Lagrange Point strategic autonomy tracking.</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-wordmark">ASYM<span>·</span>INTEL</div>
+      <div class="footer-desc">European Geopolitical &amp; Hybrid Threat Monitor — Asymmetric Intelligence. Weekly. Open-source only.</div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__title">Monitor</div>
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="methodology.html">Methodology</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__title">Suite</div>
+      <ul>
+        <li><a href="https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html" target="_blank" rel="noopener">FIMI Monitor</a></li>
+        <li><a href="https://asym-intel.info/monitors/ai-governance/dashboard.html" target="_blank" rel="noopener">AI Monitor</a></li>
+        <li><a href="https://asym-intel.info/monitors/democratic-integrity/dashboard.html" target="_blank" rel="noopener">Democracy Monitor</a></li>
+        <li><a href="https://asym-intel.info/monitors/macro-monitor/dashboard.html" target="_blank" rel="noopener">Macro Monitor</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__title">Links</div>
+      <ul>
+        <li><a href="https://asym-intel.info" target="_blank" rel="noopener">asym-intel.info</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2025–2026 Peter Howitt, asym-intel.info</span>
+    <span>Gibraltar</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var btn = document.getElementById('theme-toggle');
+  var html = document.documentElement;
+  var stored = localStorage.getItem('eghtm-theme');
+  if (stored) html.setAttribute('data-theme', stored);
+  if (btn) {
+    btn.addEventListener('click', function(){
+      var current = html.getAttribute('data-theme') || 'light';
+      var next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('eghtm-theme', next);
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
