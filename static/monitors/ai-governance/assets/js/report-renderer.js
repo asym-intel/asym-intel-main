@@ -306,19 +306,21 @@ function renderM8_Military(data) {
   }).join('');
 }
 
-/* ── M09 — Law & Guidance ──────────────────────────────────── */
+/* ── M09 — Law & Litigation ──────────────────────────────────── */
 function renderM9(data) {
   const m = data.module_9;
   if (!m) return noContent();
   let html = '';
 
-  if (m.new_developments && m.new_developments.length) {
-    html += m.new_developments.map(function (item) {
+  function renderItemList(items, sectionLabel) {
+    if (!items || !items.length) return '';
+    let out = sectionLabel ? `<div class="section-label">${sectionLabel}</div>` : '';
+    out += items.map(function (item) {
       return `<div class="card">
-        <div class="card__label">${esc(item.jurisdiction || '')} · ${esc(item.domain || '')}</div>
+        <div class="card__label">${esc(item.jurisdiction || item.category || '')} · ${esc(item.domain || item.date || '')}</div>
         <div class="card__title">${esc(item.title)}</div>
         <div class="card__body">
-          ${esc(item.summary || '')} ${item.source_url ? sourceLink(item.source_label || 'Source', item.source_url) : ''}
+          ${esc(item.summary || '')} ${item.source_url ? sourceLink('Source', item.source_url) : ''}
           ${item.obligations ? `<br><strong>Obligations:</strong> ${esc(item.obligations)}` : ''}
           ${item.timeline ? `<br><strong>Timeline:</strong> ${esc(item.timeline)}` : ''}
         </div>
@@ -327,8 +329,23 @@ function renderM9(data) {
         ${item.asymmetric ? callout('Asymmetric Signal', esc(item.asymmetric), 'asymmetric') : ''}
       </div>`;
     }).join('');
+    return out;
   }
 
+  // Support both new schema (law_highlights / standards_highlights / litigation_highlights)
+  // and legacy schema (new_developments)
+  if (m.law_highlights && m.law_highlights.length) {
+    html += renderItemList(m.law_highlights, 'Law');
+  }
+  if (m.standards_highlights && m.standards_highlights.length) {
+    html += `<div class="divider"></div>` + renderItemList(m.standards_highlights, 'Standards');
+  }
+  if (m.litigation_highlights && m.litigation_highlights.length) {
+    html += `<div class="divider"></div>` + renderItemList(m.litigation_highlights, 'Litigation');
+  }
+  if (!m.law_highlights && m.new_developments && m.new_developments.length) {
+    html += renderItemList(m.new_developments, '');
+  }
   // EU AI Act Layered System
   if (m.eu_ai_act_layered) {
     const layers = m.eu_ai_act_layered;
