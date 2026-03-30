@@ -1,0 +1,66 @@
+name: Inject network bar into dashboards
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'static/monitors/**/dashboard.html'
+
+concurrency:
+  group: inject-network-bar
+  cancel-in-progress: false
+
+jobs:
+  inject:
+    name: Inject network bar
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Inject network bar into all dashboards
+        run: |
+          # Read the canonical network bar from the central source file
+          NETWORK_BAR=$(cat .github/network-bar.html)
+
+          CHANGED=0
+
+          for DASHBOARD in static/monitors/*/dashboard.html; do
+            if [ ! -f "$DASHBOARD" ]; then continue; fi
+
+            # Skip if bar already injected (idempotent)
+            if grep -q 'data-asym-network-bar' "$DASHBOARD"; then
+              echo "Bar already present in $DASHBOARD — skipping"
+              continue
+            fi
+
+            echo "Injecting network bar into $DASHBOARD"
+            # Insert network bar immediately after opening <body> tag
+            sed -i "s|<body>|<body>${NETWORK_BAR}|" "$DASHBOARD"
+            CHANGED=1
+          done
+
+          if [ "$CHANGED" -eq 0 ]; then
+            echo "No dashboards needed injection — skipping commit"
+            exit 0
+          fi
+
+      - name: Commit injected dashboards
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet static/monitors/; then
+            echo "No changes — skipping commit"
+          else
+            git add static/monitors/
+            git commit -m "build: inject network bar into dashboards [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
