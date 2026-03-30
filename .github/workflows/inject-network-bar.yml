@@ -35,10 +35,21 @@ jobs:
           for DASHBOARD in static/monitors/*/dashboard.html; do
             if [ ! -f "$DASHBOARD" ]; then continue; fi
 
-            # Skip if bar already injected (idempotent)
-            if grep -q 'data-asym-network-bar' "$DASHBOARD"; then
-              echo "Bar already present in $DASHBOARD — skipping"
+            # Skip if bar already injected with current version (position:fixed)
+            if grep -q 'data-asym-network-bar' "$DASHBOARD" && grep -q 'position:fixed' "$DASHBOARD"; then
+              echo "Bar already present (current version) in $DASHBOARD — skipping"
               continue
+            fi
+
+            # Remove old bar if present (e.g. old sticky version)
+            if grep -q 'data-asym-network-bar' "$DASHBOARD"; then
+              echo "Old bar found in $DASHBOARD — removing and re-injecting"
+              python3 -c "
+import sys, re
+with open('$DASHBOARD', 'r') as f: c = f.read()
+c = re.sub(r'(<style>body\{padding-top:40px!important\}</style>)?<nav data-asym-network-bar[^>]*>.*?</nav>', '', c, flags=re.DOTALL)
+with open('$DASHBOARD', 'w') as f: f.write(c)
+"
             fi
 
             echo "Injecting network bar into $DASHBOARD"
