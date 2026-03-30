@@ -25,42 +25,42 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Write strip helper script
+        run: |
+          cat > /tmp/strip_bar.py << 'EOF'
+import sys, re
+path = sys.argv[1]
+with open(path, 'r') as f:
+    c = f.read()
+pattern = r'(<style>body{padding-top:40px!important}</style>)?<nav data-asym-network-bar[^>]*>.*?</nav>'
+c = re.sub(pattern, '', c, flags=re.DOTALL)
+with open(path, 'w') as f:
+    f.write(c)
+EOF
+
       - name: Inject network bar into all dashboards
         run: |
-          # Read the canonical network bar from the central source file
           NETWORK_BAR=$(cat .github/network-bar.html)
-
           CHANGED=0
 
-          # Inject into dashboard.html OR index.html (whichever exists as entry point)
           for DASHBOARD in static/monitors/*/dashboard.html static/monitors/*/index.html; do
             if [ ! -f "$DASHBOARD" ]; then continue; fi
-            # Skip non-entry-point index.html files (only process monitor root index)
             if [[ "$DASHBOARD" == *"/index.html" ]]; then
               MONITOR_DIR=$(dirname "$DASHBOARD")
-              # Only process if this is a monitor with no separate dashboard.html
               if [ -f "${MONITOR_DIR}/dashboard.html" ]; then continue; fi
             fi
 
-            # Skip if bar already injected with current version (position:fixed)
             if grep -q 'data-asym-network-bar' "$DASHBOARD" && grep -q 'position:fixed' "$DASHBOARD"; then
               echo "Bar already present (current version) in $DASHBOARD — skipping"
               continue
             fi
 
-            # Remove old bar if present (e.g. old sticky version)
             if grep -q 'data-asym-network-bar' "$DASHBOARD"; then
               echo "Old bar found in $DASHBOARD — removing and re-injecting"
-              python3 -c "
-import sys, re
-with open('$DASHBOARD', 'r') as f: c = f.read()
-c = re.sub(r'(<style>body\{padding-top:40px!important\}</style>)?<nav data-asym-network-bar[^>]*>.*?</nav>', '', c, flags=re.DOTALL)
-with open('$DASHBOARD', 'w') as f: f.write(c)
-"
+              python3 /tmp/strip_bar.py "$DASHBOARD"
             fi
 
             echo "Injecting network bar into $DASHBOARD"
-            # Insert network bar immediately after opening <body> tag
             sed -i "s|<body>|<body>${NETWORK_BAR}|" "$DASHBOARD"
             CHANGED=1
           done
