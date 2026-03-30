@@ -1,7 +1,7 @@
 ---
 title: "Methodology — AI Governance Monitor"
 description: "Source standards, forensic filters, module guide, and editorial principles for the AI Governance Monitor."
-date: 2026-03-30
+date: 2020-01-01
 monitor: "ai-governance"
 type: "methodology"
 draft: false
