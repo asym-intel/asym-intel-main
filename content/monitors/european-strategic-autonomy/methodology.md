@@ -1,178 +1,204 @@
 ---
 title: "Methodology -- European Geopolitical & Hybrid Threat Monitor"
-description: "Analytical standards, source hierarchy, threat assessment criteria, and scope for the European Geopolitical & Hybrid Threat Monitor (EGHTM)."
+description: "Source hierarchy, four-actor framework, attribution confidence standards, and analytical dimensions for the European Geopolitical & Hybrid Threat Monitor (EGHTM)."
 date: 2026-03-30
 monitor: "european-strategic-autonomy"
 type: "methodology"
 draft: false
 ---
 
-This document sets out the analytical and epistemic standards governing the European Geopolitical & Hybrid Threat Monitor (EGHTM). It addresses how threat assessments are reached, what sources are consulted, how threat levels are assigned, and where the monitor's methodology departs from or extends existing institutional frameworks.
+# Methodology
 
-The document is intended as a standing reference for analysts, policymakers, and researchers who use or cite the monitor's output.
+Source hierarchy, four-actor framework, attribution confidence standards, and analytical dimensions. Coverage period: Q1 2026. Updated weekly, Wednesday 20:00 Gibraltar time.
 
----
+## 01 · Editorial Standards
 
-## Scope
+### Editor & Publisher
+Peter Howitt · asym-intel.info · Gibraltar
 
-The EGHTM monitors the hybrid threat landscape facing Europe across 19 analytical sections, covering:
+Peter Howitt is the editor of the European Geopolitical & Hybrid Threat Monitor — Asymmetric Intelligence, published at [asym-intel.info](https://asym-intel.info). He writes and advises on geopolitical strategy, hybrid warfare, intelligence operations, and European strategic autonomy. Based in Gibraltar.
 
-- **External threat actors**: Russia, China, United States, Israel -- assessed on FIMI operations, economic coercion, political interference, and military/security dimensions
-- **Ukraine war**: frontline, peace negotiations, military aid, air defence, energy, Black Sea, nuclear risk, EU accession
-- **Election integrity**: interference alerts across upcoming European elections, by actor and method
-- **Convergence analysis**: how threat actors reinforce each other
-- **State capture**: the process by which external powers achieve structural influence over EU member states
-- **Autocratic and far-right networks**: European parties, foreign supporters, coordination events, financial flows
-- **Foreign influence in EU legislation**: documented interference in specific legislative files
-- **Democratic health**: country-by-country scorecard across five metrics (speech, protest, judiciary, elections, media)
-- **Defence and strategic autonomy**: spending, capability gaps, Lagrange Point progress across energy, defence, tech, finance, materials, institutions
-- **360-degree intelligence tiers**: five-tier source framework from institutional through investigative to strategic
-- **EU institutional responses**: tracker of counter-measures and their implementation status
+### Inclusion Standard
 
-### Geographic scope
+An item is included in any analytical dimension if and only if: (1) it is new within the 7-day window or materially updates a tracked trend; (2) a senior policymaker, intelligence professional, or strategic analyst in the target audience would need to know about it; (3) it carries a primary or Tier 1–3 source link; and (4) it is not duplicated by another item in the same reporting period. There are no arbitrary item caps. If a threat dimension yields six signal-quality incidents in a week, all six are documented.
 
-European Union member states, EU candidate and associated countries (Western Balkans, Ukraine, Moldova, Georgia, Turkey), the United Kingdom, and -- where their actions directly target European institutions or territory -- Russia, China, the United States, and Israel.
+### Separation of Fact and Assessment
 
-### Temporal scope
+Factual reporting (what was observed, documented, or officially attributed) is always distinguished from analytical assessment (what the pattern implies, what the risk trajectory suggests). Attribution confidence labels — **Possible**, **Probable**, **Confirmed** — are applied to every claim involving actor attribution. Assessment language is explicit: phrases such as "assessed as," "probable indication of," or "consistent with documented doctrine" flag the analytical layer. Claims lacking a source chain are not published.
 
-The dashboard is maintained as a rolling intelligence product. Baseline data is Q1 2026 (October 2025 -- March 2026). The Weekly Intelligence Brief is updated every Wednesday. Structural sections (scorecards, threat actor assessments, strategic autonomy metrics) are updated when underlying data sources publish new indices or when significant developments warrant revision.
+## 02 · Source Hierarchy
 
----
+### Five-Tier Intelligence Source Standard
+Each tier represents a distinct analytical lens
 
-## Source Hierarchy
+The EGHTM operates a five-tier source hierarchy. Cross-referencing across tiers is standard practice: it exposes attribution gaps where institutional findings diverge from investigative ground truth. Where such gaps exist — for example, when investigative outlets name a perpetrator months before institutional bodies issue formal attribution — the gap itself is documented and analysed.
 
-The monitor uses a five-tier source hierarchy documented in the 360-degree Research & Intelligence Tiers section of the dashboard:
+| Tier | Category | Named Sources | Rule |
+|---|---|---|---|
+| T1 | **Institutional & Diplomatic** | EEAS 4th FIMI Threat Report; NATO StratCom CoE Attribution Framework (IIAF); ENISA Threat Landscape; EU Hybrid Fusion Cell; European Commission policy documents; official national security assessments | **Always use.** Link directly to primary institutional source. Never cite press coverage of a document when the document itself is available. |
+| T2 | **Real-Time Threat Data** | ACLED Conflict Index; GDELT Analysis Service; EEAS FIMI Explorer (interactive incident dashboard); Ukrainian General Staff daily loss data; OSC/FBIS monitoring services | Use when no Tier 1 document covers the specific incident or metric. Cross-reference against T1 where possible. |
+| T3 | **Investigative & Forensic** | Vsquare; Lighthouse Reports; Bellingcat; Politico (EU edition); Byline Times; IJ4EU; Mediapart; EUvsDisinfo; DFRLab; OCCRP | Primary use for incident attribution ahead of institutional acknowledgement. Attribution lag between T3 findings and T1 formal attribution is itself tracked as a methodological signal. |
+| T4 | **Infrastructure & Technical** | NetBlocks Europe (internet disruption); MarineTraffic Baltic Sea monitoring; Mandiant M-Trends; CrowdStrike Global Threat Report; Shodan; national CERTs | Use for cyber, infrastructure sabotage, and technical attribution. Combined with T3 for full incident picture. |
+| T5 | **Strategic Defence Research** | Hybrid CoE (Helsinki); RUSI; DGAP; ECFR; IISS; Chatham House; Carnegie Europe; CIDOB (Barcelona); SWP; RAND Europe | Used for strategic framing, trend interpretation, and doctrine analysis. Named as T5 in citations. Not used as primary attribution for specific incidents. |
 
-| Tier | Type | Function | Examples |
-|------|------|----------|----------|
-| 1 | Institutional & Diplomatic | Official attributions, security policy | EEAS FIMI Reports, NATO StratCom, ENISA, EU Hybrid Fusion Cell |
-| 2 | Real-Time Threat Data | Kinetic incidents, disinformation tracking | ACLED, GDELT, EEAS FIMI Explorer |
-| 3 | Investigative & Forensic Media | Digital forensics, follow-the-money | Bellingcat, Vsquare, Lighthouse Reports, Politico Europe, Byline Times |
-| 4 | Infrastructure & Technical | Sabotage, cyber, maritime monitoring | NetBlocks, MarineTraffic, Mandiant, CrowdStrike |
-| 5 | Strategic Defence Analysis | Foresight, NATO/EU coordination | Hybrid CoE, RUSI, DGAP |
+>
+**Attribution lag as a signal:** Where Tier 3 investigative outlets have identified incidents or named perpetrators that Tier 1 institutional bodies have not yet formally acknowledged, the gap is documented explicitly. This pattern — illustrated by the GRU Parcel Bomb Network (Vsquare named GRU in September 2025; Eurojust confirmed publicly March 2026, approximately 18 months after the incidents) — reveals the political and evidentiary thresholds that delay official attribution. Both the investigative finding and the institutional silence are part of the analytical record.
 
-**Attribution gaps** are documented where Tier 3 investigative sources have identified incidents or attributions that Tier 1 institutional sources have not yet formally acknowledged. These are flagged as "Critical Friction Notes" in the dashboard.
+## 03 · Four-Actor Framework
 
-### Source standards
+### Methodological Differentiator
+Expanding beyond the EEAS two-actor ceiling
 
-- All data is derived from open-source intelligence (OSINT). The monitor does not use or claim access to classified sources.
-- Primary sources (original reports, official statements, court filings) are preferred over secondary reporting.
-- Where sources conflict, the disagreement is noted and the higher-quality or more recently published source is given precedence, with reasoning stated.
-- Every factual claim in the Weekly Intelligence Brief is linked to at least one source URL.
-- Recency-focused queries are included in every research cycle to catch developments that invalidate older sources.
+The EEAS Foreign Information Manipulation and Interference (FIMI) framework — as operationalised in successive annual threat reports and the FIMI Explorer incident database — formally tracks **Russia and China only**. This constraint is institutional and political, not analytical. It reflects the diplomatic parameters under which the EEAS operates, not the actual threat landscape facing European democratic institutions.
 
----
+The EGHTM explicitly monitors FIMI and hybrid operations across four state actors. CIDOB (Barcelona Centre for International Affairs) has formally identified the EU's two-actor limitation as a critical analytical gap in published research. This monitor operationalises the correction.
 
-## Threat Assessment Criteria
+### RU · Russia
+Russian Federation
+Primary FIMI actor. GRU, FSB, SVR active operations. Active kinetic and hybrid war in Ukraine. 540 EEAS-documented incidents (4th Annual Report, Q1 2026). Full T1 institutional coverage.
 
-### Threat Actor Assessment
+### CN · China
+People's Republic of China
+EEAS-tracked. CRI network amplification, influencer laundering, state media penetration. ECFR "Borrowed Mouths" report documents five core techniques. Growing European infrastructure investment leverage.
 
-Each of the four tracked threat actors (Russia, China, United States, Israel) is assessed on:
+### US · United States
+United States of America
+Not tracked by EEAS. US NSS contains explicit interference doctrine. 2025–26 conduct includes: tariff coercion tied to regulatory compliance, Vance threats to NATO support over DSA enforcement, Big Tech allied with far-right MEPs, 66 multilateral withdrawals. Documented from Carnegie, ECFR, CIDOB, and national intelligence.
 
-- **Capability**: resources, infrastructure, and operational reach
-- **Intent**: stated doctrine, demonstrated patterns of behaviour, and institutional objectives
-- **Recent activity**: specific operations, campaigns, or actions documented in the assessment period
-- **Institutional impact**: measurable effects on EU decision-making, legislation, elections, or democratic institutions
+### IL · Israel
+State of Israel
+Not tracked by EEAS. Hasbara operations documented at $725M annual budget. Black Cube election interference operations documented. ELNET institutional lobbying network in EU. Operations documented from IJ4EU, Mediapart, DW Fact Check, and OCCRP investigations.
 
-Threat levels are assigned as:
+### Scope Boundary
 
-| Level | Criteria |
-|-------|----------|
-| CRITICAL | Active, large-scale operations with demonstrated institutional impact. Multiple simultaneous vectors. |
-| HIGH | Significant operations with documented intent and capability. Institutional impact present but not systemic. |
-| HIGH -- ESCALATING | As HIGH but with a documented upward trajectory in activity or capability. |
-| MODERATE | Documented capability and some operational activity. Institutional impact limited or indirect. |
+This monitor covers European-theatre operations by these four actors: interference in EU member state democratic processes, hybrid attacks on EU/NATO infrastructure, legislative and regulatory capture, economic coercion affecting European strategic autonomy, and narrative operations targeting European public opinion. For global FIMI campaign attribution across all six actors (including Iran and Gulf states), actor doctrine, commercial cognitive warfare operators, and cross-jurisdictional platform responses, see the [Global FIMI & Cognitive Warfare Monitor](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html) — the dedicated hub monitor for FIMI intelligence across the asym-intel.info suite.
 
-### State Capture Assessment
+## 04 · Analytical Dimensions
 
-The State Capture Tracker uses a 0-5 scale:
+### Dashboard Sections & Analytical Scope
+What this monitor tracks
 
-| Score | Definition |
-|-------|-----------|
-| 0 | No foreign capture |
-| 1 | Minor influence on specific files |
-| 2 | Significant influence on multiple policy areas |
-| 3 | Structural influence across institutions |
-| 4 | Substantial capture across institutions |
-| 5 | Near-complete capture (Hungary model) |
+- S.01
+Ukraine War Situation
+Front-line status, Russian military losses (Ukrainian General Staff primary source, cross-referenced ACLED), ceasefire framework tracking, NATO posture, nuclear doctrine signals. The Trump-Witkoff settlement framework is tracked as a European strategic risk event.
 
-Capture is assessed based on: FDI concentration, energy dependency, intelligence penetration, media ownership, political party funding, EU voting patterns (veto use), and legislative alignment with foreign actors' interests.
+- S.02
+FIMI Incident Tracking
+Cross-referenced to the EEAS 540-incident framework but expanded to cover all four actors. Each incident carries attribution confidence label and source tier. Incidents where T3 attribution precedes T1 formal acknowledgement are explicitly flagged.
 
-### Democratic Health Assessment
+- S.03
+Election Threat Assessment
+Per-country risk ratings for EU member states with scheduled elections. Vectors assessed: FIMI operations, infrastructure attacks, financial flows to political actors, algorithmic amplification, and disinformation narrative seeding. Rating: Critical / High / Elevated / Monitored.
 
-The Democratic Health Scorecard uses a 1-5 scale across five metrics, drawing from V-Dem Democracy Report, Freedom House Freedom in the World, RSF Press Freedom Index, and EU Rule of Law Reports:
+- S.04
+State Capture Risk
+Tracked for six member states at elevated risk: HU (Hungary), GE (Georgia), SK (Slovakia), RS (Serbia), AT (Austria), CY (Cyprus). Dimensions: executive capture, judicial independence erosion, media control, foreign financial dependency, and veto leverage within EU institutions. Scoring model details are not published.
 
-| Score | Definition |
-|-------|-----------|
-| 1 | Severe backsliding / near-autocracy |
-| 2 | Significant backsliding / major concern |
-| 3 | Moderate concern / mixed picture |
-| 4 | Minor concerns / broadly functional |
-| 5 | Strong democratic standard |
+- S.05
+Democratic Health Scoring
+1–10 composite score per tracked member state. Drawn from V-Dem, Freedom House, Reporters Without Borders, and Hybrid CoE data, supplemented by original analysis. Scores are directional indicators, not precision measurements.
 
-### Strategic Autonomy Assessment
+- S.06
+Network & Infrastructure Analysis
+Hybrid attack networks: sabotage incidents, arson, subsea cable interference, cyberattacks on critical infrastructure. Baltic Sea monitoring (MarineTraffic). NetBlocks data for internet disruption events. CCD tracker: 151+ Russian-linked hybrid attacks across Europe since February 2022.
 
-The Lagrange Point progress score (0-100%) is assessed across six dimensions: energy independence, defence industrial capacity, tech sovereignty, financial system independence, raw materials diversification, and institutional coherence. Each dimension is benchmarked against a defined target state representing genuine strategic independence. Trends are assessed as improving, stalling, or deteriorating.
+- S.07
+EU Legislation Impact
+Impact scoring of major EU legislation (DSA, DMA, AI Act, NIS2, CER Directive, AI Liability Directive) across all four tracked actors. Assessed: compliance pressure, regulatory capture attempts, lobbying expenditure, and legal challenge vectors.
 
----
+- S.08
+Lagrange Point Framework
+Measures European strategic autonomy progress across five policy vectors: defence industrial base, energy independence, digital sovereignty, financial instruments, and diplomatic capability. Progress scored against threshold levels. Detailed weighting methodology is not published.
 
-## The FIMI Structural Gap
+- S.09
+Weekly Intelligence Brief
+Top 10 items selected by strategic significance across all dimensions. Ranking is editorial, not algorithmic. Each item carries source tier, attribution confidence (where applicable), and a one-sentence strategic significance statement. Published Sunday 20:00 Gibraltar time.
 
-A defining methodological position of this monitor is the documentation of what it terms the "FIMI Structural Gap": the EU's FIMI framework (EEAS) formally tracks only Russian and Chinese actors. Despite documented US interference at comparable institutional scale and Israeli operations of comparable budget, neither has a formal FIMI tracking mechanism within EU institutions.
+- S.10
+Strategic Response Tracking
+EU institutional responses: European Defence Fund allocations, PESCO developments, ReArm Europe mechanism, FIMI Deterrence Playbook implementation, counter-hybrid operations. NATO posture and Article 5 trigger thresholds. Member state defence spending trajectories.
 
-This monitor applies the EEAS FIMI definition consistently to all actors whose operations meet the criteria, regardless of whether they fall within the EEAS institutional perimeter. US and Israeli threat assessments are compiled from non-EU sources: Carnegie Europe, ECFR surveys, IJ4EU/Mediapart investigations, CIDOB (Barcelona), DW Fact Check, Verfassungsblog, and national intelligence reporting.
+## 05 · Attribution Confidence
 
-CIDOB has formally identified this omission as a critical structural gap in EU counter-FIMI architecture. This monitor exists in part to fill it.
+Three-Level Confidence Standard
+Applied to all actor attribution claims
 
-For global FIMI campaign attribution across all six actors (including Iran and Gulf states), actor doctrine, and cross-jurisdictional framework tracking, the companion [Global FIMI & Cognitive Warfare Monitor](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html) provides dedicated coverage.
+Every claim involving attribution of an operation, incident, or influence activity to a specific state actor carries an explicit confidence label. Labels reflect the evidentiary basis, not political sensitivity. An operation formally attributed by institutional sources may carry lower confidence than one with strong multi-source forensic documentation if the institutional attribution is itself contested or politically motivated.
 
----
+POSSIBLE
+Circumstantial indicators consistent with the actor's known doctrine, capability, and historical patterns. No direct forensic link. One or more plausible alternative attributions exist. Reported as: *"consistent with documented [actor] doctrine"* or *"assessed as possible [actor] operation."*
 
-## Conceptual Frameworks
+PROBABLE
+Multiple independent indicators converge. T3 forensic investigation and/or T4 technical analysis point to the actor. No formal T1 institutional attribution yet, or formal attribution is pending. Reported as: *"probable [actor] attribution"* or *"assessed as probable."*
 
-### The Lagrange Point Thesis
+CONFIRMED
+Formal T1 institutional attribution (EEAS, member state intelligence service, court proceeding, official sanctions listing) and/or independently corroborated forensic evidence. Reported as: *"confirmed [actor] attribution"* or citing the specific institutional finding by name and date.
 
-The Strategic Autonomy Scorecard is informed by the analytical framework set out in the [Reckoning series](https://compossible.blog/2026/03/10/a-reckoning-european-strategy-for-an-unstable-world/): Europe must navigate a position of strategic independence between the US and China ("the Lagrange Point"), maintaining a better relationship with each superpower than they have with each other, while building the institutional architecture for genuine autonomy. The success metric: do the United States and China face genuine uncertainty about where Europe will land in a crisis?
+Attribution labels are reviewed when new evidence emerges. Where a label is upgraded — for example, from Possible to Confirmed following a formal EEAS or Eurojust statement — the original assessment and the upgrading evidence are both retained in the record.
 
-### The Power Playbook
+## 06 · Coverage & Limitations
 
-The Autocratic & Far-Right Networks section uses the conceptual framework from [The Power Playbook of the Right](https://compossible.blog/2025/10/14/the-new-playbook-of-power/): coordinated cross-border networks backed by state actors (Russia, Israel/Likud, US/MAGA), billionaires, and institutional vehicles capturing democratic institutions from within.
+Coverage Scope
 
-### The Backsliding-to-Capture Pipeline
+**Geographic scope:** European Union member states and candidate countries; NATO European members; European Economic Area. Operations by tracked actors that originate externally but target European populations, institutions, or infrastructure.
 
-The State Capture Tracker documents the sequence: media capture, judicial erosion, electoral manipulation, institutional capture, EU veto weaponisation. This pipeline is derived from the observed Hungarian case (2010-2022) and tested against other tracked states.
+**Temporal scope:** Current coverage period is Q1 2026, with contextual references to earlier events where required for pattern analysis. The Ukraine war is tracked from February 2022 as the baseline strategic event. Update cadence is weekly; substantive breaking events trigger immediate annotation.
 
----
+**Actor scope:** Russia (RU), China (CN), United States (US), Israel (IL). These four actors are tracked for European-theatre operations. Other actors (Iran, Gulf states, domestic far-right networks) are referenced where they intersect with tracked actors or EU institutions, but are not primary tracking subjects of this monitor. See the Global FIMI & Cognitive Warfare Monitor for full multi-actor coverage.
 
-## Update Cadence
+Stated Limitations
 
-| Component | Frequency |
-|-----------|-----------|
-| Weekly Intelligence Brief | Every Wednesday |
-| Timeline events | Every Wednesday |
-| Threat actor assessments | When significant developments warrant |
-| Democratic Health Scorecard | When new V-Dem, Freedom House, or RSF data is published |
-| Strategic Autonomy Scorecard | Quarterly or on significant policy developments |
-| State Capture Tracker | On significant capture developments (elections, vetoes, institutional changes) |
-| Intelligence Sources table | Static; reviewed quarterly |
-| 360-degree Intelligence Tiers | Static; source links updated when new reports are published |
+**Open-source ceiling:** This monitor uses exclusively open-source intelligence. Classified assessments from EU, NATO, or member state intelligence services are not available. Where classified products are referenced in published T1 sources (for example, the EU Hybrid Fusion Cell), the public summary is used.
 
----
+**US and IL attribution gap:** Because neither the United States nor Israel is formally tracked by EEAS or equivalent EU bodies, attribution for their operations relies predominantly on T3 investigative journalism and T5 strategic research, rather than T1 institutional sources. This asymmetry is disclosed where it affects confidence levels.
 
-## Limitations
+**Real-time data latency:** The dashboard reflects the state of open-source data as of the most recent Sunday update cycle. Rapidly developing events (breaking military actions, major cyberattacks, election night interference incidents) may not be fully integrated until the following weekly update.
 
-- This monitor relies exclusively on open-source intelligence. Classified intelligence products from EU INTCEN, national agencies, or Five Eyes partners are not available to this analysis.
-- Attribution confidence varies by actor. Russian operations benefit from extensive EU institutional tracking (EEAS, EUvsDisinfo). US and Israeli operations rely on investigative journalism and academic research with inherently less systematic coverage.
-- The Democratic Health Scorecard ratings involve analytical judgment informed by -- but not mechanically derived from -- the underlying indices. Reasonable analysts may disagree on individual country scores.
-- The Strategic Autonomy percentages are assessments, not measurements. They represent the analyst's judgment of progress toward a defined target state, informed by quantitative data but not reducible to a single formula.
-- The monitor is maintained by a single analytical team. Institutional monitors (EEAS, NATO, Hybrid CoE) have resources and access that this product does not replicate.
+**Scoring model opacity:** The Democratic Health Score (1–10), Lagrange Point Progress assessments, and State Capture risk ratings are composite editorial judgements drawing on the sources listed. The detailed weighting models are not published in order to prevent gaming. Direction and magnitude of change are more reliable than absolute scores.
 
----
+What This Monitor Is Not
 
-## Citation
+This is an open-source intelligence synthesis product, not a classified intelligence assessment, academic research output, or legal document. It does not carry the authority of an institutional attribution. Nothing in this monitor should be read as a finding of fact for legal or regulatory purposes. Users seeking institutional-grade attribution should consult the primary T1 sources cited.
 
-When citing this monitor, use: European Geopolitical & Hybrid Threat Monitor (EGHTM), [date of access], Asymmetric Intelligence, asym-intel.info.
+## 07 · Companion Monitors
 
----
+Asymmetric Intelligence Monitor Suite
+Cross-linked analytical coverage
 
-*Methodology document version 1.0. Last updated: 30 March 2026.*
+The EGHTM is one of four monitors published under the Asymmetric Intelligence brand at asym-intel.info. Each monitor covers a distinct analytical domain; they cross-link where coverage intersects.
+
+[
+Hub Monitor
+Global FIMI & Cognitive Warfare Monitor
+Full actor attribution, campaign tracking, platform regulatory responses, and doctrinal frameworks — covering Russia, China, Iran, Gulf states, United States, and Israel globally. The dedicated hub for FIMI intelligence across the suite. This monitor's FIMI material cross-links here for depth.
+](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html)
+[
+AI Governance Monitor
+AI Frontier Monitor
+AI regulation, model frontier, military AI, investment, and governance — global weekly intelligence synthesis. Covers EU AI Act implementation, US–China AI competition, and AI in FIMI operations. Three-tier source standard.
+](https://asym-intel.info/monitors/ai-governance/dashboard.html)
+[
+Democratic Integrity Monitor
+World Democracy Monitor
+Democratic backsliding, rule of law trajectories, and institutional resilience globally. Provides the comparative democratic health baseline against which EGHTM state capture risk assessments are calibrated.
+](https://asym-intel.info/monitors/democratic-integrity/dashboard.html)
+[
+Macro Monitor
+Geopolitical Macro Monitor
+Economic coercion instruments, sanctions architecture, trade dependencies, and financial warfare. Provides the economic sovereignty dimension that complements EGHTM's Lagrange Point strategic autonomy tracking.
+](https://asym-intel.info/monitors/macro-monitor/dashboard.html)
+
+(function(){
+var btn = document.getElementById('theme-toggle');
+var html = document.documentElement;
+var stored = localStorage.getItem('eghtm-theme');
+if (stored) html.setAttribute('data-theme', stored);
+if (btn) {
+btn.addEventListener('click', function(){
+var current = html.getAttribute('data-theme') || 'light';
+var next = current === 'dark' ? 'light' : 'dark';
+html.setAttribute('data-theme', next);
+localStorage.setItem('eghtm-theme', next);
+});
+}
+})();
