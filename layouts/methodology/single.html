@@ -1,0 +1,78 @@
+{{ define "main" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": {{ .Title | jsonify }},
+  "description": {{ with .Description }}{{ . | jsonify }}{{ else }}{{ .Summary | jsonify }}{{ end }},
+  "datePublished": "{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}",
+  "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
+  "url": "{{ .Permalink }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Asymmetric Intelligence",
+    "url": "https://asym-intel.info"
+  }
+}
+</script>
+
+<main class="methodology-page">
+  <div class="methodology-page__header">
+    <div class="container">
+      <div class="methodology-page__breadcrumb">
+        <a href="/monitors/">Monitors</a>
+        {{ with .Params.monitor }}
+        <span aria-hidden="true">·</span>
+        {{ with site.GetPage (printf "/monitors/%s" .) }}
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ end }}
+        {{ end }}
+        <span aria-hidden="true">·</span>
+        <span>Methodology</span>
+      </div>
+      <h1 class="methodology-page__title">{{ .Title }}</h1>
+      {{ with .Description }}
+        <p class="methodology-page__description">{{ . }}</p>
+      {{ end }}
+      <div class="methodology-page__meta">
+        <span>Last updated: <time datetime="{{ .Lastmod.Format "2006-01-02" }}">{{ .Lastmod.Format "2 January 2006" }}</time></span>
+        {{ with .Params.monitor }}
+        <a class="methodology-page__dashboard-link"
+           href="/monitors/{{ . }}/dashboard.html">View live dashboard →</a>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+
+  <div class="methodology-page__body">
+    <div class="methodology-page__inner">
+
+      {{/* Auto-generate table of contents from h2 headings */}}
+      {{ $headings := findRE `(?m)^## (.+)$` .RawContent }}
+      {{ if gt (len $headings) 3 }}
+      <nav class="methodology-toc" aria-label="Table of contents">
+        <h2 class="methodology-toc__heading">Contents</h2>
+        <ol class="methodology-toc__list">
+          {{ range $headings }}
+          {{ $title := . | replaceRE `^## ` "" }}
+          {{ $anchor := $title | lower | replaceRE `[^a-z0-9]+` "-" | strings.TrimRight "-" }}
+          <li><a href="#{{ $anchor }}">{{ $title }}</a></li>
+          {{ end }}
+        </ol>
+      </nav>
+      {{ end }}
+
+      <div class="methodology-body">
+        {{ .Content }}
+      </div>
+
+      <footer class="methodology-page__footer">
+        {{ with .Params.monitor }}
+        <a class="post__back" href="/monitors/{{ . }}/">← Back to {{ with site.GetPage (printf "/monitors/%s" .) }}{{ .Title }}{{ end }} briefings</a>
+        {{ end }}
+      </footer>
+
+    </div>
+  </div>
+</main>
+{{ end }}
