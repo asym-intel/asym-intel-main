@@ -1,5 +1,5 @@
 /* ============================================================
-   report-renderer.js — AI Frontier Monitor (asym-intel.info)
+   report-renderer.js — AI Governance Monitor (asym-intel.info)
    Renders all 15 modules from JSON into the report page.
    ============================================================ */
 
@@ -724,7 +724,7 @@ function renderReport(data) {
   // Update meta
   const meta = data.meta || {};
   const titleEl = document.getElementById('report-title');
-  if (titleEl) titleEl.textContent = 'AI Frontier Monitor — Issue ' + (meta.issue || '') + ' · ' + (meta.week_label || '');
+  if (titleEl) titleEl.textContent = 'AI Governance Monitor — Issue ' + (meta.issue || '') + ' · ' + (meta.week_label || '');
   const dateEl = document.getElementById('report-date');
   if (dateEl) dateEl.textContent = meta.published || '';
   const issueEl = document.getElementById('report-issue');
