@@ -1,7 +1,7 @@
 ---
 title: "Methodology — Strategic Conflict & Escalation Monitor"
 description: "How the Strategic Conflict & Escalation Monitor scores armed conflict trajectories and military escalation risks using a dual-dimension Level/Baseline/Deviation framework."
-date: 2026-03-30
+date: 2020-01-01
 monitor: "conflict-escalation"
 type: "methodology"
 draft: false
