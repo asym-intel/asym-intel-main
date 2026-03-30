@@ -1,0 +1,133 @@
+{{ define "main" }}
+
+{{/*
+  Monitors section index — /monitors/
+  Shows all monitor domains as cards, not a feed of posts.
+  Each card links to the monitor section and optionally the live dashboard.
+*/}}
+
+{{ $allMonitors := slice
+  (dict
+    "slug"        "european-strategic-autonomy"
+    "title"       "European Strategic Autonomy"
+    "day"         "Wednesday"
+    "description" "Hybrid threats, European defence, and the geopolitical contest over European strategic independence."
+    "abbr"        "ESA"
+    "dashboard"   "/monitors/european-strategic-autonomy/dashboard.html"
+  )
+  (dict
+    "slug"        "democratic-integrity"
+    "title"       "Democratic Integrity"
+    "day"         "Tuesday"
+    "description" "Weekly early-warning radar on democratic erosion, resilience, and state capture."
+    "abbr"        "WDM"
+    "dashboard"   "/monitors/democratic-integrity/dashboard.html"
+  )
+  (dict
+    "slug"        "macro-monitor"
+    "title"       "Macro Monitor"
+    "day"         "Monday"
+    "description" "Financial crisis early-warning system tracking debt, credit, market structure, and systemic risk."
+    "abbr"        "GMM"
+    "dashboard"   "/monitors/macro-monitor/dashboard.html"
+  )
+  (dict
+    "slug"        "ai-governance"
+    "title"       "AI Governance"
+    "day"         "Monday"
+    "description" "Regulatory frameworks, capability developments, and the governance contest over artificial intelligence."
+    "abbr"        "AIG"
+    "dashboard"   ""
+  )
+  (dict
+    "slug"        "illicit-finance"
+    "title"       "Illicit Finance & Financial Crime"
+    "day"         "Thursday"
+    "description" "Money laundering, sanctions evasion, kleptocracy networks, and financial crime enforcement."
+    "abbr"        "IFF"
+    "dashboard"   ""
+  )
+  (dict
+    "slug"        "global-governance"
+    "title"       "Global Governance Under Stress"
+    "day"         "Friday"
+    "description" "The fraying of multilateral institutions, international law, and the rules-based order."
+    "abbr"        "GGS"
+    "dashboard"   ""
+  )
+  (dict
+    "slug"        "rule-of-law"
+    "title"       "Rule of Law & Judicial Independence"
+    "day"         "Saturday"
+    "description" "Judicial independence, constitutional backsliding, and the weaponisation of legal systems."
+    "abbr"        "ROL"
+    "dashboard"   ""
+  )
+  (dict
+    "slug"        "technology-society"
+    "title"       "Philosophy & Politics of Technology"
+    "day"         "Sunday"
+    "description" "Power, ethics, and the political economy of technology — from AI to platform governance."
+    "abbr"        "TPS"
+    "dashboard"   ""
+  )
+}}
+
+<section class="monitors-index">
+  <div class="container">
+
+    <header class="monitors-index__header">
+      <h1 class="monitors-index__title">Monitors</h1>
+      <p class="monitors-index__description">
+        Eight domains. One structured briefing each, published weekly.
+        Each monitor tracks a distinct field of geopolitical, financial, and institutional risk.
+      </p>
+    </header>
+
+    <div class="monitor-directory">
+      {{ range $allMonitors }}
+      {{ $section := site.GetPage (printf "/monitors/%s" .slug) }}
+      {{ $latestPost := "" }}
+      {{ if $section }}
+        {{ with ($section.Pages.ByDate.Reverse | first 1) }}
+          {{ $latestPost = index . 0 }}
+        {{ end }}
+      {{ end }}
+
+      <article class="monitor-card-v2">
+        <div class="monitor-card-v2__top">
+          <div class="monitor-card-v2__abbr">{{ .abbr }}</div>
+          <div class="monitor-card-v2__day">{{ .day }}</div>
+        </div>
+
+        <h2 class="monitor-card-v2__title">
+          <a href="/monitors/{{ .slug }}/">{{ .title }}</a>
+        </h2>
+
+        <p class="monitor-card-v2__description">{{ .description }}</p>
+
+        {{ if $latestPost }}
+        <div class="monitor-card-v2__latest">
+          <span class="monitor-card-v2__latest-label">Latest</span>
+          <a class="monitor-card-v2__latest-link" href="{{ $latestPost.RelPermalink }}">
+            {{ $latestPost.Date.Format "2 Jan 2026" }}
+          </a>
+        </div>
+        {{ end }}
+
+        <div class="monitor-card-v2__actions">
+          <a class="monitor-card-v2__btn monitor-card-v2__btn--primary"
+             href="/monitors/{{ .slug }}/">Briefings</a>
+          {{ if .dashboard }}
+          <a class="monitor-card-v2__btn monitor-card-v2__btn--secondary"
+             href="{{ .dashboard }}">Live dashboard →</a>
+          {{ end }}
+        </div>
+      </article>
+      {{ end }}
+    </div>
+
+  </div>
+</section>
+
+{{ end }}

@@ -1,0 +1,51 @@
+{{ define "main" }}
+{{/* Individual monitor section — e.g. /monitors/european-strategic-autonomy/ */}}
+<main class="list">
+  <div class="container">
+
+    <header class="list__header">
+      <div class="topic__meta" style="margin-bottom:var(--space-4)">
+        <a class="topic__back" href="/monitors/">← All monitors</a>
+        {{ with .Params.publishDay }}
+          <span class="topic__cadence">Publishes every {{ . }}</span>
+        {{ end }}
+      </div>
+      <h1>{{ .Title }}</h1>
+      {{ with .Description }}
+        <p class="list__description">{{ . }}</p>
+      {{ end }}
+      {{ with site.GetPage (printf "/topics/%s" .File.Dir | strings.TrimSuffix "/") }}
+        <a class="topic__back" style="margin-top:var(--space-4);display:inline-block"
+           href="{{ .RelPermalink }}">Topic overview →</a>
+      {{ end }}
+    </header>
+
+    {{ $posts := .Pages.ByDate.Reverse }}
+    {{ if $posts }}
+      {{ range $posts }}
+        {{ if not .IsSection }}
+        <article class="feed-card">
+          <div class="feed-card__meta">
+            <time class="feed-card__date" datetime="{{ .Date.Format "2006-01-02" }}">
+              {{ .Date.Format "2 January 2006" }}
+            </time>
+          </div>
+          <h2 class="feed-card__title">
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          </h2>
+          {{ with .Params.summary }}
+            <p class="feed-card__summary">{{ . }}</p>
+          {{ end }}
+          <a class="feed-card__read-more" href="{{ .RelPermalink }}">Read briefing →</a>
+        </article>
+        {{ end }}
+      {{ end }}
+    {{ else }}
+      <p style="color:var(--color-text-muted);padding-block:var(--space-8)">
+        No briefings published yet. Check back soon.
+      </p>
+    {{ end }}
+
+  </div>
+</main>
+{{ end }}

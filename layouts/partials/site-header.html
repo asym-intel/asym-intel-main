@@ -1,0 +1,27 @@
+{{/*
+  site-header.html
+  Full site identity header — sits below the network bar.
+  Contains the wordmark, strapline, and main navigation.
+  Distinct from the network bar which is cross-site infrastructure.
+*/}}
+<header class="site-header">
+  <div class="site-header__inner">
+
+    <div class="site-header__brand">
+      <a class="site-header__wordmark" href="/">
+        <span class="site-header__word site-header__word--asym">Asymmetric</span><span class="site-header__word site-header__word--intel">Intelligence</span>
+      </a>
+      <span class="site-header__strapline">A public intelligence commons</span>
+    </div>
+
+    <nav class="site-header__nav" aria-label="Main navigation">
+      <a class="site-header__nav-link{{ if eq .Section "monitors" }} site-header__nav-link--active{{ end }}"
+         href="/monitors/">Monitors</a>
+      <a class="site-header__nav-link{{ if eq .Section "topics" }} site-header__nav-link--active{{ end }}"
+         href="/topics/">Topics</a>
+      <a class="site-header__nav-link{{ if eq .RelPermalink "/about/" }} site-header__nav-link--active{{ end }}"
+         href="/about/">About</a>
+    </nav>
+
+  </div>
+</header>
