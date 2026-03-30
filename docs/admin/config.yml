@@ -10,21 +10,21 @@ public_folder: "/images/uploads"
 collections:
 
   # ── Monitor briefings ──────────────────────────────────────────────────────
-  # One collection per monitor so each has its own labelled sidebar entry.
-  # Files land at: content/monitors/{monitor-slug}/YYYY-MM-DD-{title-slug}.md
 
-  - name: "ai-governance"
-    label: "AI Governance"
-    folder: "content/monitors/ai-governance"
+  - name: "european-strategic-autonomy"
+    label: "European Strategic Autonomy"
+    folder: "content/monitors/european-strategic-autonomy"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - {label: "Title", name: "title", widget: "string",
-         hint: "e.g. AI Governance — Week of 29 March 2026"}
+      - {label: "Title", name: "title", widget: "string"}
       - {label: "Date", name: "date", widget: "datetime"}
       - {label: "One-line Summary", name: "summary", widget: "text",
-         hint: "One sentence — appears on homepage feed card"}
+         hint: "One sentence — appears on homepage feed card and in email subject"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when shared on social media. Leave blank to use the site default."}
       - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Monitor", name: "monitor", widget: "hidden", default: "european-strategic-autonomy"}
       - {label: "Full Briefing", name: "body", widget: "markdown"}
 
   - name: "democratic-integrity"
@@ -37,12 +37,15 @@ collections:
       - {label: "Date", name: "date", widget: "datetime"}
       - {label: "One-line Summary", name: "summary", widget: "text",
          hint: "One sentence — appears on homepage feed card"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when shared on social media."}
       - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Monitor", name: "monitor", widget: "hidden", default: "democratic-integrity"}
       - {label: "Full Briefing", name: "body", widget: "markdown"}
 
-  - name: "european-strategic-autonomy"
-    label: "European Strategic Autonomy"
-    folder: "content/monitors/european-strategic-autonomy"
+  - name: "macro-monitor"
+    label: "Global Macro"
+    folder: "content/monitors/macro-monitor"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
@@ -50,12 +53,32 @@ collections:
       - {label: "Date", name: "date", widget: "datetime"}
       - {label: "One-line Summary", name: "summary", widget: "text",
          hint: "One sentence — appears on homepage feed card"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when shared on social media."}
       - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Monitor", name: "monitor", widget: "hidden", default: "macro-monitor"}
       - {label: "Full Briefing", name: "body", widget: "markdown"}
 
-  - name: "illicit-finance"
-    label: "Illicit Finance & Financial Crime"
-    folder: "content/monitors/illicit-finance"
+  - name: "ai-governance"
+    label: "AI Governance"
+    folder: "content/monitors/ai-governance"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string",
+         hint: "e.g. AI Governance — Week of 29 March 2026"}
+      - {label: "Date", name: "date", widget: "datetime"}
+      - {label: "One-line Summary", name: "summary", widget: "text",
+         hint: "One sentence — appears on homepage feed card"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when shared on social media."}
+      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Monitor", name: "monitor", widget: "hidden", default: "ai-governance"}
+      - {label: "Full Briefing", name: "body", widget: "markdown"}
+
+  - name: "fimi-cognitive-warfare"
+    label: "FIMI & Cognitive Warfare"
+    folder: "content/monitors/fimi-cognitive-warfare"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
@@ -63,12 +86,15 @@ collections:
       - {label: "Date", name: "date", widget: "datetime"}
       - {label: "One-line Summary", name: "summary", widget: "text",
          hint: "One sentence — appears on homepage feed card"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when shared on social media."}
       - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Monitor", name: "monitor", widget: "hidden", default: "fimi-cognitive-warfare"}
       - {label: "Full Briefing", name: "body", widget: "markdown"}
 
-  - name: "global-governance"
-    label: "Global Governance Under Stress"
-    folder: "content/monitors/global-governance"
+  - name: "environmental-risks"
+    label: "Environmental Risks & Planetary Boundaries"
+    folder: "content/monitors/environmental-risks"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
@@ -76,12 +102,15 @@ collections:
       - {label: "Date", name: "date", widget: "datetime"}
       - {label: "One-line Summary", name: "summary", widget: "text",
          hint: "One sentence — appears on homepage feed card"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when shared on social media."}
       - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Monitor", name: "monitor", widget: "hidden", default: "environmental-risks"}
       - {label: "Full Briefing", name: "body", widget: "markdown"}
 
-  - name: "rule-of-law"
-    label: "Rule of Law & Judicial Independence"
-    folder: "content/monitors/rule-of-law"
+  - name: "conflict-escalation"
+    label: "Strategic Conflict & Escalation"
+    folder: "content/monitors/conflict-escalation"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
@@ -89,46 +118,31 @@ collections:
       - {label: "Date", name: "date", widget: "datetime"}
       - {label: "One-line Summary", name: "summary", widget: "text",
          hint: "One sentence — appears on homepage feed card"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when shared on social media."}
       - {label: "Draft", name: "draft", widget: "boolean", default: false}
-      - {label: "Full Briefing", name: "body", widget: "markdown"}
-
-  - name: "technology-society"
-    label: "Philosophy & Politics of Technology"
-    folder: "content/monitors/technology-society"
-    create: true
-    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    fields:
-      - {label: "Title", name: "title", widget: "string"}
-      - {label: "Date", name: "date", widget: "datetime"}
-      - {label: "One-line Summary", name: "summary", widget: "text",
-         hint: "One sentence — appears on homepage feed card"}
-      - {label: "Draft", name: "draft", widget: "boolean", default: false}
+      - {label: "Monitor", name: "monitor", widget: "hidden", default: "conflict-escalation"}
       - {label: "Full Briefing", name: "body", widget: "markdown"}
 
   # ── Topic pages ────────────────────────────────────────────────────────────
   - name: "topics"
     label: "Topic Pages"
     folder: "content/topics"
-    create: false    # Topic pages are pre-created — edit only, not create
+    create: false
     fields:
       - {label: "Title", name: "title", widget: "string"}
       - {label: "Last Updated", name: "date", widget: "datetime"}
       - {label: "Connected Monitor", name: "relatedMonitor", widget: "string",
          hint: "Slug of the related monitor, e.g. ai-governance"}
       - {label: "Description", name: "description", widget: "text"}
+      - {label: "Featured Image (OG)", name: "image", widget: "image", required: false,
+         hint: "Optional. Shows when this topic page is shared on social."}
       - {label: "Content", name: "body", widget: "markdown"}
 
   # ── Site pages ─────────────────────────────────────────────────────────────
   - name: "pages"
     label: "Site Pages"
     files:
-      - label: "Homepage"
-        name: "home"
-        file: "content/_index.md"
-        fields:
-          - {label: "Title", name: "title", widget: "string"}
-          - {label: "Description", name: "description", widget: "text"}
-          - {label: "Content", name: "body", widget: "markdown"}
       - label: "About"
         name: "about"
         file: "content/about.md"
