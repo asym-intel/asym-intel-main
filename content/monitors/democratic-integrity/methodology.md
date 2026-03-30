@@ -1,7 +1,7 @@
 ---
 title: "Methodology — World Democracy Monitor"
 description: "How the monitor detects democratic backsliding using a five-tier source hierarchy, severity scoring rubric, and institutional integrity early-warning layer."
-date: 2026-03-30
+date: 2020-01-01
 monitor: "democratic-integrity"
 type: "methodology"
 draft: false
