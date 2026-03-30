@@ -1,5 +1,5 @@
 ---
-title: "AI Frontier Monitor — Week of 30 March 2026"
+title: "AI Governance Monitor — Week of 30 March 2026"
 date: 2026-03-30T09:00:00Z
 summary: "China's state formalisation of AI tokens as an economic settlement unit and OpenAI's compute reallocation from video synthesis to robotics pre-training are this week's two structural signals — geopolitical AI architecture is now being built in terminology committees as much as in data centers."
 draft: false
@@ -57,4 +57,4 @@ CISA added a CVSS 9.3 code injection flaw in Langflow (145k+ GitHub stars) to it
 
 ---
 
-*Full issue: [AI Frontier Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html)*
+*Full issue: [AI Governance Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html)*
