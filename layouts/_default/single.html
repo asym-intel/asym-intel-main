@@ -41,10 +41,10 @@
     <footer class="post__footer">
       <div class="post__footer-links">
         <a class="post__back" href="{{ .Parent.RelPermalink }}">← All {{ .Parent.Title }} briefings</a>
-        {{ with .Parent }}
-          {{ $dashURL := printf "/monitors/%s/dashboard.html" .File.Dir }}
-          {{ if (fileExists (printf "static/monitors/%s/dashboard.html" .File.Dir)) }}
-          <a class="post__dashboard-link" href="{{ $dashURL }}">View live dashboard →</a>
+        {{ with .Params.monitor }}
+          {{ $dashPath := printf "static/monitors/%s/dashboard.html" . }}
+          {{ if fileExists $dashPath }}
+          <a class="post__dashboard-link" href="/monitors/{{ . }}/dashboard.html">View live dashboard →</a>
           {{ end }}
         {{ end }}
       </div>
