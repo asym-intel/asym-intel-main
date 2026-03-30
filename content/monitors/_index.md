@@ -1,4 +1,5 @@
 ---
 title: "Monitors"
-description: "Seven domains. One weekly executive briefing each, published on a staggered schedule."
+description: "Eight domains. One structured briefing each, published weekly."
+layout: "list"
 ---
