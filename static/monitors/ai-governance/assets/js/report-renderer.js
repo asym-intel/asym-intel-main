@@ -656,10 +656,22 @@ function renderDeltaStrip(data) {
   if (!data.delta_strip || !data.delta_strip.length) return;
   const el = document.getElementById('delta-strip');
   if (!el) return;
-  el.innerHTML = `<div class="section-label">Δ Delta Strip — Key Changes from Last Issue</div>
-    <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
-      ${data.delta_strip.map(function (d) { return `<li>${esc(d)}</li>`; }).join('')}
-    </ul>`;
+  el.innerHTML = `<div class="section-label">Δ Top Signals This Issue</div>
+    <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+      ${data.delta_strip.map(function (d) {
+        // d is an object: { rank, title, module, delta_type, one_line }
+        if (typeof d === 'string') return `<div class="delta-item"><span class="delta-item__text">${esc(d)}</span></div>`;
+        return `<div class="delta-item" style="display:flex;gap:var(--space-3);align-items:baseline;padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">
+          <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-faint);min-width:1.8rem;flex-shrink:0">${esc(String(d.rank || ''))}</span>
+          <span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-primary);min-width:2.8rem;flex-shrink:0">${esc(d.module || '')}</span>
+          <span style="flex:1">
+            <strong style="font-size:var(--text-sm)">${esc(d.title || '')}</strong>
+            ${d.delta_type ? `<span style="font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-faint);margin-left:var(--space-2)">${esc(d.delta_type)}</span>` : ''}
+            ${d.one_line ? `<br><span style="font-size:var(--text-sm);color:var(--color-text-secondary)">${esc(d.one_line)}</span>` : ''}
+          </span>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 /* ── Render Map ─────────────────────────────────────────────── */
