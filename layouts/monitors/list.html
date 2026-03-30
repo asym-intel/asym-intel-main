@@ -107,7 +107,7 @@
       {{ $section := site.GetPage (printf "/monitors/%s" .slug) }}
       {{ $latestPost := "" }}
       {{ if $section }}
-        {{ with ($section.Pages.ByDate.Reverse | first 1) }}
+        {{ with (where $section.Pages "Type" "ne" "methodology" | sort "Date" | last 1) }}
           {{ $latestPost = index . 0 }}
         {{ end }}
       {{ end }}
