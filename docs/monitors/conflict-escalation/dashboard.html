@@ -204,7 +204,7 @@
       padding: 2px 6px;
       border-radius: 2px;
     }
-    .section { margin-bottom: 56px; scroll-margin-top: 90px; }
+    .section { margin-bottom: 56px; scroll-margin-top: 220px; }
 
     /* ── Conflict Overview Cards ── */
     .overview-grid {
@@ -1903,7 +1903,7 @@ navLinks.forEach(link => {
 });
 
 // IntersectionObserver: highlights nav link for whichever section is in view
-// rootMargin top = -90px (network bar 40px + sticky header ~50px)
+// rootMargin top = -220px (40px network bar + 172px sticky header + 8px breathing room)
 // rootMargin bottom = -60% so we only fire when section is near top of viewport
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -1914,7 +1914,7 @@ const observer = new IntersectionObserver((entries) => {
       });
     }
   });
-}, { rootMargin: '-90px 0px -60% 0px', threshold: 0 });
+}, { rootMargin: '-220px 0px -60% 0px', threshold: 0 });
 
 sections.forEach(s => observer.observe(s));
 </script>
