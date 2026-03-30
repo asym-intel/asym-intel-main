@@ -1,81 +1,77 @@
 ---
-title: "Strategic Conflict & Escalation Monitor — 30 March 2026"
-description: "Inaugural edition. Baselines established across 8 active conflicts. Sudan's RSF captures Kurmuk (73,000 displaced in single event) and SAF strikes Ed Daein Hospital, marking the highest acute escalation signal of the cycle."
+title: "Strategic Conflict & Escalation Monitor — W/E 30 March 2026"
 date: 2026-03-30T18:00:00Z
-monitor: "conflict-escalation"
-summary: "Inaugural edition. Baselines established across 8 active conflicts. Sudan's RSF captures Kurmuk (73,000 displaced in single event) and SAF strikes Ed Daein Hospital, marking the highest acute escalation signal of the cycle."
+summary: "Sudan drives the week's highest escalation signal — RSF capture of Kurmuk displaced 73,000 people in a single event, with indicators for rhetoric, economic warfare, diplomacy, and displacement all above initial baseline simultaneously."
 draft: false
+monitor: "conflict-escalation"
 ---
 
-**FIRST EDITION — Baselines Established. All entries: CONTESTED BASELINE (fewer than 12 observations).**
-
----
-
-## Escalation Overview
-
-| Conflict | Trajectory | Lead Signal |
-|---|---|---|
-| Russia–Ukraine War | **Escalating** | Russian mechanized assault tempo increased 17 March; spring offensive staging assessed by ISW; US-brokered Geneva talks stalled. |
-| Gaza / Israel–Hamas | Stable (low friction) | Post-Oct 2025 ceasefire holds; 689 Palestinian fatalities since ceasefire; humanitarian access degraded by regional escalation. |
-| Sudan Civil War | **Escalating** | RSF captures Kurmuk (24 March, 73,000 displaced); SAF airstrike on Ed Daein Hospital kills 70. No ceasefire mechanism active. |
-| Myanmar Civil War | **Escalating** | Junta parliament convenes for president election (30 March); Iranian jet fuel enables intensified air campaign against resistance. |
-| Haiti Political-Criminal | **Escalating** | Gangs control maritime/overland routes, 1 in 4 Haitians under gang territory; MSS→GSF transition creates security gap. |
-| DRC Eastern Theatre | **Escalating** | Doha ceasefire violated; M23 kamikaze drones on Kisangani command base; Washington Accords ratification pending parliament. |
-| Taiwan Strait / PRC | Stable | ODNI: PRC unlikely to invade Taiwan in 2027; PLA Type 055 air-defense live-fire; PRC-Japan tensions elevated post-Takaichi. |
-| Korean Peninsula | Stable (elevated) | Kim SPA (22 March): nuclear status "irreversible"; cruise missile and 600mm MRL tests conducted this month. |
+*Inaugural edition. All baselines are provisional (Contested Baseline status). Deviations will become analytically significant from week 13 onwards. Next edition: Sunday 5 April 2026.*
 
 ---
 
-## Red-Band and Amber-Band Highlights
+## Sudan Civil War — RSF captures Kurmuk, 73,000 displaced `ESCALATING`
 
-No indicators scored **Red band** (deviation ≥+2.5) in this inaugural edition. All entries carry the Contested Baseline flag, which prevents formal Red/Amber band assignment pending the 12-observation minimum. The following entries show positive deviations of +1 above initial baselines — assessed as the most significant escalation signals:
+RSF forces seized Kurmuk on 24 March, displacing 73,000 people in a single operational movement — the most significant kinetic event of the week and the highest multi-indicator deviation from initial baseline across all eight monitored conflicts. An SAF airstrike on Ed Daein Hospital (20 March) killed 70 civilians. Four of six indicators (I1 Rhetoric, I4 Economic Warfare, I5 Diplomatic, I6 Displacement) sit above initial baseline simultaneously. The Quad mediation framework (US/Saudi/UAE/Egypt) has been non-operational since September 2025; no ceasefire mechanism is active. Sudan now hosts the world's largest displacement crisis at 12M+ displaced.
 
-**Sudan — I1 Rhetoric (+1 above baseline, Probable):** Both SAF and RSF operating at mobilisation language level sustained; Chad border closure signals hostile regional spillover. Mutual drone strike attribution without forensic corroboration triggers a potential [F2 false-flag seeding watch](https://www.crisisgroup.org/africa/horn-africa/sudan) — both parties are attributing strikes to each other within tight time windows. Source: [ReliefWeb OCHA Sudan 24 March 2026](https://reliefweb.int/report/sudan/sudan-crisis-situation-analysis-period-090326-150326); [Al Jazeera 11 March](https://www.aljazeera.com/opinions/2026/3/11/sudans-devastating-war-rages-on-as-regional-rivalries-deepen).
-
-**Sudan — I4 Economic Warfare (+1 above baseline, Probable):** RSF capture of Heglig oil field (December 2025) halted Sudan oil production; UK sanctions on 6 individuals including RSF field commanders and Colombian mercenary recruiters confirmed 5 February. Source: [HM Treasury/Wikipedia Sudan 2026 timeline](https://en.wikipedia.org/wiki/Timeline_of_the_Sudanese_civil_war_(2026)).
-
-**Sudan — I5 Diplomatic (+1 above baseline, Probable):** No active ceasefire mechanism. Quad framework (US/Saudi/UAE/Egypt) collapsed post-September 2025. No mediating forum operational. Source: [Al Jazeera 11 March 2026](https://www.aljazeera.com/opinions/2026/3/11/sudans-devastating-war-rages-on-as-regional-rivalries-deepen).
-
-**Sudan — I6 Displacement (+1 above baseline, Probable):** Kurmuk offensive (24 March) displaced 73,000 in single event. Total 12M+ displaced — world's largest displacement crisis. *Data date: ~15 March 2026 (IOM lag est. 2–3 weeks).* Source: [ReliefWeb/DFS 24 March 2026](https://reliefweb.int/report/sudan/sudan-crisis-situation-analysis-period-090326-150326).
-
-**Myanmar — I2 Military Posture (+1 above baseline, Confirmed):** Iranian jet fuel deliveries (~175,000 tonnes Oct 2024–Dec 2025) enabling intensified air campaign; over 1,000 civilian locations struck in 15 months. Source: [Reuters 26 January 2026](https://www.reuters.com); [ACLED/Al Jazeera 27 March 2026](https://www.aljazeera.com/features/2026/3/27/who-is-fighting-in-myanmars-multi-front-civil-war).
-
-**Myanmar — I5 Diplomatic (+1 above baseline, Probable):** ASEAN refuses to endorse elections; no Five-Point Consensus implementation; China and Russia backing junta. No independent mediating channel. Source: [Reuters 30 January 2026](https://www.reuters.com/world/asia-pacific/myanmar-election-delivers-victory-military-backed-party-amid-civil-war-2026-01-30/).
-
-**Haiti — I2 Military Posture (+1 above baseline, Confirmed):** Gangs control maritime and overland supply routes; Artibonite and Centre departments penetrated; PMC drone/helicopter operations (targeted killings). 1 in 4 Haitians under gang control. Source: [OHCHR 24 March 2026](https://www.ohchr.org/en/press-releases/2026/03/gangs-expand-reach-haiti-amid-persistent-deadly-violence-un-human-rights); [UN News 24 March 2026](https://news.un.org/en/story/2026/03/1167188).
-
-**Haiti — I6 Displacement (+1 above baseline, Confirmed):** 1.4 million displaced; 24% increase from 6 months prior. *Data date: ~15 January 2026 (est. 6-week lag — note per methodology).* Source: [OHCHR 24 March 2026](https://www.ohchr.org/en/press-releases/2026/03/gangs-expand-reach-haiti-amid-persistent-deadly-violence-un-human-rights); [HRW World Report 2026](https://www.hrw.org/world-report/2026/country-chapters/haiti).
+[OCHA ReliefWeb, 24 March 2026](https://reliefweb.int) | [Al Jazeera, 11 March 2026](https://www.aljazeera.com)
 
 ---
 
-## Anti-Disinformation Flags (F1–F4)
+## Myanmar Civil War — Iranian jet fuel deliveries intensify junta air campaign `ESCALATING`
 
-**F4 — Gaza (I5 Diplomatic):** Ceasefire progress and disarmament plan claims originate from Israeli and US government sources (Tier 3). [OCHA oPt 27 March 2026](https://www.ochaopt.org/content/humanitarian-situation-report-27-march-2026) confirms 689 Palestinian fatalities since ceasefire announcement, 14 of 32 UN-coordinated humanitarian missions denied or impeded in the most recent reporting week. Score I5 at verified level (3), not claimed level.
+A Reuters investigation (26 January 2026) confirmed Iranian jet fuel deliveries sustaining the junta's air campaign, raising I2 (Military Posture) above the initial baseline. Over 96,000 people have been killed (ACLED) and 3.6M displaced since the 2021 coup. The junta parliament convened 30 March to elect a new president, signalling an attempt to institutionalise military rule through a managed civilian façade. ASEAN has refused to endorse the election; no independent mediation channel is active. Western sanctions remain targeted at individual level and are being circumvented via the Iran fuel route.
 
-**F4 — DRC (I5 Diplomatic):** Multiple ceasefire frameworks (Doha, Washington Accords) claimed simultaneously. MONUSCO ceasefire oversight mechanism is under construction per UNSC December 2025 mandate — verification infrastructure does not yet exist. Both DRC and M23 simultaneously accuse each other of violations. Source: [UNSC Security Council Report March 2026](https://www.securitycouncilreport.org/monthly-forecast/2026-03/democratic-republic-of-the-congo-33.php).
-
-**F2-adjacent — Sudan (I1/I2):** Mutual drone strike attribution without forensic corroboration; same pattern appears across SAF-affiliated and RSF-affiliated outlets in tight time windows. Referred to FIMI monitor for amplification analysis.
-
-**F4 Watch — Russia-Ukraine (I5 Diplomatic):** Kremlin signals negotiating willingness (Tier 3) while structurally blocking preconditions; Medvedev delegitimisation framing (19 March). No T2 corroboration of genuine negotiating intent. Score I5 at verified level (4). Source: [ISW 20 March 2026](https://understandingwar.org/research/russia-ukraine/russian-offensive-campaign-assessment-march-20-2026/).
+[Reuters, 26 January 2026](https://www.reuters.com) | [ACLED/Al Jazeera, 27 March 2026](https://acleddata.com)
 
 ---
 
-## Cross-Monitor Signals
+## Russia–Ukraine War — Spring offensive staging, mechanised assault tempo increase `ESCALATING`
 
-- **FIMI & Cognitive Warfare:** Sudan F2-adjacent mutual attribution; Gaza F4 ceasefire narrative; DRC F4 ceasefire narrative; Russia-Ukraine Kremlin delegitimisation framing
-- **European Geopolitical & Hybrid (EGHTM):** Russia spring offensive staging (I2); Geneva talks stalled with US attention diverted (I5); NATO eastern flank implications
-- **Ramparts Global Macro:** Sudan Heglig oil offline; Russia oil price windfall from Iran conflict; DRC coltan/Rubaya mine conflict financing
-- **Global Environmental Risks:** Sudan compound crisis (conflict + Sahel climate drivers); 24.6M food insecure
-- **World Democracy Monitor:** Myanmar presidential election 30 March — junta legitimation via electoral process under active conflict conditions (<90 days threshold met)
+Russian mechanised assault tempo increased since 17 March, consistent with pre-Spring offensive staging. Ukrainian forces gained approximately 400 km² in Dnipropetrovsk oblast. Russia launched 156 drones overnight 19–20 March. All six indicators sit at structural wartime norm (baseline = level, deviation = 0) — escalation signals this week are trajectory indicators rather than baseline deviations. **F4 WATCH**: Kremlin negotiating-willingness signals sourced from Russian state media (T3) only; no T2 corroboration of genuine intent.
+
+[ISW, 20 March 2026](https://www.understandingwar.org) | [Reuters, 10 March 2026](https://www.reuters.com)
 
 ---
 
-## Roster Watch
+## Gaza / Israel–Hamas — Ceasefire holds nominally; 689 fatalities since announcement `STABLE (ceasefire)`
 
-**Iran-US/Israel Conflict (not on roster):** Exerting second-order effects on all 8 monitored conflicts. US diplomatic bandwidth consumed; Israel focus shifted; Russia oil windfall; Middle East regional escalation degrading Gaza humanitarian access. Meets preliminary entry criteria threshold across I1/I2. Recommend consideration for roster addition at next quarterly review.
+The post-October 2025 ceasefire holds at low-level friction. OCHA confirms 689 Palestinian fatalities since the ceasefire announcement. IDF maintains 53–58% of Gaza territory. Regional escalation (Iran) has closed Gaza crossings and Zikim Crossing, restricting aid to below half-rations. **F4 FLAG**: Ceasefire and disarmament progress claims (Board of Peace plan, 8-month timeline) sourced primarily from Israeli and US officials; Hamas disarmament unverified. Displacement shows marginal negative deviation as limited Rafah returns begin — treat with caution given 4-week data lag.
 
-**Ethiopia Northern Theatre:** ACLED March 2026 reports significant force movements (ENDF, TDF, EDF) near Tselemt. Post-Pretoria Agreement (Nov 2022) ceasefire at risk. Not yet meeting dual-indicator threshold.
+[OCHA oPt, 27 March 2026](https://www.ochaopt.org) | [Security Council Report, March 2026](https://www.securitycouncilreport.org)
 
 ---
 
-*Methodology: [https://asym-intel.info/monitors/conflict-escalation/methodology/](https://asym-intel.info/monitors/conflict-escalation/methodology/) | Dashboard: [https://asym-intel.info/monitors/conflict-escalation/dashboard.html](https://asym-intel.info/monitors/conflict-escalation/dashboard.html)*
+## DRC — Eastern Theatre — Doha ceasefire violated; M23 drone strikes on Kisangani `ESCALATING`
+
+The Doha ceasefire is actively being violated. M23 conducted kamikaze drone strikes on the FARDC Kisangani command base. DRC parliament is moving to ratify the Washington Peace Accords (7 March), but MONUSCO's operational oversight mechanism is not yet functional. **F4 FLAG**: Multiple ceasefire frameworks claimed without operational verification; scored at verified level (Escalating) rather than claimed level. Washington Accords ratification is a positive signal but insufficient to change the trajectory assessment pending independent verification of implementation.
+
+[OCHA DRC, March 2026](https://www.unocha.org/drc) | [Reuters, March 2026](https://www.reuters.com)
+
+---
+
+## Haiti — Gangs control maritime and overland routes; 1-in-4 Haitians in gang territory `ESCALATING`
+
+UN OHCHR (24 March) reports gangs now control key maritime and overland routes, expanded into Artibonite and Centre departments. 1.4M displaced — a 24% increase — though a 6-week OCHA data lag means the current figure is likely higher. The transition from the Multinational Security Support mission (MSS) to a UN peacekeeping force (GSF) is creating a security gap that criminal groups are actively exploiting.
+
+[UN OHCHR, 24 March 2026](https://www.ohchr.org) | [OCHA Haiti, March 2026](https://reliefweb.int)
+
+---
+
+## Taiwan Strait / PRC–Taiwan — Stable; PRC drawing lessons from Iran conflict for air defence `STABLE`
+
+ODNI 2026 Threat Assessment assesses PRC invasion as unlikely before 2027. PLA air and naval pressure is maintained at baseline levels. PRC-Japan tensions elevated after PM Takaichi's Taiwan comments. Notably, China is drawing operational lessons from the Iran-Israel conflict for Type 055 destroyer air-defence posture — an I3-adjacent signal worth monitoring in coming weeks.
+
+[ODNI Annual Threat Assessment 2026](https://www.dni.gov) | [IISS, March 2026](https://www.iiss.org)
+
+---
+
+## Korean Peninsula — DPRK re-institutionalises "two hostile states" doctrine `STABLE (elevated posture)`
+
+DPRK Supreme People's Assembly (22 March) re-institutionalised the "two hostile states" doctrine; Kim declared nuclear status "irreversible." Multiple cruise missile and 600mm MRL tests occurred in March. Trump signalled willingness to meet Kim during a China trip but no policy shift has occurred and no back-channel is independently verified. The DPRK I3 baseline is structurally elevated; the doctrine re-institutionalisation is notable but does not yet deviate from the established high-posture pattern.
+
+[DPRK SPA statement, 22 March 2026 via Reuters](https://www.reuters.com) | [IISS Military Balance 2026](https://www.iiss.org)
+
+---
+
+*Cross-monitor signals this week: Sudan F2-adjacent drone attribution → FIMI monitor. Gaza F4 ceasefire framing → FIMI monitor. DRC F4 ceasefire framing → FIMI monitor. Kremlin F4 negotiating signals → FIMI monitor. Iran–US/Israel direct conflict flagged for potential roster addition (Roster Watch).*
