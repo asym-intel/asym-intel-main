@@ -20,7 +20,7 @@
       {{ end }}
     </header>
 
-    {{ $posts := .Pages.ByDate.Reverse }}
+    {{ $posts := (where .Pages "Type" "ne" "methodology").ByDate.Reverse }}
     {{ if $posts }}
       {{ range $posts }}
         {{ if not .IsSection }}
