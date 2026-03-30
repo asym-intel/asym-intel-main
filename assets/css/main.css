@@ -741,138 +741,247 @@ a:hover { color: var(--color-primary-hover); }
 .topic__feed-all:hover { color: var(--color-primary-hover); gap: 8px; }
 
 
-/* ── Topics index grid ───────────────────────────────────────────────────── */
-.topics-index { padding-block: var(--space-8) var(--space-16); }
-.topics-index__header {
-  margin-bottom: var(--space-6);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
+
+/* ── Topics News Front Page ──────────────────────────────────────────────── */
+.topics-news {
+  padding-block: var(--space-8) var(--space-16);
 }
-.topics-index__tagline {
-  color: var(--color-text-muted);
-  font-size: 0.95rem;
-  max-width: 64ch;
-}
-.topic-directory {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
-  gap: var(--space-5);
-}
-.topic-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-6);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  transition: box-shadow var(--t-base) ease, border-color var(--t-base) ease, transform var(--t-base) var(--ease);
-  position: relative;
-}
-.topic-card:hover {
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
-  border-color: var(--color-border-strong);
-  transform: translateY(-2px);
-}
-.topic-card__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.topic-card__logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: #0f172a;
-  border-radius: var(--radius-md);
+
+/* Domain colour chip — used by both lead and secondary */
+.tn-domain-chip {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--chip-colour, var(--color-primary));
+  border: 1px solid var(--chip-colour, var(--color-primary));
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  opacity: 0.9;
   flex-shrink: 0;
 }
-.topic-card__logo svg { display: block; }
-.topic-card__day {
-  font-size: 0.75rem;
+.tn-domain-chip--sm {
+  font-size: 0.6rem;
+  padding: 2px 6px;
+}
+
+/* ── Zone 1: Lead story ──────────────────────────────────────────────────── */
+.tn-lead {
+  padding-block: var(--space-8) var(--space-10);
+  border-bottom: 2px solid var(--color-border-strong);
+  margin-bottom: var(--space-8);
+}
+.tn-lead__inner {
+  max-width: 820px;
+}
+.tn-lead__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.tn-lead__date {
+  font-size: 0.78rem;
   color: var(--color-text-faint);
   font-weight: 500;
 }
-.topic-card__title {
+.tn-lead__title {
   font-family: var(--font-display);
-  font-size: clamp(1.1rem, 1rem + 0.3vw, 1.35rem);
+  font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.75rem);
   font-weight: 400;
-  line-height: 1.25;
-  margin-top: var(--space-1);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-5);
 }
-.topic-card__title a {
+.tn-lead__title a {
   color: var(--color-text);
   text-decoration: none;
   transition: color var(--t-fast) ease;
 }
-.topic-card__title a::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-xl);
-}
-.topic-card:hover .topic-card__title a { color: var(--color-primary); }
-.topic-card__description {
-  font-size: 0.9rem;
+.tn-lead__title a:hover { color: var(--color-primary); }
+.tn-lead__summary {
+  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.1rem);
   color: var(--color-text-muted);
-  line-height: 1.55;
-  flex: 1;
+  line-height: 1.65;
+  max-width: 72ch;
+  margin-bottom: var(--space-6);
 }
-.topic-card__latest {
+.tn-lead__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: color var(--t-fast) ease, gap var(--t-fast) ease;
+}
+.tn-lead__cta:hover {
+  color: var(--color-primary-hover);
+  gap: 10px;
+}
+
+/* ── Zone 2: Secondary stories ───────────────────────────────────────────── */
+.tn-secondary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-bottom: var(--space-10);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+@media (max-width: 720px) {
+  .tn-secondary { grid-template-columns: 1fr; }
+  .tn-story { border-right: none !important; border-bottom: 1px solid var(--color-border); }
+  .tn-story:last-child { border-bottom: none; }
+}
+.tn-story {
+  padding: var(--space-6) var(--space-6) var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: relative;
+}
+.tn-story:not(:last-child) {
+  border-right: 1px solid var(--color-border);
+  padding-right: var(--space-6);
+  margin-right: 0;
+}
+.tn-story:not(:first-child) {
+  padding-left: var(--space-6);
+}
+.tn-story__meta {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: 0.78rem;
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border);
-}
-.topic-card__latest-label {
-  color: var(--color-text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 0.65rem;
-  font-weight: 700;
-}
-.topic-card__latest-link {
-  color: var(--color-text-muted);
-  text-decoration: none;
-  position: relative;
-  z-index: 1;
-}
-.topic-card__latest-link:hover { color: var(--color-primary); }
-.topic-card__actions {
-  display: flex;
-  gap: var(--space-2);
   flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
 }
-.topic-card__btn {
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: var(--radius-md);
+.tn-story__date {
+  font-size: 0.72rem;
+  color: var(--color-text-faint);
+  font-weight: 500;
+}
+.tn-story__title {
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 0.9rem + 0.4vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.3;
+  flex: 1;
+}
+.tn-story__title a {
+  color: var(--color-text);
   text-decoration: none;
-  transition: background var(--t-fast) ease, color var(--t-fast) ease;
+  transition: color var(--t-fast) ease;
 }
-.topic-card__btn--primary {
-  background: var(--color-primary);
-  color: #fff;
+.tn-story__title a:hover { color: var(--color-primary); }
+.tn-story__summary {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
 }
-.topic-card__btn--primary:hover {
-  background: var(--color-primary-hover);
-  color: #fff;
-}
-.topic-card__btn--secondary {
-  background: transparent;
+.tn-story__cta {
+  font-size: 0.8rem;
+  font-weight: 700;
   color: var(--color-primary);
-  border: 1px solid var(--color-primary);
+  text-decoration: none;
+  margin-top: auto;
+  align-self: flex-start;
+  transition: color var(--t-fast) ease;
 }
-.topic-card__btn--secondary:hover {
-  background: var(--color-primary);
-  color: #fff;
+.tn-story__cta:hover { color: var(--color-primary-hover); }
+
+/* ── Zone 3: Domain index strip ──────────────────────────────────────────── */
+.tn-domains {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-8);
+}
+.tn-domains__heading {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  margin-bottom: var(--space-5);
+}
+.tn-domains__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.tn-domain-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  text-decoration: none;
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+  transition: background var(--t-fast) ease;
+  position: relative;
+}
+.tn-domain-row:last-child { border-bottom: none; }
+/* Remove bottom border on the last two items for 2-col layout */
+@media (min-width: 760px) {
+  .tn-domain-row:nth-last-child(-n+2) { border-bottom: none; }
+  /* Right column border */
+  .tn-domain-row:nth-child(odd) { border-right: 1px solid var(--color-border); }
+}
+.tn-domain-row:hover { background: var(--color-surface); }
+.tn-domain-row__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: #0f172a;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+.tn-domain-row__logo svg { display: block; }
+.tn-domain-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.tn-domain-row__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tn-domain-row__desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tn-domain-row__arrow {
+  font-size: 0.9rem;
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+  transition: color var(--t-fast) ease, transform var(--t-fast) var(--ease);
+}
+.tn-domain-row:hover .tn-domain-row__arrow {
+  color: var(--color-primary);
+  transform: translateX(3px);
 }
 
 /* ── Topic single page — content grid ───────────────────────────────────── */
