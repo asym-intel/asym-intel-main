@@ -1,0 +1,85 @@
+name: Compress large images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'static/images/uploads/**'
+
+jobs:
+  compress:
+    name: Compress images over 500KB
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install image tools
+        run: |
+          sudo apt-get install -y webp imagemagick --quiet
+
+      - name: Compress large images
+        run: |
+          CHANGED=0
+          THRESHOLD=512000  # 500KB in bytes
+
+          find static/images/uploads -type f \( \
+            -iname "*.webp" -o \
+            -iname "*.jpg"  -o \
+            -iname "*.jpeg" -o \
+            -iname "*.png" \
+          \) | while read FILE; do
+            SIZE=$(stat -c%s "$FILE")
+            if [ "$SIZE" -le "$THRESHOLD" ]; then
+              echo "OK ($(( SIZE / 1024 ))KB): $FILE"
+              continue
+            fi
+
+            EXT="${FILE##*.}"
+            EXT_LOWER=$(echo "$EXT" | tr '[:upper:]' '[:lower:]')
+            BEFORE_KB=$(( SIZE / 1024 ))
+
+            case "$EXT_LOWER" in
+              webp)
+                TMP="${FILE}.tmp.webp"
+                cwebp -q 82 -resize 1600 0 "$FILE" -o "$TMP" -quiet
+                mv "$TMP" "$FILE"
+                ;;
+              jpg|jpeg)
+                TMP="${FILE}.tmp.jpg"
+                convert "$FILE" -resize "1600x>" -quality 82 "$TMP"
+                mv "$TMP" "$FILE"
+                ;;
+              png)
+                TMP="${FILE}.tmp.png"
+                convert "$FILE" -resize "1600x>" "$TMP"
+                mv "$TMP" "$FILE"
+                ;;
+            esac
+
+            AFTER_KB=$(( $(stat -c%s "$FILE") / 1024 ))
+            echo "Compressed: $FILE  ${BEFORE_KB}KB → ${AFTER_KB}KB"
+            CHANGED=1
+          done
+
+          echo "CHANGED=$CHANGED" >> $GITHUB_ENV
+
+      - name: Commit compressed images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet static/images/uploads/; then
+            echo "No images needed compression"
+          else
+            git add static/images/uploads/
+            git commit -m "perf: auto-compress images over 500KB [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
