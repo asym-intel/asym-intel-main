@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<!-- Perplexity Computer Attribution — SEO Meta Tags -->
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIMI Monitor — Global FIMI &amp; Cognitive Warfare Monitor</title>
+<meta name="description" content="Q1 2026 Intelligence Synthesis — Open-source intelligence tracking Foreign Information Manipulation and Interference (FIMI) as a global cross-actor doctrine.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+<style>
+/* ====================== CSS RESET & VARIABLES ====================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Threat severity — per task spec */
+  --critical: #dc2626;
+  --critical-bg: rgba(220, 38, 38, 0.12);
+  --high: #ea580c;
+  --high-bg: rgba(234, 88, 12, 0.12);
+  --moderate: #ca8a04;
+  --moderate-bg: rgba(202, 138, 4, 0.12);
+  --positive: #16a34a;
+  --positive-bg: rgba(22, 163, 74, 0.12);
+  --accent: #0284c7;
+
+  --sidebar-width: 240px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ====================== LIGHT THEME (DEFAULT) ====================== */
+[data-theme="light"] {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-input: #e2e8f0;
+  --border: #cbd5e1;
+  --border-light: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --text-muted: #94a3b8;
+  --accent: #0284c7;
+  --accent-hover: #0369a1;
+  --accent-bg: rgba(2, 132, 199, 0.06);
+  --sidebar-bg: #0f172a;
+  --sidebar-border: #1e293b;
+  --sidebar-active: rgba(56, 189, 248, 0.15);
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #e8eaed;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-track: #f1f5f9;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --panel-bg: #f0f7ff;
+  --panel-border: #bfdbfe;
+  --warn-bg: #fffbeb;
+  --warn-border: #fcd34d;
+}
+
+/* ====================== DARK THEME ====================== */
+[data-theme="dark"] {
+  --bg-primary: #0f1729;
+  --bg-secondary: #1a2332;
+  --bg-tertiary: #1e2a3a;
+  --bg-card: #1a2332;
+  --bg-card-hover: #1e2a3a;
+  --bg-input: #243044;
+  --border: #2a3a4e;
+  --border-light: #1e2f44;
+  --text-primary: #e8eaed;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+  --accent: #38bdf8;
+  --accent-hover: #0ea5e9;
+  --accent-bg: rgba(56, 189, 248, 0.08);
+  --sidebar-bg: #0d1321;
+  --sidebar-border: #1a2744;
+  --sidebar-active: rgba(56, 189, 248, 0.1);
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #e8eaed;
+  --scrollbar-thumb: #2a3a4e;
+  --scrollbar-track: #0f1729;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --panel-bg: #111d2e;
+  --panel-border: #1e3a5f;
+  --warn-bg: #1c1700;
+  --warn-border: #713f12;
+}
+
+/* ====================== BASE STYLES ====================== */
+html { scroll-behavior: smooth; font-variant-numeric: tabular-nums lining-nums; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* ====================== LAYOUT ====================== */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ====================== SIDEBAR ====================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s var(--ease);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-header {
+  padding: var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.sidebar-logo { width: 36px; height: 36px; flex-shrink: 0; }
+
+.sidebar-mark {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: #f1f3f5;
+  letter-spacing: 1.5px;
+  line-height: 1.2;
+}
+
+.sidebar-mark small {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: #8899aa;
+  margin-top: 1px;
+}
+
+.sidebar-nav { flex: 1; padding: var(--space-3) var(--space-2); }
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #8899aa;
+  padding: var(--space-4) var(--space-3) var(--space-1);
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: 6px;
+  color: #b0bec5;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s var(--ease);
+  margin-bottom: 1px;
+}
+
+.nav-link:hover { background: var(--sidebar-active); color: #f1f3f5; }
+.nav-link.active { background: var(--sidebar-active); color: #5cc8f0; }
+.nav-link svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.75; }
+.nav-link.active svg { opacity: 1; }
+
+.sidebar-footer {
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.sidebar-footer-text { font-size: 10px; color: #8899aa; font-family: var(--font-mono); }
+
+/* ====================== MAIN CONTENT ====================== */
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  min-width: 0;
+  transition: margin-left 0.3s var(--ease);
+}
+
+/* ====================== HEADER BAR ====================== */
+.header-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-3) var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+}
+
+.header-left h1 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.header-left .subtitle { font-size: 11px; color: var(--text-secondary); font-weight: 400; }
+
+.header-right { display: flex; align-items: center; gap: var(--space-4); }
+
+.last-updated { font-family: var(--font-mono); font-size: 11px; color: var(--text-tertiary); }
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--positive);
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--positive);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  cursor: pointer;
+  gap: 2px;
+}
+
+.theme-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 5px;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  transition: all 0.2s var(--ease);
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle-btn.active { background: var(--accent-bg); color: var(--accent); }
+
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+  color: var(--text-primary);
+}
+
+.hamburger svg { width: 22px; height: 22px; }
+
+/* ====================== CONTENT AREA ====================== */
+.content-area { padding: var(--space-6); max-width: 1400px; }
+
+.section { margin-bottom: var(--space-10); scroll-margin-top: 64px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.section-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+
+.section-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.badge-section-critical { background: var(--critical-bg); color: var(--critical); border: 1px solid rgba(220,38,38,0.3); }
+.badge-section-high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(234,88,12,0.3); }
+.badge-section-moderate { background: var(--moderate-bg); color: var(--moderate); border: 1px solid rgba(202,138,4,0.3); }
+.badge-section-info { background: var(--accent-bg); color: var(--accent); border: 1px solid rgba(2,132,199,0.3); }
+.badge-section-positive { background: var(--positive-bg); color: var(--positive); border: 1px solid rgba(22,163,74,0.3); }
+
+/* ====================== KPI CARDS ====================== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); margin-bottom: var(--space-5); }
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-4);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s var(--ease);
+}
+
+.kpi-card:hover { background: var(--bg-card-hover); border-color: var(--text-tertiary); }
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+
+.kpi-card.severity-critical::before { background: var(--critical); }
+.kpi-card.severity-high::before { background: var(--high); }
+.kpi-card.severity-moderate::before { background: var(--moderate); }
+.kpi-card.severity-positive::before { background: var(--positive); }
+.kpi-card.severity-info::before { background: var(--accent); }
+
+.kpi-label { font-size: 11px; font-weight: 500; color: var(--text-secondary); margin-bottom: var(--space-2); line-height: 1.3; }
+
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: var(--space-1);
+}
+
+.kpi-delta { font-family: var(--font-mono); font-size: 11px; font-weight: 500; }
+.kpi-delta.critical { color: var(--critical); }
+.kpi-delta.high { color: var(--high); }
+.kpi-delta.moderate { color: var(--moderate); }
+.kpi-delta.positive { color: var(--positive); }
+.kpi-delta.info { color: var(--accent); }
+
+/* ====================== WARN / INFO PANELS ====================== */
+.warn-panel {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-left: 4px solid var(--moderate);
+  border-radius: 8px;
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+}
+
+.warn-panel.info {
+  background: var(--panel-bg);
+  border-color: var(--panel-border);
+  border-left-color: var(--accent);
+}
+
+.warn-panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--moderate);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+.warn-panel.info .warn-panel-title { color: var(--accent); }
+
+.warn-panel-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ====================== TABLES ====================== */
+.table-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+.data-table thead { background: var(--bg-tertiary); }
+
+.data-table th {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: top;
+  color: var(--text-secondary);
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--accent-bg); }
+
+.td-primary { font-weight: 600; color: var(--text-primary); font-size: 13px; }
+.td-mono { font-family: var(--font-mono); font-size: 11px; }
+
+/* ====================== SEVERITY BADGES ====================== */
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-critical { background: var(--critical-bg); color: var(--critical); border: 1px solid rgba(220,38,38,0.3); }
+.badge-high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(234,88,12,0.3); }
+.badge-moderate { background: var(--moderate-bg); color: var(--moderate); border: 1px solid rgba(202,138,4,0.3); }
+.badge-positive { background: var(--positive-bg); color: var(--positive); border: 1px solid rgba(22,163,74,0.3); }
+.badge-info { background: var(--accent-bg); color: var(--accent); border: 1px solid rgba(2,132,199,0.3); }
+.badge-neutral { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border); }
+
+/* Attribution confidence badges */
+.conf-confirmed { background: var(--critical-bg); color: var(--critical); border: 1px solid rgba(220,38,38,0.3); }
+.conf-high { background: var(--high-bg); color: var(--high); border: 1px solid rgba(234,88,12,0.3); }
+.conf-assessed { background: var(--moderate-bg); color: var(--moderate); border: 1px solid rgba(202,138,4,0.3); }
+.conf-possible { background: var(--bg-input); color: var(--text-tertiary); border: 1px solid var(--border); }
+
+/* Status badges */
+.status-highly-active { background: var(--critical-bg); color: var(--critical); border: 1px solid rgba(220,38,38,0.3); }
+.status-active { background: var(--high-bg); color: var(--high); border: 1px solid rgba(234,88,12,0.3); }
+.status-assessed { background: var(--moderate-bg); color: var(--moderate); border: 1px solid rgba(202,138,4,0.3); }
+
+/* ====================== ACTOR CARDS ====================== */
+.actor-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+}
+
+.actor-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 4px;
+}
+
+.actor-card.level-critical::before { background: var(--critical); }
+.actor-card.level-high::before { background: var(--high); }
+.actor-card.level-moderate::before { background: var(--moderate); }
+
+.actor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.actor-name { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+.actor-doctrine { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; font-style: italic; }
+
+.actor-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.actor-meta-item { }
+.actor-meta-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-1);
+}
+
+.actor-meta-value { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+.tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--space-2); }
+
+.op-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.actor-recent {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.actor-recent-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.actor-recent-text { font-size: 12px; color: var(--text-secondary); line-height: 1.7; }
+.actor-recent-text strong { color: var(--text-primary); font-weight: 600; }
+
+.methodological-note {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.methodological-note strong { color: var(--text-primary); }
+
+/* Gulf sub-cards */
+.gulf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); margin-bottom: var(--space-5); }
+
+.gulf-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-5);
+  position: relative;
+  overflow: hidden;
+}
+
+.gulf-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--moderate); }
+.gulf-card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-2); }
+.gulf-card-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+/* ====================== WEEKLY BRIEF ====================== */
+.brief-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-3);
+  transition: all 0.15s var(--ease);
+}
+
+.brief-item:hover { background: var(--bg-card-hover); }
+.brief-item.critical { border-left-color: var(--critical); }
+.brief-item.high { border-left-color: var(--high); }
+.brief-item.moderate { border-left-color: var(--moderate); }
+
+.brief-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); flex-wrap: wrap; }
+.brief-title { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.4; }
+.brief-source {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* ====================== COMMERCIAL OPERATOR CARDS ====================== */
+.operator-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-4); }
+
+.operator-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-5);
+  position: relative;
+  overflow: hidden;
+}
+
+.operator-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.operator-card.op-high::before { background: var(--high); }
+.operator-card.op-critical::before { background: var(--critical); }
+.operator-card.op-moderate::before { background: var(--moderate); }
+.operator-card.op-info::before { background: var(--accent); }
+
+.operator-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-1); }
+.operator-origin { font-size: 11px; color: var(--text-tertiary); margin-bottom: var(--space-3); }
+.operator-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+/* ====================== TECHNICAL VECTORS ====================== */
+.vector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-4); }
+
+.vector-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-5);
+}
+
+.vector-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-2); display: flex; align-items: center; gap: var(--space-2); }
+.vector-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.vector-stat { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--accent); margin-bottom: var(--space-1); }
+
+/* ====================== ATTRIBUTION LEGEND ====================== */
+.attr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: var(--space-4);
+  margin-top: var(--space-4);
+  font-size: 12px;
+}
+
+.attr-legend-item { display: flex; align-items: center; gap: var(--space-2); }
+.attr-legend-label { color: var(--text-secondary); }
+
+/* ====================== SOURCES ====================== */
+.sources-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-4); }
+
+.source-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-5);
+}
+
+.source-group-title { font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-3); text-transform: uppercase; letter-spacing: 0.5px; }
+.source-list { list-style: none; }
+.source-list li { font-size: 12px; color: var(--text-secondary); line-height: 1.7; padding-left: var(--space-3); position: relative; }
+.source-list li::before { content: '—'; position: absolute; left: 0; color: var(--text-tertiary); }
+
+/* ====================== ABOUT ====================== */
+.about-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-6);
+}
+
+.about-panel p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-4); }
+.about-panel p:last-child { margin-bottom: 0; }
+.about-panel strong { color: var(--text-primary); }
+.about-panel h3 { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-2); margin-top: var(--space-5); }
+.about-panel h3:first-of-type { margin-top: 0; }
+
+/* ====================== CHART ====================== */
+.chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: var(--space-5);
+}
+
+.chart-wrapper { position: relative; height: 280px; width: 100%; }
+
+/* ====================== MOBILE OVERLAY ====================== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 99;
+}
+
+/* ====================== FOOTER ====================== */
+.dashboard-footer {
+  border-top: 1px solid var(--border);
+  padding: var(--space-6);
+  margin-top: var(--space-10);
+}
+
+.footer-text { font-size: 11px; color: var(--text-tertiary); line-height: 1.6; }
+.footer-text a { color: var(--accent); text-decoration: none; }
+.footer-text a:hover { text-decoration: underline; }
+
+/* ====================== RESPONSIVE ====================== */
+@media (max-width: 1200px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .actor-meta { grid-template-columns: 1fr; }
+  .gulf-grid { grid-template-columns: 1fr; }
+  .vector-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.visible { display: block; }
+  .main-content { margin-left: 0; }
+  .hamburger { display: flex; }
+  .content-area { padding: var(--space-4); }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .kpi-value { font-size: 22px; }
+  .header-bar { padding: var(--space-3) var(--space-4); }
+  .header-left h1 { font-size: 13px; }
+  .last-updated { display: none; }
+  .table-container { overflow-x: auto; }
+  .data-table { min-width: 900px; }
+  .vector-grid { grid-template-columns: 1fr; }
+  .operator-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <!-- SVG Logo: cognitive warfare / signal / globe motif -->
+      <svg class="sidebar-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="FIMI Monitor logo">
+        <!-- Outer globe ring -->
+        <circle cx="18" cy="18" r="14" stroke="#38bdf8" stroke-width="1.2" fill="none" opacity="0.3"/>
+        <!-- Mid ring -->
+        <circle cx="18" cy="18" r="9" stroke="#38bdf8" stroke-width="1" fill="none" opacity="0.5"/>
+        <!-- Core node -->
+        <circle cx="18" cy="18" r="3.5" fill="#38bdf8" opacity="0.9"/>
+        <!-- Signal spokes -->
+        <line x1="18" y1="4" x2="18" y2="12" stroke="#38bdf8" stroke-width="1" opacity="0.6"/>
+        <line x1="18" y1="24" x2="18" y2="32" stroke="#38bdf8" stroke-width="1" opacity="0.6"/>
+        <line x1="4" y1="18" x2="12" y2="18" stroke="#38bdf8" stroke-width="1" opacity="0.6"/>
+        <line x1="24" y1="18" x2="32" y2="18" stroke="#38bdf8" stroke-width="1" opacity="0.6"/>
+        <!-- Diagonal spokes (thinner) -->
+        <line x1="8.1" y1="8.1" x2="13.5" y2="13.5" stroke="#38bdf8" stroke-width="0.75" opacity="0.4"/>
+        <line x1="22.5" y1="22.5" x2="27.9" y2="27.9" stroke="#38bdf8" stroke-width="0.75" opacity="0.4"/>
+        <line x1="27.9" y1="8.1" x2="22.5" y2="13.5" stroke="#38bdf8" stroke-width="0.75" opacity="0.4"/>
+        <line x1="13.5" y1="22.5" x2="8.1" y2="27.9" stroke="#38bdf8" stroke-width="0.75" opacity="0.4"/>
+        <!-- Scan arc -->
+        <path d="M18 18 L26 10" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+      </svg>
+      <div class="sidebar-mark">
+        FIMI<br><small>MONITOR</small>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <div class="nav-section-label">Campaigns</div>
+      <a href="#overview" class="nav-link active" data-section="overview">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+        Overview
+      </a>
+      <a href="#active-campaigns" class="nav-link" data-section="active-campaigns">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5"/><path d="M8 5v4l2 2"/></svg>
+        Active Campaigns
+      </a>
+      <a href="#campaign-archive" class="nav-link" data-section="campaign-archive">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10v2H3zM4 6v7h8V6"/><path d="M6 9h4"/></svg>
+        Campaign Archive
+      </a>
+      <div class="nav-section-label">Actors</div>
+      <a href="#russia" class="nav-link" data-section="russia">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L2 6v8h12V6L8 2z"/><rect x="6" y="9" width="4" height="5" rx="0.5"/></svg>
+        Russia
+      </a>
+      <a href="#china" class="nav-link" data-section="china">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L2 6v8h12V6L8 2z"/><rect x="6" y="9" width="4" height="5" rx="0.5"/></svg>
+        China
+      </a>
+      <a href="#iran" class="nav-link" data-section="iran">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L2 6v8h12V6L8 2z"/><rect x="6" y="9" width="4" height="5" rx="0.5"/></svg>
+        Iran
+      </a>
+      <a href="#gulf-states" class="nav-link" data-section="gulf-states">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L2 6v8h12V6L8 2z"/><rect x="6" y="9" width="4" height="5" rx="0.5"/></svg>
+        Gulf States
+      </a>
+      <a href="#united-states" class="nav-link" data-section="united-states">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L2 6v8h12V6L8 2z"/><rect x="6" y="9" width="4" height="5" rx="0.5"/></svg>
+        United States
+      </a>
+      <a href="#israel" class="nav-link" data-section="israel">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L2 6v8h12V6L8 2z"/><rect x="6" y="9" width="4" height="5" rx="0.5"/></svg>
+        Israel
+      </a>
+      <div class="nav-section-label">Infrastructure</div>
+      <a href="#platform-responses" class="nav-link" data-section="platform-responses">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="9" rx="1"/><path d="M5 14h6M8 12v2"/></svg>
+        Platform Responses
+      </a>
+      <a href="#commercial-operators" class="nav-link" data-section="commercial-operators">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l5-6 5 6"/><rect x="5" y="9" width="6" height="5" rx="0.5"/></svg>
+        Commercial Operators
+      </a>
+      <a href="#technical-vectors" class="nav-link" data-section="technical-vectors">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8h2l2-4 2 8 2-6 2 4h2"/></svg>
+        Technical Vectors
+      </a>
+      <div class="nav-section-label">Frameworks</div>
+      <a href="#doctrinal-index" class="nav-link" data-section="doctrinal-index">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h7l3 3v9H3z"/><path d="M10 2v3h3"/><path d="M5 7h6M5 10h4"/></svg>
+        Doctrinal Index
+      </a>
+      <a href="#regulatory-tracker" class="nav-link" data-section="regulatory-tracker">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v4l3 1"/></svg>
+        Regulatory Tracker
+      </a>
+      <a href="#attribution-methods" class="nav-link" data-section="attribution-methods">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="6" r="3"/><path d="M3 14c0-3 2.5-5 5-5s5 2 5 5"/></svg>
+        Attribution Methods
+      </a>
+      <div class="nav-section-label">Reference</div>
+      <a href="#weekly-brief" class="nav-link" data-section="weekly-brief">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2h10v12H3z"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>
+        Weekly Brief
+      </a>
+      <a href="#sources" class="nav-link" data-section="sources">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v2H4zM3 4h10v10H3z"/><path d="M6 8h4M6 11h2"/></svg>
+        Sources
+      </a>
+      <a href="#about" class="nav-link" data-section="about">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 7v5M8 5v1"/></svg>
+        About
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-text">v1.0 · Q1 2026<br>asym-intel.info</div>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <!-- HEADER BAR -->
+    <div class="header-bar">
+      <div style="display:flex;align-items:center;gap:var(--space-3)">
+        <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <div class="header-left">
+          <h1>Global FIMI &amp; Cognitive Warfare Monitor</h1>
+          <div class="subtitle">Foreign Information Manipulation &amp; Interference · Q1 2026</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="last-updated">Updated: 30 Mar 2026</div>
+        <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
+        <div class="theme-toggle" id="theme-toggle" role="group" aria-label="Color theme">
+          <button class="theme-toggle-btn active" id="btn-light" onclick="setTheme('light')" aria-label="Light theme">☀️</button>
+          <button class="theme-toggle-btn" id="btn-dark" onclick="setTheme('dark')" aria-label="Dark theme">🌙</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-area">
+
+      <!-- ======================== OVERVIEW ======================== -->
+      <section class="section" id="overview">
+        <div class="section-header">
+          <h2 class="section-title">Overview</h2>
+          <span class="section-badge badge-section-critical">KPI SUMMARY</span>
+        </div>
+
+        <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:var(--space-4);font-family:var(--font-mono)">ROW 1 — THREAT LANDSCAPE</p>
+        <div class="kpi-grid" style="margin-bottom:var(--space-6)">
+          <div class="kpi-card severity-critical">
+            <div class="kpi-label">Actors Tracked</div>
+            <div class="kpi-value">6</div>
+            <div class="kpi-delta info">RU · CN · IR · Gulf · US · IL</div>
+          </div>
+          <div class="kpi-card severity-critical">
+            <div class="kpi-label">Active Campaigns (est.)</div>
+            <div class="kpi-value">40+</div>
+            <div class="kpi-delta high">Q1 2026</div>
+          </div>
+          <div class="kpi-card severity-critical">
+            <div class="kpi-label">FIMI Incidents (EEAS 2025)</div>
+            <div class="kpi-value">540</div>
+            <div class="kpi-delta critical">▲ +259% AI use YoY</div>
+          </div>
+          <div class="kpi-card severity-high">
+            <div class="kpi-label">Platform Takedowns (Q1 2026)</div>
+            <div class="kpi-value">12</div>
+            <div class="kpi-delta moderate">Meta CIB + Google TAG</div>
+          </div>
+          <div class="kpi-card severity-high">
+            <div class="kpi-label">Commercial Operators Active</div>
+            <div class="kpi-value">8+</div>
+            <div class="kpi-delta moderate">NSO, Black Cube + others</div>
+          </div>
+          <div class="kpi-card severity-moderate">
+            <div class="kpi-label">EEAS Coverage Gap</div>
+            <div class="kpi-value">4/6</div>
+            <div class="kpi-delta high">US, IL, IR, Gulf untracked</div>
+          </div>
+        </div>
+
+        <p style="font-size:12px;color:var(--text-tertiary);margin-bottom:var(--space-4);font-family:var(--font-mono)">ROW 2 — DOCTRINAL LANDSCAPE</p>
+        <div class="kpi-row" style="margin-bottom:var(--space-6)">
+          <div class="kpi-card severity-info">
+            <div class="kpi-label">Framework Instruments</div>
+            <div class="kpi-value">11</div>
+            <div class="kpi-delta info">NATO · OSCE · G7 RRM · EEAS · Five Eyes · DSA · UN GDC · Viginum · BfV · GCHQ · NetzDG</div>
+          </div>
+          <div class="kpi-card severity-moderate">
+            <div class="kpi-label">Attribution Confidence (avg)</div>
+            <div class="kpi-value" style="font-size:18px">MEDIUM</div>
+            <div class="kpi-delta moderate">Most Q1 2026 attributions</div>
+          </div>
+          <div class="kpi-card severity-critical">
+            <div class="kpi-label">AI-Generated Content (% of ops)</div>
+            <div class="kpi-value">47%</div>
+            <div class="kpi-delta critical">EEAS 2025 estimate</div>
+          </div>
+          <div class="kpi-card severity-high">
+            <div class="kpi-label">Election Cycles at Risk 2026</div>
+            <div class="kpi-value">6</div>
+            <div class="kpi-delta high">HU · PL · DE runoff · CZ · AU · US midterms</div>
+          </div>
+        </div>
+
+        <!-- Chart: AI use in operations trend -->
+        <div class="chart-container" style="margin-bottom:var(--space-5)">
+          <div style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:var(--space-4)">AI-Generated Content in FIMI Operations — Trend</div>
+          <div class="chart-wrapper">
+            <canvas id="aiTrendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Structural gap warning -->
+        <div class="warn-panel">
+          <div class="warn-panel-title">⚠ Structural Coverage Note</div>
+          <div class="warn-panel-text">This monitor tracks FIMI as a <strong>global cross-actor doctrine</strong>. It intentionally includes US, Gulf, Iranian and Israeli operations alongside Russian and Chinese campaigns — actors currently outside the EEAS formal tracking perimeter. Sources are drawn from NATO, OSCE, G7, Five Eyes outputs, and OSINT to compensate for that institutional gap.</div>
+        </div>
+      </section>
+
+      <!-- ======================== ACTIVE CAMPAIGNS ======================== -->
+      <section class="section" id="active-campaigns">
+        <div class="section-header">
+          <h2 class="section-title">Active Campaigns</h2>
+          <span class="section-badge badge-section-critical">Q1 2026 · 12 TRACKED</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Campaign</th>
+                <th>Actor</th>
+                <th>Type</th>
+                <th>Target(s)</th>
+                <th>Status</th>
+                <th>Attribution</th>
+                <th>Platform</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">01</td>
+                <td class="td-primary">Social Design Agency — Hungary Pre-Op</td>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td>Electoral interference</td>
+                <td>Hungary, Apr 12 election</td>
+                <td><span class="badge badge-critical">ACTIVE</span></td>
+                <td><span class="badge conf-confirmed">CONFIRMED</span></td>
+                <td>Multiple / Embassy-run</td>
+                <td style="font-size:11px">EEAS RAS, Mar 19</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">02</td>
+                <td class="td-primary">Doppelganger — DE/FR Narrative Seeding</td>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td>CIB / Fake news sites</td>
+                <td>Germany (Bundestag), France</td>
+                <td><span class="badge badge-high">DISRUPTED</span></td>
+                <td><span class="badge conf-confirmed">CONFIRMED</span></td>
+                <td>Meta, X, Telegram</td>
+                <td style="font-size:11px">Meta CIB Feb 2026</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">03</td>
+                <td class="td-primary">Spamouflage/Dragonbridge — Indo-Pacific</td>
+                <td><span class="badge" style="background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3)">CHINA</span></td>
+                <td>CIB / Narrative ops</td>
+                <td>Taiwan Strait, Indo-Pacific</td>
+                <td><span class="badge badge-high">DISRUPTED</span></td>
+                <td><span class="badge conf-confirmed">CONFIRMED</span></td>
+                <td>YouTube, Blogger, X</td>
+                <td style="font-size:11px">Google TAG Q1 2026</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">04</td>
+                <td class="td-primary">United Front — Pacific Islands Outreach</td>
+                <td><span class="badge" style="background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3)">CHINA</span></td>
+                <td>Influence-via-capture</td>
+                <td>Pacific Island states</td>
+                <td><span class="badge badge-moderate">ONGOING</span></td>
+                <td><span class="badge conf-assessed">ASSESSED</span></td>
+                <td>WeChat, community orgs</td>
+                <td style="font-size:11px">ASPI ICPC</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">05</td>
+                <td class="td-primary">IRGC — Campus Protest Amplification</td>
+                <td><span class="badge badge-high">IRAN</span></td>
+                <td>Narrative amplification</td>
+                <td>EU/US campus movements</td>
+                <td><span class="badge badge-moderate">ONGOING</span></td>
+                <td><span class="badge conf-assessed">ASSESSED</span></td>
+                <td>X, Instagram, Telegram</td>
+                <td style="font-size:11px">DFRLab Q1 2026</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">06</td>
+                <td class="td-primary">UAE — UK Parliament Influence Op</td>
+                <td><span class="badge badge-moderate">UAE</span></td>
+                <td>Lobbying-to-influence</td>
+                <td>UK Parliament, journalists</td>
+                <td><span class="badge badge-moderate">ONGOING</span></td>
+                <td><span class="badge conf-possible">POSSIBLE</span></td>
+                <td>Direct / financial</td>
+                <td style="font-size:11px">Forbidden Stories/OCCRP</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">07</td>
+                <td class="td-primary">Saudi Arabia — Sports-Washing / Anti-Qatar</td>
+                <td><span class="badge badge-moderate">SAUDI</span></td>
+                <td>Narrative seeding</td>
+                <td>EU media ecosystem</td>
+                <td><span class="badge badge-moderate">ONGOING</span></td>
+                <td><span class="badge conf-possible">POSSIBLE</span></td>
+                <td>Mainstream media, PR</td>
+                <td style="font-size:11px">Investigative journalism</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">08</td>
+                <td class="td-primary">Qatar — Al Jazeera Diaspora Narrative</td>
+                <td><span class="badge badge-moderate">QATAR</span></td>
+                <td>Soft power / media</td>
+                <td>MENA diaspora in Europe</td>
+                <td><span class="badge badge-moderate">ONGOING</span></td>
+                <td><span class="badge conf-possible">POSSIBLE</span></td>
+                <td>Al Jazeera, social media</td>
+                <td style="font-size:11px">Academic/OSINT</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">09</td>
+                <td class="td-primary">Turning Point / Alliance of Sovereign Nations</td>
+                <td><span class="badge" style="background:rgba(2,132,199,0.12);color:#0284c7;border:1px solid rgba(2,132,199,0.3)">US (MAGA-adj.)</span></td>
+                <td>Political influence op</td>
+                <td>European far-right parties, MEPs</td>
+                <td><span class="badge badge-high">ACTIVE</span></td>
+                <td><span class="badge conf-high">HIGH</span></td>
+                <td>Direct / AoS platform</td>
+                <td style="font-size:11px">Politico / DW, Mar 2026</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">10</td>
+                <td class="td-primary">Black Cube — Bundestag Lobbying / Profiling</td>
+                <td><span class="badge" style="background:rgba(202,138,4,0.12);color:#ca8a04;border:1px solid rgba(202,138,4,0.3)">ISRAEL</span></td>
+                <td>Commercial cog. warfare</td>
+                <td>German politicians, journalists</td>
+                <td><span class="badge badge-high">ACTIVE</span></td>
+                <td><span class="badge conf-confirmed">CONFIRMED</span></td>
+                <td>Direct / private intel</td>
+                <td style="font-size:11px">Haaretz / Süddeutsche Mar 2026</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">11</td>
+                <td class="td-primary">Hasbara Network — Campus / Wikipedia Editing</td>
+                <td><span class="badge" style="background:rgba(202,138,4,0.12);color:#ca8a04;border:1px solid rgba(202,138,4,0.3)">ISRAEL</span></td>
+                <td>Narrative management</td>
+                <td>Campuses, online discourse</td>
+                <td><span class="badge badge-moderate">ONGOING</span></td>
+                <td><span class="badge conf-assessed">ASSESSED</span></td>
+                <td>Wikipedia, social media</td>
+                <td style="font-size:11px">Academic OSINT researchers</td>
+              </tr>
+              <tr>
+                <td class="td-mono" style="color:var(--text-tertiary)">12</td>
+                <td class="td-primary">GRU — UK Political Party Funding Investigation</td>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td>Influence-via-capture</td>
+                <td>UK political parties</td>
+                <td><span class="badge badge-high">UNDER INVESTIGATION</span></td>
+                <td><span class="badge conf-high">HIGH</span></td>
+                <td>Financial / direct</td>
+                <td style="font-size:11px">MI5 public statement</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Attribution Legend -->
+        <div class="attr-legend">
+          <div style="font-size:11px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;width:100%;margin-bottom:var(--space-1)">Attribution Confidence Scale</div>
+          <div class="attr-legend-item"><span class="badge conf-confirmed">CONFIRMED</span><span class="attr-legend-label">— Attributed by at least two independent institutional or platform sources</span></div>
+          <div class="attr-legend-item"><span class="badge conf-high">HIGH</span><span class="attr-legend-label">— Strong OSINT/investigative evidence; no formal institutional attribution</span></div>
+          <div class="attr-legend-item"><span class="badge conf-assessed">ASSESSED</span><span class="attr-legend-label">— Probable attribution based on TTPs and open-source evidence; not yet confirmed</span></div>
+          <div class="attr-legend-item"><span class="badge conf-possible">POSSIBLE</span><span class="attr-legend-label">— Credible evidence from investigative journalism; officially unconfirmed</span></div>
+        </div>
+      </section>
+
+      <!-- ======================== CAMPAIGN ARCHIVE ======================== -->
+      <section class="section" id="campaign-archive">
+        <div class="section-header">
+          <h2 class="section-title">Campaign Archive</h2>
+          <span class="section-badge badge-section-info">HISTORICAL RECORD</span>
+        </div>
+        <div class="warn-panel info">
+          <div class="warn-panel-title">Archive — Placeholder</div>
+          <div class="warn-panel-text">The campaign archive will carry concluded or dormant campaigns with full attribution records, chronology, and cross-links to platform takedown reports. Updated weekly alongside the brief. Currently populating from EEAS 2024–2025 FIMI reports, Meta CIB historical disclosures, and Google TAG archives.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4)">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:var(--space-5)">
+            <div class="actor-meta-label">2024 Notable Campaigns</div>
+            <ul style="margin-top:var(--space-2);padding-left:var(--space-4);font-size:12px;color:var(--text-secondary);line-height:2">
+              <li>Doppelganger — EU Parliament election pre-ops (RU)</li>
+              <li>Dragonbridge EU election targeting (CN)</li>
+              <li>GRU hack-and-leak against German Social Democrats</li>
+              <li>UAE Project Raven journalist targeting</li>
+            </ul>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:var(--space-5)">
+            <div class="actor-meta-label">2023 Notable Campaigns</div>
+            <ul style="margin-top:var(--space-2);padding-left:var(--space-4);font-size:12px;color:var(--text-secondary);line-height:2">
+              <li>Internet Research Agency dissolution / legacy successor networks</li>
+              <li>Spamouflage escalation post-Taiwan Strait exercises</li>
+              <li>Iran IRGC post-October 7 narrative operations</li>
+              <li>Psy-Group legacy network continued operations</li>
+            </ul>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:var(--space-5)">
+            <div class="actor-meta-label">2022 Notable Campaigns</div>
+            <ul style="margin-top:var(--space-2);padding-left:var(--space-4);font-size:12px;color:var(--text-secondary);line-height:2">
+              <li>Russia — Ukraine war narrative flood (war-onset)</li>
+              <li>Ghostwriter — Polish/Baltic election operations</li>
+              <li>Saudi Arabia — Jamal Khashoggi post-murder narrative suppression</li>
+              <li>NSO Group Pegasus — EU parliamentarian targeting</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== RUSSIA ======================== -->
+      <section class="section" id="russia">
+        <div class="section-header">
+          <h2 class="section-title">Russia</h2>
+          <span class="section-badge badge-section-critical">HIGHLY ACTIVE</span>
+        </div>
+        <div class="actor-card level-critical">
+          <div class="actor-header">
+            <div>
+              <div class="actor-name">🇷🇺 Russian Federation</div>
+              <div class="actor-doctrine">Active Measures · Reflexive Control · Information Confrontation Doctrine</div>
+            </div>
+            <span class="badge status-highly-active">HIGHLY ACTIVE</span>
+          </div>
+          <div class="actor-meta">
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Key Entities</div>
+              <div class="actor-meta-value">GRU Unit 54777 (Psychological Operations), FSB Information Security Service, Social Design Agency (SDA), Doppelganger network, RT/Sputnik (overt + proxy), Internet Research Agency (diminished post-2022), Telegram channel networks</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Primary Targets</div>
+              <div class="actor-meta-value">EU elections (Hungary, Poland, Germany, France), Ukraine war narrative, NATO cohesion and western resolve, US political system, Africa/Sahel governance legitimacy</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Characteristic TTPs</div>
+              <div class="tag-list">
+                <span class="op-tag">Doppelganger (fake news site cloning)</span>
+                <span class="op-tag">SDA electoral influence ops</span>
+                <span class="op-tag">GRU hack-and-leak</span>
+                <span class="op-tag">RT/Sputnik overt seeding</span>
+                <span class="op-tag">Proxy amplification networks</span>
+                <span class="op-tag">Telegram channel warfare</span>
+                <span class="op-tag">Useful idiots strategy</span>
+              </div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Doctrinal Basis</div>
+              <div class="actor-meta-value">Gerasimov Doctrine (2013) — information operations as integral to conflict below kinetic threshold. Information Confrontation (информационное противоборство) as state doctrine. Reflexive Control theory: shaping adversary decision-making through information manipulation.</div>
+            </div>
+          </div>
+          <div class="actor-recent">
+            <div class="actor-recent-label">Recent Activity — Q1 2026</div>
+            <div class="actor-recent-text">
+              <strong>March 19, 2026:</strong> EEAS Rapid Alert System activated following confirmation that the Social Design Agency is operating <strong>from the Russian Embassy compound in Budapest</strong>, ahead of the April 12 Hungarian parliamentary election. EEAS assessment: coordinated targeting of Hungarian social media with pro-Orbán and anti-EU narratives seeded through fake local news sites.<br><br>
+              <strong>February 2026:</strong> Meta CIB takedown removes <strong>1,700+ assets</strong> attributed to the Doppelganger network — the largest Russia-attributed platform enforcement action since 2022. Assets spanned fake news sites cloning major German, French and Ukrainian outlets, coordinated Facebook pages, and Instagram accounts. Network targeting Bundestag election narrative and French domestic politics.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== CHINA ======================== -->
+      <section class="section" id="china">
+        <div class="section-header">
+          <h2 class="section-title">China</h2>
+          <span class="section-badge badge-section-high">ACTIVE</span>
+        </div>
+        <div class="actor-card level-high">
+          <div class="actor-header">
+            <div>
+              <div class="actor-name">🇨🇳 People's Republic of China</div>
+              <div class="actor-doctrine">Discourse Power (话语权) · United Front Work · Three Warfares (心理战 · 舆论战 · 法律战)</div>
+            </div>
+            <span class="badge status-active">ACTIVE</span>
+          </div>
+          <div class="actor-meta">
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Key Entities</div>
+              <div class="actor-meta-value">United Front Work Department (UFWD), PLA Strategic Support Force — Network Systems Department, Dragonbridge/Spamouflage network, China Global Television Network (CGTN), WeChat ecosystem, Confucius Institutes (dual-use)</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Primary Targets</div>
+              <div class="actor-meta-value">Taiwan unification narrative, Xinjiang/Tibet counter-narrative globally, Belt and Road recipient states, Indo-Pacific island nations, overseas Chinese diaspora community management</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Characteristic TTPs</div>
+              <div class="tag-list">
+                <span class="op-tag">Spamouflage (large-scale fake account networks)</span>
+                <span class="op-tag">UFWD grassroots community engagement</span>
+                <span class="op-tag">Economic leverage + media ownership</span>
+                <span class="op-tag">Strategic silence / deniability</span>
+                <span class="op-tag">Multilingual narrative seeding</span>
+                <span class="op-tag">Diaspora community management</span>
+              </div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Doctrinal Basis</div>
+              <div class="actor-meta-value">Three Warfares concept formalised in 2003 PLA Political Work Regulations: psychological warfare (心理战), public opinion warfare (舆论战), legal warfare (法律战). Xi Jinping's Discourse Power concept extends this to a whole-of-society mission to reshape global information environment.</div>
+            </div>
+          </div>
+          <div class="actor-recent">
+            <div class="actor-recent-label">Recent Activity — Q1 2026</div>
+            <div class="actor-recent-text">
+              <strong>Q1 2026:</strong> Google TAG disruption of <strong>Dragonbridge network</strong> — 2,500+ assets removed across YouTube, Blogger, and X. Network was seeding pro-PRC narratives on Taiwan Strait tensions and attempting to discredit Five Eyes intelligence community attributions of Chinese cyber operations.<br><br>
+              <strong>Ongoing:</strong> ASPI ICPC documents continued <strong>United Front Work in Pacific Island states</strong> — engagement with community organisations, local media sponsorship, and direct relationships with regional politicians in Fiji, Solomon Islands, and Vanuatu. Pattern assessed as attempting to shift political neutrality on Taiwan and US basing rights.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== IRAN ======================== -->
+      <section class="section" id="iran">
+        <div class="section-header">
+          <h2 class="section-title">Iran</h2>
+          <span class="section-badge badge-section-high">ACTIVE — ELEVATED</span>
+        </div>
+        <div class="actor-card level-high">
+          <div class="actor-header">
+            <div>
+              <div class="actor-name">🇮🇷 Islamic Republic of Iran</div>
+              <div class="actor-doctrine">Cognitive Warfare · IRGC Psychological Operations · Information Operations</div>
+            </div>
+            <span class="badge status-active">ACTIVE (elevated since Oct 7 2023)</span>
+          </div>
+          <div class="actor-meta">
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Key Entities</div>
+              <div class="actor-meta-value">IRGC Quds Force IO Unit, Ministry of Intelligence and Security (MOIS), Atlas Intelligence Group, Charming Kitten (APT35 — dual cyber/IO), Press TV (overt + proxy networks)</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Primary Targets</div>
+              <div class="actor-meta-value">Israel/Palestine narrative globally, anti-US sentiment in MENA and EU, pro-regime domestic narrative control, regional Shia network amplification, discrediting of Iranian diaspora opposition</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Characteristic TTPs</div>
+              <div class="tag-list">
+                <span class="op-tag">Campus protest amplification</span>
+                <span class="op-tag">Charming Kitten credential harvesting feeding narrative ops</span>
+                <span class="op-tag">Atlas Intelligence Group — LinkedIn social engineering</span>
+                <span class="op-tag">Proxy account networks on X and Telegram</span>
+                <span class="op-tag">State media as narrative anchor (Press TV)</span>
+              </div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Operational Tempo</div>
+              <div class="actor-meta-value">Significantly elevated since October 7, 2023. Iran has shifted IO posture from defensive/domestic-focused to active global narrative shaping around Gaza, leveraging pre-existing relationships with pro-Palestinian activist networks.</div>
+            </div>
+          </div>
+          <div class="actor-recent">
+            <div class="actor-recent-label">Recent Activity — Q1 2026</div>
+            <div class="actor-recent-text">
+              <strong>Q1 2026:</strong> DFRLab documents a <strong>pro-Iran network amplifying campus protest movements</strong> across EU and US university campuses — 400+ accounts coordinating on X and Telegram, seeding narratives linking campus protests to broader anti-imperialist framing aligned with IRGC talking points.<br><br>
+              <strong>Ongoing:</strong> Atlas Intelligence Group continues <strong>LinkedIn credential harvesting and social engineering</strong> operations targeting European defence researchers, Iranian diaspora journalists, and IAEA-adjacent contacts. Operations appear to feed both intelligence gathering and narrative suppression objectives.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== GULF STATES ======================== -->
+      <section class="section" id="gulf-states">
+        <div class="section-header">
+          <h2 class="section-title">Gulf States</h2>
+          <span class="section-badge badge-section-moderate">ASSESSED ACTIVE</span>
+        </div>
+        <div class="gulf-grid">
+          <div class="gulf-card">
+            <div class="gulf-card-title">🇦🇪 United Arab Emirates</div>
+            <div class="tag-list" style="margin-bottom:var(--space-3)">
+              <span class="badge status-assessed">ASSESSED ACTIVE</span>
+            </div>
+            <div class="gulf-card-text">
+              <strong>Strategic / targeted posture.</strong> NSO Group Pegasus client — documented journalist and activist surveillance. Project Raven: former NSA contractors (DarkMatter) conducting offensive cyber and IO operations on behalf of UAE government. Lobbying networks in UK and US parliament. Dark Matter cyber IO combining data theft with narrative operations.<br><br>
+              <em>Tone:</em> Strategic and precision-targeted rather than mass CIB. Focus on high-value individuals — journalists, opposition politicians, foreign officials.
+            </div>
+          </div>
+          <div class="gulf-card">
+            <div class="gulf-card-title">🇸🇦 Saudi Arabia</div>
+            <div class="tag-list" style="margin-bottom:var(--space-3)">
+              <span class="badge status-assessed">ASSESSED ACTIVE</span>
+            </div>
+            <div class="gulf-card-text">
+              <strong>MBS-directed operations.</strong> Jamal Khashoggi surveillance and assassination — most documented case of journalist targeting by a Gulf actor. Sports-washing narrative campaign (LIV Golf, Newcastle United, Formula 1) with coordinated EU media placement. Anti-Qatar and anti-Muslim Brotherhood narrative campaigns. Troll farms documented suppressing Saudi-critical content across Arabic-language social media.<br><br>
+              <em>Key gap:</em> Most evidence from investigative journalism (Forbidden Stories, OCCRP, Amnesty Tech) rather than institutional attribution.
+            </div>
+          </div>
+          <div class="gulf-card">
+            <div class="gulf-card-title">🇶🇦 Qatar</div>
+            <div class="tag-list" style="margin-bottom:var(--space-3)">
+              <span class="badge conf-possible">POSSIBLE</span>
+            </div>
+            <div class="gulf-card-text">
+              <strong>Soft power as primary instrument.</strong> Al Jazeera Arabic/English as narrative anchor for MENA diaspora communities in Europe — not covert, but functions as state-directed narrative shaping. Qatargate EU Parliament lobbying scandal (2022–ongoing): documented payments to MEPs and staff for narrative support. MENA diaspora community organisations funded through Qatar-linked foundations.<br><br>
+              <em>Analytical note:</em> Least adversarial of Gulf actors toward European values; overlapping interests with EU on some Palestinian narrative positions.
+            </div>
+          </div>
+        </div>
+        <div class="actor-recent">
+          <div class="actor-recent-label">Regional Assessment</div>
+          <div class="actor-recent-text">Gulf state IO falls almost entirely outside EEAS formal tracking. Primary evidence base is investigative journalism (Forbidden Stories, OCCRP, IJ4EU), Amnesty Tech surveillance research, and academic OSINT. Attribution confidence is lower than for Russia and China — reflecting a genuine evidence gap rather than absence of activity. Commercial operators (NSO Group, Black Cube) serve multiple Gulf clients, creating attribution complexity where state-directed versus commercially contracted operations overlap.</div>
+        </div>
+      </section>
+
+      <!-- ======================== UNITED STATES ======================== -->
+      <section class="section" id="united-states">
+        <div class="section-header">
+          <h2 class="section-title">United States</h2>
+          <span class="section-badge badge-section-moderate">ASSESSED ACTIVE (near-state)</span>
+        </div>
+        <div class="methodological-note">
+          <strong>Methodological Note:</strong> US information operations fall outside EEAS formal tracking. This monitor applies the same analytical criteria to US-origin operations as to other actors: <strong>documented cross-border campaigns using covert means, foreign funding, or coordinated platform manipulation</strong>. This section does not conflate overt public diplomacy with covert interference. The three categories below — (a) overt public diplomacy, (b) near-state PAC-adjacent political influence, (c) hypothetical covert operations — are maintained as distinct analytical categories.
+        </div>
+        <div class="actor-card level-moderate">
+          <div class="actor-header">
+            <div>
+              <div class="actor-name">🇺🇸 United States</div>
+              <div class="actor-doctrine">Political Influence Operations · Democracy Promotion · Narrative Management</div>
+            </div>
+            <span class="badge status-assessed">ASSESSED ACTIVE (near-state)</span>
+          </div>
+          <div class="actor-meta">
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Non-State / Near-State Entities (in scope)</div>
+              <div class="actor-meta-value">Turning Point Action, Atlas Network / Heritage Foundation European affiliates, Alliance of Sovereign Nations (AoS), PAC-funded European far-right outreach networks, MAGA-adjacent digital operation infrastructure</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">State / State-Adjacent Entities (contextual)</div>
+              <div class="actor-meta-value">US State Dept Global Engagement Center (counter-FIMI mandate, also narrative-shaping), ODNI open-source influence coordination, US Embassy public diplomacy networks (overt, noted for completeness)</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Current Operations — Documented</div>
+              <div class="actor-meta-value">
+                <strong>Alliance of Sovereign Nations (AoS):</strong> Turning Point Action-backed European far-right coalition, launched March 5, 2026. Includes MEPs with documented Russian financial connections. Frames as pro-sovereignty; functions as network aligning European populist parties around anti-EU, anti-Ukraine-aid, and anti-migration positions simultaneously consistent with Russian and US-right narrative objectives.<br><br>
+                <strong>Big Tech DSA regulatory capture:</strong> Coordinated lobbying and public communications campaigns targeting EU Digital Services Act enforcement, framed as free speech defence. Effectively weakens primary FIMI countermeasure framework.<br><br>
+                <strong>Tariff coercion:</strong> Trade tariff threats used as political pressure tool on European governments, with narrative dimensions supporting US economic nationalism goals.
+              </div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Not Tracked (outside scope)</div>
+              <div class="actor-meta-value">Overt US public diplomacy, USAID legitimate development programmes, USAGM (Voice of America / Radio Free Europe) — overt state broadcasting. CIA historical covert operations — not evidenced in current operational period at doctrinal level.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== ISRAEL ======================== -->
+      <section class="section" id="israel">
+        <div class="section-header">
+          <h2 class="section-title">Israel</h2>
+          <span class="section-badge badge-section-moderate">ASSESSED ACTIVE</span>
+        </div>
+        <div class="methodological-note">
+          <strong>Methodological Note:</strong> Israeli information operations fall outside EEAS formal tracking. This monitor applies the same analytical criteria as to all other actors. The inclusion of Israeli operations reflects <strong>documented operational evidence</strong> from investigative journalism (Haaretz, NYT, Süddeutsche), academic OSINT, and Amnesty Tech surveillance research — not political equivalence with adversarial actors.
+        </div>
+        <div class="actor-card level-moderate">
+          <div class="actor-header">
+            <div>
+              <div class="actor-name">🇮🇱 State of Israel / Commercial Operators</div>
+              <div class="actor-doctrine">Hasbara · Perception Management · Commercial Cognitive Warfare</div>
+            </div>
+            <span class="badge status-assessed">ASSESSED ACTIVE</span>
+          </div>
+          <div class="actor-meta">
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Key Entities</div>
+              <div class="actor-meta-value">Black Cube (private intelligence), Psy-Group (defunct — legacy networks active), NSO Group (Pegasus spyware), ELNET (parliamentary lobbying infrastructure), Prime Minister's Office Communications Directorate, IDF COGAT media unit</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Primary Targets</div>
+              <div class="actor-meta-value">Diaspora/campus narrative on Gaza and October 7, European Parliament members, foreign elections (Modi 2019 — documented), Iranian regime opponents (overlapping with Israeli state interests), BDS movement and pro-Palestinian journalism</div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Characteristic TTPs</div>
+              <div class="tag-list">
+                <span class="op-tag">Black Cube — private intel, honey-trapping, opposition research</span>
+                <span class="op-tag">NSO Pegasus — journalist/activist surveillance</span>
+                <span class="op-tag">ELNET — direct parliamentary lobbying infrastructure</span>
+                <span class="op-tag">Wikipedia coordinated editing</span>
+                <span class="op-tag">Campus hasbara networks</span>
+                <span class="op-tag">Social media narrative management</span>
+              </div>
+            </div>
+            <div class="actor-meta-item">
+              <div class="actor-meta-label">Commercial / Near-State Distinction</div>
+              <div class="actor-meta-value">Israel presents an unusual case: <strong>commercial cognitive warfare operators (Black Cube, NSO, Psy-Group)</strong> operate as private firms but serve state and near-state clients globally, including Israeli government clients. The commercial and state layers are analytically distinct but operationally intertwined.</div>
+            </div>
+          </div>
+          <div class="actor-recent">
+            <div class="actor-recent-label">Recent Activity — Q1 2026</div>
+            <div class="actor-recent-text">
+              <strong>March 2026:</strong> Haaretz and Süddeutsche Zeitung report <strong>Black Cube lobbying investigation in the German Bundestag</strong> — intelligence operation targeting German politicians, their staff, and journalists covering Israeli-Palestinian affairs. Operation involved covert profiling, honey-trap approaches, and information gathering feeding into narrative management strategies.<br><br>
+              <strong>Ongoing:</strong> Academic researchers document <strong>hasbara network Wikipedia-editing operations</strong> — coordinated accounts systematically editing articles on October 7, Gaza, Palestinian history, and related topics. Network traced to Israeli communications sector.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== PLATFORM RESPONSES ======================== -->
+      <section class="section" id="platform-responses">
+        <div class="section-header">
+          <h2 class="section-title">Platform Responses</h2>
+          <span class="section-badge badge-section-info">Q4 2025 – Q1 2026</span>
+        </div>
+        <div class="table-container" style="margin-bottom:var(--space-5)">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Date</th>
+                <th>Actor Attributed</th>
+                <th>Assets Removed</th>
+                <th>Key Finding</th>
+                <th>Report</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-primary">Meta</td>
+                <td class="td-mono">Feb 2026</td>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td class="td-mono">1,700+ accounts, pages, groups</td>
+                <td style="font-size:12px">Doppelganger network — fake news sites cloning German/French/Ukrainian outlets. Largest Russia-attributed Meta removal since 2022.</td>
+                <td style="font-size:11px">Meta CIB Report Feb 2026</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Meta</td>
+                <td class="td-mono">Q4 2025</td>
+                <td><span class="badge badge-high">IRAN</span></td>
+                <td class="td-mono">~320 assets</td>
+                <td style="font-size:12px">IRGC-linked network amplifying anti-Israel and pro-Palestinian narratives. Coordinated on Facebook and Instagram across EU and US.</td>
+                <td style="font-size:11px">Meta CIB Dec 2025</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Meta</td>
+                <td class="td-mono">Q4 2025</td>
+                <td><span class="badge badge-moderate">MULTIPLE</span></td>
+                <td class="td-mono">~180 assets</td>
+                <td style="font-size:12px">Disinformation-as-a-service network (unnamed operators) — commercial narrative seeding across EU political audiences.</td>
+                <td style="font-size:11px">Meta CIB Nov 2025</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Google TAG</td>
+                <td class="td-mono">Q1 2026</td>
+                <td><span class="badge" style="background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3)">CHINA</span></td>
+                <td class="td-mono">2,500+ assets</td>
+                <td style="font-size:12px">Dragonbridge/Spamouflage network across YouTube, Blogger, and X. Content targeting Taiwan Strait and Five Eyes attribution discrediting.</td>
+                <td style="font-size:11px">Google TAG Q1 2026</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Google TAG</td>
+                <td class="td-mono">Q4 2025</td>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td class="td-mono">~400 assets</td>
+                <td style="font-size:12px">Russia-linked YouTube channels and AdSense accounts running pro-Kremlin Ukraine war narratives disguised as independent news.</td>
+                <td style="font-size:11px">Google TAG Q4 2025</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Microsoft MSTIC</td>
+                <td class="td-mono">Q4 2025</td>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td class="td-mono">Infrastructure disrupted</td>
+                <td style="font-size:12px">GRU-linked domain infrastructure used for Doppelganger content distribution. Technical disruption reported in coordination with EU partners.</td>
+                <td style="font-size:11px">Microsoft MSTIC Oct 2025</td>
+              </tr>
+              <tr>
+                <td class="td-primary" style="color:var(--high)">X / Twitter</td>
+                <td class="td-mono">Q4 2025</td>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td class="td-mono">~40 accounts</td>
+                <td style="font-size:12px;color:var(--high)"><strong>Enforcement gap flagged:</strong> Only ~40 accounts removed vs. 1,700+ removed by Meta for same Doppelganger operation. EEAS 2025 report finds 88% of flagged FIMI content remains on platform. Trust &amp; Safety enforcement declined significantly post-2022 ownership change.</td>
+                <td style="font-size:11px">EEAS StratCom 2025 / EL INT</td>
+              </tr>
+              <tr>
+                <td class="td-primary">TikTok</td>
+                <td class="td-mono">Q4 2025</td>
+                <td><span class="badge badge-moderate">ASSESSED MULTIPLE</span></td>
+                <td class="td-mono">~600 accounts</td>
+                <td style="font-size:12px">Coordinated inauthentic behaviour network amplifying pro-Russian Ukraine war narratives in Western European markets. Operators assessed as state-adjacent but unconfirmed.</td>
+                <td style="font-size:11px">TikTok Transparency Q4 2025</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="warn-panel" style="border-left-color:var(--high)">
+          <div class="warn-panel-title" style="color:var(--high)">⚠ X / Twitter Enforcement Gap</div>
+          <div class="warn-panel-text">X Trust &amp; Safety enforcement has <strong>declined significantly since the October 2022 ownership change</strong>. The EEAS 2025 FIMI report found that 88% of EU-targeted FIMI content identified by analysts remained on the platform after flagging. X did not participate in the EU DSA FIMI working group's Q4 2025 coordination exercise. This represents a structural vulnerability in the European FIMI response architecture — the platform with the highest institutional reach among journalists and politicians is the least responsive to enforcement requests.</div>
+        </div>
+      </section>
+
+      <!-- ======================== COMMERCIAL OPERATORS ======================== -->
+      <section class="section" id="commercial-operators">
+        <div class="section-header">
+          <h2 class="section-title">Commercial Operators</h2>
+          <span class="section-badge badge-section-high">REGULATION GAP</span>
+        </div>
+        <div class="operator-grid" style="margin-bottom:var(--space-5)">
+          <div class="operator-card op-critical">
+            <div class="operator-name">NSO Group</div>
+            <div class="operator-origin">Israel · Cyber-enabled IO</div>
+            <div class="operator-text">Developer of Pegasus spyware — sold to 45+ government clients globally. Documented use against journalists, activists, lawyers, and politicians across EU, MENA, and beyond. Pegasus operations feed narrative suppression: device access enables advance knowledge of journalist investigations, source identification, and targeted intimidation. US Supreme Court allowed WhatsApp lawsuit to proceed (2024). EU Parliament PEGA Committee found three member states (Hungary, Poland, Spain) used Pegasus against political figures. Currently active despite US Commerce Dept blacklisting (2021).</div>
+          </div>
+          <div class="operator-card op-critical">
+            <div class="operator-name">Black Cube</div>
+            <div class="operator-origin">Israel · Private intelligence</div>
+            <div class="operator-text">Former Mossad officers founded; specialises in private intelligence operations, corporate espionage, and election-related profiling. Documented operations: Harvey Weinstein (journalist honey-trapping), Harvey Weinstein accusers, Integrity Initiative, Moldovan election influence, Modi 2019 election research. Q1 2026: confirmed active in German Bundestag — profiling operations on politicians and journalists covering Israeli-Palestinian affairs (Haaretz/Süddeutsche). Clients include governments, corporations, political campaigns.</div>
+          </div>
+          <div class="operator-card op-high">
+            <div class="operator-name">Psy-Group</div>
+            <div class="operator-origin">Israel · Defunct (2018) · Legacy networks active</div>
+            <div class="operator-text">Israeli private intelligence firm, dissolved 2018 following NYT investigation and Special Counsel Mueller referral. Key staff dispersed to other firms — legacy networks and methodology remain active through successor operations. Documented capability: large-scale persona networks, social media manipulation, election influence research. Operational model influenced current commercial cognitive warfare landscape. Staff traced to successor firms operating across MENA and Europe.</div>
+          </div>
+          <div class="operator-card op-moderate">
+            <div class="operator-name">Aperio Intelligence</div>
+            <div class="operator-origin">UK · Due diligence / political intelligence</div>
+            <div class="operator-text">UK-based risk intelligence firm — legitimate due diligence work but noted for operating in the grey zone between corporate intelligence and political influence. Less clearly adversarial than NSO/Black Cube; included for completeness as part of the commercial cognitive services ecosystem. Regulatory status: operates under UK Companies Act; no specific FIMI regulatory framework applies to commercial intelligence firms.</div>
+          </div>
+          <div class="operator-card op-high">
+            <div class="operator-name">Disinformation-as-a-Service Networks</div>
+            <div class="operator-origin">Russia · Unnamed operators · Paid narrative seeding</div>
+            <div class="operator-text">Commercial dark-web and semi-public services offering paid narrative seeding, fake account networks, coordinated harassment, and content amplification. Russian-origin networks most documented (Internet Research Agency legacy, unnamed successors). EU DisinfoLab documented commercial DaaS networks operating targeting European audiences. Price points range from €200 for small-scale amplification to €50,000+ for coordinated multi-platform influence campaigns.</div>
+          </div>
+        </div>
+        <div class="warn-panel info">
+          <div class="warn-panel-title">Regulatory Gap — Commercial Cognitive Warfare</div>
+          <div class="warn-panel-text">Commercial cognitive warfare operators fall outside most FIMI regulatory frameworks. The EU DSA covers platforms, not operators. FARA (US) and UK foreign agent registration apply to registered foreign agents, not private intelligence contractors. The result: NSO Group can sell Pegasus to EU member state governments; Black Cube can operate election influence research in EU states; DaaS networks can sell narrative seeding services commercially — none of these activities are captured by current FIMI regulatory architecture.</div>
+        </div>
+      </section>
+
+      <!-- ======================== TECHNICAL VECTORS ======================== -->
+      <section class="section" id="technical-vectors">
+        <div class="section-header">
+          <h2 class="section-title">Technical Vectors</h2>
+          <span class="section-badge badge-section-high">TTPs &amp; INFRASTRUCTURE</span>
+        </div>
+        <div class="vector-grid">
+          <div class="vector-card">
+            <div class="vector-stat">47%</div>
+            <div class="vector-title">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5 8s1-2 3-2 3 2 3 2"/><path d="M6 11s.5-1 2-1 2 1 2 1"/><circle cx="8" cy="5" r="1"/></svg>
+              AI-Generated Synthetic Media
+            </div>
+            <div class="vector-text">AI-generated text (LLM-authored articles, social media posts), synthetic voice cloning, deepfake video, and AI-generated image content. 47% of operations tracked in EEAS 2025 report contained AI-generated components — up from ~8% in 2022. Lowering production cost barrier has enabled small-state and commercial-operator operations at previously state-level scale.</div>
+          </div>
+          <div class="vector-card">
+            <div class="vector-stat">CIB</div>
+            <div class="vector-title">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="8" r="2"/><circle cx="11" cy="5" r="2"/><circle cx="11" cy="11" r="2"/><path d="M7 7l2-1M7 9l2 1"/></svg>
+              Coordinated Inauthentic Behaviour
+            </div>
+            <div class="vector-text">Fake persona infrastructure at platform scale — networks of thousands of accounts coordinating to amplify narratives, suppress counter-narratives through reporting, manufacture social proof, and game algorithmic amplification. Meta's Q1 2026 Doppelganger takedown is the reference case: 1,700+ assets coordinating across Facebook, Instagram, and X around identical content.</div>
+          </div>
+          <div class="vector-card">
+            <div class="vector-stat">H&amp;L</div>
+            <div class="vector-title">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+              Hack-and-Leak Operations
+            </div>
+            <div class="vector-text">Cyber intrusion feeding information operations — stolen email/document content released at strategic moments to damage political targets. GRU Unit 26165 reference cases: DNC 2016, Macron 2017, Bundestag ongoing. The cyber layer is tracked in the European Strategic Autonomy Monitor; cross-linked here where the operation's purpose is primarily narrative rather than intelligence collection.</div>
+          </div>
+          <div class="vector-card">
+            <div class="vector-stat">ALG</div>
+            <div class="vector-title">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 8h6M8 5v6"/></svg>
+              Platform Manipulation
+            </div>
+            <div class="vector-text">Algorithmic gaming through coordinated engagement patterns, mass reporting of legitimate accounts, ad targeting of politically relevant audiences, and manipulation of trending/recommendation systems. Increasingly sophisticated as operators develop detailed understanding of individual platform algorithms. Particularly effective on X, YouTube, and TikTok.</div>
+          </div>
+          <div class="vector-card">
+            <div class="vector-stat">NS</div>
+            <div class="vector-title">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-4 3 3 5-7"/></svg>
+              Narrative Seeding
+            </div>
+            <div class="vector-text">Placement of false or distorted narratives in legitimate media ecosystems — through corrupted journalists (paid or coerced), "useful idiots" (unwitting amplifiers), fake expert networks quoted in mainstream media, and manufactured controversy that legitimate journalists then amplify. Most durable FIMI vector because the content acquires media legitimacy after placement.</div>
+          </div>
+          <div class="vector-card">
+            <div class="vector-stat">FC</div>
+            <div class="vector-title">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M4 6l4-4 4 4"/><path d="M5 10h6"/></svg>
+              Funding Capture
+            </div>
+            <div class="vector-text">Direct investment in media outlets, think tanks, political parties, and civic organisations to shift narrative at source rather than through manipulation. Most sophisticated vector — most difficult to detect and counter because the captured outlet produces content that appears entirely legitimate. Examples: RT investment in European regional media, Gulf investment in sports/cultural institutions, US PAC funding of European political networks.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== DOCTRINAL INDEX ======================== -->
+      <section class="section" id="doctrinal-index">
+        <div class="section-header">
+          <h2 class="section-title">Doctrinal Index</h2>
+          <span class="section-badge badge-section-info">8 DOCTRINES · CROSS-ACTOR</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Actor</th>
+                <th>Doctrine Name</th>
+                <th>Core Concept</th>
+                <th>Key Document</th>
+                <th>Year</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td class="td-primary">Active Measures (Активные мероприятия)</td>
+                <td style="font-size:12px">KGB/GRU doctrine of political warfare through deception, influence, and manipulation of foreign political processes. Covert operations to weaken adversaries without kinetic conflict.</td>
+                <td style="font-size:12px">Soviet-era doctrine; codified in GRU operational manuals; referenced in 2015 National Security Strategy</td>
+                <td class="td-mono">1920s–present</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-critical">RUSSIA</span></td>
+                <td class="td-primary">Information Confrontation (Информационное противоборство)</td>
+                <td style="font-size:12px">State doctrine treating information environment as a continuous battlefield. Information operations as integral to military strategy below kinetic threshold. Gerasimov's "new generation warfare" framing.</td>
+                <td style="font-size:12px">Russian Information Security Doctrine (2016); Military Doctrine (2014); Gerasimov's VPK article (2013)</td>
+                <td class="td-mono">2013–present</td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3)">CHINA</span></td>
+                <td class="td-primary">Three Warfares (三种战法)</td>
+                <td style="font-size:12px">Psychological warfare, public opinion warfare, and legal warfare as integrated doctrine. Win without fighting through comprehensive information environment dominance.</td>
+                <td style="font-size:12px">PLA Political Work Regulations (2003, revised 2010, 2022); Xi Jinping's military speeches</td>
+                <td class="td-mono">2003–present</td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.3)">CHINA</span></td>
+                <td class="td-primary">Discourse Power (话语权)</td>
+                <td style="font-size:12px">Whole-of-society mission to reshape global information environment so that China's preferred narratives become dominant. Includes media investment, academic funding, cultural diplomacy, and digital influence operations.</td>
+                <td style="font-size:12px">Xi Jinping speeches on propaganda; CCP Central Committee media directives (2015, 2018)</td>
+                <td class="td-mono">2012–present</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-high">IRAN</span></td>
+                <td class="td-primary">Cognitive Warfare / IRGC IO</td>
+                <td style="font-size:12px">IRGC Psychological Operations combines military IO with civil MOIS operations. Goal: undermine adversary political will, amplify internal divisions, and advance regional Shia narrative.</td>
+                <td style="font-size:12px">No public doctrine document; inferred from IRGC organisation and operational patterns. DFRLab, Mandiant attribution reports.</td>
+                <td class="td-mono">Post-2003</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-info">NATO</span></td>
+                <td class="td-primary">StratCom Framework</td>
+                <td style="font-size:12px">NATO Strategic Communications: coherent and timely use of communication activities to support Alliance objectives. Defensive framing — counter-FIMI, attribution, resilience-building. NATO StratCom CoE (Riga) as operational hub.</td>
+                <td style="font-size:12px">NATO StratCom Policy (2009, revised 2017); Vilnius Summit communiqué (2023)</td>
+                <td class="td-mono">2009–present</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-info">EEAS</span></td>
+                <td class="td-primary">FIMI Definition &amp; Framework</td>
+                <td style="font-size:12px">Foreign Information Manipulation and Interference: pattern of behaviour that (1) is foreign, (2) is manipulative rather than persuasive, and (3) threatens democratic processes and security. Foundation for EU attribution and response architecture.</td>
+                <td style="font-size:12px">EEAS FIMI Report 2022 (inaugural); updated 2023, 2024, 2025; DSA FIMI provisions</td>
+                <td class="td-mono">2022–present</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-info">OSCE</span></td>
+                <td class="td-primary">Media Freedom / Disinfo Framework</td>
+                <td style="font-size:12px">OSCE approach balances media freedom obligations (HROD mandate) with state-level disinformation response. Tension between counter-FIMI measures and free expression — OSCE provides normative guardrails on state counter-measures.</td>
+                <td style="font-size:12px">OSCE Commitments on Freedom of Expression; Representative on Freedom of the Media annual reports</td>
+                <td class="td-mono">Ongoing</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ======================== REGULATORY TRACKER ======================== -->
+      <section class="section" id="regulatory-tracker">
+        <div class="section-header">
+          <h2 class="section-title">Regulatory Tracker</h2>
+          <span class="section-badge badge-section-info">12 INSTRUMENTS</span>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Instrument</th>
+                <th>Jurisdiction</th>
+                <th>Status (Q1 2026)</th>
+                <th>FIMI Relevance</th>
+                <th>Key Provision</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="td-primary">Digital Services Act (DSA)</td>
+                <td>European Union</td>
+                <td><span class="badge badge-positive">IN FORCE</span></td>
+                <td style="font-size:12px">Primary EU FIMI regulatory instrument for platforms. VLOP transparency, researcher data access, risk assessment obligations.</td>
+                <td style="font-size:12px">Art. 34/35: VLOP systemic risk assessment and mitigation; Art. 40: researcher data access; DSA FIMI taskforce coordination.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">EEAS FIMI Framework / RAS</td>
+                <td>European Union</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">Attribution, naming, and Rapid Alert System for FIMI incidents targeting EU interests.</td>
+                <td style="font-size:12px">RAS activation triggers coordinated EU response; EEAS annual FIMI Reports as primary attribution reference.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">UK Online Safety Act</td>
+                <td>United Kingdom</td>
+                <td><span class="badge badge-moderate">PARTIAL IMPLEMENTATION</span></td>
+                <td style="font-size:12px">Covers illegal content and protection from harm; limited specific FIMI provisions. Ofcom enforcement beginning 2024.</td>
+                <td style="font-size:12px">Duty of care obligations on platforms; foreign state-linked disinformation partially covered under illegal content provisions.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Viginum (SGDSN)</td>
+                <td>France</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">French national FIMI detection and attribution body; reports to Prime Minister. Pioneered Doppelganger attribution in 2022.</td>
+                <td style="font-size:12px">Detects and publicly attributes foreign digital interference campaigns targeting French interests; election protection mandate.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">BfV / Verfassungsschutz FIMI Division</td>
+                <td>Germany</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">German domestic intelligence FIMI remit; public annual reports; coordinates with EEAS RAS.</td>
+                <td style="font-size:12px">Detection and public reporting of foreign influence operations targeting German democratic processes.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">NATO StratCom CoE Mandate</td>
+                <td>NATO (Riga)</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">Research, training, and advisory body. Primary NATO hub for FIMI analysis and counter-narrative best practice.</td>
+                <td style="font-size:12px">Annual reports; attribution research; member state training; Vilnius Summit mandate strengthened (2023).</td>
+              </tr>
+              <tr>
+                <td class="td-primary">G7 Rapid Response Mechanism (RRM)</td>
+                <td>G7</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">G7 coordination mechanism for foreign interference detection and response, particularly around elections.</td>
+                <td style="font-size:12px">Established 2018 Charlevoix Summit; coordinates national-level FIMI intelligence sharing ahead of major elections.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">UN Global Digital Compact</td>
+                <td>United Nations</td>
+                <td><span class="badge badge-moderate">IMPLEMENTATION PHASE</span></td>
+                <td style="font-size:12px">Information integrity commitments from signatory states; non-binding but establishes normative baseline. 5 states assessed as lagging on implementation.</td>
+                <td style="font-size:12px">Commitment 7: information integrity. Implementation monitoring through UN Special Envoy for Technology office.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">FARA (Foreign Agents Registration Act)</td>
+                <td>United States</td>
+                <td><span class="badge badge-moderate">ENFORCEMENT GAPS</span></td>
+                <td style="font-size:12px">US registration requirement for agents of foreign governments engaged in political activities. Major enforcement gap: commercial intelligence firms and PAC-adjacent activity largely exempt.</td>
+                <td style="font-size:12px">Requires disclosure of foreign principal relationships. DOJ enforcement historically weak; 2019 reform limited impact.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Australian Foreign Influence Transparency Scheme</td>
+                <td>Australia</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">Registration scheme for entities undertaking political influence activities on behalf of foreign principals. More comprehensive than FARA.</td>
+                <td style="font-size:12px">Covers political and government influence activities; public register; ASPI ICPC monitoring body.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Canadian Critical Election Incident Protocol</td>
+                <td>Canada</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">Panel of senior officials authorised to publicly disclose foreign interference incidents during election periods.</td>
+                <td style="font-size:12px">Five Heads of Government agreement; activated when foreign interference meets public interest threshold. G7 model.</td>
+              </tr>
+              <tr>
+                <td class="td-primary">Five Eyes FIMI Advisory Framework</td>
+                <td>Five Eyes (AU/CA/NZ/UK/US)</td>
+                <td><span class="badge badge-positive">OPERATIONAL</span></td>
+                <td style="font-size:12px">Coordinated public attribution advisories for state-sponsored cyber-enabled influence operations; strongest multilateral attribution mechanism in existence.</td>
+                <td style="font-size:12px">Joint attributions; Cybersecurity Advisory publications; NCSC/ASD/CSE technical attribution framework.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ======================== ATTRIBUTION METHODS ======================== -->
+      <section class="section" id="attribution-methods">
+        <div class="section-header">
+          <h2 class="section-title">Attribution Methods</h2>
+          <span class="section-badge badge-section-info">ANALYTICAL FRAMEWORK</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);margin-bottom:var(--space-5)">
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:var(--space-5)">
+            <div class="actor-meta-label" style="margin-bottom:var(--space-3)">Technical Attribution</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+              <strong>Infrastructure analysis:</strong> Domain registration patterns, hosting providers, IP clustering, SSL certificate reuse. Google TAG and Microsoft MSTIC primary practitioners.<br><br>
+              <strong>Account behaviour analysis:</strong> Creation date clustering, posting pattern synchronisation, coordinated engagement timing. Meta CIB team methodology.<br><br>
+              <strong>Content fingerprinting:</strong> Template matching, translation artefact detection, AI-generated content classifiers.
+            </div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:var(--space-5)">
+            <div class="actor-meta-label" style="margin-bottom:var(--space-3)">OSINT Attribution</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+              <strong>Narrative alignment:</strong> Mapping content to known actor talking points and doctrinal objectives. Stanford Internet Observatory, DFRLab methodology.<br><br>
+              <strong>Network graph analysis:</strong> Mapping relationships between accounts, websites, funding flows, and personnel. Bellingcat, EU DisinfoLab approach.<br><br>
+              <strong>Source tracing:</strong> Following content from origin through amplification chain to identify seeding point and operator.
+            </div>
+          </div>
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:var(--space-5)">
+            <div class="actor-meta-label" style="margin-bottom:var(--space-3)">Institutional Attribution</div>
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+              <strong>Government attribution:</strong> Intelligence community assessments, EEAS RAS activations, Five Eyes joint advisories — highest confidence but rarely fully public.<br><br>
+              <strong>Platform attribution:</strong> Meta CIB, Google TAG, Microsoft MSTIC — high technical confidence, limited government intelligence access.<br><br>
+              <strong>Hybrid attribution:</strong> Investigative journalism corroborating OSINT with documentary evidence — Forbidden Stories, Haaretz, Süddeutsche model.
+            </div>
+          </div>
+        </div>
+        <div class="attr-legend">
+          <div style="font-size:11px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px;width:100%;margin-bottom:var(--space-1)">This Monitor's Attribution Standards</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">Attribution claims below <strong>Possible</strong> are not published without corroboration from at least two independent source categories. <strong>Confirmed</strong> requires institutional or platform attribution plus independent corroboration. <strong>High</strong> requires strong OSINT evidence without formal attribution. <strong>Assessed</strong> reflects probable attribution based on TTPs and pattern-of-life. <strong>Possible</strong> reflects credible investigative journalism evidence not yet independently corroborated.</div>
+        </div>
+      </section>
+
+      <!-- ======================== WEEKLY BRIEF ======================== -->
+      <section class="section" id="weekly-brief">
+        <div class="section-header">
+          <h2 class="section-title">Weekly Brief</h2>
+          <span class="section-badge badge-section-critical">W/C 30 MAR 2026</span>
+        </div>
+
+        <div class="brief-item critical">
+          <div class="brief-header">
+            <span class="badge badge-critical">CRITICAL</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">19 Mar 2026</span>
+            <span class="brief-source">EEAS / RAS</span>
+          </div>
+          <div class="brief-title">Russia Social Design Agency confirmed operating from Russian Embassy Budapest — EU RAS activated; Hungary election April 12</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">EEAS Rapid Alert System activation confirmed SDA operating from Russian diplomatic premises. Network seeding pro-Orbán, anti-EU narratives through fake Hungarian news sites. Critical timing: 24 days to election. [EEAS StratCom East, Mar 19 2026]</div>
+        </div>
+
+        <div class="brief-item critical">
+          <div class="brief-header">
+            <span class="badge badge-critical">CRITICAL</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">Feb 2026</span>
+            <span class="brief-source">Meta CIB</span>
+          </div>
+          <div class="brief-title">Meta removes 1,700+ Doppelganger assets — largest Russia-attributed removal since 2022</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">February 2026 CIB takedown disrupted Doppelganger network operating fake news sites cloning major German, French and Ukrainian outlets. Network was actively targeting Bundestag election narrative and French domestic political discourse. [Meta Threat Intelligence, February 2026]</div>
+        </div>
+
+        <div class="brief-item high">
+          <div class="brief-header">
+            <span class="badge badge-high">HIGH</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">5 Mar 2026</span>
+            <span class="brief-source">Politico / DW</span>
+          </div>
+          <div class="brief-title">Turning Point Action launches Alliance of Sovereign Nations — includes MEPs with documented Russian financial connections</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">March 5 launch of AoS European far-right coalition, backed by Turning Point Action. Network includes MEPs previously identified in Russian funding investigation. Raises questions about convergence between US-right and Russian IO objectives in European electoral context. [Politico EU / Deutsche Welle, March 2026]</div>
+        </div>
+
+        <div class="brief-item high">
+          <div class="brief-header">
+            <span class="badge badge-high">HIGH</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">Mar 2026</span>
+            <span class="brief-source">Haaretz / Süddeutsche</span>
+          </div>
+          <div class="brief-title">Black Cube lobbying investigation confirmed in German Bundestag — profiling of politicians and journalists</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">Joint investigation by Haaretz and Süddeutsche Zeitung confirms Black Cube private intelligence operations targeting Bundestag members and journalists covering Israeli-Palestinian affairs. Operations included covert profiling, approach attempts, and information gathering feeding into narrative management strategies. [Haaretz / Süddeutsche Zeitung, March 2026]</div>
+        </div>
+
+        <div class="brief-item high">
+          <div class="brief-header">
+            <span class="badge badge-high">HIGH</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">Q1 2026</span>
+            <span class="brief-source">Google TAG</span>
+          </div>
+          <div class="brief-title">Google TAG disrupts Dragonbridge Q1 2026 — 2,500+ assets across YouTube, Blogger, and X</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">Q1 2026 Google Threat Analysis Group disruption of Dragonbridge/Spamouflage network targeting Taiwan Strait narratives and attempting to discredit Five Eyes intelligence community attributions of Chinese cyber operations. [Google TAG Threat Bulletin, Q1 2026]</div>
+        </div>
+
+        <div class="brief-item moderate">
+          <div class="brief-header">
+            <span class="badge badge-moderate">MODERATE</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">Q1 2026</span>
+            <span class="brief-source">DFRLab</span>
+          </div>
+          <div class="brief-title">DFRLab documents Iran-aligned network amplifying campus protest movements across EU and US</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">Atlantic Council DFRLab tracks 400+ coordinated accounts amplifying campus protest movements with pro-IRGC framing, connecting legitimate protest activity to Iranian regime narrative objectives. Network active across X, Instagram, and Telegram. [DFRLab Digital Research, Q1 2026]</div>
+        </div>
+
+        <div class="brief-item moderate">
+          <div class="brief-header">
+            <span class="badge badge-moderate">MODERATE</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">2025 Report</span>
+            <span class="brief-source">EEAS StratCom</span>
+          </div>
+          <div class="brief-title">X enforcement gap: EEAS 2025 report finds 88% of flagged FIMI content remains on platform</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">EEAS annual FIMI report finds X Trust &amp; Safety enforcement has declined to near-inoperational levels for EU-flagged FIMI content. 88% of flagged content remains on platform. X did not participate in Q4 2025 EU DSA FIMI coordination exercise. [EEAS 5th FIMI Report, 2025]</div>
+        </div>
+
+        <div class="brief-item moderate">
+          <div class="brief-header">
+            <span class="badge badge-moderate">MODERATE</span>
+            <span style="font-size:11px;color:var(--text-tertiary);font-family:var(--font-mono)">Mar 2026</span>
+            <span class="brief-source">UN OICT</span>
+          </div>
+          <div class="brief-title">UN Global Digital Compact information integrity commitments under implementation — 5 states assessed as lagging</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2)">UN Office of the Secretary-General's Envoy on Technology assessment finds five signatory states (Russia, Belarus, Iran, North Korea, Venezuela) have made no measurable progress on UN GDC information integrity commitments 18 months post-adoption. [UN OICT Monitoring Report, March 2026]</div>
+        </div>
+      </section>
+
+      <!-- ======================== SOURCES ======================== -->
+      <section class="section" id="sources">
+        <div class="section-header">
+          <h2 class="section-title">Sources</h2>
+          <span class="section-badge badge-section-info">PRIMARY SOURCE REGISTRY</span>
+        </div>
+        <div class="sources-grid">
+          <div class="source-group">
+            <div class="source-group-title">Institutional</div>
+            <ul class="source-list">
+              <li>EEAS StratCom Task Force — FIMI Reports (annual), RAS alerts</li>
+              <li>NATO StratCom Centre of Excellence, Riga — research reports, attributions</li>
+              <li>OSCE HROD — media freedom / disinformation monitoring</li>
+              <li>G7 Rapid Response Mechanism — election interference coordination</li>
+              <li>Five Eyes joint advisories (NCSC/ASD/CSE/CISA/GCSB)</li>
+              <li>EU Digital Services Act enforcement reporting (VLOPs)</li>
+              <li>UN Special Envoy on Technology — Global Digital Compact</li>
+            </ul>
+          </div>
+          <div class="source-group">
+            <div class="source-group-title">Platform Reports</div>
+            <ul class="source-list">
+              <li>Meta CIB Reports — quarterly coordinated inauthentic behaviour disclosures</li>
+              <li>Google Threat Analysis Group (TAG) — quarterly bulletins</li>
+              <li>Microsoft MSTIC — threat intelligence reports</li>
+              <li>TikTok Transparency Reports — enforcement data</li>
+              <li>X / Twitter Trust &amp; Safety — (noted: declining publication rate)</li>
+              <li>Telegram — minimal transparency reporting (noted as gap)</li>
+            </ul>
+          </div>
+          <div class="source-group">
+            <div class="source-group-title">Academic &amp; Think Tank</div>
+            <ul class="source-list">
+              <li>Stanford Internet Observatory (SIO)</li>
+              <li>Atlantic Council DFRLab</li>
+              <li>ASPI International Cyber Policy Centre</li>
+              <li>EU DisinfoLab</li>
+              <li>Disinfo Lab Brussels</li>
+              <li>Bellingcat (OSINT verification)</li>
+              <li>Oxford Internet Institute</li>
+              <li>Carnegie Endowment for International Peace</li>
+            </ul>
+          </div>
+          <div class="source-group">
+            <div class="source-group-title">Investigative Journalism</div>
+            <ul class="source-list">
+              <li>Forbidden Stories (international consortium)</li>
+              <li>IJ4EU — Investigative Journalism for Europe</li>
+              <li>OCCRP — Organised Crime and Corruption Reporting Project</li>
+              <li>Haaretz — Israeli investigative coverage</li>
+              <li>Mediapart (France)</li>
+              <li>Süddeutsche Zeitung Investigativ</li>
+              <li>Der Spiegel / SPIEGEL International</li>
+              <li>The Guardian / Guardian Investigations</li>
+            </ul>
+          </div>
+          <div class="source-group">
+            <div class="source-group-title">National Agencies</div>
+            <ul class="source-list">
+              <li>Viginum / SGDSN (France) — national FIMI agency</li>
+              <li>BfV / Verfassungsschutz (Germany) — annual threat reports</li>
+              <li>GCHQ / NCSC public statements (UK)</li>
+              <li>MI5 public assessments and annual threat reports</li>
+              <li>AIVD (Netherlands) — annual reporting</li>
+              <li>SUPO (Finland) — annual threat assessment</li>
+              <li>SÄPO (Sweden) — foreign influence reporting</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================== ABOUT ======================== -->
+      <section class="section" id="about">
+        <div class="section-header">
+          <h2 class="section-title">About This Monitor</h2>
+          <span class="section-badge badge-section-info">v1.0 · MARCH 2026</span>
+        </div>
+        <div class="about-panel">
+          <h3>What this monitor is</h3>
+          <p>The <strong>Global FIMI &amp; Cognitive Warfare Monitor</strong> tracks Foreign Information Manipulation and Interference (FIMI) as a global cross-actor threat doctrine — not as a regional European concern. It covers campaign attribution, actor doctrine, platform responses, and the evolving institutional and regulatory frameworks through which states and multilateral bodies are attempting to detect, name, and counter information operations.</p>
+          <p>It is the hub of a hub-and-spoke architecture. Other monitors in the <strong>asym-intel.info</strong> suite track FIMI <em>effects</em> within their domains — electoral interference in the Democratic Integrity Monitor, StratCom responses in the European Strategic Autonomy Monitor, narrative operations in the AI Governance Monitor. This monitor tracks the underlying capability, infrastructure, and doctrine that produces those effects.</p>
+
+          <h3>What this monitor is not</h3>
+          <p>It is <strong>not a disinformation fact-checking service</strong>. Fact-checking individual false claims is important work conducted by others (AFP Fact Check, Full Fact, EUvsDisinfo). This monitor tracks the <em>infrastructure, doctrine, and actor behaviour</em> that produces false narratives at scale — the operational layer rather than the content layer.</p>
+          <p>It is <strong>not an advocacy product</strong>. The inclusion of US and Israeli operations alongside Russian and Chinese ones reflects operational reality and methodological consistency, not political equivalence. All actors are assessed by the same criteria: documented cross-border information operations using covert means, foreign funding, or platform manipulation.</p>
+
+          <h3>Publication Cadence</h3>
+          <p><strong>Weekly brief</strong> — published every Thursday. Core format: 6–8 items across the campaign, platform, doctrine, and actor dimensions. Severity-coded (Critical / High / Moderate). Each item carries attribution confidence where relevant.</p>
+          <p><strong>Campaign alert</strong> — ad hoc, 200–300 words, published mid-week when a time-sensitive development demands faster response: a major CIB takedown, a confirmed attribution of an active election interference campaign, or a significant doctrinal shift.</p>
+          <p><strong>Dashboard</strong> — persistent, navigable summary of active campaigns, actor status, platform responses, and framework developments. Updated weekly alongside the brief.</p>
+
+          <h3>Relationship to Other Monitors</h3>
+          <p><strong>Democratic Integrity Monitor</strong> — elections under active FIMI interference are cross-linked. Attribution detail and actor infrastructure live here; the Democratic Integrity Monitor carries the electoral and institutional consequences.</p>
+          <p><strong>European Strategic Autonomy Monitor (EGHTM)</strong> — retains a FIMI spoke covering EU and Member State response posture only: RAS activations, StratCom operations, DSA enforcement. Actor attribution, campaign anatomy, and doctrine cross-link to this hub.</p>
+          <p><strong>AI Governance Monitor</strong> — AI-generated synthetic media, LLM-powered influence operations, and the use of AI in attribution are tracked here; the AI Governance Monitor carries the governance and regulatory response.</p>
+
+          <h3>Methodology and Attribution Standards</h3>
+          <p>Primary sources in priority order: (1) Platform takedown reports and CIB disclosures; (2) EEAS StratCom and Rapid Alert System; (3) Five Eyes public advisories; (4) Academic and think-tank OSINT (Stanford IO, DFRLab, ASPI ICPC, Disinfo Lab, Bellingcat); (5) Investigative journalism (Forbidden Stories, IJ4EU, Haaretz, Mediapart, OCCRP); (6) NATO StratCom CoE and OSCE reporting; (7) National government disclosures (Viginum, BfV, GCHQ, MI5).</p>
+          <p>Attribution confidence is explicitly labelled on each item. <strong>The monitor does not publish attribution claims below "Possible" without corroboration from at least two independent source categories.</strong></p>
+
+          <h3>Created with</h3>
+          <p>Created with <a href="https://www.perplexity.ai/computer" style="color:var(--accent)">Perplexity Computer</a>. Part of the <a href="https://asym-intel.info" style="color:var(--accent)">Asymmetric Intelligence</a> open-source intelligence suite. Published under the asym-intel.info editorial framework.</p>
+        </div>
+      </section>
+
+      <footer class="dashboard-footer">
+        <div class="footer-text">
+          <strong>Global FIMI &amp; Cognitive Warfare Monitor</strong> · asym-intel.info · Updated 30 March 2026<br>
+          Open-source intelligence synthesis. Not classified. Attribution confidence explicitly labelled throughout.<br>
+          <a href="https://asym-intel.info">asym-intel.info</a> · Created with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a>
+        </div>
+      </footer>
+
+    </div><!-- /content-area -->
+  </main>
+</div><!-- /app-layout -->
+
+<script>
+/* ====================== THEME TOGGLE ====================== */
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('btn-light').classList.toggle('active', theme === 'light');
+  document.getElementById('btn-dark').classList.toggle('active', theme === 'dark');
+  localStorage.setItem('fimi-theme', theme);
+  if (window._aiChart) updateChartColors();
+}
+
+// Restore saved theme
+(function() {
+  const saved = localStorage.getItem('fimi-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  if (saved === 'dark') {
+    document.getElementById('btn-light') && document.getElementById('btn-light').classList.remove('active');
+    document.getElementById('btn-dark') && document.getElementById('btn-dark').classList.add('active');
+  }
+})();
+
+/* ====================== HAMBURGER MENU ====================== */
+const hamburger = document.getElementById('hamburger-btn');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+
+hamburger && hamburger.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('visible');
+});
+
+overlay && overlay.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('visible');
+});
+
+/* ====================== SCROLLSPY ====================== */
+const navLinks = document.querySelectorAll('.nav-link[data-section]');
+const sections = document.querySelectorAll('.section[id]');
+
+const observerOptions = {
+  root: null,
+  rootMargin: '-20% 0px -70% 0px',
+  threshold: 0
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-section') === id);
+      });
+    }
+  });
+}, observerOptions);
+
+sections.forEach(section => observer.observe(section));
+
+// Smooth scroll on nav click
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const targetId = link.getAttribute('href');
+    const target = document.querySelector(targetId);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    // Close mobile sidebar
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+  });
+});
+
+/* ====================== CHART — AI Operations Trend ====================== */
+function getChartColors() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    gridColor: isDark ? 'rgba(148,163,184,0.08)' : 'rgba(15,23,42,0.06)',
+    labelColor: isDark ? '#94a3b8' : '#475569',
+    accent: '#0284c7',
+    critical: '#dc2626',
+    high: '#ea580c',
+  };
+}
+
+function updateChartColors() {
+  const colors = getChartColors();
+  const chart = window._aiChart;
+  if (!chart) return;
+  chart.options.scales.x.grid.color = colors.gridColor;
+  chart.options.scales.y.grid.color = colors.gridColor;
+  chart.options.scales.x.ticks.color = colors.labelColor;
+  chart.options.scales.y.ticks.color = colors.labelColor;
+  chart.update();
+}
+
+const ctx = document.getElementById('aiTrendChart');
+if (ctx) {
+  const colors = getChartColors();
+  window._aiChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['2020', '2021', '2022', '2023', '2024', 'Q1 2026'],
+      datasets: [
+        {
+          label: 'AI-Generated Content in FIMI Ops (%)',
+          data: [2, 4, 8, 18, 35, 47],
+          borderColor: '#dc2626',
+          backgroundColor: 'rgba(220,38,38,0.08)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#dc2626',
+        },
+        {
+          label: 'Platform Takedown Actions',
+          data: [3, 5, 8, 11, 14, 12],
+          borderColor: '#0284c7',
+          backgroundColor: 'rgba(2,132,199,0.06)',
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4,
+          pointRadius: 4,
+          pointBackgroundColor: '#0284c7',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: {
+            color: colors.labelColor,
+            font: { family: "'JetBrains Mono', monospace", size: 11 },
+            boxWidth: 12,
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.9)',
+          titleFont: { family: "'JetBrains Mono', monospace", size: 11 },
+          bodyFont: { family: "'Inter', sans-serif", size: 12 },
+          borderColor: 'rgba(148,163,184,0.2)',
+          borderWidth: 1,
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: colors.gridColor },
+          ticks: { color: colors.labelColor, font: { family: "'JetBrains Mono', monospace", size: 11 } }
+        },
+        y: {
+          grid: { color: colors.gridColor },
+          ticks: { color: colors.labelColor, font: { family: "'JetBrains Mono', monospace", size: 11 } }
+        }
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
