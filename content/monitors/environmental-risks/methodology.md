@@ -183,12 +183,75 @@ Atmospheric aerosol loading has a dual risk profile that is easily missed. Aeros
 
 ## Limitations
 
-1. **OSINT-only:** All analysis is derived from open-source intelligence. Classified government assessments, unpublished scientific data, and proprietary modelling outputs are not available to this monitor.
-2. **Attribution confidence variation:** Attribution confidence for US and Israeli environmental impacts on climate policy is lower than for Russia and China, owing to fewer institutional sources (EEAS, NATO StratCom CoE) that treat these actors within the same analytical framework. This asymmetry is explicitly noted where relevant.
-3. **Gulf state OSINT thinness:** Environmental and climate governance data for Saudi Arabia, UAE, and Qatar is systemically thinner than for other tracked actors.
-4. **Sub-Saharan Africa scientific coverage gap:** African climate science — particularly AMOC cascade impacts on Sub-Saharan monsoon systems — is under-represented in the primary source base. Dedicated searches are run to partially compensate.
-5. **Planetary boundary quantification uncertainty:** The Potsdam Institute / Stockholm Resilience Centre boundary framework is the definitive published standard but carries uncertainty ranges that are wider for some boundaries (Novel Entities, Atmospheric Aerosol Loading) than others (Climate Change, Ocean Acidification). This uncertainty is reflected in item-level confidence notes.
-6. **Temporal lag:** Scientific attribution of specific events to boundary transgressions or tipping processes typically lags events by weeks to months. Analytical judgments made on preliminary data are marked as assessments pending verification.
+**Does not replace primary scientific publications.** The GERP Monitor
+synthesises published findings — it does not conduct original scientific
+analysis. For planetary boundary quantification, the authoritative source
+is the Stockholm Resilience Centre / Potsdam Institute primary publications.
+For tipping point early warning, the primary sources are peer-reviewed
+publications in Nature, Science, and Earth System Science Data. This
+monitor tracks and interprets those publications; it does not supersede
+them. Readers requiring primary quantitative data should consult those
+sources directly rather than citing this monitor as the primary reference.
+
+**Tipping point attribution lag is structural, not a data quality failure.**
+Scientific attribution of a specific observable (AMOC proxy metric shift,
+Amazon moisture recycling change, ice sheet mass balance departure) to a
+confirmed tipping process typically lags the observable by weeks to months
+as peer review proceeds. This monitor tracks the observable and the
+preliminary scientific response — not the confirmed peer-reviewed
+attribution. Items flagged as tipping point precursors are marked as
+assessments pending verification. When the peer-reviewed confirmation
+arrives, the entry is upgraded and the lag duration is noted. This
+structural lag is a feature of the scientific process, not a failure of
+this monitor.
+
+**The Novel Entities planetary boundary is qualitatively transgressed but
+quantitatively indeterminate.** The Stockholm Resilience Centre framework
+designates this boundary as transgressed but cannot quantify the degree —
+the measurement methodology for assessing 140,000+ synthetic chemicals
+does not yet exist at scale. Items in this domain reflect a qualitative
+boundary violation, not a quantitative threshold crossing comparable to
+the Climate Change or Biosphere Integrity boundaries. Readers requiring
+quantitative data should consult the UNEP Global Chemicals Outlook and
+the OECD Chemicals Outlook directly. This monitor will not claim
+quantitative precision for Novel Entities status that the primary
+scientific framework does not itself publish.
+
+**Geopolitical cascade chains are analytical assessments, not documented
+causal facts.** The Threat Multiplier cascade chains (physical → human →
+political) represent this monitor's analytical assessment of how physical
+Earth system changes propagate through human and political systems.
+Alternative causal pathways exist and are not systematically excluded.
+These chains are flagged with the filter tag [F1] to distinguish them
+from directly sourced factual items. Readers should treat cascade chain
+entries as structured hypotheses supported by the cited evidence, not as
+established causal relationships.
+
+**Sub-Saharan Africa and South Asia coverage is structurally thinner
+than the primary scientific literature for other regions.** Western
+scientific and institutional sources systematically under-represent
+African and South Asian climate dynamics in the primary source base.
+AMOC cascade impacts on Sub-Saharan monsoon systems, South Asian heat
+stress tipping dynamics, and African biodiversity data are particularly
+under-represented. This monitor runs dedicated weekly searches to
+compensate but cannot fully correct for structural source asymmetry.
+Readers focused on these regions should supplement with: African Climate
+Foundation, TERI (The Energy and Resources Institute, India), CGIAR
+climate research, the African Union Climate Change and Resilient
+Development Centre, and the Indian Meteorological Department. Where
+coverage asymmetry affects item confidence, it is noted explicitly.
+
+**Classified climate intelligence is not available to this monitor.**
+Several national intelligence agencies produce classified climate security
+assessments (US National Intelligence Council, UK Joint Intelligence
+Committee, EU Hybrid Fusion Cell). This monitor does not have access to
+classified products. The primary public-domain equivalents — the US NIC
+Global Trends series, the ODNI Annual Threat Assessment (climate section),
+and the EU Climate Security Risk Assessment — are incorporated where
+relevant. Where a classified assessment is referenced in a public T1
+source (for example, a Senate hearing citing a classified NIC finding),
+the public summary is used and the classified status noted.
+
 
 ---
 
