@@ -12,7 +12,7 @@ ONE SHELL, SEVEN PAINT JOBS.
 Every monitor shares identical HTML structure, identical JavaScript,
 identical CSS architecture. Per-monitor differences are CSS custom
 properties only — accent colour, name, abbreviation, SVG logo.
-A structural change is made once in _shared/ and rolls out to all.
+A structural change is made once in shared/ and rolls out to all.
 
 CRON TASKS NEVER TOUCH HTML, CSS, OR JS.
 The weekly publish cycle writes only to data/ JSON files.
@@ -23,7 +23,7 @@ SECTION 2 — FILE STRUCTURE (canonical)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 static/monitors/
-  _shared/
+  shared/
     css/
       base.css          ← all layout, typography, components, dark mode
     js/
@@ -68,11 +68,11 @@ Every HTML page follows this exact skeleton:
   <link rel="preconnect" href="https://api.fontshare.com">
   <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
   <!-- Shared base styles -->
-  <link rel="stylesheet" href="../_shared/css/base.css">
+  <link rel="stylesheet" href="../shared/css/base.css">
   <!-- Monitor paint layer -->
   <link rel="stylesheet" href="assets/monitor.css">
   <!-- Theme init (must be before body to prevent flash) -->
-  <script src="../_shared/js/theme.js"></script>
+  <script src="../shared/js/theme.js"></script>
 </head>
 <body>
   <!-- Network bar (injected by GitHub Actions — DO NOT REMOVE) -->
@@ -109,7 +109,7 @@ Every HTML page follows this exact skeleton:
   </footer>
 
   <!-- Shared JS -->
-  <script src="../_shared/js/nav.js"></script>
+  <script src="../shared/js/nav.js"></script>
   <!-- Page-specific JS inline or in separate file -->
 </body>
 </html>
@@ -250,8 +250,8 @@ WHAT CRON TASKS MAY NOT TOUCH:
   about.html
   assets/monitor.css
   assets/monitor-logo.svg
-  ../_shared/css/base.css
-  ../_shared/js/*.js
+  ../shared/css/base.css
+  ../shared/js/*.js
 
 Any change to the above requires explicit instruction and is made
 through this session — not by a cron task.
@@ -266,7 +266,7 @@ Format per entry:
   STATUS: [Complete / In Progress / Planned]
   DECISIONS: [decisions made during this build]
   ISSUES: [problems encountered and how resolved]
-  SHELL CHANGES: [any changes made to _shared/ as a result]
+  SHELL CHANGES: [any changes made to shared/ as a result]
   ROLLOUT: [which other monitors received the shell change]
 
 ────────────────────────────────────────────────────────────────
@@ -295,7 +295,7 @@ SECTION 9 — ROLLOUT TRACKER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Tracks when shared shell changes have been applied to each monitor.
-Format: _shared/ change → which monitors updated → date
+Format: shared/ change → which monitors updated → date
 
 [No entries yet — populate as builds progress]
 
@@ -303,7 +303,7 @@ Format: _shared/ change → which monitors updated → date
 SECTION 10 — DECISIONS (resolved 31 March 2026)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Q1 CHARTS: Shared. charts.js lives in _shared/js/. Standard API:
+Q1 CHARTS: Shared. charts.js lives in shared/js/. Standard API:
    window.AsymCharts.line(canvasId, data, options)
    window.AsymCharts.bar(canvasId, data, options)
    window.AsymCharts.gauge(canvasId, value, options)
