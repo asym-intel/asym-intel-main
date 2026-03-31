@@ -1,0 +1,48 @@
+name: Staging deploy
+
+on:
+  push:
+    branches:
+      - staging
+    paths-ignore:
+      - '.github/workflows/**'
+      - 'publishing-workflow.md'
+  workflow_dispatch:
+
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: Build and deploy to staging
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout staging
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.145.0'
+          extended: true
+
+      - name: Build with staging base URL
+        run: |
+          hugo --minify --baseURL "https://staging.asym-intel.info/"
+
+      - name: Deploy to gh-pages-staging branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages-staging
+          cname: staging.asym-intel.info
+          commit_message: "staging deploy: ${{ github.sha }}"
