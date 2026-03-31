@@ -143,6 +143,19 @@ The GERP Monitor operates as a node in the Asymmetric Intelligence hub-and-spoke
 
 ---
 
+
+## Persistent Data
+
+The GERP Monitor maintains the following baseline data week-to-week:
+
+- **Planetary boundary status** — nine boundary readings carry forward from the previous week and are updated only when a new Tier 1/2 scientific publication or institutional status update justifies revision. Boundary status is not changed on the basis of a single weather event or news cycle.
+- **Tipping system early-warning flags** — AMOC, Amazon dieback, polar ice sheets, permafrost methane, coral reefs, and WAIS flags persist until explicitly cleared by new scientific evidence.
+- **Standing trackers** — ICJ Climate Advisory Opinion status and Loss & Damage Finance Mechanism disbursement tracking are updated every week without exception, even when no material development has occurred. A "no change" update is still published.
+- **Attribution gap cases** — novel entities, deep-sea mining, aerosol loading, and microplastic transport entries are cumulative; new developments are appended.
+- **Regional cascade chains** — cross-domain cascade chains (physical → human → political) are carried forward and extended as new links are documented.
+
+The full archive of published weekly briefs is available at [asym-intel.info/monitors/environmental-risks/](https://asym-intel.info/monitors/environmental-risks/).
+
 ## Known Failure Modes
 
 The following systematic biases are actively corrected each week:
