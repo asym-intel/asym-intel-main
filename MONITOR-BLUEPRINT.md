@@ -303,6 +303,20 @@ ISSUES:
     blocked by GitHub Pages/Jekyll. Fixed by renaming to shared/.
   - report.html showed "Loading report..." indefinitely until JS loaded.
     Added defensive fallback: if (window.AsymRenderer && ...) check.
+  - Sidebar HTML comment bug: <!-- populated by renderer.js --> prevents
+    empty-check in renderer.js. Fixed with comment-stripping regex before
+    checking innerHTML. Standard pattern for all future pages.
+  - about.html sidebar ID mismatch: sidebar hrefs used #about-monitor etc.
+    but actual section IDs were #section-description etc. Fixed 31 Mar.
+    RULE: about.html section IDs must always be #section-description,
+    #section-schedule, #section-editor, #section-links. Sidebar hrefs
+    must match exactly.
+POST-LAUNCH SHELL CHANGES (31 March 2026):
+  - base.css v1.1: Increased type scale minimums (xs→0.75rem, sm→0.875rem,
+    base→0.9375rem). Improved text colour contrast (secondary #3d3a35,
+    muted #6b6660, faint #9a958d). Sidebar links font bumped to text-sm.
+    kpi-card__label and kpi-card__sub bumped to text-sm. page-header__meta
+    bumped to text-sm.
 SHELL CHANGES:
   - Added try/catch around render() in shared/js/renderer.js to surface
     JS errors as visible error-state div (not silent failure).
@@ -318,7 +332,8 @@ SECTION 9 — ROLLOUT TRACKER
 Tracks when shared shell changes have been applied to each monitor.
 Format: shared/ change → which monitors updated → date
 
-[No entries yet — populate as builds progress]
+2026-03-31 | base.css v1.1 (larger fonts, better contrast) → WDM (democratic-integrity)
+             Note: applies to all monitors using shared/css/base.css automatically.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SECTION 10 — DECISIONS (resolved 31 March 2026)
@@ -343,3 +358,20 @@ Q4 SEARCH PAGE: Standard across all monitors.
    Implement after core 5 pages (dashboard, report, archive,
    persistent, about) are stable on the first monitor.
    search.html searches archive.json client-side (no server needed).
+
+Q5 STICKY LEFT NAV: YES — use the sticky left sidebar nav for ALL monitors.
+   The sidebar is sticky (position: sticky, top: network-bar + nav-height),
+   scrolls independently from main content, and auto-highlights active section.
+   This is the canonical section navigation pattern across all 7 monitors.
+   Implementation: .monitor-sidebar with position:sticky is already in base.css.
+   auto-nav highlighting: nav.js handles scroll-spy (already implemented).
+
+Q6 SVG MONITOR LOGOS: Deferred — add monitor SVG to sidebar brand area
+   (.monitor-nav__brand) in a later pass after core 5 pages are stable
+   on all monitors. The brand area has gap:var(--space-2) for an inline SVG.
+   When added: 18×18px SVG, monitor accent colour, position: left of abbr text.
+
+Q7 ABOUT.HTML SECTION ID STANDARD (locked):
+   section IDs must be: #section-description, #section-schedule,
+   #section-editor, #section-links, #section-credit
+   Sidebar hrefs must match these exactly. Do not use #about-* prefixes.
