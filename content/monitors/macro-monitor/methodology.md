@@ -26,6 +26,34 @@ The monitor tracks **24 indicators** across six domains, each sourced from a nam
 
 ---
 
+## 1a. Source Hierarchy and Precedence Rules
+
+The Macro Monitor applies a five-tier source hierarchy to all indicator
+flags and narrative items. When tiers conflict, the precedence rules below
+govern which source sets the flag.
+
+| Tier | Category | Named Sources | Rule |
+|---|---|---|---|
+| **T1** | **Primary Institutional Data** | Federal Reserve (SLOOS, H.6, FOMC minutes), ECB Statistical Data Warehouse, BIS Statistics, IMF World Economic Outlook, CBO Budget and Economic Outlook, OBR Economic and Fiscal Outlook, Eurostat, FDIC, EBA, SEC primary filings | **Always use.** Link directly to the primary release. Never cite analysis of a T1 release when the release itself is accessible. T1 data sets the flag; all other tiers interpret it. |
+| **T2** | **Named Financial Data Providers** | Bloomberg Terminal consensus data, Refinitiv/LSEG, Kpler commodity flows, S&P Global Market Intelligence, Trepp (CRE delinquency), FINRA (margin debt), CBOE (VIX, options flow), ICE BofA indices, MarineTraffic (Hormuz/chokepoint), IIF Global Debt Monitor | Use when T1 does not publish the specific metric in real-time. Note where T2 data diverges from T1 official figures — the gap is itself a signal. |
+| **T3** | **Named Research Institutions** | BIS Working Papers, Federal Reserve Bank regional research (NY, SF, Chicago, Dallas), NBER working papers, IIF research, Peterson Institute, Brookings Economic Studies, PIIE | Used for structural analysis, leading indicator interpretation, and signal framing. Not used as primary source for indicator flags unless T1/T2 do not cover the metric. |
+| **T4** | **Named Specialist Media and Analysis** | FT Alphaville, Bloomberg Opinion (identified named economists), WSJ Markets (named reporters), Project Syndicate (named economists), Politico Economy, Eurointelligence, Heterodox Academy economic commentary | Used for forward intelligence and early signals. Attribution lag between T4 analysis and T1/T2 confirmation is tracked as a signal — a T4 thesis confirmed weeks later by T1 data strengthens that analyst's tier weighting. |
+| **T5** | **General Financial Press** | Reuters markets, AP business, general financial press without named economists or primary data | Last resort. Never used to establish a flag. Used only for event timeline verification alongside T1/T2 primary data. Always flagged as T5 in citations. |
+
+**Conflict Rule:** When T1 and T2 data diverge — for example, official
+BLS unemployment vs. ADP private payrolls estimate, or official CPI vs.
+MIT Billion Prices Project — both figures are cited, the gap is quantified
+(e.g. "+0.3pp above official"), and the direction and magnitude of the gap
+is treated as an analytical signal in its own right. Persistent divergence
+between T1 official data and T2 market-derived data often precedes
+revision of the official data series and is tracked accordingly.
+
+**Revision Risk Flag:** Where a T1 data series has a documented history
+of material revision (e.g. non-farm payrolls, GDP advance estimates),
+the initial release is flagged with a revision-risk note. The flag is
+cleared or updated when the revision is published.
+
+
 ## 2. Flag Assignment
 
 Each indicator is assigned one of three flags based on its reading relative to its documented crisis threshold and direction of travel:
