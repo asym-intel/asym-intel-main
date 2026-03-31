@@ -1,6 +1,6 @@
 /* ============================================================
    Asymmetric Intelligence — Shared Monitor Design System
-   shared/css/base.css  ·  Version 1.3  ·  31 March 2026 — right-hand sidebar  ·  31 March 2026
+   shared/css/base.css  ·  Version 1.4  ·  31 March 2026 — mobile overflow fixes
    ONE SHELL, SEVEN PAINT JOBS.
    ============================================================ */
 
@@ -252,6 +252,8 @@ strong { font-weight: 600; }
   display: flex;
   flex-direction: row;
   min-height: calc(100vh - var(--network-bar-height) - var(--nav-height));
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 /* ─── Sidebar ────────────────────────────────────────────── */
@@ -318,6 +320,7 @@ strong { font-weight: 600; }
 .monitor-main {
   flex: 1;
   min-width: 0;
+  overflow-x: hidden;
   padding: var(--space-8) var(--space-8);
 }
 
@@ -1126,6 +1129,7 @@ strong { font-weight: 600; }
 
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
+  body { overflow-x: hidden; }
   .monitor-nav { padding: 0 var(--space-4); }
   .monitor-nav__hamburger { display: flex; }
   .monitor-nav__links {
@@ -1150,9 +1154,11 @@ strong { font-weight: 600; }
     height: calc(100vh - var(--network-bar-height) - var(--nav-height));
     z-index: 98;
     transform: translateX(100%);
+    transition: transform 0.25s ease;
     box-shadow: var(--shadow-md);
   }
-  .monitor-main { padding: var(--space-6) var(--space-4); }
+  .monitor-layout { display: block; overflow-x: hidden; }
+  .monitor-main { padding: var(--space-6) var(--space-4); overflow-x: hidden; }
   .kpi-strip { gap: var(--space-3); }
   .kpi-card { min-width: 130px; }
   .archive-entry { grid-template-columns: 1fr; gap: var(--space-2); }
@@ -1161,6 +1167,13 @@ strong { font-weight: 600; }
   .signal-block::before { display: none; }
   .mimicry-chain__flow { flex-direction: column; }
   .mimicry-arrow { transform: rotate(90deg); align-self: flex-start; }
+  /* Tables scroll horizontally within their container */
+  .heatmap-table { font-size: var(--text-xs); }
+  table { display: block; overflow-x: auto; max-width: 100%; }
+  /* Indicator grid — 3 columns on mobile */
+  .indicator-grid { grid-template-columns: repeat(3, 1fr) !important; }
+  /* Cross-monitor panel full width */
+  .cross-monitor-panel { padding: var(--space-4); }
 }
 
 @media (max-width: 480px) {
