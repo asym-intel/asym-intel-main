@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archive — World Democracy Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Complete archive of World Democracy Monitor issues — reverse-chronological index of published intelligence reports.">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../_shared/js/theme.js"></script>
+</head>
+<body>
+
+  <nav class="monitor-nav" aria-label="Monitor navigation">
+    <a class="monitor-nav__brand" href="dashboard.html">
+      <span class="brand-abbr">WDM</span>
+      <span>World Democracy Monitor</span>
+    </a>
+    <button class="monitor-nav__hamburger" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <ul class="monitor-nav__links" role="list">
+      <li><a href="dashboard.html">Overview</a></li>
+      <li><a href="report.html">Latest Issue</a></li>
+      <li><a href="archive.html" class="active">Archive</a></li>
+      <li><a href="persistent.html">Living Knowledge</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <div class="monitor-nav__actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode"></button>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="page-wrapper">
+
+      <header class="page-header">
+        <div class="page-header__eyebrow">World Democracy Monitor · WDM</div>
+        <h1 class="page-header__title">Issue Archive</h1>
+        <p class="page-header__sub">All published issues in reverse-chronological order. Each issue captures democratic integrity signals, heatmap changes, and institutional flags for the week.</p>
+      </header>
+
+      <div id="archive-container">
+        <div class="loading-state">Loading archive…</div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="monitor-footer">
+    <span>Asymmetric Intelligence · <a href="https://asym-intel.info">asym-intel.info</a></span>
+    <span><a href="dashboard.html">← Back to Overview</a></span>
+  </footer>
+
+  <script src="../_shared/js/nav.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function formatDate(str) {
+      if (!str) return '';
+      try {
+        var d = new Date(str);
+        if (isNaN(d.getTime())) return str;
+        return d.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' });
+      } catch (e) { return str; }
+    }
+
+    function renderArchive(entries) {
+      var container = document.getElementById('archive-container');
+      if (!entries || !entries.length) {
+        container.innerHTML = '<p class="text-muted">No archive entries found.</p>';
+        return;
+      }
+
+      /* Reverse-chronological */
+      var sorted = entries.slice().sort(function (a, b) {
+        var da = new Date(a.published || a.meta && a.meta.published || 0);
+        var db = new Date(b.published || b.meta && b.meta.published || 0);
+        return db - da;
+      });
+
+      var html = '<div class="archive-list">';
+
+      sorted.forEach(function (entry) {
+        var meta    = entry.meta || entry;
+        var issue   = meta.issue || entry.issue || '';
+        var label   = meta.week_label || entry.week_label || '';
+        var pub     = meta.published || entry.published || '';
+        var signal  = entry.signal || (meta && meta.signal) || '';
+        var delta   = entry.delta_strip || [];
+        var srcUrl  = entry.source_url || (meta && meta.source_url) || '';
+
+        /* Top delta item */
+        var topDelta = delta.length ? delta[0] : null;
+
+        html += '<article class="archive-entry">' +
+          '<div class="archive-entry__date">' + esc(formatDate(pub)) + '</div>' +
+          '<div>' +
+            '<div class="archive-entry__issue">Issue ' + esc(String(issue)) + (label ? ' · ' + esc(label) : '') + '</div>' +
+            '<h2 class="archive-entry__title">World Democracy Monitor — Week ' + esc(String(issue)) + '</h2>' +
+            (signal ? '<p class="archive-entry__signal">' + esc(signal) + '</p>' : '') +
+            (topDelta
+              ? '<div class="archive-entry__delta">Top change: ' +
+                  (topDelta.title ? '<strong>' + esc(topDelta.title) + '</strong>' : '') +
+                  (topDelta.one_line ? ' — ' + esc(topDelta.one_line) : '') +
+                '</div>'
+              : '') +
+            (srcUrl
+              ? '<a class="archive-entry__link" href="' + esc(srcUrl) + '" target="_blank" rel="noopener">Read brief →</a>'
+              : '<a class="archive-entry__link" href="report.html">Read current issue →</a>') +
+          '</div>' +
+        '</article>';
+      });
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    fetch('data/archive.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        /* archive.json may be an array or { entries: [] } */
+        var entries = Array.isArray(data) ? data : (data.entries || data.issues || []);
+        renderArchive(entries);
+      })
+      .catch(function (err) {
+        /* Graceful fallback: show current issue only */
+        fetch('data/report-latest.json')
+          .then(function (r) { return r.json(); })
+          .then(function (data) { renderArchive([data]); })
+          .catch(function () {
+            document.getElementById('archive-container').innerHTML =
+              '<div class="error-state">Archive not yet available. <a href="report.html">View current issue →</a></div>';
+          });
+      });
+  })();
+  </script>
+
+</body>
+</html>
