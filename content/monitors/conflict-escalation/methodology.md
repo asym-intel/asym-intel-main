@@ -120,6 +120,19 @@ Each weekly edition produces:
 
 ---
 
+
+## 11 · Persistent Data
+
+The SCEM maintains the following baseline data week-to-week:
+
+- **Conflict roster** — all active roster entries carry forward. Removal from the Active Roster requires two consecutive weekly cycles with no new Tier 1–2 documented activity and an explicit editorial note.
+- **Indicator scores** — all six indicator readings (I1–I6) for each conflict carry forward from the previous week. Changes require primary-source evidence at Tier 1–2 level. The prior week's score is always displayed alongside the current score to make deviation visible.
+- **Historical baselines** — each conflict's median indicator values (established over the first 12 observation cycles) are locked once set. Baseline revision requires a versioned methodology update.
+- **F-flag history** — once an F-flag (F1 False-Flag, F2 Disinformation, F3 Access Denial, F4 Atrocity Inflation) is applied to an indicator reading, it is retained in the record for that cycle even after the claim is clarified. The correction is noted; the original flag is not erased.
+- **Colour band trajectory** — RED/AMBER/GREEN band assignments and trajectory arrows (↑↓→) are carried forward and updated only when indicator movement justifies reclassification.
+
+The full archive of published weekly briefs is available at [asym-intel.info/monitors/conflict-escalation/](https://asym-intel.info/monitors/conflict-escalation/).
+
 ## Version History
 
 | Version | Date | Changes |
