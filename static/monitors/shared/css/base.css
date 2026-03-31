@@ -1,6 +1,6 @@
 /* ============================================================
    Asymmetric Intelligence — Shared Monitor Design System
-   shared/css/base.css  ·  Version 1.1  ·  31 March 2026
+   shared/css/base.css  ·  Version 1.3  ·  31 March 2026 — right-hand sidebar  ·  31 March 2026
    ONE SHELL, SEVEN PAINT JOBS.
    ============================================================ */
 
@@ -14,9 +14,9 @@
   --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
 
   /* Type scale */
-  --text-xs:   clamp(0.75rem,  0.72rem + 0.25vw, 0.8125rem);
-  --text-sm:   clamp(0.875rem, 0.82rem + 0.3vw,  0.9375rem);
-  --text-base: clamp(0.9375rem, 0.9rem + 0.28vw, 1.0625rem);
+  --text-xs:   clamp(0.8125rem, 0.78rem + 0.2vw,  0.875rem);
+  --text-sm:   clamp(0.9375rem, 0.9rem + 0.25vw, 1rem);
+  --text-base: clamp(1rem,      0.96rem + 0.25vw, 1.125rem);
   --text-md:   clamp(1rem,     0.92rem + 0.4vw,  1.125rem);
   --text-lg:   clamp(1.1rem,   0.95rem + 0.75vw, 1.375rem);
   --text-xl:   clamp(1.25rem,  1rem    + 1.25vw, 1.75rem);
@@ -247,9 +247,10 @@ strong { font-weight: 600; }
   padding: 0 var(--space-6);
 }
 
-/* Full-height sidebar layout */
+/* Full-height sidebar layout — main first, sidebar on right */
 .monitor-layout {
   display: flex;
+  flex-direction: row;
   min-height: calc(100vh - var(--network-bar-height) - var(--nav-height));
 }
 
@@ -261,7 +262,7 @@ strong { font-weight: 600; }
   top: calc(var(--network-bar-height) + var(--nav-height));
   height: calc(100vh - var(--network-bar-height) - var(--nav-height));
   overflow-y: auto;
-  border-right: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
   background: var(--color-bg);
   padding: var(--space-6) 0;
   scrollbar-width: thin;
@@ -287,7 +288,7 @@ strong { font-weight: 600; }
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   color: var(--color-text-secondary);
   text-decoration: none;
   transition: color 0.15s, background 0.15s;
@@ -1145,10 +1146,10 @@ strong { font-weight: 600; }
   .monitor-sidebar {
     position: fixed;
     top: calc(var(--network-bar-height) + var(--nav-height));
-    left: 0;
+    right: 0;
     height: calc(100vh - var(--network-bar-height) - var(--nav-height));
     z-index: 98;
-    transform: translateX(-100%);
+    transform: translateX(100%);
     box-shadow: var(--shadow-md);
   }
   .monitor-main { padding: var(--space-6) var(--space-4); }

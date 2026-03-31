@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCEM Latest Issue — Strategic Conflict &amp; Escalation Monitor</title>
+  <meta name="description" content="Full weekly intelligence report from the Strategic Conflict &amp; Escalation Monitor, including all conflict indicators, F-flags, lead developments, and cross-monitor flags.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <style>
+    .indicator-table { width:100%; border-collapse:collapse; font-size:var(--text-xs); margin:var(--space-4) 0; }
+    .indicator-table th { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted); background:var(--color-bg-alt); padding:var(--space-2) var(--space-3); text-align:left; border-bottom:1px solid var(--color-border); white-space:nowrap; }
+    .indicator-table td { padding:var(--space-2) var(--space-3); border-bottom:1px solid var(--color-border-subtle); vertical-align:middle; }
+    .indicator-table tr:last-child td { border-bottom:none; }
+    .indicator-table tr:hover td { background:var(--color-bg-alt); }
+    .level-bar { display:flex; gap:2px; align-items:center; }
+    .level-bar__pip { width:12px; height:8px; border-radius:2px; background:var(--color-border); }
+    .level-bar__pip--filled { background:var(--monitor-accent); }
+    .level-bar__pip--critical { background:var(--critical); }
+    .level-bar__pip--high { background:var(--high); }
+    .level-bar__pip--positive { background:var(--positive); }
+    .level-bar__pip--contested { background:var(--contested); }
+    .f-flags-list { display:flex; gap:var(--space-2); flex-wrap:wrap; margin-top:var(--space-2); }
+    .f-flag-tag { display:inline-flex; align-items:center; gap:4px; background:var(--high-bg); color:var(--high); font-size:0.65rem; font-weight:700; padding:2px 6px; border-radius:var(--radius-sm); letter-spacing:0.06em; }
+    .conflict-section { margin-bottom:var(--space-12); padding:var(--space-6); background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); }
+    .conflict-section__header { margin-bottom:var(--space-4); padding-bottom:var(--space-4); border-bottom:1px solid var(--color-border-subtle); }
+    .conflict-section__name { font-size:var(--text-xl); font-weight:700; color:var(--color-text); letter-spacing:-0.02em; margin-bottom:var(--space-1); }
+    .conflict-section__meta { display:flex; gap:var(--space-4); flex-wrap:wrap; font-size:var(--text-xs); color:var(--color-text-muted); align-items:center; }
+    .roster-watch-list { list-style:none; padding:0; margin:0; }
+    .roster-watch-list li { padding:var(--space-3) 0; border-bottom:1px solid var(--color-border-subtle); font-size:var(--text-sm); color:var(--color-text-secondary); }
+    .roster-watch-list li:last-child { border-bottom:none; }
+    .lead-dev-box { background:var(--monitor-accent-bg); border-left:3px solid var(--monitor-accent); padding:var(--space-3) var(--space-4); border-radius:0 var(--radius) var(--radius) 0; font-size:var(--text-sm); color:var(--color-text); margin:var(--space-3) 0; }
+  </style>
+</head>
+
+<body>
+<style>
+body{padding-top:40px!important}
+/* WDM/blueprint monitors: monitor-nav and sidebar offset */
+.monitor-nav{top:40px!important}
+.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
+/* Legacy monitor overrides (pre-blueprint) */
+nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
+nav.sidebar{height:calc(100vh - 40px)!important}
+.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
+.header:not([data-asym-network-bar]){top:40px!important}
+nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
+</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;"><div style="display:flex;align-items:center;max-width:1200px;margin:0 auto;padding:0 24px;height:100%;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></div></nav>
+
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <span class="brand-abbr">SCEM</span>
+    <span>Strategic Conflict &amp; Escalation Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="index.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html" class="active">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- Module jump strip (populated by JS) -->
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <section class="module-section" id="section-header">
+      <div class="page-header" id="report-header">
+        <div class="loading-state">Loading report…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-lead-signal">
+      <div class="module-header">
+        <div class="module-title">Lead Signal</div>
+      </div>
+      <div id="lead-signal-full">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-conflicts">
+      <div class="module-header">
+        <div class="module-title">Conflict Roster</div>
+      </div>
+      <div id="conflict-sections">
+        <div class="loading-state">Loading conflicts…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-roster-watch">
+      <div class="module-header">
+        <div class="module-title">Roster Watch</div>
+      </div>
+      <div id="roster-watch">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Flags</div>
+      </div>
+      <div id="cross-monitor">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections" id="page-sidebar">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul id="sidebar-links">
+      <li><a href="#section-header">Issue Header</a></li>
+      <li><a href="#section-lead-signal">Lead Signal</a></li>
+      <li><a href="#section-conflicts">Conflicts</a></li>
+      <li><a href="#section-roster-watch">Roster Watch</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer">
+  <span>Strategic Conflict &amp; Escalation Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('data/report-latest.json')
+    .then(function (r) { return r.json(); })
+    .then(renderReport)
+    .catch(function (e) {
+      document.getElementById('report-header').innerHTML = '<div class="error-state">Failed to load report: ' + e.message + '</div>';
+    });
+
+  function renderReport(d) {
+    var meta   = d.meta   || {};
+    var ls     = d.lead_signal || {};
+    var roster = d.conflict_roster || [];
+    var rw     = d.roster_watch || {};
+    var cmf    = d.cross_monitor_flags || {};
+
+    // Header
+    document.getElementById('report-header').innerHTML =
+      '<div class="page-header__eyebrow">Issue ' + (meta.issue||'—') + ' · Vol ' + (meta.volume||'—') + ' · ' + (meta.week_label||'') + '</div>' +
+      '<h1 class="page-header__title">Strategic Conflict &amp; Escalation Monitor</h1>' +
+      '<div class="page-header__meta">' +
+        '<span>Published ' + formatDate(meta.published) + '</span>' +
+        '<span>Schema ' + escHtml(meta.schema_version||'1.0') + '</span>' +
+        '<span>' + escHtml(meta.baseline_status_note||'') + '</span>' +
+      '</div>';
+
+    // Lead signal
+    document.getElementById('lead-signal-full').innerHTML =
+      '<div class="signal-block">' +
+        '<div class="signal-block__label">Lead Signal — ' + escHtml(ls.conflict||'') + '</div>' +
+        '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' + escHtml(ls.headline||'') + '</h2>' +
+        '<p style="margin-bottom:var(--space-2)"><strong style="opacity:0.85">Indicator:</strong> ' + escHtml(ls.indicator||'') + ' · <strong style="opacity:0.85">Deviation:</strong> ' + escHtml(ls.deviation||'') + '</p>' +
+        '<p>' + escHtml(ls.summary||'') + '</p>' +
+        (ls.source_url ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' + escHtml(ls.source_url) + '" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dashed rgba(255,255,255,0.5)">Primary source →</a></p>' : '') +
+      '</div>';
+
+    // Module jump strip
+    var stripHtml = '';
+    roster.forEach(function (c) {
+      var id = conflictId(c.conflict);
+      var short = c.conflict.split(/[\s\/–]/)[0];
+      stripHtml += '<a href="#conflict-' + id + '">' + escHtml(short) + '</a>';
+    });
+
+    // Sidebar links — add individual conflict links
+    var sidebarLinks = document.getElementById('sidebar-links');
+    var extraLinks = '';
+    roster.forEach(function (c) {
+      var id = conflictId(c.conflict);
+      extraLinks += '<li style="padding-left:var(--space-2)"><a href="#conflict-' + id + '" style="font-size:var(--text-xs)">' + escHtml(c.conflict) + '</a></li>';
+    });
+    // Insert before roster-watch
+    sidebarLinks.innerHTML =
+      '<li><a href="#section-header">Issue Header</a></li>' +
+      '<li><a href="#section-lead-signal">Lead Signal</a></li>' +
+      '<li><a href="#section-conflicts">Conflicts</a></li>' +
+      extraLinks +
+      '<li><a href="#section-roster-watch">Roster Watch</a></li>' +
+      '<li><a href="#section-cross-monitor">Cross-Monitor</a></li>';
+
+    // Conflict sections
+    var conflictsHtml = '';
+    roster.forEach(function (c) {
+      var id = conflictId(c.conflict);
+      var flags = c.f_flags || [];
+      var inds  = c.indicators || {};
+      var worst = getWorstBand(inds);
+      var rowClass = bandToRowClass(worst.band);
+
+      conflictsHtml +=
+        '<div class="conflict-section module-section" id="conflict-' + id + '">' +
+          '<div class="conflict-section__header">' +
+            '<div class="conflict-section__name">' + escHtml(c.conflict) + '</div>' +
+            '<div class="conflict-section__meta">' +
+              '<span>' + escHtml(c.theatre) + '</span>' +
+              '<span>' + escHtml(c.trajectory_arrow||'') + ' ' + escHtml(c.trajectory||'') + '</span>' +
+              '<span><span class="severity-badge severity-badge--' + rowClass + '">' + escHtml(worst.band||'') + '</span></span>' +
+              '<span>' + escHtml(c.baseline_status||'Contested') + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<table class="indicator-table">' +
+            '<thead><tr><th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Note</th></tr></thead>' +
+            '<tbody>' + renderIndicatorRows(inds) + '</tbody>' +
+          '</table>' +
+          (flags.length ? '<div style="margin-top:var(--space-3)"><div class="section-label">F-Flags</div><div class="f-flags-list">' + renderFFlags(flags) + '</div></div>' : '') +
+          (c.lead_development ? '<div class="lead-dev-box"><strong>Lead Development:</strong> ' + escHtml(c.lead_development) + '</div>' : '') +
+          (c.summary ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.65;margin-top:var(--space-3)">' + escHtml(c.summary) + '</p>' : '') +
+          (c.source_url ? '<p style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Primary source →</a></p>' : '') +
+        '</div>';
+    });
+    document.getElementById('conflict-sections').innerHTML = conflictsHtml;
+
+    // Roster Watch
+    var rwHtml = '';
+    var approaching = rw.approaching_inclusion || [];
+    var retiring    = rw.approaching_retirement || [];
+    if (approaching.length) {
+      rwHtml += '<div class="section-label">Approaching Inclusion</div>' +
+        approaching.map(function(r) {
+          if (typeof r === 'string') return '<div class="intel-item" style="margin-bottom:var(--space-3)"><div class="intel-item__summary">' + escHtml(r) + '</div></div>';
+          var criteria = (r.criteria_met||[]).map(function(c){ return '<span class="severity-badge severity-badge--moderate" style="margin-right:4px">'+escHtml(c)+'</span>'; }).join('');
+          return '<div class="intel-item" style="margin-bottom:var(--space-3)">' +
+            '<div class="intel-item__header">' +
+              '<div class="intel-item__meta">' +
+                '<div class="intel-item__country">' + escHtml(r.theatre||'') + '</div>' +
+                '<div class="intel-item__headline">' + escHtml(r.conflict||'') + '</div>' +
+              '</div>' +
+              '<span class="severity-badge severity-badge--high">' + escHtml(r.status||'Watch') + '</span>' +
+            '</div>' +
+            (r.note ? '<div class="intel-item__summary">' + escHtml(r.note) + '</div>' : '') +
+            (criteria ? '<div class="intel-item__footer">' + criteria + '</div>' : '') +
+          '</div>';
+        }).join('');
+    }
+    if (retiring.length) {
+      rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div>' +
+        retiring.map(function(r) {
+          if (typeof r === 'string') return '<div class="intel-item" style="margin-bottom:var(--space-3)"><div class="intel-item__summary">' + escHtml(r) + '</div></div>';
+          return '<div class="intel-item" style="margin-bottom:var(--space-3)">' +
+            '<div class="intel-item__header"><div class="intel-item__meta">' +
+              '<div class="intel-item__country">' + escHtml(r.theatre||'') + '</div>' +
+              '<div class="intel-item__headline">' + escHtml(r.conflict||'') + '</div>' +
+            '</div></div>' +
+            (r.note ? '<div class="intel-item__summary">' + escHtml(r.note) + '</div>' : '') +
+          '</div>';
+        }).join('');
+    }
+    if (!approaching.length && !retiring.length) {
+      rwHtml = '<p class="text-muted text-sm">No roster changes signalled this week.</p>';
+    }
+    document.getElementById('roster-watch').innerHTML = rwHtml;
+
+    // Cross-monitor flags
+    renderCrossMonitor(cmf, 'cross-monitor');
+  }
+
+  function renderIndicatorRows(inds) {
+    var INDICATOR_NAMES = {
+      I1_rhetoric: 'I1 · Rhetoric', I2_military_posture: 'I2 · Military Posture',
+      I3_nuclear_strategic: 'I3 · Nuclear/Strategic', I4_economic_warfare: 'I4 · Economic Warfare',
+      I5_diplomatic: 'I5 · Diplomatic', I6_displacement: 'I6 · Displacement'
+    };
+    var html = '';
+    Object.keys(inds).forEach(function (k) {
+      var ind = inds[k];
+      var name = INDICATOR_NAMES[k] || k;
+      var bandClass = bandToRowClass(ind.band);
+      var pips = '';
+      for (var i = 1; i <= 5; i++) {
+        var filled = i <= (ind.level||0);
+        pips += '<div class="level-bar__pip' + (filled ? ' level-bar__pip--' + bandClass : '') + '"></div>';
+      }
+      var dev = ind.deviation || 0;
+      var devStr = dev > 0 ? '+' + dev : String(dev);
+      html +=
+        '<tr>' +
+          '<td><strong>' + escHtml(name) + '</strong></td>' +
+          '<td><div class="level-bar">' + pips + '</div><span style="font-size:0.65rem;margin-left:4px;color:var(--color-text-muted)">' + (ind.level||0) + '/5</span></td>' +
+          '<td>' + (ind.baseline||'—') + '</td>' +
+          '<td><strong style="color:' + (dev > 0 ? 'var(--critical)' : dev < 0 ? 'var(--positive)' : 'var(--color-text-muted)') + '">' + devStr + '</strong></td>' +
+          '<td><span class="severity-badge severity-badge--' + bandClass + '">' + escHtml(ind.band||'') + '</span></td>' +
+          '<td>' + escHtml(ind.confidence||'') + '</td>' +
+          '<td style="max-width:260px;white-space:normal;font-size:0.65rem;color:var(--color-text-secondary)">' + escHtml(ind.note||'') + '</td>' +
+        '</tr>';
+    });
+    return html;
+  }
+
+  function renderFFlags(flags) {
+    var F_LABELS = { F1:'Single source', F2:'Adjacent escalation', F3:'Unverified', F4:'State media only' };
+    return flags.map(function (f) {
+      var label = F_LABELS[f.flag] || f.flag;
+      return '<span class="f-flag-tag" title="' + escHtml(f.detail||'') + '">' + escHtml(f.flag) + ' · ' + escHtml(label) + '</span>';
+    }).join('');
+  }
+
+  function renderCrossMonitor(cmf, targetId) {
+    var flags = cmf.flags || [];
+    var el = document.getElementById(targetId);
+    if (!flags.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
+      return;
+    }
+    var html = '<div class="cross-monitor-panel">' +
+      '<div class="cross-monitor-panel__title">Cross-Monitor Flags · Updated ' + escHtml(cmf.updated||'') + '</div>';
+    flags.forEach(function (flag) {
+      html +=
+        '<div class="cms-flag">' +
+          '<div class="cms-flag__header">' +
+            '<div class="cms-flag__id">' + escHtml(flag.flag_id||'') + '</div>' +
+            '<span class="severity-badge severity-badge--' + bandToRowClass(flag.severity||'moderate') + '">' + escHtml(flag.severity||'') + '</span>' +
+          '</div>' +
+          '<div class="cms-flag__title">' + escHtml(flag.title||'') + '</div>' +
+          '<div class="cms-flag__monitors">Monitors: ' + escHtml((flag.monitors||[]).join(', ')) + '</div>' +
+          '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(flag.summary||'') + '</div>' +
+          '<span class="cms-read-more">Read more →</span>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+    if (window.AsymNav) AsymNav.init();
+  }
+
+  function getWorstBand(inds) {
+    var worst = { band: 'CONTESTED' };
+    Object.values(inds).forEach(function (ind) {
+      var b = (ind.band||'').toUpperCase();
+      if (b === 'RED' || b === 'ANOMALOUS') worst = { band: ind.band };
+      else if ((b === 'AMBER' || b === 'ELEVATED') && worst.band.toUpperCase() !== 'RED' && worst.band.toUpperCase() !== 'ANOMALOUS') worst = { band: ind.band };
+    });
+    return worst;
+  }
+
+  function bandToRowClass(band) {
+    var b = (band||'').toUpperCase();
+    if (b === 'RED' || b === 'ANOMALOUS') return 'critical';
+    if (b === 'AMBER' || b === 'ELEVATED') return 'high';
+    if (b === 'CONTESTED') return 'moderate';
+    if (b === 'GREEN' || b === 'NORMAL') return 'positive';
+    return 'moderate';
+  }
+
+  function conflictId(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}); }
+    catch(e) { return iso; }
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+});
+</script>
+</body>
+</html>

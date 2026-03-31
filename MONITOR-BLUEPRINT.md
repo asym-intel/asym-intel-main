@@ -422,3 +422,338 @@ NOTE ON SITE HIERARCHY AND MONITOR IDENTITY:
     monitor.css — the nav links (Overview, Latest Issue, Archive…) are
     standard across all monitors and defined in the HTML shell.
     The monitor nav is structural HTML — never touched by cron tasks.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 12 — BLUEPRINT v2.0 (locked 31 March 2026)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Supersedes the v1.0 decisions (Sections 3–10) where in conflict.
+Reference standard: AI Governance Monitor architecture + WDM
+persistent-state patterns + lessons from Build 1.
+
+────────────────────────────────────────────────────────────────
+STANDARD PAGE SET (8 pages per monitor)
+────────────────────────────────────────────────────────────────
+
+  index.html       Monitor landing page — issue list, brief
+                   descriptions, monitor identity. The "magazine
+                   front page" for the monitor.
+
+  dashboard.html   Current issue: KPI strip + signal block +
+                   delta strip. Canonical monitor URL.
+
+  report.html      Full current issue — all modules rendered from
+                   report-latest.json. Right-hand sticky nav.
+                   Optional horizontal module jump strip (auto-
+                   generated from JSON keys; shown if 6+ modules).
+
+  archive.html     All past issues from archive.json.
+
+  persistent.html  Living knowledge — entities that persist and
+                   accumulate across issues with full version
+                   history. Cross-monitor flags live here (not
+                   just in weekly report JSON).
+
+  about.html       Editor, publication schedule, methodology link,
+                   technical credit. Section IDs: #section-
+                   description, #section-schedule, #section-editor,
+                   #section-links, #section-credit (locked).
+
+  methodology.html PUBLIC methodology page — WHAT the monitor
+                   tracks and WHY those sources/frameworks were
+                   chosen. Credibility signalling only.
+                   NEVER includes: scoring rubrics, prompt
+                   structure, weighting logic, or editorial
+                   process. The full 'how-to' methodology stays
+                   in private internal files only.
+
+  search.html      Client-side search across archive.json.
+                   Standard across all monitors.
+
+NO per-monitor digest.html. See Section 12 — Digest below.
+
+────────────────────────────────────────────────────────────────
+NAVIGATION ARCHITECTURE
+────────────────────────────────────────────────────────────────
+
+LAYER 1 — NETWORK BAR (site infrastructure, never modified per monitor)
+  40px, fixed, dark (#1a1918), z-index 9999.
+  Content: Asymmetric Intelligence brand + Monitors / Compossible
+  / The White Space links.
+  Injected automatically by GitHub Actions workflow.
+  No monitor may alter height, colour, font, content, or behaviour.
+
+LAYER 2 — MONITOR NAV (monitor identity, consistent structure)
+  52px, sticky below network bar, background: var(--color-bg).
+  Left: monitor SVG logo + abbreviation + full name (styled via
+  monitor.css — colour, font weight tweakable).
+  Centre: standard page links — Overview · Latest Issue · Archive
+  · Living Knowledge · About (all monitors identical).
+  Right: theme toggle.
+  The monitor name/abbr area is LARGER than the network bar text
+  to give each monitor its own visual identity. Styled via:
+    .monitor-nav__brand in monitor.css (accent colour, SVG).
+
+LAYER 3 — RIGHT-HAND STICKY SECTION NAV (all pages, all monitors)
+  Position: sticky right sidebar, ~220px wide.
+  Behaviour: stays in view as user scrolls; highlights active
+  section via Intersection Observer scroll-spy (nav.js).
+  Content: auto-generated from page sections or JSON module keys.
+  Used on: all 8 standard pages (not just report.html).
+  Replaces: the left sidebar used in WDM Build 1.
+
+LAYER 4 — MODULE JUMP STRIP (report.html only, 6+ modules)
+  Horizontal strip below monitor-nav, sticky.
+  Auto-generated from report-latest.json top-level keys
+  (excluding meta, source_url, cross_monitor_flags).
+  Short labels only (M00, M01... or abbreviated module names).
+
+────────────────────────────────────────────────────────────────
+CANONICAL MONITOR NAMES (use these names consistently — always)
+────────────────────────────────────────────────────────────────
+
+  Full name                                Abbr   Slug
+  ─────────────────────────────────────── ──────  ──────────────────────────────
+  World Democracy Monitor                  WDM    democratic-integrity
+  Global Macro Monitor                     GMM    macro-monitor
+  FIMI & Cognitive Warfare Monitor         FCW    fimi-cognitive-warfare
+  European Strategic Autonomy Monitor      ESA    european-strategic-autonomy
+  AI Governance Monitor                    AGM    ai-governance
+  Environmental Risks Monitor              ERM    environmental-risks
+  Strategic Conflict & Escalation Monitor  SCEM   conflict-escalation
+
+RULE: Always refer to monitors by their full name or abbreviation
+above. Never use partial names, slug names, or informal variants
+in documentation, prompts, or user communications.
+
+────────────────────────────────────────────────────────────────
+EMAIL DIGEST
+────────────────────────────────────────────────────────────────
+
+ONE digest for the whole network — not per monitor.
+Schedule: one email per day of the week, one per monitor,
+matching existing publish schedule:
+  Monday    — World Democracy Monitor (WDM)
+  Monday    — Global Macro Monitor (GMM) [08:00 UTC, after WDM]
+  Thursday  — FIMI & Cognitive Warfare Monitor (FCW)
+  Wednesday — European Strategic Autonomy Monitor (ESA)
+  Friday    — AI Governance Monitor (AGM)
+  Saturday  — Environmental Risks Monitor (ERM)
+  Sunday    — Strategic Conflict & Escalation Monitor (SCEM)
+
+Subscribers choose which days they want. Managed via Buttondown
+at https://buttondown.com/asym-intel (single list).
+
+No per-monitor digest.html pages. The network-wide subscribe
+page at /subscribe/ is the single entry point.
+The existing per-monitor digest.html (AI Governance) will be
+deprecated and redirected to /subscribe/.
+
+────────────────────────────────────────────────────────────────
+JSON PIPELINE (v2.0 — MANDATORY FOR ALL MONITORS)
+────────────────────────────────────────────────────────────────
+
+The JSON pipeline is NON-NEGOTIABLE. It is the backbone of:
+  1. All monitor dashboards, report, archive, and persistent pages
+  2. Data quality and consistency across issues
+  3. The Whitespace network graph tool (reads cross_monitor_flags
+     from all 7 monitors to build the inter-monitor connection
+     graph — this ONLY works if all monitors publish consistent,
+     machine-readable JSON at known paths)
+
+CRON TASKS WRITE ONLY THESE FILES — nothing else:
+  Path: static/monitors/{slug}/data/
+
+  report-latest.json    Current issue — always overwritten
+  report-{date}.json    Dated archive copy — never overwritten
+  archive.json          Append-only issue index
+  persistent-state.json Living knowledge — surgically updated,
+                        never wholesale replaced
+
+FILE SCHEMAS:
+
+  report-latest.json
+  ──────────────────
+  {
+    "meta": {
+      "issue":           integer,
+      "volume":          integer,
+      "week_label":      "string",
+      "published":       "ISO-8601",
+      "slug":            "monitor-slug",
+      "publish_time_utc":"HH:MM",
+      "editor":          "string",
+      "schema_version":  "2.0"
+    },
+    "signal":            { ... },   ← named semantic keys
+    [module keys]:       { ... },   ← named, never module_0
+    "delta_strip":       [ ... ],
+    "cross_monitor_flags": { ... }, ← ALSO in persistent-state
+    "source_url":        "string"
+  }
+  RULE: All top-level keys must be named semantically.
+  NEVER use module_0, module_1 etc. Adding a module requires
+  only adding a new named key — no renumbering.
+
+  archive.json
+  ────────────
+  {
+    "issues": [
+      {
+        "issue":     integer,
+        "published": "ISO-8601",
+        "slug":      "string",
+        "title":     "string",
+        "signal":    "one-sentence summary",
+        "url":       "path/to/report-{date}.json"
+      }
+    ]
+  }
+  RULE: Append only. Never delete or modify past entries.
+
+  persistent-state.json
+  ─────────────────────
+  {
+    "_meta": {
+      "monitor_slug":    "string",
+      "monitor_name":    "canonical name",
+      "last_updated":    "ISO-8601",
+      "last_issue":      "ISO-8601",
+      "schema_version":  "2.0",
+      "description":     "string"
+    },
+    [named entity groups]: { ... },  ← monitor-specific living data
+    "cross_monitor_flags": {         ← LIVES HERE (not just report)
+      "updated": "ISO-8601",
+      "flags": [
+        {
+          "id":                      "cmf-NNN",
+          "monitors_involved":       ["Canonical Monitor Name"],
+          "monitor_url":             "https://...",
+          "title":                   "string",
+          "linkage":                 "string",
+          "this_monitor_perspective":"string",
+          "type":                    "string",
+          "status":                  "Active | Resolved | Watching",
+          "first_flagged":           "ISO-8601",
+          "unchanged_since":         "ISO-8601",
+          "version_history": [
+            {
+              "date":        "ISO-8601",
+              "change":      "string",
+              "reason":      "string",
+              "prior_value": null or "string"
+            }
+          ]
+        }
+      ],
+      "version_history": [ ... ]
+    }
+  }
+  RULES:
+  — Flags are NEVER deleted. Closed = status: "Resolved".
+  — Each entity group uses version_history[] for audit trail.
+  — Surgical updates only — never replace the whole file.
+  — monitor_name must use canonical name from Section 12.
+
+WHITESPACE NETWORK GRAPH — PIPELINE DEPENDENCY
+  The Whitespace tool reads cross_monitor_flags from all 7
+  persistent-state.json files to build the network graph
+  showing inter-monitor connections.
+
+  For this to work, every monitor MUST:
+  1. Publish persistent-state.json at the standard path
+  2. Include cross_monitor_flags with the standard schema above
+  3. Use canonical monitor names in monitors_involved[]
+  4. Keep status field current (Active / Resolved / Watching)
+
+  If any monitor omits cross_monitor_flags or uses non-standard
+  monitor names, that monitor will be an isolated node in the
+  Whitespace graph — breaking the network visualisation.
+
+schema_version "2.0" signals Blueprint v2.0 compliance.
+All monitors must bump to "2.0" when rebuilt.
+
+────────────────────────────────────────────────────────────────
+METHODOLOGY PAGE — PUBLIC/PRIVATE BOUNDARY (locked)
+────────────────────────────────────────────────────────────────
+
+PUBLIC (in methodology.html on live site):
+  — What the monitor tracks (scope, domain, geographic coverage)
+  — Why those sources were chosen (credibility, independence,
+    track record — the 'standing' of the monitor)
+  — Which organisations/databases are primary sources
+  — Publication frequency and editorial standards
+
+PRIVATE (internal methodology files only — never published):
+  — Scoring rubrics and numerical weighting
+  — Prompt structure and AI instruction sets
+  — Step-by-step editorial process and workflow
+  — How severity levels are assigned
+  — How confidence levels are determined
+
+RATIONALE: The public methodology establishes credibility and
+transparency for readers. The private methodology is operational
+IP. Mixing them would either expose operational details or
+dilute the public credibility signal with procedural noise.
+
+────────────────────────────────────────────────────────────────
+SHARED LIBRARY — v2.0 CHANGES
+────────────────────────────────────────────────────────────────
+
+base.css: v1.1 in effect (larger type scale, better contrast).
+          Right-hand sidebar replaces left sidebar.
+          .monitor-sidebar → position: sticky, RIGHT side.
+
+nav.js: Update Intersection Observer to highlight right-hand
+        nav links (not left). Same scroll-spy logic.
+
+renderer.js: Add support for named persistent-state entity
+             groups. Auto-detect cross_monitor_flags key in
+             persistent-state.json and render dedicated panel.
+
+────────────────────────────────────────────────────────────────
+BUILD ORDER (revised)
+────────────────────────────────────────────────────────────────
+
+  1. Update Blueprint shell (shared/) for v2.0
+     — right-hand nav, 8-page set, new renderer features
+  2. Build Conflict Escalation (SCEM) — simplest structure,
+     good test of new shell
+  3. Rebuild WDM (democratic-integrity) to v2.0 shell
+     — adds index.html, search.html, methodology.html,
+       migrates to right-hand nav, adds persistent cross-monitor
+       flags
+  4. Environmental Risks
+  5. FIMI
+  6. Macro Monitor
+  7. European Strategic Autonomy (ESA)
+  8. AI Governance — last, migrate to shared/ library,
+     rename module keys to semantic naming, add persistent.html
+
+────────────────────────────────────────────────────────────────
+LESSONS FROM BUILD 1 (WDM) — carried into v2.0
+────────────────────────────────────────────────────────────────
+
+1. _shared/ → shared/: GitHub Pages silently 404s underscore
+   dirs. All shared assets in shared/ only. NEVER use _ prefix.
+
+2. HTML comment bug: <!-- populated by renderer.js --> prevents
+   empty-check. Strip comments before checking innerHTML.
+
+3. Network bar requires plain <body> tag + blank line after.
+   Inject workflow matches '<body>\n' pattern.
+
+4. DOMContentLoaded guard: all renderer init calls need guard.
+
+5. about.html section IDs locked:
+   #section-description, #section-schedule, #section-editor,
+   #section-links, #section-credit. Sidebar hrefs must match.
+
+6. sidebar.js scroll-spy: use scroll-margin-top equal to
+   network-bar-height + nav-height + space-4 on all
+   .module-section elements.
+
+7. Confirm before pushing to main (Section 11). All build work
+   on staging branch → review at staging.asym-intel.info →
+   PR to main for production release.

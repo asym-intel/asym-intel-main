@@ -1,1929 +1,287 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Strategic Conflict &amp; Escalation Monitor — Dashboard</title>
-  <style>
-    /* ── Reset & Base ── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      /* ── Light theme — main content ── */
-      --bg-primary:   #f1f5f9;
-      --bg-secondary: #ffffff;
-      --bg-card:      #ffffff;
-      --bg-hover:     #f8fafc;
-      --accent:       #dc2626;
-      --accent-dim:   #991b1b;
-      --text-primary: #0f172a;
-      --text-secondary: #1e293b;
-      --text-muted:   #475569;
-      --text-dim:     #64748b;
-      --border:       #cbd5e1;
-      --border-light: #e2e8f0;
-      --green:        #16a34a;
-      --amber:        #d97706;
-      --crimson:      #dc2626;
-      --red:          #dc2626;
-      --contested:    #7c3aed;
-      --sidebar-w:    240px;
-      /* ── Sidebar stays dark ── */
-      --sidebar-bg:      #0f172a;
-      --sidebar-border:  #1e293b;
-      --sidebar-text:    #94a3b8;
-      --sidebar-text-active: #e8eaed;
-    }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.6;
-      font-size: 17px;
-    }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    /* ── Layout ── */
-    .layout { display: flex; min-height: 100vh; }
-
-    /* ── Sidebar ── */
-    .sidebar {
-      width: var(--sidebar-w);
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--sidebar-border);
-      position: fixed;
-      top: 40px; left: 0; bottom: 0;
-      overflow-y: auto;
-      height: calc(100vh - 40px);
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-    }
-    /* sidebar-brand replaced by sidebar-header */
-    .sidebar-edition {
-      padding: 8px 16px;
-      font-size: 15px;
-      color: var(--sidebar-text);
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--sidebar-border);
-    }
-    .sidebar-header {
-      padding: 20px 16px;
-      border-bottom: 1px solid var(--sidebar-border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .sidebar-logo { width: 36px; height: 36px; flex-shrink: 0; }
-    .sidebar-mark {
-      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-      font-size: 17px;
-      font-weight: 700;
-      color: #f1f3f5;
-      letter-spacing: 2px;
-    }
-    .sidebar nav { padding: 12px 0; flex: 1; }
-    .sidebar nav a {
-      display: block;
-      padding: 8px 16px;
-      font-size: 17px;
-      font-weight: 500;
-      color: var(--sidebar-text);
-      border-left: 3px solid transparent;
-      transition: all 0.15s;
-    }
-    .sidebar nav a:hover, .sidebar nav a.active {
-      color: var(--accent);
-      border-left-color: var(--accent);
-      background: rgba(220,38,38,0.10);
-      text-decoration: none;
-    }
-    .sidebar-section-label {
-      padding: 16px 16px 4px;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: #4b5563;
-    }
-    .sidebar-monitors {
-      padding: 0 0 20px;
-    }
-    .sidebar-monitors a {
-      display: block;
-      padding: 6px 16px;
-      font-size: 15px;
-      color: var(--sidebar-text);
-    }
-    .sidebar-monitors a:hover { color: var(--accent); text-decoration: none; }
-
-    /* ── Main Content ── */
-    .main {
-      margin-left: var(--sidebar-w);
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── Header ── */
-    .header {
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border);
-      padding: 20px 32px;
-      position: sticky;
-      top: 40px;
-      z-index: 50;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    }
-    .header-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-    }
-    .header-title h1 {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--text-primary);
-      letter-spacing: -0.3px;
-    }
-    .header-title h1 span { color: var(--accent); }
-    .header-meta {
-      display: flex;
-      gap: 16px;
-      margin-top: 6px;
-      flex-wrap: wrap;
-    }
-    .header-badge {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 3px;
-    }
-    .badge-edition {
-      background: rgba(220,38,38,0.15);
-      color: var(--accent);
-      border: 1px solid var(--accent-dim);
-    }
-    .badge-date {
-      background: rgba(148,163,184,0.1);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-    }
-    .badge-contested {
-      background: rgba(168,85,247,0.15);
-      color: var(--contested);
-      border: 1px solid rgba(168,85,247,0.3);
-    }
-
-    /* ── Content Area ── */
-    .content { padding: 32px; max-width: 1200px; }
-
-    /* ── Section Titles ── */
-    .section-title {
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .section-number {
-      background: var(--accent);
-      color: #ffffff;
-      font-size: 15px;
-      font-weight: 900;
-      padding: 2px 6px;
-      border-radius: 2px;
-    }
-    .section { margin-bottom: 56px; scroll-margin-top: 220px; }
-
-    /* ── Conflict Overview Cards ── */
-    .overview-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 12px;
-    }
-    .conflict-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 16px;
-      position: relative;
-      overflow: hidden;
-    }
-    .conflict-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-    }
-    .conflict-card.escalating::before { background: var(--red); }
-    .conflict-card.stable::before { background: var(--green); }
-    .conflict-card.contested::before { background: var(--contested); }
-    .conflict-card .card-region {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 4px;
-    }
-    .conflict-card .card-name {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-    }
-    .conflict-card .card-trajectory {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      padding: 3px 8px;
-      border-radius: 3px;
-      margin-bottom: 8px;
-    }
-    .trajectory-escalating {
-      background: rgba(239,68,68,0.12);
-      color: var(--red);
-      border: 1px solid rgba(239,68,68,0.25);
-    }
-    .trajectory-stable {
-      background: rgba(34,197,94,0.1);
-      color: var(--green);
-      border: 1px solid rgba(34,197,94,0.2);
-    }
-    .trajectory-contested {
-      background: rgba(168,85,247,0.1);
-      color: var(--contested);
-      border: 1px solid rgba(168,85,247,0.2);
-    }
-    .conflict-card .card-signal {
-      font-size: 15px;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-    .conflict-card .card-signal strong { color: var(--text-primary); }
-
-    /* ── Band Pills ── */
-    .band {
-      display: inline-block;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 3px;
-    }
-    .band-green    { background: rgba(34,197,94,0.12);  color: var(--green);     border: 1px solid rgba(34,197,94,0.25); }
-    .band-amber    { background: rgba(245,158,11,0.12); color: var(--amber);     border: 1px solid rgba(245,158,11,0.25); }
-    .band-red      { background: rgba(239,68,68,0.12);  color: var(--red);       border: 1px solid rgba(239,68,68,0.25); }
-    .band-contested{ background: rgba(168,85,247,0.1);  color: var(--contested); border: 1px solid rgba(168,85,247,0.2); }
-
-    /* ── Scoring Tables ── */
-    .conflict-scoring { margin-bottom: 36px; }
-    .conflict-scoring-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .conflict-scoring-header h3 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    .conflict-scoring-header .cs-meta {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-    .score-table-wrap { overflow-x: auto; }
-    .score-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 17px;
-      min-width: 680px;
-    }
-    .score-table thead th {
-      background: rgba(255,255,255,0.03);
-      color: var(--text-dim);
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      padding: 8px 10px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-      white-space: nowrap;
-    }
-    .score-table tbody tr {
-      border-bottom: 1px solid rgba(51,65,85,0.5);
-      transition: background 0.1s;
-    }
-    .score-table tbody tr:hover { background: rgba(255,255,255,0.02); }
-    .score-table tbody td {
-      padding: 9px 10px;
-      color: var(--text-primary);
-      vertical-align: top;
-    }
-    .score-table .indicator-name {
-      font-weight: 600;
-      color: var(--text-primary);
-      white-space: nowrap;
-    }
-    .score-table .indicator-code {
-      font-size: 15px;
-      color: var(--text-dim);
-      font-weight: 500;
-      margin-right: 4px;
-    }
-    .score-num {
-      font-family: 'Courier New', monospace;
-      font-weight: 700;
-      font-size: 15px;
-    }
-    .dev-pos { color: #f87171; }
-    .dev-zero { color: var(--text-muted); }
-    .dev-neg  { color: #4ade80; }
-    .confidence-label {
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-    .note-cell {
-      font-size: 17px;
-      color: var(--text-muted);
-      max-width: 220px;
-    }
-    .note-source {
-      font-size: 15px;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-
-    /* ── Narrative ── */
-    .narrative-block {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      margin-bottom: 16px;
-      overflow: hidden;
-    }
-    .narrative-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      cursor: pointer;
-      user-select: none;
-      gap: 12px;
-    }
-    .narrative-header:hover { background: var(--bg-hover); }
-    .narrative-header h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      flex: 1;
-    }
-    .narrative-chevron {
-      color: var(--text-dim);
-      font-size: 17px;
-      transition: transform 0.2s;
-    }
-    .narrative-header.open .narrative-chevron { transform: rotate(180deg); }
-    .narrative-body {
-      display: none;
-      padding: 0 16px 16px;
-      border-top: 1px solid var(--border);
-    }
-    .narrative-body.visible { display: block; }
-    .narrative-body p {
-      margin-top: 12px;
-      font-size: 15px;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-    .narrative-body .flag {
-      display: inline-block;
-      background: rgba(220,38,38,0.1);
-      color: var(--accent);
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      padding: 1px 6px;
-      border-radius: 2px;
-      margin-right: 4px;
-      vertical-align: middle;
-    }
-    .narrative-body .flag-f2 { background: rgba(239,68,68,0.12); color: var(--red); }
-    .narrative-body .flag-f4 { background: rgba(220,38,38,0.12); color: var(--amber); }
-    .narrative-body .flag-cb { background: rgba(168,85,247,0.12); color: var(--contested); }
-
-    /* ── Cross-Monitor Signals ── */
-    .signals-table {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-      width: 100%;
-    }
-    .signals-header,
-    .signal-row {
-      display: grid;
-      grid-template-columns: 9% 18% 12% 11% 1fr;
-      gap: 0;
-      align-items: start;
-    }
-    .signals-header {
-      padding: 8px 0;
-      background: rgba(0,0,0,0.03);
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--text-dim);
-    }
-    .signals-header > div,
-    .signal-row > div {
-      padding: 0 14px;
-    }
-    .signal-row {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border-light);
-      font-size: 15px;
-    }
-    .signal-row:last-child { border-bottom: none; }
-    .signal-row:hover { background: rgba(0,0,0,0.015); }
-    .signal-monitor { font-weight: 700; color: var(--accent); }
-    .signal-conflict { color: var(--text-primary); }
-    .signal-indicator { color: var(--text-muted); font-size: 14px; }
-    .signal-note { color: var(--text-muted); line-height: 1.6; }
-
-    /* ── Roster Watch ── */
-    .roster-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-    }
-    .roster-item h4 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 6px;
-    }
-    .roster-item p {
-      font-size: 17px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-    .roster-tag {
-      display: inline-block;
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      padding: 2px 7px;
-      border-radius: 3px;
-      margin-right: 6px;
-      margin-bottom: 6px;
-    }
-    .roster-tag-watch { background: rgba(220,38,38,0.1); color: var(--amber); border: 1px solid rgba(220,38,38,0.2); }
-    .roster-tag-entry { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
-
-    /* ── About Section ── */
-    .about-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 20px;
-    }
-    .about-card h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 10px;
-    }
-    .about-card p {
-      font-size: 17px;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-      line-height: 1.7;
-    }
-    .about-card .method-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--accent);
-      background: rgba(220,38,38,0.08);
-      border: 1px solid rgba(220,38,38,0.2);
-      padding: 6px 12px;
-      border-radius: 4px;
-    }
-    .about-card .method-link:hover { background: rgba(220,38,38,0.15); text-decoration: none; }
-
-    /* ── Legend Box ── */
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 17px;
-      color: var(--text-dim);
-    }
-    .legend-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-    }
-    .ld-green     { background: var(--green); }
-    .ld-amber     { background: var(--amber); }
-    .ld-red       { background: var(--red); }
-    .ld-contested { background: var(--contested); }
-
-    /* ── Utility ── */
-    .mt-4 { margin-top: 4px; }
-    .mt-8 { margin-top: 8px; }
-    .mt-16 { margin-top: 16px; }
-    .footnote {
-      font-size: 17px;
-      color: var(--text-dim);
-      margin-top: 8px;
-      font-style: italic;
-    }
-    .highlight-amber { color: var(--amber); font-weight: 600; }
-    .highlight-red   { color: var(--red); font-weight: 600; }
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--bg-primary); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
-
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .main { margin-left: 0; }
-      .content { padding: 20px 16px; }
-      .overview-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCEM Dashboard — Strategic Conflict &amp; Escalation Monitor</title>
+  <meta name="description" content="Live dashboard for the Strategic Conflict &amp; Escalation Monitor. KPIs, lead signal, delta strip, and conflict roster summary.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
 </head>
+
 <body>
-<nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;display:flex;align-items:center;padding:0 24px;gap:24px;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav>
-<div class="layout">
+<style>
+body{padding-top:40px!important}
+/* WDM/blueprint monitors: monitor-nav and sidebar offset */
+.monitor-nav{top:40px!important}
+.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
+/* Legacy monitor overrides (pre-blueprint) */
+nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
+nav.sidebar{height:calc(100vh - 40px)!important}
+.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
+.header:not([data-asym-network-bar]){top:40px!important}
+nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
+</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;"><div style="display:flex;align-items:center;max-width:1200px;margin:0 auto;padding:0 24px;height:100%;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></div></nav>
 
-  <!-- ═══════════════════════════════════════════════════════
-       SIDEBAR
-  ═══════════════════════════════════════════════════════ -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <svg class="sidebar-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Outer ring -->
-        <circle cx="18" cy="18" r="14" stroke="#dc2626" stroke-width="1.5" fill="none"/>
-        <!-- Cross-hairs -->
-        <line x1="18" y1="6" x2="18" y2="30" stroke="#dc2626" stroke-width="0.75" opacity="0.4"/>
-        <line x1="6" y1="18" x2="30" y2="18" stroke="#dc2626" stroke-width="0.75" opacity="0.4"/>
-        <!-- Inner ring -->
-        <circle cx="18" cy="18" r="6" stroke="#dc2626" stroke-width="1" fill="none" opacity="0.7"/>
-        <!-- Escalation arrow (NE) -->
-        <path d="M12 24 L22 14 M18 14 L22 14 L22 18" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <!-- Centre dot -->
-        <circle cx="18" cy="18" r="2" fill="#dc2626"/>
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <span class="brand-abbr">SCEM</span>
+    <span>Strategic Conflict &amp; Escalation Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="index.html">Overview</a></li>
+    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
       </svg>
-      <span class="sidebar-mark">SCEM</span>
-    </div>
-    <div class="sidebar-edition">
-      FIRST EDITION — 2026-03-30
-    </div>
-    <nav>
-      <a href="#overview" class="active">§1 Monitor Overview</a>
-      <a href="#escalation-status">§2 Escalation Status</a>
-      <a href="#scoring">§3 Scoring Tables</a>
-      <a href="#weekly-update">§4 Weekly Update</a>
-      <a href="#narrative">§5 Narrative</a>
-      <a href="#cross-monitor">§6 Cross-Monitor Signals</a>
-      <a href="#roster">§7 Roster Watch</a>
-      <a href="#about">About &amp; Methodology</a>
-    </nav>
-    <div class="sidebar-section-label">Related Monitors</div>
-    <div class="sidebar-monitors">
-      <a href="https://asym-intel.info/monitors/fimi-cognitive-warfare/" target="_blank">FIMI &amp; Cognitive Warfare</a>
-      <a href="https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html" target="_blank">European Geopolitical &amp; Hybrid</a>
-      <a href="https://asym-intel.info/monitors/democratic-integrity/dashboard.html" target="_blank">World Democracy Monitor</a>
-      <a href="https://asym-intel.info/monitors/environmental-risks/dashboard.html" target="_blank">Global Environmental Risks</a>
-      <a href="https://asym-intel.info/monitors/macro-monitor/dashboard.html" target="_blank">Macro Monitor</a>
-      <a href="https://asym-intel.info/monitors/ai-governance/dashboard.html" target="_blank">AI Governance</a>
-    </div>
-  </aside>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
 
-  <!-- ═══════════════════════════════════════════════════════
-       MAIN
-  ═══════════════════════════════════════════════════════ -->
-  <div class="main">
-    <header class="header">
-      <div class="header-top">
-        <div class="header-title">
-          <h1><span>Conflict &amp; Escalation</span> Monitor</h1>
-          <div class="header-meta">
-            <span class="header-badge badge-edition">FIRST EDITION — Baselines Established</span>
-            <span class="header-badge badge-date">30 March 2026</span>
-            <span class="header-badge badge-contested">All entries: CONTESTED BASELINE</span>
-          </div>
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <section class="module-section" id="section-kpi">
+      <div class="page-header">
+        <div class="page-header__eyebrow">SCEM Dashboard</div>
+        <h1 class="page-header__title" id="page-title">Strategic Conflict &amp; Escalation Monitor</h1>
+        <div class="page-header__meta" id="page-meta">Loading…</div>
+      </div>
+
+      <div class="kpi-strip" id="kpi-strip">
+        <div class="kpi-card">
+          <div class="kpi-card__value" id="kpi-active">—</div>
+          <div class="kpi-card__label">Active Conflicts</div>
+          <div class="kpi-card__sub">On roster this issue</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__value" id="kpi-lead">—</div>
+          <div class="kpi-card__label">Lead Signal</div>
+          <div class="kpi-card__sub" id="kpi-lead-sub">Highest deviation conflict</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-card__value" id="kpi-week">—</div>
+          <div class="kpi-card__label">Week</div>
+          <div class="kpi-card__sub" id="kpi-week-sub">Issue week</div>
         </div>
       </div>
-    </header>
-
-    <div class="content">
-
-      <!-- ════════════════════════════════════════
-           SECTION 1 — MONITOR OVERVIEW (NEW)
-      ════════════════════════════════════════ -->
-      <section class="section" id="overview">
-        <div class="section-title">
-          <span class="section-number">§1</span> Monitor Overview
-        </div>
-
-        <!-- What this monitor does -->
-        <div class="overview-intro" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:24px;">
-          <p style="font-size:15px;color:var(--text-muted);line-height:1.7;margin-bottom:12px;">The Strategic Conflict &amp; Escalation Monitor tracks the trajectory of armed conflicts and military escalation risks using a dual-dimension Level/Baseline/Deviation scoring framework. Its defining principle is <strong style="color:var(--text-primary);">deviation over level</strong> — an anomalous spike in a low-intensity context is more significant than a sustained high level in a familiar one.</p>
-          <p style="font-size:15px;color:var(--text-muted);line-height:1.7;">Six indicators are scored weekly per conflict: Rhetoric Intensity (I1), Military Posture (I2), Nuclear &amp; Strategic Signalling (I3), Economic Warfare (I4), Diplomatic Channel Status (I5), and Civilian Displacement Velocity (I6). All entries in this first edition carry <span style="color:var(--contested);font-weight:600;">Contested Baseline</span> status — baselines require 12 weekly observations to validate.</p>
-          <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="https://asym-intel.info/monitors/conflict-escalation/methodology/" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--accent);background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);padding:6px 12px;border-radius:4px;text-decoration:none;">→ Full Methodology</a>
-            <a href="#weekly-update" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-muted);background:rgba(148,163,184,0.06);border:1px solid var(--border);padding:6px 12px;border-radius:4px;text-decoration:none;">↓ This Week's Update</a>
-          </div>
-        </div>
-
-        <!-- Conflict roster table -->
-        <h3 style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:12px;letter-spacing:0.3px;">Continuously Tracked Conflicts</h3>
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-          <table style="width:100%;border-collapse:collapse;font-size:14px;">
-            <thead>
-              <tr style="background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);">
-                <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);">ID</th>
-                <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);">Conflict</th>
-                <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);">Theatre</th>
-                <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);">Type</th>
-                <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);">Status</th>
-                <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);">On Roster Since</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style="border-bottom:1px solid rgba(51,65,85,0.5);">
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C1</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">Russia–Ukraine War</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Eastern Europe</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Interstate / Occupation</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Active</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(51,65,85,0.5);">
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C2</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">Gaza / Israel–Hamas</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Middle East</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Asymmetric / Occupation</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(220,38,38,0.12);color:#dc2626;border:1px solid rgba(220,38,38,0.25);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Ceasefire (contested)</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(51,65,85,0.5);">
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C3</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">Sudan Civil War</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Sahel / Horn of Africa</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Civil War / Proxy</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Active</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(51,65,85,0.5);">
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C4</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">Myanmar Civil War</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Southeast Asia</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Civil War / Junta</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Active</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(51,65,85,0.5);">
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C5</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">Haiti Political-Criminal Violence</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Caribbean</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Criminal / Political</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Active</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(51,65,85,0.5);">
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C6</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">DRC — Eastern Theatre</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Central Africa</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Civil War / Proxy</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Active</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-              <tr style="border-bottom:1px solid rgba(51,65,85,0.5);">
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C7</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">Taiwan Strait / PRC–Taiwan</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">East Asia</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Latent / Strategic signalling</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(168,85,247,0.1);color:#a855f7;border:1px solid rgba(168,85,247,0.2);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Latent — monitored</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-              <tr>
-                <td style="padding:10px 14px;font-weight:700;color:var(--accent);font-size:13px;">C8</td>
-                <td style="padding:10px 14px;font-weight:600;color:var(--text-primary);">Korean Peninsula</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">East Asia</td>
-                <td style="padding:10px 14px;color:var(--text-muted);">Latent / Nuclear posture</td>
-                <td style="padding:10px 14px;"><span style="background:rgba(168,85,247,0.1);color:#a855f7;border:1px solid rgba(168,85,247,0.2);font-size:11px;font-weight:700;padding:2px 7px;border-radius:3px;">Latent — monitored</span></td>
-                <td style="padding:10px 14px;color:var(--text-dim);">Mar 2026 (Inaugural)</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Scoring framework summary -->
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px;">
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Framework</div>
-            <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">Level (1–5) × Baseline (1–5) → Deviation (±3). Colour bands: Green / Amber / Red / Contested.</div>
-          </div>
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Baseline method</div>
-            <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">Rolling 18-month IQR median per conflict × indicator pair. Recalculated quarterly. Min. 12 observations for valid baseline.</div>
-          </div>
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Source hierarchy</div>
-            <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">T1: UN agencies, ACLED, Crisis Group. T2: Bellingcat, CSIS, Middlebury, Reuters. T3/T4: triage only.</div>
-          </div>
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;">
-            <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">Cadence</div>
-            <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">Updated every Sunday at 19:00 Gibraltar time. Published to asym-intel.info and distributed by email.</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ════════════════════════════════════════
-           SECTION 2 — ESCALATION STATUS
-      ════════════════════════════════════════ -->
-      <section class="section" id="escalation-status">
-        <div class="section-title">
-          <span class="section-number">§2</span> Escalation Status
-        </div>
-
-        <div class="legend mt-8">
-          <div class="legend-item"><div class="legend-dot ld-red"></div> Escalating</div>
-          <div class="legend-item"><div class="legend-dot ld-green"></div> Stable</div>
-          <div class="legend-item"><div class="legend-dot ld-contested"></div> Contested</div>
-        </div>
-
-        <div class="overview-grid">
-
-          <div class="conflict-card escalating">
-            <div class="card-region">Eastern Europe</div>
-            <div class="card-name">Russia–Ukraine War</div>
-            <div class="card-trajectory trajectory-escalating">↑ Escalating</div>
-            <div class="card-signal"><strong>Lead signal:</strong> Russian mechanized assault tempo has increased since 17 March, consistent with pre-Spring offensive staging; US-brokered ceasefire talks remain on hold as Middle East conflict consumes diplomatic bandwidth.</div>
-          </div>
-
-          <div class="conflict-card stable">
-            <div class="card-region">Middle East</div>
-            <div class="card-name">Gaza / Israel–Hamas</div>
-            <div class="card-trajectory trajectory-stable">→ Stable (ceasefire)</div>
-            <div class="card-signal"><strong>Lead signal:</strong> Post-October 2025 ceasefire holds at low-level friction; 689 Palestinian fatalities recorded since ceasefire announcement; regional escalation (Iran) has closed Gaza crossings and strained humanitarian access. <span class="flag flag-f4">F4 WATCH</span></div>
-          </div>
-
-          <div class="conflict-card escalating">
-            <div class="card-region">Sahel / Horn of Africa</div>
-            <div class="card-name">Sudan Civil War</div>
-            <div class="card-trajectory trajectory-escalating">↑ Escalating</div>
-            <div class="card-signal"><strong>Lead signal:</strong> RSF captured Kurmuk (24 March), displacing 73,000 in a single event; SAF airstrike on Ed Daein Hospital (20 March) killed 70 people. World's largest displacement and hunger crisis with no ceasefire mechanism active.</div>
-          </div>
-
-          <div class="conflict-card escalating">
-            <div class="card-region">Southeast Asia</div>
-            <div class="card-name">Myanmar Civil War</div>
-            <div class="card-trajectory trajectory-escalating">↑ Escalating</div>
-            <div class="card-signal"><strong>Lead signal:</strong> Junta parliament convening to elect new president (30 March); Reuters investigation confirmed Iranian jet fuel deliveries sustaining junta's air campaign; over 96,000 conflict deaths and 3.6M displaced per ACLED/UN.</div>
-          </div>
-
-          <div class="conflict-card escalating">
-            <div class="card-region">Caribbean</div>
-            <div class="card-name">Haiti Political-Criminal Violence</div>
-            <div class="card-trajectory trajectory-escalating">↑ Escalating</div>
-            <div class="card-signal"><strong>Lead signal:</strong> UN OHCHR (24 March): gangs now control key maritime and overland routes, expanded into Artibonite and Centre; 1 in 4 Haitians live in gang-controlled territory; GSF deployment transition creates security gap.</div>
-          </div>
-
-          <div class="conflict-card escalating">
-            <div class="card-region">Central Africa</div>
-            <div class="card-name">DRC — Eastern Theatre</div>
-            <div class="card-trajectory trajectory-escalating">↑ Escalating</div>
-            <div class="card-signal"><strong>Lead signal:</strong> Doha ceasefire actively violated; M23 kamikaze drone strikes on FARDC Kisangani command base; DRC parliament moving to ratify Washington Peace Accords (March 7). <span class="flag flag-f4">F4 WATCH</span></div>
-          </div>
-
-          <div class="conflict-card stable">
-            <div class="card-region">East Asia — Latent/Active Signalling</div>
-            <div class="card-name">Taiwan Strait / PRC–Taiwan</div>
-            <div class="card-trajectory trajectory-stable">→ Stable</div>
-            <div class="card-signal"><strong>Lead signal:</strong> ODNI 2026 Threat Assessment: PRC unlikely to invade Taiwan in 2027; however, PLA air/naval pressure maintained; PRC-Japan tensions elevated after PM Takaichi Taiwan comments; PRC drawing lessons from Iran conflict for Type 055 air-defense posture.</div>
-          </div>
-
-          <div class="conflict-card stable">
-            <div class="card-region">East Asia — Latent</div>
-            <div class="card-name">Korean Peninsula</div>
-            <div class="card-trajectory trajectory-stable">→ Stable (elevated posture)</div>
-            <div class="card-signal"><strong>Lead signal:</strong> DPRK SPA (22 March) re-institutionalizes "two hostile states" policy; Kim declares nuclear status "irreversible." Multiple cruise missile and 600mm MRL tests in March. Trump signals willingness to meet Kim during China trip but no policy shift.</div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- ════════════════════════════════════════
-           SECTION 2 — SCORING TABLES
-      ════════════════════════════════════════ -->
-      <section class="section" id="scoring">
-        <div class="section-title">
-          <span class="section-number">§3</span> Scoring Tables
-        </div>
-        <p class="footnote" style="margin-bottom:20px;">All entries carry <span style="color:var(--contested);font-weight:600;">CONTESTED BASELINE</span> flag — first edition. Baselines represent analyst's estimated 18-month historical median per indicator. Minimum 12 weekly observations required to remove flag. Deviation = Level − Baseline (capped ±3).</p>
-
-        <!-- ─── C1: Russia-Ukraine ─── -->
-        <div class="conflict-scoring" id="c-ukraine">
-          <div class="conflict-scoring-header">
-            <h3>C1 — Russia–Ukraine War (Eastern Europe)</h3>
-            <div class="cs-meta">
-              <span class="band band-red">Escalating</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Kremlin ultimatum framing maintained; Medvedev delegitimises Zelensky (19 March). Baseline set at 4 — sustained hostility language is the structural norm for this conflict. <span class="note-source">ISW, Reuters 2026-03-10</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">5</span></td>
-                  <td><span class="score-num">5</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Active engagement: mechanized assault increase since 17 March, spring offensive staging. Ukrainian counteroffensive Dnipropetrovsk (+400 km²). 156 drones launched overnight 19-20 March. <span class="note-source">ISW 2026-03-20, Military.com</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Russia nuclear false-flag warning (Euronews Feb 2026). ISW assesses Russian nuclear use remains unlikely. No confirmed posture change. Baseline 2: periodic rhetorical reference to doctrine is structural norm. <span class="note-source">ISW, SWP Berlin 2026-03-16</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Comprehensive sanctions regime sustained (EU/US/UK). Russia-Iran oil price windfall from Middle East conflict; no new major package this week. Baseline 4: comprehensive sanctions are the structural norm. <span class="note-source">OFAC/EU OJ (standing)</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">US-brokered Geneva talks ongoing but stalled; Russia demands territorial retention. Abu Dhabi/Geneva talks produced prisoner swap but no political progress. US attention diverted to Iran. <span class="note-source">Reuters, Al Jazeera 2026-02-18</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Mandatory child evacuation order Slovyansk area (20 March). Ukraine IDP figures from UNHCR lag ~4 weeks. No major new displacement event this cycle. Data date: est. ~early March. <span class="note-source">OCHA/UNHCR (lag applies)</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">Baseline rationale: All indicators set to the sustained wartime structural norm (2022–2025 median). Escalation signals this week (mechanized assault increase, spring offensive indicators) do not yet deviate from sustained war-mode baseline but are flagged in narrative as trajectory signal.</p>
-        </div>
-
-        <!-- ─── C2: Gaza ─── -->
-        <div class="conflict-scoring" id="c-gaza">
-          <div class="conflict-scoring-header">
-            <h3>C2 — Gaza / Israel–Hamas (Middle East)</h3>
-            <div class="cs-meta">
-              <span class="band band-amber">Stable / Low friction</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">IDF strikes on Hamas operatives framed as "achieving war objectives." Diplomatic disarmament plan ("one authority, one law") under negotiation. Elevated but not ultimatum level. <span class="note-source">FDD/FDD Analysis 2026-03-27, OCHA</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">IDF maintains 53-58% of Gaza territory per UNSC reporting. Ongoing low-level strikes on Hamas personnel. No major ground offensive. Ceasefire nominal but contested. <span class="note-source">OCHA oPt 2026-03-27, Security Council Report</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">No nuclear signalling from any party in Gaza theatre. Israel ambiguity doctrine: any public I3 signal would be anomalous. <span class="note-source">Structural assessment</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Kerem Shalom crossing only operational entry. Zikim Crossing closed (regional escalation cited). Aid restricted to ~half-rations (50% caloric coverage). Sector-level restriction sustained. <span class="note-source">OCHA oPt 2026-03-27, 2026-03-19</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Disarmament plan (Board of Peace) under 8-month timeline. Post-Trump-Netanyahu Oct 2025 framework. Hamas disarmament unverified. F4 flag applied — claimed progress not independently confirmed. <span class="note-source">FDD 2026-03-27, Security Council Report</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-neg">−1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Negative deviation: ceasefire enabled some return movements (Rafah reopened for limited returns 19 March). Most people remain displaced in dire conditions. Data date: ~22 March 2026 (4-week lag likely). <span class="note-source">OCHA oPt 2026-03-19, 2026-03-27</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">F4 FLAG: Gaza ceasefire/disarmament framing sourced primarily from parties to the conflict. OCHA data confirms continued IDF strikes within ceasefire period (689 fatalities since Oct 2025). Score at verified level (3), not claimed level. Baseline rationale: post-ceasefire baseline set at mid-intensity (3 across most indicators) reflecting sustained low-friction occupation/ceasefire pattern.</p>
-        </div>
-
-        <!-- ─── C3: Sudan ─── -->
-        <div class="conflict-scoring" id="c-sudan">
-          <div class="conflict-scoring-header">
-            <h3>C3 — Sudan Civil War (Sahel/Horn of Africa)</h3>
-            <div class="cs-meta">
-              <span class="band band-red">Escalating</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Both SAF and RSF using mobilisation language; regional actors deepening involvement (UAE, Egypt, Saudi, Ethiopia). Chad border closure (Feb 23) reflects hostile spillover framing. <span class="note-source">Al Jazeera 2026-03-11, Wikipedia timeline</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">5</span></td>
-                  <td><span class="score-num">5</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Active engagement: RSF captured Kurmuk (24 March), 73,000 displaced. SAF hospital airstrike Ed Daein (20 March, 70 killed). RSF advance toward Dalang. RSF-SAF exchange drone strikes nationwide. <span class="note-source">ReliefWeb OCHA 2026-03-24, Wikipedia 2026 timeline</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Not applicable. No nuclear actors or signalling. Structural zero. <span class="note-source">N/A</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">RSF captured Heglig oil field (Dec 2025), halting Sudan oil production. UK sanctions (5 Feb 2026) on 6 individuals including RSF backers. Partial sector disruption. <span class="note-source">Wikipedia timeline, HM Treasury (UK)</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">No active ceasefire mechanism. Quad (US/Saudi/UAE/Egypt) framework collapsed after Sep 2025. Chad border closure adds diplomatic dimension. No mediating forum operational. <span class="note-source">Al Jazeera 2026-03-11</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Kurmuk offensive (24 March) displaced 73,000 in single event. Total: 12M+ displaced (world's largest). Displacement rising continuously. Data date: ~15 March 2026 (IOM lag est. 2-3 weeks). <span class="note-source">ReliefWeb DFS 2026-03-24, IOM</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">Baseline rationale: Conflict began April 2023; 18-month median baseline set against mid-to-high intensity given sustained total-war pattern. I6 baseline set at 3 (historically elevated but below current acute event velocity). No structurally different reference period available; monitor begins baseline accumulation from this edition.</p>
-        </div>
-
-        <!-- ─── C4: Myanmar ─── -->
-        <div class="conflict-scoring" id="c-myanmar">
-          <div class="conflict-scoring-header">
-            <h3>C4 — Myanmar Civil War (Southeast Asia)</h3>
-            <div class="cs-meta">
-              <span class="band band-red">Escalating</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Junta parliamentary process (30 March president election) increases mobilisation language. State media promoting USDP win as "stability." Shan State Army chief calling for international attention to civilian airstrikes (Feb 11). <span class="note-source">Reuters 2026-01-30, CFR 2026-03-20</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">5</span></td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Junta air campaign intensified with Iranian jet fuel deliveries; 1,000+ civilian locations struck in 15 months. Military adapting: intelligence-driven strikes vs. indiscriminate. Over 96,000 killed (ACLED). Junta regaining territory via air power asymmetry. <span class="note-source">Reuters 2026-01-26 (Iran fuel), HRW World Report 2026, ACLED/Al Jazeera 2026-03-27</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Not applicable. No nuclear actors. Structural zero. <span class="note-source">N/A</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Western targeted sanctions on junta senior figures. Iran sanctions circumvented via fuel deliveries to junta (Reuters investigation). No sector-wide embargo. <span class="note-source">Reuters 2026-01-26</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">ASEAN refuses to endorse election; no ASEAN Five-Point Consensus implementation. Western condemnation of elections as fraudulent. China and Russia backing junta via arms/fuel — no independent mediating channel active. <span class="note-source">Reuters 2026-01-30, HRW 2026</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">3.6 million displaced (UN). Baseline 3: sustained elevated displacement has been the structural norm since 2021 coup. Data date: ~late Feb 2026 (IOM lag est. 3-5 weeks). <span class="note-source">UN OCHA/IOM (standing), Al Jazeera 2026-03-27</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">Baseline rationale: Civil war intensified from late 2023 (Operation 1027). I2 baseline set at 4 — sustained air/ground active engagement is near-constant. Upward deviation on I2 (Iranian fuel enabling air intensification) and I5 (deepening isolation) represent genuine above-baseline signals. Note: Iran fuel supply to junta also constitutes an F2-adjacent signal (external actor enabling; flagged in narrative).</p>
-        </div>
-
-        <!-- ─── C5: Haiti ─── -->
-        <div class="conflict-scoring" id="c-haiti">
-          <div class="conflict-scoring-header">
-            <h3>C5 — Haiti Political-Criminal Violence (Caribbean)</h3>
-            <div class="cs-meta">
-              <span class="band band-red">Escalating</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Explicit threat framing: Haitian government deployed PMC drone strikes on gang-controlled areas (HRW). Gangs executing informants/opponents. UN language increasingly urgent. Not yet government-to-government hostility. <span class="note-source">OHCHR 2026-03-24, HRW World Report 2026</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Gangs controlling maritime and overland routes, Artibonite and Centre departments. Police PMC drone/helicopter operations (targeted killings). MSS→GSF transition (April) creates deployment gap. 1 in 4 Haitians under gang control. <span class="note-source">OHCHR 2026-03-24, UN News 2026-03-24, CNN 2026-03-24</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Not applicable. <span class="note-source">N/A</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Gangs control critical supply routes (fuel, food, medicine) = de facto economic warfare against civilian population. Targeted US/international sanctions on gang leaders. Not state-to-state economic warfare. <span class="note-source">OHCHR 2026-03-24, HRW 2026</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">UNSOH established (March 2026). GSF Standing Group (US, Canada, France, El Salvador, Guatemala, Jamaica, Bahamas). International engagement present but fragmented. No ambassador recalls or state-to-state severance. <span class="note-source">UN News 2026-03-24, CNN 2026-03-24</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-pos">+1</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">1.4 million displaced (UN; data date est. ~Jan 2026). 24% increase from 6 months prior. Rising per OHCHR. World Central Kitchen halted some operations. Data date: ~15 Jan 2026 (6-week lag). <span class="note-source">OHCHR 2026-03-24, HRW 2026, CNN 2026-03-24</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">Baseline rationale: Haiti conflict intensified from 2024 following MSS deployment and gang federation (Viv Ansanm). I6 data date gap: ~6 weeks from current scoring week. Displacement trend is directionally confirmed rising; exact week-on-week velocity uncertain. Baseline 3 for I6 reflects sustained mass displacement as structural norm since 2023.</p>
-        </div>
-
-        <!-- ─── C6: DRC ─── -->
-        <div class="conflict-scoring" id="c-drc">
-          <div class="conflict-scoring-header">
-            <h3>C6 — DRC Eastern Theatre (Central Africa)</h3>
-            <div class="cs-meta">
-              <span class="band band-amber">Contested ceasefire</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">DRC accuses M23/Rwanda of ceasefire violations; M23 accuses FARDC. Washington Accords ratification signals diplomatic intent but mutual accusation language sustained. <span class="note-source">UNSC Report March 2026, Washington Post 2026-03-13</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">M23 kamikaze drones on Kisangani command (Jan-March ongoing); FARDC drone strikes Rubaya mine area (killed M23 commander Willy Ngoma Feb 24); active combat in Masisi, Mwenga, Minembwe. Erik Prince PMC involvement confirmed. <span class="note-source">ACLED ReliefWeb 2026-03-10, Critical Threats 2026-03-09</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Not applicable. <span class="note-source">N/A</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">US strategic partnership/minerals deal with DRC; targeted UN/US sanctions on M23-associated individuals. Coltan/gold extraction continues as conflict financing mechanism. <span class="note-source">Critical Threats 2026-03-09, Reuters 2026-03-18</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Doha ceasefire framework active but contested. Washington Accords ratification pending DRC parliament. MONUSCO mandate renewed Dec 2025. Rwanda-DRC agreements (19 March) on de-escalation steps. F4 flag: ceasefire claimed but unverified at operational level. <span class="note-source">UNSC Report March 2026, Reuters 2026-03-18</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Sustained high displacement in North/South Kivu. Goma airport partially operational. DRC featured in OCHA "crisis you barely see" campaign. Data date: ~early March 2026. <span class="note-source">OCHA ReliefWeb, UNSC Report March 2026</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">F4 FLAG: Multiple ceasefire/peace claims from DRC and M23 — Washington Accords, Doha framework, Angola process — not independently operationally verified. MONUSCO ceasefire monitoring mechanism under construction per UNSC Dec 2025 mandate. Baseline rationale: sustained active engagement has been structural norm since M23 Jan 2025 offensive; I2 baseline 4 reflects forward deployment with offensive capability as the established pattern.</p>
-        </div>
-
-        <!-- ─── C7: Taiwan Strait ─── -->
-        <div class="conflict-scoring" id="c-taiwan">
-          <div class="conflict-scoring-header">
-            <h3>C7 — Taiwan Strait / PRC–Taiwan (East Asia)</h3>
-            <div class="cs-meta">
-              <span class="band band-amber">Stable / Elevated pressure</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">PRC MFA "exercise caution" warning (19 March) in response to ODNI report. PRC retaliation against Japan (flight cancellations, import restrictions) for PM Takaichi Taiwan comments. Within elevated but routine baseline for cross-strait rhetoric. <span class="note-source">ISW/CDOT 2026-03-27, ODNI 2026-03-18</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">PLAN Type 055 DDG air-defense live-fire exercises (21-22 March). Taiwan reports daily Chinese military presence. PRC aircraft incursions +23% in 2025 vs 2024. No major new exercise event in March. <span class="note-source">ISW/CDOT 2026-03-27, Reuters 2026-02-05</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">No nuclear signalling in cross-strait context. Taiwan restarted two nuclear plants for energy security (post-Iran conflict lesson), not weapons related. <span class="note-source">ISW/CDOT 2026-03-27</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">PRC retaliatory economic measures against Japan (flight cancellations, import restrictions) over Taiwan comments. No formal Taiwan-specific new sanctions. Taiwan defense budget deadlock (Parliament). <span class="note-source">ISW/CDOT 2026-03-27</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num">2</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">No direct PRC-Taiwan diplomatic channel. Japan downgrading PRC ties in 2026 Diplomatic Bluebook. US-Japan-Taiwan coordination elevated post-Takaichi. Trump-Takaichi meeting 19 March reaffirmed Taiwan Strait stability commitment. <span class="note-source">ISW/CDOT 2026-03-27</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">No conflict-related displacement. Latent conflict context: indicator baseline structural zero. <span class="note-source">N/A</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">Baseline rationale: Cross-strait relationship has operated at sustained elevated pressure (Level 3 rhetoric, Level 3 posture) since 2022. ODNI's "no 2027 invasion" assessment is a de-escalatory signal but does not alter structural elevated-pressure baseline. Key watch item: PRC lessons-learning from Iran conflict for Type 055 air-defense doctrine — may signal mid-term posture shift, not captured in this week's scoring.</p>
-        </div>
-
-        <!-- ─── C8: Korean Peninsula ─── -->
-        <div class="conflict-scoring" id="c-korea">
-          <div class="conflict-scoring-header">
-            <h3>C8 — Korean Peninsula (East Asia)</h3>
-            <div class="cs-meta">
-              <span class="band band-amber">Elevated posture</span>
-              <span class="band band-contested">Contested Baseline</span>
-            </div>
-          </div>
-          <div class="score-table-wrap">
-            <table class="score-table">
-              <thead><tr>
-                <th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Notes</th>
-              </tr></thead>
-              <tbody>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I1</span> Rhetoric</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Kim SPA speech (22 March): nuclear state "irreversible," Seoul the "most hostile state." Post-9th Party Congress (Feb) institutionalised rejection of denuclearisation. Within elevated structural baseline for DPRK rhetoric. <span class="note-source">ISW Korean Peninsula Update 2026-03-25</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I2</span> Military Posture</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Probable</span></td>
-                  <td class="note-cell">Cruise missile tests from Choe Hyon destroyer (11 March); 600mm MRL long-range artillery strike drill (14 March), >10 ballistic missiles fired (Reuters 14 March); MDL fortifications ongoing. Kim inspected special operations base (29 March). New tank exercises integrating UAVs (lessons from Ukraine). <span class="note-source">ISW Korean Peninsula Update 2026-03-25, Reuters 2026-03-14</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I3</span> Nuclear</td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num">3</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Possible</span></td>
-                  <td class="note-cell">Kim: nuclear status "irreversible" (SPA March 22). SPA likely enacted legislation reinforcing nuclear deterrent. Nuclear Policy Law (2022) authorising pre-emptive strikes remains in force. ODNI: DPRK continuing stockpile expansion. Delivery system movement not confirmed this cycle. Confidence: Possible — DPRK Confirmed confidence rarely achievable per methodology. <span class="note-source">ISW Korean Peninsula Update 2026-03-25, ODNI 2026-03-14</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I4</span> Economic Warfare</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">Comprehensive sanctions regime (UNSC/US/EU/ROK) sustained. Russia-DPRK arms revenue (max $14.4B since Aug 2023) offsets sanctions. Crypto theft ($2B in 2025, Lazarus Group) circumventing financial restrictions. OFAC/Treasury sanctions baseline. <span class="note-source">ISW Korean Peninsula Update 2026-03-25, OFAC (standing)</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I5</span> Diplomatic</td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num">4</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">North-South inter-Korean plan formally terminated (MOU early termination). Trump-Kim meeting signalled (China trip) but no policy shift; DPRK condition ("abandon hostile policies") not met. ROK "peaceful coexistence" posture under President Lee. No functioning diplomatic channel. <span class="note-source">ISW Korean Peninsula Update 2026-03-25</span></td>
-                </tr>
-                <tr>
-                  <td class="indicator-name"><span class="indicator-code">I6</span> Displacement</td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num">1</span></td>
-                  <td><span class="score-num dev-zero">0</span></td>
-                  <td><span class="band band-contested">Contested</span></td>
-                  <td><span class="confidence-label">Confirmed</span></td>
-                  <td class="note-cell">No conflict-related displacement. Structural zero for latent conflict. DPRK internal displacement unmonitorable per methodology (no independent T1 access). <span class="note-source">N/A</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p class="footnote">Baseline rationale: Korean Peninsula operates at sustained elevated posture since 2022 "two hostile states" framework. I3 baseline set at 3 (structural doctrine invocation) — distinct from acute signalling events. DPRK Russia arms revenue reaching $14.4B is a structural break candidate (new strategic revenue model); flagged for future baseline review. Trump-Kim signal (Tier 3 source only) applied F4 scrutiny — no substantive policy change confirmed.</p>
-        </div>
-
-      </section>
-
-
-      <!-- ════════════════════════════════════════
-           SECTION 4 — WEEKLY UPDATE (NEW)
-      ════════════════════════════════════════ -->
-      <section class="section" id="weekly-update">
-        <div class="section-title">
-          <span class="section-number">§4</span> Weekly Update — 30 March 2026
-          <span style="margin-left:auto;font-size:12px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--text-dim);">Inaugural Edition</span>
-        </div>
-
-        <!-- Subscribe bar -->
-        <div style="background:rgba(220,38,38,0.06);border:1px solid rgba(220,38,38,0.2);border-radius:6px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-          <div>
-            <span style="font-size:14px;font-weight:600;color:var(--text-primary);">Subscribe to weekly updates</span>
-            <span style="font-size:13px;color:var(--text-muted);margin-left:10px;">Published every Sunday — delivered by email</span>
-          </div>
-          <a href="https://asym-intel.info/subscribe/" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#0f172a;background:var(--accent);border-radius:4px;padding:8px 16px;text-decoration:none;flex-shrink:0;">Subscribe →</a>
-        </div>
-
-        <!-- Lead summary -->
-        <div style="background:var(--bg-card);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:18px 20px;margin-bottom:24px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;">This Week's Lead Signal</div>
-          <p style="font-size:16px;color:var(--text-primary);line-height:1.7;font-weight:500;">Sudan and Myanmar drive the highest escalation readings in this inaugural edition. Sudan's I1/I4/I5/I6 indicators all sit above initial baseline, with the RSF capture of Kurmuk (73,000 displaced in a single event, 24 March) as the week's most significant kinetic development. Myanmar's air campaign has been structurally intensified by confirmed Iranian jet fuel deliveries, raising I2 above baseline. Four conflicts show F-flag patterns this week.</p>
-        </div>
-
-        <!-- Per-conflict weekly summaries -->
-        <div style="display:flex;flex-direction:column;gap:16px;">
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(239,68,68,0.04);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C1</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">Russia–Ukraine War</span>
-              <span style="margin-left:auto;background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">↑ Escalating</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">Russian mechanized assault tempo has increased since 17 March, consistent with pre-Spring offensive staging. Ukrainian forces conducted a counteroffensive gaining approximately 400 km² in Dnipropetrovsk oblast. Russia launched 156 drones overnight 19–20 March. US-brokered Geneva ceasefire talks remain stalled — Russia demands territorial retention; Kremlin continues to delegitimise Zelensky's mandate (Medvedev, 19 March). Nuclear signalling remains at baseline: ISW assesses nuclear use as unlikely; no confirmed posture change. <span style="color:var(--amber);font-size:12px;font-weight:600;">F4 WATCH</span>: Kremlin negotiating-willingness signals sourced from T3 (Russian state media) only; no independent corroboration of genuine intent to negotiate.</p>
-            </div>
-          </div>
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(34,197,94,0.03);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C2</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">Gaza / Israel–Hamas</span>
-              <span style="margin-left:auto;background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">→ Stable (ceasefire)</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">The post-October 2025 ceasefire nominally holds but is contested. OCHA has confirmed 689 Palestinian fatalities since the ceasefire announcement. IDF maintains 53–58% of Gaza territory (UNSC). Regional escalation — Iran closing Gaza crossings, Zikim Crossing shut — is straining humanitarian access to below half-rations. A disarmament plan ("Board of Peace / one authority, one law") is under negotiation on an 8-month timeline. <span style="color:var(--red);font-size:12px;font-weight:600;">F4 FLAG</span>: Ceasefire and disarmament progress claims sourced primarily from Israeli and US officials (T3); Hamas disarmament is unverified. Displacement shows marginal negative deviation as limited returns to Rafah begin — treat with caution given 4-week data lag.</p>
-            </div>
-          </div>
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(239,68,68,0.04);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C3</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">Sudan Civil War</span>
-              <span style="margin-left:auto;background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">↑ Escalating</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">Sudan carries the highest composite deviation from baseline of all eight monitored conflicts this week. RSF captured Kurmuk (24 March), displacing 73,000 people in a single event — the most significant kinetic development of the week. SAF conducted an airstrike on Ed Daein Hospital (20 March) killing 70 people. Sudan now hosts the world's largest displacement crisis at 12M+ displaced, with no ceasefire mechanism active and the Quad (US/Saudi/UAE/Egypt) mediation framework collapsed since September 2025. The Heglig oil field remains offline following RSF capture in December 2025 — an economic warfare indicator above the historical baseline. UK sanctions on RSF backers (5 February) represent the only recent external pressure mechanism. <span style="color:var(--amber);font-size:12px;font-weight:600;">F2-adjacent</span>: mutual drone attribution between SAF and RSF without forensic corroboration — referred to FIMI monitor.</p>
-            </div>
-          </div>
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(239,68,68,0.04);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C4</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">Myanmar Civil War</span>
-              <span style="margin-left:auto;background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">↑ Escalating</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">A Reuters investigation (26 January) confirmed Iranian jet fuel deliveries sustaining the junta's air campaign — I2 (Military Posture) scores above baseline as a result. The junta parliament convened 30 March to elect a new president, signalling an attempt to institutionalise military rule through a managed civilian façade. Over 96,000 people have been killed (ACLED) and 3.6M displaced since the 2021 coup. ASEAN has refused to endorse the election; no independent mediation channel is active. Western sanctions remain targeted (individual-level) rather than sector-wide, and are being circumvented via the Iran fuel route.</p>
-            </div>
-          </div>
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(239,68,68,0.04);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C5</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">Haiti Political-Criminal Violence</span>
-              <span style="margin-left:auto;background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">↑ Escalating</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">UN OHCHR (24 March) reports gangs now control key maritime and overland routes, with territorial expansion into Artibonite and Centre departments. One in four Haitians now lives in gang-controlled territory. 1.4M are displaced — a 24% increase — though a 6-week data lag in OCHA figures means this likely understates the current position. The transition from Multinational Security Support (MSS) to a UN peacekeeping mission (GSF) is creating a security gap that criminal groups are actively exploiting.</p>
-            </div>
-          </div>
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:rgba(239,68,68,0.04);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C6</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">DRC — Eastern Theatre</span>
-              <span style="margin-left:auto;background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.25);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">↑ Escalating</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">The Doha ceasefire is being actively violated. M23 conducted kamikaze drone strikes on the FARDC Kisangani command base. DRC parliament is moving to ratify the Washington Peace Accords (signed 7 March), but MONUSCO's oversight mechanism is not yet operational. <span style="color:var(--red);font-size:12px;font-weight:600;">F4 FLAG</span>: Multiple ceasefire frameworks have been claimed without operational verification; the gap between claimed and verified de-escalation is significant. Score held at Escalating (verified level) rather than Stable (claimed level).</p>
-            </div>
-          </div>
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C7</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">Taiwan Strait / PRC–Taiwan</span>
-              <span style="margin-left:auto;background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.2);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">→ Stable</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">ODNI 2026 Threat Assessment assesses PRC invasion as unlikely before 2027. PLA air and naval pressure is maintained. PRC-Japan tensions have elevated following PM Takaichi's comments on Taiwan's status. China is drawing operational lessons from the Iran–Israel conflict for Type 055 destroyer air-defence posture — a notable I3-adjacent signal worth monitoring.</p>
-            </div>
-          </div>
-
-          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-            <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);">
-              <span style="font-size:11px;font-weight:700;color:var(--accent);">C8</span>
-              <span style="font-weight:700;color:var(--text-primary);font-size:15px;">Korean Peninsula</span>
-              <span style="margin-left:auto;background:rgba(168,85,247,0.1);color:#a855f7;border:1px solid rgba(168,85,247,0.2);font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px;">→ Stable (elevated posture)</span>
-            </div>
-            <div style="padding:14px 16px;">
-              <p style="font-size:14px;color:var(--text-muted);line-height:1.7;">DPRK Supreme People's Assembly (22 March) re-institutionalised the "two hostile states" doctrine; Kim declared nuclear status "irreversible." Multiple cruise missile and 600mm MRL tests occurred in March. Trump has signalled willingness to meet Kim during a China trip — but no policy shift has occurred and no back-channel is independently verified. The DPRK I3 (nuclear signalling) baseline is structurally elevated; the doctrine re-institutionalisation is a note-worthy development but does not yet deviate from the established pattern.</p>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Edition note -->
-        <p style="margin-top:20px;font-size:12px;color:var(--text-dim);font-style:italic;">This is the inaugural edition of the Strategic Conflict &amp; Escalation Monitor. All baselines are provisional (Contested Baseline status applies across all 8 conflicts × 6 indicators). Deviation scores will become analytically significant once 12 weekly observations have been recorded per indicator–conflict pair. Next edition: Sunday 5 April 2026.</p>
-      </section>
-
-      <!-- ════════════════════════════════════════
-           SECTION 5 — NARRATIVE
-      ════════════════════════════════════════ -->
-      <section class="section" id="narrative">
-        <div class="section-title">
-          <span class="section-number">§5</span> Narrative Summary
-        </div>
-
-        <!-- C1 Ukraine -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C1 — Russia–Ukraine War</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-red">Escalating</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>The Russia–Ukraine war enters its fifth year with Russian forces conducting increased mechanized assault tempo since 17 March, assessed by ISW as possible staging for a Spring-Summer 2026 offensive campaign. Ukrainian forces have demonstrated notable tactical competence, retaking approximately 400 km² of Dnipropetrovsk Oblast and downing a Ka-52 helicopter via FPV drone — only the third helicopter kill of the war by this method. The strategic asymmetry between Russian offensive intent and Ukrainian tactical adaptation remains the defining pattern.</p>
-            <p>US-brokered ceasefire talks in Geneva have effectively stalled. Washington's attention has shifted to the Middle East (Iran conflict), reducing diplomatic pressure on both parties. Russia's Kremlin uses the stalled talks to frame Ukraine as the obstacle to peace — a pattern consistent with circular delegitimisation rather than genuine negotiating intent. The Kremlin's insistence on territorial retention as a precondition for any ceasefire prevents any near-term resolution. Medvedev's (19 March) statement that Zelensky has no legal standing to sign agreements is escalatory framing, not a T1-verified fact.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> All six indicators are scored against a first-edition baseline that reflects the sustained wartime structural norm (2022–2025). The increase in mechanized assault intensity this week represents a within-baseline tactical fluctuation rather than a structural escalation, but the ISW's assessment of Spring-Summer offensive staging warrants monitoring. If assault tempo sustains through the next 2–3 scoring cycles, an I2 upward baseline deviation should be expected.</p>
-            <p><span class="flag flag-f4">F4 WATCH:</span> Russian official statements on ceasefire willingness sourced entirely from Kremlin/state media (Tier 3). No independent T2 corroboration of genuine negotiating intent. Score I5 at verified level (4), not claimed level. Ukrainian commitment to ceasefire conditions (theater-wide, demarcated frontline, 6-month period) confirmed by T1 sources (UNSC reporting).</p>
-          </div>
-        </div>
-
-        <!-- C2 Gaza -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C2 — Gaza / Israel–Hamas</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-amber">Stable / Friction</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>The October 2025 Gaza ceasefire holds at a structural level — no return to full-scale military offensive — but continues to generate consistent low-level casualties (689 Palestinian fatalities since ceasefire announcement per MoH, confirmed by OCHA oPt). The regional escalation (Iran conflict, from approximately 28 February 2026) has directly degraded humanitarian conditions: all crossings were closed temporarily, Zikim Crossing remains closed, and humanitarian cargo offloading dropped sharply before recovering in March. Most aid beneficiaries are receiving only 50% calorie rations.</p>
-            <p>Israel's stated disarmament plan ("one authority, one law, one weapon," 8-month timeline per 27 March report) represents a significant political-security demand on Hamas. The Board of Peace framework originated in the Trump-Netanyahu Sept 2025 arrangement and has not been independently confirmed as operationally viable. OCHA data confirms continued IDF strike activity against Hamas personnel within the ceasefire period.</p>
-            <p><span class="flag flag-f4">F4 FLAG:</span> "Ceasefire progress" and "disarmament plan" framing originates from Israeli/US government sources (Tier 3). OCHA confirms sustained strikes and casualties. Score I5 and I2 at verified levels, not claimed levels. The disarmament timeline (8 months) has no independent T1 verification mechanism established at time of scoring.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> Baseline established on post-October 2025 ceasefire reference point, not the full-war period (2023-2025). This is explicitly a structural break baseline reset. Subsequent scoring will accumulate observations from this reference period.</p>
-          </div>
-        </div>
-
-        <!-- C3 Sudan -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C3 — Sudan Civil War</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-red">Escalating</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>Sudan continues to hold the designation of world's largest displacement and hunger crisis with no ceasefire mechanism active. The week of 24 March saw two analytically significant events: the RSF capture of Kurmuk (near the Ethiopian border in Blue Nile State), displacing 73,000 people in a single offensive action; and the SAF airstrike on Ed Daein Hospital (20 March), which killed 70 people and left over two million people without proper medical coverage per WHO. The RSF-SPLM-N advance into Blue Nile represents a geographic expansion of the conflict beyond the Darfur/Kordofan core — an escalatory territorial pattern.</p>
-            <p>The SAF hospital strike requires specific scrutiny: hospitals are protected under international humanitarian law. The WHO has recorded 63 attacks on healthcare in Sudan in 2025. This pattern is T1-verified (WHO) and consistent with sustained targeting of protected infrastructure.</p>
-            <p>The Chad border closure (23 February) following RSF spillover represents a diplomatic-security escalation with regional implications. UK sanctions on 6 individuals (5 February) including RSF field commanders and Colombian mercenary recruiters confirm the conflict's internationalisation.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> Conflict began April 2023. This monitor begins accumulating observations from 30 March 2026. I6 data date gap: IOM figures cite approximately 9.5M IDP as of data date ~15 March 2026. Kurmuk displacement event (73,000) is approximately 3 weeks old; likely to appear in next reporting cycle.</p>
-            <p><strong>Note to FIMI monitor:</strong> RSF's coordinated social media amplification of SAF hospital strike without forensic corroboration from either side may qualify as F2 false-flag seeding territory — both parties are attributing drone strikes to each other in tight time windows without forensic evidence. Flag for FIMI review.</p>
-          </div>
-        </div>
-
-        <!-- C4 Myanmar -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C4 — Myanmar Civil War</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-red">Escalating</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>The Myanmar junta enters a political legitimation phase (30 March parliament president election) while simultaneously intensifying its air campaign. The Reuters investigation (26 January 2026) confirming Iranian jet fuel deliveries to the junta — approximately 175,000 tonnes from Oct 2024 to Dec 2025 — is a structural escalation factor that enables sustained air power asymmetry against resistance groups that lack air defenses. This is T2-confirmed (Reuters investigation); the ISW cross-reference of DPRK strategic pipeline arming Iran's war effort further contextualises how sanctioned state military supply chains are operating across multiple conflict theatres simultaneously.</p>
-            <p>The junta's shift toward intelligence-driven airstrikes (vs. earlier indiscriminate attacks) suggests tactical learning, not restraint. ACLED records over 96,000 deaths and UNHCR records 3.6 million displaced since the 2021 coup. The Spring Revolution Alliance (November 2025 unification of 19 resistance groups, ~10,000 fighters) represents a resistance consolidation event — a structural break in the opposition's organisation that may affect future trajectory.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> Myanmar's conflict character shifted substantially with Operation 1027 (October 2023) and the Spring Revolution Alliance consolidation (November 2025). This monitor treats the current period (from approximately November 2025) as the relevant reference baseline context.</p>
-            <p><strong>Cross-monitor note:</strong> Iranian jet fuel supply to Myanmar junta routes through sanctions-circumvention networks traceable to Iran/Russia/DPRK supply chains. FIMI monitor should note this as a multi-conflict strategic supply network signal.</p>
-          </div>
-        </div>
-
-        <!-- C5 Haiti -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C5 — Haiti Political-Criminal Violence</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-red">Escalating</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>The UN OHCHR report (24 March) confirms gang expansion beyond Port-au-Prince into Artibonite and Centre departments and the seizure of key maritime and overland routes. One in four Haitians now live in gang-controlled territory. The transition from the Kenyan-led MSS to the GSF (expected April) creates a structured security gap; GSF funding and troop commitments remain incomplete. This transition period is analytically significant: gang actors typically exploit international force transitions.</p>
-            <p>The Haitian government's use of PMC drone and helicopter strikes against gang-controlled areas (confirmed by UN) raises a methodological note: these operations are targeted killings by a non-state-military entity contracted by government. The OHCHR report notes 247 instances of actual or attempted summary executions by police, and 547 people killed by PMC drone operations to September 2025 including 9 children. This is T1-confirmed (OHCHR) and qualifies as a security escalation above baseline, but the governance-criminal context means it doesn't map cleanly to standard interstate I2 scoring.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> I6 data date gap: ~6 weeks between current scoring week and OHCHR/UNHCR displacement data. Directional confidence is high (rising), but exact week-on-week velocity is indeterminate. Note explicitly per methodology §4 I6 guidance.</p>
-          </div>
-        </div>
-
-        <!-- C6 DRC -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C6 — DRC Eastern Theatre</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-amber">Contested ceasefire</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>The DRC ceasefire environment is analytically complex: multiple frameworks (Doha, Washington Accords, Luanda, Angola) are claimed to be active while kinetic operations continue. M23's kamikaze drone strikes on the FARDC Kisangani command base — the primary aerial operations hub — are strategically significant, targeting command-and-control rather than frontline forces. FARDC's kill of M23 commander Willy Ngoma (24 February) in a Rubaya mine area drone strike demonstrates escalating precision capabilities by both sides.</p>
-            <p>The DRC parliament ratification of the Washington Peace Accords (introduced 7 March, scheduled 16 March) represents a diplomatic movement. Rwanda-DRC de-escalation steps agreed at a March 19 Washington meeting provide a thin procedural progress signal, but the UNSC March forecast notes continuing mutual ceasefire violation accusations.</p>
-            <p><span class="flag flag-f4">F4 FLAG:</span> Multiple "ceasefire" claims from DRC, M23, and mediators are not operationally verified. MONUSCO ceasefire oversight mechanism is under construction (per UNSC Dec 2025 mandate) — the verification infrastructure does not yet exist. Score I5 at contested level pending independent verification structure.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> The M23 January 2025 major offensive constitutes a structural break. Baseline window reset to January 2025 forward. This monitor begins accumulating observations from 30 March 2026.</p>
-          </div>
-        </div>
-
-        <!-- C7 Taiwan -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C7 — Taiwan Strait / PRC–Taiwan</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-amber">Stable</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>The ODNI's 2026 Annual Threat Assessment (18 March) departs from the "2027 Davidson Window" framing that has structured much cross-strait analysis, assessing that PRC leaders "do not currently plan to execute an invasion of Taiwan in 2027 nor do they have a fixed timeline." This is the US IC's public assessment — Tier 3 by source hierarchy — but the consistency with ISW-CDOT prior analysis (short-of-war coercive measures preferred) lends it Probable analytical weight. The ODNI's framing of "setting conditions for unification" rather than invasion timeline is analytically significant and should inform I2 baseline interpretation.</p>
-            <p>The most analytically interesting signal this week is the PLA's public emphasis on Type 055 DDG air-defense doctrine, drawing explicit lessons from US military successes in Iran and Venezuela. This represents doctrine-adaptive behaviour from the Iran conflict theatre and suggests the PLA is updating its own war-gaming around anti-access/area-denial scenarios. This is Tier 3 (PRC state media) but is analytically consistent with expected PLA learning patterns.</p>
-            <p>The Japan-PRC tensions following PM Takaichi's Taiwan comments — flight cancellations, import restrictions, Senkaku coercive signalling — represent an I1 and I4 escalation in the Japan-PRC bilateral that is a secondary effect of the cross-strait environment. Japan's 2026 Diplomatic Bluebook downgrading of PRC relationship is a structural diplomatic change.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> Taiwan's special defense budget deadlock (parliament) directly affects I2 future trajectory. KMT vs. Executive Yuan budget gap (380B vs. 1.25T NTD) has delayed US systems procurement.</p>
-          </div>
-        </div>
-
-        <!-- C8 Korea -->
-        <div class="narrative-block">
-          <div class="narrative-header" onclick="toggleNarrative(this)">
-            <h3>C8 — Korean Peninsula</h3>
-            <div style="display:flex;gap:6px;"><span class="band band-amber">Elevated posture</span><span class="band band-contested">Contested Baseline</span></div>
-            <span class="narrative-chevron">▼</span>
-          </div>
-          <div class="narrative-body">
-            <p>North Korea's 15th Supreme People's Assembly session (22 March) institutionalised the "two hostile states" framework through legislative action — Kim's nuclear status "irreversible" declaration in that forum is qualitatively different from routine rhetorical nuclear reference. The SPA likely enacted amendments institutionalising the abandonment of unification as a constitutional objective. This is a structural doctrine signal, though the specific legislative text has not been confirmed through T1 sources (DPRK legislative transparency is near-zero).</p>
-            <p>Military testing in March was notable: strategic cruise missile tests from the Choe Hyon destroyer (11 March), 600mm MRL long-range artillery drill (14 March), and South Korea's confirmation of over 10 ballistic missile launches (Reuters 14 March). Kim's 29 March inspection of a special operations training base maintains the high-visibility military activity pattern. These events are within the elevated-posture baseline for DPRK — routine testing is the structural norm — but the cruise missile capability demonstration from a deployed destroyer platform is a qualitative capability evolution.</p>
-            <p>Trump-Kim meeting signals (ROK PM Kim Min-seok conveyed Trump's interest in meeting Kim during China trip) are Tier 3 (ROK government reporting). No US policy shift has been confirmed. The ROK's "peaceful coexistence" posture represents a departure from the Yoon era's harder line but has produced no DPRK reciprocation. The early termination of the 2022 inter-Korean plan (MOU) formalises the diplomatic channel closure.</p>
-            <p>DPRK-Russia arms revenue ($14.4B maximum since August 2023) is a structural economic factor that partially offsets sanctions and funds WMD development. This is not reflected in the I4 score (which tracks active economic warfare measures) but is noted for baseline context. The Lazarus Group's $2B 2025 cryptocurrency theft (US Treasury, 11 March) constitutes an ongoing economic warfare instrument.</p>
-            <p><span class="flag">CONTESTED BASELINE</span> I3 note: DPRK Confirmed confidence is rarely achievable per methodology. All I3 scores should be treated as Possible maximum until independent T1 corroboration is available — which structurally it is not for DPRK.</p>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- ════════════════════════════════════════
-           SECTION 4 — CROSS-MONITOR SIGNALS
-      ════════════════════════════════════════ -->
-      <section class="section" id="cross-monitor">
-        <div class="section-title">
-          <span class="section-number">§6</span> Cross-Monitor Signals
-        </div>
-
-        <div class="signals-table">
-          <div class="signals-header">
-            <div>Monitor</div>
-            <div>Signal</div>
-            <div>Conflict</div>
-            <div>Indicator</div>
-            <div>Note</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">FIMI</div>
-            <div class="signal-conflict" style="color:var(--amber);">F4 — Premature De-escalation</div>
-            <div class="signal-conflict">Gaza</div>
-            <div class="signal-indicator">I5 Diplomatic</div>
-            <div class="signal-note">Disarmament plan and ceasefire progress claims originate from Israeli/US government sources (T3). OCHA confirms 689 fatalities since ceasefire. Score at verified level, not claimed.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">FIMI</div>
-            <div class="signal-conflict" style="color:var(--amber);">F4 — Premature De-escalation</div>
-            <div class="signal-conflict">DRC Eastern</div>
-            <div class="signal-indicator">I5 Diplomatic</div>
-            <div class="signal-note">Multiple ceasefire claims (Doha/Washington/Angola) without operational verification. MONUSCO oversight mechanism not yet functional. Both DRC and M23 accusing each other of violations simultaneously.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">FIMI</div>
-            <div class="signal-conflict" style="color:var(--amber);">F2-adjacent — False-flag seeding risk</div>
-            <div class="signal-conflict">Sudan</div>
-            <div class="signal-indicator">I1/I2</div>
-            <div class="signal-note">Both SAF and RSF attributing drone strikes to each other without forensic corroboration, in tight time windows. RSF denied Ed Daein hospital drone strike; SAF denied Adikong market strike. Pattern consistent with mutual false-flag seeding. Flag for FIMI assessment.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">FIMI</div>
-            <div class="signal-conflict" style="color:var(--red);">I1 Red-band signal — Russia</div>
-            <div class="signal-conflict">Russia–Ukraine</div>
-            <div class="signal-indicator">I1 Rhetoric</div>
-            <div class="signal-note">Kremlin circular delegitimisation framing (Medvedev 19 March: Zelensky not legal for negotiations). Standard F4 premature de-escalation: Russia signals openness to talks while blocking preconditions. FIMI hub context: Russia state media amplification of Ukraine "obstacle" narrative.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">EGHTM</div>
-            <div class="signal-conflict" style="color:var(--amber);">European theatre — spring offensive staging</div>
-            <div class="signal-conflict">Russia–Ukraine</div>
-            <div class="signal-indicator">I2 Military</div>
-            <div class="signal-note">Russian mechanized assault increase since 17 March. ISW assesses Spring-Summer 2026 offensive preparation. EGHTM should assess implications for NATO eastern flank readiness and air defense allocation (given Middle East demands on Western systems).</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">EGHTM</div>
-            <div class="signal-conflict" style="color:var(--amber);">European theatre — Ukraine ceasefire stall</div>
-            <div class="signal-conflict">Russia–Ukraine</div>
-            <div class="signal-indicator">I5 Diplomatic</div>
-            <div class="signal-note">US attention diverted to Iran conflict; Geneva talks stalled. European strategic autonomy stress: Ukraine requiring European air defense support as US bandwidth narrows. Relevant to EGHTM's NATO posture tracking.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">Macro Monitor</div>
-            <div class="signal-conflict" style="color:var(--amber);">I4 — Energy/sanctions spillover</div>
-            <div class="signal-conflict">Russia–Ukraine / Sudan</div>
-            <div class="signal-indicator">I4 Economic</div>
-            <div class="signal-note">Russia's oil price windfall from Middle East conflict. Sudan's Heglig oil field offline (RSF capture Dec 2025). Both affect global energy supply. Middle East escalation (Iran conflict) is primary macro signal not in this monitor's roster.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">Macro Monitor</div>
-            <div class="signal-conflict" style="color:var(--amber);">I4 — Resource conflict financing</div>
-            <div class="signal-conflict">DRC Eastern</div>
-            <div class="signal-indicator">I4 Economic</div>
-            <div class="signal-note">M23/Rwanda control of Rubaya coltan mine. FARDC operations targeting Rubaya explicitly noted (ACLED). US-DRC strategic minerals partnership (Washington Accords) links conflict zone to critical supply chain. Macro monitor should track coltan/cobalt pricing.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">Environmental Risks</div>
-            <div class="signal-conflict" style="color:var(--amber);">I6 — Climate/water displacement driver</div>
-            <div class="signal-conflict">Sudan</div>
-            <div class="signal-indicator">I6 Displacement</div>
-            <div class="signal-note">Sudan displacement 12M+ includes both conflict and climate/food-insecurity drivers. Famine confirmed in Darfur/Kordofan — partly conflict-induced, partly climate-aggravated (Sahel drought patterns). Environmental Risks monitor should assess Sudan as compound crisis case.</div>
-          </div>
-
-          <div class="signal-row">
-            <div class="signal-monitor">Democracy Monitor</div>
-            <div class="signal-conflict" style="color:var(--amber);">Election-period conflict signal</div>
-            <div class="signal-conflict">Myanmar</div>
-            <div class="signal-indicator">I1/I2</div>
-            <div class="signal-note">Junta parliament presidential election 30 March. Min Aung Hlaing expected to maintain control via new governing council. ASEAN/Western refusal to endorse electoral legitimacy. Conflict escalation (airstrikes) used as electoral legitimation. &lt;90 days from election date — threshold met.</div>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- ════════════════════════════════════════
-           SECTION 5 — ROSTER WATCH
-      ════════════════════════════════════════ -->
-      <section class="section" id="roster">
-        <div class="section-title">
-          <span class="section-number">§7</span> Roster Watch
-        </div>
-
-        <div class="roster-item">
-          <h4><span class="roster-tag roster-tag-watch">WATCH — IRAN</span> Iran-US/Israel Military Conflict (Middle East)</h4>
-          <p>Multiple sources confirm an active Iran-US military exchange that has absorbed significant US diplomatic bandwidth. US-brokered Ukraine ceasefire talks described as "on hold" due to the Iran conflict (Euronews/Military.com, 10 March). Israel focused on Lebanon and Iran rather than Gaza. Iran rejecting US proposals as of 25 March. This conflict is not on the active roster but is exerting second-order effects on every conflict in the monitor. Entry criteria assessment: rhetoric I1 ≥3 met; military posture I2 confirmed ≥4 (US active engagement per multiple sources); nuclear signalling I3 likely ≥3 (Iran nuclear program context). Meets inclusion criteria threshold. Recommend roster addition consideration for next quarterly review, or sooner if criteria confirmed independently for two consecutive cycles.</p>
-        </div>
-
-        <div class="roster-item">
-          <h4><span class="roster-tag roster-tag-watch">WATCH — ETHIOPIA</span> Ethiopia Northern Theatre Re-activation Risk</h4>
-          <p>ACLED Africa Overview (March 2026) reports significant troop movements by Ethiopian National Defence Force, Tigray Defence Force, and Eritrean Defence Force in northern Ethiopia in early February. TDF effort to reclaim contentious Tselemt area late January. This brings the region "closer to potential conflict" per ACLED analysis more than three years after the 2022 ceasefire. Does not yet meet dual-indicator threshold for roster entry but warrants monitoring as a potential structural break from the post-November 2022 Pretoria Agreement baseline.</p>
-        </div>
-
-        <div class="roster-item">
-          <h4><span class="roster-tag roster-tag-watch">WATCH — SAHEL</span> Sahel Military-Political Cascade</h4>
-          <p>ACLED Africa March 2026 notes JNIM defections sparking crackdown across central Sahel. Mali/Burkina Faso/Niger junta corridor continues to present entry criteria potential. This item was pre-flagged in the task methodology for quarterly review consideration. Current assessment: not meeting dual-indicator threshold this cycle but regional instability complex is active and accelerating.</p>
-        </div>
-
-        <div class="roster-item">
-          <h4><span class="roster-tag" style="background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2);">NO ACTION</span> Active Roster Retirement Assessment</h4>
-          <p>No active roster conflicts are approaching retirement criteria (all six indicators Green for eight consecutive weeks + no T1/T2 active hostilities report for 90 days). All 8 active conflicts are scoring Level 3 or above on at least one indicator. No retirement candidates identified.</p>
-        </div>
-
-      </section>
-
-      <!-- ════════════════════════════════════════
-           ABOUT & METHODOLOGY
-      ════════════════════════════════════════ -->
-      <section class="section" id="about">
-        <div class="section-title">
-          <span class="section-number">i</span> About This Monitor
-        </div>
-        <div class="about-card">
-          <h3>Strategic Conflict &amp; Escalation Monitor</h3>
-          <p>Published by <a href="https://asym-intel.info" target="_blank">Asymmetric Intelligence</a>. This monitor tracks armed conflict trajectories and military escalation risk across a defined roster of 8 active or latent conflicts. Its defining methodological principle is <strong>deviation over level</strong>: an anomalous spike in a low-intensity context is analytically more significant than a sustained high level in a high-intensity one.</p>
-          <p>Scoring uses a dual-dimension Level/Baseline/Deviation framework across six indicators (I1 Rhetoric, I2 Military Posture, I3 Nuclear/Strategic, I4 Economic Warfare, I5 Diplomatic Channel, I6 Civilian Displacement) for each conflict on the roster. This is the first edition — all baselines are provisional until the 12-observation minimum is reached.</p>
-          <p>Source hierarchy strictly applied: UN agencies and peer-reviewed conflict data (T1) for ground truth; OSINT outlets and quality journalism (T2) for corroboration; government statements (T3) for triage only. Anti-disinformation filters F1–F4 applied to all scoring.</p>
-          <a class="method-link" href="https://asym-intel.info/monitors/conflict-escalation/methodology/" target="_blank">
-            → Full Methodology
-          </a>
-          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);">
-            <div class="sidebar-section-label" style="padding: 0 0 8px;">Companion Monitors</div>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;">
-              <a class="method-link" style="font-size:17px;padding:4px 10px;" href="https://asym-intel.info/monitors/fimi-cognitive-warfare/" target="_blank">FIMI &amp; Cognitive Warfare</a>
-              <a class="method-link" style="font-size:17px;padding:4px 10px;" href="https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html" target="_blank">European Geopolitical &amp; Hybrid</a>
-              <a class="method-link" style="font-size:17px;padding:4px 10px;" href="https://asym-intel.info/monitors/democratic-integrity/dashboard.html" target="_blank">World Democracy Monitor</a>
-              <a class="method-link" style="font-size:17px;padding:4px 10px;" href="https://asym-intel.info/monitors/environmental-risks/dashboard.html" target="_blank">Global Environmental Risks</a>
-              <a class="method-link" style="font-size:17px;padding:4px 10px;" href="https://asym-intel.info/monitors/macro-monitor/dashboard.html" target="_blank">Macro Monitor</a>
-              <a class="method-link" style="font-size:17px;padding:4px 10px;" href="https://asym-intel.info/monitors/ai-governance/dashboard.html" target="_blank">AI Governance</a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div><!-- /content -->
-  </div><!-- /main -->
-</div><!-- /layout -->
-
+    </section>
+
+    <section class="module-section" id="section-lead-signal">
+      <div class="module-header">
+        <div class="module-title">Lead Signal</div>
+      </div>
+      <div id="lead-signal-block">
+        <div class="loading-state">Loading lead signal…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-delta">
+      <div class="module-header">
+        <div class="module-title">Delta Strip — Top 5 by Deviation</div>
+      </div>
+      <ul class="delta-strip" id="delta-strip">
+        <li class="loading-state">Loading delta strip…</li>
+      </ul>
+    </section>
+
+    <section class="module-section" id="section-roster">
+      <div class="module-header">
+        <div class="module-title">Conflict Roster</div>
+      </div>
+      <div id="roster-table-wrap">
+        <div class="loading-state">Loading conflict roster…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-lead-signal">Lead Signal</a></li>
+      <li><a href="#section-delta">Delta Strip</a></li>
+      <li><a href="#section-roster">Conflict Roster</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer">
+  <span>Strategic Conflict &amp; Escalation Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
 <script>
-function toggleNarrative(header) {
-  const body = header.nextElementSibling;
-  const isOpen = body.classList.contains('visible');
-  body.classList.toggle('visible', !isOpen);
-  header.classList.toggle('open', !isOpen);
-}
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('data/report-latest.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      renderDashboard(d);
+    })
+    .catch(function (e) {
+      document.getElementById('kpi-strip').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
+    });
 
-// ── Sidebar navigation ──────────────────────────────────────
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.sidebar nav a');
+  function renderDashboard(d) {
+    var meta   = d.meta || {};
+    var ls     = d.lead_signal || {};
+    var roster = d.conflict_roster || [];
 
-// Smooth-scroll click handler: scrolls so section heading is visible below fixed bars
-navLinks.forEach(link => {
-  link.addEventListener('click', e => {
-    const href = link.getAttribute('href');
-    if (href && href.startsWith('#')) {
-      e.preventDefault();
-      const target = document.querySelector(href);
-      if (target) {
-        // Use scrollIntoView with block:start — scroll-margin-top handles the offset
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  });
-});
+    // Page header
+    document.getElementById('page-title').textContent = 'SCEM — ' + (meta.week_label || '');
+    document.getElementById('page-meta').innerHTML =
+      '<span>Issue ' + (meta.issue || '—') + ' · Vol ' + (meta.volume || '—') + '</span>' +
+      '<span>Published ' + formatDate(meta.published) + '</span>' +
+      '<span>Baseline status: ' + escHtml(meta.baseline_status_note || 'Baselines building') + '</span>';
 
-// IntersectionObserver: highlights nav link for whichever section is in view
-// rootMargin top = -220px (40px network bar + 172px sticky header + 8px breathing room)
-// rootMargin bottom = -60% so we only fire when section is near top of viewport
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const id = entry.target.getAttribute('id');
-      navLinks.forEach(link => {
-        link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+    // KPIs
+    document.getElementById('kpi-active').textContent = roster.length;
+    document.getElementById('kpi-lead').textContent   = (ls.conflict || '—').split(/[\s\/–]/)[0];
+    document.getElementById('kpi-lead-sub').textContent = ls.conflict || '';
+    document.getElementById('kpi-week').textContent   = meta.week_label || '—';
+
+    // Lead signal block
+    var lsBlock = document.getElementById('lead-signal-block');
+    lsBlock.innerHTML =
+      '<div class="signal-block">' +
+        '<div class="signal-block__label">Lead Signal — ' + escHtml(ls.conflict || '') + '</div>' +
+        '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' + escHtml(ls.headline || '') + '</h2>' +
+        '<p>' + escHtml(ls.summary || '') + '</p>' +
+        (ls.source_url ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' + escHtml(ls.source_url) + '" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dashed rgba(255,255,255,0.5)">Primary source →</a></p>' : '') +
+      '</div>';
+
+    // Delta strip — derive from conflict_roster indicator deviations
+    var deltaItems = buildDeltaItems(roster);
+    var deltaHtml = '';
+    deltaItems.slice(0, 5).forEach(function (item, i) {
+      deltaHtml +=
+        '<li class="delta-item">' +
+          '<div class="delta-item__rank">' + (i + 1) + '</div>' +
+          '<div class="delta-item__body">' +
+            '<div class="delta-item__module">' + escHtml(item.theatre) + '</div>' +
+            '<div class="delta-item__title">' + escHtml(item.conflict) + '</div>' +
+            '<div class="delta-item__one-line">Highest indicator deviation: <strong>' + item.deviation + '</strong> · ' + escHtml(item.indicator) + '</div>' +
+          '</div>' +
+          '<div class="delta-item__type">' + escHtml(item.arrow) + ' ' + escHtml(item.trajectory) + '</div>' +
+        '</li>';
+    });
+    document.getElementById('delta-strip').innerHTML = deltaHtml || '<li class="text-muted text-sm">No deviation data available.</li>';
+
+    // Roster summary table
+    var tableHtml =
+      '<table class="heatmap-table">' +
+        '<thead><tr>' +
+          '<th>Conflict</th>' +
+          '<th>Theatre</th>' +
+          '<th>Trajectory</th>' +
+          '<th>Highest Band</th>' +
+          '<th>Baseline</th>' +
+        '</tr></thead>' +
+        '<tbody>';
+
+    roster.forEach(function (c) {
+      var worstBand = getWorstBand(c.indicators || {});
+      var rowClass  = bandToRowClass(worstBand.band);
+      tableHtml +=
+        '<tr class="heatmap-row--' + rowClass + '">' +
+          '<td><strong>' + escHtml(c.conflict) + '</strong></td>' +
+          '<td>' + escHtml(c.theatre) + '</td>' +
+          '<td>' + escHtml(c.trajectory_arrow || '') + ' ' + escHtml(c.trajectory || '') + '</td>' +
+          '<td><span class="severity-badge severity-badge--' + rowClass + '">' + escHtml(worstBand.band) + '</span></td>' +
+          '<td>' + escHtml(c.baseline_status || 'Contested') + '</td>' +
+        '</tr>';
+    });
+    tableHtml += '</tbody></table>';
+    document.getElementById('roster-table-wrap').innerHTML = tableHtml;
+  }
+
+  function buildDeltaItems(roster) {
+    var items = [];
+    roster.forEach(function (c) {
+      var inds = c.indicators || {};
+      var maxDev = -Infinity;
+      var maxInd = '';
+      Object.keys(inds).forEach(function (k) {
+        var ind = inds[k];
+        var dev = ind.deviation || 0;
+        if (dev > maxDev) {
+          maxDev = dev;
+          maxInd = k.replace(/_/g, ' ').replace(/^I(\d)/, 'I$1');
+        }
       });
-    }
-  });
-}, { rootMargin: '-220px 0px -60% 0px', threshold: 0 });
+      items.push({
+        conflict:  c.conflict,
+        theatre:   c.theatre,
+        deviation: maxDev === -Infinity ? 0 : maxDev,
+        indicator: maxInd,
+        trajectory: c.trajectory || '',
+        arrow:     c.trajectory_arrow || ''
+      });
+    });
+    items.sort(function (a, b) { return b.deviation - a.deviation; });
+    return items;
+  }
 
-sections.forEach(s => observer.observe(s));
+  function getWorstBand(indicators) {
+    var priority = ['Red','ANOMALOUS','Amber','ELEVATED','CONTESTED','Green','NORMAL'];
+    var worst = { band: 'CONTESTED', level: 3 };
+    Object.values(indicators).forEach(function (ind) {
+      var b = (ind.band || '').toUpperCase();
+      if (b === 'RED' || b === 'ANOMALOUS') { worst = { band: ind.band, level: 0 }; return; }
+      if ((b === 'AMBER' || b === 'ELEVATED') && worst.level > 1) { worst = { band: ind.band, level: 1 }; }
+    });
+    return worst;
+  }
+
+  function bandToRowClass(band) {
+    var b = (band || '').toUpperCase();
+    if (b === 'RED' || b === 'ANOMALOUS') return 'critical';
+    if (b === 'AMBER' || b === 'ELEVATED') return 'high';
+    if (b === 'CONTESTED') return 'moderate';
+    if (b === 'GREEN' || b === 'NORMAL') return 'positive';
+    return 'moderate';
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}); }
+    catch(e) { return iso; }
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+});
 </script>
 </body>
 </html>

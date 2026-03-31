@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCEM Living Knowledge — Strategic Conflict &amp; Escalation Monitor</title>
+  <meta name="description" content="Persistent living knowledge base for SCEM — conflict baselines, indicator medians, roster watch, and cross-monitor flags that accumulate across weekly issues.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <style>
+    .baseline-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-5); margin-bottom:var(--space-4); box-shadow:var(--shadow-sm); }
+    .baseline-card__header { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-3); margin-bottom:var(--space-3); flex-wrap:wrap; }
+    .baseline-card__name { font-size:var(--text-md); font-weight:700; color:var(--color-text); }
+    .baseline-card__meta { font-size:var(--text-xs); color:var(--color-text-muted); display:flex; gap:var(--space-4); flex-wrap:wrap; margin-bottom:var(--space-3); }
+    .indicator-grid { display:grid; grid-template-columns:repeat(6, 1fr); gap:var(--space-3); margin:var(--space-3) 0; }
+    @media(max-width:700px){ .indicator-grid { grid-template-columns:repeat(3, 1fr); } }
+    .indicator-cell { background:var(--color-bg-alt); border-radius:var(--radius); padding:var(--space-3); }
+    .indicator-cell__name { font-size:var(--text-xs); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); margin-bottom:var(--space-2); }
+    .indicator-cell__values { display:flex; gap:var(--space-3); }
+    .indicator-val { text-align:center; }
+    .indicator-val__num { font-size:var(--text-lg); font-weight:700; color:var(--monitor-accent); line-height:1; }
+    .indicator-val__label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+    .building-badge { display:inline-flex; align-items:center; gap:4px; font-size:var(--text-xs); font-weight:600; color:var(--color-text-muted); background:var(--color-bg-alt); border:1px solid var(--color-border); padding:2px 8px; border-radius:var(--radius-sm); }
+  </style>
+</head>
+
+<body>
+<style>
+body{padding-top:40px!important}
+/* WDM/blueprint monitors: monitor-nav and sidebar offset */
+.monitor-nav{top:40px!important}
+.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
+/* Legacy monitor overrides (pre-blueprint) */
+nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
+nav.sidebar{height:calc(100vh - 40px)!important}
+.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
+.header:not([data-asym-network-bar]){top:40px!important}
+nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
+</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;"><div style="display:flex;align-items:center;max-width:1200px;margin:0 auto;padding:0 24px;height:100%;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></div></nav>
+
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <span class="brand-abbr">SCEM</span>
+    <span>Strategic Conflict &amp; Escalation Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="index.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html" class="active">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <section class="module-section" id="section-header">
+      <div class="page-header">
+        <div class="page-header__eyebrow">SCEM · Living Knowledge</div>
+        <h1 class="page-header__title">Persistent State</h1>
+        <p class="page-header__sub">
+          Conflict baselines, indicator medians, and cross-monitor flags that accumulate across weekly issues. Baselines are contested until Week 13 — indicator medians shown as "building" until that threshold.
+        </p>
+        <div class="page-header__meta" id="meta-bar">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-baselines">
+      <div class="module-header">
+        <div class="module-title">Conflict Baselines</div>
+      </div>
+      <div id="baselines-list">
+        <div class="loading-state">Loading baselines…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-roster-watch">
+      <div class="module-header">
+        <div class="module-title">Roster Watch</div>
+      </div>
+      <div id="roster-watch">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Flags</div>
+      </div>
+      <div id="cross-monitor">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-header">Overview</a></li>
+      <li><a href="#section-baselines">Baselines</a></li>
+      <li><a href="#section-roster-watch">Roster Watch</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer">
+  <span>Strategic Conflict &amp; Escalation Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('data/persistent-state.json')
+    .then(function (r) { return r.json(); })
+    .then(renderPersistent)
+    .catch(function (e) {
+      document.getElementById('baselines-list').innerHTML = '<div class="error-state">Failed to load persistent state: ' + e.message + '</div>';
+    });
+
+  function renderPersistent(d) {
+    var meta      = d._meta || {};
+    var baselines = d.conflict_baselines || [];
+    var rosterStatus = d.roster_status || {};
+    var rosterWatch  = d.roster_watch  || {};
+
+    // Meta bar
+    document.getElementById('meta-bar').innerHTML =
+      '<span>Last updated: ' + escHtml(meta.last_updated||'—') + '</span>' +
+      '<span>Week ' + (meta.week_number||'—') + '</span>' +
+      '<span>Schema ' + escHtml(meta.schema_version||'1.0') + '</span>';
+
+    // Baselines
+    var html = '';
+    baselines.forEach(function (b) {
+      var wc      = b.week_count || 0;
+      var building = wc < 13;
+      var medians  = b.indicator_medians || {};
+      var currents = b.current_levels    || {};
+      var vh       = b.version_history   || [];
+
+      var statusBadge = building
+        ? '<span class="severity-badge severity-badge--moderate">CONTESTED — Week ' + wc + '/13</span>'
+        : '<span class="severity-badge severity-badge--positive">' + escHtml(b.baseline_status||'Active') + '</span>';
+
+      var indHtml = '';
+      var IND_NAMES = { I1:'Rhetoric', I2:'Military', I3:'Nuclear', I4:'Economic', I5:'Diplomatic', I6:'Displacement' };
+      ['I1','I2','I3','I4','I5','I6'].forEach(function (k) {
+        var med  = medians[k];
+        var curr = currents[k];
+        indHtml +=
+          '<div class="indicator-cell">' +
+            '<div class="indicator-cell__name">' + k + ' · ' + (IND_NAMES[k]||k) + '</div>' +
+            '<div class="indicator-cell__values">' +
+              '<div class="indicator-val">' +
+                '<div class="indicator-val__num" style="color:var(--color-text-muted)">' + (med !== null && med !== undefined ? med : '—') + '</div>' +
+                '<div class="indicator-val__label">Median</div>' +
+              '</div>' +
+              '<div class="indicator-val">' +
+                '<div class="indicator-val__num">' + (curr !== null && curr !== undefined ? curr : '—') + '</div>' +
+                '<div class="indicator-val__label">Current</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      });
+
+      var vhHtml = '';
+      if (vh.length) {
+        vhHtml = vh.slice().reverse().map(function (v) {
+          return '<div class="version-entry">' +
+            '<div class="version-entry__date">' + escHtml(v.date||'') + '</div>' +
+            '<div class="version-entry__change">' + escHtml(v.change||'') + '</div>' +
+            (v.reason ? '<div class="version-entry__reason">' + escHtml(v.reason) + '</div>' : '') +
+          '</div>';
+        }).join('');
+      }
+
+      html +=
+        '<div class="baseline-card">' +
+          '<div class="baseline-card__header">' +
+            '<div class="baseline-card__name">' + escHtml(b.conflict||'') + '</div>' +
+            '<div>' + statusBadge + '</div>' +
+          '</div>' +
+          '<div class="baseline-card__meta">' +
+            '<span>' + escHtml(b.theatre||'') + '</span>' +
+            '<span>First observed: ' + escHtml(b.first_observed||'—') + '</span>' +
+            '<span>Week ' + wc + ' of 13 (locks at W13)</span>' +
+          '</div>' +
+          (building ? '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">Indicator medians build over 13 weekly observations. Medians shown as — until baseline locks.</p>' : '') +
+          (b.notes ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4)">' + escHtml(b.notes) + '</p>' : '') +
+          '<div class="indicator-grid">' + indHtml + '</div>' +
+          (vhHtml ?
+            '<button class="version-history__toggle" type="button">Version history →</button>' +
+            '<div class="version-history">' + vhHtml + '</div>'
+          : '') +
+        '</div>';
+    });
+    document.getElementById('baselines-list').innerHTML = html || '<p class="text-muted">No baseline data available.</p>';
+
+    // Roster Watch
+    var rw = rosterWatch;
+    var approaching = rw.approaching_inclusion || [];
+    var retiring    = rw.approaching_retirement || [];
+    var rwHtml = '';
+    if (approaching.length) {
+      rwHtml += '<div class="section-label">Approaching Inclusion</div><ul class="roster-watch-list">' +
+        approaching.map(function(r) { return '<li>' + escHtml(typeof r === 'string' ? r : (r.conflict||JSON.stringify(r))) + '</li>'; }).join('') + '</ul>';
+    }
+    if (retiring.length) {
+      rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div><ul class="roster-watch-list">' +
+        retiring.map(function(r) { return '<li>' + escHtml(typeof r === 'string' ? r : (r.conflict||JSON.stringify(r))) + '</li>'; }).join('') + '</ul>';
+    }
+    if (!approaching.length && !retiring.length) {
+      rwHtml = '<p class="text-muted text-sm">No roster changes currently flagged.</p>';
+    }
+    document.getElementById('roster-watch').innerHTML = rwHtml;
+
+    // Cross-monitor flags — from persistent-state
+    var cmf = d.cross_monitor_flags || {};
+    var flags = cmf.flags || [];
+    var cmEl = document.getElementById('cross-monitor');
+    if (!flags.length) {
+      cmEl.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags accumulated.</p>';
+    } else {
+      var cmHtml = '<div class="cross-monitor-panel">' +
+        '<div class="cross-monitor-panel__title">Accumulating Cross-Monitor Flags · Updated ' + escHtml(cmf.updated||'') + '</div>';
+      flags.forEach(function (flag) {
+        var sc = bandToSeverityClass(flag.severity||'');
+        cmHtml +=
+          '<div class="cms-flag">' +
+            '<div class="cms-flag__header">' +
+              '<div class="cms-flag__id">' + escHtml(flag.flag_id||'') + '</div>' +
+              '<span class="severity-badge severity-badge--' + sc + '">' + escHtml(flag.severity||'') + '</span>' +
+            '</div>' +
+            '<div class="cms-flag__title">' + escHtml(flag.title||'') + '</div>' +
+            '<div class="cms-flag__monitors">Monitors: ' + escHtml((flag.monitors||[]).join(', ')) + '</div>' +
+            '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(flag.summary||'') + '</div>' +
+            '<span class="cms-read-more">Read more →</span>' +
+          '</div>';
+      });
+      cmHtml += '</div>';
+      cmEl.innerHTML = cmHtml;
+    }
+
+    // Re-init nav for toggling etc.
+    if (window.AsymNav) AsymNav.init();
+  }
+
+  function bandToSeverityClass(sev) {
+    var s = (sev||'').toLowerCase();
+    if (s === 'critical' || s === 'red' || s === 'anomalous') return 'critical';
+    if (s === 'high' || s === 'amber' || s === 'elevated') return 'high';
+    if (s === 'positive' || s === 'green' || s === 'normal') return 'positive';
+    return 'moderate';
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+});
+</script>
+</body>
+</html>
