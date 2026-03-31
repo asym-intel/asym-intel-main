@@ -1272,39 +1272,57 @@ a:hover { color: var(--color-primary-hover); }
   gap: 0;
 }
 .subscribe-schedule__item {
-  display: grid;
-  grid-template-columns: 100px 220px 1fr;
-  align-items: baseline;
+  display: flex;
+  align-items: center;
   gap: var(--space-4);
-  padding: var(--space-3) 0;
+  padding: var(--space-4) 0;
   border-bottom: 1px solid var(--color-border);
-  font-size: 0.9rem;
 }
 .subscribe-schedule__item:last-child { border-bottom: none; }
+.subscribe-schedule__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+.subscribe-schedule__logo svg { display: block; }
+.subscribe-schedule__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.subscribe-schedule__top {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
 .subscribe-schedule__day {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-faint);
+  flex-shrink: 0;
+  min-width: 80px;
 }
 .subscribe-schedule__monitor {
   font-weight: 600;
+  font-size: 0.95rem;
   color: var(--color-text);
 }
 .subscribe-schedule__desc {
   color: var(--color-text-muted);
-  font-size: 0.85rem;
+  font-size: 0.83rem;
+  line-height: 1.4;
 }
-@media (max-width: 600px) {
-  .subscribe-schedule__item {
-    grid-template-columns: 90px 1fr;
-    grid-template-rows: auto auto;
-  }
-  .subscribe-schedule__desc {
-    grid-column: 2;
-    margin-top: 2px;
-  }
+@media (max-width: 560px) {
+  .subscribe-schedule__logo { width: 36px; height: 36px; }
+  .subscribe-schedule__day { min-width: 70px; }
 }
 
 /* ── Site footer ─────────────────────────────────────────────────────────── */
