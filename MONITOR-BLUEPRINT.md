@@ -422,3 +422,223 @@ NOTE ON SITE HIERARCHY AND MONITOR IDENTITY:
     monitor.css — the nav links (Overview, Latest Issue, Archive…) are
     standard across all monitors and defined in the HTML shell.
     The monitor nav is structural HTML — never touched by cron tasks.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 12 — BLUEPRINT v2.0 (locked 31 March 2026)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Supersedes the v1.0 decisions (Sections 3–10) where in conflict.
+Reference standard: AI Governance Monitor architecture + WDM
+persistent-state patterns + lessons from Build 1.
+
+────────────────────────────────────────────────────────────────
+STANDARD PAGE SET (8 pages per monitor)
+────────────────────────────────────────────────────────────────
+
+  index.html       Monitor landing page — issue list, brief
+                   descriptions, monitor identity. The "magazine
+                   front page" for the monitor.
+
+  dashboard.html   Current issue: KPI strip + signal block +
+                   delta strip. Canonical monitor URL.
+
+  report.html      Full current issue — all modules rendered from
+                   report-latest.json. Right-hand sticky nav.
+                   Optional horizontal module jump strip (auto-
+                   generated from JSON keys; shown if 6+ modules).
+
+  archive.html     All past issues from archive.json.
+
+  persistent.html  Living knowledge — entities that persist and
+                   accumulate across issues with full version
+                   history. Cross-monitor flags live here (not
+                   just in weekly report JSON).
+
+  about.html       Editor, publication schedule, methodology link,
+                   technical credit. Section IDs: #section-
+                   description, #section-schedule, #section-editor,
+                   #section-links, #section-credit (locked).
+
+  methodology.html PUBLIC methodology page — WHAT the monitor
+                   tracks and WHY those sources/frameworks were
+                   chosen. Credibility signalling only.
+                   NEVER includes: scoring rubrics, prompt
+                   structure, weighting logic, or editorial
+                   process. The full 'how-to' methodology stays
+                   in private internal files only.
+
+  search.html      Client-side search across archive.json.
+                   Standard across all monitors.
+
+NO per-monitor digest.html. See Section 12 — Digest below.
+
+────────────────────────────────────────────────────────────────
+NAVIGATION ARCHITECTURE
+────────────────────────────────────────────────────────────────
+
+LAYER 1 — NETWORK BAR (site infrastructure, never modified per monitor)
+  40px, fixed, dark (#1a1918), z-index 9999.
+  Content: Asymmetric Intelligence brand + Monitors / Compossible
+  / The White Space links.
+  Injected automatically by GitHub Actions workflow.
+  No monitor may alter height, colour, font, content, or behaviour.
+
+LAYER 2 — MONITOR NAV (monitor identity, consistent structure)
+  52px, sticky below network bar, background: var(--color-bg).
+  Left: monitor SVG logo + abbreviation + full name (styled via
+  monitor.css — colour, font weight tweakable).
+  Centre: standard page links — Overview · Latest Issue · Archive
+  · Living Knowledge · About (all monitors identical).
+  Right: theme toggle.
+  The monitor name/abbr area is LARGER than the network bar text
+  to give each monitor its own visual identity. Styled via:
+    .monitor-nav__brand in monitor.css (accent colour, SVG).
+
+LAYER 3 — RIGHT-HAND STICKY SECTION NAV (all pages, all monitors)
+  Position: sticky right sidebar, ~220px wide.
+  Behaviour: stays in view as user scrolls; highlights active
+  section via Intersection Observer scroll-spy (nav.js).
+  Content: auto-generated from page sections or JSON module keys.
+  Used on: all 8 standard pages (not just report.html).
+  Replaces: the left sidebar used in WDM Build 1.
+
+LAYER 4 — MODULE JUMP STRIP (report.html only, 6+ modules)
+  Horizontal strip below monitor-nav, sticky.
+  Auto-generated from report-latest.json top-level keys
+  (excluding meta, source_url, cross_monitor_flags).
+  Short labels only (M00, M01... or abbreviated module names).
+
+────────────────────────────────────────────────────────────────
+EMAIL DIGEST
+────────────────────────────────────────────────────────────────
+
+ONE digest for the whole network — not per monitor.
+Schedule: one email per day of the week, one per monitor:
+  Monday    — World Democracy Monitor (WDM)
+  Tuesday   — Democratic Integrity (same as WDM? check)
+  Wednesday — European Strategic Autonomy
+  Thursday  — AI Governance
+  Friday    — FIMI & Cognitive Warfare
+  Saturday  — Environmental Risks
+  Sunday    — Strategic Conflict & Escalation
+
+Subscribers choose which days they want. Managed via Buttondown
+at https://buttondown.com/asym-intel (single list).
+
+No per-monitor digest.html pages. The network-wide subscribe
+page at /subscribe/ is the single entry point.
+The existing per-monitor digest.html (AI Governance) will be
+deprecated and redirected to /subscribe/.
+
+────────────────────────────────────────────────────────────────
+JSON PIPELINE — ADDITIONS FROM WDM BUILD 1
+────────────────────────────────────────────────────────────────
+
+All monitors: report-latest.json, archive.json,
+              persistent-state.json, report-{date}.json
+(unchanged from v1.0)
+
+NEW — persistent-state.json structure standard:
+  _meta:                   monitor identity, last_updated, schema
+  [named entity groups]:   semantic keys (not module_0, module_1)
+  cross_monitor_flags:     persistent flags linking to other
+                           monitors — moved HERE from report JSON
+                           so they accumulate across issues
+
+NEW — cross_monitor_flags in persistent-state (not report-latest):
+  Each flag has: id, monitors_involved[], title, linkage,
+  this_monitor_perspective, type, status, first_flagged,
+  unchanged_since, version_history[]
+  Flags are NEVER deleted — closed flags get status: "Resolved"
+
+NEW — report-latest.json must use NAMED semantic keys:
+  Use: signal, heatmap, intelligence_items, delta_strip etc.
+  NOT: module_0, module_1, module_2 (fragile, unreadable)
+  AI Governance to migrate to named keys on next architecture pass.
+
+NEW — schema_version bump to "2.0" for all monitors updated to
+  Blueprint v2.0 architecture.
+
+────────────────────────────────────────────────────────────────
+METHODOLOGY PAGE — PUBLIC/PRIVATE BOUNDARY (locked)
+────────────────────────────────────────────────────────────────
+
+PUBLIC (in methodology.html on live site):
+  — What the monitor tracks (scope, domain, geographic coverage)
+  — Why those sources were chosen (credibility, independence,
+    track record — the 'standing' of the monitor)
+  — Which organisations/databases are primary sources
+  — Publication frequency and editorial standards
+
+PRIVATE (internal methodology files only — never published):
+  — Scoring rubrics and numerical weighting
+  — Prompt structure and AI instruction sets
+  — Step-by-step editorial process and workflow
+  — How severity levels are assigned
+  — How confidence levels are determined
+
+RATIONALE: The public methodology establishes credibility and
+transparency for readers. The private methodology is operational
+IP. Mixing them would either expose operational details or
+dilute the public credibility signal with procedural noise.
+
+────────────────────────────────────────────────────────────────
+SHARED LIBRARY — v2.0 CHANGES
+────────────────────────────────────────────────────────────────
+
+base.css: v1.1 in effect (larger type scale, better contrast).
+          Right-hand sidebar replaces left sidebar.
+          .monitor-sidebar → position: sticky, RIGHT side.
+
+nav.js: Update Intersection Observer to highlight right-hand
+        nav links (not left). Same scroll-spy logic.
+
+renderer.js: Add support for named persistent-state entity
+             groups. Auto-detect cross_monitor_flags key in
+             persistent-state.json and render dedicated panel.
+
+────────────────────────────────────────────────────────────────
+BUILD ORDER (revised)
+────────────────────────────────────────────────────────────────
+
+  1. Update Blueprint shell (shared/) for v2.0
+     — right-hand nav, 8-page set, new renderer features
+  2. Build Conflict Escalation (SCEM) — simplest structure,
+     good test of new shell
+  3. Rebuild WDM (democratic-integrity) to v2.0 shell
+     — adds index.html, search.html, methodology.html,
+       migrates to right-hand nav, adds persistent cross-monitor
+       flags
+  4. Environmental Risks
+  5. FIMI
+  6. Macro Monitor
+  7. European Strategic Autonomy (ESA)
+  8. AI Governance — last, migrate to shared/ library,
+     rename module keys to semantic naming, add persistent.html
+
+────────────────────────────────────────────────────────────────
+LESSONS FROM BUILD 1 (WDM) — carried into v2.0
+────────────────────────────────────────────────────────────────
+
+1. _shared/ → shared/: GitHub Pages silently 404s underscore
+   dirs. All shared assets in shared/ only. NEVER use _ prefix.
+
+2. HTML comment bug: <!-- populated by renderer.js --> prevents
+   empty-check. Strip comments before checking innerHTML.
+
+3. Network bar requires plain <body> tag + blank line after.
+   Inject workflow matches '<body>\n' pattern.
+
+4. DOMContentLoaded guard: all renderer init calls need guard.
+
+5. about.html section IDs locked:
+   #section-description, #section-schedule, #section-editor,
+   #section-links, #section-credit. Sidebar hrefs must match.
+
+6. sidebar.js scroll-spy: use scroll-margin-top equal to
+   network-bar-height + nav-height + space-4 on all
+   .module-section elements.
+
+7. Confirm before pushing to main (Section 11). All build work
+   on staging branch → review at staging.asym-intel.info →
+   PR to main for production release.
