@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCEM Search — Strategic Conflict &amp; Escalation Monitor</title>
+  <meta name="description" content="Search the SCEM archive for specific conflicts, events, or indicator signals.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <style>
+    .search-form { display:flex; gap:var(--space-3); align-items:stretch; margin-bottom:var(--space-6); }
+    .search-input {
+      flex:1;
+      padding:var(--space-3) var(--space-4);
+      font-family:var(--font-sans);
+      font-size:var(--text-base);
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-md);
+      color:var(--color-text);
+      outline:none;
+      transition:border-color 0.15s;
+    }
+    .search-input:focus { border-color:var(--monitor-accent); }
+    .search-input::placeholder { color:var(--color-text-faint); }
+    .search-btn {
+      padding:var(--space-3) var(--space-5);
+      background:var(--monitor-accent);
+      color:#fff;
+      border:none;
+      border-radius:var(--radius-md);
+      font-family:var(--font-sans);
+      font-size:var(--text-sm);
+      font-weight:600;
+      cursor:pointer;
+      transition:opacity 0.15s;
+    }
+    .search-btn:hover { opacity:0.9; }
+    .search-result {
+      background:var(--color-surface);
+      border:1px solid var(--color-border);
+      border-radius:var(--radius-md);
+      padding:var(--space-5);
+      margin-bottom:var(--space-3);
+      box-shadow:var(--shadow-sm);
+    }
+    .search-result__meta { font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-2); }
+    .search-result__title { font-size:var(--text-md); font-weight:700; color:var(--color-text); margin-bottom:var(--space-2); line-height:1.3; }
+    .search-result__snippet { font-size:var(--text-sm); color:var(--color-text-secondary); line-height:1.6; }
+    .search-result mark { background:var(--monitor-accent-bg); color:var(--monitor-accent); border-radius:2px; padding:0 2px; }
+    .result-count { font-size:var(--text-sm); color:var(--color-text-muted); margin-bottom:var(--space-4); }
+    .no-results { text-align:center; padding:var(--space-12) 0; color:var(--color-text-muted); font-size:var(--text-sm); }
+  </style>
+</head>
+
+<body>
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <span class="brand-abbr">SCEM</span>
+    <span>Strategic Conflict &amp; Escalation Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="index.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <section class="module-section" id="section-search">
+      <div class="page-header">
+        <div class="page-header__eyebrow">SCEM · Search</div>
+        <h1 class="page-header__title">Search Archive</h1>
+        <p class="page-header__sub">Search across all SCEM issues — conflicts, events, signals, and delta items.</p>
+      </div>
+
+      <form class="search-form" id="search-form" role="search" onsubmit="return false;">
+        <label for="search-input" class="sr-only">Search archive</label>
+        <input
+          id="search-input"
+          class="search-input"
+          type="search"
+          placeholder="e.g. Sudan, displacement, Myanmar, ceasefire…"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button type="submit" class="search-btn" id="search-btn">Search</button>
+      </form>
+
+      <div id="result-count" class="result-count" aria-live="polite"></div>
+      <div id="results-list"></div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-search">Search</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer">
+  <span>Strategic Conflict &amp; Escalation Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
+<script>
+(function () {
+  var archiveData = null;
+  var searchIndex = [];
+
+  // Load archive on page load
+  fetch('data/archive.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      archiveData = data;
+      buildIndex(data);
+    })
+    .catch(function (e) {
+      document.getElementById('results-list').innerHTML =
+        '<div class="error-state">Failed to load archive data: ' + e.message + '</div>';
+    });
+
+  function buildIndex(issues) {
+    searchIndex = [];
+    (issues || []).forEach(function (issue) {
+      var pub = issue.published ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : '';
+
+      // Index the issue-level signal
+      searchIndex.push({
+        issueNum:  issue.issue,
+        weekLabel: issue.week_label || '',
+        published: pub,
+        type: 'signal',
+        title: 'Issue ' + (issue.issue||'—') + ' — ' + (issue.week_label||''),
+        text:  (issue.signal || ''),
+        url:   issue.source_url || ''
+      });
+
+      // Index each delta item
+      (issue.delta_strip || []).forEach(function (d) {
+        searchIndex.push({
+          issueNum:  issue.issue,
+          weekLabel: issue.week_label || '',
+          published: pub,
+          type: 'delta',
+          title: d.title || '',
+          text:  (d.module_tag||'') + ' ' + (d.title||'') + ' ' + (d.one_line||'') + ' ' + (d.delta_type||''),
+          snippet: d.one_line || '',
+          conflict: d.module_tag || '',
+          url:   issue.source_url || ''
+        });
+      });
+    });
+  }
+
+  function search(query) {
+    if (!query || !query.trim()) return [];
+    var terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    var results = searchIndex.filter(function (item) {
+      var haystack = (item.title + ' ' + item.text).toLowerCase();
+      return terms.every(function (t) { return haystack.indexOf(t) !== -1; });
+    });
+    return results;
+  }
+
+  function highlight(text, query) {
+    var terms = query.split(/\s+/).filter(Boolean);
+    var safe = escHtml(text);
+    terms.forEach(function (t) {
+      var re = new RegExp('(' + escRegex(t) + ')', 'gi');
+      safe = safe.replace(re, '<mark>$1</mark>');
+    });
+    return safe;
+  }
+
+  function renderResults(results, query) {
+    var countEl = document.getElementById('result-count');
+    var listEl  = document.getElementById('results-list');
+
+    if (!results.length) {
+      countEl.textContent = 'No results found.';
+      listEl.innerHTML = '<div class="no-results">No matches in the archive for that query. Try a different term.</div>';
+      return;
+    }
+
+    countEl.textContent = results.length + ' result' + (results.length === 1 ? '' : 's') + ' found.';
+
+    var html = results.map(function (r) {
+      var badge = r.type === 'signal'
+        ? '<span class="severity-badge severity-badge--moderate">Issue Signal</span>'
+        : '<span class="severity-badge severity-badge--high">' + escHtml(r.conflict||'Delta') + '</span>';
+
+      var snippetText = r.type === 'signal' ? r.text : r.snippet;
+      var snippet = highlight(snippetText.slice(0, 200) + (snippetText.length > 200 ? '…' : ''), query);
+
+      return '<div class="search-result">' +
+        '<div class="search-result__meta">' +
+          badge + ' &nbsp; Issue ' + (r.issueNum||'—') + ' · ' + escHtml(r.weekLabel) + ' · ' + escHtml(r.published) +
+        '</div>' +
+        '<div class="search-result__title">' + highlight(r.title, query) + '</div>' +
+        '<div class="search-result__snippet">' + snippet + '</div>' +
+        (r.url ? '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(r.url) + '" target="_blank" rel="noopener">Full brief →</a></div>' : '') +
+      '</div>';
+    }).join('');
+
+    listEl.innerHTML = html;
+  }
+
+  function doSearch() {
+    var q = document.getElementById('search-input').value.trim();
+    if (!q) {
+      document.getElementById('result-count').textContent = '';
+      document.getElementById('results-list').innerHTML = '';
+      return;
+    }
+    var results = search(q);
+    renderResults(results, q);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var form  = document.getElementById('search-form');
+    var input = document.getElementById('search-input');
+    var btn   = document.getElementById('search-btn');
+
+    btn.addEventListener('click', doSearch);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') doSearch();
+    });
+    // Live search on input (debounced)
+    var timer;
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(doSearch, 300);
+    });
+  });
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function escRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+})();
+</script>
+</body>
+</html>
