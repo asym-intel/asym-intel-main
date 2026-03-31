@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About SCEM — Strategic Conflict &amp; Escalation Monitor</title>
+  <meta name="description" content="About the Strategic Conflict &amp; Escalation Monitor — what it is, who produces it, and how to use it.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+</head>
+
+<body>
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <span class="brand-abbr">SCEM</span>
+    <span>Strategic Conflict &amp; Escalation Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="index.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="about.html" class="active">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <div class="page-header">
+      <div class="page-header__eyebrow">SCEM · Asymmetric Intelligence</div>
+      <h1 class="page-header__title">About</h1>
+    </div>
+
+    <section class="module-section" id="section-description">
+      <div class="module-header">
+        <div class="module-title">What SCEM Is</div>
+      </div>
+      <div class="card">
+        <p>The <strong>Strategic Conflict &amp; Escalation Monitor (SCEM)</strong> is a weekly structured intelligence product that tracks 8–12 active armed conflicts simultaneously, measuring escalation signals across six standardised indicators. It is one monitor in the <strong>Asymmetric Intelligence hub-and-spoke architecture</strong> — a network of specialised monitors, each covering a distinct strategic domain, all sharing a common design system and publication schedule.</p>
+        <p style="margin-top:var(--space-3)">SCEM measures <em>deviation from each conflict's own rolling baseline</em> rather than absolute severity. This design choice reflects a core analytical principle: a 30% increase in bombardment of an already-active front is more significant than the same activity level sustained for months. By tracking deviation, SCEM surfaces genuine escalation signals amid chronic conflict noise.</p>
+        <p style="margin-top:var(--space-3)">Each conflict on the roster is assessed weekly against six indicators: I1 Rhetoric, I2 Military Posture, I3 Nuclear/Strategic, I4 Economic Warfare, I5 Diplomatic, and I6 Displacement. Indicator baselines are contested for the first 13 weekly observations, then lock as rolling medians. The most significant deviation across the roster becomes the week's lead signal.</p>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-schedule">
+      <div class="module-header">
+        <div class="module-title">Publication Schedule</div>
+      </div>
+      <div class="card">
+        <p><strong>SCEM publishes every Sunday at 18:00 UTC.</strong></p>
+        <p style="margin-top:var(--space-3)">Each issue covers the seven-day period ending on the Sunday of publication. The data window closes at approximately 12:00 UTC Sunday to allow scoring and publication. Cron tasks update the data JSON files only — the HTML shell is static and maintained separately.</p>
+        <table class="heatmap-table" style="margin-top:var(--space-4)">
+          <thead><tr><th>Event</th><th>Time (UTC)</th></tr></thead>
+          <tbody>
+            <tr><td>Data window closes</td><td>Sunday ~12:00 UTC</td></tr>
+            <tr><td>Scoring and JSON update</td><td>Sunday 12:00–17:00 UTC</td></tr>
+            <tr><td>Publication</td><td>Sunday 18:00 UTC</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-editor">
+      <div class="module-header">
+        <div class="module-title">Editor</div>
+      </div>
+      <div class="card">
+        <p><strong>Peter Howitt</strong><br>Gibraltar</p>
+        <p style="margin-top:var(--space-3)">SCEM is produced independently as part of the Asymmetric Intelligence project. The project exists to surface structured intelligence on asymmetric threats, conflict escalation, and great-power competition for analysts, journalists, and policy-oriented readers who need structured signal rather than news narrative.</p>
+        <p style="margin-top:var(--space-3)">Contact and full project details: <a href="https://asym-intel.info">asym-intel.info</a></p>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-links">
+      <div class="module-header">
+        <div class="module-title">Links</div>
+      </div>
+      <div class="card">
+        <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:var(--space-3)">
+          <li><a href="methodology.html" class="source-link">SCEM Methodology →</a></li>
+          <li><a href="archive.html" class="source-link">All SCEM Issues →</a></li>
+          <li><a href="https://asym-intel.info/monitors/" class="source-link" target="_blank" rel="noopener">All Monitors →</a></li>
+          <li><a href="https://asym-intel.info/briefs/" class="source-link" target="_blank" rel="noopener">All Briefs →</a></li>
+          <li><a href="https://asym-intel.info" class="source-link" target="_blank" rel="noopener">Asymmetric Intelligence Homepage →</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-credit">
+      <div class="module-header">
+        <div class="module-title">Production Credit</div>
+      </div>
+      <div class="card">
+        <p>SCEM is produced with the assistance of <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Perplexity Computer</a>. The scoring methodology, analytical judgements, source selection, and editorial decisions are made by the human editor. Perplexity Computer assists with structured data processing and publication workflow.</p>
+        <p style="margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text-muted)">SCEM is an independent intelligence product. It does not represent the views of any government, institution, or organisation. All assessments are the editor's own and should not be used as the sole basis for operational, policy, or investment decisions.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-description">What SCEM Is</a></li>
+      <li><a href="#section-schedule">Schedule</a></li>
+      <li><a href="#section-editor">Editor</a></li>
+      <li><a href="#section-links">Links</a></li>
+      <li><a href="#section-credit">Production Credit</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer">
+  <span>Strategic Conflict &amp; Escalation Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+</body>
+</html>
