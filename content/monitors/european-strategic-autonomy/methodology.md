@@ -160,7 +160,75 @@ What This Monitor Is Not
 
 This is an open-source intelligence synthesis product, not a classified intelligence assessment, academic research output, or legal document. It does not carry the authority of an institutional attribution. Nothing in this monitor should be read as a finding of fact for legal or regulatory purposes. Users seeking institutional-grade attribution should consult the primary T1 sources cited.
 
-## 07 · Companion Monitors
+
+## 09 · Weekly Research Process
+
+The following seven-step sequence is the canonical weekly cycle for the
+EGHTM. It is documented here so that the monitor is fully reproducible
+and the analytical chain from raw source to published output is
+transparent.
+
+**Step 1 — Load Baseline**
+Read `data/persistent-state.json`. Load all current KPI values, active
+actor campaign states, election risk ratings, state capture scores, and
+the Lagrange Point progress reading. Every value carries forward unchanged
+unless new primary-source evidence contradicts it this week. Do not
+re-derive what is already established.
+
+**Step 2 — Actor Scan (RU, CN, US, IL)**
+Run dedicated searches per actor covering: new FIMI incidents, legislative
+or regulatory interference, hybrid operations, and economic coercion.
+
+Mandatory weekly search strings per actor:
+- RU: EEAS FIMI Explorer, EUvsDisinfo daily digest, Bellingcat, NATO StratCom CoE
+- CN: ECFR China analytical framework, DFRLab, EU–China tracker, Xinhua monitoring
+- US: Carnegie Europe, ECFR, POLITICO Brussels, Eurointelligence
+- IL: IJ4EU, Mediapart, OCCRP, DW Fact Check
+
+Attribution lag check per actor: identify any T3/T4 finding not yet
+formally acknowledged at T1. Document the gap — the lag itself is an
+analytical signal tracked in §05 Attribution Confidence.
+
+**Step 3 — Dimension Scan**
+Structured search across the ten analytical dimensions in §04:
+- Ukraine war status (ISW, Ukrainian General Staff, ACLED)
+- Elections per country (OSCE/ODIHR, national electoral commissions)
+- State capture (HU, GE, SK, RS, AT, CY) using §04 S.04 named sources
+- EU legislation impact — DSA, DMA, AI Act, NIS2, CER, AILD
+- Network and infrastructure (Baltic Sea MarineTraffic, NetBlocks, CCD tracker)
+- Lagrange Point indicators across five policy vectors
+
+**Step 4 — Source Verification and Tier Assignment**
+Each new item is assigned a source tier (T1–T5) per §02 and
+cross-checked against at least one independent source from a different
+tier. Attribution confidence labels (Possible/Probable/Confirmed) are
+applied to every actor attribution claim per §05.
+
+Critical Friction Note triggered where T1 official claims are directly
+contradicted by T3 or T4 evidence. The gap is documented, not suppressed.
+
+**Step 5 — Scoring Update**
+Update KPI values where primary-source evidence justifies change. Run
+Lagrange Point scoring across all five policy vectors. Update Democratic
+Health scores only where V-Dem, Freedom House, or equivalent primary-source
+data justifies revision — scores do not drift on the basis of commentary.
+State capture scores reviewed for HU, GE, SK, RS, AT, CY.
+
+**Step 6 — Weekly Intelligence Brief**
+Select up to 10 items by strategic significance. Each item carries:
+source tier, attribution confidence where applicable, and a one-sentence
+strategic significance statement. Named reports hyperlinked to primary
+sources. Items ranked editorially, not algorithmically.
+
+**Step 7 — Publication**
+Dashboard updated via git clone/push to
+`static/monitors/european-strategic-autonomy/dashboard.html`.
+Brief published to `content/monitors/european-strategic-autonomy/YYYY-MM-DD-weekly-brief.md`.
+JSON pipeline updated: `report-latest.json`, dated archive copy,
+`archive.json` (append), `persistent-state.json` (carry forward + update).
+All four JSON files committed in the same git push as the dashboard.
+
+## 08 · Companion Monitors
 
 Asymmetric Intelligence Monitor Suite
 Cross-linked analytical coverage
@@ -188,7 +256,7 @@ Geopolitical Macro Monitor
 Economic coercion instruments, sanctions architecture, trade dependencies, and financial warfare. Provides the economic sovereignty dimension that complements EGHTM's Lagrange Point strategic autonomy tracking.
 ](https://asym-intel.info/monitors/macro-monitor/dashboard.html)
 
-## 08 · Persistent Data
+## 10 · Persistent Data
 
 The dashboard maintains the following state week-to-week:
 
