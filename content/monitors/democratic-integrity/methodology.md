@@ -98,9 +98,25 @@ The Legislative Watch tags each entry with its regional mimicry pattern — iden
 
 ## The Analytical Ecosystem
 
-The World Democracy Monitor is part of the [Asymmetric Intelligence](https://asym-intel.info) platform:
+The World Democracy Monitor is part of the [Asymmetric Intelligence](https://asym-intel.info) network. Cross-monitor signals are issued when a democratic integrity finding has direct relevance to another monitor's analytical domain.
 
-- **[World Democracy Monitor](https://asym-intel.info/monitors/democratic-integrity/dashboard.html)** — democratic resilience and institutional integrity (this monitor)
-- **[European Geopolitical & Hybrid Threat Monitor](https://www.perplexity.ai/computer/a/european-geopolitical-hybrid-t-ONqW4DtqTFSe2IHZUBWnfw)** — external pressure vectors on European security and cohesion
-- **[Global FIMI & Cognitive Warfare Monitor](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html)** — the information operations layer that connects both
-- **[compossible.blog](https://compossible.blog)** — long-form analytical development of the underlying concepts
+| Monitor | Relationship | Trigger for cross-monitor flag |
+|---|---|---|
+| [European Geopolitical & Hybrid Threat Monitor](https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html) | Spoke — receives state capture and democratic backsliding signals for European theatres | Severity score ≥ 7.0 in any EU/candidate state; confirmed foreign interference in democratic institutions |
+| [Global FIMI & Cognitive Warfare Monitor](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html) | Spoke — receives election-period information operation signals | Documented FIMI operation targeting electoral process or civic institutions in a monitored country |
+| [Strategic Conflict & Escalation Monitor](https://asym-intel.info/monitors/conflict-escalation/dashboard.html) | Spoke — receives signals where conflict drives democratic collapse | Armed conflict identified as primary driver of democratic backsliding; election held under active conflict conditions |
+| [Global Environmental Risks Monitor](https://asym-intel.info/monitors/environmental-risks/dashboard.html) | Spoke — receives signals where environmental stress drives democratic collapse | Ecosystem collapse or climate displacement demonstrably correlating with V-Dem index decline in same region |
+| [Global Macro Monitor](https://asym-intel.info/monitors/macro-monitor/dashboard.html) | Spoke — receives signals where economic coercion drives backsliding | Economic dependency or sanctions weaponised as instrument of democratic erosion |
+| [AI Governance Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html) | Spoke — receives signals where AI tools are deployed for democratic suppression | AI surveillance, deepfake deployment, or algorithmic censorship documented as instrument of institutional capture |
+
+## Persistent Data
+
+The monitor maintains a rolling baseline that persists week-to-week:
+
+- **Country severity scores** — carry forward unchanged unless new primary-source evidence justifies revision. Score changes require corroboration from at least two independent Tier 2–4 sources.
+- **Status classifications** — Rapid Decay / Recovery / Watch List — persist until explicitly reclassified. Reclassification threshold: severity score change of ≥ 1.0 point sustained over two consecutive weekly assessments.
+- **Monthly trend** — recalculated from the 4-week rolling history each update cycle.
+- **Institutional Integrity early-warning flags** — carried forward; cleared only when the triggering condition is reversed and documented.
+- **Regional mimicry chains** — cumulative; new links are appended, existing chains are not revised retrospectively.
+
+Previous week's state is loaded at the start of each update cycle (Step 1 of the weekly research process). The archive of all published weekly briefs is available at [asym-intel.info/monitors/democratic-integrity/](https://asym-intel.info/monitors/democratic-integrity/).
