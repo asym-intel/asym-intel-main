@@ -188,17 +188,12 @@ Geopolitical Macro Monitor
 Economic coercion instruments, sanctions architecture, trade dependencies, and financial warfare. Provides the economic sovereignty dimension that complements EGHTM's Lagrange Point strategic autonomy tracking.
 ](https://asym-intel.info/monitors/macro-monitor/dashboard.html)
 
-(function(){
-var btn = document.getElementById('theme-toggle');
-var html = document.documentElement;
-var stored = localStorage.getItem('eghtm-theme');
-if (stored) html.setAttribute('data-theme', stored);
-if (btn) {
-btn.addEventListener('click', function(){
-var current = html.getAttribute('data-theme') || 'light';
-var next = current === 'dark' ? 'light' : 'dark';
-html.setAttribute('data-theme', next);
-localStorage.setItem('eghtm-theme', next);
-});
-}
-})();
+## 08 · Persistent Data
+
+The dashboard maintains the following state week-to-week:
+
+- **KPI values** — threat actor counts, FIMI incident totals, states at capture risk, elections under threat, and EU legislation targeted carry forward and are updated only when primary-source evidence supports revision.
+- **Timeline events** — cumulative. New entries are appended; historical entries are not revised retrospectively except for source corrections.
+- **Actor profiles** — RU, CN, US, IL — persist with rolling updates. Attribution confidence labels are revised upward only when corroborating Tier 1–2 sources emerge.
+- **Weekly Brief** — published to [asym-intel.info/monitors/european-strategic-autonomy/](https://asym-intel.info/monitors/european-strategic-autonomy/) each Wednesday. Full archive of all published briefs available at that URL.
+- **Dashboard version** — sidebar footer version string (OSINT v1.x) is incremented only on structural methodology changes, not weekly content updates.
