@@ -36,14 +36,14 @@ jobs:
 
       - name: Build with staging base URL
         run: |
-          hugo --minify --baseURL "https://staging.asym-intel.info/"
+          hugo --minify --baseURL "https://staging.asym-intel.info/" --destination docs
 
       - name: Deploy to asym-intel/asym-intel-staging
         uses: peaceiris/actions-gh-pages@v4
         with:
           personal_token: ${{ secrets.STAGING_DEPLOY_TOKEN }}
           external_repository: asym-intel/asym-intel-staging
-          publish_dir: ./public
+          publish_dir: ./docs
           publish_branch: main
           cname: staging.asym-intel.info
           commit_message: "staging deploy from ${{ github.sha }}"
