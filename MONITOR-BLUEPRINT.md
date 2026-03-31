@@ -509,18 +509,37 @@ LAYER 4 — MODULE JUMP STRIP (report.html only, 6+ modules)
   Short labels only (M00, M01... or abbreviated module names).
 
 ────────────────────────────────────────────────────────────────
+CANONICAL MONITOR NAMES (use these names consistently — always)
+────────────────────────────────────────────────────────────────
+
+  Full name                                Abbr   Slug
+  ─────────────────────────────────────── ──────  ──────────────────────────────
+  World Democracy Monitor                  WDM    democratic-integrity
+  Global Macro Monitor                     GMM    macro-monitor
+  FIMI & Cognitive Warfare Monitor         FCW    fimi-cognitive-warfare
+  European Strategic Autonomy Monitor      ESA    european-strategic-autonomy
+  AI Governance Monitor                    AGM    ai-governance
+  Environmental Risks Monitor              ERM    environmental-risks
+  Strategic Conflict & Escalation Monitor  SCEM   conflict-escalation
+
+RULE: Always refer to monitors by their full name or abbreviation
+above. Never use partial names, slug names, or informal variants
+in documentation, prompts, or user communications.
+
+────────────────────────────────────────────────────────────────
 EMAIL DIGEST
 ────────────────────────────────────────────────────────────────
 
 ONE digest for the whole network — not per monitor.
-Schedule: one email per day of the week, one per monitor:
+Schedule: one email per day of the week, one per monitor,
+matching existing publish schedule:
   Monday    — World Democracy Monitor (WDM)
-  Tuesday   — Democratic Integrity (same as WDM? check)
-  Wednesday — European Strategic Autonomy
-  Thursday  — AI Governance
-  Friday    — FIMI & Cognitive Warfare
-  Saturday  — Environmental Risks
-  Sunday    — Strategic Conflict & Escalation
+  Monday    — Global Macro Monitor (GMM) [08:00 UTC, after WDM]
+  Thursday  — FIMI & Cognitive Warfare Monitor (FCW)
+  Wednesday — European Strategic Autonomy Monitor (ESA)
+  Friday    — AI Governance Monitor (AGM)
+  Saturday  — Environmental Risks Monitor (ERM)
+  Sunday    — Strategic Conflict & Escalation Monitor (SCEM)
 
 Subscribers choose which days they want. Managed via Buttondown
 at https://buttondown.com/asym-intel (single list).
