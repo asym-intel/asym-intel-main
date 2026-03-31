@@ -159,6 +159,20 @@ The attribution chain problem is acute with commercial operators because client 
 
 ---
 
+
+## Cross-Monitor Signal Protocol
+
+The FIMI Monitor functions as the **hub** in the Asymmetric Intelligence network. All six other monitors are potential recipients of FIMI-coded signals. Cross-monitor flags are issued when an operation has documented impact on another monitor's primary domain.
+
+| Target Monitor | Trigger |
+|---|---|
+| [European Geopolitical & Hybrid Threat Monitor](https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html) | Any confirmed Russian, Chinese, US or Israeli operation targeting EU institutions, member state elections, or NATO cohesion |
+| [World Democracy Monitor](https://asym-intel.info/monitors/democratic-integrity/dashboard.html) | Any operation documented as directly interfering with an electoral process or targeting democratic institutions in a monitored country |
+| [Strategic Conflict & Escalation Monitor](https://asym-intel.info/monitors/conflict-escalation/dashboard.html) | Any information operation designed to shape conflict perception, false-flag a military incident, or suppress coverage of escalation |
+| [Global Environmental Risks Monitor](https://asym-intel.info/monitors/environmental-risks/dashboard.html) | State-attributed greenwashing disinformation or coordinated suppression of climate science |
+| [Global Macro Monitor](https://asym-intel.info/monitors/macro-monitor/dashboard.html) | Information operations targeting financial markets, central bank credibility, or sanctions enforcement perception |
+| [AI Governance Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html) | AI-generated or AI-amplified FIMI operations; disinformation targeting AI regulatory processes |
+
 ## Temporal Scope and Archive Policy
 
 | Status | Time Since Last Activity | Treatment |
