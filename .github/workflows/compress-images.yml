@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - staging
     paths:
       - 'static/images/uploads/**'
 
@@ -80,6 +81,6 @@ jobs:
           else
             git add static/images/uploads/
             git commit -m "perf: auto-compress images over 500KB [skip ci]"
-            git pull --rebase origin main
+            git pull --rebase origin ${{ github.ref_name }}
             git push
           fi
