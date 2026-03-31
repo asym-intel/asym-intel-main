@@ -325,6 +325,33 @@ PAGES DELIVERED: dashboard.html, report.html, archive.html,
                  persistent.html, about.html, assets/monitor.css
 ROLLOUT: shared/ library created — used by all future monitor builds.
 
+
+────────────────────────────────────────────────────────────────
+MONITOR: Strategic Conflict & Escalation Monitor (SCEM)
+DATE: 31 March – 1 April 2026
+STATUS: Complete ✓ — live at asym-intel.info
+DECISIONS:
+  - overview.html (not index.html) — Hugo owns index.html at root
+  - SVG in monitor-nav brand: 18×18px, var(--monitor-accent), no abbr text
+  - Full monitor name in brand — no abbreviation shorthand
+  - section.html redirect: Hugo section root → dashboard.html (all monitors)
+  - base.css v1.5: overflow-x:hidden moved to body only (sticky fix)
+  - network-bar full-bleed: no max-width inner wrapper
+  - indicator-grid: repeat(6,1fr) — fixed 6-col for SCEM
+  - cross_monitor_flags in persistent-state.json (schema v2.0 initialised)
+ISSUES:
+  - overflow-x:hidden on .monitor-layout breaks position:sticky — FIXED
+  - index.html conflict with Hugo — renamed to overview.html
+  - network bar CNAME bug: Hugo docs/ CNAME overwrites staging domain — FIXED
+    (staging-deploy.yml now writes CNAME after Hugo build)
+SHELL CHANGES:
+  - base.css v1.5: overflow-x on body not layout container
+  - nav.js: rootMargin '-10% 0px -60% 0px' (was -75% — short sections missed)
+  - network-bar.html: full-bleed, mobile nb-links hide, re-inject pattern
+PAGES DELIVERED: overview.html, dashboard.html, report.html, archive.html,
+                 persistent.html, about.html, methodology.html, search.html
+ROLLOUT: base.css v1.5, nav.js fix, network-bar full-bleed → all monitors
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SECTION 9 — ROLLOUT TRACKER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -332,8 +359,13 @@ SECTION 9 — ROLLOUT TRACKER
 Tracks when shared shell changes have been applied to each monitor.
 Format: shared/ change → which monitors updated → date
 
-2026-03-31 | base.css v1.1 (larger fonts, better contrast) → WDM (democratic-integrity)
-             Note: applies to all monitors using shared/css/base.css automatically.
+2026-03-31 | base.css v1.1 (larger fonts, better contrast) → WDM
+2026-04-01 | base.css v1.3 (larger type scale 16px base) → SCEM
+2026-04-01 | base.css v1.4 (mobile overflow fixes) → SCEM
+2026-04-01 | base.css v1.5 (overflow-x on body, sticky fix) → SCEM
+2026-04-01 | nav.js (rootMargin fix for short sections) → SCEM
+2026-04-01 | network-bar.html (full-bleed, mobile hide) → SCEM + all 7 monitors
+             Note: all shared/ changes apply to all monitors automatically.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SECTION 10 — DECISIONS (resolved 31 March 2026)
@@ -366,10 +398,11 @@ Q5 STICKY LEFT NAV: YES — use the sticky left sidebar nav for ALL monitors.
    Implementation: .monitor-sidebar with position:sticky is already in base.css.
    auto-nav highlighting: nav.js handles scroll-spy (already implemented).
 
-Q6 SVG MONITOR LOGOS: Deferred — add monitor SVG to sidebar brand area
-   (.monitor-nav__brand) in a later pass after core 5 pages are stable
-   on all monitors. The brand area has gap:var(--space-2) for an inline SVG.
-   When added: 18×18px SVG, monitor accent colour, position: left of abbr text.
+Q6 SVG MONITOR LOGOS: DONE — implemented in SCEM Build 2, locked as standard.
+   Pattern: 18×18px SVG inline in .monitor-nav__brand, left of full monitor name.
+   Use var(--monitor-accent) for all stroke/fill — inherits per monitor.
+   Do NOT show abbreviation (SCEM, WDM etc) in brand — SVG + full name only.
+   All 7 monitor SVGs stored in: static/monitors/monitor-svg-notes.md
 
 Q7 ABOUT.HTML SECTION ID STANDARD (locked):
    section IDs must be: #section-description, #section-schedule,
@@ -435,9 +468,11 @@ persistent-state patterns + lessons from Build 1.
 STANDARD PAGE SET (8 pages per monitor)
 ────────────────────────────────────────────────────────────────
 
-  index.html       Monitor landing page — issue list, brief
-                   descriptions, monitor identity. The "magazine
-                   front page" for the monitor.
+  overview.html    Monitor landing page — issue list, brief
+                   descriptions, monitor identity panel (SVG + CTAs).
+                   NOTE: Hugo owns index.html at root URL — never use
+                   index.html for Blueprint pages. Use overview.html.
+                   Hugo section.html redirects root URL → dashboard.html.
 
   dashboard.html   Current issue: KPI strip + signal block +
                    delta strip. Canonical monitor URL.
@@ -471,6 +506,7 @@ STANDARD PAGE SET (8 pages per monitor)
                    Standard across all monitors.
 
 NO per-monitor digest.html. See Section 12 — Digest below.
+NO index.html — Hugo owns this path. Use overview.html instead.
 
 ────────────────────────────────────────────────────────────────
 NAVIGATION ARCHITECTURE
@@ -716,19 +752,20 @@ renderer.js: Add support for named persistent-state entity
 BUILD ORDER (revised)
 ────────────────────────────────────────────────────────────────
 
-  1. Update Blueprint shell (shared/) for v2.0
+  1. ✅ Update Blueprint shell (shared/) for v2.0
      — right-hand nav, 8-page set, new renderer features
-  2. Build Conflict Escalation (SCEM) — simplest structure,
-     good test of new shell
-  3. Rebuild WDM (democratic-integrity) to v2.0 shell
+  2. ✅ Build SCEM (conflict-escalation) — Build 2 complete
+     Lessons: overview.html not index.html; SVG in nav brand;
+     full-bleed network bar; base.css v1.5 sticky fix
+  3. Build ERM (environmental-risks) — Build 3 (next)
+  4. Rebuild WDM (democratic-integrity) to v2.0 shell
      — adds index.html, search.html, methodology.html,
        migrates to right-hand nav, adds persistent cross-monitor
        flags
-  4. Environmental Risks
-  5. FIMI
-  6. Macro Monitor
-  7. European Strategic Autonomy (ESA)
-  8. AI Governance — last, migrate to shared/ library,
+  5. FCW (fimi-cognitive-warfare)
+  6. GMM (macro-monitor)
+  7. ESA (european-strategic-autonomy)
+  8. AGM (ai-governance) — last, migrate to shared/ library,
      rename module keys to semantic naming, add persistent.html
 
 ────────────────────────────────────────────────────────────────
