@@ -306,7 +306,9 @@
 
     // Populate sidebar if present
     var sidebar = document.querySelector('.monitor-sidebar');
-    if (sidebar && !sidebar.innerHTML.trim()) {
+    /* populate sidebar if empty or only has a comment */
+    var sidebarText = (sidebar.innerHTML || '').replace(/<!--[\s\S]*?-->/g, '').trim();
+    if (sidebar && !sidebarText) {
       sidebar.innerHTML = buildSidebarNav(data);
     }
 
