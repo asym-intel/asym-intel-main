@@ -1,7 +1,7 @@
 ---
 title: "Methodology — AI Governance Monitor"
 description: "Source standards, forensic filters, module guide, and editorial principles for the AI Governance Monitor."
-date: 2020-01-01
+date: 2026-03-30
 monitor: "ai-governance"
 type: "methodology"
 draft: false
@@ -74,6 +74,41 @@ Every module item that warrants it includes an "Asymmetric Signal" — a non-obv
 ## Reporting Window
 
 Each issue covers Monday to Sunday of the preceding week. Published Friday at 18:00 CEST.
+
+## Data Lifecycle
+
+The monitor builds a cumulative intelligence picture, not a transient news feed. Entries are not deleted because time has passed.
+
+### Persistent data
+
+The following remains visible until something material changes:
+
+- Policy positions, doctrines, legal frameworks, military postures
+- Baseline deviations and confirmed risk ratings
+- Ongoing conflicts, campaigns, or active monitoring flags (Standards Vacuum, Ciyuan, AISI Pipeline)
+- The EU AI Act 7-layer tracker (M09) and Concentration Index (M14)
+
+### Transient data
+
+Single announcements, one-off events, dated statements, and tactical incidents may be summarised or rolled into higher-level series once their implications are captured. They are never silently deleted — they are archived as closed episodes.
+
+### Update rules
+
+An entry is updated only if:
+- New data materially changes the assessment (substance, direction, or level of concern)
+- Confidence improves (e.g. Probable → Confirmed) or degrades
+- Source quality changes (key claims now supported by higher-tier sources)
+
+An entry is **not** updated merely because a week has passed, or to republish identical findings under a new date.
+
+### Version history
+
+Every persistent entry carries a version history: timestamp, what changed, and why. Past assessments are never silently overwritten. When a persistent state closes (e.g. a risk rating drops, a campaign ends), it is logged as a closed episode with an end date and final assessment.
+
+### Persistent state file
+
+The current state of all persistent entries is maintained in `data/persistent-state.json`. Each weekly issue reads this file as its baseline and updates only entries that meet the update rules above. The weekly brief references this evolving knowledge base — it does not recreate it from scratch.
+
 
 ## Editor
 
