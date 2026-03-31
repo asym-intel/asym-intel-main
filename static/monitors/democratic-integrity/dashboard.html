@@ -1722,21 +1722,119 @@
     .ii-grid { grid-template-columns: 1fr; }
   }
 
+
+  /* ─── Cross-Monitor Signals ─── */
+  .cms-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid #0891b2;
+    border-radius: 6px;
+    padding: 14px 20px;
+    font-size: 15.6px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+  .cms-meta {
+    font-size: 11.5px;
+    font-family: 'Courier New', monospace;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .cms-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .cms-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    border-top: 3px solid #0891b2;
+  }
+  .cms-card.contextual { border-top-color: #6366f1; }
+  .cms-card.emerging   { border-top-color: #0d9488; }
+  .cms-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .cms-monitors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .cms-monitor-pill {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #ecfeff;
+    color: #0e7490;
+    border: 1px solid #a5f3fc;
+    white-space: nowrap;
+  }
+  .cms-monitor-pill.self {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: #c5d4e8;
+  }
+  .cms-sig-badge {
+    font-size: 10.8px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .cms-sig-badge.Structural  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .cms-sig-badge.Contextual  { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+  .cms-sig-badge.Emerging    { background: #ccfbf1; color: #0f766e; border: 1px solid #99f6e4; }
+  .cms-title {
+    font-size: 14.4px;
+    font-weight: bold;
+    color: var(--text-primary);
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+  .cms-body {
+    font-size: 13.2px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+  .cms-action {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    padding-top: 7px;
+    font-style: italic;
+    line-height: 1.55;
+  }
+  .cms-action strong { color: #0891b2; font-style: normal; }
+  .cms-empty {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+    font-size: 14.4px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  @media (max-width: 1024px) {
+    .cms-grid { grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
-<body><style>
-body{padding-top:40px!important}
-/* EGHTM: fixed nav sidebar */
-nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
-nav.sidebar{height:calc(100vh - 40px)!important}
-/* WDM: fixed left-nav */
-.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
-/* Macro: sticky header */
-.header:not([data-asym-network-bar]){top:40px!important}
-/* AI Frontier: any fixed nav not our bar */
-nav:not([data-asym-network-bar]){top:40px!important}
-</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;display:flex;align-items:center;padding:0 24px;gap:24px;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav>
-
+<body>
 <nav class="left-nav" id="left-nav">
   <div class="nav-logo">
     <div class="nav-logo-mark">
@@ -1751,6 +1849,7 @@ nav:not([data-asym-network-bar]){top:40px!important}
     <a class="nav-link" href="#snapshot"><span class="nav-icon">📊</span>Weekly Snapshot<span class="nav-badge blue">14</span></a>
     <a class="nav-link" href="#trend"><span class="nav-icon">📈</span>Monthly Trend</a>
     <a class="nav-link" href="#heatmap"><span class="nav-icon">🌍</span>Status Heatmap</a>
+    <a class="nav-link" href="#crossmonitor"><span class="nav-icon">🔗</span>Cross-Monitor</a>
     <a class="nav-link" href="#erosion"><span class="nav-icon">⚠</span>Silent Erosion</a>
     <a class="nav-link" href="#brief"><span class="nav-icon">📋</span>Weekly Brief</a>
   </div>
@@ -3073,6 +3172,57 @@ nav:not([data-asym-network-bar]){top:40px!important}
   })();
   </script>
 </div>
+
+
+<!-- ─── CROSS MONITOR SIGNALS ─── -->
+<div id="crossmonitor" class="section-anchor"></div>
+<div class="wrapper" style="padding-top:0;">
+  <div class="section-title" style="margin-top:24px;">Cross-Monitor Signals</div>
+  <div class="cms-intro">Overlaps, reinforcing signals, and conflicts identified by scanning the public briefs, dashboards, and methodology pages of other monitors in the <a href="https://asym-intel.info" target="_blank" rel="noopener" style="color:var(--accent);">Asymmetric Intelligence</a> suite. Updated each Monday. Where no material overlap exists, that is stated explicitly.</div>
+  <div class="cms-meta" id="cms-meta-bar"></div>
+  <div class="cms-grid" id="cms-container"></div>
+</div>
+
+<script>
+(function() {
+  var signals = [{"id": "cms-001", "monitors_involved": ["Global FIMI & Cognitive Warfare Monitor", "World Democracy Monitor"], "status": "Active", "significance": "Structural", "first_flagged": "2026-03-31", "last_updated": "2026-03-31", "title": "FIMI operations as a direct enabler of democratic backsliding in monitored countries", "body": "The FIMI Monitor tracks foreign information manipulation and interference as its primary domain; the Democracy Monitor tracks the institutional consequences — but the two are causally connected in at least three active cases. (1) Romania: the 2024–25 electoral crisis involving Călin Georgescu's candidacy — now in the Democracy Monitor's Recovery section — was FIMI-amplified, per CIVICUS documentation. (2) Georgia: government-affiliated disinformation networks framing civil society organisations as 'foreign-sponsored saboteurs' directly enables the legal architecture (foreign grants law, extremism law) being tracked in the Democracy Monitor's heatmap. (3) Hungary: pre-election disinformation environment (Fidesz-aligned media ecosystem, selective journalist exclusion) is both a Media Capture Phase 3 entry in this monitor and a FIMI-relevant domestic information operation. From the Democracy Monitor's perspective: where FIMI operations are the mechanism by which legal/institutional capture is justified or enabled, the legislative and heatmap entries in this monitor should be read in conjunction with active campaign entries in the FIMI Monitor.", "action": "Legislative Watch entries tagged fimi_link: true where FIMI operations are documented as enabling the democratic erosion mechanism.", "changelog": [{"date": "2026-03-31", "change": "Signal created", "reason": "Initial cross-monitor scan"}]}, {"id": "cms-002", "monitors_involved": ["European Geopolitical & Hybrid Threat Monitor", "World Democracy Monitor"], "status": "Active", "significance": "Structural", "first_flagged": "2026-03-31", "last_updated": "2026-03-31", "title": "European far-right network coordination as both a hybrid threat and a democratic integrity failure", "body": "The EGHTM tracks Russia-linked political, financial, and influence operations as external pressure vectors on European security. The Democracy Monitor's Networks section tracks the same actors — Fidesz, RN, AfD, FPÖ, SMER — as domestic anchors of authoritarian model export. The two monitors are tracking the same phenomenon from different analytical directions: the EGHTM from the perspective of external actor intent and capability; the Democracy Monitor from the perspective of domestic institutional consequences and legal architecture. The EPP–far-right coordination documented in the Democracy Monitor (DW, March 18) — where mainstream centre-right parties are coordinating with Patriots for Europe on migration votes — is also an EGHTM-relevant signal about the collapse of the cordon sanitaire that had previously insulated European institutions from Kremlin-adjacent influence. From the Democracy Monitor's perspective: the EGHTM's Kremlin political influence assessment should be read as providing the actor-attribution layer for the Democracy Monitor's Networks entries, which document the domestic institutional effects but not the full intelligence picture of the foreign principal.", "action": "Networks section cards for Fidesz, RN, AfD, FPÖ, SMER carry EGHTM cross-reference. Russia funding documentation in the Networks section sourced from the same base as EGHTM's political influence assessments.", "changelog": [{"date": "2026-03-31", "change": "Signal created", "reason": "Initial cross-monitor scan"}]}, {"id": "cms-003", "monitors_involved": ["AI Governance Monitor", "World Democracy Monitor"], "status": "Active", "significance": "Structural", "first_flagged": "2026-03-31", "last_updated": "2026-03-31", "title": "AI platform capture as Phase 2/3 media capture in democratic backsliding cases", "body": "The AI Governance Monitor tracks AI development, governance, and power concentration. The Democracy Monitor's Media Capture section documents Musk/X as a Phase 2 (oligarchic capture) and Phase 3 (regulatory weaponisation) case. A University of Manchester study (March 2026) documented X's shift to 'platform illiberalism' — centralised control, dismantled moderation, aligned political amplification. Meta's content moderation retreat since 2025 follows the same pattern. The AI Governance Monitor's tracking of AI power concentration, algorithmic amplification governance, and platform political alignment directly reinforces the Democracy Monitor's assessment that the three largest US digital platforms now operate with oligarchic alignment to executive power. From the Democracy Monitor's perspective: platform governance failures documented by the AI Governance Monitor are a structural enabler of the information environment in which democratic backsliding occurs — the AI layer sits upstream of both FIMI operations and domestic media capture.", "action": "Media Capture section's US Phase 2 entry references the University of Manchester AI governance research. The Democracy Monitor's 360° Research Tier 2 does not yet include an AI governance-specific source — flagged for addition.", "changelog": [{"date": "2026-03-31", "change": "Signal created", "reason": "Initial cross-monitor scan"}]}, {"id": "cms-004", "monitors_involved": ["Strategic Conflict & Escalation Monitor", "World Democracy Monitor"], "status": "Active", "significance": "Contextual", "first_flagged": "2026-03-31", "last_updated": "2026-03-31", "title": "Wartime executive emergency powers as democratic erosion accelerant", "body": "The Conflict & Escalation Monitor tracks the US-Iran war and its escalation dynamics. The Democracy Monitor tracks the domestic democratic consequences: Trump's wartime emergency powers framing is being used to accelerate precisely the institutional capture the Democracy Monitor measures. FCC Chair Carr's March 14 threat to revoke broadcast licences was explicitly tied to Iran war coverage — 'hoaxes and news distortions' framing of factual reporting. DNI Gabbard's omission of election interference from the Worldwide Threats Assessment (March 19) came in the context of the Iran war hearing. The war creates an emergency legitimacy environment that insulates executive overreach from the normal judicial and institutional checks this monitor tracks. From the Democracy Monitor's perspective: active conflict is a structural accelerant of the democratic erosion indicators this monitor measures — wartime executive emergency powers bypass the resilience mechanisms (courts, press, civil society) that currently constrain the US severity score at 5.5.", "action": "US institutional integrity signals (Lawfare Media, Reuters March 7) already captured in Institutional Integrity section. The Iran war context is noted in the US heatmap entry.", "changelog": [{"date": "2026-03-31", "change": "Signal created", "reason": "Initial cross-monitor scan"}]}, {"id": "cms-005", "monitors_involved": ["Asym Intel Macro Monitor", "World Democracy Monitor"], "status": "Active", "significance": "Structural", "first_flagged": "2026-03-31", "last_updated": "2026-03-31", "title": "Economic coercion and oligarchization as shared cross-monitor domain", "body": "The Macro Monitor tracks geopolitical risk and financial stress indicators. The Democracy Monitor's state capture section tracks oligarchization of key sectors — media, energy, finance — as a mechanism of democratic backsliding. These are the same phenomenon from different analytical perspectives. The Macro Monitor's 'Blind Spot' framework (indicators that read as benign but are structurally suppressed) is analytically parallel to the Democracy Monitor's 'Silent Erosion' feature — both identify developments that are procedurally invisible to standard tracking. Specifically: the US executive branch's use of government contracts (Amazon/Bezos, Palantir/Thiel, Oracle/Ellison) to create structural conflicts of interest that capture editorial direction is simultaneously a macro-level state-capital relationship issue and a Phase 2 media capture case in the Democracy Monitor. From the Democracy Monitor's perspective: where economic capture of key sectors is the mechanism of democratic erosion, the Macro Monitor's financial intelligence provides the quantitative layer that the Democracy Monitor's qualitative assessment does not fully capture.", "action": "State capture and Media Capture sections already document the oligarchization dimension. Cross-reference to Macro Monitor flagged for future briefs where economic coercion is the primary mechanism.", "changelog": [{"date": "2026-03-31", "change": "Signal created", "reason": "Initial cross-monitor scan"}]}, {"id": "cms-006", "monitors_involved": ["Global Environmental Risks & Planetary Boundaries Monitor", "World Democracy Monitor"], "status": "Contextual", "significance": "Emerging", "first_flagged": "2026-03-31", "last_updated": "2026-03-31", "title": "Environmental stress as democratic fragility multiplier in Watch List countries", "body": "The Environmental Risks Monitor tracks Earth system processes as a strategic intelligence domain, including the intersection of environmental degradation with political and institutional fragility. The Democracy Monitor's Watch List includes Colombia and several Sub-Saharan African countries where environmental stress (water scarcity, land degradation, climate displacement) intersects directly with the state fragility and insurgent group dynamics that drive the democratic erosion signals this monitor tracks. The Global Terrorism Index 2026 signal for Colombia (70% terrorism death increase) cannot be fully explained without the coca crop eradication failure and displacement dynamics that are also Environmental Risks Monitor territory. From the Democracy Monitor's perspective: environmental stress is a structural multiplier of the institutional fragility signals this monitor tracks — particularly in the Watch List tier. This connection is currently absent from the Democracy Monitor's analytical framework and should be added as a Watch List assessment dimension.", "action": "Colombia Watch List entry flags state fragility and GTI signal. Environmental stress dimension not yet formally incorporated — flagged as a Watch List methodology gap to address.", "changelog": [{"date": "2026-03-31", "change": "Signal created", "reason": "Initial cross-monitor scan"}]}];
+  var meta = {"last_scan": "2026-03-31", "scan_note": "Scanned public briefs, dashboards, and methodology pages of all active asym-intel.info monitors."};
+
+  var metaBar = document.getElementById('cms-meta-bar');
+  if (metaBar) metaBar.textContent = 'Last scan: ' + meta.last_scan + ' · ' + meta.scan_note;
+
+  var container = document.getElementById('cms-container');
+  if (!container) return;
+
+  if (!signals || signals.length === 0) {
+    container.innerHTML = '<div class="cms-empty">No material cross-monitor signals identified in this period.</div>';
+    return;
+  }
+
+  signals.forEach(function(s) {
+    if (s.status === 'Archived') return;
+    var sig = s.significance || 'Structural';
+    var cardClass = sig === 'Contextual' ? 'contextual' : (sig === 'Emerging' ? 'emerging' : '');
+
+    var monitorPills = (s.monitors_involved || []).map(function(m) {
+      var isSelf = m.indexOf('Democracy Monitor') !== -1 || m.indexOf('Democratic Integrity') !== -1;
+      return '<span class="cms-monitor-pill' + (isSelf ? ' self' : '') + '">' + m + '</span>';
+    }).join('');
+
+    var card = '<div class="cms-card ' + cardClass + '">'
+      + '<div class="cms-card-top">'
+        + '<div class="cms-monitors">' + monitorPills + '</div>'
+        + '<span class="cms-sig-badge ' + sig + '">' + sig + '</span>'
+      + '</div>'
+      + '<div class="cms-title">' + s.title + '</div>'
+      + '<div class="cms-body">' + s.body + '</div>'
+      + '<div class="cms-action"><strong>Action:</strong> ' + s.action + '</div>'
+    + '</div>';
+
+    container.insertAdjacentHTML('beforeend', card);
+  });
+})();
+</script>
 
 <div id="brief" class="section-anchor"></div><!-- ─── WEEKLY BRIEF ─── -->
   <div class="section-title">Weekly Intelligence Brief</div>
