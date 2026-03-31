@@ -104,6 +104,24 @@ Each weekly edition produces:
 3. **Weekly Update** — editorial narrative with lead signal, per-conflict summaries, and F-flag analysis where applied
 4. **Cross-Monitor Signals** — items relevant to hub and spoke monitors
 5. **Roster Watch** — conflicts approaching inclusion or retirement threshold
+6. **Delta Strip** — a ranked list of the top 3–5 analytical developments this week, ordered by strategic significance. The Delta Strip answers: "compared to last week, what actually changed, and does it matter?"
+
+   Each Delta Strip entry carries:
+   - **Rank** — 1 (most significant) to 5
+   - **Conflict** — which roster entry this development concerns
+   - **Delta Type** — one of the following named categories:
+     · *Red Band Crossing* — indicator moved into RED for the first time or after a GREEN/AMBER period (anomalous escalation signal)
+     · *Baseline Deviation Peak* — highest deviation from historical baseline recorded for this conflict since monitoring began
+     · *F-Flag Applied* — a disinformation filter was triggered, changing the scored level from the claimed level
+     · *Trajectory Reversal* — a conflict changed direction (Escalating → De-escalating or vice versa)
+     · *Roster Change* — a conflict added to or retired from the active roster
+     · *Diplomatic Threshold* — a material change in I5 (Diplomatic Channel Status) with strategic implications
+     · *Persistent Stability* — a conflict showing no indicator movement for 3+ consecutive weeks (notable for its stability, not its change)
+   - **One line** — a single sentence stating what changed and why it is analytically significant. Not what happened — what it means. Format: "[What changed] — [analytical significance for escalation trajectory]."
+
+   **Rule:** An item in the Delta Strip MUST have changed from the prior week. Unchanged items — even at RED band — do not qualify unless they meet the Persistent Stability category. The Delta Strip is a change detector, not a status list.
+
+   **Anti-habituation note:** Where a conflict has held RED band status for 3 or more consecutive weeks without a Baseline Deviation Peak, the Delta Strip should explicitly flag the risk of analytical habituation and assess whether the elevated level has become the new effective baseline rather than a genuine anomaly.
 
 ---
 
@@ -121,7 +139,50 @@ Each weekly edition produces:
 ---
 
 
-## 11 · Persistent Data
+## 11 · Delta Strip Discipline
+
+The Delta Strip is the primary anti-habituation mechanism in the SCEM.
+Tracking 8 conflicts across 48 weekly data points creates a systematic
+risk that persistent high levels are normalised and genuine structural
+changes are missed against a noisy background. The Delta Strip forces a
+weekly answer to: "compared to last week, what actually changed, and
+does it matter?"
+
+**The habituation problem.** A conflict at RED band for six consecutive
+weeks is not six RED-band events — it is one event (the initial crossing)
+followed by five persistence readings. Without explicit delta discipline,
+analysts risk treating each week's report as a fresh escalation signal
+when it is actually a status update. The Delta Strip prevents this by
+requiring the analyst to identify what is genuinely new, not merely what
+remains elevated.
+
+**The change/persistence distinction.** Every indicator reading is either
+a change from last week or a persistence of last week. Changes enter the
+Delta Strip if they are analytically significant. Persistences do not —
+except where a pattern of persistence is itself significant (Persistent
+Stability category). This distinction is enforced structurally: if no
+entry qualifies for the Delta Strip this week, that is itself published
+as a finding. A week with no qualifying changes is a week of structural
+persistence across all 8 conflicts — analytically meaningful.
+
+**Relationship to the JSON archive.** The Delta Strip in the weekly brief
+corresponds directly to the `delta_strip` array in the monitor's
+`data/archive.json` pipeline file. Each entry maps rank, conflict name,
+delta_type, and one_line from the published brief into the JSON structure.
+The same analytical discipline governs both. The JSON archive becomes a
+machine-readable history of what changed each week — useful for pattern
+analysis, methodology review, and future cross-monitor correlation work.
+
+**Baseline lock and the Delta Strip.** For the first 12 weeks of
+monitoring (CONTESTED BASELINE period), Delta Strip entries should
+explicitly note that deviations are provisional — the baseline against
+which deviation is measured has not yet stabilised. From week 13 onwards,
+when baselines lock, Delta Strip deviation claims are analytically binding.
+The transition from CONTESTED to locked baseline for each conflict is
+itself a Delta Strip entry (Delta Type: Baseline Locked).
+
+
+## 12 · Persistent Data
 
 The SCEM maintains the following baseline data week-to-week:
 
