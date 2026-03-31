@@ -4,11 +4,13 @@ on:
   push:
     branches:
       - main
+      - staging
     paths:
       - 'static/monitors/**/dashboard.html'
+      - '.github/network-bar.html'
 
 concurrency:
-  group: inject-network-bar
+  group: inject-network-bar-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -76,6 +78,6 @@ jobs:
           else
             git add static/monitors/
             git commit -m "build: inject network bar into dashboards [skip ci]"
-            git pull --rebase origin main
+            git pull --rebase origin ${{ github.ref_name }}
             git push
           fi
