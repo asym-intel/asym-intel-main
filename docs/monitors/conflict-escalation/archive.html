@@ -134,13 +134,13 @@ document.addEventListener('DOMContentLoaded', function () {
       var yearIssues = byYear[year].slice().reverse();
       sidebarHtml += '<li><a href="#section-archive-' + year + '">' + year + '</a></li>';
       yearIssues.forEach(function (issue) {
-        sidebarHtml += '<li style="padding-left:var(--space-2)"><a href="#section-archive-' + year + '" style="font-size:var(--text-xs)">Issue ' + (issue.issue||'—') + '</a></li>';
+        sidebarHtml += '<li style="padding-left:var(--space-2)"><a href="#section-archive-' + year + '" style="font-size:var(--text-sm)">Issue ' + (issue.issue||'—') + '</a></li>';
       });
 
       var issuesHtml = yearIssues.map(function (issue) {
         var pub = issue.published ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}) : '';
         var deltaHtml = (issue.delta_strip||[]).slice(0,5).map(function (d) {
-          return '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);padding:var(--space-1) 0;border-bottom:1px solid var(--color-border-subtle)">' +
+          return '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);padding:var(--space-1) 0;border-bottom:1px solid var(--color-border-subtle)">' +
             '<strong style="color:var(--monitor-accent)">#' + d.rank + ' ' + escHtml(d.module_tag||'') + '</strong> — ' + escHtml(d.title||'') +
             '<br><span style="color:var(--color-text-muted)">' + escHtml(d.one_line||'') + '</span>' +
           '</div>';
