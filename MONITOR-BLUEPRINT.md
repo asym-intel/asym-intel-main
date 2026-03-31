@@ -550,33 +550,129 @@ The existing per-monitor digest.html (AI Governance) will be
 deprecated and redirected to /subscribe/.
 
 ────────────────────────────────────────────────────────────────
-JSON PIPELINE — ADDITIONS FROM WDM BUILD 1
+JSON PIPELINE (v2.0 — MANDATORY FOR ALL MONITORS)
 ────────────────────────────────────────────────────────────────
 
-All monitors: report-latest.json, archive.json,
-              persistent-state.json, report-{date}.json
-(unchanged from v1.0)
+The JSON pipeline is NON-NEGOTIABLE. It is the backbone of:
+  1. All monitor dashboards, report, archive, and persistent pages
+  2. Data quality and consistency across issues
+  3. The Whitespace network graph tool (reads cross_monitor_flags
+     from all 7 monitors to build the inter-monitor connection
+     graph — this ONLY works if all monitors publish consistent,
+     machine-readable JSON at known paths)
 
-NEW — persistent-state.json structure standard:
-  _meta:                   monitor identity, last_updated, schema
-  [named entity groups]:   semantic keys (not module_0, module_1)
-  cross_monitor_flags:     persistent flags linking to other
-                           monitors — moved HERE from report JSON
-                           so they accumulate across issues
+CRON TASKS WRITE ONLY THESE FILES — nothing else:
+  Path: static/monitors/{slug}/data/
 
-NEW — cross_monitor_flags in persistent-state (not report-latest):
-  Each flag has: id, monitors_involved[], title, linkage,
-  this_monitor_perspective, type, status, first_flagged,
-  unchanged_since, version_history[]
-  Flags are NEVER deleted — closed flags get status: "Resolved"
+  report-latest.json    Current issue — always overwritten
+  report-{date}.json    Dated archive copy — never overwritten
+  archive.json          Append-only issue index
+  persistent-state.json Living knowledge — surgically updated,
+                        never wholesale replaced
 
-NEW — report-latest.json must use NAMED semantic keys:
-  Use: signal, heatmap, intelligence_items, delta_strip etc.
-  NOT: module_0, module_1, module_2 (fragile, unreadable)
-  AI Governance to migrate to named keys on next architecture pass.
+FILE SCHEMAS:
 
-NEW — schema_version bump to "2.0" for all monitors updated to
-  Blueprint v2.0 architecture.
+  report-latest.json
+  ──────────────────
+  {
+    "meta": {
+      "issue":           integer,
+      "volume":          integer,
+      "week_label":      "string",
+      "published":       "ISO-8601",
+      "slug":            "monitor-slug",
+      "publish_time_utc":"HH:MM",
+      "editor":          "string",
+      "schema_version":  "2.0"
+    },
+    "signal":            { ... },   ← named semantic keys
+    [module keys]:       { ... },   ← named, never module_0
+    "delta_strip":       [ ... ],
+    "cross_monitor_flags": { ... }, ← ALSO in persistent-state
+    "source_url":        "string"
+  }
+  RULE: All top-level keys must be named semantically.
+  NEVER use module_0, module_1 etc. Adding a module requires
+  only adding a new named key — no renumbering.
+
+  archive.json
+  ────────────
+  {
+    "issues": [
+      {
+        "issue":     integer,
+        "published": "ISO-8601",
+        "slug":      "string",
+        "title":     "string",
+        "signal":    "one-sentence summary",
+        "url":       "path/to/report-{date}.json"
+      }
+    ]
+  }
+  RULE: Append only. Never delete or modify past entries.
+
+  persistent-state.json
+  ─────────────────────
+  {
+    "_meta": {
+      "monitor_slug":    "string",
+      "monitor_name":    "canonical name",
+      "last_updated":    "ISO-8601",
+      "last_issue":      "ISO-8601",
+      "schema_version":  "2.0",
+      "description":     "string"
+    },
+    [named entity groups]: { ... },  ← monitor-specific living data
+    "cross_monitor_flags": {         ← LIVES HERE (not just report)
+      "updated": "ISO-8601",
+      "flags": [
+        {
+          "id":                      "cmf-NNN",
+          "monitors_involved":       ["Canonical Monitor Name"],
+          "monitor_url":             "https://...",
+          "title":                   "string",
+          "linkage":                 "string",
+          "this_monitor_perspective":"string",
+          "type":                    "string",
+          "status":                  "Active | Resolved | Watching",
+          "first_flagged":           "ISO-8601",
+          "unchanged_since":         "ISO-8601",
+          "version_history": [
+            {
+              "date":        "ISO-8601",
+              "change":      "string",
+              "reason":      "string",
+              "prior_value": null or "string"
+            }
+          ]
+        }
+      ],
+      "version_history": [ ... ]
+    }
+  }
+  RULES:
+  — Flags are NEVER deleted. Closed = status: "Resolved".
+  — Each entity group uses version_history[] for audit trail.
+  — Surgical updates only — never replace the whole file.
+  — monitor_name must use canonical name from Section 12.
+
+WHITESPACE NETWORK GRAPH — PIPELINE DEPENDENCY
+  The Whitespace tool reads cross_monitor_flags from all 7
+  persistent-state.json files to build the network graph
+  showing inter-monitor connections.
+
+  For this to work, every monitor MUST:
+  1. Publish persistent-state.json at the standard path
+  2. Include cross_monitor_flags with the standard schema above
+  3. Use canonical monitor names in monitors_involved[]
+  4. Keep status field current (Active / Resolved / Watching)
+
+  If any monitor omits cross_monitor_flags or uses non-standard
+  monitor names, that monitor will be an isolated node in the
+  Whitespace graph — breaking the network visualisation.
+
+schema_version "2.0" signals Blueprint v2.0 compliance.
+All monitors must bump to "2.0" when rebuilt.
 
 ────────────────────────────────────────────────────────────────
 METHODOLOGY PAGE — PUBLIC/PRIVATE BOUNDARY (locked)
