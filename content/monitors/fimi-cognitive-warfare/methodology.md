@@ -105,6 +105,108 @@ Attribution confidence is assigned to every tracked campaign and every item in t
 
 ---
 
+## Meta-FIMI Integrity Filters
+
+The FIMI Monitor is uniquely exposed to the object of its own analysis.
+State actors routinely generate false attribution claims, manufacture
+fabricated "exposure" reports, seed counter-narratives designed to
+discredit genuine FIMI researchers, and operate coordinated blowback
+campaigns against institutional attribution findings. This is meta-FIMI —
+FIMI operations targeting the FIMI monitoring space itself.
+
+Four named filters are applied to every attribution claim before
+publication. They precede the Attribution Confidence Framework — they
+determine whether the evidentiary basis meets the threshold for the
+confidence level being claimed. They do not replace the confidence
+framework; they govern entry into it.
+
+**MF1 — Reflexive Control Check**
+
+Trigger: An "exposure" of a FIMI operation arrives primarily from a
+source institutionally aligned with the accused actor — for example, a
+Russian state outlet "exposing" a Ukrainian influence operation, or a US
+government release attributing Chinese interference without published
+technical evidence.
+
+Action: Treat as **Possible** confidence maximum regardless of source
+authority. The reflexive control pattern is documented explicitly. Require
+independent corroboration from a source with no institutional alignment to
+the accusing party before upgrading confidence. The existence of the
+reflexive attribution claim is itself published as a data point.
+
+Rationale: Reflexive control is a documented Russian information warfare
+doctrine (Reflexivnoye Upravleniye) in which an adversary is manipulated
+into taking actions that serve the originating actor's interests. In the
+FIMI context, it manifests as attribution laundering — using the target's
+own monitoring infrastructure to amplify disinformation.
+
+**MF2 — Attribution Laundering Check**
+
+Trigger: A claim appearing in a Tier 3/4 outlet is subsequently amplified
+by Tier 1/2 sources without those sources publishing their own independent
+evidence — they are citing the original Tier 3/4 report, creating a false
+appearance of multi-source corroboration.
+
+Action: Trace the full citation chain. If all published sources derive
+from the same original report or dataset, treat as **single-source**
+regardless of how many outlets have repeated it. Document the citation
+chain. Apply the corroboration rule from the Attribution Confidence
+Framework: sources sharing a common institutional parent or data feed do
+not constitute independent corroboration.
+
+Example: A Meta CIB takedown report cited by Reuters, BBC, and DFRLab
+is one source (Meta) with three amplifiers — not four independent sources.
+A DFRLab analysis that introduces original network analysis not drawn from
+the Meta report constitutes genuine independent corroboration.
+
+**MF3 — Takedown Inflation Check**
+
+Trigger: A platform takedown report claims attribution to a state actor
+without publishing technical indicators of compromise (network analysis,
+infrastructure fingerprint, behavioural cluster analysis, or named
+operator patterns).
+
+Action: The takedown itself (the removal of accounts or content) is
+treated as a factual event at the confidence level of the platform's
+sourcing. The attribution claim within the takedown report is treated
+separately: it is scored at **Assessed** confidence maximum unless
+technical indicators are published alongside it. Platform self-attribution
+without published technical evidence is treated as Tier 3 for attribution
+purposes — not Tier 1.
+
+Note: This filter does not downgrade the significance of the takedown
+action. A Meta CIB removal of 10,000 accounts is a significant event
+regardless of whether Meta's attribution claim meets the evidentiary
+standard for Confirmed confidence. Both facts are published; they are
+clearly distinguished.
+
+**MF4 — Counter-Narrative Seeding Check**
+
+Trigger: An operation denial, counter-narrative, or coordinated
+"debunking" of an attributed FIMI campaign arrives in rapid coordination
+across multiple actor-aligned accounts, outlets, or official spokespersons
+— suggesting coordinated response rather than organic rebuttal.
+
+Action: The coordinated denial is documented as a data point. A
+coordinated denial of a **Confirmed** or **High** confidence attribution
+increases rather than decreases the analytical weight of the original
+attribution — it indicates the attributed actor has an interest in
+suppressing the finding. Treat the denial pattern as supporting evidence
+for the original finding, not as grounds for downgrading confidence.
+
+The denial is published alongside the original attribution with its
+source tier and coordination pattern noted. The confidence level of the
+original finding is not downgraded on the basis of denial alone.
+
+**Relationship to the Attribution Confidence Framework:** MF-filters are
+applied before confidence is assigned. An item that triggers MF1 enters
+the confidence framework at Possible maximum. An item that passes all
+four MF-filters is assessed on the full evidentiary standard in the
+Attribution Confidence Framework. The filters do not create a separate
+confidence scale — they determine which entries into the existing scale
+are permitted.
+
+
 ## What Constitutes a FIMI Operation for Inclusion
 
 An operation enters the Active Campaigns table when it satisfies all four of the following conditions:
