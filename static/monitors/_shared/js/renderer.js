@@ -329,7 +329,11 @@
         return res.json();
       })
       .then(function (data) {
-        render(data, container);
+        try {
+          render(data, container);
+        } catch (renderErr) {
+          container.innerHTML = '<div class="error-state">Render error: ' + esc(renderErr.message) + '<br><small>' + esc(renderErr.stack || '') + '</small></div>';
+        }
       })
       .catch(function (err) {
         container.innerHTML = '<div class="error-state">Failed to load data: ' + esc(err.message) + '</div>';
