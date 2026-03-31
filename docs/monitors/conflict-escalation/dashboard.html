@@ -35,7 +35,6 @@
     }
     html { scroll-behavior: smooth; }
     body {
-      overflow-x: hidden;
       font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: var(--bg-primary);
       color: var(--text-primary);
@@ -46,8 +45,7 @@
     a:hover { text-decoration: underline; }
 
     /* ── Layout ── */
-    .layout {
-      overflow-x: hidden; display: flex; min-height: 100vh; }
+    .layout { display: flex; min-height: 100vh; }
 
     /* ── Sidebar ── */
     .sidebar {
@@ -182,7 +180,7 @@
     }
 
     /* ── Content Area ── */
-    .content { padding: 32px; max-width: 1200px; width: 100%; box-sizing: border-box; }
+    .content { padding: 32px; max-width: 1200px; }
 
     /* ── Section Titles ── */
     .section-title {
@@ -438,41 +436,45 @@
     .narrative-body .flag-cb { background: rgba(168,85,247,0.12); color: var(--contested); }
 
     /* ── Cross-Monitor Signals ── */
-    .signal-row {
-      display: grid;
-      grid-template-columns: 140px 120px 160px 60px 1fr;
-      gap: 8px;
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(51,65,85,0.4);
-      font-size: 15px;
-      align-items: start;
-    }
-    .signal-row:last-child { border-bottom: none; }
-    .signal-row:hover { background: var(--bg-hover); }
-    .signal-monitor { font-weight: 600; color: var(--accent); }
-    .signal-conflict { color: var(--text-primary); }
-    .signal-indicator { color: var(--text-muted); }
-    .signal-note { color: var(--text-dim); font-size: 17px; }
-    .signals-table-wrap { overflow-x: auto; }
     .signals-table {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 6px;
       overflow: hidden;
+      width: 100%;
+    }
+    .signals-header,
+    .signal-row {
+      display: grid;
+      grid-template-columns: 9% 18% 12% 11% 1fr;
+      gap: 0;
+      align-items: start;
     }
     .signals-header {
-      display: grid;
-      grid-template-columns: 140px 120px 160px 60px 1fr;
-      gap: 8px;
-      padding: 8px 14px;
-      background: rgba(255,255,255,0.03);
+      padding: 8px 0;
+      background: rgba(0,0,0,0.03);
       border-bottom: 1px solid var(--border);
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 700;
       letter-spacing: 1.5px;
       text-transform: uppercase;
       color: var(--text-dim);
     }
+    .signals-header > div,
+    .signal-row > div {
+      padding: 0 14px;
+    }
+    .signal-row {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 15px;
+    }
+    .signal-row:last-child { border-bottom: none; }
+    .signal-row:hover { background: rgba(0,0,0,0.015); }
+    .signal-monitor { font-weight: 700; color: var(--accent); }
+    .signal-conflict { color: var(--text-primary); }
+    .signal-indicator { color: var(--text-muted); font-size: 14px; }
+    .signal-note { color: var(--text-muted); line-height: 1.6; }
 
     /* ── Roster Watch ── */
     .roster-item {
