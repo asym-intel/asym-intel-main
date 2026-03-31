@@ -50,7 +50,7 @@
           }
         }
       });
-    }, { rootMargin: '-15% 0px -75% 0px', threshold: 0 });
+    }, { rootMargin: '-10% 0px -60% 0px', threshold: 0 });
 
     sections.forEach(function (s) { observer.observe(s); });
   }
