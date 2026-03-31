@@ -2,6 +2,7 @@
 title: "Global Environmental Risks & Planetary Boundaries Monitor"
 description: "Weekly strategic intelligence on Earth system risk, planetary boundary status, tipping points, and geopolitical cascades from environmental stress. Published every Saturday."
 date: 2026-03-29
+publishDay: "Saturday"
 monitor: "environmental-risks"
 draft: false
 ---
