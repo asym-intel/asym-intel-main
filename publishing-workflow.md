@@ -1,6 +1,6 @@
 # JSON DATA PIPELINE — FINAL STEP
 # Universal addition to all monitor cron task instructions
-# Version: 1.0 — 31 March 2026
+# Version: 2.0 — 1 April 2026 (Blueprint v2.0)
 #
 # HOW TO USE: Append this entire document to each monitor's cron task prompt,
 # replacing {MONITOR_SLUG}, {MONITOR_NAME}, {PUBLISH_DATE_FIELD}, and
@@ -405,3 +405,60 @@ Add to the weekly notification:
   ({N} issues), persistent-state.json — all updated"
 - If any cross_monitor_flags were added or changed: list them explicitly
 - If any persistent-state entities changed: summarise what changed and why
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BLUEPRINT v2.0 ADDITIONS (supersede any conflicting v1.0 instructions)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CRITICAL RULE: CRON TASKS NEVER TOUCH HTML, CSS, OR JS FILES.
+Write ONLY the 4 data files listed above. Nothing else.
+
+NAMED SEMANTIC KEYS: All top-level keys in report-latest.json must be
+named semantically. Never use module_0, module_1 etc.
+
+SCHEMA VERSION: All JSON files must include "schema_version": "2.0"
+in their _meta or meta block.
+
+CROSS-MONITOR FLAGS — now live in BOTH places:
+  1. report-latest.json → cross_monitor_flags (for weekly render)
+  2. persistent-state.json → cross_monitor_flags (accumulates across issues)
+
+The persistent-state.json cross_monitor_flags is the source of truth.
+The report-latest.json copy is a mirror for the weekly renderer only.
+
+FLAGS NEVER DELETED: Set status:"Resolved" on closed flags.
+Flags schema (both locations):
+  {
+    "id": "cmf-NNN",
+    "monitors_involved": ["Canonical Monitor Name"],  ← use canonical names
+    "monitor_url": "https://...",
+    "title": "string",
+    "linkage": "string",
+    "this_monitor_perspective": "string",
+    "type": "string",
+    "status": "Active | Resolved | Watching",
+    "first_flagged": "ISO-8601",
+    "unchanged_since": "ISO-8601",
+    "version_history": [{"date": "...", "change": "...", "reason": "...", "prior_value": null}]
+  }
+
+CANONICAL MONITOR NAMES (use these exactly in monitors_involved[]):
+  World Democracy Monitor
+  Global Macro Monitor
+  FIMI & Cognitive Warfare Monitor
+  European Strategic Autonomy Monitor
+  AI Governance Monitor
+  Environmental Risks Monitor
+  Strategic Conflict & Escalation Monitor
+
+ARCHIVE.JSON FORMAT (v2.0): append only, never modify past entries:
+  {
+    "issue": integer,
+    "volume": integer,
+    "week_label": "string",
+    "published": "YYYY-MM-DD",
+    "slug": "YYYY-MM-DD",
+    "signal": "one sentence headline",
+    "source_url": "https://..."
+  }
