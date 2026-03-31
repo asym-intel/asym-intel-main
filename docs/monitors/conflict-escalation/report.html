@@ -90,7 +90,6 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
 </nav>
 
 <!-- Module jump strip (populated by JS) -->
-<div class="module-nav-strip" id="module-nav-strip" aria-label="Jump to conflict"></div>
 
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
@@ -201,7 +200,6 @@ document.addEventListener('DOMContentLoaded', function () {
       var short = c.conflict.split(/[\s\/–]/)[0];
       stripHtml += '<a href="#conflict-' + id + '">' + escHtml(short) + '</a>';
     });
-    document.getElementById('module-nav-strip').innerHTML = stripHtml;
 
     // Sidebar links — add individual conflict links
     var sidebarLinks = document.getElementById('sidebar-links');
@@ -256,14 +254,35 @@ document.addEventListener('DOMContentLoaded', function () {
     var approaching = rw.approaching_inclusion || [];
     var retiring    = rw.approaching_retirement || [];
     if (approaching.length) {
-      rwHtml += '<div class="section-label">Approaching Inclusion</div><ul class="roster-watch-list">' +
-        approaching.map(function(r) { return '<li>' + escHtml(typeof r === 'string' ? r : JSON.stringify(r)) + '</li>'; }).join('') +
-        '</ul>';
+      rwHtml += '<div class="section-label">Approaching Inclusion</div>' +
+        approaching.map(function(r) {
+          if (typeof r === 'string') return '<div class="intel-item" style="margin-bottom:var(--space-3)"><div class="intel-item__summary">' + escHtml(r) + '</div></div>';
+          var criteria = (r.criteria_met||[]).map(function(c){ return '<span class="severity-badge severity-badge--moderate" style="margin-right:4px">'+escHtml(c)+'</span>'; }).join('');
+          return '<div class="intel-item" style="margin-bottom:var(--space-3)">' +
+            '<div class="intel-item__header">' +
+              '<div class="intel-item__meta">' +
+                '<div class="intel-item__country">' + escHtml(r.theatre||'') + '</div>' +
+                '<div class="intel-item__headline">' + escHtml(r.conflict||'') + '</div>' +
+              '</div>' +
+              '<span class="severity-badge severity-badge--high">' + escHtml(r.status||'Watch') + '</span>' +
+            '</div>' +
+            (r.note ? '<div class="intel-item__summary">' + escHtml(r.note) + '</div>' : '') +
+            (criteria ? '<div class="intel-item__footer">' + criteria + '</div>' : '') +
+          '</div>';
+        }).join('');
     }
     if (retiring.length) {
-      rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div><ul class="roster-watch-list">' +
-        retiring.map(function(r) { return '<li>' + escHtml(typeof r === 'string' ? r : JSON.stringify(r)) + '</li>'; }).join('') +
-        '</ul>';
+      rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div>' +
+        retiring.map(function(r) {
+          if (typeof r === 'string') return '<div class="intel-item" style="margin-bottom:var(--space-3)"><div class="intel-item__summary">' + escHtml(r) + '</div></div>';
+          return '<div class="intel-item" style="margin-bottom:var(--space-3)">' +
+            '<div class="intel-item__header"><div class="intel-item__meta">' +
+              '<div class="intel-item__country">' + escHtml(r.theatre||'') + '</div>' +
+              '<div class="intel-item__headline">' + escHtml(r.conflict||'') + '</div>' +
+            '</div></div>' +
+            (r.note ? '<div class="intel-item__summary">' + escHtml(r.note) + '</div>' : '') +
+          '</div>';
+        }).join('');
     }
     if (!approaching.length && !retiring.length) {
       rwHtml = '<p class="text-muted text-sm">No roster changes signalled this week.</p>';
