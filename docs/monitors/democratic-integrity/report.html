@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Latest Issue — World Democracy Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Current issue of the World Democracy Monitor — full structured intelligence report from report-latest.json.">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../_shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../_shared/js/theme.js"></script>
+</head>
+<body>
+
+  <nav class="monitor-nav" aria-label="Monitor navigation">
+    <a class="monitor-nav__brand" href="dashboard.html">
+      <span class="brand-abbr">WDM</span>
+      <span>World Democracy Monitor</span>
+    </a>
+    <button class="monitor-nav__hamburger" aria-label="Open menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <ul class="monitor-nav__links" role="list">
+      <li><a href="dashboard.html">Overview</a></li>
+      <li><a href="report.html" class="active">Latest Issue</a></li>
+      <li><a href="archive.html">Archive</a></li>
+      <li><a href="persistent.html">Living Knowledge</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <div class="monitor-nav__actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode"></button>
+    </div>
+  </nav>
+
+  <!-- Sidebar + main layout -->
+  <div class="monitor-layout">
+
+    <aside class="monitor-sidebar" aria-label="Section navigation">
+      <!-- populated by renderer.js -->
+    </aside>
+
+    <div class="monitor-main">
+      <div id="report-content">
+        <div class="loading-state">Loading report…</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="monitor-footer">
+    <span>Asymmetric Intelligence · <a href="https://asym-intel.info">asym-intel.info</a></span>
+    <span><a href="dashboard.html">← Back to Overview</a></span>
+  </footer>
+
+  <script src="../_shared/js/nav.js"></script>
+  <script src="../_shared/js/renderer.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Custom heatmap renderer ── */
+    window.AsymRenderer.register('heatmap', function (heatmap) {
+      var html = '';
+
+      /* Tab nav */
+      html += '<div class="tabs" role="tablist">' +
+        '<button class="tab-btn active" data-tab="rapid_decay" role="tab" aria-selected="true">Rapid Decay (' + (heatmap.rapid_decay || []).length + ')</button>' +
+        '<button class="tab-btn" data-tab="recovery" role="tab" aria-selected="false">Recovery (' + (heatmap.recovery || []).length + ')</button>' +
+        '<button class="tab-btn" data-tab="watchlist" role="tab" aria-selected="false">Watch List (' + (heatmap.watchlist || []).length + ')</button>' +
+      '</div>';
+
+      html += '<div class="tab-panels">';
+      ['rapid_decay', 'recovery', 'watchlist'].forEach(function (tier, i) {
+        var entries = heatmap[tier] || [];
+        var active = i === 0 ? ' active' : '';
+        html += '<div class="tab-panel' + active + '" data-tab="' + tier + '">';
+
+        if (!entries.length) {
+          html += '<p class="text-muted">No entries in this category.</p>';
+        } else {
+          /* Severity-coloured table */
+          html += '<div style="overflow-x:auto">' +
+            '<table class="heatmap-table">' +
+              '<thead><tr>' +
+                '<th>Country</th>' +
+                '<th>Score</th>' +
+                '<th>Lead Signal</th>' +
+                '<th>Confidence</th>' +
+                '<th>Type</th>' +
+              '</tr></thead>' +
+              '<tbody>';
+
+          entries.forEach(function (entry) {
+            var score = parseFloat(entry.severity_score || 0);
+            var rowClass = '';
+            if (score >= 8) rowClass = 'heatmap-row--critical';
+            else if (score >= 6) rowClass = 'heatmap-row--high';
+            else if (score >= 4) rowClass = 'heatmap-row--moderate';
+            else rowClass = 'heatmap-row--positive';
+
+            var badgeClass = tier === 'rapid_decay' ? 'severity-badge--rapid-decay'
+                           : tier === 'recovery'    ? 'severity-badge--recovery'
+                           :                         'severity-badge--watchlist';
+
+            html += '<tr class="' + rowClass + '">' +
+              '<td><strong>' + esc(entry.country) + '</strong></td>' +
+              '<td style="white-space:nowrap">' +
+                '<span style="font-size:var(--text-md);font-weight:700;color:var(--monitor-accent)">' +
+                  esc(String(entry.severity_score || '')) +
+                '</span>' +
+                ' <span style="font-size:var(--text-base)">' + esc(entry.severity_arrow || '') + '</span>' +
+              '</td>' +
+              '<td style="max-width:360px;font-size:var(--text-xs)">' + esc(truncate(entry.lead_signal || entry.summary || '', 180)) + '</td>' +
+              '<td><span class="severity-badge ' + (entry.confidence === 'Confirmed' ? 'severity-badge--positive' : 'severity-badge--moderate') + '">' + esc(entry.confidence || '') + '</span></td>' +
+              '<td><span class="badge">' + esc(entry.entry_type || '') + '</span></td>' +
+            '</tr>';
+
+            /* Expandable summary row */
+            if (entry.summary && entry.summary !== entry.lead_signal) {
+              html += '<tr class="' + rowClass + '" style="background:var(--color-bg-alt)">' +
+                '<td colspan="5" style="font-size:var(--text-xs);color:var(--color-text-muted);padding:var(--space-2) var(--space-4) var(--space-3)">' +
+                  esc(entry.summary) +
+                  (entry.last_material_change ? ' <em>Last change: ' + esc(entry.last_material_change) + '</em>' : '') +
+                '</td>' +
+              '</tr>';
+            }
+          });
+
+          html += '</tbody></table></div>';
+        }
+
+        html += '</div>'; // tab-panel
+      });
+
+      html += '</div>'; // tab-panels
+      return html;
+    });
+
+    /* ── Custom mimicry chain renderer ── */
+    window.AsymRenderer.register('regional_mimicry_chains', function (chains) {
+      var html = '';
+      (chains || []).forEach(function (chain) {
+        html += '<div class="mimicry-chain">' +
+          '<div class="mimicry-chain__headline">' + esc(chain.headline || chain.chain_id || '') + '</div>' +
+          '<div class="mimicry-chain__flow">';
+
+        (chain.chain || []).forEach(function (node, idx) {
+          if (idx > 0) {
+            html += '<div class="mimicry-arrow" aria-hidden="true">→</div>';
+          }
+          html += '<div class="mimicry-node">' +
+            '<div class="mimicry-node__country">' + esc(node.country) + '</div>' +
+            '<div class="mimicry-node__law">' + esc(node.law || '') + '</div>' +
+            (node.year ? '<div class="mimicry-node__year">' + esc(String(node.year)) + '</div>' : '') +
+          '</div>';
+        });
+
+        html += '</div>'; // flow
+        if (chain.source_url) {
+          html += '<div style="margin-top:var(--space-3)">' +
+            '<a class="source-link" href="' + esc(chain.source_url) + '" target="_blank" rel="noopener">Source →</a>' +
+          '</div>';
+        }
+        html += '</div>'; // mimicry-chain
+      });
+      return html;
+    });
+
+    /* ── Utility ── */
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function truncate(str, len) {
+      if (!str) return '';
+      if (str.length <= len) return str;
+      return str.substring(0, len) + '…';
+    }
+
+    /* ── Init ── */
+    window.AsymRenderer.init('data/report-latest.json');
+  })();
+  </script>
+
+</body>
+</html>
