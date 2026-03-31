@@ -375,3 +375,50 @@ Q7 ABOUT.HTML SECTION ID STANDARD (locked):
    section IDs must be: #section-description, #section-schedule,
    #section-editor, #section-links, #section-credit
    Sidebar hrefs must match these exactly. Do not use #about-* prefixes.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 11 — PRODUCTION GATE RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RULE: Nothing is pushed to the live repo without editor confirmation
+except automated cron data writes.
+
+TWO CLASSES OF CHANGE:
+
+  DATA WRITES (automated — no confirm needed)
+    Cron tasks writing: data/report-latest.json, data/report-{date}.json,
+    data/archive.json, data/persistent-state.json
+    These are pre-agreed automated operations — no structural change.
+
+  STRUCTURAL CHANGES (always require editor confirm before push)
+    Any .html, .css, .js file
+    Any Hugo template or partial (layouts/, assets/)
+    Any GitHub Actions workflow (.github/workflows/)
+    The network bar template (.github/network-bar.html)
+    MONITOR-BLUEPRINT.md, publishing-workflow.md, methodology.md files
+    Any new file creation in the repo
+
+CONFIRM PROCEDURE:
+  1. Show the full diff (or full file content for new files)
+  2. State which files will be committed
+  3. State the intended effect
+  4. Wait for explicit editor approval before any git commit
+
+RATIONALE: The live site at asym-intel.info is production. Structural
+changes go through the editor — the same discipline as any production
+deployment workflow.
+
+NOTE ON SITE HIERARCHY AND MONITOR IDENTITY:
+  THE NETWORK BAR (40px, dark, fixed) — SITE INFRASTRUCTURE
+    Controlled centrally. Height, colours, font, content, and behaviour
+    never modified by individual monitors or cron tasks.
+    Identical on every page across the entire site and all monitors.
+
+  THE MONITOR NAV (below the network bar) — MONITOR IDENTITY
+    Larger than the network bar. Carries the monitor name, abbreviation,
+    and SVG logo in the monitor accent colour. This is where each monitor
+    has its own visual identity.
+    Each monitor can style its brand area (name, colour, SVG) via
+    monitor.css — the nav links (Overview, Latest Issue, Archive…) are
+    standard across all monitors and defined in the HTML shell.
+    The monitor nav is structural HTML — never touched by cron tasks.
