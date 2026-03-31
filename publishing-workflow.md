@@ -336,6 +336,43 @@ archive delta_strip: top 5 escalation developments
   delta_type (RED Band / F-Flag Applied / Roster Change / De-escalation),
   one_line
 
+──────────────────────────────────────────────────────────────
+B7. AI GOVERNANCE MONITOR (AGM) — Friday 16:00 UTC
+──────────────────────────────────────────────────────────────
+Slug: ai-governance
+Monitor name for commits: AGM
+
+report-latest.json top-level keys:
+  meta, source_url, module_0 (signal), module_1 (executive insight),
+  module_2 (model frontier), module_3 (investment/M&A),
+  module_4 (sector penetration), module_5 (EU/China watch),
+  module_6 (AI in science), module_7 (risk indicators),
+  module_8 (military AI), module_9 (law & litigation),
+  module_10 (AI governance), module_11 (ethics),
+  module_12 (info ops), module_13 (AI & society),
+  module_14 (power structures), module_15 (personnel),
+  cross_monitor_flags, delta_strip, country_grid, country_grid_watch
+
+persistent-state updates each week:
+  - module_7_risk_vectors: update rating/confidence only when new primary-source
+    evidence justifies it; carry unchanged_since forward when no change
+  - module_9_eu_ai_act_tracker: update each of the 7 layers; update
+    standards_vacuum_active flag and days_to_deadline on every issue
+  - module_14_concentration_index: update trend/note when material market
+    structure change; otherwise carry unchanged_since forward
+  - module_15_aisi_pipeline: APPEND any confirmed movements; never remove
+  - module_5_ciyuan and module_5_standards_vacuum: update status when
+    trigger conditions change (see trigger definitions in each entry)
+  - ongoing_lab_postures: update posture when material change in lab
+    strategy, governance, or legal status; version_history required
+  - cross_monitor_flags: carry all flags forward; update status/linkage
+    if evidence changes; add new flags; never delete (use status: Resolved)
+
+archive delta_strip: top 5 most significant AI governance developments
+  Required fields: rank, title, module (M00–M15 or cross-monitor),
+  delta_type (Signal / Capability / Investment / Regulatory / Geopolitical),
+  one_line
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SECTION C — WHAT THIS CHANGES ABOUT HOW YOU RESEARCH
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
