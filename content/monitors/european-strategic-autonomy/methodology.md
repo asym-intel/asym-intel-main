@@ -1,7 +1,7 @@
 ---
 title: "Methodology -- European Geopolitical & Hybrid Threat Monitor"
 description: "Source hierarchy, four-actor framework, attribution confidence standards, and analytical dimensions for the European Geopolitical & Hybrid Threat Monitor (EGHTM)."
-date: 2026-03-30
+date: 2020-01-01
 monitor: "european-strategic-autonomy"
 type: "methodology"
 draft: false
