@@ -145,6 +145,20 @@ Blind spot warnings affect commentary only. The underlying score uses the mechan
 
 ---
 
+
+## 9. Cross-Monitor Signals
+
+The Macro Monitor feeds signals to other monitors in the Asymmetric Intelligence network when a macro development has documented cross-domain impact.
+
+| Target Monitor | Trigger |
+|---|---|
+| [European Geopolitical & Hybrid Threat Monitor](https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html) | Economic coercion instruments, sanctions architecture failures, or European financial sovereignty developments |
+| [World Democracy Monitor](https://asym-intel.info/monitors/democratic-integrity/dashboard.html) | Economic dependency or financial coercion documented as a mechanism of democratic erosion or state capture |
+| [Strategic Conflict & Escalation Monitor](https://asym-intel.info/monitors/conflict-escalation/dashboard.html) | Economic warfare signals (sanctions evasion, trade weaponisation, debt-trap leverage) escalating toward kinetic conflict risk |
+| [Global Environmental Risks Monitor](https://asym-intel.info/monitors/environmental-risks/dashboard.html) | Climate finance mechanism failures, carbon market structural stress, or resource-sector credit events |
+| [Global FIMI Monitor](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html) | Coordinated financial disinformation campaigns or market manipulation attributed to state actors |
+| [AI Governance Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html) | AI infrastructure investment flows, compute sovereignty developments, or AI-sector systemic financial risk |
+
 ## Version History
 
 | Version | Date | Changes |
