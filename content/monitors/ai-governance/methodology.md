@@ -75,6 +75,31 @@ Every module item that warrants it includes an "Asymmetric Signal" — a non-obv
 
 Each issue covers Monday to Sunday of the preceding week. Published Friday at 18:00 CEST.
 
+## Cross-Monitor Signals
+
+Each issue of the AI Governance Monitor includes a **Cross-Monitor Signals** section in the dashboard. This section identifies overlaps, reinforcing signals, and conflicts with the other monitors on asym-intel.info.
+
+### Scope
+
+The AI Governance Monitor scans the public dashboards and briefs of all other monitors published on asym-intel.info before each weekly compilation. The monitor set is treated generically — new monitors are included automatically as they appear, without any change to this methodology.
+
+### What constitutes a cross-monitor flag
+
+A flag is raised when developments in another monitor's domain materially affect, or are materially affected by, AI governance dynamics. The flag names the other monitor, describes the linkage in 2–4 sentences, and states the AI Governance Monitor's specific perspective.
+
+### Update rules
+
+Cross-monitor flags follow the same data lifecycle rules as all other persistent entries. A structural linkage is not re-described merely because a week has passed. Flags are updated only when the nature, direction, or evidence base of the linkage materially changes. Closed flags are archived, not deleted.
+
+### No-signal case
+
+If no material cross-monitor signals exist in a given period, the section states this explicitly. The section is present in every issue without exception.
+
+### Sources
+
+Only public dashboards, briefs, and methodology pages from asym-intel.info are used as sources for cross-monitor flags. Internal operational details of other monitors are never referenced.
+
+
 ## Data Lifecycle
 
 The monitor builds a cumulative intelligence picture, not a transient news feed. Entries are not deleted because time has passed.

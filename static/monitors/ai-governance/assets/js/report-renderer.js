@@ -689,6 +689,45 @@ function renderDeltaStrip(data) {
     </div>`;
 }
 
+/* ── Cross-Monitor Signals ───────────────────────────────────── */
+function renderCrossMonitor(data) {
+  const cmf = data.cross_monitor_flags;
+  if (!cmf) return '<p class="text-muted text-sm">No material cross-monitor signals identified in this period.</p>';
+
+  const flags = cmf.flags || [];
+  if (!flags.length) {
+    return '<p class="text-muted text-sm">No material cross-monitor signals identified in this period.</p>';
+  }
+
+  const statusCls = { Active: 'signal', Monitoring: 'amber', Closed: 'muted' };
+
+  let html = flags.map(function (f) {
+    const cls = statusCls[f.status] || 'muted';
+    const monitors = (f.monitors_involved || []).map(function (m) {
+      return f.monitor_url
+        ? `<a href="${esc(f.monitor_url)}" target="_blank" rel="noopener" style="color:var(--color-primary)">${esc(m)}</a>`
+        : esc(m);
+    }).join(', ');
+
+    return `<div class="card">
+      <div class="card__label">
+        ${badge(f.status || 'Active', cls)}
+        ${esc(f.type || '')}
+        <span style="margin-left:var(--space-2);font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-faint)">${monitors}</span>
+      </div>
+      <div class="card__title">${esc(f.title || '')}</div>
+      <div class="card__body">${esc(f.linkage || '')}</div>
+      ${f.ai_governance_perspective ? callout('AI Governance Perspective', esc(f.ai_governance_perspective), 'asymmetric') : ''}
+    </div>`;
+  }).join('');
+
+  if (cmf.updated) {
+    html += `<p class="text-sm text-muted" style="margin-top:var(--space-4)">Last scanned: ${esc(cmf.updated)}</p>`;
+  }
+
+  return html;
+}
+
 /* ── Render Map ─────────────────────────────────────────────── */
 function renderReport(data) {
   const renderMap = {
@@ -708,6 +747,7 @@ function renderReport(data) {
     'm13-content': renderM13,
     'm14-content': renderM14,
     'm15-content': renderM15,
+    'cross-monitor-content': renderCrossMonitor,
   };
 
   Object.entries(renderMap).forEach(function ([id, fn]) {
