@@ -195,7 +195,20 @@ nav:not([data-asym-network-bar]){top:40px!important}
     }
 
     /* ── Init ── */
-    window.AsymRenderer.init('data/report-latest.json');
+    function startRenderer() {
+      if (window.AsymRenderer && window.AsymRenderer.init) {
+        window.AsymRenderer.init('data/report-latest.json');
+      } else {
+        document.getElementById('report-content').innerHTML =
+          '<div class="error-state">Renderer not loaded. Check browser console.</div>';
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', startRenderer);
+    } else {
+      startRenderer();
+    }
   })();
   </script>
 
