@@ -300,24 +300,25 @@ Format: _shared/ change → which monitors updated → date
 [No entries yet — populate as builds progress]
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 10 — OPEN QUESTIONS
+SECTION 10 — DECISIONS (resolved 31 March 2026)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Questions to resolve during or after the first build:
+Q1 CHARTS: Shared. charts.js lives in _shared/js/. Standard API:
+   window.AsymCharts.line(canvasId, data, options)
+   window.AsymCharts.bar(canvasId, data, options)
+   window.AsymCharts.gauge(canvasId, value, options)
+   Monitor-specific chart config passes data only — never chart logic.
 
-Q1: Should charts (Chart.js) be part of the shared shell (charts.js)
-    or remain monitor-specific? Recommendation: shared, with a
-    standard set of chart types (line, bar, gauge) that any monitor
-    can use by calling a standard function with JSON data.
+Q2 VERSION HISTORY: Collapsed by default in persistent.html.
+   Expand toggle per entity. Class: .version-history (hidden)
+   Toggle class: .version-history--open (visible)
 
-Q2: Should persistent.html show version history inline (expanded)
-    or collapsed by default? Recommendation: collapsed with expand
-    toggle — version history is for power users.
+Q3 MODULE NAV: Auto-generated from report-latest.json keys.
+   renderer.js reads top-level keys (excluding meta, source_url,
+   cross_monitor_flags) and builds the module nav strip dynamically.
+   Adding a new module to the JSON requires no HTML change.
 
-Q3: Should the module nav strip on report.html be auto-generated
-    from the JSON structure, or hardcoded per monitor? Recommendation:
-    auto-generated from the keys in report-latest.json so adding a
-    new module requires no HTML change.
-
-Q4: Should search.html (as in AI Gov) be standard across all monitors?
-    Recommendation: yes, but implement after the core 5 pages are stable.
+Q4 SEARCH PAGE: Standard across all monitors.
+   Implement after core 5 pages (dashboard, report, archive,
+   persistent, about) are stable on the first monitor.
+   search.html searches archive.json client-side (no server needed).
