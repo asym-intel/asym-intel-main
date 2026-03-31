@@ -1,6 +1,6 @@
 /* ============================================================
    Asymmetric Intelligence — Shared Monitor Design System
-   shared/css/base.css  ·  Version 1.4  ·  31 March 2026 — mobile overflow fixes
+   shared/css/base.css  ·  Version 1.5  ·  31 March 2026 — mobile overflow fixes
    ONE SHELL, SEVEN PAINT JOBS.
    ============================================================ */
 
@@ -131,6 +131,7 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   transition: background 0.2s, color 0.2s;
+  overflow-x: hidden;
   /* Network bar offset is injected via .style in network-bar.html */
 }
 a { color: var(--monitor-accent); text-decoration: none; }
@@ -252,8 +253,6 @@ strong { font-weight: 600; }
   display: flex;
   flex-direction: row;
   min-height: calc(100vh - var(--network-bar-height) - var(--nav-height));
-  overflow-x: hidden;
-  max-width: 100%;
 }
 
 /* ─── Sidebar ────────────────────────────────────────────── */
@@ -320,7 +319,6 @@ strong { font-weight: 600; }
 .monitor-main {
   flex: 1;
   min-width: 0;
-  overflow-x: hidden;
   padding: var(--space-8) var(--space-8);
 }
 
