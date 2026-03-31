@@ -284,11 +284,32 @@ ROLLOUT: N/A
 
 ────────────────────────────────────────────────────────────────
 MONITOR: Democratic Integrity (WDM)
-DATE: [pending]
-STATUS: Planned — FIRST BUILD
-NOTES: Chosen as first build because: simplest existing architecture
-       (no Chart.js, no theme toggle), rich JSON schema already
-       initialised, good test of heatmap/severity score rendering.
+DATE: 31 March 2026
+STATUS: Complete ✓
+DECISIONS:
+  - shared/ (not _shared/) — GitHub Pages silently 404s directories
+    starting with underscore (Jekyll reserved prefix). CRITICAL rule
+    for all future builds: never use _ prefix for static asset dirs.
+  - DOMContentLoaded guard added to renderer init calls in report.html
+    to prevent race conditions on slow connections.
+  - Custom renderer registration (window.AsymRenderer.register) works
+    correctly — heatmap and mimicry chain custom renderers both render.
+  - Relative path fetch('data/report-latest.json') works correctly from
+    GitHub Pages once the JS files load (path resolves relative to HTML).
+  - Network bar requires plain <body> tag with blank line after it.
+    Inject workflow matches '<body>\n' pattern successfully.
+ISSUES:
+  - renderer.js initially 404ing — root cause: _shared/ directory prefix
+    blocked by GitHub Pages/Jekyll. Fixed by renaming to shared/.
+  - report.html showed "Loading report..." indefinitely until JS loaded.
+    Added defensive fallback: if (window.AsymRenderer && ...) check.
+SHELL CHANGES:
+  - Added try/catch around render() in shared/js/renderer.js to surface
+    JS errors as visible error-state div (not silent failure).
+  - DOMContentLoaded guard pattern established for all page init calls.
+PAGES DELIVERED: dashboard.html, report.html, archive.html,
+                 persistent.html, about.html, assets/monitor.css
+ROLLOUT: shared/ library created — used by all future monitor builds.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 SECTION 9 — ROLLOUT TRACKER
