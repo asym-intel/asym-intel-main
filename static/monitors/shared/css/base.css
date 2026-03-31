@@ -1,6 +1,6 @@
 /* ============================================================
    Asymmetric Intelligence — Shared Monitor Design System
-   shared/css/base.css  ·  Version 1.1  ·  31 March 2026
+   shared/css/base.css  ·  Version 1.2 — right-hand sidebar  ·  31 March 2026
    ONE SHELL, SEVEN PAINT JOBS.
    ============================================================ */
 
@@ -247,9 +247,10 @@ strong { font-weight: 600; }
   padding: 0 var(--space-6);
 }
 
-/* Full-height sidebar layout */
+/* Full-height sidebar layout — main first, sidebar on right */
 .monitor-layout {
   display: flex;
+  flex-direction: row;
   min-height: calc(100vh - var(--network-bar-height) - var(--nav-height));
 }
 
@@ -261,7 +262,7 @@ strong { font-weight: 600; }
   top: calc(var(--network-bar-height) + var(--nav-height));
   height: calc(100vh - var(--network-bar-height) - var(--nav-height));
   overflow-y: auto;
-  border-right: 1px solid var(--color-border);
+  border-left: 1px solid var(--color-border);
   background: var(--color-bg);
   padding: var(--space-6) 0;
   scrollbar-width: thin;
@@ -1145,10 +1146,10 @@ strong { font-weight: 600; }
   .monitor-sidebar {
     position: fixed;
     top: calc(var(--network-bar-height) + var(--nav-height));
-    left: 0;
+    right: 0;
     height: calc(100vh - var(--network-bar-height) - var(--nav-height));
     z-index: 98;
-    transform: translateX(-100%);
+    transform: translateX(100%);
     box-shadow: var(--shadow-md);
   }
   .monitor-main { padding: var(--space-6) var(--space-4); }
