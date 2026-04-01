@@ -181,6 +181,19 @@
       "applies_to": "All JS-generated elements with tinted backgrounds: badges, risk-heat cells, tag chips, timeline labels, actor boards, delta strip items, campaign cards.",
       "scope_note": "This violation occurs almost entirely in JavaScript-generated innerHTML strings \u2014 not detectable by the static validator (Check 20). Must be caught by code review and anti-patterns awareness.",
       "detected_by": "COMPUTER.md CONTRAST RULES + code review"
+    },
+    {
+      "id": "FE-018",
+      "category": "ux",
+      "severity": "warning",
+      "description": "Signal block panel does not link to the primary source story",
+      "wrong": "Signal block shows headline and summary with no link",
+      "correct": "Always render a 'Read the top story \u2193' link in every signal block where source_url is available. Pattern: (sourceUrl ? '<div style=\"margin-top:var(--space-3)\"><a class=\"source-link\" href=\"' + escHtml(sourceUrl) + '\" target=\"_blank\" rel=\"noopener\">Read the top story \u2193</a></div>' : '')",
+      "link_text": "Read the top story \u2193",
+      "applies_to": "All monitor dashboard signal/lead-signal blocks. Every signal block that references a specific story or development must link to it. The source_url is always present in report-latest.json signal object.",
+      "rationale": "Users reading 'Confirmed Lead Signal: Hungary 11 days...' have no way to follow up without navigating manually. The source_url is collected every issue \u2014 surfacing it is a one-line fix.",
+      "real_world_case": "FCW, WDM dashboards had no source link on signal block. ESA had 'Source \u2192'. SCEM had 'Primary source \u2192'. Standardised to 'Read the top story \u2193' across all 7 monitors.",
+      "detected_by": "User review 2026-04-01"
     }
   ]
 }
