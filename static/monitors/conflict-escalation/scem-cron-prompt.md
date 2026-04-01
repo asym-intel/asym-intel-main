@@ -1,5 +1,5 @@
 # TASK: Strategic Conflict & Escalation Monitor (SCEM)
-# VERSION: 1.1
+# VERSION: 2.0 — Blueprint v2.1 compliant
 # CADENCE: Weekly — every Sunday at 18:00 UTC
 # PUBLISH TO: https://asym-intel.info/monitors/conflict-escalation/
 
@@ -27,6 +27,27 @@ IF unsure: Do NOT run. Exit silently.
 This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CRITICAL RULES (read before any other step)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. CRON TASKS NEVER TOUCH HTML, CSS, OR JS FILES. EVER.
+   You write ONLY these 4 files:
+   - static/monitors/conflict-escalation/data/report-latest.json
+   - static/monitors/conflict-escalation/data/report-{PUBLISH_DATE}.json
+   - static/monitors/conflict-escalation/data/archive.json      (append only)
+   - static/monitors/conflict-escalation/data/persistent-state.json
+   And publish 1 Hugo brief markdown file.
+   Nothing else. No dashboard.html. No report.html. No other files.
+
+2. LOAD PERSISTENT STATE FIRST — before any research.
+3. NAMED SEMANTIC KEYS ONLY — never module_0, module_1 etc.
+4. schema_version: "2.0" in all JSON files.
+5. archive.json is APPEND ONLY — never truncate or overwrite.
+6. Validate JSON before committing:
+   python3 -c "import json; json.load(open('path/to/file.json'))"
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ROLE & ANALYTICAL POSITION
