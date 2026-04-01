@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="intel-item__rank">' + escHtml(String(item.rank || '')) + '</div>' +
               '<div class="intel-item__meta">' +
                 '<div class="intel-item__country">' +
-                  '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + escHtml(item.module_tag || '') + '</span>' +
+                  '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.module_tag||'')||'') + (AsymRenderer.flag(item.module_tag||'') ? '\u00a0' : '') : '') + escHtml(item.module_tag || '') + '</span>' +
                   escHtml(item.delta_type || '') +
                 '</div>' +
                 '<div class="intel-item__headline">' + escHtml(item.title || '') + '</div>' +
