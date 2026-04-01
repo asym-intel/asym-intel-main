@@ -370,7 +370,7 @@
         <div class="kpi-card">
           <div class="kpi-card__value" id="kpi-signal">—</div>
           <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub">Top story this week</div>
+          <div class="kpi-card__sub" id="kpi-signal-sub">Top story this week</div>
         </div>
       </div>
     </section>
@@ -613,6 +613,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-campaigns').textContent = activeCampaigns || '—';
       document.getElementById('kpi-actors').textContent = actorCount;
       document.getElementById('kpi-signal').textContent = signalConf || (signal ? signal.slice(0,30) + '…' : '—');
+      var kpiSignalSub = document.getElementById('kpi-signal-sub');
+      if (kpiSignalSub) {
+        var sigUrl = signalObj.source_url || d.source_url || '';
+        kpiSignalSub.innerHTML = sigUrl
+          ? '<a class="source-link" href="' + escHtml(sigUrl) + '" target="_blank" rel="noopener">Read the top story \u2193</a>'
+          : 'Top story this week';
+      }
 
       // Threat level badge
       var threatLevel = 'ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS';
