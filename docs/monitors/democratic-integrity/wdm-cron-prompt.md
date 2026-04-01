@@ -380,3 +380,62 @@ for e in entries:
 Use cross-monitor flags to incorporate adjacent signals into your analysis
 and update your own cross_monitor_flags where new linkages are found.
 Use schema changelog to verify your output includes all required fields.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CRITICAL FIELD RULES — enforce every issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+These three rules address known data quality failures confirmed across
+Issues 1–3. Enforce them every run — do not omit.
+
+RULE A — source_url on every heatmap entry (MUST be non-empty):
+  Every rapid_decay[], recovery[], and watchlist[] entry MUST have a
+  non-empty source_url pointing to a Tier 1 or Tier 2 primary source.
+  "source_url": "" is NOT acceptable — it fails editorial credibility.
+  If no single primary source exists, use the most authoritative Tier 2
+  source or link to the relevant OSCE/V-Dem/Freedom House page.
+  VERIFY before committing: no entry should have source_url == "".
+
+RULE B — severity_sub on every heatmap entry (MUST be present):
+  Every rapid_decay[], recovery[], and watchlist[] entry MUST include:
+    "severity_sub": {
+      "electoral":      0.0–1.0,   // electoral integrity dimension score
+      "civil_liberties": 0.0–1.0,  // civil liberties & press freedom
+      "judicial":       0.0–1.0    // judicial independence & rule of law
+    }
+  Methodology: each sub-score is an analyst estimate 0–1 where 1.0 = maximum
+  deterioration/concern. The severity_score is not a simple average — it
+  reflects the worst sub-dimension weighted by salience for that country.
+  VERIFY before committing: every entry has severity_sub with all 3 fields.
+
+RULE C — lead_signal on recovery AND watchlist entries (parity with rapid_decay):
+  rapid_decay[] entries already have lead_signal. recovery[] and watchlist[]
+  entries MUST also include lead_signal: the primary indicator driving the
+  recovery or the primary escalation trigger for the watchlist entry.
+  Format: short phrase, e.g. "Court independence restored" or "Media law vote imminent"
+  VERIFY before committing: recovery and watchlist entries have lead_signal.
+
+VERIFICATION SCRIPT — run before Pass 1 commit:
+```bash
+cat /tmp/wdm-report.json | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+errors=[]
+hm=d.get('heatmap',{})
+for tier in ['rapid_decay','recovery','watchlist']:
+    for e in hm.get(tier,[]):
+        c=e.get('country','?')
+        if not e.get('source_url'):
+            errors.append(f'MISSING source_url: {tier}/{c}')
+        if not e.get('severity_sub'):
+            errors.append(f'MISSING severity_sub: {tier}/{c}')
+        if not e.get('lead_signal'):
+            errors.append(f'MISSING lead_signal: {tier}/{c}')
+if errors:
+    print('DATA QUALITY ERRORS — fix before committing:')
+    for e in errors: print(' ',e)
+else:
+    print('All heatmap entries pass data quality check')
+"
+```
+If errors are found — fix them before proceeding to Pass 1 commit.
