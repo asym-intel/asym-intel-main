@@ -109,23 +109,19 @@
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      font-family: var(--font-mono, 'Courier New', monospace);
-      font-size: 0.78rem;
+      font-size: var(--text-sm);
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       white-space: nowrap;
     }
-    .fcw-actor-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .fcw-actor-flag {
+      font-size: 1.1em;
+      line-height: 1;
     }
+    /* .fcw-actor-dot removed — replaced by flag emoji */
     .fcw-count-badge {
       display: inline-block;
-      font-family: var(--font-mono, 'Courier New', monospace);
-      font-size: 0.8rem;
+      font-size: var(--text-sm);
       font-weight: 700;
       min-width: 1.6rem;
       text-align: center;
@@ -423,8 +419,8 @@ document.addEventListener('DOMContentLoaded', function () {
         html += '<tr>';
         // Actor ID
         html += '<td><span class="fcw-actor-id">';
-        html += '<span class="fcw-actor-dot" style="background:' + cfg.color + '"></span>';
-        html += '<span style="color:' + cfg.color + '">' + escHtml(cfg.label) + '</span>';
+        html += '<span class="fcw-actor-flag">' + escHtml(cfg.flag || '') + '</span>';
+        html += '<span style="color:' + cfg.color + ';font-weight:700">' + escHtml(cfg.label) + '</span>';
         html += '</span></td>';
         // Count
         html += '<td style="text-align:center"><span class="fcw-count-badge">' + count + '</span></td>';
