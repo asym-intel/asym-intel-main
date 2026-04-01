@@ -190,3 +190,44 @@ STEP 4 — Notify with lead campaign, top 3 developments, F-flags, cross-monitor
   Dashboard: https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html
 
 Cron: 0 9 * * 4 (every Thursday at 09:00 UTC)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TWO-PASS COMMIT RULE — MANDATORY FOR EVERY RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  The JSON for this monitor is too large to produce safely in one pass.
+You MUST write it in two separate git commits. Never combine into one.
+
+PASS 1 — Core sections (commit first, immediately after research):
+  meta, signal, campaigns, actor_tracker, platform_responses, source_url
+
+  Commit: "data(fcw): Issue [N] W/E [DATE] — core sections"
+
+PASS 2 — Deep sections (commit second, by patching the Pass 1 file):
+  attribution_log, cognitive_warfare, cross_monitor_flags
+
+  Method:
+  ```bash
+  # 1. Download the Pass 1 JSON
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/fimi-cognitive-warfare/data/report-latest.json \
+    --jq '.content' | base64 -d > /tmp/fcw-report.json
+
+  # 2. Add the Pass 2 sections to /tmp/fcw-report.json using Python/jq
+
+  # 3. Push it back (replace the file with the patched version)
+  SHA=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/fimi-cognitive-warfare/data/report-latest.json --jq '.sha')
+  CONTENT=$(base64 -w 0 /tmp/fcw-report.json)
+  gh api --method PUT /repos/asym-intel/asym-intel-main/contents/static/monitors/fimi-cognitive-warfare/data/report-latest.json \
+    --field message="data(fcw): Issue [N] W/E [DATE] — deep sections" \
+    --field content="$CONTENT" --field sha="$SHA" --field branch="main"
+  ```
+
+  Do the same two-pass write for report-{DATE}.json.
+
+VERIFICATION — run after Pass 2 before proceeding to Step 3:
+  ```bash
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/fimi-cognitive-warfare/data/report-latest.json \
+    --jq '.content' | base64 -d | python3 -c \
+    "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['attribution_log', 'cognitive_warfare'] if k not in d]; print('MISSING:',missing) if missing else print('ALL SECTIONS PRESENT ✓')"
+  ```
+  If MISSING is non-empty — do NOT proceed to Step 3. Re-run Pass 2.
