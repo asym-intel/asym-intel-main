@@ -1,26 +1,35 @@
 {{/*
-  site-header.html
-  Full site identity header — sits below the network bar.
-  Contains the wordmark, strapline, and main navigation.
-  Distinct from the network bar which is cross-site infrastructure.
+  site-header.html  — Blueprint v2.1
+  ─────────────────────────────────────────────────────────────────────────────
+  Canonical second-tier nav for all Hugo-rendered pages.
+  Matches monitor-nav structure exactly: SVG + site name far left, links right.
+  Sits below the network-bar (40px) — sticky at top: 40px.
+  NEVER add a separate wordmark, strapline, or duplicate header above this.
 */}}
-<header class="site-header">
-  <div class="site-header__inner">
+<nav class="site-nav" aria-label="Site navigation">
+  <a class="site-nav__brand" href="/">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true" style="flex-shrink:0">
+      <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="#4f98a3"/>
+      <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/>
+      <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/>
+    </svg>
+    <span>Asymmetric Intelligence</span>
+  </a>
 
-    <div class="site-header__brand">
-      <a class="site-header__wordmark" href="/">
-        <span class="site-header__word site-header__word--asym">Asymmetric</span><span class="site-header__word site-header__word--intel">Intelligence</span>
-      </a>
-      <span class="site-header__strapline">A public intelligence commons</span>
-    </div>
+  <button class="site-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9"   x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
 
-    <nav class="site-header__nav" aria-label="Main navigation">
-      <a class="site-header__nav-link{{ if eq .Section "monitors" }} site-header__nav-link--active{{ end }}"
-         href="/monitors/">Monitors</a>
-      <a class="site-header__nav-link{{ if eq .RelPermalink "/about/" }} site-header__nav-link--active{{ end }}"
-         href="/about/">About</a>
-      <a class="site-header__nav-subscribe" href="/subscribe/">Subscribe</a>
-    </nav>
+  <ul class="site-nav__links" role="list">
+    <li><a href="/monitors/"{{ if eq .Section "monitors" }} class="active"{{ end }}>Monitors</a></li>
+    <li><a href="/about/"{{ if eq .RelPermalink "/about/" }} class="active"{{ end }}>About</a></li>
+  </ul>
 
+  <div class="site-nav__actions">
+    <a class="site-nav__subscribe" href="/subscribe/">Subscribe</a>
   </div>
-</header>
+</nav>
