@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 13:10 UTC | **Last commit (main):** b5972038
+**Date:** 2026-04-01 17:32 UTC | **Last commit (main):** 372d5104
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -31,7 +31,7 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 | World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | **Mon 13 Apr** | v2.1 ✅ | ✅ + choropleth map |
 | Global Macro Monitor | GMM | macro-monitor | #22a0aa | **Tue** 08:00 | v2.1 ✅ | ✅ + score history chart |
 | FIMI & Cognitive Warfare | FCW | fimi-cognitive-warfare | #38bdf8 | Thu 09:00 | v2.1 ✅ | ✅ |
-| European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ |
+| European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ (4 UX fixes merged today) |
 | AI Governance Monitor | AGM | ai-governance | #3a7d5a | Fri 09:00 | v2.1 ✅ | ✅ + model tier layout |
 | Environmental Risks Monitor | ERM | environmental-risks | #4caf7d | Sat 05:00 | v2.1 ✅ | ✅ |
 | Strategic Conflict & Escalation | SCEM | conflict-escalation | #dc2626 | Sun 18:00 | v2.1 ✅ | ✅ + I1-I6 chart + conflict_context (data: Sun Apr 5) |
@@ -52,6 +52,16 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 | Housekeeping | **73452bc6** | Mon 08:00 UTC | read-only audit, 12 checks |
 
 All monitors have a 6-day recency guard in their cron prompts — they will skip silently if fewer than 6 days have elapsed since the last publish.
+
+---
+
+## ESA — Changes merged today (2026-04-01, PR #16 + direct commits)
+
+1. **archive.html** — View links fixed (were 404ing; now use source_url from archive.json)
+2. **dashboard.html** — Lead Signal KPI card: first 4 words at body size + scroll-to-signal, not raw truncated title at text-2xl
+3. **report.html** — Signal block darkened to #2d5a7e for WCAG AA contrast; Member State tracker now shows flag emoji + full country name + coloured status badge + change detail + source link
+4. **persistent.html** — Timeline redesigned as grouped visual timeline (month headers, connector line, date pills, module badges); ceasefire_probability_ukraine removed from KPI cards; lagrange_point_progress renamed "Autonomy Score"; scorecard description text linked to Compossible series
+5. **esa-cron-prompt.md** — Explicit KPI field allowlist added; ceasefire_probability_ukraine explicitly excluded (belongs to SCEM)
 
 ---
 
@@ -81,4 +91,3 @@ fields. Verify after each monitor's first run that fields appear correctly.
 - FCW geospatial campaign map: needs lat/lng added to campaign schema
 - SCEM humanitarian impact charts: wait for ≥2 issues of conflict_context data
 - D3 force-directed FCW attribution network: Phase 3 if warranted
-
