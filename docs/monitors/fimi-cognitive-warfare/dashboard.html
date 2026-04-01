@@ -637,12 +637,14 @@ document.addEventListener('DOMContentLoaded', function () {
           signalFlags.map(function(f){ return '<span class="severity-badge severity-badge--high">' + escHtml(f) + '</span>'; }).join('') +
           '</div>';
       }
+      var sourceUrl = signalObj.source_url || d.source_url || '';
       document.getElementById('signal-block').innerHTML =
         '<div class="signal-block">' +
           '<div class="signal-block__label">Lead Signal — Issue ' + escHtml(meta.issue || '') + '</div>' +
           '<p>' + escHtml(signal) + '</p>' +
           (signalBody ? '<p style="margin-top:var(--space-3);color:var(--color-text-secondary)">' + escHtml(signalBody) + '</p>' : '') +
           flagsHtml +
+          (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
         '</div>';
 
       // ── STALENESS HELPER ──
@@ -712,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="intel-item__rank">' + escHtml(String(item.rank || '')) + '</div>' +
               '<div class="intel-item__meta">' +
                 '<div class="intel-item__country">' +
-                  '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.module_tag||'')||'') + (AsymRenderer.flag(item.module_tag||'') ? '\u00a0' : '') : '') + escHtml(item.module_tag || '') + '</span>' +
+                  '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.module_tag||'')||'') + (AsymRenderer.flag(item.module_tag||'') ? '\u00a0' : '') : '') + escHtml(item.module_tag || '') + '</span>' +
                   escHtml(item.delta_type || '') +
                 '</div>' +
                 '<div class="intel-item__headline">' + escHtml(item.title || '') + '</div>' +
@@ -738,7 +740,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="fcw-ops-card">' +
               '<div class="fcw-ops-card__name">' + escHtml(c.operation_name || c.headline || '') + '</div>' +
               '<div class="fcw-ops-card__meta">' +
-                (c.actor ? '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:1px 5px;border-radius:3px">' + escHtml(c.actor) + '</span>' : '') +
+                (c.actor ? '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:1px 5px;border-radius:3px">' + escHtml(c.actor) + '</span>' : '') +
                 (c.status ? statusBadge(c.status) : '') +
                 (c.attribution_confidence ? confidenceBadge(c.attribution_confidence) : '') +
                 (c.last_activity ? '<span>' + escHtml(c.last_activity) + '</span>' : '') +
@@ -768,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function () {
           attrLogHtml += '<td class="fcw-log-id">' + escHtml(entry.campaign_id || '') + '</td>';
           attrLogHtml += '<td>' + confidenceBadge(entry.confidence || '') + '</td>';
           attrLogHtml += '<td class="fcw-log-headline">' + escHtml(entry.headline || entry.note || '') + '</td>';
-          attrLogHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:1px 5px;border-radius:3px">' + escHtml(entry.actor || '') + '</span></td>';
+          attrLogHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:1px 5px;border-radius:3px">' + escHtml(entry.actor || '') + '</span></td>';
           attrLogHtml += '</tr>';
         });
         attrLogHtml += '</tbody></table></div>';
@@ -790,7 +792,7 @@ document.addEventListener('DOMContentLoaded', function () {
           platHtml += '<td style="font-weight:600;white-space:nowrap">' + escHtml(p.platform || '') + '</td>';
           platHtml += '<td><span class="severity-badge severity-badge--high">' + escHtml(p.action_type || '') + '</span></td>';
           platHtml += '<td class="fcw-log-headline">' + escHtml(p.headline || '') + '</td>';
-          platHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:1px 5px;border-radius:3px">' + escHtml(p.actor || '') + '</span></td>';
+          platHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:1px 5px;border-radius:3px">' + escHtml(p.actor || '') + '</span></td>';
           platHtml += '<td class="fcw-log-id">' + escHtml(p.date || '') + '</td>';
           platHtml += '</tr>';
         });
