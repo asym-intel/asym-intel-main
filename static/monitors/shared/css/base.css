@@ -144,7 +144,7 @@ strong { font-weight: 600; }
 /* ─── Monitor Nav (horizontal, below network bar) ────────── */
 .monitor-nav {
   position: sticky;
-  top: var(--network-bar-height);
+  top: 40px;
   z-index: 100;
   height: var(--nav-height);
   background: var(--color-bg);
@@ -1243,6 +1243,13 @@ a.intel-item__source {
   border: 1px solid var(--color-border);
 }
 .badge--accent { background: var(--monitor-accent-bg); color: var(--monitor-accent); border-color: var(--monitor-accent); }
+
+
+/* ─── Network Bar Offset ─────────────────────────────────────────────
+   Network bar is position:fixed, height:40px.
+   ALL pages must have body padding-top:40px.
+   monitor-nav sticks at top:40px (immediately below the bar).     */
+body { padding-top: 40px; }
 
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
