@@ -89,7 +89,7 @@ Use `api_credentials=["github"]` for all GitHub operations.
 - NO brand name, NO SVG, NO Monitors link (all in black bar)
 - NO hamburger — About and Search are always visible
 - Implemented in: `layouts/partials/site-header.html`
-- Search links to `/search/` (Hugo page, not `/search.html`)
+- Search links to `/search/` — clean Hugo URL (asym-intel.info/search/), NOT /search.html
 
 ## CI Validator (15+ checks)
 `.github/validate-blueprint.py` runs on every push. FAIL = broken build.
@@ -161,7 +161,7 @@ or `esc(country)` and verify the flag call precedes it.
 3. **overflow:hidden on layout containers** — use `overflow-x:clip` always
 4. **nav.js in body** — must be in `<head>` after `theme.js`
 5. **Chart.js CDN missing** — add before `charts.js` in `<head>`
-6. **Raw HTML file in docs/** — Hugo-rendered pages must be `content/` + `layouts/`, never a raw `docs/*.html`
+6. **Raw HTML file in docs/** — Hugo-rendered pages must be `content/` + `layouts/`, never a raw `docs/*.html`. Hugo clean URLs produce `docs/{name}/index.html`, not `docs/{name}.html`. Both can coexist and confuse — delete the `.html` version if the Hugo page exists.
 7. **Hugo comment in static HTML** — `{{/* */}}` only works in Hugo templates, not in `static/` files
 8. **Nav link missing from some pages** — when adding a nav link, update ALL pages for that monitor in BOTH `static/` and `docs/`
 9. **Flag missing from country display** — always call `AsymRenderer.flag()` before `escHtml(c.country)`
