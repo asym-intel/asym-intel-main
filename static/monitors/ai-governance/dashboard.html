@@ -472,7 +472,7 @@
 
       <!-- Country Grid Summary -->
       <section id="country-grid-section" aria-labelledby="grid-heading">
-        <h2 class="section-label" id="grid-heading">Country Grid — Top 5</h2>
+        <h2 class="section-label" id="grid-heading">Country Grid</h2>
         <div id="country-grid-content">
           <p class="loading-state">Loading…</p>
         </div>
@@ -689,16 +689,21 @@
       }
 
       // Country grid — first 5
-      var first5 = countryGrid.slice(0, 5);
+      var first5 = countryGrid; // show all entries — grid is compact (7 countries)
       if (first5.length) {
+        var flagFn = (window.AsymFlag && window.AsymFlag.flag) ? window.AsymFlag.flag
+                   : (window.AsymRenderer && window.AsymRenderer.flag) ? window.AsymRenderer.flag
+                   : function(c) { return c; };
         document.getElementById('country-grid-content').innerHTML =
           '<table class="data-table">' +
           '<thead><tr><th>Country</th><th>Signal</th></tr></thead>' +
           '<tbody>' + first5.map(function (row) {
-            return '<tr><td class="mono">' + esc(row.country) + '</td><td class="text-sm">' + esc(row.signal) + '</td></tr>';
+            var flag = flagFn(row.country);
+            var label = flag ? flag + '\u00a0' + esc(row.country) : esc(row.country);
+            return '<tr><td style="white-space:nowrap">' + label + '</td><td class="text-sm">' + esc(row.signal) + '</td></tr>';
           }).join('') + '</tbody>' +
           '</table>' +
-          '<a class="more-link" href="report.html#module-9">Full country grid →</a>';
+          '<a class="more-link" href="report.html">Full analysis in latest report →</a>';
       } else {
         document.getElementById('country-grid-content').innerHTML = '<p class="empty-state">No country grid data.</p>';
       }
