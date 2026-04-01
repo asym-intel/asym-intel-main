@@ -1308,8 +1308,8 @@ body { padding-top: 40px; }
     transition: transform 0.25s ease;
     box-shadow: var(--shadow-md);
   }
-  .monitor-layout { display: block; overflow-x: hidden; }
-  .monitor-main { padding: var(--space-6) var(--space-4); overflow-x: hidden; }
+  .monitor-layout { display: block; overflow-x: clip; } /* clip not hidden — preserves sticky children */
+  .monitor-main { padding: var(--space-6) var(--space-4); overflow-x: clip; }
   .kpi-strip { gap: var(--space-3); }
   .kpi-card { min-width: 130px; }
   .archive-entry { grid-template-columns: 1fr; gap: var(--space-2); }
