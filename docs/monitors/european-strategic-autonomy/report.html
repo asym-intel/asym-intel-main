@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESA Dashboard — European Strategic Autonomy Monitor</title>
-  <meta name="description" content="Live dashboard for the European Strategic Autonomy Monitor. KPIs, lead signal, top-items delta strip, and member state tracker.">
+  <title>Latest Issue — European Strategic Autonomy Monitor</title>
+  <meta name="description" content="Full weekly intelligence report for the European Strategic Autonomy Monitor.">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
@@ -46,8 +46,8 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
   </button>
   <ul class="monitor-nav__links" role="list">
     <li><a href="overview.html">Overview</a></li>
-    <li><a href="dashboard.html" class="active">Dashboard</a></li>
-    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html" class="active">Latest Issue</a></li>
     <li><a href="archive.html">Archive</a></li>
     <li><a href="persistent.html">Living Knowledge</a></li>
     <li><a href="about.html">About</a></li>
@@ -75,56 +75,71 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <section class="module-section" id="section-kpi">
+    <section class="module-section" id="section-header">
       <div class="page-header">
-        <div class="page-header__eyebrow">ESA Dashboard</div>
+        <div class="page-header__eyebrow" id="report-eyebrow">Loading&hellip;</div>
         <h1 class="page-header__title">European Strategic Autonomy Monitor</h1>
-        <div class="page-header__meta" id="page-meta">Loading&hellip;</div>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-defence">&mdash;</div>
-          <div class="kpi-card__label">Defence Developments</div>
-          <div class="kpi-card__sub">Items this issue</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-hybrid">&mdash;</div>
-          <div class="kpi-card__label">Hybrid Threats</div>
-          <div class="kpi-card__sub">Active this issue</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-lead-signal">&mdash;</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub">Top story this week</div>
-        </div>
+        <div class="page-header__meta" id="report-meta"></div>
       </div>
     </section>
 
     <section class="module-section" id="section-signal">
       <div class="module-header">
-        <div class="module-title">Lead Signal</div>
+        <div class="module-num-large">00</div>
+        <h2 class="module-title">Lead Signal</h2>
       </div>
       <div id="signal-block">
         <div class="loading-state">Loading signal&hellip;</div>
       </div>
     </section>
 
-    <section class="module-section" id="section-delta">
+    <section class="module-section" id="section-defence">
       <div class="module-header">
-        <div class="module-title">Top Items This Issue</div>
+        <div class="module-num-large">01</div>
+        <h2 class="module-title">Defence Developments</h2>
       </div>
-      <div id="delta-strip">
-        <div class="loading-state">Loading items&hellip;</div>
+      <div id="defence-list">
+        <div class="loading-state">Loading defence developments&hellip;</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-hybrid">
+      <div class="module-header">
+        <div class="module-num-large">02</div>
+        <h2 class="module-title">Hybrid Threats</h2>
+      </div>
+      <div id="hybrid-list">
+        <div class="loading-state">Loading hybrid threats&hellip;</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-institutional">
+      <div class="module-header">
+        <div class="module-num-large">03</div>
+        <h2 class="module-title">Institutional Developments</h2>
+      </div>
+      <div id="institutional-list">
+        <div class="loading-state">Loading institutional developments&hellip;</div>
       </div>
     </section>
 
     <section class="module-section" id="section-member-states">
       <div class="module-header">
-        <div class="module-title">Member State Tracker</div>
+        <div class="module-num-large">04</div>
+        <h2 class="module-title">Member State Tracker</h2>
       </div>
-      <div id="member-state-table">
-        <div class="loading-state">Loading member state data&hellip;</div>
+      <div id="member-state-list">
+        <div class="loading-state">Loading member state tracker&hellip;</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-num-large">05</div>
+        <h2 class="module-title">Cross-Monitor Flags</h2>
+      </div>
+      <div id="cross-monitor-list">
+        <div class="loading-state">Loading cross-monitor flags&hellip;</div>
       </div>
     </section>
 
@@ -133,10 +148,12 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-kpi">Overview</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
-      <li><a href="#section-delta">Top Items</a></li>
+      <li><a href="#section-defence">Defence Developments</a></li>
+      <li><a href="#section-hybrid">Hybrid Threats</a></li>
+      <li><a href="#section-institutional">Institutional</a></li>
       <li><a href="#section-member-states">Member States</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
   </nav>
 
@@ -156,6 +173,31 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  function renderCards(items, targetId) {
+    var el = document.getElementById(targetId);
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted">No items this issue.</p>';
+      return;
+    }
+    var html = '';
+    items.forEach(function (item) {
+      html += '<div class="card">';
+      var titleText = item.headline || item.title || item.country || item.name || '';
+      if (titleText) html += '<div class="card__title">' + escHtml(titleText) + '</div>';
+      var bodyText = item.summary || item.body || '';
+      if (bodyText) html += '<div class="card__body">' + escHtml(bodyText) + '</div>';
+      var footer = [];
+      if (item.category_tag) footer.push('<span class="severity-badge severity-badge--moderate">' + escHtml(item.category_tag) + '</span>');
+      if (item.severity) footer.push('<span class="severity-badge severity-badge--high">' + escHtml(item.severity) + '</span>');
+      if (item.status) footer.push('<span>' + escHtml(item.status) + '</span>');
+      if (item.actor) footer.push('<span><strong>Actor:</strong> ' + escHtml(item.actor) + '</span>');
+      if (footer.length) html += '<div class="card__footer">' + footer.join('') + '</div>';
+      if (item.source_url) html += '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener">Source &rarr;</a></div>';
+      html += '</div>';
+    });
+    el.innerHTML = html;
+  }
+
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -164,82 +206,52 @@ document.addEventListener('DOMContentLoaded', function () {
       var signal = signalObj.title || signalObj.headline || '';
       var signalBody = signalObj.body || '';
       var sourceUrl = signalObj.source_url || d.source_url || '';
-      var defItems = d.defence_developments || [];
-      var hybItems = d.hybrid_threats || [];
-      var memberStates = d.member_state_tracker || [];
 
-      document.getElementById('page-meta').textContent =
-        'Issue ' + (meta.issue || '—') + ' · ' + (meta.week_label || '') +
-        (meta.published ? ' · Published ' + new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '');
-
-      document.getElementById('kpi-defence').textContent = defItems.length || '—';
-      document.getElementById('kpi-hybrid').textContent = hybItems.length || '—';
-      var signalShort = signal.length > 60 ? signal.slice(0, 60) + '…' : signal;
-      document.getElementById('kpi-lead-signal').textContent = signalShort || '—';
+      document.getElementById('report-eyebrow').textContent =
+        'Issue ' + (meta.issue || '—') + ' · ' + (meta.week_label || '') + ' · ESA';
+      document.getElementById('report-meta').textContent = meta.published
+        ? 'Published ' + new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
+        : '';
 
       var sb = document.getElementById('signal-block');
       sb.innerHTML =
         '<div class="signal-block">' +
-          '<div class="signal-block__label">Lead Signal</div>' +
+          '<div class="signal-block__label">Lead Signal — M00</div>' +
           '<div class="signal-block__title">' + escHtml(signal) + '</div>' +
           (signalBody ? '<p class="signal-block__body">' + escHtml(signalBody) + '</p>' : '') +
           (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Source &rarr;</a></div>' : '') +
         '</div>';
 
-      var allItems = [];
-      defItems.forEach(function (item, i) {
-        allItems.push({rank: i+1, module: 'Defence', title: item.headline || item.title || '', one_line: item.summary || ''});
-      });
-      hybItems.forEach(function (item, i) {
-        allItems.push({rank: defItems.length+i+1, module: 'Hybrid', title: item.headline || item.title || '', one_line: item.summary || ''});
-      });
-      var top5 = allItems.slice(0, 5);
-      var dsHtml = '<ul class="delta-strip">';
-      top5.forEach(function (item) {
-        dsHtml +=
-          '<li class="delta-item">' +
-            '<div class="delta-item__rank">' + escHtml(String(item.rank)) + '</div>' +
-            '<div class="delta-item__body">' +
-              '<div class="delta-item__module">' + escHtml(item.module) + '</div>' +
-              '<div class="delta-item__title">' + escHtml(item.title) + '</div>' +
-              (item.one_line ? '<div class="delta-item__one-line">' + escHtml(item.one_line) + '</div>' : '') +
-            '</div>' +
-          '</li>';
-      });
-      dsHtml += '</ul>';
-      document.getElementById('delta-strip').innerHTML = top5.length ? dsHtml : '<p class="text-muted">No items this issue.</p>';
+      renderCards(d.defence_developments || [], 'defence-list');
+      renderCards(d.hybrid_threats || [], 'hybrid-list');
+      renderCards(d.institutional_developments || [], 'institutional-list');
+      renderCards(d.member_state_tracker || [], 'member-state-list');
 
-      var msEl = document.getElementById('member-state-table');
-      if (!memberStates.length) {
-        msEl.innerHTML = '<p class="text-muted">No member state data this issue.</p>';
-        return;
+      var cmf = d.cross_monitor_flags || {};
+      var flags = cmf.flags || [];
+      var cmEl = document.getElementById('cross-monitor-list');
+      if (!flags.length) {
+        cmEl.innerHTML = '<p class="text-muted">No cross-monitor flags this issue.</p>';
+      } else {
+        var html = '';
+        if (cmf.updated) html += '<p class="text-muted" style="margin-bottom:var(--space-4)">Updated: ' + escHtml(cmf.updated) + '</p>';
+        flags.forEach(function (flag) {
+          html += '<div class="card">';
+          var ft = flag.monitor || flag.title || '';
+          if (ft) html += '<div class="card__label">' + escHtml(ft) + '</div>';
+          var fb = flag.summary || flag.body || flag.note || '';
+          if (fb) html += '<div class="card__body">' + escHtml(fb) + '</div>';
+          if (flag.source_url) html += '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(flag.source_url) + '" target="_blank" rel="noopener">Source &rarr;</a></div>';
+          html += '</div>';
+        });
+        cmEl.innerHTML = html;
       }
-      var tHtml = '<table class="data-table"><thead><tr>' +
-        '<th>Country</th><th>Status</th><th>Key Development</th><th>Severity</th>' +
-        '</tr></thead><tbody>';
-      memberStates.forEach(function (ms) {
-        var sev = ms.severity || ms.level || '';
-        var sevClass = '';
-        if (/critical/i.test(sev)) sevClass = 'severity-badge--critical';
-        else if (/high/i.test(sev)) sevClass = 'severity-badge--high';
-        else if (/moderate/i.test(sev)) sevClass = 'severity-badge--moderate';
-        else sevClass = 'severity-badge--positive';
-        tHtml +=
-          '<tr>' +
-            '<td><strong>' + escHtml(ms.country || ms.name || '') + '</strong></td>' +
-            '<td>' + escHtml(ms.status || '') + '</td>' +
-            '<td>' + escHtml(ms.key_development || ms.summary || ms.note || '') + '</td>' +
-            '<td><span class="severity-badge ' + sevClass + '">' + escHtml(sev) + '</span></td>' +
-          '</tr>';
-      });
-      tHtml += '</tbody></table>';
-      msEl.innerHTML = tHtml;
     })
     .catch(function (err) {
       console.error(err);
-      ['signal-block','delta-strip','member-state-table'].forEach(function (id) {
+      ['signal-block','defence-list','hybrid-list','institutional-list','member-state-list','cross-monitor-list'].forEach(function (id) {
         var el = document.getElementById(id);
-        if (el) el.innerHTML = '<div class="error-state">Failed to load data.</div>';
+        if (el) el.innerHTML = '<div class="error-state">Failed to load report data.</div>';
       });
     });
 });
