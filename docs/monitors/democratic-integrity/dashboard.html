@@ -169,7 +169,9 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var meta    = d.meta    || {};
-      var signal  = d.signal  || '';
+      var signalObj = d.signal || {};
+      var signal = signalObj.headline || '';
+      var signalBody = signalObj.body || '';
       var heatmap = d.heatmap || {};
       var intel   = d.intelligence_items || [];
 
@@ -194,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<div class="signal-block">' +
           '<div class="signal-block__label">Lead Signal — Issue ' + escHtml(meta.issue || '') + '</div>' +
           '<p>' + escHtml(signal) + '</p>' +
+          (signalBody ? '<p style="margin-top:var(--space-3);opacity:0.85">' + escHtml(signalBody) + '</p>' : '') +
         '</div>';
 
       // Delta strip — top 5 intel items
