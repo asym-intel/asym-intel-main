@@ -155,6 +155,46 @@ if base_candidates:
     if mn and 'top: 40px' not in mn.group() and 'top:40px' not in mn.group():
         warn("base.css — .monitor-nav missing explicit top:40px (may hide behind network bar)")
 
+
+# ── Check 13: nav.js is in <head> (not body) on every page ───────────────────
+print("Check 13: nav.js in <head> on every page")
+import re as _re2
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as _f: _c = _f.read()
+        _head_end = _c.find('</head>')
+        _nav_pos  = _c.find('nav.js')
+        if _nav_pos == -1:
+            fail(f"{slug}/{page}.html — nav.js not referenced at all")
+        elif _nav_pos > _head_end:
+            fail(f"{slug}/{page}.html — nav.js in <body> not <head> (network bar won't inject before paint)")
+
+# ── Check 14: Chart.js CDN loaded on pages using <canvas> ────────────────────
+print("Check 14: Chart.js CDN present on pages using <canvas>")
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as _f: _c = _f.read()
+        if '<canvas' in _c or 'new Chart(' in _c:
+            if 'cdn.jsdelivr.net/npm/chart.js' not in _c and 'chart.umd' not in _c:
+                fail(f"{slug}/{page}.html — uses Chart.js but CDN not loaded (Chart is not defined error)")
+
+# ── Check 15: No overflow-x:hidden on layout containers in inline styles ──────
+print("Check 15: No overflow-x:hidden on monitor-layout/monitor-main in inline styles")
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as _f: _c = _f.read()
+        _styles = _re2.findall(r'<style[^>]*>(.*?)</style>', _c, _re2.DOTALL)
+        for _s in _styles:
+            _hits = _re2.findall(r'(?:monitor-layout|monitor-main|\.monitor-layout|\.monitor-main)[^}]*overflow[^}]*hidden', _s, _re2.DOTALL)
+            if _hits:
+                fail(f"{slug}/{page}.html — overflow:hidden on monitor-layout/main in inline style (breaks sticky nav)")
+
 # ── Summary ───────────────────────────────────────────────────────────────
 print()
 if warnings:
