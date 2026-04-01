@@ -694,11 +694,13 @@ document.addEventListener('DOMContentLoaded', function () {
       renderSeverityCards(rd);
 
       // Signal block
+      var sourceUrl = d.signal && d.signal.source_url ? d.signal.source_url : (d.source_url || '');
       document.getElementById('signal-block').innerHTML =
         '<div class="signal-block">' +
           '<div class="signal-block__label">Lead Signal — Issue ' + escHtml(meta.issue || '') + '</div>' +
           '<p>' + escHtml(signal) + '</p>' +
           (signalBody ? '<p style="margin-top:var(--space-3);opacity:0.85">' + escHtml(signalBody) + '</p>' : '') +
+          (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
         '</div>';
 
       // Delta strip — top 5 intel items
