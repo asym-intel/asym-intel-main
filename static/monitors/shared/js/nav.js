@@ -18,21 +18,24 @@
     if (document.querySelector('[data-asym-network-bar]')) return;
 
     // Offset styles — injected into <head> so they apply before paint
-    var style = document.createElement('style');
-    style.setAttribute('data-asym-nb-styles', '');
-    style.textContent = [
-      'body{padding-top:40px!important}',
-      '.monitor-nav{top:40px!important}',
-      '.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}',
-      'nav.sidebar,#sidebar,.sidebar-header{top:40px!important}',
-      'nav.sidebar{height:calc(100vh - 40px)!important}',
-      '.left-nav{top:40px!important;height:calc(100vh - 40px)!important}',
-      '.header:not([data-asym-network-bar]){top:40px!important}',
-      'nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}',
-      '.nb-links{display:flex}',
-      '@media(max-width:640px){.nb-links{display:none}}'
-    ].join('');
-    document.head.appendChild(style);
+    // Offset styles — fallback for pages without base.css
+    if (!document.querySelector('[data-asym-nb-styles]')) {
+      var style = document.createElement('style');
+      style.setAttribute('data-asym-nb-styles', '');
+      style.textContent = [
+        'body{padding-top:40px!important}',
+        '.monitor-nav{position:sticky!important;top:40px!important}',
+        '.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}',
+        'nav.sidebar,#sidebar,.sidebar-header{top:40px!important}',
+        'nav.sidebar{height:calc(100vh - 40px)!important}',
+        '.left-nav{top:40px!important;height:calc(100vh - 40px)!important}',
+        '.header:not([data-asym-network-bar]){top:40px!important}',
+        'nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}',
+        '.nb-links{display:flex}',
+        '@media(max-width:640px){.nb-links{display:none}}'
+      ].join('');
+      document.head.appendChild(style);
+    }
 
     var nav = document.createElement('nav');
     nav.setAttribute('data-asym-network-bar', '');
@@ -80,10 +83,36 @@
   function init() {
     setupScrollSpy();
     setupHamburger();
+    setupSiteNavHamburger();
     setupSidebarOverlay();
     setupCmsExpanders();
     setupVersionToggles();
     setupTabPanels();
+  }
+
+
+  /* ── Hugo site-nav hamburger ─────────────────────────────── */
+  function setupSiteNavHamburger() {
+    var btn   = document.querySelector('.site-nav__hamburger');
+    var links = document.querySelector('.site-nav__links');
+    if (!btn || !links) return;
+    btn.addEventListener('click', function () {
+      var open = links.classList.toggle('site-nav__links--open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    links.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        links.classList.remove('site-nav__links--open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    document.addEventListener('click', function (e) {
+      if (links.classList.contains('site-nav__links--open') &&
+          !links.contains(e.target) && !btn.contains(e.target)) {
+        links.classList.remove('site-nav__links--open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
   }
 
   /* ── Scroll Spy ── */
