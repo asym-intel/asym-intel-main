@@ -80,8 +80,10 @@
   }
   .risk-heatmap__grid {
     display: grid;
-    grid-template-columns: 28px 1fr 1fr 1fr;
-    grid-template-rows: auto auto auto auto;
+    /* col 1: row labels (impact band); cols 2-4: heatmap cells */
+    grid-template-columns: 36px 1fr 1fr 1fr;
+    /* rows: 3 data rows + x-band labels + x-axis title */
+    grid-template-rows: auto auto auto auto auto;
     gap: 3px;
   }
   .risk-heatmap__y-label {
@@ -90,23 +92,9 @@
     justify-content: flex-end;
     padding-right: var(--space-2);
     font-size: var(--text-min);
+    font-weight: 600;
     color: var(--color-text-muted);
     white-space: nowrap;
-    writing-mode: horizontal-tb;
-  }
-  .risk-heatmap__y-axis-title {
-    grid-column: 1;
-    grid-row: 1 / 4;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: var(--text-min);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted);
   }
   .risk-heatmap__cell {
     min-height: 72px;
@@ -549,20 +537,23 @@ document.addEventListener('DOMContentLoaded', function () {
       return 'stable';
     }
 
-    var rowLabels = ['HIGH', 'MED', 'LOW'];
+    // Rows: impact HIGH (row 1) → MED (row 2) → LOW (row 3)
+    // Cols: likelihood LOW (col 2) → MED (col 3) → HIGH (col 4)
+    // Col 1 is the impact row label
+    var impactLabels = ['HIGH', 'MED', 'LOW'];
     var html = '';
 
-    // Y-axis title spans all 3 data rows
-    html += '<div class="risk-heatmap__y-axis-title" style="grid-column:1;grid-row:1/4">Impact</div>';
-
-    // 3 rows of data
     cells.forEach(function(row, iRow) {
-      // Y label
-      html += '<div class="risk-heatmap__y-label" style="grid-column:1;grid-row:' + (iRow+1) + '">' + rowLabels[iRow] + '</div>';
-      // 3 cells
+      var gridRow = iRow + 1;
+      // Impact band label in col 1
+      html += '<div class="risk-heatmap__y-label" style="grid-column:1;grid-row:' + gridRow + '">' + impactLabels[iRow] + '</div>';
+      // 3 likelihood cells in cols 2-4
       row.forEach(function(cell, lCol) {
         var zoneClass = 'risk-heatmap__cell risk-heatmap__cell--' + cellClass(iRow, lCol);
-        html += '<div class="' + zoneClass + '" style="grid-column:' + (lCol+2) + ';grid-row:' + (iRow+1) + '">';
+        html += '<div class="' + zoneClass + '" style="grid-column:' + (lCol+2) + ';grid-row:' + gridRow + '">';
+        if (cell.items.length === 0) {
+          html += '<div style="color:var(--color-text-faint);font-size:var(--text-min);padding:2px 4px">—</div>';
+        }
         cell.items.forEach(function(r) {
           var dc = dirClass(r.direction);
           var arrow = dirArrow(r.direction);
@@ -575,11 +566,14 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
-    // X-axis labels row
-    html += '<div style="grid-column:2;grid-row:4" class="risk-heatmap__x-label">Low<br><span style="color:var(--color-text-faint);font-size:0.7em">&lt;33%</span></div>';
-    html += '<div style="grid-column:3;grid-row:4" class="risk-heatmap__x-label">Medium<br><span style="color:var(--color-text-faint);font-size:0.7em">33–66%</span></div>';
-    html += '<div style="grid-column:4;grid-row:4" class="risk-heatmap__x-label">High<br><span style="color:var(--color-text-faint);font-size:0.7em">&gt;66%</span></div>';
-    html += '<div style="grid-column:2/5;grid-row:5" class="risk-heatmap__x-title">Likelihood</div>';
+    // Row 4: empty label col + x-axis band labels
+    html += '<div style="grid-column:1;grid-row:4"></div>';
+    html += '<div style="grid-column:2;grid-row:4" class="risk-heatmap__x-label">Low &lt;33%</div>';
+    html += '<div style="grid-column:3;grid-row:4" class="risk-heatmap__x-label">Medium 33–66%</div>';
+    html += '<div style="grid-column:4;grid-row:4" class="risk-heatmap__x-label">High &gt;66%</div>';
+    // Row 5: x-axis title
+    html += '<div style="grid-column:1;grid-row:5"></div>';
+    html += '<div style="grid-column:2/5;grid-row:5" class="risk-heatmap__x-title">← Likelihood →</div>';
 
     grid.innerHTML = html;
   }
