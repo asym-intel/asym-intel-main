@@ -161,3 +161,44 @@ STEP 3 — Hugo brief:
 STEP 4 — Notify. Dashboard: https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html
 
 Cron: 0 19 * * 3 (every Wednesday at 19:00 UTC)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TWO-PASS COMMIT RULE — MANDATORY FOR EVERY RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  The JSON for this monitor is too large to produce safely in one pass.
+You MUST write it in two separate git commits. Never combine into one.
+
+PASS 1 — Core sections (commit first, immediately after research):
+  meta, signal, defence_developments, hybrid_threats, source_url
+
+  Commit: "data(esa): Issue [N] W/E [DATE] — core sections"
+
+PASS 2 — Deep sections (commit second, by patching the Pass 1 file):
+  institutional_developments, member_state_tracker, cross_monitor_flags
+
+  Method:
+  ```bash
+  # 1. Download the Pass 1 JSON
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/european-strategic-autonomy/data/report-latest.json \
+    --jq '.content' | base64 -d > /tmp/esa-report.json
+
+  # 2. Add the Pass 2 sections to /tmp/esa-report.json using Python/jq
+
+  # 3. Push it back (replace the file with the patched version)
+  SHA=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/european-strategic-autonomy/data/report-latest.json --jq '.sha')
+  CONTENT=$(base64 -w 0 /tmp/esa-report.json)
+  gh api --method PUT /repos/asym-intel/asym-intel-main/contents/static/monitors/european-strategic-autonomy/data/report-latest.json \
+    --field message="data(esa): Issue [N] W/E [DATE] — deep sections" \
+    --field content="$CONTENT" --field sha="$SHA" --field branch="main"
+  ```
+
+  Do the same two-pass write for report-{DATE}.json.
+
+VERIFICATION — run after Pass 2 before proceeding to Step 3:
+  ```bash
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/european-strategic-autonomy/data/report-latest.json \
+    --jq '.content' | base64 -d | python3 -c \
+    "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['institutional_developments', 'member_state_tracker'] if k not in d]; print('MISSING:',missing) if missing else print('ALL SECTIONS PRESENT ✓')"
+  ```
+  If MISSING is non-empty — do NOT proceed to Step 3. Re-run Pass 2.
