@@ -1088,6 +1088,17 @@ a.intel-item__source {
   transition: border-style 0.15s;
 }
 .source-link:hover { border-bottom-style: solid; text-decoration: none; }
+/* source-link inside signal-block: signal-block has dark background,
+   so raw --monitor-accent is too low contrast. Use white instead.
+   Applies to all 7 monitors (FE-018 rule). */
+.signal-block .source-link {
+  color: rgba(255,255,255,0.9);
+  border-bottom-color: rgba(255,255,255,0.5);
+}
+.signal-block .source-link:hover {
+  color: #fff;
+  border-bottom-color: rgba(255,255,255,0.85);
+}
 
 /* ─── Loading / Error States ─────────────────────────────── */
 .loading-state {
