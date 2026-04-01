@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
         else sevClass = 'severity-badge--positive';
         tHtml +=
           '<tr>' +
-            '<td><strong>' + escHtml(ms.country || ms.name || '') + '</strong></td>' +
+            '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(ms.country || ms.name || '')||'') + (AsymRenderer.flag(ms.country || ms.name || '') ? '\u00a0' : '') : '') + escHtml(ms.country || ms.name || '') + '</strong></td>' +
             '<td>' + escHtml(ms.status || '') + '</td>' +
             '<td>' + escHtml(ms.key_development || ms.summary || ms.note || '') + '</td>' +
             '<td><span class="severity-badge ' + sevClass + '">' + escHtml(sev) + '</span></td>' +
