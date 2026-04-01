@@ -590,10 +590,10 @@
           m6html += '<h3 class="subsection-title">Threshold Events</h3>' + renderIntelItems(m6.threshold_events, ['title','summary','asymmetric']);
         }
         if (Array.isArray(m6.programme_updates) && m6.programme_updates.length) {
-          m6html += '<h3 class="subsection-title">Programme Updates</h3>' + renderIntelItems(m6.programme_updates, ['title','summary']);
+          m6html += '<h3 class="subsection-title">Programme Updates</h3>' + renderIntelItems(m6.programme_updates, ['programme','update'], function(item){ return item.lab ? '<span class="intel-tag">' + esc(item.lab) + '</span>' : ''; });
         }
         if (Array.isArray(m6.arxiv_highlights) && m6.arxiv_highlights.length) {
-          m6html += '<h3 class="subsection-title">arXiv Highlights</h3>' + renderIntelItems(m6.arxiv_highlights, ['title','summary','asymmetric']);
+          m6html += '<h3 class="subsection-title">arXiv Highlights</h3>' + renderIntelItems(m6.arxiv_highlights, ['title','significance','asymmetric'], function(item){ var meta=''; if(item.published) meta+='<span class="intel-tag">'+esc(item.published)+'</span>'; if(item.venue) meta+='<span class="intel-tag">'+esc(item.venue)+'</span>'; if(item.tier) meta+='<span class="intel-tag intel-tag--tier">'+esc(item.tier)+'</span>'; return meta; });
         }
         document.getElementById('m6-content').innerHTML = m6html || empty();
 
@@ -790,7 +790,7 @@
             }
             return '';
           }).join('') +
-          (item.source_url ? '<a class="intel-item__source" href="' + esc(item.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
+          ((item.source_url || item.url) ? '<a class="intel-item__source" href="' + esc(item.source_url || item.url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
           '</div>';
       }).join('') + '</div>';
     }
