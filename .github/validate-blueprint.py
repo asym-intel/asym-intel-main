@@ -239,3 +239,36 @@ if errors:
 else:
     print(f"All checks passed. {len(warnings)} warning(s).")
     sys.exit(0)
+
+# ── Check 17: Chart.js CDN before charts.js (load order) ──────────────────────
+print("Check 17: Chart.js CDN loads before charts.js on all pages")
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as _f: _c = _f.read()
+        _cdn_pos    = _c.find('cdn.jsdelivr.net/npm/chart.js')
+        _charts_pos = _c.find('shared/js/charts.js')
+        if _cdn_pos == -1 or _charts_pos == -1:
+            continue
+        if _charts_pos < _cdn_pos:
+            fail(f"{slug}/{page}.html — charts.js loaded before Chart.js CDN (Chart will be undefined)")
+
+# ── Check 18: No empty source_url in heatmap/indicator entries (data quality) ──
+import json as _json
+print("Check 18: Data files — no empty source_url on heatmap/indicator entries (WARN)")
+for slug in MONITOR_SLUGS:
+    _data_path = f"{MONITORS_DIR}/{slug}/data/report-latest.json"
+    if not os.path.exists(_data_path): continue
+    try:
+        with open(_data_path) as _f: _d = _json.load(_f)
+        for tier in ['rapid_decay', 'recovery', 'watchlist']:
+            for entry in _d.get('heatmap', {}).get(tier, []):
+                if entry.get('source_url', 'x') == '':
+                    warn(f"{slug} — empty source_url on heatmap/{tier}/{entry.get('country','?')}")
+        for dk in _d.get('domain_indicators', {}):
+            for ind in _d['domain_indicators'][dk]:
+                if ind.get('source_url', 'x') == '':
+                    warn(f"{slug} — empty source_url on {dk}/{ind.get('indicator','?')}")
+    except Exception:
+        pass
