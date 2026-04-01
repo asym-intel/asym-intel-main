@@ -8,6 +8,158 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/nav.js"></script>
+  <style>
+    /* ── Tier Distribution Strip ──────────────────────────────── */
+    .tier-distribution {
+      margin-bottom: var(--space-6, 1.5rem);
+    }
+    .tier-distribution__label {
+      font-size: var(--text-xs, 0.75rem);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted, #6b6660);
+      margin-bottom: var(--space-2, 0.5rem);
+      font-weight: 600;
+    }
+    .tier-distribution__bar-wrap {
+      position: relative;
+    }
+    #tier-dist-canvas-container {
+      width: 100%;
+      height: 60px;
+      position: relative;
+    }
+    #tier-dist-canvas-container canvas {
+      border-radius: var(--radius-md, 6px);
+    }
+    .tier-distribution__legend {
+      display: flex;
+      gap: var(--space-5, 1.25rem);
+      margin-top: var(--space-2, 0.5rem);
+      flex-wrap: wrap;
+    }
+    .tier-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--text-xs, 0.75rem);
+      color: var(--color-text-secondary, #3d3a35);
+    }
+    .tier-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .tier-legend-dot--decay    { background: #b91c1c; }
+    .tier-legend-dot--watchlist{ background: #d97706; }
+    .tier-legend-dot--recovery { background: #059669; }
+    [data-theme="dark"] .tier-legend-item {
+      color: var(--color-text-secondary, #9d9893);
+    }
+
+    /* ── Country Severity Cards ───────────────────────────────── */
+    .severity-cards-section {
+      margin-bottom: var(--space-6, 1.5rem);
+    }
+    .severity-cards-row {
+      display: flex;
+      gap: var(--space-4, 1rem);
+      overflow-x: auto;
+      padding-bottom: var(--space-2, 0.5rem);
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-border, #d8d4cd) transparent;
+    }
+    .severity-cards-row::-webkit-scrollbar {
+      height: 4px;
+    }
+    .severity-cards-row::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .severity-cards-row::-webkit-scrollbar-thumb {
+      background: var(--color-border, #d8d4cd);
+      border-radius: 2px;
+    }
+    .severity-card {
+      flex: 0 0 180px;
+      background: var(--color-surface, #ffffff);
+      border: 1px solid var(--color-border, #d8d4cd);
+      border-radius: var(--radius-lg, 10px);
+      padding: var(--space-4, 1rem) var(--space-5, 1.25rem);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2, 0.5rem);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s;
+    }
+    .severity-card:hover {
+      box-shadow: var(--shadow);
+    }
+    .severity-card--critical {
+      border-top: 3px solid #b91c1c;
+    }
+    .severity-card--high {
+      border-top: 3px solid #ea580c;
+    }
+    .severity-card--moderate {
+      border-top: 3px solid #d97706;
+    }
+    .severity-card__flag {
+      font-size: 1.75rem;
+      line-height: 1;
+    }
+    .severity-card__name {
+      font-size: var(--text-sm, 0.875rem);
+      font-weight: 700;
+      color: var(--color-text, #1a1917);
+      line-height: 1.3;
+    }
+    .severity-card__score-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .severity-card__score {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--color-text, #1a1917);
+    }
+    .severity-card__arrow {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .severity-card__arrow--up    { color: #b91c1c; }
+    .severity-card__arrow--down  { color: #059669; }
+    .severity-card__arrow--flat  { color: var(--color-text-muted, #6b6660); }
+    .severity-card__signal {
+      font-size: var(--text-xs, 0.75rem);
+      color: var(--color-text-muted, #6b6660);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .severity-card {
+      background: var(--color-surface, #1e1d1b);
+      border-color: var(--color-border, #2d2c2a);
+    }
+    [data-theme="dark"] .severity-card__name,
+    [data-theme="dark"] .severity-card__score {
+      color: var(--color-text, #e0dfdc);
+    }
+    [data-theme="dark"] .severity-card__signal {
+      color: var(--color-text-muted, #8a8580);
+    }
+    .severity-cards-empty {
+      font-size: var(--text-sm, 0.875rem);
+      color: var(--color-text-muted, #6b6660);
+      padding: var(--space-4, 1rem) 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -69,6 +221,19 @@
         <div class="page-header__meta" id="page-meta">Loading…</div>
       </div>
 
+      <!-- Tier distribution strip -->
+      <div class="tier-distribution" id="section-tier-dist">
+        <div class="tier-distribution__label">Global Democratic Health — This Issue</div>
+        <div id="tier-dist-canvas-container">
+          <canvas id="tier-dist-chart" height="60" aria-label="Tier distribution chart" role="img"></canvas>
+        </div>
+        <div class="tier-distribution__legend" id="tier-dist-legend">
+          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--decay"></span>Rapid Decay</span>
+          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--watchlist"></span>Watchlist</span>
+          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--recovery"></span>Recovery</span>
+        </div>
+      </div>
+
       <div class="kpi-strip" id="kpi-strip">
         <div class="kpi-card">
           <div class="kpi-card__value" id="kpi-countries">—</div>
@@ -85,6 +250,16 @@
           <div class="kpi-card__label">Lead Signal</div>
           <div class="kpi-card__sub">Top story this week</div>
         </div>
+      </div>
+    </section>
+
+    <!-- Top 5 most severe rapid decay countries -->
+    <section class="module-section severity-cards-section" id="section-severity-cards">
+      <div class="module-header">
+        <div class="module-title">Most Severe — Rapid Decay</div>
+      </div>
+      <div id="severity-cards-row">
+        <div class="loading-state">Loading…</div>
       </div>
     </section>
 
@@ -121,6 +296,7 @@
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-severity-cards">Most Severe</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Intelligence Highlights</a></li>
       <li><a href="#section-heatmap">Heatmap</a></li>
@@ -134,9 +310,8 @@
   <span>World Democracy Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
   <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
 </footer>
-
-<script src="../shared/js/nav.js"></script>
 <script src="../shared/js/renderer.js"></script>
+<script src="../shared/js/charts.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
@@ -150,6 +325,159 @@ document.addEventListener('DOMContentLoaded', function () {
     if (s >= 6) return 'high';
     if (s >= 4) return 'moderate';
     return 'positive';
+  }
+
+  function arrowClass(arrow) {
+    if (!arrow) return 'flat';
+    if (arrow === '↑') return 'up';
+    if (arrow === '↓') return 'down';
+    return 'flat';
+  }
+
+  /* ── Tier Distribution Chart ──────────────────────────────── */
+  function renderTierChart(rdCount, wlCount, rcCount) {
+    var total = rdCount + wlCount + rcCount;
+    if (total === 0 || typeof Chart === 'undefined') return;
+
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var labelColor = isDark ? '#9d9893' : '#6b6660';
+
+    var ctx = document.getElementById('tier-dist-chart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [''],
+        datasets: [
+          {
+            label: 'Rapid Decay (' + rdCount + ')',
+            data: [rdCount],
+            backgroundColor: '#b91c1c',
+            borderWidth: 0,
+            borderRadius: { topLeft: 4, bottomLeft: 4, topRight: 0, bottomRight: 0 }
+          },
+          {
+            label: 'Watchlist (' + wlCount + ')',
+            data: [wlCount],
+            backgroundColor: '#d97706',
+            borderWidth: 0,
+            borderRadius: 0
+          },
+          {
+            label: 'Recovery (' + rcCount + ')',
+            data: [rcCount],
+            backgroundColor: '#059669',
+            borderWidth: 0,
+            borderRadius: { topLeft: 0, bottomLeft: 0, topRight: 4, bottomRight: 4 }
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (ctx) {
+                return ctx.dataset.label;
+              }
+            }
+          },
+          datalabels: false
+        },
+        scales: {
+          x: {
+            stacked: true,
+            display: false,
+            grid: { display: false }
+          },
+          y: {
+            stacked: true,
+            display: false,
+            grid: { display: false }
+          }
+        },
+        layout: {
+          padding: 0
+        },
+        animation: {
+          duration: 500
+        }
+      },
+      plugins: [{
+        id: 'countLabels',
+        afterDatasetsDraw: function (chart) {
+          var ctx2 = chart.ctx;
+          chart.data.datasets.forEach(function (dataset, i) {
+            var meta = chart.getDatasetMeta(i);
+            if (!meta.hidden) {
+              meta.data.forEach(function (bar) {
+                var count = dataset.data[0];
+                if (count === 0) return;
+                var barW = bar.width;
+                // Only draw if segment is wide enough for the label
+                if (barW < 28) return;
+                var label = String(count);
+                ctx2.save();
+                ctx2.fillStyle = 'rgba(255,255,255,0.92)';
+                ctx2.font = 'bold 13px Satoshi, system-ui, sans-serif';
+                ctx2.textAlign = 'center';
+                ctx2.textBaseline = 'middle';
+                ctx2.fillText(label, bar.x - barW / 2 + barW / 2, bar.y);
+                ctx2.restore();
+              });
+            }
+          });
+        }
+      }]
+    });
+
+    // Update legend with live counts
+    var legend = document.getElementById('tier-dist-legend');
+    if (legend) {
+      legend.innerHTML =
+        '<span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--decay"></span>Rapid Decay: <strong>' + rdCount + '</strong></span>' +
+        '<span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--watchlist"></span>Watchlist: <strong>' + wlCount + '</strong></span>' +
+        '<span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--recovery"></span>Recovery: <strong>' + rcCount + '</strong></span>';
+    }
+  }
+
+  /* ── Severity Cards ───────────────────────────────────────── */
+  function renderSeverityCards(rdList) {
+    var container = document.getElementById('severity-cards-row');
+    if (!container) return;
+    if (!rdList || rdList.length === 0) {
+      container.innerHTML = '<div class="severity-cards-empty">No rapid decay countries to display.</div>';
+      return;
+    }
+
+    // Sort by severity_score descending, take top 5
+    var sorted = rdList.slice().sort(function (a, b) {
+      return (parseFloat(b.severity_score) || 0) - (parseFloat(a.severity_score) || 0);
+    }).slice(0, 5);
+
+    var html = '<div class="severity-cards-row">';
+    sorted.forEach(function (c) {
+      var cls = severityClass(c.severity_score);
+      var flag = (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag) ? (AsymRenderer.flag(c.country) || '') : '';
+      var arrClass = arrowClass(c.severity_arrow);
+      var signalText = (c.lead_signal || c.summary || '').slice(0, 100);
+      html +=
+        '<div class="severity-card severity-card--' + cls + '">' +
+          (flag ? '<div class="severity-card__flag">' + flag + '</div>' : '') +
+          '<div class="severity-card__name">' + escHtml(c.country) + '</div>' +
+          '<div class="severity-card__score-row">' +
+            '<div class="severity-card__score">' + escHtml(c.severity_score) + '</div>' +
+            (c.severity_arrow ? '<div class="severity-card__arrow severity-card__arrow--' + arrClass + '">' + escHtml(c.severity_arrow) + '</div>' : '') +
+          '</div>' +
+          '<div class="severity-card__signal">' + escHtml(signalText) + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
   }
 
   fetch('data/report-latest.json')
@@ -177,6 +505,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('page-meta').innerHTML =
         (meta.week_label ? '<span>' + escHtml(meta.week_label) + '</span>' : '') +
         (meta.published  ? '<span>Published ' + new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) + '</span>' : '');
+
+      // Tier distribution strip
+      renderTierChart(rd.length, wl.length, rc.length);
+
+      // Severity league table cards
+      renderSeverityCards(rd);
 
       // Signal block
       document.getElementById('signal-block').innerHTML =
@@ -212,7 +546,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var cls = severityClass(c.severity_score);
         tableHtml +=
           '<tr class="heatmap-row--' + cls + '">' +
-            '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
+            '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
             '<td><span class="severity-badge severity-badge--' + cls + '">' + escHtml(c.severity_score) + '</span></td>' +
             '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
             '<td>' + escHtml((c.lead_signal || c.summary || '').slice(0, 120)) + '…</td>' +
@@ -224,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .catch(function (err) {
       console.error(err);
-      ['signal-block','delta-strip','heatmap-table'].forEach(function (id) {
+      ['signal-block','delta-strip','heatmap-table','severity-cards-row'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.innerHTML = '<div class="error-state">Failed to load data.</div>';
       });

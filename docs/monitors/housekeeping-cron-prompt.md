@@ -94,6 +94,12 @@ CHECK 9 — No inline network bar HTML present (Blueprint v2.1+)
   WARN: if static network bar HTML found in page source
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CHECK 10 — Staging branch is ahead of or equal to main
+  Run: gh api /repos/asym-intel/asym-intel-main/compare/main...staging --jq '.ahead_by'
+  WARN: if staging is 0 commits ahead of main AND recent commits to main were not from
+        github-actions[bot] (i.e. a human pushed HTML/CSS directly to main)
+
 RESULT FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

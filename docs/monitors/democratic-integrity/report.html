@@ -8,6 +8,67 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/nav.js"></script>
+  <style>
+    /* ── Weekly Brief ─────────────────────────────────────────── */
+    .weekly-brief {
+      max-width: 72ch;
+      line-height: 1.75;
+      font-size: var(--text-base, 1rem);
+      color: var(--color-text);
+    }
+    .weekly-brief p {
+      margin: 0 0 1.1em;
+    }
+    .weekly-brief a {
+      color: var(--monitor-accent, #61a5d2);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .weekly-brief strong, .weekly-brief b {
+      font-weight: 600;
+    }
+    .weekly-brief h2, .weekly-brief h3 {
+      font-size: var(--text-sm, 0.875rem);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      margin: 1.5em 0 0.5em;
+    }
+    [data-theme="dark"] .weekly-brief {
+      color: var(--color-text, #e0dfdc);
+    }
+
+    /* ── Severity bar in heatmap ──────────────────────────────── */
+    .severity-bar-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .severity-bar-track {
+      display: inline-block;
+      width: 60px;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--color-border-subtle, #e8e4de);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .severity-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+    .severity-bar-fill--positive { background: #059669; }
+    .severity-bar-fill--amber    { background: #d97706; }
+    .severity-bar-fill--orange   { background: #ea580c; }
+    .severity-bar-fill--deep-red { background: #b91c1c; }
+
+    [data-theme="dark"] .severity-bar-track {
+      background: #2d2c2a;
+    }
+  </style>
 </head>
 
 <body>
@@ -65,6 +126,15 @@
     <div id="page-header-block">
       <div class="loading-state">Loading report…</div>
     </div>
+
+    <section class="module-section" id="section-weekly-brief">
+      <div class="module-header">
+        <div class="module-title">Weekly Brief</div>
+      </div>
+      <div id="weekly-brief-block">
+        <div class="loading-state">Loading weekly brief…</div>
+      </div>
+    </section>
 
     <section class="module-section" id="section-signal">
       <div class="module-header">
@@ -125,6 +195,7 @@
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
+      <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-signal">Signal</a></li>
       <li><a href="#section-heatmap">Heatmap</a></li>
       <li><a href="#section-intel">Intel Items</a></li>
@@ -141,8 +212,6 @@
   <span>World Democracy Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
   <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
 </footer>
-
-<script src="../shared/js/nav.js"></script>
 <script src="../shared/js/renderer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -159,6 +228,30 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'positive';
   }
 
+  /* ── Severity bar helpers ──────────────────────────────────── */
+  function severityBarColor(score) {
+    var s = parseFloat(score) || 0;
+    if (s <= 3) return 'positive';
+    if (s <= 5) return 'amber';
+    if (s <= 7) return 'orange';
+    return 'deep-red';
+  }
+
+  function severityBarHtml(score) {
+    var s = parseFloat(score) || 0;
+    var pct = Math.min(100, Math.round((s / 10) * 100));
+    var colorCls = severityBarColor(s);
+    var cls = severityClass(s);
+    return (
+      '<span class="severity-bar-wrap">' +
+        '<span class="severity-badge severity-badge--' + cls + '">' + escHtml(score) + '</span>' +
+        '<span class="severity-bar-track" aria-hidden="true">' +
+          '<span class="severity-bar-fill severity-bar-fill--' + colorCls + '" style="width:' + pct + '%"></span>' +
+        '</span>' +
+      '</span>'
+    );
+  }
+
   function renderHeatmapTable(countries, tierClass) {
     if (!countries || !countries.length) return '<p class="text-muted">No entries.</p>';
     var html = '<table class="heatmap-table"><thead><tr><th>Country</th><th>Score</th><th>Trend</th><th>Key Development</th></tr></thead><tbody>';
@@ -166,8 +259,8 @@ document.addEventListener('DOMContentLoaded', function () {
       var cls = tierClass || severityClass(c.severity_score);
       html +=
         '<tr class="heatmap-row--' + cls + '">' +
-          '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
-          '<td><span class="severity-badge severity-badge--' + cls + '">' + escHtml(c.severity_score) + '</span></td>' +
+          '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
+          '<td>' + severityBarHtml(c.severity_score) + '</td>' +
           '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
           '<td>' + escHtml(c.lead_signal || c.summary || '') + '</td>' +
         '</tr>';
@@ -202,6 +295,14 @@ document.addEventListener('DOMContentLoaded', function () {
             (meta.schema_version ? '<span>Schema v' + escHtml(meta.schema_version) + '</span>' : '') +
           '</div>' +
         '</div>';
+
+      // Weekly brief
+      var briefEl = document.getElementById('weekly-brief-block');
+      if (d.weekly_brief) {
+        briefEl.innerHTML = '<div class="weekly-brief">' + d.weekly_brief + '</div>';
+      } else {
+        briefEl.innerHTML = '<p class="text-muted">No weekly brief available for this issue.</p>';
+      }
 
       // Signal
       document.getElementById('signal-block').innerHTML =
@@ -243,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="intel-item__header">' +
               '<div class="intel-item__rank">' + escHtml(item.rank || '') + '</div>' +
               '<div class="intel-item__meta">' +
-                '<div class="intel-item__country">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.country||'')||'') + ' ' : '') + escHtml(item.country || '') + '</div>' +
+                '<div class="intel-item__country">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.country||'')||'') + ' ' : '') + escHtml(item.country || '') + '</div>' +
                 '<div class="intel-item__headline">' + escHtml(item.headline || '') + '</div>' +
               '</div>' +
               (item.severity ? '<span class="severity-badge severity-badge--' + (item.severity === 'High' ? 'critical' : 'moderate') + '">' + escHtml(item.severity) + '</span>' : '') +

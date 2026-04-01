@@ -8,6 +8,144 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/nav.js"></script>
+  <style>
+    /* ── CAMPAIGN TIMELINE ── */
+    .fcw-timeline-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .fcw-timeline-actor-group {
+      margin-bottom: 1.5rem;
+    }
+    .fcw-timeline-actor-label {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.35rem 0;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border-subtle, #e8e4de);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    [data-theme="dark"] .fcw-timeline-actor-label {
+      border-bottom-color: #252422;
+    }
+    .fcw-timeline-actor-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fcw-timeline-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+      min-height: 28px;
+    }
+    .fcw-timeline-name {
+      font-size: 0.72rem;
+      color: var(--color-text-secondary, #3d3a35);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 220px;
+      flex-shrink: 0;
+      line-height: 1.3;
+    }
+    [data-theme="dark"] .fcw-timeline-name {
+      color: #9e9b97;
+    }
+    .fcw-timeline-track {
+      flex: 1;
+      min-width: 200px;
+      height: 20px;
+      background: var(--color-bg-alt, #f0ede8);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .fcw-timeline-track {
+      background: #2d2c2a;
+    }
+    .fcw-timeline-bar {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      box-sizing: border-box;
+      min-width: 4px;
+    }
+    .fcw-timeline-bar-label {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.58rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .fcw-timeline-badge {
+      flex-shrink: 0;
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: var(--color-bg-alt, #f0ede8);
+      color: var(--color-text-muted, #6b6660);
+      border: 1px solid var(--color-border, #d8d4cd);
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .fcw-timeline-badge {
+      background: #252422;
+      color: #6b6660;
+      border-color: #2d2c2a;
+    }
+    .fcw-timeline-badge--confirmed { background: rgba(5,150,105,0.12); color: #059669; border-color: rgba(5,150,105,0.25); }
+    .fcw-timeline-badge--high { background: rgba(217,119,6,0.12); color: #d97706; border-color: rgba(217,119,6,0.25); }
+    .fcw-timeline-badge--assessed { background: rgba(37,99,235,0.12); color: #2563eb; border-color: rgba(37,99,235,0.25); }
+    .fcw-timeline-badge--possible { background: rgba(37,99,235,0.08); color: #2563eb; border-color: rgba(37,99,235,0.2); }
+    .fcw-timeline-ruler {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--color-border-subtle, #e8e4de);
+    }
+    [data-theme="dark"] .fcw-timeline-ruler {
+      border-bottom-color: #252422;
+    }
+    .fcw-timeline-ruler-spacer {
+      width: 220px;
+      flex-shrink: 0;
+    }
+    .fcw-timeline-ruler-track {
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .fcw-timeline-ruler-label {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.6rem;
+      color: var(--color-text-muted, #6b6660);
+    }
+    .fcw-timeline-ruler-spacer2 {
+      width: 70px;
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 
 <body>
@@ -74,6 +212,16 @@
       <div class="page-header__meta" id="page-meta">Loading…</div>
     </div>
 
+    <!-- CAMPAIGN TIMELINE -->
+    <section class="module-section" id="section-timeline">
+      <div class="module-header">
+        <div class="module-title">Campaign Timeline</div>
+      </div>
+      <div id="campaign-timeline-block">
+        <div class="loading-state">Building timeline…</div>
+      </div>
+    </section>
+
     <section class="module-section" id="section-campaigns">
       <div class="module-header">
         <div class="module-title">Active Campaigns</div>
@@ -115,6 +263,7 @@
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
+      <li><a href="#section-timeline">Campaign Timeline</a></li>
       <li><a href="#section-campaigns">Active Campaigns</a></li>
       <li><a href="#section-actor-profiles">Actor Profiles</a></li>
       <li><a href="#section-platform-tracker">Platform Enforcement</a></li>
@@ -128,8 +277,6 @@
   <span>FIMI &amp; Cognitive Warfare Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
   <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
 </footer>
-
-<script src="../shared/js/nav.js"></script>
 <script src="../shared/js/renderer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -163,6 +310,33 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + (AsymRenderer.flag(actor) ? AsymRenderer.flag(actor) + '\u00a0' : '') + escHtml(actor) + '</span>';
   }
 
+  // Actor colour config for timeline
+  var ACTOR_COLORS = {
+    'RU': '#dc2626',
+    'CN': '#ea580c',
+    'IR': '#d97706',
+    'US': '#2563eb',
+    'IL': '#0d9488',
+    'GULF': '#b45309',
+    'UNATTRIBUTED': '#6b7280'
+  };
+
+  function confBadgeClass(conf) {
+    if (!conf) return '';
+    var c = conf.toLowerCase();
+    if (c === 'confirmed') return 'fcw-timeline-badge--confirmed';
+    if (c === 'high') return 'fcw-timeline-badge--high';
+    if (c === 'assessed') return 'fcw-timeline-badge--assessed';
+    if (c === 'possible') return 'fcw-timeline-badge--possible';
+    return '';
+  }
+
+  function parseDate(str) {
+    if (!str) return null;
+    var d = new Date(str);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   // Load report-latest.json for cross-monitor flags
   var crossMonitorData = {};
   fetch('data/report-latest.json')
@@ -192,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
             (flag.status ? '<span>' + escHtml(flag.status) + '</span>' : '') +
             (flag.first_flagged ? '<span>First flagged: ' + escHtml(flag.first_flagged) + '</span>' : '') +
             (flag.unchanged_since ? '<span>Unchanged since: ' + escHtml(flag.unchanged_since) + '</span>' : '') +
-            (flag.source_url ? '<a class="source-link" href="' + escHtml(flag.source_url) + '" target="_blank" rel="noopener">Monitor →</a>' : '') +
+            (flag.source_url ? '<a class="source-link" href="' + escHtml(flag.source_url) + '" target="_blank" rel="noopener">Monitor \u2192</a>' : '') +
           '</div>' +
         '</div>';
     });
@@ -212,8 +386,12 @@ document.addEventListener('DOMContentLoaded', function () {
         (meta.last_issue ? '<span>Last issue: ' + escHtml(meta.last_issue) + '</span>' : '') +
         (meta.schema_version ? '<span>Schema v' + escHtml(meta.schema_version) + '</span>' : '');
 
-      // Active campaigns
       var campaigns = d.active_campaigns || {};
+
+      // ── CAMPAIGN TIMELINE ──
+      renderTimeline(campaigns);
+
+      // Active campaigns
       var campHtml = '';
       if (typeof campaigns === 'object' && !Array.isArray(campaigns)) {
         Object.keys(campaigns).forEach(function(actor) {
@@ -306,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<td>' + (AsymRenderer.flag(row.actor || '') ? AsymRenderer.flag(row.actor || '') + '\u00a0' : '') + escHtml(row.actor || '') + '</td>' +
               '<td>' + escHtml(row.date || '') + '</td>' +
               '<td>' + escHtml(String(row.assets_removed || 0)) + '</td>' +
-              '<td>' + (row.source_url ? '<a class="source-link" href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">→</a>' : '—') + '</td>' +
+              '<td>' + (row.source_url ? '<a class="source-link" href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">\u2192</a>' : '—') + '</td>' +
             '</tr>';
         });
         trackerHtml += '</tbody></table>';
@@ -319,7 +497,101 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error(err);
       document.getElementById('page-meta').textContent = 'Failed to load data.';
       document.getElementById('campaigns-block').innerHTML = '<div class="error-state">Failed to load persistent state.</div>';
+      document.getElementById('campaign-timeline-block').innerHTML = '<div class="error-state">Failed to load timeline.</div>';
     });
+
+  function renderTimeline(campaigns) {
+    var today = new Date();
+    // Collect all campaigns with dates to determine range
+    var allCampaigns = [];
+    var actorOrder = ['RU','CN','IR','US','IL','GULF','UNATTRIBUTED'];
+    actorOrder.forEach(function(actor) {
+      (campaigns[actor] || []).forEach(function(c) {
+        var start = parseDate(c.first_documented || c.first_seen);
+        var end = parseDate(c.last_activity || c.last_updated) || today;
+        if (!start) return;
+        allCampaigns.push({ actor: actor, campaign: c, start: start, end: end });
+      });
+    });
+
+    if (!allCampaigns.length) {
+      document.getElementById('campaign-timeline-block').innerHTML = '<p class="text-muted">No campaign date data available for timeline.</p>';
+      return;
+    }
+
+    // Determine overall date range
+    var minDate = allCampaigns.reduce(function(m, x){ return x.start < m ? x.start : m; }, allCampaigns[0].start);
+    var maxDate = today;
+    var totalMs = maxDate.getTime() - minDate.getTime();
+    if (totalMs <= 0) totalMs = 1;
+
+    // Format date for ruler
+    function fmtDate(d) {
+      return d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+    }
+
+    // Build ruler dates (start, mid, end)
+    var midDate = new Date(minDate.getTime() + totalMs / 2);
+
+    var html = '<div class="fcw-timeline-wrap" role="img" aria-label="Campaign persistence timeline">';
+    // Ruler
+    html += '<div class="fcw-timeline-ruler">';
+    html += '<div class="fcw-timeline-ruler-spacer"></div>';
+    html += '<div class="fcw-timeline-ruler-track">';
+    html += '<span class="fcw-timeline-ruler-label">' + escHtml(fmtDate(minDate)) + '</span>';
+    html += '<span class="fcw-timeline-ruler-label">' + escHtml(fmtDate(midDate)) + '</span>';
+    html += '<span class="fcw-timeline-ruler-label">Today</span>';
+    html += '</div>';
+    html += '<div class="fcw-timeline-ruler-spacer2"></div>';
+    html += '</div>';
+
+    // Group by actor
+    actorOrder.forEach(function(actor) {
+      var actorCamps = allCampaigns.filter(function(x){ return x.actor === actor; });
+      if (!actorCamps.length) return;
+      var color = ACTOR_COLORS[actor] || '#6b7280';
+
+      html += '<div class="fcw-timeline-actor-group">';
+      html += '<div class="fcw-timeline-actor-label">';
+      html += '<span class="fcw-timeline-actor-dot" style="background:' + color + '"></span>';
+      html += '<span style="color:' + color + '">' + escHtml(actor === 'UNATTRIBUTED' ? 'UNATTR' : actor) + '</span>';
+      html += '</div>';
+
+      actorCamps.forEach(function(item) {
+        var c = item.campaign;
+        var leftPct = Math.max(0, Math.min(100, ((item.start.getTime() - minDate.getTime()) / totalMs) * 100));
+        var widthPct = Math.max(0.5, Math.min(100 - leftPct, ((item.end.getTime() - item.start.getTime()) / totalMs) * 100));
+        var conf = c.attribution_confidence || '';
+        var confClass = confBadgeClass(conf);
+        var label = c.id || '';
+        var name = c.operation_name || '';
+        var isActive = (c.status || '').toUpperCase() === 'ACTIVE' || (c.status || '').toUpperCase() === 'ONGOING';
+        // Active bars get a slight glow via opacity
+        var barOpacity = isActive ? '0.85' : '0.55';
+
+        html += '<div class="fcw-timeline-row">';
+        html += '<div class="fcw-timeline-name" title="' + escHtml(name) + '">' + escHtml(name || label) + '</div>';
+        html += '<div class="fcw-timeline-track">';
+        html += '<div class="fcw-timeline-bar" style="left:' + leftPct.toFixed(1) + '%;width:' + widthPct.toFixed(1) + '%;background:' + color + ';opacity:' + barOpacity + '" title="' + escHtml(name) + ' · ' + escHtml(c.first_documented || '') + ' → ' + (c.last_activity || 'Today') + '">';
+        html += '<span class="fcw-timeline-bar-label">' + escHtml(label) + '</span>';
+        html += '</div>';
+        html += '</div>';
+        html += '<span class="fcw-timeline-badge ' + confClass + '">' + escHtml(conf || '—') + '</span>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+    });
+
+    html += '</div>';
+    document.getElementById('campaign-timeline-block').innerHTML = html;
+  }
+
+  function parseDate(str) {
+    if (!str) return null;
+    var d = new Date(str);
+    return isNaN(d.getTime()) ? null : d;
+  }
 });
 </script>
 </body>
