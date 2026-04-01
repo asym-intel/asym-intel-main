@@ -24,6 +24,9 @@
     .version-history table { width: 100%; margin-top: var(--space-2); font-size: var(--text-xs); }
     .version-history td, .version-history th { padding: var(--space-1) var(--space-2); text-align: left; border-bottom: 1px solid var(--color-border-subtle); }
   </style>
+  <!-- Chart.js for boundary trend visualisation -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="../shared/js/charts.js"></script>
 </head>
 
 <body>
@@ -90,6 +93,11 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
     <section class="module-section" id="section-boundaries">
       <div class="module-header">
         <div class="module-title">Planetary Boundary Status</div>
+      </div>
+      <div style="margin-bottom:var(--space-6)">
+        <div style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:var(--space-3)">Boundary Status Overview</div>
+        <canvas id="boundary-chart" style="max-height:220px;width:100%"></canvas>
+        <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2);font-style:italic" id="boundary-chart-note">Building history — chart will populate after 3+ issues.</div>
       </div>
       <div id="boundaries-content"><div class="loading-state">Loading…</div></div>
     </section>
@@ -216,6 +224,43 @@ document.addEventListener('DOMContentLoaded', function () {
           renderVersionHistory(b.version_history || [], tid, hid) +
         '</div>';
       }).join('') || '<p class="text-muted">No boundary data available.</p>';
+
+      // Boundary status bar chart — status mapped to numeric severity
+      (function () {
+        var statusScore = { 'Transgressed': 3, 'Zone of Uncertainty': 2, 'Increasing Risk': 1, 'Safe': 0 };
+        var labels = boundaries.map(function(b) {
+          // Abbreviate long names for chart labels
+          return b.boundary.replace('Biogeochemical Flows','Biogeochem.').replace('Atmospheric Aerosol Loading','Aerosol Load.').replace('Stratospheric Ozone','Ozone').replace('Land System Change','Land Change').replace('Freshwater Change','Freshwater').replace('Biosphere Integrity','Biosphere').replace('Novel Entities','Novel Ent.').replace('Ocean Acidification','Ocean Acid.');
+        });
+        var scores = boundaries.map(function(b) { return statusScore[b.status] != null ? statusScore[b.status] : 1; });
+        var colours = boundaries.map(function(b) {
+          if (b.status === 'Transgressed') return 'rgba(220,38,38,0.75)';
+          if (b.status === 'Zone of Uncertainty') return 'rgba(234,179,8,0.75)';
+          if (b.status === 'Increasing Risk') return 'rgba(249,115,22,0.75)';
+          return 'rgba(34,197,94,0.75)';
+        });
+        // Count data points from version_history to determine if chart is meaningful
+        var maxHistory = Math.max.apply(null, boundaries.map(function(b){ return (b.version_history||[]).length; }));
+        var noteEl = document.getElementById('boundary-chart-note');
+        if (maxHistory < 2) {
+          if (noteEl) noteEl.textContent = 'Building history — chart will show trends after the next issue publishes.';
+        } else {
+          if (noteEl) noteEl.style.display = 'none';
+        }
+        if (typeof AsymCharts !== 'undefined') {
+          AsymCharts.bar('boundary-chart', labels, [{
+            label: 'Boundary Status (0=Safe → 3=Transgressed)',
+            data: scores,
+            backgroundColor: colours,
+            borderRadius: 4
+          }], {
+            scales: { y: { min: 0, max: 3, ticks: { stepSize: 1,
+              callback: function(v){ return ['Safe','Risk','Uncertain','Transgressed'][v]||v; }
+            }}},
+            plugins: { legend: { display: false } }
+          });
+        }
+      }());
 
       // Tipping System Flags
       var tipping = d.tipping_system_flags || [];
