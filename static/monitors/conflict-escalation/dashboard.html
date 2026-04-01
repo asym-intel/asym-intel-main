@@ -659,22 +659,24 @@
   }
 
   function buildChartData(conflict) {
-    var inds   = conflict.indicators || {};
-    var levels    = [];
-    var baselines = [];
-    var colours   = [];
+    var inds       = conflict.indicators || {};
+    var deviations = [];
+    var colours    = [];
+    var baselines  = []; // kept for tooltip reference
 
     INDICATOR_KEYS.forEach(function (key) {
       var ind = inds[key] || {};
-      levels.push(ind.level    != null ? ind.level    : 0);
+      var dev = ind.deviation != null ? ind.deviation : (ind.level != null && ind.baseline != null ? ind.level - ind.baseline : 0);
+      deviations.push(dev);
       baselines.push(ind.baseline != null ? ind.baseline : 0);
+      // Colour by band but always show deviation magnitude
       colours.push(bandColour(ind.band || 'CONTESTED'));
     });
 
     return {
-      levels:    levels,
-      baselines: baselines,
-      colours:   colours
+      deviations: deviations,
+      baselines:  baselines,
+      colours:    colours
     };
   }
 
@@ -705,10 +707,8 @@
 
     if (_chart) {
       /* Update existing chart in-place */
-      _chart.data.datasets[0].data            = data.levels;
+      _chart.data.datasets[0].data            = data.deviations;
       _chart.data.datasets[0].backgroundColor = solidColours;
-      _chart.data.datasets[1].data            = data.baselines;
-      _chart.data.datasets[1].backgroundColor = fadedColours;
       _chart.options._showContestedWatermark   = allContested;
       _chart.update();
       renderLegend(data.colours, INDICATOR_LABELS);
@@ -724,18 +724,9 @@
         labels: INDICATOR_LABELS,
         datasets: [
           {
-            label: 'Current',
-            data: data.levels,
+            label: 'Deviation from baseline',
+            data: data.deviations,
             backgroundColor: solidColours,
-            borderWidth: 0,
-            borderRadius: 3,
-            barPercentage: 0.55,
-            categoryPercentage: 0.85
-          },
-          {
-            label: 'Baseline',
-            data: data.baselines,
-            backgroundColor: fadedColours,
             borderWidth: 0,
             borderRadius: 3,
             barPercentage: 0.55,
@@ -761,6 +752,13 @@
           legend: { display: false },
           tooltip: {
             callbacks: {
+              label: function (item) {
+                var dev = item.raw;
+                var devStr = dev > 0 ? '+' + dev : String(dev);
+                var conflict = _roster[_currentRosterIndex];
+                var ind = (conflict.indicators || {})[INDICATOR_KEYS[item.dataIndex]] || {};
+                return 'Deviation: ' + devStr + (ind.baseline != null ? '  (baseline ' + ind.baseline + ')' : '');
+              },
               afterBody: function (items) {
                 var idx = items[0] && items[0].dataIndex;
                 if (idx == null) return '';
@@ -773,18 +771,23 @@
         },
         scales: {
           x: {
-            min: 0,
-            max: 6,
+            min: -2,
+            max: 4,
             ticks: {
               stepSize: 1,
-              font: { size: 11 }
+              font: { size: 11 },
+              callback: function(v) { return v > 0 ? '+' + v : v; }
             },
-            grid: { color: 'rgba(148,163,184,0.15)' }
+            grid: {
+              color: function(ctx2) {
+                return ctx2.tick && ctx2.tick.value === 0
+                  ? 'rgba(100,116,139,0.5)'
+                  : 'rgba(148,163,184,0.15)';
+              }
+            }
           },
           y: {
-            ticks: {
-              font: { size: 11 }
-            },
+            ticks: { font: { size: 11 } },
             grid: { display: false }
           }
         }
@@ -824,10 +827,9 @@
           '</span>';
       }
     });
-    /* Always show current vs baseline */
-    html += '<span class="indicator-breakdown-legend-item" style="margin-left:auto">' +
-      '<span class="indicator-breakdown-legend-swatch" style="background:#64748b"></span>' +
-      '<span>Current (solid) · Baseline (faded)</span></span>';
+    /* Deviation scale note */
+    html += '<span class="indicator-breakdown-legend-item" style="margin-left:auto;font-style:italic;color:var(--color-text-muted)">' +
+      '<span>Bars show deviation from baseline (0 = at baseline, +1 = one step above)</span></span>';
     legendEl.innerHTML = html;
   }
 
@@ -972,41 +974,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ── ESCALATION GAUGE ─────────────────────────────────────────────── */
   function renderEscalationGauge(roster) {
-    // Count conflicts with high-severity indicators
-    // Use trajectory and overall indicator shape from roster
-    var criticalCount  = 0;
-    var highCount      = 0;
+    // Count conflicts with high-severity DEVIATION indicators
+    // Use deviation magnitude, not band (band is suppressed during CONTESTED period)
+    var criticalCount  = 0; // conflicts with ≥1 indicator at deviation ≥ +2
+    var highCount      = 0; // conflicts with ≥1 indicator at deviation +1
+    var contestedCount = 0; // conflicts with all-CONTESTED baselines
     var totalConflicts = roster.length;
+    var contestedNote  = '';
 
     roster.forEach(function(c) {
       var inds = c.indicators || {};
-      var worst = getWorstBand(inds);
-      var b = (worst.band || '').toUpperCase();
-      if (b === 'RED' || b === 'ANOMALOUS') criticalCount++;
-      else if (b === 'AMBER' || b === 'ELEVATED') highCount++;
+      var allContestedConflict = INDICATOR_KEYS.every(function(k) {
+        return ((inds[k] || {}).band || '').toUpperCase() === 'CONTESTED';
+      });
+      if (allContestedConflict) contestedCount++;
+
+      // Score by deviation regardless of CONTESTED status
+      var maxDev = 0;
+      INDICATOR_KEYS.forEach(function(k) {
+        var ind = inds[k] || {};
+        var dev = ind.deviation != null ? ind.deviation
+                : (ind.level != null && ind.baseline != null ? ind.level - ind.baseline : 0);
+        if (dev > maxDev) maxDev = dev;
+      });
+      if (maxDev >= 2) criticalCount++;
+      else if (maxDev >= 1) highCount++;
     });
 
-    // Derive overall index: 0=Low, 1=Moderate, 2=High, 3=Critical
-    // If >20% of roster is RED → Critical
-    // If any RED or >40% HIGH → High
-    // If any AMBER → Moderate
-    // Else → Low
+    // Derive overall index from deviation counts
     var pctCritical = totalConflicts > 0 ? criticalCount / totalConflicts : 0;
     var pctHigh     = totalConflicts > 0 ? highCount / totalConflicts : 0;
-    var indexLevel  = 0; // Low
+    var indexLevel  = 0;
     if (pctCritical > 0.20) indexLevel = 3;
     else if (criticalCount > 0 || pctHigh > 0.40) indexLevel = 2;
     else if (highCount > 0) indexLevel = 1;
 
-    var levelNames  = ['Low', 'Moderate', 'High', 'Critical'];
-    var levelClasses= ['low', 'moderate', 'high', 'critical'];
-    var levelName   = levelNames[indexLevel];
-    var levelClass  = levelClasses[indexLevel];
+    var levelNames   = ['Low', 'Moderate', 'High', 'Critical'];
+    var levelClasses = ['low', 'moderate', 'high', 'critical'];
+    var levelName    = levelNames[indexLevel];
+    var levelClass   = levelClasses[indexLevel];
 
-    // Marker position: place within zone (zone = 25% width each)
-    // Position marker at center of its zone + small offset based on how deep in
-    var zoneCenter  = (indexLevel * 25) + 12.5; // center of zone in %
-    var markerPct   = zoneCenter;
+    var zoneCenter = (indexLevel * 25) + 12.5;
+    var markerPct  = zoneCenter;
+
+    // CONTESTED disclaimer — shown when any baselines are still being established
+    if (contestedCount > 0) {
+      contestedNote = '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic;border-left:3px solid #94a3b8;padding-left:var(--space-2)">' +
+        '<strong>Note:</strong> ' + contestedCount + ' of ' + totalConflicts + ' conflict' + (contestedCount !== 1 ? 's have' : ' has') + ' contested baselines (pre-baseline period). ' +
+        'Index is derived from deviation magnitude; band classifications will activate once baselines are established.' +
+      '</div>';
+    }
 
     var gaugeHtml =
       '<div class="escalation-gauge-header">' +
@@ -1021,8 +1038,10 @@ document.addEventListener('DOMContentLoaded', function () {
         '<div class="escalation-gauge-marker" id="gauge-marker" style="left:' + markerPct + '%"></div>' +
       '</div>' +
       '<div class="escalation-gauge-sub">' +
-        'Derived from conflict roster: <strong>' + criticalCount + '</strong> conflict' + (criticalCount !== 1 ? 's' : '') + ' at RED-band, <strong>' + highCount + '</strong> at AMBER-band, across <strong>' + totalConflicts + '</strong> active conflicts.' +
-      '</div>';
+        '<strong>' + criticalCount + '</strong> conflict' + (criticalCount !== 1 ? 's' : '') + ' with deviation ≥+2, ' +
+        '<strong>' + highCount + '</strong> with deviation +1, across <strong>' + totalConflicts + '</strong> active conflicts.' +
+      '</div>' +
+      contestedNote;
 
     document.getElementById('escalation-gauge-wrap').innerHTML = gaugeHtml;
   }
