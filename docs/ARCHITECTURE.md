@@ -267,3 +267,74 @@ The rule is simple: **never edit it**. It is the build artifact, not the source.
 *This document is the single source of truth for build and deployment architecture.
 Update it when the pipeline changes. Commit directly to main.*
 *Maintainer: Computer*
+
+---
+
+## Governance File Protection
+
+Critical platform governance files are protected by three layers:
+
+### Layer 1 — CODEOWNERS (prevention)
+`.github/CODEOWNERS` requires owner review before any commit that touches:
+`COMPUTER.md`, `HANDOFF.md`, `MISSION.md`, `ROLES.md`, `ARCHITECTURE.md`,
+`publishing-workflow.md`, `docs/audits/master-action-plan.md`,
+the shared monitor library, and GitHub Actions workflows.
+
+A PR touching these files cannot be merged without approval — even from `monitor-bot`.
+
+### Layer 2 — Validator check 21 (detection)
+`validate-blueprint.py` Check 21 runs on every push and **fails the build** if any
+critical governance file is 0 bytes or suspiciously small (<500 bytes).
+This catches silent wipes within one build cycle.
+
+### Layer 3 — Governance mirror (recovery)
+All critical governance files are mirrored to `asym-intel-internal/governance/`.
+This repo is private and append-only by convention.
+
+**Recovery procedure — if a file is wiped:**
+
+```bash
+# Step 1: Read good copy from internal mirror
+gh api /repos/asym-intel/asym-intel-internal/contents/governance/COMPUTER.md \
+  --jq '.content' | base64 -d > /tmp/restored.md
+
+# Step 2: Verify it has real content (must be > 500 bytes)
+wc -c /tmp/restored.md
+
+# Step 3: Restore to public repo
+cd /tmp && gh repo clone asym-intel/asym-intel-main restore-run -- --depth=1 --quiet
+cp /tmp/restored.md /tmp/restore-run/COMPUTER.md
+cd /tmp/restore-run
+git config user.name "monitor-bot"
+git config user.email "monitor-bot@asym-intel.info"
+git add COMPUTER.md
+git commit -m "restore: COMPUTER.md from governance mirror (asym-intel-internal)"
+git push origin main
+```
+
+Replace `COMPUTER.md` with whichever file needs restoring. The mirror filename
+matches the basename of the public repo file.
+
+### The root cause this protects against
+
+Python's `open(path, 'w')` truncates the file to 0 bytes before writing.
+If the write is then conditional, partial, or errored, the file is left empty.
+The empty file gets `git add`ed and committed — silently.
+
+**Safe pattern for all file operations:**
+```python
+# ALWAYS read first
+with open(path) as f:
+    content = f.read()
+# Modify in memory
+content = content.replace(old, new)
+# Write only after successful modification
+with open(path, 'w') as f:
+    f.write(content)
+```
+
+**Never:**
+```python
+with open(path, 'w') as f:       # File is now empty
+    f.write(generate_content())   # If this raises, file stays empty
+```

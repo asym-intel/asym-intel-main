@@ -223,6 +223,30 @@ for slug, full_name in MONITOR_FULL_NAMES.items():
         if 'asymmetric intelligence' not in _title.lower():
             warn(f"{slug}/{page}.html — title missing '· Asymmetric Intelligence' suffix: '{_title}'")
 
+# ── Check 21: Critical governance files are not zero bytes (FAIL) ─────────────
+print("Check 21: Critical governance files non-zero")
+CRITICAL_FILES = [
+    "COMPUTER.md",
+    "HANDOFF.md",
+    "docs/MISSION.md",
+    "docs/ROLES.md",
+    "docs/ARCHITECTURE.md",
+    "publishing-workflow.md",
+]
+MIN_BYTES = 500  # Any legitimate governance file is larger than this
+for cf in CRITICAL_FILES:
+    if not os.path.exists(cf):
+        warn(f"{cf} — MISSING (expected governance file)")
+        continue
+    size = os.path.getsize(cf)
+    if size == 0:
+        fail(f"{cf} — ZERO BYTES. File was wiped. Restore from "
+             f"asym-intel-internal/governance/{os.path.basename(cf)} immediately.")
+    elif size < MIN_BYTES:
+        warn(f"{cf} — suspiciously small ({size} bytes, expected >{MIN_BYTES}). "
+             f"Verify it has not been partially overwritten.")
+
+
 # ── Summary ───────────────────────────────────────────────────────────────
 print()
 if warnings:
