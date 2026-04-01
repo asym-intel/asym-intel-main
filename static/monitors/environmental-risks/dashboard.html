@@ -13,6 +13,84 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="../shared/js/charts.js"></script>
   <style>
+
+    /* ── Cascade Chain Heatmap ── */
+    .cascade-heatmap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-1);
+    }
+    @media (max-width: 640px) {
+      .cascade-heatmap { grid-template-columns: 1fr; }
+    }
+    .cascade-heatmap__header {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-1);
+      margin-bottom: var(--space-2);
+    }
+    @media (max-width: 640px) {
+      .cascade-heatmap__header { display: none; }
+    }
+    .cascade-col-label {
+      font-size: var(--text-min);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      text-align: center;
+    }
+    .cascade-col-label--physical  { background: rgba(37,99,235,0.10); color: #2563eb; }
+    .cascade-col-label--human     { background: rgba(217,119,6,0.10); color: #b45309; }
+    .cascade-col-label--political { background: rgba(193,68,14,0.10); color: #c1440e; }
+    [data-theme="dark"] .cascade-col-label--physical  { background: rgba(37,99,235,0.16); color: #60a5fa; }
+    [data-theme="dark"] .cascade-col-label--human     { background: rgba(217,119,6,0.16); color: #fbbf24; }
+    [data-theme="dark"] .cascade-col-label--political { background: rgba(193,68,14,0.16); color: #f87171; }
+
+    .cascade-chain-row {
+      display: contents; /* lets children participate in the parent grid */
+    }
+    .cascade-cell {
+      padding: var(--space-3);
+      font-size: var(--text-xs);
+      line-height: 1.5;
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-2);
+    }
+    .cascade-cell--physical  { background: rgba(37,99,235,0.05); border-left: 2px solid rgba(37,99,235,0.35); }
+    .cascade-cell--human     { background: rgba(217,119,6,0.06); border-left: 2px solid rgba(217,119,6,0.35); }
+    .cascade-cell--political { background: rgba(193,68,14,0.06); border-left: 2px solid rgba(193,68,14,0.35); }
+    [data-theme="dark"] .cascade-cell--physical  { background: rgba(37,99,235,0.10); }
+    [data-theme="dark"] .cascade-cell--human     { background: rgba(217,119,6,0.10); }
+    [data-theme="dark"] .cascade-cell--political { background: rgba(193,68,14,0.10); }
+    .cascade-cell__region {
+      font-size: var(--text-min);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-1);
+    }
+    .cascade-row-divider {
+      grid-column: 1 / -1;
+      border: none;
+      border-top: 1px solid var(--color-border-subtle);
+      margin: var(--space-1) 0 var(--space-2);
+    }
+
+    /* ── M02 Boundary Summary Row ── */
+    .boundary-summary-row {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      padding: var(--space-2) var(--space-3) var(--space-3);
+    }
+    .boundary-summary-row td {
+      padding-top: 0 !important;
+      padding-bottom: var(--space-3) !important;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
     /* ── Planetary Boundary Chart ── */
     .pb-chart-wrap {
       position: relative;
@@ -290,6 +368,16 @@
       </div>
     </section>
 
+
+    <!-- ── CASCADE CHAIN HEATMAP ── -->
+    <section class="module-section" id="section-cascade-heatmap">
+      <div class="module-header">
+        <div class="module-title">Active Cascade Chains — M03 Heatmap</div>
+      </div>
+      <div id="cascade-heatmap-loading" class="loading-state">Loading cascade chain data…</div>
+      <div id="cascade-heatmap-wrap" style="display:none"></div>
+    </section>
+
     <section class="module-section" id="section-boundaries">
       <div class="module-header">
         <div class="module-title">Boundary Detail Table</div>
@@ -309,6 +397,7 @@
       <li><a href="#section-delta">Delta Strip</a></li>
       <li><a href="#section-pb-chart">Boundary Chart</a></li>
       <li><a href="#section-tipping">Tipping Flags</a></li>
+      <li><a href="#section-cascade-heatmap">Cascade Heatmap</a></li>
       <li><a href="#section-boundaries">Boundary Table</a></li>
     </ul>
   </nav>
@@ -417,6 +506,45 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-lead-sub').textContent = signalTitle;
       document.getElementById('kpi-week').textContent = meta.week_label || '—';
 
+
+      // Cascade Chain Heatmap — from M03 data
+      var m03Chains = d.m03_threat_multiplier || [];
+      if (m03Chains.length) {
+        document.getElementById('cascade-heatmap-loading').style.display = 'none';
+        document.getElementById('cascade-heatmap-wrap').style.display = 'block';
+
+        var hmHtml =
+          '<div class="cascade-heatmap__header">' +
+            '<div class="cascade-col-label cascade-col-label--physical">Physical</div>' +
+            '<div class="cascade-col-label cascade-col-label--human">Human</div>' +
+            '<div class="cascade-col-label cascade-col-label--political">Political</div>' +
+          '</div>' +
+          '<div class="cascade-heatmap" id="cascade-heatmap-grid">';
+
+        m03Chains.forEach(function (chain, idx) {
+          if (idx > 0) {
+            hmHtml += '<hr class="cascade-row-divider">';
+          }
+          var regionTag = chain.region ? '<div class="cascade-cell__region">' + escHtml(chain.region) + '</div>' : '';
+          hmHtml +=
+            '<div class="cascade-cell cascade-cell--physical">' +
+              regionTag +
+              escHtml(chain.tier_1_physical || '—') +
+            '</div>' +
+            '<div class="cascade-cell cascade-cell--human">' +
+              escHtml(chain.tier_2_human || '—') +
+            '</div>' +
+            '<div class="cascade-cell cascade-cell--political">' +
+              escHtml(chain.tier_3_political || '—') +
+            '</div>';
+        });
+
+        hmHtml += '</div>';
+        document.getElementById('cascade-heatmap-wrap').innerHTML = hmHtml;
+      } else {
+        document.getElementById('cascade-heatmap-loading').textContent = 'No cascade chain data available.';
+      }
+
       // Signal block
       document.getElementById('signal-block').innerHTML =
         '<div class="signal-block">' +
@@ -450,9 +578,9 @@ document.addEventListener('DOMContentLoaded', function () {
           document.getElementById('delta-strip').innerHTML = '<li class="error-state">Failed to load delta strip.</li>';
         });
 
-      // Boundary detail table
+      // Boundary detail table (with summary rows)
       var tableHtml =
-        '<table class="heatmap-table">' +
+        '<div style="overflow-x:auto"><table class="heatmap-table">' +
           '<thead><tr>' +
             '<th>Boundary</th>' +
             '<th>Status</th>' +
@@ -470,8 +598,18 @@ document.addEventListener('DOMContentLoaded', function () {
             '<td>' + escHtml(b.tier || '') + '</td>' +
             '<td style="font-size:var(--text-xs)">' + escHtml(b.headline || '') + '</td>' +
           '</tr>';
+        // Summary expansion row — show analytical summary beneath each boundary
+        if (b.summary) {
+          tableHtml +=
+            '<tr class="boundary-summary-row">' +
+              '<td colspan="5" style="padding-top:0;padding-bottom:var(--space-3);font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55;border-bottom:1px solid var(--color-border-subtle)">' +
+                '<em>' + escHtml(b.summary) + '</em>' +
+                (b.source_url ? ' <a href="' + escHtml(b.source_url) + '" target="_blank" rel="noopener" class="source-link" style="font-size:var(--text-min)">Source →</a>' : '') +
+              '</td>' +
+            '</tr>';
+        }
       });
-      tableHtml += '</tbody></table>';
+      tableHtml += '</tbody></table></div>';
       document.getElementById('boundary-table-wrap').innerHTML = tableHtml;
     })
     .catch(function (e) {
