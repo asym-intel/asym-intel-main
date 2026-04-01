@@ -1262,21 +1262,37 @@ body { padding-top: 40px; }
     top: calc(40px + 52px); /* network bar + monitor nav */
     left: 0;
     right: 0;
-    max-height: calc(100vh - 40px - 52px);
+    height: auto;            /* shrinks to fit content — no blank space below links */
+    max-height: 70vh;        /* safety cap for very long nav lists */
     overflow-y: auto;
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
     flex-direction: column;
-    padding: var(--space-4);
-    gap: var(--space-1);
-    z-index: 98; /* below network bar (9999) and monitor-nav (100) */
+    align-items: stretch;
+    padding: var(--space-2) 0;
+    gap: 0;
+    z-index: 98;
     box-shadow: var(--shadow-md);
   }
-  .monitor-nav__links--open {
-    display: flex;
-    max-height: calc(100vh - 40px - 52px);
-    overflow-y: auto;
+  .monitor-nav__links li { list-style: none; }
+  .monitor-nav__links a {
+    display: block;
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-border-subtle);
   }
+  .monitor-nav__links li:last-child a { border-bottom: none; }
+  .monitor-nav__links a:hover,
+  .monitor-nav__links a.active {
+    color: var(--monitor-accent);
+    background: var(--monitor-accent-bg);
+  }
+  .monitor-nav__links--open { display: flex; }
   .monitor-sidebar {
     position: fixed;
     top: calc(var(--network-bar-height) + var(--nav-height));
