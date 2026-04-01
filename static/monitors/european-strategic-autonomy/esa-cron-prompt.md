@@ -202,3 +202,54 @@ VERIFICATION — run after Pass 2 before proceeding to Step 3:
     "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['institutional_developments', 'member_state_tracker'] if k not in d]; print('MISSING:',missing) if missing else print('ALL SECTIONS PRESENT ✓')"
   ```
   If MISSING is non-empty — do NOT proceed to Step 3. Re-run Pass 2.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LAGRANGE POINT DIMENSIONS — update persistent-state.json each issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The dashboard Autonomy Radar chart requires lagrange_point_dimensions
+inside kpi_state in persistent-state.json. This MUST be updated every
+issue or the radar will not render.
+
+Add/update "lagrange_point_dimensions" inside "kpi_state":
+
+"lagrange_point_dimensions": {
+  "defence":      { "score": 0–100, "direction": "Improving|Stable|Deteriorating", "note": "One sentence key driver" },
+  "energy":       { "score": 0–100, "direction": "Improving|Stable|Deteriorating", "note": "One sentence key driver" },
+  "technology":   { "score": 0–100, "direction": "Improving|Stable|Deteriorating", "note": "One sentence key driver" },
+  "finance":      { "score": 0–100, "direction": "Improving|Stable|Deteriorating", "note": "One sentence key driver" },
+  "materials":    { "score": 0–100, "direction": "Improving|Stable|Deteriorating", "note": "One sentence key driver" },
+  "institutions": { "score": 0–100, "direction": "Improving|Stable|Deteriorating", "note": "One sentence key driver" }
+}
+
+Also update "lagrange_point_progress" in kpi_state:
+  "lagrange_point_progress": "~35%" (or updated composite estimate)
+
+SCORING GUIDANCE (analyst judgement, updated each issue):
+  defence:      EU collective defence capability vs. full strategic autonomy target
+                Anchors: EDIP progress, national defence spending vs. 2% GDP targets,
+                EU defence industrial base (EDTIB) capacity, joint procurement
+  energy:       EU energy independence from non-allied suppliers
+                Anchors: Russian gas dependency (now <15% but LNG import concentration),
+                renewable share, strategic reserve levels, interconnection capacity
+  technology:   EU digital/AI sovereignty and strategic tech independence
+                Anchors: EU AI Act implementation, semiconductor supply chain,
+                cloud dependency on non-EU hyperscalers, 5G vendor diversity
+  finance:      EU financial autonomy (capital markets, payment systems, FX)
+                Anchors: CMU progress, SWIFT alternative capacity, EUR internationalisation,
+                EU sovereign debt market depth
+  materials:    EU critical raw material security (CRM Act implementation)
+                Anchors: CRM stockpiles, mining/processing capacity, import concentration
+                from China/Russia for battery minerals, rare earths
+  institutions: EU institutional cohesion and decision-making capacity
+                Anchors: QMV reform progress, Article 7 proceedings, rule-of-law compliance,
+                EP cohesion on strategic autonomy votes, Council unanimity rate on foreign policy
+
+CALIBRATION: Score 35 = current baseline (Issue 1). Scores should be
+comparable across issues. If a pillar improves materially, note the trigger.
+Scores carry forward if no new evidence this week.
+
+Also add "composite_index_history" to kpi_state — append each issue:
+"composite_index_history": [
+  { "issue": N, "date": "YYYY-MM-DD", "composite": 35, "rationale": "..." }
+]
