@@ -67,7 +67,14 @@ STEP 2 — Write 4 JSON files (single git commit):
     "systemic_risk": [], "asset_outlook": [], "safe_haven": [],
     "cross_monitor_flags": {}, "source_url": "..." }
   
-  persistent-state.json: carry forward trackers, update surgically.
+  persistent-state.json — update these fields every issue:
+    conviction_history: APPEND new entry {date, system_average, conviction, regime, regime_conviction, rationale}
+    asset_class_baseline: for each asset UPDATE current_score/flag/direction AND APPEND version_history entry {date, change, reason, prior_value}
+    active_tactical_alerts: replace list with currently active alerts only
+    oil_supply_shock_driver: update current_driver, note, last_updated; append version_history if driver changes
+    blind_spot_overrides: update active flag and version_history only if status changes
+    NOTE: conviction_history and asset_class_baseline.version_history are the live trend data
+    displayed on persistent.html charts — always append, never overwrite history.
   Commit: "data(gmm): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
