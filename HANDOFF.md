@@ -28,13 +28,13 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 
 | Monitor | Abbr | Slug | Accent | Publish | Blueprint | Visual |
 |---|---|---|---|---|---|---|
-| World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | Mon 06:00 | v2.1 ✅ | ✅ |
-| Global Macro Monitor | GMM | macro-monitor | #22a0aa | Mon 08:00 | v2.1 ✅ | ✅ |
+| World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | **Mon 13 Apr** | v2.1 ✅ | ✅ + choropleth map |
+| Global Macro Monitor | GMM | macro-monitor | #22a0aa | **Tue** 08:00 | v2.1 ✅ | ✅ + score history chart |
 | FIMI & Cognitive Warfare | FCW | fimi-cognitive-warfare | #38bdf8 | Thu 09:00 | v2.1 ✅ | ✅ |
 | European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ |
-| AI Governance Monitor | AGM | ai-governance | #3a7d5a | Fri 09:00 | v2.1 ✅ | ✅ |
+| AI Governance Monitor | AGM | ai-governance | #3a7d5a | Fri 09:00 | v2.1 ✅ | ✅ + model tier layout |
 | Environmental Risks Monitor | ERM | environmental-risks | #4caf7d | Sat 05:00 | v2.1 ✅ | ✅ |
-| Strategic Conflict & Escalation | SCEM | conflict-escalation | #dc2626 | Sun 18:00 | v2.1 ✅ | ✅ |
+| Strategic Conflict & Escalation | SCEM | conflict-escalation | #dc2626 | Sun 18:00 | v2.1 ✅ | ✅ + I1-I6 chart + conflict_context (data: Sun Apr 5) |
 
 ---
 
@@ -57,52 +57,28 @@ All monitors have a 6-day recency guard in their cron prompts — they will skip
 
 ## PENDING TASKS (next session)
 
-### ✅ WDM Category B field schemas — COMPLETE (prior session)
-wdm-cron-prompt.md v2.1 already contains full JSON schemas for all 8 Category B fields:
-electoral_watch, digital_civil, autocratic_export, state_capture,
-institutional_pulse, legislative_watch, research_360.friction_notes, networks.
-persistent-state update instructions also cover all 8. No action needed.
+### Priority 1 — FCW campaign timeline (P5)
+BLOCKED until FCW cron run Thu Apr 9 populates start_date on campaigns.
+After Apr 9: build horizontal Gantt-style Chart.js timeline on FCW dashboard.
+start_date field is now in the cron prompt (commit 724f0ae).
 
-### ✅ Visual design pass — COMPLETE
-Homepage live signal cards + per-monitor CSS personality. Merged to main.
+### Priority 2 — Verify first conflict_context data (SCEM)
+SCEM cron runs Sun Apr 5 18:00 UTC — first run with conflict_context schema.
+Check persistent.html after that run: "Conflict context ▸" buttons should appear
+on each baseline card. Verify data quality and renderer for all 10 conflicts.
 
-### ✅ Homepage upgrade — COMPLETE
-Domain cards fetch report-latest.json on page load. Merged to main.
+### Priority 3 — Mobile/tablet audit of new visual work
+All 4 dashboard visual enhancements + homepage signal cards + per-monitor
+personality CSS have not been audited on mobile. Quick visual review of staging
+before the next significant build cycle.
 
+### Priority 4 — Schema audit: v2.1 fields in production
+methodology_url, flag_definitions, changelog, summary (AGM), source_date (FCW)
+were added to all 7 cron prompts. First cron runs after today will produce these
+fields. Verify after each monitor's first run that fields appear correctly.
 
-### ✅ Schema v2.1 additions — COMPLETE (2026-04-01)
-All 7 cron prompts updated on main (commit e2db654). Additions:
-- `methodology_url` in meta (per-monitor static URL)
-- `flag_definitions` in meta (f_flags for all; mf_flags additionally for FCW)
-- `source_date` on FCW campaign/attribution_log source objects
-- `summary` field on AGM module_1 Executive Insight items
-- `changelog` rule on persistent array items (WDM, GMM, ESA, ERM, SCEM, AGM cross_monitor_flags)
-Next cron run for each monitor will naturally produce JSON with the new fields.
+### DEFERRED — requires data first
+- FCW geospatial campaign map: needs lat/lng added to campaign schema
+- SCEM humanitarian impact charts: wait for ≥2 issues of conflict_context data
+- D3 force-directed FCW attribution network: Phase 3 if warranted
 
-
-
-### ✅ AGM renderer fixes — COMPLETE (2026-04-01)
-Three rendering bugs fixed in AGM report.html + persistent.html (merged b5972038):
-- renderCrossMonitor: replaced naive Object.keys/JSON.stringify with proper flags[] renderer
-- programme_updates: corrected field names title/summary → programme/update; added lab tag
-- arxiv_highlights: corrected field names summary→significance, added url fallback, published/venue/tier meta tags
-- inject-network-bar YAML fix also confirmed working on this merge (first successful run)
-
-
-### ✅ SCEM conflict_context — COMPLETE (2026-04-01)
-Schema designed, reviewed, confirmed. Implemented in two commits:
-- scem-cron-prompt.md (main, ce1f63e): full schema, data_confidence tiers, source assignments
-  for all 10 conflicts, update rules, efficiency rule, Oryx week_delta, Iran F2/F3 note
-- persistent.html (main via staging, PR #12): renderer with confidence badges,
-  contested ranges, toggleable panel per baseline card
-First data expected: SCEM cron run Sun Apr 5 18:00 UTC.
-
-### ✅ Schema audit — COMPLETE (2026-04-01)
-Full field audit across all 7 monitors (live JSON vs cron prompt schemas).
-Findings and resolutions:
-- INFO (7): methodology_url + flag_definitions missing from all meta — expected, appear on next cron run
-- INFO (2): FCW source_date, AGM module_1 summary — expected, v2.1 fields appear on next run
-- FIXED: ESA actor field promoted to REQUIRED with renderer context in prompt
-- FIXED: FCW signal schema expanded from {} stub to full field definition
-- FIXED: FCW actor_tracker summary marked REQUIRED with renderer consequence note
-- CLEAN: GMM, AGM, ERM, SCEM — no gaps
