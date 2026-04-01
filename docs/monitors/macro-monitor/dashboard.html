@@ -191,13 +191,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderDashboard(d) {
     var meta     = d.meta || {};
-    var eb       = d.executive_briefing || {};
+    // Remap: JSON stores stress/regime inside signal; asset data in asset_outlook
     var signalObj = d.signal || {};
+    var eb       = d.executive_briefing || {
+      system_stress_label:     signalObj.system_stress_label     || '',
+      system_stress_direction: signalObj.system_stress_direction || '',
+      system_average_score:    signalObj.system_average_score,
+      regime:                  signalObj.regime                  || '',
+      regime_conviction:       signalObj.regime_conviction       || '',
+      summary:                 signalObj.headline                || ''
+    };
     var signal    = signalObj.headline || eb.system_stress_label || '';
     var signalBody = signalObj.system_stress_label || signalObj.regime || eb.summary || '';
 
-    var assets   = d.asset_class_scores || [];
-    var outlook  = d.outlook || {};
+    // asset_class_scores → asset_outlook (same structure)
+    var assets   = d.asset_class_scores || d.asset_outlook || [];
+    var outlook  = d.safe_haven || d.outlook || {};
 
     // Page header
     document.getElementById('page-title').textContent = 'GMM — ' + (meta.week_label || '');
@@ -274,22 +283,30 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function buildDeltaItems(d) {
-    // Collect WARNING and ELEVATED indicators from all domains
     var items = [];
     var domains = d.domain_indicators || {};
-    Object.keys(domains).forEach(function (dk) {
-      var arr = domains[dk];
-      if (!Array.isArray(arr)) return;
-      arr.forEach(function (ind) {
-        if (ind.flag === 'WARNING' || ind.flag === 'ELEVATED') {
-          items.push({ title: ind.indicator, reading: ind.reading || '', flag: ind.flag, score: ind.score || 0 });
-        }
+    // If domain_indicators exists, use it
+    if (Object.keys(domains).length) {
+      Object.keys(domains).forEach(function (dk) {
+        var arr = domains[dk];
+        if (!Array.isArray(arr)) return;
+        arr.forEach(function (ind) {
+          if (ind.flag === 'WARNING' || ind.flag === 'ELEVATED') {
+            items.push({ title: ind.indicator, reading: ind.reading || '', flag: ind.flag, score: ind.score || 0 });
+          }
+        });
       });
-    });
-    // Sort by score ascending (worst first)
+    } else {
+      // Fallback: pull from flat indicator arrays (debt_dynamics, credit_stress, systemic_risk)
+      ['debt_dynamics','credit_stress','systemic_risk'].forEach(function(key) {
+        (d[key] || []).forEach(function(ind) {
+          if (ind.flag === 'WARNING' || ind.flag === 'ELEVATED') {
+            items.push({ title: ind.indicator, reading: ind.reading || '', flag: ind.flag, score: ind.score || 0 });
+          }
+        });
+      });
+    }
     items.sort(function (a, b) { return a.score - b.score; });
-    // Also include amplifiers
-    var amps = (d.domain_indicators || {}).domain_6_amplifiers || [];
     return items;
   }
 });
