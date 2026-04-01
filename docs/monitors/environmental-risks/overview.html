@@ -72,26 +72,7 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
         <p class="page-header__sub">
           Weekly structured intelligence on planetary boundary status, Earth system tipping points, and geopolitical cascades driven by environmental stress. ERM tracks all nine Stockholm Resilience Centre planetary boundaries, six major tipping systems, and the policy and legal frameworks governing climate and biodiversity. Published every Saturday at 05:00 UTC.
         </p>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-transgressed">—</div>
-          <div class="kpi-card__label">Boundaries Transgressed</div>
-          <div class="kpi-card__sub">Of 9 planetary boundaries</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-signal">—</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub" id="kpi-signal-sub">This week's primary signal</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-week">—</div>
-          <div class="kpi-card__label">Week</div>
-          <div class="kpi-card__sub" id="kpi-week-sub">Loading…</div>
-        </div>
-      </div>
-    </section>
+      </div></section>
 
     <section class="module-section" id="section-latest">
       <div class="module-header">
@@ -116,7 +97,6 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-overview">Overview</a></li>
       <li><a href="#section-latest">Latest Issue</a></li>
       <li><a href="#section-archive">Archive</a></li>
     </ul>
@@ -167,16 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
       var boundaries = (d.m02_planetary_boundaries || {}).boundaries || [];
 
       var transgressed = boundaries.filter(function (b) { return b.status === 'Transgressed'; }).length;
-      document.getElementById('kpi-transgressed').textContent = transgressed;
-
       var signalTitle = signal.title || '—';
       var signalWords = signalTitle.split(' ');
-      document.getElementById('kpi-signal').textContent = signalWords.slice(0, 3).join(' ') + (signalWords.length > 3 ? '…' : '');
-      document.getElementById('kpi-signal-sub').textContent = signalTitle;
-
-      document.getElementById('kpi-week').textContent = 'Issue ' + (meta.issue || '—');
-      document.getElementById('kpi-week-sub').textContent = meta.week_label || '';
-
       var card = document.getElementById('latest-card');
       card.innerHTML =
         '<div class="card__label">Week Ending ' + escHtml(meta.week_label || '') + '</div>' +
