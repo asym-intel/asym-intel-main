@@ -468,10 +468,11 @@ persistent-state patterns + lessons from Build 1.
 STANDARD PAGE SET (8 pages per monitor)
 ────────────────────────────────────────────────────────────────
 
-  overview.html    Monitor landing page — issue list, brief
-                   descriptions, monitor identity panel (SVG + CTAs).
-                   NOTE: Hugo owns index.html at root URL — never use
-                   index.html for Blueprint pages. Use overview.html.
+  overview.html    Monitor landing page — CLEAN BRIEF INDEX only.
+                   Shows: page header, issue list (title/date/signal),
+                   archive entries, identity panel (SVG + CTAs).
+                   NO KPI strip — KPIs belong on dashboard.html only.
+                   NOTE: Hugo owns index.html — use overview.html.
                    Hugo section.html redirects root URL → dashboard.html.
 
   dashboard.html   Current issue: KPI strip + signal block +
