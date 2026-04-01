@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
           activeCampaigns += (campaigns[k] || []).length;
         });
       }
-      var actorCount = actorKeys.length || '—';
+      var actorCount = (d.actor_tracker || []).length || actorKeys.length || '—';
 
       // Page meta
       var pub = meta.published
@@ -231,6 +231,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Try to get delta_strip from archive.json's first entry
       // Otherwise build from active_campaigns
+      if (!deltaItems.length && Array.isArray(campaigns) && campaigns.length) {
+        campaigns.slice(0, 5).forEach(function(c, i) {
+          deltaItems.push({
+            rank: i + 1,
+            title: c.operation_name || c.headline || '',
+            actor: c.actor || '',
+            one_line: c.summary || '',
+            status: c.status || ''
+          });
+        });
+      }
       if (!deltaItems.length && typeof campaigns === 'object' && !Array.isArray(campaigns)) {
         var rank = 1;
         actorKeys.forEach(function(actor) {
