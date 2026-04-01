@@ -254,13 +254,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderReport(d) {
     var meta     = d.meta || {};
-    var eb       = d.executive_briefing || {};
     var signalObj = d.signal || {};
+    // Remap: JSON stores stress/regime inside signal; domain data in flat arrays
+    var eb       = d.executive_briefing || {
+      system_stress_label:     signalObj.system_stress_label     || '',
+      system_stress_direction: signalObj.system_stress_direction || '',
+      system_average_score:    signalObj.system_average_score,
+      regime:                  signalObj.regime                  || '',
+      regime_conviction:       signalObj.regime_conviction       || '',
+      summary:                 signalObj.headline                || '',
+      delta_vs_prior:          signalObj.delta_vs_prior
+    };
     var signal    = signalObj.headline || eb.system_stress_label || '';
     var signalBody = signalObj.system_stress_label || signalObj.regime || eb.summary || '';
+    // domain_indicators fallback: build from flat arrays
     var domains  = d.domain_indicators || {};
-    var assets   = d.asset_class_scores || [];
-    var sentiment= d.sentiment_overlay || {};
+    if (!Object.keys(domains).length) {
+      domains = {
+        domain_1_debt_sovereign:   d.debt_dynamics  || [],
+        domain_2_banking_credit:   d.credit_stress  || [],
+        domain_3_market_structure: d.systemic_risk  || [],
+        domain_6_amplifiers:       []
+      };
+    }
+    var assets   = d.asset_class_scores || d.asset_outlook || [];
+    var sentiment= d.sentiment_overlay  || {};
     var cmf      = d.cross_monitor_flags || {};
     var blindSpots = d.blind_spot_overrides || [];
 
@@ -273,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Delta strip from archive / delta items
     var deltaWrap = document.getElementById('delta-strip-wrap');
-    var tacticalAlerts = d.tactical_alerts || [];
+    var tacticalAlerts = d.tactical_alerts || (signalObj.no_tactical_alerts ? [] : []);
     if (tacticalAlerts.length) {
       var dHtml = '<div class="section-label" style="margin-bottom:var(--space-3)">Tactical Alerts</div><ul class="delta-strip">';
       tacticalAlerts.forEach(function (a, i) {
@@ -341,6 +359,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // M06 — Safe Haven & Positioning
     var shHtml = '';
+    // Render d.safe_haven directly if present (JSON schema)
+    var safeHaven = d.safe_haven || null;
+    if (safeHaven && safeHaven.asset) {
+      shHtml += '<div class="safe-haven-card">' +
+        '<div class="safe-haven-card__label">Safe Haven Positioning</div>' +
+        '<div class="safe-haven-card__item"><strong>Asset:</strong> ' + esc(safeHaven.asset || '') + '</div>' +
+        (safeHaven.regime ? '<div class="safe-haven-card__item"><strong>Regime:</strong> ' + esc(safeHaven.regime) + '</div>' : '') +
+        (safeHaven.horizon ? '<div class="safe-haven-card__item"><strong>Horizon:</strong> ' + esc(safeHaven.horizon) + '</div>' : '') +
+        (safeHaven.rationale ? '<div class="safe-haven-card__item">' + esc(safeHaven.rationale) + '</div>' : '') +
+        (safeHaven.condition_for_reassessment ? '<div class="safe-haven-card__item" style="font-style:italic"><strong>Reassess if:</strong> ' + esc(safeHaven.condition_for_reassessment) + '</div>' : '') +
+        (safeHaven.not_investment_advice ? '<div class="safe-haven-card__item" style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(safeHaven.not_investment_advice) + '</div>' : '') +
+      '</div>';
+    }
     if (sentiment && Object.keys(sentiment).length) {
       shHtml += '<div class="safe-haven-card">';
       shHtml += '<div class="safe-haven-card__label">Sentiment Overlay</div>';
