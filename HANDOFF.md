@@ -156,6 +156,25 @@ All three require adding to each monitor's cron prompt:
 
 ## PENDING TASKS (next session)
 
+### MASTER ACTION PLAN
+Full domain expert audit completed for all 6 non-WDM monitors.
+Saved to: /home/user/workspace/master-action-plan.md
+Individual audits: audit-gmm.md, audit-fcw.md, audit-esa.md, audit-agm.md, audit-erm.md, audit-scem.md
+
+Key findings:
+- 13 confirmed rendering bugs (5 AGM `undefined`, 3 SCEM template failures, 1 ESA missing radar spoke, etc.)
+- 49 fields collected in JSON but rendered on zero pages
+- ~60 schema additions recommended
+- ~45 dashboard UI improvements
+- 8 cross-monitor patterns (level-not-deviation bars, sections absent from dashboard, etc.)
+
+Sprint 1 (bugs + low-effort, do next): fix all 13 bugs + surface hard_landing_risk KPI,
+  tail risk tooltips, ERM cascade tiers, SCEM baseline marker, ESA institutional_developments
+Sprint 2 (schema + medium rendering): sentiment_overlay renderer, scenario cards,
+  ESA defence_spending_tracker, AGM regulatory_calendar, SCEM escalation_velocity
+Sprint 3 (structural): FCW narratives registry, AGM governance health score,
+  ERM proximity scores, SCEM I7 proxy warfare indicator
+
 ### Priority 1 — Universal cron prompt fixes (all 7 monitors, direct to main)
 CHANGELOG RULE + top_3_developments + signal confidence.
 Simple appends to all 7 cron prompts. Do these together in one pass.
