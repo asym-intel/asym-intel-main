@@ -554,7 +554,9 @@ document.addEventListener('DOMContentLoaded', function () {
       html += '<div class="fcw-timeline-actor-group">';
       html += '<div class="fcw-timeline-actor-label">';
       html += '<span class="fcw-timeline-actor-dot" style="background:' + color + '"></span>';
-      html += '<span style="color:' + color + '">' + escHtml(actor === 'UNATTRIBUTED' ? 'UNATTR' : actor) + '</span>';
+      var actorDisplayName = actor === 'UNATTRIBUTED' ? 'UNATTR' : actor;
+      var actorFlag = (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag) ? AsymRenderer.flag(actor) : '';
+      html += '<span style="color:' + color + '">' + (actorFlag ? actorFlag + '\u00a0' : '') + escHtml(actorDisplayName) + '</span>';
       html += '</div>';
 
       actorCamps.forEach(function(item) {
