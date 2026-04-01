@@ -303,3 +303,20 @@ BASELINE STATUS NOTE:
 - Inaugural edition note: include one sentence in the brief acknowledging
   CONTESTED BASELINE status and noting that deviations will be analytically
   significant from Week 13.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CRITICAL: JSON SCHEMA REQUIREMENTS FOR report.html / persistent.html
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cross_monitor_flags.flags[] MUST include ALL of these fields:
+  flag_id, signal, detail, monitor (string), conflict, indicator,
+  structural_or_transient, status, first_raised, unchanged_since
+  AND ALSO:
+  title     → copy of signal  (renderer reads flag.title)
+  summary   → copy of detail  (renderer reads flag.summary)
+  monitors  → [monitor]       (renderer reads flag.monitors as array)
+  severity  → 'critical' | 'high' | 'moderate'  (renderer reads flag.severity)
+
+persistent-state.json roster_watch MUST be an object:
+  { "approaching_inclusion": [...], "approaching_retirement": [...] }
+  NOT a flat array.
