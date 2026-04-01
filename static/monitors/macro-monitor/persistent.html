@@ -128,6 +128,24 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
     </section>
 
     <!-- Cross-Monitor Flags (persistent view) -->
+    <section class="module-section" id="section-oil">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">04</div>
+        <h2 class="section-title" style="margin:0">Oil Supply Shock Driver</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Active driver of oil supply shock risk, carried forward until resolved.</p>
+      <div id="ps-oil"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <section class="module-section" id="section-blind-spots">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">05</div>
+        <h2 class="section-title" style="margin:0">Blind Spot Overrides</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Active scoring rules that override indicator readings where model blind spots are known.</p>
+      <div id="ps-blind-spots"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <section class="module-section" id="section-cmf">
       <div class="module-header">
         <div class="module-num-large">04</div>
@@ -145,6 +163,8 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
       <li><a href="#section-baseline"><span class="sidebar-num">01</span> Baselines</a></li>
       <li><a href="#section-alerts"><span class="sidebar-num">02</span> Alerts</a></li>
       <li><a href="#section-conviction"><span class="sidebar-num">03</span> Conviction</a></li>
+      <li><a href="#section-oil"><span class="sidebar-num">04</span> Oil Shock Driver</a></li>
+      <li><a href="#section-blind-spots"><span class="sidebar-num">05</span> Blind Spot Overrides</a></li>
       <li><a href="#section-cmf"><span class="sidebar-num">04</span> Cross-Monitor</a></li>
     </ul>
   </nav>
@@ -390,4 +410,196 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 </body>
-</html>
+</html>  fetch('data/persistent-state.json')
+    .then(function (r) { return r.json(); })
+    .then(function (ps) {
+      fetch('data/report-latest.json')
+        .then(function (r) { return r.json(); })
+        .then(function (report) { render(ps, report); })
+        .catch(function () { render(ps, {}); });
+    })
+    .catch(function (e) {
+      document.getElementById('ps-error').innerHTML = '<div class="error-state">Failed to load data: ' + esc(e.message) + '</div>';
+    });
+
+  function render(ps, report) {
+    var meta = ps._meta || {};
+    document.getElementById('ps-meta').innerHTML =
+      (meta.last_updated ? '<span>Last updated: ' + esc(meta.last_updated) + '</span>' : '') +
+      (meta.last_issue   ? '<span>Issue ' + esc(meta.last_issue) + '</span>' : '') +
+      (meta.schema_version ? '<span>Schema v' + esc(meta.schema_version) + '</span>' : '');
+
+    // ── 01 Asset Class Baselines ──
+    var baselines = ps.asset_class_baseline || [];
+    var bEl = document.getElementById('ps-baseline');
+    if (!baselines.length) {
+      bEl.innerHTML = '<p class="text-muted text-sm">No baseline data.</p>';
+    } else {
+      var bHtml = '';
+      baselines.forEach(function (b) {
+        var delta = b.current_score != null && b.baseline_score != null
+          ? (parseFloat(b.current_score) - parseFloat(b.baseline_score)).toFixed(2) : null;
+        var deltaStr = delta != null ? (parseFloat(delta) >= 0 ? '+' : '') + delta : '';
+        var flagCls  = (b.current_flag||'').toLowerCase().includes('bear') ? 'critical'
+                     : (b.current_flag||'').toLowerCase().includes('mild') ? 'moderate' : 'positive';
+        bHtml += '<div class="baseline-item card" style="margin-bottom:var(--space-3)">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap">' +
+            '<div class="baseline-item__name" style="font-weight:700">' + esc(b.asset_class) + '</div>' +
+            '<div style="display:flex;gap:var(--space-2);align-items:center">' +
+              '<span class="severity-badge severity-badge--' + flagCls + '">' + esc(b.current_flag||'') + '</span>' +
+              (delta != null ? '<span style="font-size:var(--text-xs);color:' + (parseFloat(delta)>=0?'var(--positive)':'var(--high)') + '">Δ ' + deltaStr + ' vs baseline</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="baseline-item__dir" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' +
+            esc(b.current_direction||'') + ' · Baseline ' + esc(b.baseline_date||'') + ' (' + esc(String(b.baseline_score||'')) + ')' +
+          '</div>';
+        if (b.version_history && b.version_history.length) {
+          bHtml += '<details style="margin-top:var(--space-2)"><summary style="font-size:var(--text-xs);color:var(--monitor-accent);cursor:pointer">History (' + b.version_history.length + ')</summary>' +
+            '<div style="margin-top:var(--space-2)">';
+          b.version_history.slice().reverse().forEach(function (v) {
+            bHtml += '<div style="font-size:var(--text-xs);border-top:1px solid var(--color-border);padding:var(--space-1) 0">' +
+              '<strong>' + esc(v.date||'') + '</strong> — ' + esc(v.change||'') +
+              (v.reason ? ' <span style="color:var(--color-text-muted)">(' + esc(v.reason) + ')</span>' : '') +
+            '</div>';
+          });
+          bHtml += '</div></details>';
+        }
+        bHtml += '</div>';
+      });
+      bEl.innerHTML = bHtml;
+    }
+
+    // Asset score trend chart (baseline-chart)
+    if (typeof AsymCharts !== 'undefined' && baselines.length) {
+      var allDates = [];
+      baselines.forEach(function(b){
+        (b.version_history||[]).forEach(function(h){ if (allDates.indexOf(h.date)===-1) allDates.push(h.date); });
+      });
+      allDates.sort();
+      if (allDates.length >= 2) {
+        var assetColours = ['#3a7d5a','#dc2626','#2563eb','#d97706','#7c3aed','#0891b2','#be185d','#65a30d'];
+        var datasets = baselines.map(function(b, i){
+          var data = allDates.map(function(dt, di){
+            var entry = (b.version_history||[]).find(function(h){ return h.date===dt; });
+            if (!entry) return null;
+            return di === allDates.length-1
+              ? (b.current_score != null ? parseFloat(b.current_score) : null)
+              : (entry.prior_value != null ? parseFloat(entry.prior_value) : null);
+          });
+          return { label: b.asset_class, data: data,
+                   borderColor: assetColours[i%assetColours.length],
+                   backgroundColor: 'transparent', tension: 0.2, pointRadius: 3, spanGaps: true };
+        });
+        AsymCharts.line('baseline-chart', allDates, datasets, {
+          scales: { y: { title: { display: true, text: 'Score' } } },
+          plugins: { legend: { labels: { font: { size: 10 } } } }
+        });
+      }
+    }
+
+    // ── 02 Tactical Alerts ──
+    var alerts = ps.active_tactical_alerts || [];
+    var aEl = document.getElementById('ps-alerts');
+    if (!alerts.length) {
+      aEl.innerHTML = '<div class="card"><p class="text-muted text-sm">No active tactical alerts this period.</p></div>';
+    } else {
+      aEl.innerHTML = alerts.map(function (a) {
+        return '<div class="card" style="margin-bottom:var(--space-3)">' +
+          '<div class="card__label">' + esc(a.trigger||'') + ' · ' + esc(a.since||a.date||'') + '</div>' +
+          '<div class="card__title">' + esc(a.indicator||a.title||'') + '</div>' +
+          '<div class="card__body">' + esc(a.warning||a.body||'') + '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // ── 03 Conviction History ──
+    var conviction = ps.conviction_history || [];
+    var cEl = document.getElementById('ps-conviction');
+    if (conviction.length) {
+      var cHtml = '<div class="card" style="padding:0">';
+      conviction.slice().reverse().forEach(function (c) {
+        cHtml += '<div style="display:grid;grid-template-columns:8rem 1fr auto;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);font-size:var(--text-sm)">' +
+          '<span style="color:var(--color-text-muted)">' + esc(c.date||'') + '</span>' +
+          '<span>' + esc(c.regime||'') + ' · <strong>' + esc(c.system_average!=null?(c.system_average>0?'+':'')+parseFloat(c.system_average).toFixed(3):'') + '</strong></span>' +
+          '<span style="color:var(--color-text-muted);font-size:var(--text-xs)">' + esc(c.conviction||'') + '</span>' +
+        '</div>';
+        if (c.rationale) {
+          cHtml += '<div style="padding:0 var(--space-4) var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(c.rationale) + '</div>';
+        }
+      });
+      cHtml += '</div>';
+      cEl.innerHTML = cHtml;
+    } else {
+      cEl.innerHTML = '<p class="text-muted text-sm">No conviction history recorded yet.</p>';
+    }
+
+    // Conviction score line chart
+    if (typeof AsymCharts !== 'undefined' && conviction.length >= 2) {
+      AsymCharts.line('conviction-chart',
+        conviction.map(function(c){ return c.date; }),
+        [{ label: 'System Avg Score', data: conviction.map(function(c){ return parseFloat(c.system_average); }),
+           tension: 0.3, pointRadius: 4 }],
+        { scales: { y: { min: -1, max: 0.5, title: { display: true, text: 'Score' } } },
+          plugins: { legend: { display: false } } });
+    }
+
+    // ── 04 Oil Supply Shock Driver ──
+    var oilEl = document.getElementById('ps-oil');
+    if (oilEl) {
+      var oil = ps.oil_supply_shock_driver || {};
+      if (oil.current_driver) {
+        var oHtml = '<div class="card">' +
+          '<div class="card__label">Oil Supply Shock Driver</div>' +
+          '<div class="card__title">' + esc(oil.current_driver) + '</div>' +
+          (oil.note ? '<div class="card__body">' + esc(oil.note) + '</div>' : '') +
+          (oil.resolution_criteria ? '<div class="card__footer" style="font-size:var(--text-xs)"><strong>Resolution:</strong> ' + esc(oil.resolution_criteria) + '</div>' : '') +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)">Updated: ' + esc(oil.last_updated||'') + '</div>';
+        if (oil.version_history && oil.version_history.length) {
+          oHtml += '<details style="margin-top:var(--space-3)"><summary style="font-size:var(--text-xs);color:var(--monitor-accent);cursor:pointer">History</summary><div style="margin-top:var(--space-2)">';
+          oil.version_history.slice().reverse().forEach(function(v){
+            oHtml += '<div style="font-size:var(--text-xs);border-top:1px solid var(--color-border);padding:var(--space-1) 0"><strong>' + esc(v.date||'') + '</strong> — ' + esc(v.change||'') + '</div>';
+          });
+          oHtml += '</div></details>';
+        }
+        oHtml += '</div>';
+        oilEl.innerHTML = oHtml;
+      } else {
+        oilEl.innerHTML = '<p class="text-muted text-sm">No active oil supply shock driver.</p>';
+      }
+    }
+
+    // ── 05 Blind Spot Overrides ──
+    var bsEl = document.getElementById('ps-blind-spots');
+    if (bsEl) {
+      var blindSpots = ps.blind_spot_overrides || [];
+      if (!blindSpots.length) {
+        bsEl.innerHTML = '<p class="text-muted text-sm">No active blind spot overrides.</p>';
+      } else {
+        bsEl.innerHTML = blindSpots.filter(function(b){ return b.active; }).map(function(b){
+          return '<div class="card" style="margin-bottom:var(--space-3)">' +
+            '<div class="card__label">' + esc(b.rule||'') + ' · Active since ' + esc(b.active_since||'') + '</div>' +
+            '<div class="card__title">' + esc(b.indicator||'') + '</div>' +
+            '<div class="card__body">' + esc(b.warning||'') + '</div>' +
+          '</div>';
+        }).join('') || '<p class="text-muted text-sm">No active overrides.</p>';
+      }
+    }
+
+    // ── Cross-Monitor Flags ──
+    var cmf = report.cross_monitor_flags || {};
+    var flags = cmf.flags || [];
+    var cmfEl = document.getElementById('ps-cmf');
+    if (!flags.length) {
+      cmfEl.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags available.</p>';
+    } else {
+      cmfEl.innerHTML = flags.map(function (f) {
+        return '<div class="card" style="margin-bottom:var(--space-3)">' +
+          '<div class="card__label">' + esc(f.id||'') + ' · ' + esc(f.status||'') + '</div>' +
+          '<div class="card__title">' + esc(f.title||f.headline||'') + '</div>' +
+          (f.linkage||f.body ? '<div class="card__body">' + esc(f.linkage||f.body||'') + '</div>' : '') +
+          (f.monitors_involved&&f.monitors_involved.length ? '<div class="card__footer">↔ ' + f.monitors_involved.map(esc).join(' · ') + '</div>' : '') +
+        '</div>';
+      }).join('');
+    }
+  }
+
