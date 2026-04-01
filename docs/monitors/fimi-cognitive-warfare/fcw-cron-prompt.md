@@ -120,7 +120,23 @@ STEP 2 — Write 4 JSON files (single git commit):
       "f_flags": ["F1"],
       "note": "optional MF-flag alert or analytical caveat"
     },
-    "campaigns": [], 
+    "campaigns": [
+      {
+        "id": "FCW-001",
+        "operation_name": "...",
+        "start_date": "YYYY-MM-DD",  // date operation first observed/confirmed; REQUIRED for timeline visualisation
+        "status": "ACTIVE|ONGOING|DISRUPTED|ASSESSED|RESOLVED",
+        "attribution_confidence": "Confirmed|Assessed|Unconfirmed",
+        "actor": "RU|CN|IR|...",
+        "platform": "YouTube|Telegram|X|...",
+        "target": "freetext — country/election/institution targeted",
+        "summary": "...",
+        "last_activity": "YYYY-MM-DD",
+        "f_flags": [],
+        "changelog": "[YYYY-MM-DD: New entry]",
+        "source_url": "..."
+      }
+    ],
     "actor_tracker": [
       { "actor": "RU", "status": "HIGHLY ACTIVE|ACTIVE|MONITORING",
         "doctrine": "...", "headline": "key development this week",
@@ -148,7 +164,10 @@ STEP 2 — Write 4 JSON files (single git commit):
     "cross_monitor_flags": {},
     "source_url": "..." }
   
-  persistent-state.json: campaigns (carry forward/update),
+  persistent-state.json: campaigns (carry forward/update — IMPORTANT: when adding a new campaign,
+  always set start_date to the first observed/confirmed date. This field is required for the
+  campaign timeline visualisation on the dashboard. For existing campaigns missing start_date,
+  backfill with best available date and note in changelog.),
   Campaign and attribution_log source objects: populate source_date (YYYY-MM-DD, ISO 8601) when known; omit if unknown.
   actor_tracker, cross_monitor_flags (never delete flags).
   
