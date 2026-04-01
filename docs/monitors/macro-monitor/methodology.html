@@ -301,6 +301,57 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
       </div>
     </section>
 
+  <section class="module-section" id="section-backtesting">
+    <h2 class="section-title">Historical Validation</h2>
+    <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Retroactive reconstruction of what the v2.0 scoring engine would have produced during four historical stress events. All 26 indicators flagged manually using public data for each period, scored through the live v2.0 formula. Directional validation only — in-sample, not precision calibration.</p>
+
+    <h3 style="font-size:var(--text-sm);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-4)">System-Level Results</h3>
+    <div style="overflow-x:auto;margin-bottom:var(--space-8)">
+      <table class="heatmap-table">
+        <thead><tr><th>Event</th><th>Period</th><th>System Avg</th><th>Signal</th><th>Directional Hit</th></tr></thead>
+        <tbody>
+          <tr><td><strong>GFC</strong></td><td>Sep&ndash;Oct 2008</td><td><span class="severity-badge severity-badge--critical">&minus;0.79</span></td><td>BEARISH</td><td>&#x2705; S&amp;P &minus;57%, EM &minus;65%</td></tr>
+          <tr><td><strong>COVID</strong></td><td>March 2020</td><td><span class="severity-badge severity-badge--critical">&minus;0.70</span></td><td>BEARISH</td><td>&#x2705; S&amp;P &minus;34% in 33 days</td></tr>
+          <tr><td><strong>2022 Bond Crash</strong></td><td>October 2022</td><td><span class="severity-badge severity-badge--critical">&minus;0.74</span></td><td>BEARISH</td><td>&#x2705; Bonds &minus;20%, Crypto &minus;65%</td></tr>
+          <tr><td><strong>SVB</strong></td><td>March 2023</td><td><span class="severity-badge severity-badge--high">&minus;0.60</span></td><td>BEARISH</td><td>&#x2705; Banking &minus;28%, CRE stress</td></tr>
+          <tr style="border-top:2px solid var(--monitor-accent)"><td><strong>Current</strong></td><td>Mar 2026</td><td><span class="severity-badge severity-badge--high">&minus;0.552</span></td><td>BEARISH</td><td>TBD</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-sm text-muted" style="margin-bottom:var(--space-8)"><strong>Hit rate: 4/4 (100%) directional.</strong> False positive rate: 12.5% (4 of 32 asset-event combinations).</p>
+
+    <h3 style="font-size:var(--text-sm);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-4)">Asset-Level Scores by Event</h3>
+    <div style="overflow-x:auto;margin-bottom:var(--space-8)">
+      <table class="heatmap-table">
+        <thead><tr><th>Asset Class</th><th>GFC 2008</th><th>COVID 2020</th><th>2022 Crisis</th><th>SVB 2023</th></tr></thead>
+        <tbody>
+          <tr><td>Metals</td><td>&minus;0.20</td><td>&minus;0.35</td><td>&minus;0.42</td><td>&minus;0.32</td></tr>
+          <tr><td>Energy</td><td><span class="severity-badge severity-badge--high">&minus;0.65</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.89</span></td><td><span class="severity-badge severity-badge--high">&minus;0.55</span></td><td><span class="severity-badge severity-badge--high">&minus;0.48</span></td></tr>
+          <tr><td>Bonds</td><td><span class="severity-badge severity-badge--critical">&minus;0.88</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.72</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.94</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.71</span></td></tr>
+          <tr><td>Crypto</td><td><span style="font-size:var(--text-xs);color:var(--color-text-muted)">N/A</span></td><td><span class="severity-badge severity-badge--high">&minus;0.55</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.81</span></td><td><span class="severity-badge severity-badge--high">&minus;0.62</span></td></tr>
+          <tr><td>Tech</td><td><span class="severity-badge severity-badge--critical">&minus;0.91</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.70</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.72</span></td><td><span class="severity-badge severity-badge--moderate">&minus;0.35</span></td></tr>
+          <tr><td>Consumer Staples</td><td><span class="severity-badge severity-badge--critical">&minus;0.96</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.88</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.80</span></td><td><span class="severity-badge severity-badge--high">&minus;0.68</span></td></tr>
+          <tr><td>EM Equities</td><td><span class="severity-badge severity-badge--critical">&minus;0.95</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.86</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.91</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.72</span></td></tr>
+          <tr><td>Real Estate</td><td><span class="severity-badge severity-badge--critical">&minus;0.97</span></td><td><span class="severity-badge severity-badge--high">&minus;0.68</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.78</span></td><td><span class="severity-badge severity-badge--critical">&minus;0.89</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="font-size:var(--text-sm);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-4)">Known False Positives</h3>
+    <div style="overflow-x:auto;margin-bottom:var(--space-4)">
+      <table class="heatmap-table">
+        <thead><tr><th>Event</th><th>Asset</th><th>Model Signal</th><th>Actual Return</th><th>Root Cause</th></tr></thead>
+        <tbody>
+          <tr><td>GFC 2008</td><td>Gov&apos;t Bonds</td><td><span class="severity-badge severity-badge--critical">BEARISH &minus;0.88</span></td><td style="color:var(--positive)">+14%</td><td>Flight-to-quality bid</td></tr>
+          <tr><td>COVID 2020 H2</td><td>Tech</td><td><span class="severity-badge severity-badge--critical">BEARISH &minus;0.70</span></td><td style="color:var(--positive)">+45%</td><td>Stimulus narrative rally</td></tr>
+          <tr><td>SVB 2023</td><td>Crypto</td><td><span class="severity-badge severity-badge--high">BEARISH &minus;0.62</span></td><td style="color:var(--positive)">+40%</td><td>Banking distrust bid</td></tr>
+          <tr><td>2022</td><td>Energy</td><td><span class="severity-badge severity-badge--high">BEARISH &minus;0.55</span></td><td style="color:var(--positive)">+65%</td><td>Sector equity &ne; commodity</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-sm text-muted">These four false positives represent permanent model blind spots: flight-to-quality bonds, stimulus-driven tech rallies, crisis-distrust crypto bids, and the equity/commodity divergence in energy. Documented in the blind spots section above.</p>
+  </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -312,6 +363,7 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
       <li><a href="#section-labels">Stress Labels</a></li>
       <li><a href="#section-blind-spots">Blind Spots</a></li>
       <li><a href="#section-regime">Regime Framework</a></li>
+      <li><a href="#section-backtesting">Historical Validation</a></li>
     </ul>
   </nav>
 </div>
