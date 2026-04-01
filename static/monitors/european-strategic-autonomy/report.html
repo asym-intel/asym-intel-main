@@ -9,6 +9,35 @@
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
+  <style>
+  /* ESA accent #5b8db0 is medium blue — boost contrast for signal-block */
+  .signal-block {
+    background: #2d5a7e;
+    color: #f0f4f8;
+  }
+  .signal-block__label { opacity: 0.85; }
+  .signal-block__title {
+    color: #ffffff;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: var(--space-4);
+  }
+  .signal-block__body {
+    color: rgba(240,244,248,0.92);
+    font-size: var(--text-sm);
+    line-height: 1.7;
+    margin-bottom: 0;
+  }
+  .signal-block a.source-link { color: rgba(255,255,255,0.8); }
+  .signal-block a.source-link:hover { color: #ffffff; }
+  [data-theme="dark"] .signal-block {
+    background: rgba(45,90,126,0.55);
+    color: var(--color-text);
+  }
+  [data-theme="dark"] .signal-block__title { color: var(--color-text); }
+  [data-theme="dark"] .signal-block__body { color: var(--color-text-secondary); }
+  </style>
 </head>
 
 <body>
@@ -214,7 +243,61 @@ document.addEventListener('DOMContentLoaded', function () {
       renderCards(d.defence_developments || [], 'defence-list');
       renderCards(d.hybrid_threats || [], 'hybrid-list');
       renderCards(d.institutional_developments || [], 'institutional-list');
-      renderCards(d.member_state_tracker || [], 'member-state-list');
+      // Member State tracker — rich layout with flag, status badge, details
+      var flagMap2 = {
+        'HU':'\ud83c\udded\ud83c\uddfa','SI':'\ud83c\uddf8\ud83c\uddee','CZ':'\ud83c\udde8\ud83c\uddff','FR':'\ud83c\uddeb\ud83c\uddf7',
+        'DE':'\ud83c\udde9\ud83c\uddea','PL':'\ud83c\uddf5\ud83c\uddf1','IT':'\ud83c\uddee\ud83c\uddf9','ES':'\ud83c\uddea\ud83c\uddf8',
+        'GR':'\ud83c\uddec\ud83c\uddf7','RO':'\ud83c\uddf7\ud83c\uddf4','BG':'\ud83c\udde7\ud83c\uddec','SK':'\ud83c\uddf8\ud83c\uddf0',
+        'AT':'\ud83c\udde6\ud83c\uddf9','BE':'\ud83c\udde7\ud83c\uddea','NL':'\ud83c\uddf3\ud83c\uddf1','PT':'\ud83c\uddf5\ud83c\uddf9',
+        'SE':'\ud83c\uddf8\ud83c\uddea','FI':'\ud83c\uddeb\ud83c\uddee','DK':'\ud83c\udde9\ud83c\uddf0','EE':'\ud83c\uddea\ud83c\uddea',
+        'LV':'\ud83c\uddf1\ud83c\uddfb','LT':'\ud83c\uddf1\ud83c\uddf9','IE':'\ud83c\uddee\ud83c\uddea','LU':'\ud83c\uddf1\ud83c\uddfa',
+        'MT':'\ud83c\uddf2\ud83c\uddf9','CY':'\ud83c\udde8\ud83c\uddfe','HR':'\ud83c\udded\ud83c\uddf7','RS':'\ud83c\uddf7\ud83c\uddf8'
+      };
+      function msStatusClass(st) {
+        if (!st) return 'moderate';
+        var s = st.toLowerCase();
+        if (s.indexOf('critical') !== -1) return 'critical';
+        if (s.indexOf('high') !== -1) return 'high';
+        if (s.indexOf('elevated') !== -1) return 'moderate';
+        if (s.indexOf('stable') !== -1) return 'low';
+        return 'moderate';
+      }
+      var msEl = document.getElementById('member-state-list');
+      var msItems = d.member_state_tracker || [];
+      if (!msItems.length) {
+        msEl.innerHTML = '<p class="text-muted">No member state data this issue.</p>';
+      } else {
+        var msHtml = '';
+        msItems.forEach(function(ms) {
+          var code = (ms.country || ms.name || '').toUpperCase();
+          var flag = flagMap2[code] || '\ud83c\udff3\ufe0f';
+          var sClass = msStatusClass(ms.status);
+          var statusParts = (ms.status || '').split('\u2014');
+          var statusLabel = statusParts[0].trim();
+          var statusDetail = statusParts[1] ? statusParts[1].trim() : '';
+          var countryNames = {
+            'HU':'Hungary','SI':'Slovenia','CZ':'Czechia','FR':'France',
+            'DE':'Germany','PL':'Poland','IT':'Italy','ES':'Spain',
+            'GR':'Greece','RO':'Romania','BG':'Bulgaria','SK':'Slovakia',
+            'AT':'Austria','BE':'Belgium','NL':'Netherlands','PT':'Portugal',
+            'SE':'Sweden','FI':'Finland','DK':'Denmark','EE':'Estonia',
+            'LV':'Latvia','LT':'Lithuania','IE':'Ireland','LU':'Luxembourg',
+            'MT':'Malta','CY':'Cyprus','HR':'Croatia'
+          };
+          msHtml += '<div class="card">' +
+            '<div class="card__title" style="display:flex;align-items:center;gap:var(--space-3)">' +
+              '<span style="font-size:1.6rem;line-height:1;flex-shrink:0">' + flag + '</span>' +
+              '<span>' + escHtml(countryNames[code] || code) + '</span>' +
+              '<span class="severity-badge severity-badge--' + sClass + '" style="margin-left:auto;white-space:nowrap">' + escHtml(statusLabel) + '</span>' +
+            '</div>' +
+            (statusDetail ? '<div style="font-size:var(--text-xs);color:var(--monitor-accent);font-weight:600;margin-top:var(--space-1)">' + escHtml(statusDetail) + '</div>' : '') +
+            (ms.headline ? '<div class="card__body" style="margin-top:var(--space-2)">' + escHtml(ms.headline) + '</div>' : '') +
+            (ms.change_from_last_week ? '<div class="card__footer" style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted);border-top:1px solid var(--color-border-subtle);padding-top:var(--space-2)"><strong style="color:var(--color-text-secondary)">Change this week:</strong> ' + escHtml(ms.change_from_last_week) + '</div>' : '') +
+            (ms.source_url ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(ms.source_url) + '" target="_blank" rel="noopener">Source &rarr;</a></div>' : '') +
+            '</div>';
+        });
+        msEl.innerHTML = msHtml;
+      }
 
       var cmf = d.cross_monitor_flags || {};
       var flags = cmf.flags || [];

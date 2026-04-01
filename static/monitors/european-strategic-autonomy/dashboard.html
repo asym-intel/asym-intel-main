@@ -373,10 +373,10 @@
           <div class="kpi-card__label">Hybrid Threats</div>
           <div class="kpi-card__sub">Active this issue</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-lead-signal">&mdash;</div>
+        <div class="kpi-card" style="cursor:pointer" onclick="document.getElementById('section-signal').scrollIntoView({behavior:'smooth'})">
+          <div class="kpi-card__value" id="kpi-lead-signal" style="font-size:var(--text-base);font-weight:600;letter-spacing:0;line-height:1.35;color:var(--monitor-accent)">&mdash;</div>
           <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub">Top story this week</div>
+          <div class="kpi-card__sub">Click to read &darr;</div>
         </div>
       </div>
     </section>
@@ -483,8 +483,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
       document.getElementById('kpi-defence').textContent = defItems.length || '—';
       document.getElementById('kpi-hybrid').textContent = hybItems.length || '—';
-      var signalShort = signal.length > 60 ? signal.slice(0, 60) + '…' : signal;
-      document.getElementById('kpi-lead-signal').textContent = signalShort || '—';
+      // Lead signal KPI: show a short punchy topic label, not the raw long title
+      var signalWords = signal.split(' ');
+      var signalKpi = signalWords.slice(0, 4).join(' ') + (signalWords.length > 4 ? '…' : '');
+      document.getElementById('kpi-lead-signal').textContent = signalKpi || '—';
 
       var sb = document.getElementById('signal-block');
       sb.innerHTML =

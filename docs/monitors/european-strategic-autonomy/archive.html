@@ -139,7 +139,9 @@ document.addEventListener('DOMContentLoaded', function () {
         html +=
             '</div>' +
             '<div style="margin-left:var(--space-4);flex-shrink:0">' +
-              '<a href="/monitors/european-strategic-autonomy/' + escHtml(issue.slug || '') + '/" class="btn btn--outline" style="font-size:var(--text-xs)">View &rarr;</a>' +
+              (issue.source_url
+                ? '<a href="' + escHtml(issue.source_url) + '" class="btn btn--outline" style="font-size:var(--text-xs)">View &rarr;</a>'
+                : '') +
             '</div>' +
           '</div>';
       });
