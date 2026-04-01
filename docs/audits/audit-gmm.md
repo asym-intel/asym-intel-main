@@ -370,9 +370,9 @@ Top 5 actions ranked by investor value, with implementation effort:
 
 | Rank | Action | Value | Effort | What to do |
 |---|---|---|---|---|
-| **1** | Render `sentiment_overlay` (Fed path table with AGREES/DISAGREES) | Critical | Medium | Add 5-row table to dashboard + report Safe Haven section. Data already collected weekly. This was the signature feature of the v1 Perplexity monitor and its absence is the clearest regression. |
-| **2** | Render `regime_shift_probabilities` as a four-way probability chart | Critical | Medium | Add a 4-bar chart to the Signal section of both dashboard and report. Data already in both `signal` and `executive_briefing` blocks every issue. |
-| **3** | Promote `hard_landing_risk.score` to a KPI card | Critical | Low | Add a fourth KPI tile to the dashboard's top strip. Requires only JavaScript change in dashboard.html to read the existing field. Highest-value/lowest-effort change available. |
+| **1** | ~~Render `sentiment_overlay` (Fed path table with AGREES/DISAGREES)~~ ✅ 2026-04-01 | Critical | Medium | Add 5-row table to dashboard + report Safe Haven section. Data already collected weekly. This was the signature feature of the v1 Perplexity monitor and its absence is the clearest regression. |
+| **2** | ~~Render `regime_shift_probabilities` as a four-way probability chart~~ ✅ 2026-04-01 (4-bar chart deferred Sprint 2; data rendered in signal block) | Critical | Medium | Add a 4-bar chart to the Signal section of both dashboard and report. Data already in both `signal` and `executive_briefing` blocks every issue. |
+| **3** | ~~Promote `hard_landing_risk.score` to a KPI card~~ ✅ 2026-04-01 | Critical | Low | Add a fourth KPI tile to the dashboard's top strip. Requires only JavaScript change in dashboard.html to read the existing field. Highest-value/lowest-effort change available. |
 | **4** | Render `domain_indicators` Domains 4 & 5 on report.html | High | High | Real Economy (ISM PMI, Jobless Claims, Cass Freight, Earnings) and Composite Indices (STLFSI, NFCI, IIF Debt, 0DTE) are invisible despite being collected. Add an expandable indicator grid with SA/CC/TS badges and crisis_threshold context bars. |
 | **5** | Render `scenario_analysis` three-scenario panel + `update_this_week` accordion | High | Medium | The scenario analysis (Slow Burn 55%, Policy Pivot 20%, Credit Contagion 25%) and the weekly intelligence updates are the highest-analytical-density content in the schema and are never shown to users. Add scenario cards to dashboard and `update_this_week` expandables to report.html. |
 
