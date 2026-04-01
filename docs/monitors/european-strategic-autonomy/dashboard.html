@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<th>Country</th><th>Status</th><th>Key Development</th><th>Severity</th>' +
         '</tr></thead><tbody>';
       memberStates.forEach(function (ms) {
-        var sev = ms.severity || ms.level || '';
+        var sev = ms.severity_level || ms.severity || ms.level || '';
         var sevClass = '';
         if (/critical/i.test(sev)) sevClass = 'severity-badge--critical';
         else if (/high/i.test(sev)) sevClass = 'severity-badge--high';
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '<tr>' +
             '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(ms.country || ms.name || '')||'') + (AsymRenderer.flag(ms.country || ms.name || '') ? '\u00a0' : '') : '') + escHtml(ms.country || ms.name || '') + '</strong></td>' +
             '<td>' + escHtml(ms.status || '') + '</td>' +
-            '<td>' + escHtml(ms.key_development || ms.summary || ms.note || '') + '</td>' +
+            '<td>' + escHtml(ms.key_development || ms.change_from_last_week || ms.summary || ms.note || '') + '</td>' +
             '<td><span class="severity-badge ' + sevClass + '">' + escHtml(sev) + '</span></td>' +
           '</tr>';
       });
