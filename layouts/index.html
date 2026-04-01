@@ -123,8 +123,6 @@
             <div class="home-monitor-card__logo" aria-hidden="true">{{ .logo | safeHTML }}</div>
             <div class="home-monitor-card__body">
               <span class="home-monitor-card__title">{{ .title }}</span>
-              <span class="home-monitor-card__desc">{{ .description }}</span>
-              <span class="home-monitor-card__signal" style="display:none"></span>
             </div>
           </a>
           {{ end }}
@@ -200,26 +198,13 @@
     { slug: 'environmental-risks',         accent: '#4caf7d' },
     { slug: 'conflict-escalation',         accent: '#dc2626' },
   ];
-  function extractSignal(d) {
-    if (d.signal) return d.signal.headline || d.signal.title || '';
-    if (d.lead_signal) return d.lead_signal.headline || '';
-    if (d.m00_the_signal) return d.m00_the_signal.title || '';
-    if (d.module_0) return (d.module_0.body || '').slice(0, 140);
-    return '';
-  }
   monitors.forEach(function(m) {
     fetch('/monitors/' + m.slug + '/data/report-latest.json')
       .then(function(r) { return r.json(); })
       .then(function(d) {
-        var headline = extractSignal(d);
         var card = document.querySelector('[data-monitor="' + m.slug + '"]');
         if (!card) return;
         card.style.setProperty('--accent-live', m.accent);
-        var sigEl = card.querySelector('.home-monitor-card__signal');
-        if (sigEl && headline) {
-          sigEl.textContent = headline;
-          sigEl.style.display = 'block';
-        }
       })
       .catch(function() {});
   });
