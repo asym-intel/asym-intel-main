@@ -175,6 +175,15 @@ the longitudinal record: more precise baselines, better characterised trend line
 cleaner changelog entries. The agent running in your role next week will have
 no memory of this session. What they know is what you write.
 
+**Propose improvements to your internal methodology spec.** The full internal methodology
+for your monitor lives at `asym-intel-internal/methodology/{slug}-full.md`. You read
+it at the start of every session. If you discover that a source tier is producing
+weaker evidence than a newly available alternative, that a scoring rubric is
+systematically producing a known false signal, that a coverage gap has become
+material, or that a structural change in your domain has made part of the methodology
+obsolete — document the proposed change in `notes-for-computer.md`. The methodology
+spec is a living document. Improving it is part of your role, not outside it.
+
 ---
 
 *This preamble is not a replacement for your monitor's cron prompt. It is the
