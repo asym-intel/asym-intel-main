@@ -365,7 +365,7 @@
         <div class="kpi-card">
           <div class="kpi-card__value" id="kpi-lead-signal">—</div>
           <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub">Top story this week</div>
+          <div class="kpi-card__sub" id="kpi-lead-signal-sub">Top story this week</div>
         </div>
       </div>
     </section>
@@ -672,7 +672,15 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-countries').textContent   = total;
       document.getElementById('kpi-rapid-decay').textContent = rd.length;
       var firstWords = signal.split(' ').slice(0, 6).join(' ');
-      document.getElementById('kpi-lead-signal').textContent = firstWords + (signal.split(' ').length > 6 ? '…' : '');
+      document.getElementById('kpi-lead-signal').textContent = firstWords + (signal.split(' ').length > 6 ? '\u2026' : '');
+      // Replace static 'Top story this week' sub with a live source link
+      var kpiSub = document.getElementById('kpi-lead-signal-sub');
+      if (kpiSub) {
+        var sigUrl = signalObj.source_url || d.source_url || '';
+        kpiSub.innerHTML = sigUrl
+          ? '<a class="source-link" href="' + escHtml(sigUrl) + '" target="_blank" rel="noopener">Read the top story \u2193</a>'
+          : 'Top story this week';
+      }
 
       // Page meta
       document.getElementById('page-meta').innerHTML =
