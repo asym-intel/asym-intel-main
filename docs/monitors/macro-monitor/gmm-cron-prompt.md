@@ -292,3 +292,130 @@ EXAMPLE:
   "direction": "Increasing",
   "note": "Private credit gate events, consumer confidence below GFC trough, and tariff shock raise hard landing probability above baseline; consistent with IMF April WEO downside scenario."
 }
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REAL M2 — FIVE-DEFLATOR STACK (update executive_briefing each issue)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The real_m2 field must include ALL FIVE deflators, not just Core PCE.
+This produces the waterfall chart showing progressive liquidity erosion.
+
+SCHEMA (replace the single-value real_m2 from prior schema):
+{
+  "nominal":      float,   // Nominal M2 YoY % (Fed H.6)
+  "vs_cpi":       float,   // nominal minus CPI YoY
+  "vs_pce":       float,   // nominal minus PCE YoY
+  "vs_core_pce":  float,   // nominal minus Core PCE YoY  ← primary reference
+  "vs_ppi":       float,   // nominal minus PPI YoY
+  "vs_core_ppi":  float,   // nominal minus Core PPI YoY  ← tightest measure
+  "direction":    "Improving" | "Stable" | "Deteriorating",
+  "note":         "One sentence on the spread and what it signals"
+}
+
+Source: Fed H.6 (M2), BLS CPI, BEA PCE, BLS PPI. Calculate each as:
+  real_m2_vs_X = nominal_m2_yoy - X_yoy
+Direction is based on vs_core_pce trend vs. prior week.
+If a deflator is unavailable, use prior week's value and note it.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REGIME SHIFT PROBABILITIES — add to signal each issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add "regime_shift_probabilities" to the signal block each issue.
+The four regimes are fixed; only the probabilities change.
+They must sum to 1.0 (±0.01 for rounding).
+
+SCHEMA:
+"regime_shift_probabilities": {
+  "stay_stagflation":    float,  // probability current regime persists 3 months
+  "deflationary_bust":   float,  // credit/demand collapse → disinflation + recession
+  "inflationary_boom":   float,  // demand re-accelerates, inflation entrenched
+  "goldilocks":          float   // soft landing: inflation falls, growth holds
+}
+
+Source: analyst judgement anchored to scenario_analysis probabilities.
+stay_stagflation should equal or approximate base_case_probability.
+Also copy into executive_briefing.regime_shift_probabilities for the dashboard.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FED FUNDS FUTURES — add to sentiment_overlay each issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add a "sentiment_overlay" top-level key to report-latest.json.
+Include the next 5 FOMC meetings with implied cut probabilities
+and your view vs. market consensus.
+
+SCHEMA:
+"sentiment_overlay": {
+  "fed_funds_futures": [
+    {
+      "meeting":          "Apr 28–29",          // display label
+      "meeting_date":     "2026-04-29",          // ISO date of decision day
+      "weeks_ahead":      4,                     // weeks from publish date
+      "cut_probability":  0.02,                  // from CME FedWatch (0.0–1.0)
+      "our_view":         "AGREES" | "DISAGREES",
+      "note":             "One sentence analyst rationale"
+    }
+    // ... 5 meetings total
+  ],
+  "prob_zero_cuts_2026": float,   // cumulative: probability of no cuts this year
+  "matt_agreement_pct":  float,   // % of analyst flags market is pricing (0–1)
+  "source_url": "https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html"
+}
+
+Source: CME FedWatch for cut_probability. Analyst judgement for our_view.
+AGREES = market pricing consistent with your framework.
+DISAGREES = market is mispricing — note which direction.
+Update all 5 meetings every issue; remove meetings that have passed.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INDICATOR TYPE BADGES — add to every domain indicator
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Every indicator object in domain_indicators must include:
+  "indicator_type": "SA" | "CC" | "TS"
+
+Definitions:
+  SA = Strategic Anchor    — structural, multi-year horizon, slow-moving
+  CC = Cycle Coincident    — tracks the business/credit cycle, months horizon
+  TS = Tactical Signal     — fast-moving, weeks horizon, for positioning
+
+CANONICAL MAPPING (fixed — do not change week to week):
+  Domain 1 — Debt & Sovereign:
+    us_debt_deficit:           SA
+    japan_jgb_yields:          SA
+    em_sovereign_distress:     SA
+    custody_migration:         SA
+    gold_reserve_ratio:        SA
+
+  Domain 2 — Banking & Credit:
+    fed_sloos:                 TS
+    cre_delinquency:           CC
+    gsib_capital_cds:          SA
+    private_credit_nbfi:       SA
+
+  Domain 3 — Market Structure:
+    vix_term_structure:        TS
+    treasury_market_liquidity: TS
+    margin_debt:               TS
+    dollar_funding_fx_basis:   TS
+    m2_real_net_liquidity:     CC
+
+  Domain 4 — Real Economy:
+    ism_manufacturing_pmi:     CC
+    jobless_claims:            CC
+    cass_freight_index:        CC
+    consumer_confidence:       CC
+    corporate_earnings_revisions: CC
+
+  Domain 5 — Composite Indices:
+    stlfsi4:                   CC
+    chicago_fed_nfci:          CC
+    iif_global_debt_monitor:   SA
+    zero_dte_option_volume:    TS
+
+  Domain 6 — Amplifiers:
+    trump_tariff_escalation:   SA
+    oil_supply_shock:          TS
+    dollar_weaponisation:      SA
+    ai_infrastructure_debt:    SA
