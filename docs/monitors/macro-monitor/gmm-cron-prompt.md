@@ -135,3 +135,65 @@ STEP 3 — Hugo brief:
 STEP 4 — Notify. Dashboard: https://asym-intel.info/monitors/macro-monitor/dashboard.html
 
 Cron: 0 8 * * 1 (every Monday at 08:00 UTC)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TAIL RISK HEATMAP — add to report-latest.json each issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add a "tail_risks" array to report-latest.json. Each entry is a named
+macro tail risk event that an investor should track this week.
+
+SCHEMA per item:
+{
+  "id":         "snake_case_unique_id",
+  "label":      "Short event name (≤4 words)",
+  "likelihood": 0.0–1.0,   // see sourcing rule below
+  "impact":     0.0–1.0,   // see sourcing rule below
+  "direction":  "Increasing" | "Stable" | "Decreasing",
+  "note":       "One sentence: what triggers this, why it matters now"
+}
+
+SOURCING RULES (always follow these — do not use gut estimates):
+
+likelihood (x-axis):
+  Source directly from the probability estimates you write in the
+  Horizon Matrix / tactical section of the report narrative.
+  e.g. "60% probability oil stays $90+ for 30 days" → likelihood: 0.60
+  e.g. "35% chance of VIX re-spike" → likelihood: 0.35
+  If no explicit probability exists, assign band midpoints:
+    LOW probability (<33%)    → 0.20
+    MEDIUM probability (33–66%) → 0.50
+    HIGH probability (>66%)   → 0.75
+  Always note the sourcing in "note".
+
+impact (y-axis) — FORMALISED METHOD:
+  Step 1: List asset classes materially affected (score change ≥0.15 if scenario triggers)
+  Step 2: Count affected asset classes (max 8)
+  Step 3: Estimate average score change across affected classes (0.0–1.0)
+  Step 4: impact = (count / 8) × average_score_change × 1.5, capped at 1.0
+  Example: Hormuz closure affects 6 asset classes avg 0.80 change →
+           impact = (6/8) × 0.80 × 1.5 = 0.90
+
+QUANTITY: 5–8 tail risks per issue. Cover a mix of near-term (≤4 weeks)
+and medium-term (1–3 month) horizons. Label each as "near" or "medium"
+in the "note" field prefix: "[Near]" or "[Medium]".
+
+EXAMPLE OUTPUT:
+"tail_risks": [
+  {
+    "id": "private_credit_cascade",
+    "label": "Private Credit Cascade",
+    "likelihood": 0.55,
+    "impact": 0.85,
+    "direction": "Increasing",
+    "note": "[Near] Gate events at Ares/Apollo signal retail outflow pressure that could trigger CLO and IG credit contagion simultaneously."
+  },
+  {
+    "id": "jgb_yield_spiral",
+    "label": "JGB Yield Spiral",
+    "likelihood": 0.25,
+    "impact": 0.90,
+    "direction": "Stable",
+    "note": "[Medium] BoJ forced to choose between FX defence and yield cap; no modern precedent for orderly resolution."
+  }
+]
