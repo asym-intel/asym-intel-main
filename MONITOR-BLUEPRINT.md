@@ -838,3 +838,36 @@ CRITICAL RULE (from April 2026 incident):
   Cron prompts must begin with:
   "CRON TASKS NEVER TOUCH HTML, CSS, OR JS FILES. EVER."
   This must be the first rule, in caps, before anything else.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 14 — CENTRALISED SHARED ASSETS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ABOUT-TEMPLATE (static/monitors/shared/about-template.html)
+  Canonical about.html for all monitors. Copy and replace:
+    {{MONITOR_FULL_NAME}}  — e.g. "World Democracy Monitor"
+    {{MONITOR_ABBR}}       — e.g. "WDM"
+    {{MONITOR_SLUG}}       — e.g. "democratic-integrity"
+    {{MONITOR_SVG_18}}     — inline SVG 18×18 from monitor-svg-notes.md
+    {{PUBLISH_DAY}}        — e.g. "Monday"
+    {{PUBLISH_TIME}}       — e.g. "06:00"
+    {{DESCRIPTION_HTML}}   — 1-2 <p> tags describing the monitor
+  Guarantees all 5 section IDs. No need to verify manually.
+  Never write about.html from scratch — always start from this template.
+
+ASYNC PERSISTENT RENDERER (static/monitors/shared/js/renderer.js)
+  window.AsymPersistent API — call instead of writing custom JS:
+    AsymPersistent.renderEntityList(items, 'container-id')
+    AsymPersistent.renderCrossMonitorFlags(cmf, 'container-id')
+    AsymPersistent.renderEntityCard(entity)
+    AsymPersistent.renderVersionHistory(history)
+  Handles: null fields, dict-of-arrays, version history toggle,
+    severity badges, cross-monitor flag expand/collapse.
+  Eliminates field-name bugs on persistent.html pages.
+
+MONITOR SVG REGISTRY (static/monitors/monitor-svg-notes.md)
+  All 7 canonical SVGs with inline code. Always use these.
+  Never invent new SVGs for monitor pages.
+
+CRON WRAPPER (static/monitors/cron-wrapper-instructions.md)
+  Thin wrapper pattern for all cron schedules. See Section 13.
