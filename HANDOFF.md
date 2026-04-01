@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 12:45 UTC | **Last commit (main):** f8bfdbd0
+**Date:** 2026-04-01 12:45 UTC | **Last commit (main):** e2db654
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -68,6 +68,16 @@ Homepage live signal cards + per-monitor CSS personality. Merged to main.
 
 ### ✅ Homepage upgrade — COMPLETE
 Domain cards fetch report-latest.json on page load. Merged to main.
+
+
+### ✅ Schema v2.1 additions — COMPLETE (2026-04-01)
+All 7 cron prompts updated on main (commit e2db654). Additions:
+- `methodology_url` in meta (per-monitor static URL)
+- `flag_definitions` in meta (f_flags for all; mf_flags additionally for FCW)
+- `source_date` on FCW campaign/attribution_log source objects
+- `summary` field on AGM module_1 Executive Insight items
+- `changelog` rule on persistent array items (WDM, GMM, ESA, ERM, SCEM, AGM cross_monitor_flags)
+Next cron run for each monitor will naturally produce JSON with the new fields.
 
 ### Priority 4 — Schema audit
 Check field alignment across all 7 monitors after renderer fixes.
