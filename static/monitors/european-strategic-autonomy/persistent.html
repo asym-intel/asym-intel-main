@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function () {
       cases.forEach(function (c) {
         var sevLabel = c.severity >= 4.5 ? 'critical' : c.severity >= 3.5 ? 'high' : 'moderate';
         scHtml += '<div class="card">' +
-          '<div class="card__title">' + escHtml(c.country || '') + ' <span class="severity-badge severity-badge--' + sevLabel + '">' + escHtml(String(c.severity || '')) + '</span></div>' +
+          '<div class="card__title">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country||'')||'') + (AsymRenderer.flag(c.country||'') ? '\u00a0' : '') : '') + escHtml(c.country || '') + ' <span class="severity-badge severity-badge--' + sevLabel + '">' + escHtml(String(c.severity || '')) + '</span></div>' +
           '<div class="card__body">' + escHtml(c.status || '') + '</div>' +
           '<div class="card__footer"><span>' + escHtml(c.key_indicator || '') + '</span></div>' +
           '</div>';
