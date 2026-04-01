@@ -41,13 +41,12 @@ The `asym-intel` skill is saved to user skill library. Load it:
 
 ## Priority Outstanding Tasks
 
-### 1. nav.js → move to `<head>` on all 57 pages (STAGING FIRST)
+### 1. nav.js → move to `<head>` — ON STAGING, AWAITING REVIEW ✅
 **Why:** nav.js currently loads at bottom of `<body>`. The network bar is injected after content renders → invisible on mobile first paint. Moving to `<head>` fixes this.
 **How:** Edit all 57 `static/monitors/**/*.html` pages to move `<script src="../shared/js/nav.js">` from bottom of `<body>` to `<head>`.
-**Branch:** `staging` only — then PR to main after visual verification.
-**Check:** https://staging.asym-intel.info/monitors/macro-monitor/dashboard.html on mobile.
+**Branch:** Pushed to `staging` — verify at https://staging.asym-intel.info/monitors/macro-monitor/dashboard.html on mobile, then PR to main.
 
-### 2. Mobile hamburger menu overlay (STAGING FIRST)
+### 2. Mobile hamburger menu overlay — ON STAGING, AWAITING REVIEW ✅
 **Issue:** When hamburger opens on mobile, `.monitor-nav__links--open` renders as a full-screen overlay covering page content.
 **Fix:** In `base.css`, add `max-height: calc(100vh - 40px - 52px)` and `overflow-y: auto` to `.monitor-nav__links` mobile open state. Also ensure it doesn't cover the whole viewport.
 **Branch:** `staging` → verify → PR to main.
@@ -106,14 +105,14 @@ This entire session pushed directly to `main` before the staging rule was proper
 
 | Cron | ID | Schedule | Reads from |
 |---|---|---|---|
-| WDM | (in Computer schedule) | Mon 06:00 UTC | static/monitors/democratic-integrity/wdm-cron-prompt.md |
-| GMM | (in Computer schedule) | Mon 08:00 UTC | static/monitors/macro-monitor/gmm-cron-prompt.md |
-| FCW | (in Computer schedule) | Thu 09:00 UTC | static/monitors/fimi-cognitive-warfare/fcw-cron-prompt.md |
-| ESA | (in Computer schedule) | Wed 19:00 UTC | static/monitors/european-strategic-autonomy/esa-cron-prompt.md |
-| AGM | (in Computer schedule) | Fri 09:00 UTC | static/monitors/ai-governance/agm-cron-prompt.md |
-| ERM | (in Computer schedule) | Sat 05:00 UTC | static/monitors/environmental-risks/erm-cron-prompt.md |
-| SCEM | (in Computer schedule) | Sun 18:00 UTC | static/monitors/conflict-escalation/scem-cron-prompt.md |
-| Housekeeping | **73452bc6** | Mon 08:00 UTC | static/monitors/housekeeping-cron-prompt.md |
+| WDM | **db22db0d** | Mon 06:00 UTC | wdm-cron-prompt.md |
+| GMM | **02c25214** | Mon 08:00 UTC | gmm-cron-prompt.md |
+| FCW | **879686db** | Thu 09:00 UTC | fcw-cron-prompt.md |
+| ESA | **0fa1c44e** | Wed 19:00 UTC | esa-cron-prompt.md |
+| AGM | **267fd76e** | Fri 09:00 UTC | agm-cron-prompt.md |
+| ERM | **3e736a32** | Sat 05:00 UTC | erm-cron-prompt.md |
+| SCEM | **eb312202** | Sun 18:00 UTC | scem-cron-prompt.md |
+| Housekeeping | **73452bc6** | Mon 08:00 UTC | housekeeping-cron-prompt.md |
 
 ---
 
@@ -126,4 +125,5 @@ This entire session pushed directly to `main` before the staging rule was proper
 15. `position:fixed` for network bar on ALL pages (Hugo and monitor) — sticky scrolls away
 16. GMM monitor.css was 200+ lines — component styles belong in base.css
 17. Hugo `--buildFuture` required: cron publish time races with Hugo build clock
+19. Cron schedules now have hard file-scope constraints in the Computer task description itself — agents cannot touch HTML/CSS/JS even if confused by prompt content
 18. Two nav systems (Hugo partials + static HTML nav.js) must share the same CSS architecture
