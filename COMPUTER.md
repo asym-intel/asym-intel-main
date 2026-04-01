@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.7 — 1 April 2026
+# Version: 1.8 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -141,11 +141,19 @@ CANONICAL NAV ARCHITECTURE (Blueprint v2.1):
   nav.js:       loaded in <head> (not bottom of body) — injects bar before paint
 
 TYPOGRAPHY FLOOR:
-  --text-min = var(--text-xs) = clamp(0.8125rem, ...) defined in base.css
-  NEVER hardcode font-size below var(--text-min) (e.g. 0.7rem, 0.65rem, 0.62rem)
-  Use var(--text-min) for badges, tags, metadata labels
-  Use var(--text-xs) or larger for all body/content text
-  Violation = text that becomes illegible on mobile
+  --text-min = var(--text-xs) = clamp(0.8125rem, ...) ≈ 13px — defined in base.css
+  NEVER hardcode font-size below var(--text-min) ANYWHERE:
+    • In <style> blocks
+    • In monitor.css
+    • In JavaScript innerHTML strings: style="font-size:0.65rem" ← WRONG
+    • In inline style= attributes in static HTML
+  Use var(--text-min) for: badges, tags, metadata, timestamps, chart axis labels
+  Use var(--text-xs) or larger for: all body/content/summary text
+  Violation = illegible text on mobile
+
+  VALIDATOR SCOPE LIMITATION: Check 19 only catches <style> block violations.
+  JavaScript-generated font sizes (innerHTML strings) are invisible to the validator.
+  Catch those via: anti-patterns.json FE-006 + visual sign-off on every PR.
 
 CONTRAST RULES (WCAG AA — apply globally, never fix piecemeal):
   Raw --monitor-accent fails WCAG AA on white for 5 of 7 monitors (WDM/GMM/FCW/ESA/ERM).
@@ -156,6 +164,28 @@ CONTRAST RULES (WCAG AA — apply globally, never fix piecemeal):
     .card__label { color }       — accent label text on white card
   When adding any new element that uses --monitor-accent on a light surface,
   ALWAYS use color-mix(in srgb, var(--monitor-accent) 65%, #000) not raw --monitor-accent.
+
+  TEXT ON TINTED PANELS (JS-generated cards, badges, chips, timeline labels):
+  Tinted panel = var(--monitor-accent-bg) = rgba(accent, 0.12) — a LIGHT surface.
+  Text on this surface MUST use the darkened accent:
+    WRONG: style="background:var(--monitor-accent-bg);color:var(--monitor-accent)"
+    RIGHT: style="background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000)"
+  This applies to ALL elements with light tinted backgrounds:
+  badges, risk-heat cells, tag chips, timeline labels, actor boards, delta items.
+
+  VALIDATOR SCOPE LIMITATION: Checks 19–20 only scan <style> blocks in static HTML.
+  JavaScript innerHTML strings are invisible to the validator — most contrast
+  violations occur there (chart renderers, card builders, tooltip callbacks).
+  Catch those via: anti-patterns.json FE-003 + visual sign-off on every PR.
+  Never rely on the validator alone for contrast compliance in JS-heavy pages.
+
+COUNTRY FLAGS RULE (FE-016 — see anti-patterns.json):
+  AsymRenderer.flag(iso2) is available on every page via renderer.js.
+  ALWAYS use it wherever a country name or ISO-2 actor code appears:
+    • Tables, chart labels, card headings, timeline actor labels
+    • Delta strips, actor boards, threat boards, campaign names
+  Pattern: (AsymRenderer.flag(code) ? AsymRenderer.flag(code) + '\u00a0' : '') + escHtml(name)
+  Safe: returns '' for unknown codes — ternary guard is sufficient.
 
 SIGNAL-BLOCK OWNERSHIP (architectural rule):
   base.css owns the background property on .signal-block. It is set with !important.
