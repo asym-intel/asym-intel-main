@@ -141,6 +141,12 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
       <div id="actor-campaigns-list"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <section class="module-section" id="section-lagrange">
+      <h2 class="section-title">Strategic Autonomy Scorecard</h2>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Six dimensions of European strategic autonomy, scored 0–100. The Lagrange Point composite tracks overall progress toward genuine independence.</p>
+      <div id="lagrange-scorecard"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <section class="module-section" id="section-cross-monitor">
       <div class="module-header">
         <div class="module-num-large">06</div>
@@ -162,6 +168,7 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
       <li><a href="#section-legislation">EU Legislation</a></li>
       <li><a href="#section-timeline">Timeline</a></li>
       <li><a href="#section-actor-campaigns">Actor Campaigns</a></li>
+      <li><a href="#section-lagrange">Autonomy Scorecard</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
   </nav>
@@ -206,6 +213,18 @@ document.addEventListener('DOMContentLoaded', function () {
     el.innerHTML = html;
   }
 
+  Promise.all([
+    fetch('data/persistent-state.json').then(function(r){return r.json();}),
+    fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(results) {
+    var d = results[0];
+    var report = results[1];
+    // Merge cross-monitor flags from report into d for rendering
+    if (!d.cross_monitor_flags && report.cross_monitor_flags) {
+      d.cross_monitor_flags = report.cross_monitor_flags;
+    }
+  })
+  .catch(function(){});
   fetch('data/persistent-state.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -218,10 +237,18 @@ document.addEventListener('DOMContentLoaded', function () {
       var kpiFields = [
         ['threat_actors_tracked','Threat Actors Tracked'],
         ['hybrid_attacks_total','Hybrid Attacks Total'],
+        ['hybrid_attacks_recent','Hybrid Attacks (Recent)'],
         ['elections_under_threat','Elections Under Threat'],
+        ['fimi_incidents_eeas','FIMI Incidents (EEAS)'],
+        ['eu_legislation_targeted','EU Legislation Targeted'],
         ['eu_defence_total_2025','EU Defence Total 2025'],
         ['eu_defence_spending_real_change','Defence Spending Change'],
         ['safe_programme_total','SAFE Programme Total'],
+        ['ceasefire_probability_ukraine','Ceasefire Probability'],
+        ['lagrange_point_progress','Lagrange Point Progress'],
+        ['democratic_health_avg','Democratic Health Avg'],
+        ['vdem_autocratising_europe','V-Dem Autocratising (EU)'],
+        ['eu_support_ukraine_total','EU Support Ukraine Total'],
       ];
       kpiFields.forEach(function (pair) {
         var val = kpi[pair[0]];
@@ -234,6 +261,43 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       kpiHtml += '</div>';
       document.getElementById('kpi-state').innerHTML = kpiHtml;
+
+      // Lagrange Point Scorecard
+      var lagEl = document.getElementById('lagrange-scorecard');
+      if (lagEl) {
+        var lagDims = (kpi.lagrange_point_dimensions) || {};
+        var lagProgress = kpi.lagrange_point_progress || '—';
+        var dimOrder = ['energy','defence','technology','finance','materials','institutions'];
+        var dimLabels = {'energy':'Energy','defence':'Defence','technology':'Technology',
+                         'finance':'Finance','materials':'Materials','institutions':'Institutions'};
+        if (Object.keys(lagDims).length) {
+          var lagHtml = '<div style="margin-bottom:var(--space-4);font-size:var(--text-sm)">' +
+            '<strong>Composite Progress: ' + escHtml(String(lagProgress)) + '</strong>' +
+            ' <span style="color:var(--color-text-muted);font-size:var(--text-xs)">(0% = full dependence → 100% = full autonomy)</span>' +
+          '</div>';
+          lagHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-3)">';
+          dimOrder.forEach(function(dim) {
+            var d2 = lagDims[dim];
+            if (!d2) return;
+            var score = parseFloat(d2.score||0);
+            var barColor = score >= 50 ? 'var(--positive)' : score >= 30 ? 'var(--monitor-accent)' : 'var(--high)';
+            lagHtml += '<div class="card">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-2)">' +
+                '<span style="font-weight:600;font-size:var(--text-sm)">' + escHtml(dimLabels[dim]||dim) + '</span>' +
+                '<span style="font-weight:700;color:' + barColor + '">' + escHtml(String(d2.score)) + '/100</span>' +
+              '</div>' +
+              '<div style="background:var(--color-border);border-radius:3px;height:6px;margin-bottom:var(--space-2)">' +
+                '<div style="width:' + Math.min(score,100) + '%;background:' + barColor + ';height:100%;border-radius:3px"></div>' +
+              '</div>' +
+              (d2.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(d2.note) + '</div>' : '') +
+            '</div>';
+          });
+          lagHtml += '</div>';
+          lagEl.innerHTML = lagHtml;
+        } else {
+          lagEl.innerHTML = '<p class="text-muted text-sm">Scorecard data will appear after the next publish cycle.</p>';
+        }
+      }
 
       renderList(d.active_elections || [], 'elections-list', 'name', 'key_facts', ['country','date','severity','interference_actors']);
 
