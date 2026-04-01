@@ -132,9 +132,12 @@ Never delete changelog history.
 Commit: "data(gmm): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
-  content/monitors/macro-monitor/[DATE]-weekly-brief.md
+  PUBLISH_DATE = today's UTC date in YYYY-MM-DD format (e.g. 2026-04-07)
+  ⚠️  The filename MUST equal PUBLISH_DATE. The front matter date: field must also equal PUBLISH_DATE.
+      A mismatch causes a future-dated or wrong URL in sitemap.xml (anti-pattern FE-019).
+  Filename: content/monitors/macro-monitor/[PUBLISH_DATE]-weekly-brief.md
   title: "Global Macro Monitor — W/E [DD Month YYYY]"
-  date: [DATE]T08:00:00Z | monitor: "macro-monitor"
+  date: [PUBLISH_DATE]T08:00:00Z | monitor: "macro-monitor"
 
 STEP 4 — Notify. Dashboard: https://asym-intel.info/monitors/macro-monitor/dashboard.html
 
