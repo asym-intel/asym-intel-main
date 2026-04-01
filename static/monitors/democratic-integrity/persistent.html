@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Living Knowledge — World Democracy Monitor</title>
-  <meta name="description" content="Persistent knowledge base for the World Democracy Monitor. Country heatmap history, mimicry chain tracking, and institutional integrity flags.">
+  <title>Living Knowledge — World Democracy Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="World Democracy Monitor persistent knowledge base — heatmap history, mimicry chain tracking, institutional integrity flags, and cross-monitor signals.">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
-  <script src="../shared/js/nav.js"></script>
 </head>
+<style>
+body{padding-top:40px!important}
+.monitor-nav{top:40px!important}
+.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
+nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
+nav.sidebar{height:calc(100vh - 40px)!important}
+.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
+.header:not([data-asym-network-bar]){top:40px!important}
+nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
+</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;display:flex;align-items:center;padding:0 24px;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
 
 <body>
 
-<nav class="monitor-nav" aria-label="Monitor navigation">
-  <a class="monitor-nav__brand" href="dashboard.html">
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="flex-shrink:0">
+  <nav class="monitor-nav" aria-label="Monitor navigation">
+    <a class="monitor-nav__brand" href="dashboard.html">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="flex-shrink:0">
   <circle cx="16" cy="16" r="13" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
   <ellipse cx="16" cy="16" rx="13" ry="5" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
   <ellipse cx="16" cy="16" rx="13" ry="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
@@ -23,192 +34,382 @@
   <line x1="3" y1="16" x2="29" y2="16" stroke="var(--monitor-accent)" stroke-width="1"/>
   <line x1="16" y1="3" x2="16" y2="29" stroke="var(--monitor-accent)" stroke-width="1"/>
 </svg>
-    <span>World Democracy Monitor</span>
-  </a>
-  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
-      <line x1="2" y1="9" x2="16" y2="9"/>
-      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
-    </svg>
-  </button>
-  <ul class="monitor-nav__links" role="list">
-    <li><a href="overview.html">Overview</a></li>
-    <li><a href="dashboard.html">Dashboard</a></li>
-    <li><a href="report.html">Latest Issue</a></li>
-    <li><a href="archive.html">Archive</a></li>
-    <li><a href="persistent.html" class="active">Living Knowledge</a></li>
-    <li><a href="about.html">About</a></li>
-  </ul>
-  <div class="monitor-nav__actions">
-    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <circle cx="7.5" cy="7.5" r="2.5"/>
-        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
-        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
-        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
-        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
-        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
-        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
-        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
-        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
-      </svg>
-      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      <span>World Democracy Monitor</span>
+    </a>
+    <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+        <line x1="2" y1="9" x2="16" y2="9"/>
+        <line x1="2" y1="13.5" x2="16" y2="13.5"/>
       </svg>
     </button>
-  </div>
-</nav>
-
-<div class="monitor-layout">
-  <main class="monitor-main" id="main-content">
-
-    <div id="meta-header">
-      <div class="page-header">
-        <div class="page-header__eyebrow">WDM · Living Knowledge</div>
-        <h1 class="page-header__title">Persistent State</h1>
-        <p class="page-header__sub">Carries forward heatmap classifications, mimicry chain tracking, and institutional integrity flags across weekly issues.</p>
-      </div>
-    </div>
-
-    <section class="module-section" id="section-heatmap">
-      <div class="module-header">
-        <div class="module-title">Heatmap Countries</div>
-      </div>
-      <div id="heatmap-countries">
-        <div class="loading-state">Loading…</div>
-      </div>
-    </section>
-
-    <section class="module-section" id="section-mimicry">
-      <div class="module-header">
-        <div class="module-title">Mimicry Chains</div>
-      </div>
-      <div id="mimicry-chains">
-        <div class="loading-state">Loading…</div>
-      </div>
-    </section>
-
-    <section class="module-section" id="section-integrity">
-      <div class="module-header">
-        <div class="module-title">Institutional Integrity Flags</div>
-      </div>
-      <div id="integrity-flags">
-        <div class="loading-state">Loading…</div>
-      </div>
-    </section>
-
-    <section class="module-section" id="section-cross">
-      <div class="module-header">
-        <div class="module-title">Cross-Monitor Flags</div>
-      </div>
-      <div id="cross-monitor">
-        <div class="loading-state">Loading…</div>
-      </div>
-    </section>
-
-  </main>
-
-  <nav class="monitor-sidebar" aria-label="Page sections">
-    <div class="sidebar-nav__title">Sections</div>
-    <ul>
-      <li><a href="#section-heatmap">Heatmap Countries</a></li>
-      <li><a href="#section-mimicry">Mimicry Chains</a></li>
-      <li><a href="#section-integrity">Integrity Flags</a></li>
-      <li><a href="#section-cross">Cross-Monitor</a></li>
+    <ul class="monitor-nav__links" role="list">
+      <li><a href="overview.html">Overview</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="report.html">Latest Issue</a></li>
+      <li><a href="archive.html">Archive</a></li>
+      <li><a href="persistent.html" class="active">Living Knowledge</a></li>
+      <li><a href="about.html">About</a></li>
     </ul>
-
+    <div class="monitor-nav__actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="7.5" cy="7.5" r="2.5"/>
+          <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+          <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+          <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+          <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+          <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+          <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+          <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+          <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+        </svg>
+      </button>
+    </div>
   </nav>
 
-</div>
+  <div class="monitor-layout">
+    <main class="monitor-main" id="main-content">
 
-<footer class="monitor-footer">
-  <span>World Democracy Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
-  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
-</footer>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  function escHtml(str) {
-    return String(str == null ? '' : str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+      <header class="page-header" id="meta-header">
+        <div class="page-header__eyebrow">WDM · Living Knowledge</div>
+        <h1 class="page-header__title">Persistent State</h1>
+        <p class="page-header__desc" id="meta-desc">Carries forward heatmap classifications, mimicry chain tracking, and institutional integrity flags across weekly issues.</p>
+      </header>
 
-  function statusBadge(status) {
-    var cls = {
-      'RapidDecay': 'rapid-decay',
-      'Recovery':   'recovery',
-      'Watchlist':  'watchlist',
-    }[status] || 'moderate';
-    return '<span class="severity-badge severity-badge--' + cls + '">' + escHtml(status || '') + '</span>';
-  }
+      <!-- Weekly Brief -->
+      <section class="module-section" id="section-weekly-brief" aria-labelledby="wb-heading">
+        <div class="module-header">
+          <div class="module-title" id="wb-heading">Weekly Brief</div>
+        </div>
+        <div id="weekly-brief-content"><p class="loading-state">Loading…</p></div>
+      </section>
 
-  Promise.all([
-    fetch('data/persistent-state.json').then(function(r){return r.json();}),
-    fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
-  ]).then(function(results){
-    var d = results[0];
-    var report = results[1];
-    if (!d.cross_monitor_flags && report.cross_monitor_flags) {
-      d.cross_monitor_flags = report.cross_monitor_flags;
+      <!-- Country Heatmap -->
+      <section class="module-section" id="section-heatmap" aria-labelledby="hm-heading">
+        <div class="module-header">
+          <div class="module-title" id="hm-heading">Heatmap Countries</div>
+        </div>
+        <div id="heatmap-countries"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Monthly Trend -->
+      <section class="module-section" id="section-monthly-trend" aria-labelledby="mt-heading">
+        <div class="module-header">
+          <div class="module-title" id="mt-heading">Monthly Trend</div>
+        </div>
+        <div id="monthly-trend-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Electoral Watch -->
+      <section class="module-section" id="section-electoral-watch" aria-labelledby="ew-heading">
+        <div class="module-header">
+          <div class="module-title" id="ew-heading">Electoral Watch</div>
+        </div>
+        <div id="electoral-watch-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Digital & Civil Space -->
+      <section class="module-section" id="section-digital-civil" aria-labelledby="dc-heading">
+        <div class="module-header">
+          <div class="module-title" id="dc-heading">Digital &amp; Civil Space</div>
+        </div>
+        <div id="digital-civil-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Autocratic Export -->
+      <section class="module-section" id="section-autocratic-export" aria-labelledby="ae-heading">
+        <div class="module-header">
+          <div class="module-title" id="ae-heading">Autocratic Export</div>
+        </div>
+        <div id="autocratic-export-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- State & Media Capture -->
+      <section class="module-section" id="section-state-capture" aria-labelledby="sc-heading">
+        <div class="module-header">
+          <div class="module-title" id="sc-heading">State &amp; Media Capture</div>
+        </div>
+        <div id="state-capture-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Institutional Pulse -->
+      <section class="module-section" id="section-institutional-pulse" aria-labelledby="ip-heading">
+        <div class="module-header">
+          <div class="module-title" id="ip-heading">Institutional Pulse</div>
+        </div>
+        <div id="institutional-pulse-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Mimicry Chains -->
+      <section class="module-section" id="section-mimicry" aria-labelledby="mc-heading">
+        <div class="module-header">
+          <div class="module-title" id="mc-heading">Mimicry Chains</div>
+        </div>
+        <div id="mimicry-chains"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Institutional Integrity Flags -->
+      <section class="module-section" id="section-integrity" aria-labelledby="if-heading">
+        <div class="module-header">
+          <div class="module-title" id="if-heading">Institutional Integrity Flags</div>
+        </div>
+        <div id="integrity-flags"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Legislative Watch -->
+      <section class="module-section" id="section-legislative-watch" aria-labelledby="lw-heading">
+        <div class="module-header">
+          <div class="module-title" id="lw-heading">Legislative Watch</div>
+        </div>
+        <div id="legislative-watch-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Research 360 / Friction Notes -->
+      <section class="module-section" id="section-friction-notes" aria-labelledby="fn-heading">
+        <div class="module-header">
+          <div class="module-title" id="fn-heading">Research 360 — Friction Notes</div>
+        </div>
+        <div id="friction-notes-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Networks -->
+      <section class="module-section" id="section-networks" aria-labelledby="nw-heading">
+        <div class="module-header">
+          <div class="module-title" id="nw-heading">Networks</div>
+        </div>
+        <div id="networks-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Cross-Monitor Flags -->
+      <section class="module-section" id="section-cross" aria-labelledby="xmon-heading">
+        <div class="module-header">
+          <div class="module-title" id="xmon-heading">Cross-Monitor Flags</div>
+        </div>
+        <div id="cross-monitor"><p class="loading-state">Loading…</p></div>
+      </section>
+
+    </main>
+
+    <aside class="monitor-sidebar">
+      <nav class="sidebar-nav" aria-label="Page sections">
+        <div class="sidebar-nav__title">Sections</div>
+        <ul>
+          <li><a href="#section-weekly-brief">Weekly Brief</a></li>
+          <li><a href="#section-heatmap">Heatmap Countries</a></li>
+          <li><a href="#section-monthly-trend">Monthly Trend</a></li>
+          <li><a href="#section-electoral-watch">Electoral Watch</a></li>
+          <li><a href="#section-digital-civil">Digital &amp; Civil</a></li>
+          <li><a href="#section-autocratic-export">Autocratic Export</a></li>
+          <li><a href="#section-state-capture">State &amp; Media Capture</a></li>
+          <li><a href="#section-institutional-pulse">Institutional Pulse</a></li>
+          <li><a href="#section-mimicry">Mimicry Chains</a></li>
+          <li><a href="#section-integrity">Integrity Flags</a></li>
+          <li><a href="#section-legislative-watch">Legislative Watch</a></li>
+          <li><a href="#section-friction-notes">Friction Notes</a></li>
+          <li><a href="#section-networks">Networks</a></li>
+          <li><a href="#section-cross">Cross-Monitor</a></li>
+        </ul>
+      </nav>
+      <div class="sidebar-nav" style="margin-top:var(--space-6)">
+        <div class="sidebar-nav__title">Related</div>
+        <ul>
+          <li><a href="report.html">Latest Issue →</a></li>
+          <li><a href="dashboard.html">Dashboard →</a></li>
+          <li><a href="methodology.html">Methodology →</a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="monitor-footer">
+    <span>World Democracy Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+    <span class="monitor-footer__credit"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Produced with Perplexity Computer</a></span>
+  </footer>
+
+  <script src="../shared/js/nav.js"></script>
+  <script src="../shared/js/renderer.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+    /* ── Helpers ── */
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
-  }).catch(function(){});
-  fetch('data/persistent-state.json')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      var meta     = d._meta || {};
-      var heatmapObj = d.heatmap_countries || {};
-      var heatmap    = [].concat(
-        (heatmapObj.rapid_decay||[]).map(function(c){ return Object.assign({tier:'Rapid Decay'},c); }),
-        (heatmapObj.recovery||[]).map(function(c){ return Object.assign({tier:'Recovery'},c); }),
-        (heatmapObj.watchlist||[]).map(function(c){ return Object.assign({tier:'Watchlist'},c); })
-      );
-      var mimicry  = d.mimicry_chains || [];
-      var intflags = d.institutional_integrity_active_flags || [];
-      var cross    = d.cross_monitor_flags || {};
+    function flag(c) {
+      return (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag) ? (AsymRenderer.flag(c) || '') : '';
+    }
+    function severityBadge(score) {
+      var s = parseFloat(score) || 0;
+      var cls = s >= 8 ? 'critical' : s >= 6 ? 'high' : s >= 4 ? 'moderate' : 'positive';
+      return '<span class="severity-badge severity-badge--' + cls + '">' + esc(score) + '</span>';
+    }
+    function statusBadge(status) {
+      var map = { 'RapidDecay':'rapid-decay','Recovery':'recovery','Watchlist':'watchlist' };
+      var cls = map[status] || 'moderate';
+      return '<span class="severity-badge severity-badge--' + cls + '">' + esc(status || '') + '</span>';
+    }
+    function severityTextBadge(sev) {
+      if (!sev) return '';
+      var l = (sev||'').toLowerCase();
+      var cls = l === 'high' ? 'critical' : l === 'medium' ? 'moderate' : 'positive';
+      return '<span class="severity-badge severity-badge--' + cls + '">' + esc(sev) + '</span>';
+    }
+    function confidenceBadge(c) {
+      if (!c) return '';
+      return '<span class="severity-badge severity-badge--moderate">' + esc(c) + '</span>';
+    }
 
-      // Update page meta
-      if (meta.last_updated) {
-        document.getElementById('meta-header').querySelector('.page-header__sub').textContent +=
-          ' Last updated: ' + meta.last_updated + '. Total issues: ' + (meta.total_issues || '—') + '.';
+    /* ── Sparkline (SVG inline) ── */
+    function sparkline(history) {
+      if (!history || history.length < 2) return '';
+      var scores = history.map(function(h){ return parseFloat(h.severity_score || h.score || 0); });
+      var min = Math.min.apply(null, scores);
+      var max = Math.max.apply(null, scores);
+      var range = max - min || 1;
+      var w = 60, h = 20, pad = 2;
+      var pts = scores.map(function(s, i) {
+        var x = pad + (i / (scores.length - 1)) * (w - pad * 2);
+        var y = h - pad - ((s - min) / range) * (h - pad * 2);
+        return x.toFixed(1) + ',' + y.toFixed(1);
+      }).join(' ');
+      var lastScore = scores[scores.length - 1];
+      var prevScore = scores[scores.length - 2];
+      var trendColor = lastScore > prevScore ? '#dc2626' : lastScore < prevScore ? '#22c55e' : '#94a3b8';
+      return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="vertical-align:middle;margin-left:6px">' +
+        '<polyline points="' + pts + '" fill="none" stroke="' + trendColor + '" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+        '</svg>';
+    }
+
+    /* ── CMF renderer ── */
+    function renderCrossMonitor(cross) {
+      var cmFlags = (cross && cross.flags) ? cross.flags : [];
+      var html = '';
+      if (cross && cross.updated) {
+        html += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + esc(cross.updated) + '</p>';
+      }
+      if (cmFlags.length) {
+        html += '<div class="cross-monitor-panel"><div class="cross-monitor-panel__title">Cross-Monitor Flags</div>';
+        cmFlags.forEach(function (f) {
+          html += '<div class="cms-flag">' +
+            '<div class="cms-flag__header">' +
+              '<div class="cms-flag__id">' + esc(f.id || '') + '</div>' +
+              (f.monitors ? '<div class="cms-flag__monitors">' + esc(Array.isArray(f.monitors) ? f.monitors.join(' · ') : f.monitors) + '</div>' : '') +
+            '</div>' +
+            '<div class="cms-flag__title">' + esc(f.headline || f.title || '') + '</div>' +
+            '<div class="cms-flag__body">' + esc(f.detail || f.body || '') + '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+      var vhist = (cross && cross.version_history) ? cross.version_history : [];
+      if (vhist.length) {
+        html += '<div style="margin-top:var(--space-6)"><div class="section-label">Version History</div>';
+        vhist.forEach(function (h) {
+          html += '<div class="version-entry"><div class="version-entry__date">' + esc(h.date || '') + '</div><div class="version-entry__change">' + esc(h.change || '') + '</div></div>';
+        });
+        html += '</div>';
+      }
+      return html || '<p class="text-muted">No cross-monitor flags.</p>';
+    }
+
+    /* ── Dual-fetch: persistent-state.json + report-latest.json ── */
+    Promise.all([
+      fetch('data/persistent-state.json').then(function(r){ return r.json(); }),
+      fetch('data/report-latest.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
+    ]).then(function(results) {
+      var d      = results[0];
+      var report = results[1];
+
+      /* Merge CMF from report into persistent if persistent has none */
+      if (!d.cross_monitor_flags && report.cross_monitor_flags) {
+        d.cross_monitor_flags = report.cross_monitor_flags;
       }
 
-      // Heatmap countries — all tiers
+      /* ── Meta header ── */
+      var meta = d._meta || {};
+      var descEl = document.getElementById('meta-desc');
+      if (descEl && meta.last_updated) {
+        descEl.textContent += ' Last updated: ' + meta.last_updated + '. Total issues: ' + (meta.total_issues || '—') + '.';
+      }
+
+      /* ── Weekly Brief (from report-latest.json) ── */
+      var wbEl = document.getElementById('weekly-brief-content');
+      var wb = report.weekly_brief || '';
+      if (wb) {
+        wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + wb + '</div>';
+      } else {
+        wbEl.innerHTML = '<p class="text-muted">Weekly brief not available for this issue.</p>';
+      }
+
+      /* ── Heatmap Countries ── */
+      var heatmapObj = d.heatmap_countries || {};
       var tiers = [
         { key: 'rapid_decay', label: 'Rapid Decay', status: 'RapidDecay' },
         { key: 'recovery',    label: 'Recovery',    status: 'Recovery'   },
-        { key: 'watchlist',   label: 'Watchlist',   status: 'Watchlist'  },
+        { key: 'watchlist',   label: 'Watchlist',   status: 'Watchlist'  }
       ];
       var hmHtml = '';
       tiers.forEach(function (tier) {
-        var countries = heatmap[tier.key] || [];
+        var countries = heatmapObj[tier.key] || [];
         if (!countries.length) return;
-        hmHtml += '<div class="section-label" style="margin-top:var(--space-6)">' + escHtml(tier.label) + ' (' + countries.length + ')</div>';
+        hmHtml += '<div class="section-label" style="margin-top:var(--space-6)">' + esc(tier.label) + ' (' + countries.length + ')</div>';
         countries.forEach(function (c) {
           var history = c.version_history || [];
-          var histId = 'hist-' + escHtml(c.country).replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          var histId = 'hist-' + esc(c.country).replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          /* severity sub-scores */
+          var subScores = c.severity_sub || {};
+          var subHtml = '';
+          if (Object.keys(subScores).length) {
+            subHtml = '<div class="persistent-entity__sub-scores" style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)">';
+            Object.keys(subScores).forEach(function(k) {
+              subHtml += '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' +
+                esc(k.replace(/_/g,' ')) + ': <strong>' + esc(subScores[k]) + '</strong></span>';
+            });
+            subHtml += '</div>';
+          }
+          /* sparkline from version history scores */
+          var sparkHtml = sparkline(history);
           hmHtml +=
             '<div class="persistent-entity">' +
               '<div class="persistent-entity__header">' +
-                '<div class="persistent-entity__country">' + (typeof AsymRenderer!=='undefined'&&AsymRenderer.flag?(AsymRenderer.flag(c.country||'')||'')+' ':'') + escHtml(c.country) + '</div>' +
+                '<div class="persistent-entity__country">' + flag(c.country) + ' ' + esc(c.country) + sparkHtml + '</div>' +
                 '<div class="persistent-entity__badges">' +
-                  statusBadge(c.status) +
-                  (c.confidence ? '<span class="severity-badge severity-badge--moderate">' + escHtml(c.confidence) + '</span>' : '') +
+                  statusBadge(c.status || tier.status) +
+                  (c.confidence ? confidenceBadge(c.confidence) : '') +
                 '</div>' +
               '</div>' +
               '<div class="persistent-entity__meta">' +
-                (c.severity_score != null ? '<span>Score: <strong>' + escHtml(c.severity_score) + '</strong> ' + escHtml(c.severity_arrow || '') + '</span>' : '') +
-                (c.first_seen ? '<span>First seen: ' + escHtml(c.first_seen) + '</span>' : '') +
-                (c.last_material_change ? '<span>Last change: ' + escHtml(c.last_material_change) + '</span>' : '') +
-                (c.entry_type ? '<span>' + escHtml(c.entry_type) + '</span>' : '') +
+                (c.severity_score != null ? '<span>Score: <strong>' + severityBadge(c.severity_score) + '</strong> ' + esc(c.severity_arrow || '') + '</span>' : '') +
+                (c.first_seen ? '<span>First seen: ' + esc(c.first_seen) + '</span>' : '') +
+                (c.last_material_change ? '<span>Last change: ' + esc(c.last_material_change) + '</span>' : '') +
+                (c.entry_type ? '<span>' + esc(c.entry_type) + '</span>' : '') +
               '</div>' +
+              subHtml +
+              /* watchlist triggers */
+              (c.triggers && c.triggers.length
+                ? '<div class="persistent-entity__triggers" style="margin-top:var(--space-2)">' +
+                    '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:2px">Triggers:</div>' +
+                    '<ul style="margin:0;padding-left:1.25rem;font-size:var(--text-xs)">' +
+                      c.triggers.map(function(t){ return '<li>' + esc(t) + '</li>'; }).join('') +
+                    '</ul>' +
+                  '</div>'
+                : '') +
+              (c.escalation_trigger
+                ? '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Escalation trigger: <em>' + esc(c.escalation_trigger) + '</em></div>'
+                : '') +
               (history.length
                 ? '<button class="version-history__toggle" onclick="toggleHistory(\'' + histId + '\')">Show version history (' + history.length + ' entries)</button>' +
                   '<div class="version-history" id="' + histId + '">' +
                     history.map(function (h) {
                       return '<div class="version-entry">' +
-                        '<div class="version-entry__date">' + escHtml(h.date || '') + '</div>' +
-                        '<div class="version-entry__change">' + escHtml(h.change || '') + '</div>' +
-                        (h.reason ? '<div class="version-entry__reason">' + escHtml(h.reason) + '</div>' : '') +
+                        '<div class="version-entry__date">' + esc(h.date || '') + '</div>' +
+                        '<div class="version-entry__change">' + esc(h.change || '') + '</div>' +
+                        (h.reason ? '<div class="version-entry__reason">' + esc(h.reason) + '</div>' : '') +
                       '</div>';
                     }).join('') +
                   '</div>'
@@ -218,92 +419,358 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       document.getElementById('heatmap-countries').innerHTML = hmHtml || '<p class="text-muted">No countries tracked.</p>';
 
-      // Mimicry chains
+      /* ── Monthly Trend ── */
+      var mtEl = document.getElementById('monthly-trend-content');
+      var mt = d.monthly_trend || report.monthly_trend || null;
+      if (mt && Array.isArray(mt) && mt.length) {
+        var mtHtml = '<table class="heatmap-table"><thead><tr><th>Country</th><th>4-Week Δ</th><th>Score</th><th>Note</th></tr></thead><tbody>';
+        mt.forEach(function(row) {
+          var delta = parseFloat(row.delta_4w || row.delta || 0);
+          var deltaStr = (delta > 0 ? '+' : '') + delta.toFixed(1);
+          var deltaCls = delta > 0 ? 'critical' : delta < 0 ? 'positive' : 'moderate';
+          mtHtml += '<tr>' +
+            '<td>' + flag(row.country) + ' ' + esc(row.country) + '</td>' +
+            '<td><span class="severity-badge severity-badge--' + deltaCls + '">' + esc(deltaStr) + '</span></td>' +
+            '<td>' + esc(row.severity_score || row.score || '—') + '</td>' +
+            '<td>' + esc(row.note || '') + '</td>' +
+          '</tr>';
+        });
+        mtHtml += '</tbody></table>';
+        mtEl.innerHTML = mtHtml;
+      } else {
+        mtEl.innerHTML = '<p class="text-muted">Monthly trend data will appear here once 4 weeks of data have accumulated. Added to cron schema from Build 2.</p>';
+      }
+
+      /* ── Electoral Watch ── */
+      var ewEl = document.getElementById('electoral-watch-content');
+      var ew = d.electoral_watch || report.electoral_watch || null;
+      if (ew) {
+        var ewHtml = '';
+        /* timeline entries */
+        var timeline = ew.timeline || [];
+        if (timeline.length) {
+          ewHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">Upcoming Electoral Events</div>';
+          ewHtml += '<table class="heatmap-table"><thead><tr><th>Date</th><th>Country</th><th>Election</th><th>Risk Level</th><th>Note</th></tr></thead><tbody>';
+          timeline.forEach(function(ev) {
+            ewHtml += '<tr>' +
+              '<td>' + esc(ev.date || '') + '</td>' +
+              '<td>' + flag(ev.country) + ' ' + esc(ev.country || '') + '</td>' +
+              '<td>' + esc(ev.election_type || ev.type || '') + '</td>' +
+              '<td>' + severityTextBadge(ev.risk_level || ev.risk || '') + '</td>' +
+              '<td>' + esc(ev.note || ev.summary || '') + '</td>' +
+            '</tr>';
+          });
+          ewHtml += '</tbody></table>';
+        }
+        /* environment */
+        var env = ew.environment || [];
+        if (env.length) {
+          ewHtml += '<div class="section-label" style="margin-top:var(--space-6);margin-bottom:var(--space-3)">Electoral Environment</div>';
+          env.forEach(function(item) {
+            ewHtml += '<div class="card">' +
+              '<div class="card__title">' + flag(item.country) + ' ' + esc(item.country || '') + '</div>' +
+              '<div class="card__body">' + esc(item.assessment || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+        /* positive_transitions */
+        var pt = ew.positive_transitions || [];
+        if (pt.length) {
+          ewHtml += '<div class="section-label" style="margin-top:var(--space-6);margin-bottom:var(--space-3)">Positive Transitions</div>';
+          pt.forEach(function(item) {
+            ewHtml += '<div class="card">' +
+              '<div class="card__title">' + flag(item.country) + ' ' + esc(item.country || '') + '</div>' +
+              '<div class="card__body">' + esc(item.note || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+        ewEl.innerHTML = ewHtml || '<p class="text-muted">No electoral watch entries.</p>';
+      } else {
+        ewEl.innerHTML = '<p class="text-muted">Electoral watch data not yet in schema. Will appear after Build 2 cron prompt update.</p>';
+      }
+
+      /* ── Digital & Civil Space ── */
+      var dcEl = document.getElementById('digital-civil-content');
+      var dc = d.digital_civil || report.digital_civil || null;
+      if (dc && typeof dc === 'object' && Object.keys(dc).length) {
+        var dcHtml = '';
+        /* Support both array and keyed object */
+        var dcArr = Array.isArray(dc) ? dc : (dc.entries || dc.items || []);
+        if (!dcArr.length && typeof dc === 'object') {
+          /* Try flat fields */
+          Object.keys(dc).forEach(function(k) {
+            var v = dc[k];
+            if (Array.isArray(v)) {
+              dcHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(k.replace(/_/g,' ')) + '</div>';
+              v.forEach(function(item) {
+                dcHtml += '<div class="card">' +
+                  (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+                  '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+                  '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+                '</div>';
+              });
+            }
+          });
+        } else {
+          dcArr.forEach(function(item) {
+            dcHtml += '<div class="card">' +
+              (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+              '<div class="card__title">' + esc(item.headline || item.title || item.indicator || '') + '</div>' +
+              '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+        dcEl.innerHTML = dcHtml || '<p class="text-muted">No digital/civil space entries.</p>';
+      } else {
+        dcEl.innerHTML = '<p class="text-muted">Digital & Civil Space data not yet in schema. Will appear after Build 2 cron prompt update.</p>';
+      }
+
+      /* ── Autocratic Export ── */
+      var aeEl = document.getElementById('autocratic-export-content');
+      var ae = d.autocratic_export || report.autocratic_export || null;
+      if (ae && typeof ae === 'object' && Object.keys(ae).length) {
+        var aeArr = Array.isArray(ae) ? ae : (ae.entries || ae.items || []);
+        var aeHtml = '';
+        if (!aeArr.length) {
+          Object.keys(ae).forEach(function(k) {
+            var v = ae[k];
+            if (Array.isArray(v)) {
+              aeHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(k.replace(/_/g,' ')) + '</div>';
+              v.forEach(function(item) {
+                aeHtml += '<div class="card">' +
+                  (item.exporter ? '<div class="card__label">Exporter: ' + flag(item.exporter) + ' ' + esc(item.exporter) + '</div>' : '') +
+                  (item.recipient ? '<div class="card__label">Recipient: ' + flag(item.recipient) + ' ' + esc(item.recipient) + '</div>' : '') +
+                  '<div class="card__title">' + esc(item.headline || item.title || item.template || '') + '</div>' +
+                  '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+                '</div>';
+              });
+            }
+          });
+        } else {
+          aeArr.forEach(function(item) {
+            aeHtml += '<div class="card">' +
+              (item.exporter ? '<div class="card__label">Exporter: ' + flag(item.exporter) + ' ' + esc(item.exporter) + '</div>' : '') +
+              '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+              '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+        aeEl.innerHTML = aeHtml || '<p class="text-muted">No autocratic export entries.</p>';
+      } else {
+        aeEl.innerHTML = '<p class="text-muted">Autocratic Export data not yet in schema. Will appear after Build 2 cron prompt update.</p>';
+      }
+
+      /* ── State & Media Capture ── */
+      var scEl = document.getElementById('state-capture-content');
+      var sc = d.state_capture || report.state_capture || null;
+      if (sc && typeof sc === 'object' && Object.keys(sc).length) {
+        var scArr = Array.isArray(sc) ? sc : (sc.entries || sc.items || []);
+        var scHtml = '';
+        if (!scArr.length) {
+          Object.keys(sc).forEach(function(k) {
+            var v = sc[k];
+            if (Array.isArray(v)) {
+              scHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(k.replace(/_/g,' ')) + '</div>';
+              v.forEach(function(item) {
+                scHtml += '<div class="card">' +
+                  (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+                  (item.institution ? '<div class="card__label">' + esc(item.institution) + '</div>' : '') +
+                  '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+                  '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+                '</div>';
+              });
+            }
+          });
+        } else {
+          scArr.forEach(function(item) {
+            scHtml += '<div class="card">' +
+              (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+              '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+              '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+        scEl.innerHTML = scHtml || '<p class="text-muted">No state/media capture entries.</p>';
+      } else {
+        scEl.innerHTML = '<p class="text-muted">State & Media Capture data not yet in schema. Will appear after Build 2 cron prompt update.</p>';
+      }
+
+      /* ── Institutional Pulse ── */
+      var ipEl = document.getElementById('institutional-pulse-content');
+      var ip = d.institutional_pulse || report.institutional_pulse || null;
+      if (ip && (Array.isArray(ip) ? ip.length : Object.keys(ip).length)) {
+        var ipArr = Array.isArray(ip) ? ip : (ip.entries || []);
+        var ipHtml = '';
+        if (!ipArr.length && typeof ip === 'object') {
+          /* keyed object */
+          Object.keys(ip).forEach(function(k) {
+            var v = ip[k];
+            if (Array.isArray(v)) ipArr = ipArr.concat(v);
+          });
+        }
+        ipArr.forEach(function(item) {
+          var resilience = item.resilience_flag || item.resilience || '';
+          ipHtml += '<div class="card">' +
+            '<div class="card__label">' +
+              (item.country ? flag(item.country) + ' ' + esc(item.country) + ' · ' : '') +
+              esc(item.institution || '') +
+              (resilience ? ' <span class="severity-badge severity-badge--' + (resilience === 'high' ? 'positive' : resilience === 'low' ? 'critical' : 'moderate') + '">Resilience: ' + esc(resilience) + '</span>' : '') +
+            '</div>' +
+            '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+            '<div class="card__body">' + esc(item.detail || item.assessment || item.summary || '') + '</div>' +
+            (item.source_url ? '<div class="card__footer"><a class="source-link" href="' + esc(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
+          '</div>';
+        });
+        ipEl.innerHTML = ipHtml || '<p class="text-muted">No institutional pulse entries.</p>';
+      } else {
+        ipEl.innerHTML = '<p class="text-muted">Institutional Pulse data not yet in schema. Will appear after Build 2 cron prompt update.</p>';
+      }
+
+      /* ── Mimicry Chains ── */
+      var mimicry = d.mimicry_chains || [];
       var mimHtml = '';
       (Array.isArray(mimicry) ? mimicry : Object.values(mimicry)).forEach(function (chain) {
         var nodes = (chain.links || chain.nodes || []).map(function (n) {
           return '<div class="mimicry-node">' +
-            '<div class="mimicry-node__country">' + escHtml(n.country) + '</div>' +
-            '<div class="mimicry-node__law">' + escHtml(n.law || '') + '</div>' +
-            '<div class="mimicry-node__year">' + escHtml(n.year || '') + '</div>' +
+            '<div class="mimicry-node__country">' + flag(n.country) + ' ' + esc(n.country) + '</div>' +
+            '<div class="mimicry-node__law">' + esc(n.law || '') + '</div>' +
+            '<div class="mimicry-node__year">' + esc(n.year || '') + '</div>' +
           '</div>';
         }).join('<div class="mimicry-arrow">→</div>');
         mimHtml +=
           '<div class="mimicry-chain">' +
             '<div class="mimicry-chain__headline">' +
-              '<strong>' + escHtml(chain.template_law || chain.chain_id || '') + '</strong>' +
-              (chain.origin_country ? ' &mdash; Origin: <span class="text-accent">' + escHtml(chain.origin_country) + '</span>' : '') +
+              '<strong>' + esc(chain.template_law || chain.headline || chain.chain_id || '') + '</strong>' +
+              (chain.origin_country ? ' &mdash; Origin: <span class="text-accent">' + esc(chain.origin_country) + '</span>' : '') +
             '</div>' +
+            (chain.first_documented ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2)">First documented: ' + esc(chain.first_documented) + '</div>' : '') +
             (nodes ? '<div class="mimicry-chain__flow">' + nodes + '</div>' : '') +
           '</div>';
       });
       document.getElementById('mimicry-chains').innerHTML = mimHtml || '<p class="text-muted">No mimicry chains tracked.</p>';
 
-      // Institutional integrity flags
+      /* ── Institutional Integrity Flags ── */
+      var intflags = d.institutional_integrity_active_flags || [];
       var ifHtml = '';
-      intflags.forEach(function (flag) {
+      intflags.forEach(function (flag_item) {
         ifHtml +=
           '<div class="card">' +
             '<div class="card__label">' +
-              escHtml(flag.institution || '') +
-              (flag.country ? ' · ' + escHtml(flag.country) : '') +
-              (flag.flag_type ? ' <span class="severity-badge severity-badge--high">' + escHtml(flag.flag_type) + '</span>' : '') +
+              (flag_item.country ? flag(flag_item.country) + ' ' + esc(flag_item.country) + ' · ' : '') +
+              esc(flag_item.indicator || flag_item.institution || '') +
+              (flag_item.severity ? ' ' + severityTextBadge(flag_item.severity) : '') +
+              (flag_item.status ? ' <span class="severity-badge severity-badge--moderate">' + esc(flag_item.status) + '</span>' : '') +
             '</div>' +
-            '<div class="card__title">' + escHtml(flag.headline || '') + '</div>' +
-            '<div class="card__body">' + escHtml(flag.detail || '') + '</div>' +
+            '<div class="card__body">' + esc(flag_item.signal || flag_item.detail || '') + '</div>' +
             '<div class="card__footer">' +
-              (flag.first_raised ? '<span>First raised: ' + escHtml(flag.first_raised) + '</span>' : '') +
-              (flag.unchanged_since ? '<span>Unchanged since: ' + escHtml(flag.unchanged_since) + '</span>' : '') +
+              (flag_item.lead_time ? '<span>Lead time: ' + esc(flag_item.lead_time) + '</span>' : '') +
+              (flag_item.first_seen ? '<span>First seen: ' + esc(flag_item.first_seen) + '</span>' : '') +
             '</div>' +
           '</div>';
       });
       document.getElementById('integrity-flags').innerHTML = ifHtml || '<p class="text-muted">No active integrity flags.</p>';
 
-      // Cross-monitor flags
-      var cmFlags = cross.flags || [];
-      var cmHtml = '';
-      if (cross.updated) cmHtml += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + escHtml(cross.updated) + '</p>';
-      if (cmFlags.length) {
-        cmHtml += '<div class="cross-monitor-panel"><div class="cross-monitor-panel__title">Cross-Monitor Flags</div>';
-        cmFlags.forEach(function (flag) {
-          cmHtml +=
-            '<div class="cms-flag">' +
-              '<div class="cms-flag__header">' +
-                '<div class="cms-flag__id">' + escHtml(flag.id || '') + '</div>' +
-              '</div>' +
-              '<div class="cms-flag__title">' + escHtml(flag.headline || flag.title || '') + '</div>' +
-              '<div class="cms-flag__body">' + escHtml(flag.detail || flag.body || '') + '</div>' +
+      /* ── Legislative Watch ── */
+      var lwEl = document.getElementById('legislative-watch-content');
+      var lw = d.legislative_watch || report.legislative_watch || null;
+      if (lw) {
+        var lwArr = Array.isArray(lw) ? lw : (lw.entries || []);
+        if (!lwArr.length && typeof lw === 'object' && lw.entries) lwArr = lw.entries;
+        if (lwArr.length) {
+          var lwHtml = '<table class="heatmap-table"><thead><tr><th>Country</th><th>Bill / Law</th><th>Stage</th><th>Significance</th></tr></thead><tbody>';
+          lwArr.forEach(function(item) {
+            lwHtml += '<tr>' +
+              '<td>' + flag(item.country) + ' ' + esc(item.country || '') + '</td>' +
+              '<td>' + esc(item.bill || item.law || item.title || '') + '</td>' +
+              '<td><span class="severity-badge severity-badge--moderate">' + esc(item.stage || item.status || '') + '</span></td>' +
+              '<td>' + esc(item.significance || item.note || item.summary || '') + '</td>' +
+            '</tr>';
+          });
+          lwHtml += '</tbody></table>';
+          lwEl.innerHTML = lwHtml;
+        } else {
+          lwEl.innerHTML = '<p class="text-muted">No legislative watch entries.</p>';
+        }
+      } else {
+        lwEl.innerHTML = '<p class="text-muted">Legislative Watch data not yet in schema. Will appear after Build 2 cron prompt update.</p>';
+      }
+
+      /* ── Research 360 / Friction Notes ── */
+      var fnEl = document.getElementById('friction-notes-content');
+      var r360 = d.research_360 || report.research_360 || null;
+      var frictionNotes = (r360 && r360.friction_notes) ? r360.friction_notes : (d.friction_notes || report.friction_notes || null);
+      if (frictionNotes && frictionNotes.length) {
+        var fnHtml = '';
+        frictionNotes.forEach(function(note) {
+          fnHtml += '<div class="card">' +
+            (note.id ? '<div class="card__label">' + esc(note.id) + (note.country ? ' · ' + flag(note.country) + ' ' + esc(note.country) : '') + '</div>' : '') +
+            '<div class="card__title">' + esc(note.headline || note.title || '') + '</div>' +
+            '<div class="card__body">' + esc(note.detail || note.note || note.summary || '') + '</div>' +
+            (note.status ? '<div class="card__footer"><span>' + esc(note.status) + '</span></div>' : '') +
+          '</div>';
+        });
+        fnEl.innerHTML = fnHtml;
+      } else {
+        fnEl.innerHTML = '<p class="text-muted">Friction notes not yet in schema. Will appear after Build 2 cron prompt update.</p>';
+      }
+
+      /* ── Networks ── */
+      var nwEl = document.getElementById('networks-content');
+      var networks = d.networks || report.networks || null;
+      if (networks && typeof networks === 'object' && Object.keys(networks).length) {
+        var nwArr = Array.isArray(networks) ? networks : (networks.entries || networks.nodes || []);
+        var nwHtml = '';
+        if (!nwArr.length) {
+          Object.keys(networks).forEach(function(k) {
+            var v = networks[k];
+            if (Array.isArray(v) && v.length) {
+              nwHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(k.replace(/_/g,' ')) + '</div>';
+              v.forEach(function(item) {
+                nwHtml += '<div class="card">' +
+                  '<div class="card__title">' + esc(item.name || item.headline || item.title || '') + '</div>' +
+                  '<div class="card__body">' + esc(item.summary || item.detail || '') + '</div>' +
+                '</div>';
+              });
+            }
+          });
+        } else {
+          nwArr.forEach(function(item) {
+            nwHtml += '<div class="card">' +
+              '<div class="card__title">' + esc(item.name || item.headline || '') + '</div>' +
+              '<div class="card__body">' + esc(item.summary || item.detail || '') + '</div>' +
             '</div>';
-        });
-        cmHtml += '</div>';
+          });
+        }
+        nwEl.innerHTML = nwHtml || '<p class="text-muted">No network entries.</p>';
+      } else {
+        nwEl.innerHTML = '<p class="text-muted">Networks section not yet in schema. Will appear after Build 2 cron prompt update.</p>';
       }
-      // Version history
-      var vhist = cross.version_history || [];
-      if (vhist.length) {
-        cmHtml += '<div style="margin-top:var(--space-6)"><div class="section-label">Version History</div>';
-        vhist.forEach(function (h) {
-          cmHtml += '<div class="version-entry"><div class="version-entry__date">' + escHtml(h.date || '') + '</div><div class="version-entry__change">' + escHtml(h.change || '') + '</div></div>';
-        });
-        cmHtml += '</div>';
-      }
-      document.getElementById('cross-monitor').innerHTML = cmHtml || '<p class="text-muted">No cross-monitor flags.</p>';
-    })
-    .catch(function (err) {
+
+      /* ── Cross-Monitor Flags ── */
+      document.getElementById('cross-monitor').innerHTML = renderCrossMonitor(d.cross_monitor_flags || {});
+
+    }).catch(function (err) {
       console.error(err);
-      ['heatmap-countries','mimicry-chains','integrity-flags','cross-monitor'].forEach(function (id) {
+      ['weekly-brief-content','heatmap-countries','monthly-trend-content','electoral-watch-content',
+       'digital-civil-content','autocratic-export-content','state-capture-content',
+       'institutional-pulse-content','mimicry-chains','integrity-flags',
+       'legislative-watch-content','friction-notes-content','networks-content','cross-monitor'
+      ].forEach(function (id) {
         var el = document.getElementById(id);
-        if (el) el.innerHTML = '<div class="error-state">Failed to load persistent state data.</div>';
+        if (el) el.innerHTML = '<div class="error-state">Failed to load data.</div>';
       });
     });
 
-  window.toggleHistory = function (id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.classList.toggle('version-history--open');
-    var btn = el.previousElementSibling;
-    if (btn) btn.textContent = el.classList.contains('version-history--open') ? 'Hide version history' : btn.textContent.replace('Hide', 'Show');
-  };
-});
-</script>
+    window.toggleHistory = function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('version-history--open');
+      var btn = el.previousElementSibling;
+      if (btn) btn.textContent = el.classList.contains('version-history--open')
+        ? 'Hide version history'
+        : 'Show version history (' + el.querySelectorAll('.version-entry').length + ' entries)';
+    };
+  });
+  </script>
 </body>
 </html>
