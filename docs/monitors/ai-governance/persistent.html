@@ -10,6 +10,269 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <style>
+    /* ── EU AI Act Pipeline Tracker ─────────────────────────────────── */
+    .euact-tracker {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+    .euact-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+      flex-wrap: wrap;
+    }
+    .euact-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+    .euact-deadline {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3a7d5a;
+      line-height: 1;
+    }
+    .euact-deadline-label {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-top: 0.25rem;
+    }
+    .euact-appdate {
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      margin-top: var(--space-2);
+    }
+    .vacuum-banner {
+      background: rgba(193, 68, 14, 0.1);
+      border: 1px solid rgba(193, 68, 14, 0.35);
+      border-left: 3px solid #c1440e;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: 0.82rem;
+      color: var(--color-text);
+      margin-bottom: var(--space-5);
+    }
+    .vacuum-banner strong {
+      color: #c1440e;
+    }
+    /* Timeline */
+    .euact-pipeline {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .euact-pipeline::before {
+      content: '';
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      bottom: 18px;
+      width: 2px;
+      background: var(--color-border);
+      z-index: 0;
+    }
+    .euact-layer {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      position: relative;
+      padding: var(--space-3) 0;
+    }
+    .euact-layer__node {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      border: 2px solid transparent;
+    }
+    .euact-layer__node--active {
+      background: #3a7d5a;
+      border-color: #3a7d5a;
+      color: #fff;
+    }
+    .euact-layer__node--in-progress {
+      background: linear-gradient(180deg, #3a7d5a 50%, transparent 50%);
+      border-color: #3a7d5a;
+      color: #3a7d5a;
+    }
+    .euact-layer__node--in-progress-alt {
+      background: rgba(217, 119, 6, 0.15);
+      border-color: #d97706;
+      color: #d97706;
+    }
+    .euact-layer__node--delayed {
+      background: rgba(193, 68, 14, 0.1);
+      border-color: #c1440e;
+      color: #c1440e;
+    }
+    .euact-layer__node--pending {
+      background: var(--color-bg);
+      border-color: var(--color-border);
+      color: var(--color-text-muted);
+    }
+    .euact-layer__node--trilogue {
+      background: rgba(37, 99, 235, 0.12);
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+    .euact-layer__body {
+      flex: 1;
+      padding-top: 0.4rem;
+    }
+    .euact-layer__name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .euact-layer__note {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin-top: 0.25rem;
+      line-height: 1.5;
+    }
+    .euact-badge {
+      font-size: 0.67rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .euact-badge--active    { background:#3a7d5a; color:#fff; }
+    .euact-badge--progress  { background:#d97706; color:#fff; }
+    .euact-badge--delayed   { background:#c1440e; color:#fff; }
+    .euact-badge--pending   { background: var(--color-border); color: var(--color-text-muted); }
+    .euact-badge--trilogue  { background:#2563eb; color:#fff; }
+
+    /* ── Concentration Chart ────────────────────────────────────────── */
+    .conc-chart-wrap {
+      margin-bottom: var(--space-6);
+    }
+    .conc-chart-wrap h3 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-4);
+    }
+    .conc-domain-row {
+      margin-bottom: var(--space-5);
+    }
+    .conc-domain-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+      gap: var(--space-2);
+    }
+    .conc-domain-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+    .conc-trend {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .conc-trend--concentrating {
+      background: rgba(193, 68, 14, 0.12);
+      color: #c1440e;
+    }
+    .conc-trend--fragmenting {
+      background: rgba(5, 150, 105, 0.12);
+      color: #059669;
+    }
+    .conc-bar-track {
+      height: 10px;
+      background: var(--color-bg-alt);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: var(--space-2);
+    }
+    .conc-bar-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.6s ease;
+    }
+    .conc-bar-fill--high   { background: #c1440e; }
+    .conc-bar-fill--medium { background: #d97706; }
+    .conc-bar-fill--low    { background: #3a7d5a; }
+    .conc-actors {
+      font-size: 0.76rem;
+      color: var(--color-text-muted);
+      line-height: 1.5;
+    }
+    .conc-actors span {
+      display: inline-block;
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin: 2px 2px 2px 0;
+      font-size: 0.72rem;
+    }
+    .conc-note {
+      font-size: 0.76rem;
+      color: var(--color-text-muted);
+      margin-top: var(--space-2);
+      line-height: 1.5;
+      border-left: 2px solid var(--color-border);
+      padding-left: var(--space-3);
+    }
+
+    /* ── Dark mode overrides ────────────────────────────────────────── */
+    [data-theme="dark"] .euact-tracker {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    [data-theme="dark"] .euact-pipeline::before {
+      background: #2d2c2a;
+    }
+    [data-theme="dark"] .euact-layer__node--pending {
+      background: #1a1917;
+      border-color: #3a3835;
+      color: #6b6660;
+    }
+    [data-theme="dark"] .vacuum-banner {
+      background: rgba(193, 68, 14, 0.15);
+      border-color: rgba(193, 68, 14, 0.4);
+    }
+    [data-theme="dark"] .conc-bar-track {
+      background: #2d2c2a;
+    }
+    [data-theme="dark"] .conc-actors span {
+      background: #2d2c2a;
+      border-color: #3a3835;
+    }
+    [data-theme="dark"] .conc-note {
+      border-color: #3a3835;
+    }
+  </style>
 </head>
 
 <body>
@@ -165,13 +428,13 @@
           ? P.renderEntityList(rv)
           : renderEntityList(rv, ['vector', 'rating', 'summary', 'confidence']);
 
-        // EU AI Act Tracker
+        // EU AI Act Tracker — visual pipeline
         var euact = d.module_9_eu_ai_act_tracker || {};
-        document.getElementById('eu-ai-act-content').innerHTML = renderEuActTracker(euact);
+        document.getElementById('eu-ai-act-content').innerHTML = renderEuActTrackerVisual(euact);
 
-        // Concentration Index
+        // Concentration Index — visual bar chart
         var ci = d.module_14_concentration_index || {};
-        document.getElementById('concentration-content').innerHTML = renderConcentrationIndex(ci);
+        document.getElementById('concentration-content').innerHTML = renderConcentrationVisual(ci);
 
         // AISI Pipeline
         var aisi = d.module_15_aisi_pipeline || {};
@@ -226,21 +489,16 @@
         var titleKey = fields[0] || 'title';
         var title = item[titleKey] || item.title || item.name || '';
         var html = '<div class="intel-item">';
-        // Title + rating
         html += '<div class="intel-item__title">' + esc(title);
         if (item.rating) html += ' <span class="tag ' + ratingClass(item.rating) + '">' + esc(item.rating) + '</span>';
         html += '</div>';
-        // Remaining fields
         fields.slice(1).forEach(function (f) {
           if (item[f] && f !== titleKey) {
             html += '<div class="intel-item__field intel-item__field--' + f + '">' + esc(item[f]) + '</div>';
           }
         });
-        // Confidence
         if (item.confidence) html += '<div class="intel-item__field"><em>Confidence: ' + esc(item.confidence) + '</em></div>';
-        // Unchanged since
         if (item.unchanged_since) html += '<div class="intel-item__field"><em>Unchanged since: ' + esc(item.unchanged_since) + '</em></div>';
-        // Sources
         if (Array.isArray(item.sources) && item.sources.length) {
           html += '<div class="intel-item__sources">' + item.sources.map(function (s) {
             return '<a class="intel-item__source" href="' + esc(s) + '" target="_blank" rel="noopener">Source →</a>';
@@ -268,50 +526,144 @@
         '</div>';
     }
 
-    function renderEuActTracker(euact) {
+    /* ── EU AI Act Pipeline Tracker (Visual) ── */
+    function euactNodeClass(status) {
+      if (!status) return 'euact-layer__node--pending';
+      var s = status.toLowerCase();
+      if (s === 'active') return 'euact-layer__node--active';
+      if (s.indexOf('trilogue') !== -1) return 'euact-layer__node--trilogue';
+      if (s.indexOf('in progress') !== -1) return 'euact-layer__node--in-progress-alt';
+      if (s.indexOf('delayed') !== -1) return 'euact-layer__node--delayed';
+      return 'euact-layer__node--pending';
+    }
+
+    function euactBadgeClass(status) {
+      if (!status) return 'euact-badge--pending';
+      var s = status.toLowerCase();
+      if (s === 'active') return 'euact-badge--active';
+      if (s.indexOf('trilogue') !== -1) return 'euact-badge--trilogue';
+      if (s.indexOf('in progress') !== -1) return 'euact-badge--progress';
+      if (s.indexOf('delayed') !== -1) return 'euact-badge--delayed';
+      return 'euact-badge--pending';
+    }
+
+    function renderEuActTrackerVisual(euact) {
       if (!euact || typeof euact !== 'object') return '<p class="empty-state">No data.</p>';
       var layers = Array.isArray(euact.layers) ? euact.layers : [];
+      var days = euact.current_days_to_deadline;
+      var appDate = euact.general_application_date || '';
       var html = '';
+
+      // Standards vacuum warning
       if (euact.standards_vacuum_active) {
-        html += '<div class="alert-banner alert-banner--warn">' +
-          '<strong>Standards Vacuum Active</strong> — ' + esc(euact.standards_vacuum_trigger) +
+        html += '<div class="vacuum-banner">' +
+          '<strong>⚠ Standards Vacuum Active</strong> — ' + esc(euact.standards_vacuum_trigger || '') +
           '</div>';
       }
-      html += '<div class="intel-item"><div class="intel-item__field"><strong>General Application Date:</strong> ' + esc(euact.general_application_date) + '</div>' +
-        '<div class="intel-item__field"><strong>Last Updated:</strong> ' + esc(euact.last_updated) + '</div></div>';
+
+      html += '<div class="euact-tracker">';
+
+      // Header: countdown + date
+      html += '<div class="euact-header">' +
+        '<div>' +
+          '<div class="euact-title">Regulatory Pipeline Layers</div>' +
+          '<div style="font-size:0.8rem;color:var(--color-text-muted);margin-top:0.25rem;">Last updated: ' + esc(euact.last_updated || '') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div class="euact-title">Days to General Application</div>' +
+          '<div class="euact-deadline">' + (days !== undefined && days !== null ? esc(String(days)) : '—') + '</div>' +
+          '<div class="euact-deadline-label">' + esc(appDate) + '</div>' +
+        '</div>' +
+      '</div>';
+
+      // Pipeline layers
       if (layers.length) {
-        html += '<table class="data-table" style="margin-top:var(--space-4)">' +
-          '<thead><tr><th>#</th><th>Layer</th><th>Status</th><th>Note</th></tr></thead>' +
-          '<tbody>' + layers.map(function (l) {
-            return '<tr>' +
-              '<td class="mono">' + esc(l.layer) + '</td>' +
-              '<td>' + esc(l.name) + '</td>' +
-              '<td><span class="tag tag--status">' + esc(l.status) + '</span></td>' +
-              '<td class="text-sm">' + esc(l.note) + '</td>' +
-              '</tr>';
-          }).join('') + '</tbody></table>';
+        html += '<div class="euact-pipeline">';
+        layers.forEach(function (l) {
+          var nodeClass = euactNodeClass(l.status);
+          var badgeClass = euactBadgeClass(l.status);
+          html += '<div class="euact-layer">' +
+            '<div class="euact-layer__node ' + nodeClass + '">' + esc(String(l.layer || '')) + '</div>' +
+            '<div class="euact-layer__body">' +
+              '<div class="euact-layer__name">' +
+                esc(l.name || '') +
+                ' <span class="euact-badge ' + badgeClass + '">' + esc(l.status || '') + '</span>' +
+              '</div>' +
+              '<div class="euact-layer__note">' + esc(l.note || '') + '</div>' +
+            '</div>' +
+          '</div>';
+        });
+        html += '</div>';
       }
+
+      html += '</div>'; // .euact-tracker
       return html;
     }
 
-    function renderConcentrationIndex(ci) {
+    /* ── Concentration Index Visual ── */
+    // Assign concentration level score for bar width
+    function concScore(domain, trend) {
+      var d = (domain || '').toLowerCase();
+      var t = (trend || '').toLowerCase();
+      if (d.indexOf('compute') !== -1 || d.indexOf('gpu') !== -1) return 92;
+      if (d.indexOf('foundation') !== -1) return 78;
+      if (d.indexOf('infrastructure') !== -1) return 72;
+      if (d.indexOf('safety') !== -1 || d.indexOf('oversight') !== -1) return 65;
+      if (d.indexOf('application') !== -1) return 28;
+      return t === 'concentrating' ? 70 : 35;
+    }
+
+    function concBarClass(score) {
+      if (score >= 75) return 'conc-bar-fill--high';
+      if (score >= 50) return 'conc-bar-fill--medium';
+      return 'conc-bar-fill--low';
+    }
+
+    function renderConcentrationVisual(ci) {
       if (!ci || typeof ci !== 'object') return '<p class="empty-state">No data.</p>';
       var domains = Array.isArray(ci.domains) ? ci.domains : [];
-      var html = '<div class="intel-item"><div class="intel-item__field"><strong>Last Updated:</strong> ' + esc(ci.last_updated) + '</div></div>';
-      if (domains.length) {
-        html += '<table class="data-table">' +
-          '<thead><tr><th>Domain</th><th>Trend</th><th>Top Actors</th><th>Note</th></tr></thead>' +
-          '<tbody>' + domains.map(function (d) {
-            var actors = Array.isArray(d.top_actors) ? d.top_actors.join('; ') : '';
-            return '<tr>' +
-              '<td class="mono">' + esc(d.domain) + '</td>' +
-              '<td><span class="tag">' + esc(d.trend) + '</span></td>' +
-              '<td class="text-sm">' + esc(actors) + '</td>' +
-              '<td class="text-sm">' + esc(d.note) + '</td>' +
-              '</tr>';
-          }).join('') + '</tbody></table>';
-      }
+      if (!domains.length) return '<p class="empty-state">No domains.</p>';
+
+      var html = '<div class="conc-chart-wrap">';
+      html += '<p style="font-size:0.8rem;color:var(--color-text-muted);margin-bottom:var(--space-5)">Relative concentration of market/institutional control per domain. Bar width = estimated concentration index.</p>';
+
+      domains.forEach(function (d) {
+        var score = concScore(d.domain, d.trend);
+        var barClass = concBarClass(score);
+        var isFrag = (d.trend || '').toLowerCase() === 'fragmenting';
+        var trendClass = isFrag ? 'conc-trend--fragmenting' : 'conc-trend--concentrating';
+        var trendArrow = isFrag ? '↘ Fragmenting' : '↗ Concentrating';
+        var actors = Array.isArray(d.top_actors) ? d.top_actors : [];
+
+        html += '<div class="conc-domain-row">' +
+          '<div class="conc-domain-header">' +
+            '<div class="conc-domain-name">' + esc(d.domain || '') + '</div>' +
+            '<span class="conc-trend ' + trendClass + '">' + trendArrow + '</span>' +
+          '</div>' +
+          '<div class="conc-bar-track">' +
+            '<div class="conc-bar-fill ' + barClass + '" style="width:' + score + '%"></div>' +
+          '</div>' +
+          '<div class="conc-actors">' +
+            actors.map(function (a) { return '<span>' + esc(a) + '</span>'; }).join('') +
+          '</div>';
+
+        if (d.note) {
+          html += '<div class="conc-note">' + esc(d.note) + '</div>';
+        }
+        html += '</div>';
+      });
+
+      html += '<div style="font-size:0.72rem;color:var(--color-text-muted);margin-top:var(--space-4)">Last updated: ' + esc(ci.last_updated || '') + '</div>';
+      html += '</div>';
       return html;
+    }
+
+    function renderEuActTracker(euact) {
+      return renderEuActTrackerVisual(euact);
+    }
+
+    function renderConcentrationIndex(ci) {
+      return renderConcentrationVisual(ci);
     }
 
     function renderCrossMonitor(cmf) {

@@ -8,6 +8,112 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <style>
+    /* ── Risk Category Strip ── */
+    .risk-category-strip {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-6);
+      padding: var(--space-4);
+      background: var(--color-bg-alt);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border-subtle);
+    }
+    [data-theme="dark"] .risk-category-strip {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    .risk-cat-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-1);
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+      min-width: 120px;
+      flex: 1 1 120px;
+      text-decoration: none;
+      color: var(--color-text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+    }
+    .risk-cat-card:hover {
+      border-color: var(--monitor-accent);
+      box-shadow: 0 2px 8px rgba(76,175,125,0.12);
+    }
+    [data-theme="dark"] .risk-cat-card {
+      background: #25231f;
+      border-color: #2d2c2a;
+    }
+    [data-theme="dark"] .risk-cat-card:hover {
+      border-color: var(--monitor-accent);
+    }
+    .risk-cat-card__icon {
+      font-size: 1.4rem;
+      line-height: 1;
+      margin-bottom: var(--space-1);
+    }
+    .risk-cat-card__label {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+    .risk-cat-card__row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-1);
+    }
+    .risk-cat-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .risk-cat-badge--t1 {
+      background: rgba(193,68,14,0.10);
+      color: #c1440e;
+      border: 1px solid rgba(193,68,14,0.20);
+    }
+    .risk-cat-badge--t2 {
+      background: rgba(217,119,6,0.10);
+      color: #b45309;
+      border: 1px solid rgba(217,119,6,0.20);
+    }
+    .risk-cat-badge--t3 {
+      background: rgba(37,99,235,0.08);
+      color: #2563eb;
+      border: 1px solid rgba(37,99,235,0.15);
+    }
+    .risk-cat-badge--monitor {
+      background: rgba(76,175,125,0.10);
+      color: #2d7a52;
+      border: 1px solid rgba(76,175,125,0.20);
+    }
+    [data-theme="dark"] .risk-cat-badge--t1 { background: rgba(193,68,14,0.20); color: #f87171; border-color: rgba(193,68,14,0.30); }
+    [data-theme="dark"] .risk-cat-badge--t2 { background: rgba(217,119,6,0.20); color: #fbbf24; border-color: rgba(217,119,6,0.30); }
+    [data-theme="dark"] .risk-cat-badge--t3 { background: rgba(37,99,235,0.18); color: #60a5fa; border-color: rgba(37,99,235,0.25); }
+    [data-theme="dark"] .risk-cat-badge--monitor { background: rgba(76,175,125,0.15); color: #4caf7d; border-color: rgba(76,175,125,0.25); }
+    .risk-cat-card__count {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+    /* strip loading state */
+    .risk-strip-loading {
+      padding: var(--space-4);
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+    }
+  </style>
 </head>
 
 <body>
@@ -57,6 +163,11 @@
       <div class="page-header__eyebrow" id="page-eyebrow">ERM · Latest Issue</div>
       <h1 class="page-header__title" id="page-title">Loading…</h1>
       <div class="page-header__meta" id="page-meta"></div>
+    </div>
+
+    <!-- ── RISK CATEGORY STRIP ── -->
+    <div id="risk-category-strip-wrap">
+      <div class="risk-strip-loading">Loading issue summary…</div>
     </div>
 
     <!-- M00 -->
@@ -223,6 +334,105 @@ document.addEventListener('DOMContentLoaded', function () {
     }).join('');
   }
 
+  // ── Risk Category Strip helpers ──
+  // Returns the leading tier across a set of items
+  function leadingTier(items) {
+    if (!items || !items.length) return null;
+    var tiers = items.map(function(i){ return i.tier || ''; });
+    if (tiers.indexOf('T1') !== -1) return 'T1';
+    if (tiers.indexOf('T2') !== -1) return 'T2';
+    if (tiers.indexOf('T3') !== -1) return 'T3';
+    return 'Monitor';
+  }
+  function tierBadgeClass(tier) {
+    switch(tier) {
+      case 'T1': return 'risk-cat-badge--t1';
+      case 'T2': return 'risk-cat-badge--t2';
+      case 'T3': return 'risk-cat-badge--t3';
+      default:   return 'risk-cat-badge--monitor';
+    }
+  }
+  function tierLabel(tier) {
+    switch(tier) {
+      case 'T1': return 'T1 — Action';
+      case 'T2': return 'T2 — Watch';
+      case 'T3': return 'T3 — Track';
+      default:   return 'Monitoring';
+    }
+  }
+
+  function buildRiskCategoryStrip(d) {
+    // Define modules: id, icon, label, anchor, items extractor
+    var modules = [
+      {
+        id: 'm02',
+        icon: '🌍',
+        label: 'Planetary Boundaries',
+        anchor: '#section-m02',
+        items: (d.m02_planetary_boundaries || {}).boundaries || []
+      },
+      {
+        id: 'm03',
+        icon: '🔗',
+        label: 'Threat Multipliers',
+        anchor: '#section-m03',
+        items: d.m03_threat_multiplier || []
+      },
+      {
+        id: 'm04',
+        icon: '🌪️',
+        label: 'Extreme Weather',
+        anchor: '#section-m04',
+        items: d.m04_extreme_weather || []
+      },
+      {
+        id: 'm05',
+        icon: '⚖️',
+        label: 'Policy &amp; Law',
+        anchor: '#section-m05',
+        items: (d.m05_policy_law || {}).items || []
+      },
+      {
+        id: 'm06',
+        icon: '🤖',
+        label: 'AI &amp; Climate',
+        anchor: '#section-m06',
+        items: d.m06_ai_climate || []
+      },
+      {
+        id: 'm07',
+        icon: '🌊',
+        label: 'Biosphere',
+        anchor: '#section-m07',
+        items: d.m07_biosphere || []
+      },
+      {
+        id: 'm08',
+        icon: '⛏️',
+        label: 'Geostrategic',
+        anchor: '#section-m08',
+        items: d.m08_geostrategic_resources || []
+      }
+    ];
+
+    var cards = modules.map(function(mod) {
+      var tier  = leadingTier(mod.items);
+      var count = mod.items.length;
+      var badgeCls   = tier ? tierBadgeClass(tier) : 'risk-cat-badge--monitor';
+      var badgeLabel = tier ? tierLabel(tier) : 'Monitoring';
+      return '<a class="risk-cat-card" href="' + mod.anchor + '">' +
+        '<div class="risk-cat-card__icon">' + mod.icon + '</div>' +
+        '<div class="risk-cat-card__label">' + mod.label + '</div>' +
+        '<div class="risk-cat-card__row">' +
+          '<span class="risk-cat-badge ' + badgeCls + '">' + badgeLabel + '</span>' +
+          (count > 0 ? '<span class="risk-cat-card__count">' + count + ' item' + (count !== 1 ? 's' : '') + '</span>' : '') +
+        '</div>' +
+      '</a>';
+    }).join('');
+
+    return '<div class="risk-category-strip">' + cards + '</div>';
+  }
+
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -234,6 +444,9 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('page-meta').innerHTML =
         '<span>Published ' + formatDate(meta.published) + '</span>' +
         '<span>Schema v' + escHtml(meta.schema_version || '2.0') + '</span>';
+
+      // Risk Category Strip
+      document.getElementById('risk-category-strip-wrap').innerHTML = buildRiskCategoryStrip(d);
 
       // M00 — The Signal
       var s = d.m00_the_signal || {};
@@ -385,6 +598,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .catch(function (e) {
       document.getElementById('m00-content').innerHTML = '<div class="error-state">Failed to load report data: ' + e.message + '</div>';
+      document.getElementById('risk-category-strip-wrap').innerHTML = '';
     });
 });
 </script>

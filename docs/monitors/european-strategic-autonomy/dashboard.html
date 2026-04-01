@@ -8,11 +8,299 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/charts.js"></script>
 </head>
 
 <body>
 
 </nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
+
+<style>
+/* ── Dashboard Visual Enhancements ─────────────── */
+
+/* Strategic Autonomy Scorecard Arc */
+.autonomy-scorecard {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-6);
+  align-items: center;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+@media (max-width: 640px) {
+  .autonomy-scorecard { grid-template-columns: 1fr; text-align: center; }
+  .autonomy-scorecard__arc-wrap { margin: 0 auto; }
+}
+.autonomy-scorecard__arc-wrap {
+  position: relative;
+  width: 120px;
+  height: 68px;
+  flex-shrink: 0;
+}
+.autonomy-scorecard__arc-wrap svg {
+  width: 120px;
+  height: 68px;
+  overflow: visible;
+}
+.autonomy-scorecard__arc-score {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #5b8db0;
+  line-height: 1;
+  white-space: nowrap;
+}
+.autonomy-scorecard__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.autonomy-scorecard__label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+.autonomy-scorecard__title {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+.autonomy-scorecard__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+.autonomy-scorecard__trend--up { color: var(--positive); }
+.autonomy-scorecard__trend--down { color: var(--critical); }
+[data-theme="dark"] .autonomy-scorecard {
+  background: rgba(91,141,176,0.08);
+  border-color: rgba(91,141,176,0.2);
+}
+
+/* KPI Trend Bars */
+.kpi-trend-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4) var(--space-6);
+}
+@media (max-width: 768px) {
+  .kpi-trend-grid { grid-template-columns: 1fr; }
+}
+.kpi-trend-category {
+  margin-bottom: var(--space-2);
+}
+.kpi-trend-category__label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-weight: 700;
+  color: #5b8db0;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.kpi-trend-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+.kpi-trend-row__name {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-trend-row__value {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  text-align: right;
+  min-width: 56px;
+}
+.kpi-trend-row__arrow {
+  font-size: var(--text-sm);
+  width: 16px;
+  text-align: center;
+}
+.kpi-trend-row__arrow--up { color: var(--positive); }
+.kpi-trend-row__arrow--down { color: var(--critical); }
+.kpi-trend-row__arrow--neutral { color: var(--color-text-muted); }
+.kpi-trend-row__bar-wrap {
+  grid-column: 1 / -1;
+  background: var(--color-border-subtle);
+  border-radius: 3px;
+  height: 4px;
+  overflow: hidden;
+  margin-top: -var(--space-1);
+}
+.kpi-trend-row__bar {
+  height: 100%;
+  border-radius: 3px;
+  background: #5b8db0;
+  transition: width 0.5s ease;
+}
+.kpi-trend-row__bar--negative { background: var(--critical); }
+.kpi-trend-row__bar--positive { background: var(--positive); }
+.kpi-trend-row__bar--neutral { background: var(--color-text-muted); }
+
+/* Member State Cards Grid */
+.member-state-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+@media (max-width: 640px) {
+  .member-state-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.ms-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  transition: border-color 0.15s;
+}
+.ms-card:hover {
+  border-color: var(--color-border);
+}
+.ms-card--critical { border-left: 3px solid var(--critical); }
+.ms-card--high { border-left: 3px solid var(--high); }
+.ms-card--elevated { border-left: 3px solid #5b8db0; }
+.ms-card--stable { border-left: 3px solid var(--positive); }
+.ms-card--watch { border-left: 3px solid var(--moderate); }
+.ms-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.ms-card__flag {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.ms-card__country {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+}
+.ms-card__status {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  display: inline-block;
+}
+.ms-card__status--critical { background: rgba(193,68,14,0.12); color: var(--critical); }
+.ms-card__status--high { background: rgba(217,119,6,0.12); color: var(--high); }
+.ms-card__status--elevated { background: rgba(91,141,176,0.15); color: #5b8db0; }
+.ms-card__status--stable { background: rgba(5,150,105,0.12); color: var(--positive); }
+.ms-card__status--watch { background: rgba(37,99,235,0.12); color: var(--moderate); }
+.ms-card__headline {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.ms-card__dev {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+[data-theme="dark"] .ms-card {
+  background: var(--color-surface);
+  border-color: #2d2c2a;
+}
+[data-theme="dark"] .ms-card:hover { border-color: #3d3c3a; }
+
+/* Radar chart in dashboard */
+.dash-radar-section {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .dash-radar-section { grid-template-columns: 1fr; }
+}
+.dash-radar-canvas-wrap {
+  width: 280px;
+  flex-shrink: 0;
+}
+@media (max-width: 860px) {
+  .dash-radar-canvas-wrap { width: 100%; max-width: 360px; margin: 0 auto; }
+}
+.dash-radar-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+.dash-radar-dims {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  justify-content: center;
+}
+.dash-radar-dim-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 36px;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--text-xs);
+}
+.dash-radar-dim-row__label {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dash-radar-dim-row__bar-wrap {
+  background: var(--color-border-subtle);
+  border-radius: 2px;
+  height: 4px;
+  overflow: hidden;
+}
+.dash-radar-dim-row__bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+.dash-radar-dim-row__score {
+  font-weight: 700;
+  text-align: right;
+  color: var(--color-text-muted);
+}
+</style>
+
 
 <nav class="monitor-nav" aria-label="Monitor navigation">
   <a class="monitor-nav__brand" href="dashboard.html">
@@ -91,6 +379,24 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-autonomy-scorecard">
+      <div class="module-header">
+        <div class="module-title">Strategic Autonomy Scorecard</div>
+      </div>
+      <div id="autonomy-scorecard-block">
+        <div class="loading-state">Loading scorecard&hellip;</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-kpi-bars">
+      <div class="module-header">
+        <div class="module-title">KPI Indicators</div>
+      </div>
+      <div id="kpi-bars-block">
+        <div class="loading-state">Loading KPI data&hellip;</div>
+      </div>
+    </section>
+
     <section class="module-section" id="section-signal">
       <div class="module-header">
         <div class="module-title">Lead Signal</div>
@@ -118,15 +424,28 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-lagrange-radar">
+      <div class="module-header">
+        <div class="module-title">Lagrange Point — Autonomy Radar</div>
+      </div>
+      <p class="text-sm" style="color:var(--color-text-muted);margin-bottom:var(--space-5)">Six dimensions of European strategic autonomy, scored 0–100.</p>
+      <div id="dash-lagrange-wrap">
+        <div class="loading-state">Loading radar data&hellip;</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-autonomy-scorecard">Autonomy Score</a></li>
+      <li><a href="#section-kpi-bars">KPI Indicators</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Top Items</a></li>
       <li><a href="#section-member-states">Member States</a></li>
+      <li><a href="#section-lagrange-radar">Radar Chart</a></li>
     </ul>
   </nav>
 
@@ -199,31 +518,54 @@ document.addEventListener('DOMContentLoaded', function () {
       dsHtml += '</ul>';
       document.getElementById('delta-strip').innerHTML = top5.length ? dsHtml : '<p class="text-muted">No items this issue.</p>';
 
+      // Member State Grid Cards
       var msEl = document.getElementById('member-state-table');
       if (!memberStates.length) {
         msEl.innerHTML = '<p class="text-muted">No member state data this issue.</p>';
-        return;
+      } else {
+        var flagMap = {
+          'HU':'🇭🇺','SI':'🇸🇮','CZ':'🇨🇿','FR':'🇫🇷','DE':'🇩🇪','PL':'🇵🇱',
+          'IT':'🇮🇹','ES':'🇪🇸','GR':'🇬🇷','RO':'🇷🇴','BG':'🇧🇬','SK':'🇸🇰',
+          'AT':'🇦🇹','BE':'🇧🇪','NL':'🇳🇱','PT':'🇵🇹','SE':'🇸🇪','FI':'🇫🇮',
+          'DK':'🇩🇰','EE':'🇪🇪','LV':'🇱🇻','LT':'🇱🇹','IE':'🇮🇪','LU':'🇱🇺',
+          'MT':'🇲🇹','CY':'🇨🇾','HR':'🇭🇷','RS':'🇷🇸','GE':'🇬🇪'
+        };
+        function getStatusClass(status) {
+          if (!status) return 'stable';
+          var s = status.toLowerCase();
+          if (s.indexOf('critical') !== -1) return 'critical';
+          if (s.indexOf('high') !== -1) return 'high';
+          if (s.indexOf('elevated') !== -1) return 'elevated';
+          if (s.indexOf('watch') !== -1) return 'watch';
+          return 'stable';
+        }
+        function getStatusLabel(status) {
+          if (!status) return 'Unknown';
+          var parts = status.split('—');
+          return parts[0].trim();
+        }
+        var gridHtml = '<div class="member-state-grid">';
+        memberStates.forEach(function(ms) {
+          var code = (ms.country || ms.name || '').toUpperCase();
+          var flag = flagMap[code] || '🏳️';
+          var statusClass = getStatusClass(ms.status);
+          var statusLabel = getStatusLabel(ms.status);
+          var headline = ms.headline || ms.key_development || '';
+          var dev = ms.change_from_last_week || ms.summary || ms.note || '';
+          gridHtml +=
+            '<div class="ms-card ms-card--' + statusClass + '">' +
+              '<div class="ms-card__header">' +
+                '<span class="ms-card__flag">' + flag + '</span>' +
+                '<span class="ms-card__country">' + escHtml(code) + '</span>' +
+              '</div>' +
+              '<span class="ms-card__status ms-card__status--' + statusClass + '">' + escHtml(statusLabel) + '</span>' +
+              (headline ? '<div class="ms-card__headline">' + escHtml(headline) + '</div>' : '') +
+              (dev ? '<div class="ms-card__dev">' + escHtml(dev) + '</div>' : '') +
+            '</div>';
+        });
+        gridHtml += '</div>';
+        msEl.innerHTML = gridHtml;
       }
-      var tHtml = '<table class="data-table"><thead><tr>' +
-        '<th>Country</th><th>Status</th><th>Key Development</th><th>Severity</th>' +
-        '</tr></thead><tbody>';
-      memberStates.forEach(function (ms) {
-        var sev = ms.severity_level || ms.severity || ms.level || '';
-        var sevClass = '';
-        if (/critical/i.test(sev)) sevClass = 'severity-badge--critical';
-        else if (/high/i.test(sev)) sevClass = 'severity-badge--high';
-        else if (/moderate/i.test(sev)) sevClass = 'severity-badge--moderate';
-        else sevClass = 'severity-badge--positive';
-        tHtml +=
-          '<tr>' +
-            '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(ms.country || ms.name || '')||'') + (AsymRenderer.flag(ms.country || ms.name || '') ? '\u00a0' : '') : '') + escHtml(ms.country || ms.name || '') + '</strong></td>' +
-            '<td>' + escHtml(ms.status || '') + '</td>' +
-            '<td>' + escHtml(ms.key_development || ms.change_from_last_week || ms.summary || ms.note || '') + '</td>' +
-            '<td><span class="severity-badge ' + sevClass + '">' + escHtml(sev) + '</span></td>' +
-          '</tr>';
-      });
-      tHtml += '</tbody></table>';
-      msEl.innerHTML = tHtml;
     })
     .catch(function (err) {
       console.error(err);
@@ -231,6 +573,232 @@ document.addEventListener('DOMContentLoaded', function () {
         var el = document.getElementById(id);
         if (el) el.innerHTML = '<div class="error-state">Failed to load data.</div>';
       });
+    });
+
+  // Load persistent-state for: Autonomy Scorecard, KPI Bars, Radar Chart
+  fetch('data/persistent-state.json')
+    .then(function(r) { return r.json(); })
+    .then(function(ps) {
+      var kpi = ps.kpi_state || {};
+      var lagDims = kpi.lagrange_point_dimensions || {};
+      var lagProgress = kpi.lagrange_point_progress || '';
+
+      // ── Strategic Autonomy Scorecard Arc ─────────
+      var scEl = document.getElementById('autonomy-scorecard-block');
+      if (scEl) {
+        var pct = 35;
+        if (lagProgress) {
+          var m = String(lagProgress).match(/(\d+)/);
+          if (m) pct = parseInt(m[1], 10);
+        }
+        // SVG arc (half-circle: 0=left, 100=right)
+        var r = 54;
+        var cx = 60; var cy = 60;
+        var startAngle = Math.PI; // left
+        var endAngle = Math.PI + (pct/100) * Math.PI; // partial fill
+        function polar(angle) {
+          return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+        }
+        var s = polar(startAngle);
+        var e = polar(endAngle);
+        var largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
+        var arcD = 'M ' + s[0].toFixed(1) + ' ' + s[1].toFixed(1) +
+                   ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' +
+                   e[0].toFixed(1) + ' ' + e[1].toFixed(1);
+        var fullD = 'M ' + polar(Math.PI)[0].toFixed(1) + ' ' + polar(Math.PI)[1].toFixed(1) +
+                    ' A ' + r + ' ' + r + ' 0 1 1 ' +
+                    polar(2*Math.PI)[0].toFixed(1) + ' ' + polar(2*Math.PI)[1].toFixed(1);
+        scEl.innerHTML =
+          '<div class="autonomy-scorecard">' +
+            '<div class="autonomy-scorecard__arc-wrap">' +
+              '<svg viewBox="0 0 120 68" aria-hidden="true">' +
+                '<!-- Track -->' +
+                '<path d="M6,60 A54,54 0 0,1 114,60" fill="none" stroke="var(--color-border)" stroke-width="8" stroke-linecap="round"/>' +
+                '<!-- Fill -->' +
+                '<path d="' + arcD + '" fill="none" stroke="#5b8db0" stroke-width="8" stroke-linecap="round"/>' +
+              '</svg>' +
+              '<div class="autonomy-scorecard__arc-score">' + pct + '%</div>' +
+            '</div>' +
+            '<div class="autonomy-scorecard__meta">' +
+              '<div class="autonomy-scorecard__label">Lagrange Point</div>' +
+              '<div class="autonomy-scorecard__title">Strategic Autonomy Progress</div>' +
+              '<div class="autonomy-scorecard__trend autonomy-scorecard__trend--up">' +
+                '↑ Tracking toward strategic independence' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
+
+      // ── KPI Trend Bars ────────────────────────────
+      var kpiBarsEl = document.getElementById('kpi-bars-block');
+      if (kpiBarsEl) {
+        var kpiCategories = [
+          {
+            label: 'Defence & Security',
+            items: [
+              { key: 'eu_defence_total_2025',       label: 'EU Defence Total 2025',      maxRef: 500, isText: true },
+              { key: 'eu_defence_spending_real_change', label: 'Defence Spending Change', maxRef: 50, isText: true },
+              { key: 'safe_programme_total',        label: 'SAFE Programme Total',        maxRef: 200, isText: true },
+              { key: 'eu_support_ukraine_total',    label: 'EU Support Ukraine Total',    maxRef: 300, isText: true },
+              { key: 'nato_at_2_percent',           label: 'NATO 2% Target',              maxRef: 32, isText: true },
+            ]
+          },
+          {
+            label: 'Threat Landscape',
+            items: [
+              { key: 'threat_actors_tracked',       label: 'Threat Actors Tracked',       maxRef: 10,  isText: false },
+              { key: 'hybrid_attacks_total',        label: 'Hybrid Attacks Total',         maxRef: 300, isText: false },
+              { key: 'hybrid_attacks_recent',       label: 'Hybrid Attacks (Recent)',      maxRef: 100, isText: false },
+              { key: 'fimi_incidents_eeas',         label: 'FIMI Incidents (EEAS)',        maxRef: 1000,isText: false },
+              { key: 'elections_under_threat',      label: 'Elections Under Threat',       maxRef: 10,  isText: false },
+              { key: 'eu_legislation_targeted',     label: 'EU Legislation Targeted',     maxRef: 30,  isText: false },
+            ]
+          },
+          {
+            label: 'Democratic Health',
+            items: [
+              { key: 'democratic_health_avg',       label: 'Democratic Health Avg',       maxRef: 5,   isText: false },
+              { key: 'vdem_autocratising_europe',   label: 'V-Dem Autocratising',         maxRef: 27,  isText: false },
+              { key: 'freedom_house_consecutive_decline_years', label: 'Freedom Decline Years', maxRef: 25, isText: false },
+            ]
+          }
+        ];
+
+        function kpiBarColor(key, val) {
+          if (/threat|attack|fimi|targeted|autocrat|decline|capture/i.test(key)) return 'negative';
+          if (/health|defence_spending|nato|safe|support_ukraine/i.test(key)) return 'positive';
+          return 'neutral';
+        }
+
+        var barsHtml = '<div class="kpi-trend-grid">';
+        kpiCategories.forEach(function(cat) {
+          barsHtml += '<div class="kpi-trend-category">';
+          barsHtml += '<div class="kpi-trend-category__label">' + escHtml(cat.label) + '</div>';
+          cat.items.forEach(function(item) {
+            var raw = kpi[item.key];
+            if (raw == null) return;
+            var displayVal = String(raw);
+            var numVal = parseFloat(String(raw).replace(/[^0-9.]/g,'')) || 0;
+            var pct2 = item.isText ? 100 : Math.min(100, (numVal / item.maxRef) * 100);
+            var colorClass = kpiBarColor(item.key, numVal);
+            var arrow = '→'; var arrowClass = 'neutral';
+            // Detect trend from value
+            if (colorClass === 'negative') { arrow = '↑'; arrowClass = 'down'; }
+            else if (colorClass === 'positive') { arrow = '↑'; arrowClass = 'up'; }
+            barsHtml +=
+              '<div class="kpi-trend-row">' +
+                '<div class="kpi-trend-row__name">' + escHtml(item.label) + '</div>' +
+                '<div class="kpi-trend-row__value">' + escHtml(displayVal) + '</div>' +
+                '<div class="kpi-trend-row__arrow kpi-trend-row__arrow--' + arrowClass + '">' + arrow + '</div>' +
+                '<div class="kpi-trend-row__bar-wrap">' +
+                  '<div class="kpi-trend-row__bar kpi-trend-row__bar--' + colorClass + '" style="width:' + pct2.toFixed(1) + '%"></div>' +
+                '</div>' +
+              '</div>';
+          });
+          barsHtml += '</div>';
+        });
+        barsHtml += '</div>';
+        kpiBarsEl.innerHTML = barsHtml;
+      }
+
+      // ── Lagrange Radar Chart (dashboard compact) ──
+      var radarWrap = document.getElementById('dash-lagrange-wrap');
+      if (radarWrap && Object.keys(lagDims).length) {
+        var dimOrder = ['energy','defence','technology','finance','materials','institutions'];
+        var dimLabels = {
+          energy: 'Energy', defence: 'Defence', technology: 'Technology',
+          finance: 'Finance', materials: 'Materials', institutions: 'Institutions'
+        };
+        var dimScores = dimOrder.map(function(d) { return lagDims[d] ? parseFloat(lagDims[d].score||0) : 0; });
+
+        var dimRowsHtml = '<div class="dash-radar-dims">';
+        dimOrder.forEach(function(dim, i) {
+          var d2 = lagDims[dim]; if (!d2) return;
+          var sc = parseFloat(d2.score||0);
+          var bc = sc >= 50 ? 'var(--positive)' : sc >= 30 ? '#5b8db0' : 'var(--high)';
+          dimRowsHtml +=
+            '<div class="dash-radar-dim-row">' +
+              '<div class="dash-radar-dim-row__label">' + escHtml(dimLabels[dim]||dim) + '</div>' +
+              '<div class="dash-radar-dim-row__bar-wrap">' +
+                '<div class="dash-radar-dim-row__bar" style="width:' + Math.min(sc,100) + '%;background:' + bc + '"></div>' +
+              '</div>' +
+              '<div class="dash-radar-dim-row__score" style="color:' + bc + '">' + sc + '</div>' +
+            '</div>';
+        });
+        dimRowsHtml += '</div>';
+
+        radarWrap.innerHTML =
+          '<div class="dash-radar-section">' +
+            '<div class="dash-radar-canvas-wrap">' +
+              '<canvas id="dash-radar-canvas" width="280" height="280" aria-label="Autonomy Radar" role="img"></canvas>' +
+            '</div>' +
+            dimRowsHtml +
+          '</div>';
+
+        var rc = document.getElementById('dash-radar-canvas');
+        if (rc && typeof Chart !== 'undefined') {
+          var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          var lc = isDark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
+          var gc = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+          var dashRadar = new Chart(rc.getContext('2d'), {
+            type: 'radar',
+            data: {
+              labels: dimOrder.map(function(d){ return dimLabels[d]||d; }),
+              datasets: [{
+                label: 'Score',
+                data: dimScores,
+                backgroundColor: 'rgba(91,141,176,0.18)',
+                borderColor: '#5b8db0',
+                borderWidth: 2,
+                pointBackgroundColor: '#5b8db0',
+                pointBorderColor: isDark ? '#1e1d1b' : '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                fill: true,
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: true,
+              animation: { duration: 600 },
+              scales: {
+                r: {
+                  min: 0, max: 100,
+                  ticks: { stepSize: 25, color: lc, backdropColor: 'transparent', font: { size: 9 } },
+                  grid: { color: gc },
+                  angleLines: { color: gc },
+                  pointLabels: { color: lc, font: { size: 10, weight: '500' } }
+                }
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.parsed.r + '/100'; } } }
+              }
+            }
+          });
+          var tt2 = document.getElementById('theme-toggle');
+          if (tt2) {
+            tt2.addEventListener('click', function() {
+              setTimeout(function() {
+                var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+                var lc2 = dark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
+                var gc2 = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+                dashRadar.options.scales.r.ticks.color = lc2;
+                dashRadar.options.scales.r.pointLabels.color = lc2;
+                dashRadar.options.scales.r.grid.color = gc2;
+                dashRadar.options.scales.r.angleLines.color = gc2;
+                dashRadar.data.datasets[0].pointBorderColor = dark ? '#1e1d1b' : '#ffffff';
+                dashRadar.update();
+              }, 80);
+            });
+          }
+        }
+      } else if (radarWrap) {
+        radarWrap.innerHTML = '<p class="text-muted text-sm">Radar data will appear after the next publish cycle.</p>';
+      }
+    })
+    .catch(function(err) {
+      console.error('Persistent state load error:', err);
     });
 });
 </script>

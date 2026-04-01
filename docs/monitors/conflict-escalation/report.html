@@ -31,6 +31,97 @@
     .roster-watch-list li { padding:var(--space-3) 0; border-bottom:1px solid var(--color-border-subtle); font-size:var(--text-sm); color:var(--color-text-secondary); }
     .roster-watch-list li:last-child { border-bottom:none; }
     .lead-dev-box { background:var(--monitor-accent-bg); border-left:3px solid var(--monitor-accent); padding:var(--space-3) var(--space-4); border-radius:0 var(--radius) var(--radius) 0; font-size:var(--text-sm); color:var(--color-text); margin:var(--space-3) 0; }
+
+    /* ── ROSTER WATCH STATUS BADGES ──────────────────────────────────── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 3px 8px 3px 6px;
+      border-radius: 20px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .status-badge__icon {
+      font-size: 0.7rem;
+      line-height: 1;
+    }
+    /* Active — red */
+    .status-badge--active {
+      background: rgba(220, 38, 38, 0.1);
+      color: #dc2626;
+      border: 1px solid rgba(220, 38, 38, 0.25);
+    }
+    [data-theme="dark"] .status-badge--active {
+      background: rgba(220, 38, 38, 0.18);
+      color: #f87171;
+      border-color: rgba(220, 38, 38, 0.4);
+    }
+    /* Ceasefire — amber */
+    .status-badge--ceasefire {
+      background: rgba(217, 119, 6, 0.1);
+      color: #d97706;
+      border: 1px solid rgba(217, 119, 6, 0.25);
+    }
+    [data-theme="dark"] .status-badge--ceasefire {
+      background: rgba(217, 119, 6, 0.18);
+      color: #fbbf24;
+      border-color: rgba(217, 119, 6, 0.4);
+    }
+    /* De-escalating — green */
+    .status-badge--deescalating {
+      background: rgba(5, 150, 105, 0.1);
+      color: #059669;
+      border: 1px solid rgba(5, 150, 105, 0.25);
+    }
+    [data-theme="dark"] .status-badge--deescalating {
+      background: rgba(5, 150, 105, 0.18);
+      color: #34d399;
+      border-color: rgba(5, 150, 105, 0.4);
+    }
+    /* Monitoring / Watch — grey */
+    .status-badge--monitoring {
+      background: rgba(107, 102, 96, 0.08);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    [data-theme="dark"] .status-badge--monitoring {
+      background: rgba(107, 102, 96, 0.15);
+      color: var(--color-text-muted);
+    }
+    /* Escalating — dark red / urgent */
+    .status-badge--escalating {
+      background: rgba(193, 68, 14, 0.1);
+      color: #c1440e;
+      border: 1px solid rgba(193, 68, 14, 0.25);
+    }
+    [data-theme="dark"] .status-badge--escalating {
+      background: rgba(193, 68, 14, 0.2);
+      color: #fb923c;
+      border-color: rgba(193, 68, 14, 0.4);
+    }
+    /* Stable */
+    .status-badge--stable {
+      background: rgba(37, 99, 235, 0.08);
+      color: #2563eb;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+    [data-theme="dark"] .status-badge--stable {
+      background: rgba(37, 99, 235, 0.15);
+      color: #60a5fa;
+      border-color: rgba(37, 99, 235, 0.35);
+    }
+
+    /* Conflict section header — accent bar from trajectory */
+    .conflict-section--active { border-left: 3px solid #dc2626; }
+    .conflict-section--ceasefire { border-left: 3px solid #d97706; }
+    .conflict-section--deescalating { border-left: 3px solid #059669; }
+    .conflict-section--monitoring { border-left: 3px solid var(--color-border); }
+    .conflict-section--stable { border-left: 3px solid #2563eb; }
+    .conflict-section--escalating { border-left: 3px solid #c1440e; }
   </style>
 </head>
 
@@ -227,13 +318,20 @@ document.addEventListener('DOMContentLoaded', function () {
       var worst = getWorstBand(inds);
       var rowClass = bandToRowClass(worst.band);
 
+      // Derive status class for section border and badge
+      var statusText = c.status || c.trajectory || 'Active';
+      var statusClass = deriveStatusClass(statusText);
+      var statusBadge = buildStatusBadge(statusText, statusClass);
+      var trajectoryBadge = c.trajectory ? buildStatusBadge(c.trajectory, deriveStatusClass(c.trajectory)) : '';
+
       conflictsHtml +=
-        '<div class="conflict-section module-section" id="conflict-' + id + '">' +
+        '<div class="conflict-section module-section conflict-section--' + statusClass + '" id="conflict-' + id + '">' +
           '<div class="conflict-section__header">' +
             '<div class="conflict-section__name">' + escHtml(c.conflict) + '</div>' +
             '<div class="conflict-section__meta">' +
               '<span>' + escHtml(c.theatre) + '</span>' +
-              '<span>' + escHtml(c.trajectory_arrow||'') + ' ' + escHtml(c.trajectory||'') + '</span>' +
+              '<span>' + statusBadge + '</span>' +
+              (c.trajectory && c.trajectory !== statusText ? '<span>' + trajectoryBadge + '</span>' : '') +
               '<span><span class="severity-badge severity-badge--' + rowClass + '">' + escHtml(worst.band||'') + '</span></span>' +
               '<span>' + escHtml(c.baseline_status||'Contested') + '</span>' +
             '</div>' +
@@ -259,13 +357,14 @@ document.addEventListener('DOMContentLoaded', function () {
         approaching.map(function(r) {
           if (typeof r === 'string') return '<div class="intel-item" style="margin-bottom:var(--space-3)"><div class="intel-item__summary">' + escHtml(r) + '</div></div>';
           var criteria = (r.criteria_met||[]).map(function(c){ return '<span class="severity-badge severity-badge--moderate" style="margin-right:4px">'+escHtml(c)+'</span>'; }).join('');
+          var wStatus = buildStatusBadge(r.status||'Watch', 'monitoring');
           return '<div class="intel-item" style="margin-bottom:var(--space-3)">' +
             '<div class="intel-item__header">' +
               '<div class="intel-item__meta">' +
                 '<div class="intel-item__country">' + escHtml(r.theatre||'') + '</div>' +
                 '<div class="intel-item__headline">' + escHtml(r.conflict||'') + '</div>' +
               '</div>' +
-              '<span class="severity-badge severity-badge--high">' + escHtml(r.status||'Watch') + '</span>' +
+              wStatus +
             '</div>' +
             (r.note ? '<div class="intel-item__summary">' + escHtml(r.note) + '</div>' : '') +
             (criteria ? '<div class="intel-item__footer">' + criteria + '</div>' : '') +
@@ -292,6 +391,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Cross-monitor flags
     renderCrossMonitor(cmf, 'cross-monitor');
+  }
+
+  /* ── STATUS BADGE HELPERS ─────────────────────────────────────────── */
+  function deriveStatusClass(text) {
+    var t = (text || '').toLowerCase();
+    if (t.indexOf('ceasefire') >= 0) return 'ceasefire';
+    if (t.indexOf('de-escal') >= 0 || t.indexOf('deescal') >= 0) return 'deescalating';
+    if (t.indexOf('watch') >= 0 || t.indexOf('monitor') >= 0) return 'monitoring';
+    if (t.indexOf('escal') >= 0) return 'escalating';
+    if (t.indexOf('stable') >= 0) return 'stable';
+    if (t.indexOf('active') >= 0) return 'active';
+    return 'monitoring';
+  }
+
+  function buildStatusBadge(text, cls) {
+    var icons = {
+      active:       '●',
+      ceasefire:    '⏸',
+      deescalating: '↓',
+      monitoring:   '◎',
+      escalating:   '↑',
+      stable:       '→'
+    };
+    var icon = icons[cls] || '◎';
+    return '<span class="status-badge status-badge--' + cls + '">' +
+      '<span class="status-badge__icon" aria-hidden="true">' + icon + '</span>' +
+      escHtml(text) +
+    '</span>';
   }
 
   function renderIndicatorRows(inds) {
