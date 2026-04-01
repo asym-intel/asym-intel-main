@@ -163,6 +163,16 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
 <script src="../shared/js/renderer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  Promise.all([
+    fetch('data/persistent-state.json').then(function(r){return r.json();}),
+    fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(results){
+    var d = results[0];
+    var report = results[1];
+    if (!d.cross_monitor_flags && report.cross_monitor_flags) {
+      d.cross_monitor_flags = report.cross_monitor_flags;
+    }
+  }).catch(function(){});
   fetch('data/persistent-state.json')
     .then(function (r) { return r.json(); })
     .then(renderPersistent)
