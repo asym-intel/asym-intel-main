@@ -113,11 +113,19 @@ STEP 1 — Research: EEAS FIMI reports, EU DisinfoLab, DFRLab,
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
   { "meta": {..., "schema_version": "2.0", "methodology_url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/methodology/"},
-    "signal": {}, "campaigns": [], 
+    "signal": {
+      "headline": "one-sentence lead — name the operation, actor, and target",
+      "actor": "RU|CN|IR|...",
+      "confidence": "Confirmed|Assessed|Unconfirmed",
+      "f_flags": ["F1"],
+      "note": "optional MF-flag alert or analytical caveat"
+    },
+    "campaigns": [], 
     "actor_tracker": [
       { "actor": "RU", "status": "HIGHLY ACTIVE|ACTIVE|MONITORING",
         "doctrine": "...", "headline": "key development this week",
-        "summary": "...", "source_url": "..." }
+        "summary": "1–2 sentence analytical note on this actor's current posture — REQUIRED, not optional. The renderer displays summary as the card body; omitting it leaves the card blank.",
+        "source_url": "..." }
     ],
     "platform_responses": [],
     "attribution_log": [
