@@ -7,58 +7,62 @@
 # CADENCE: Weekly — every Saturday at 05:00 UTC
 # PUBLISH TO: https://asym-intel.info/monitors/environmental-risks/
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DAY-OF-WEEK GUARD — READ THIS FIRST
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Check the current UTC day before doing anything else:
-
-```bash
-DAY=$(date -u +%A)
-echo "Today is: $DAY"
-```
-
-IF today is NOT Saturday:
-  → Do NOT run the pipeline.
-  → Verify the 4 data files exist and are non-empty, then exit silently.
-  → Optionally send: "Health check OK. Next publish: Saturday 09:00 UTC."
-
-IF today IS Saturday AND UTC hour >= scheduled time:
-  → Proceed with the full pipeline below.
-
-IF unsure: Do NOT run. Exit silently.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RECENCY GUARD — CHECK BEFORE RUNNING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Even if today is the correct day, check when this monitor last published.
-If it published fewer than 6 days ago, skip this run silently.
+# ══════════════════════════════════════════════════════════════
+# STEP 0 — PUBLISH GUARD (MUST RUN FIRST — DO NOT SKIP)
+# ══════════════════════════════════════════════════════════════
+#
+# This block MUST be the first thing executed. Run it before
+# reading any further instructions. If it exits, stop completely.
+#
+# Two conditions must BOTH be true to proceed:
+#   1. Today is the correct publish day (Saturday)
+#   2. This monitor has not published in the last 6 days
+#
+# If either condition fails → EXIT IMMEDIATELY. Do not research.
+# Do not write any files. Do not send any notification.
+# A prompt reload is NOT a reason to publish.
 
 ```bash
-LAST=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/environmental-risks/data/report-latest.json \
+set -e
+
+# Check 1: correct day of week
+EXPECTED_DAY="Saturday"
+TODAY_DAY=$(date -u +%A)
+if [ "$TODAY_DAY" != "$EXPECTED_DAY" ]; then
+  echo "GUARD: Wrong day. Today=$TODAY_DAY, expected=$EXPECTED_DAY. Exiting."
+  exit 0
+fi
+
+# Check 2: UTC hour >= scheduled hour (avoid running before scheduled time)
+EXPECTED_HOUR=05
+TODAY_HOUR=$(date -u +%H | sed 's/^0//')
+if [ "${TODAY_HOUR:-0}" -lt "$EXPECTED_HOUR" ]; then
+  echo "GUARD: Too early. UTC hour=$TODAY_HOUR, scheduled=$EXPECTED_HOUR. Exiting."
+  exit 0
+fi
+
+# Check 3: not published within the last 6 days
+LAST_PUB=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/environmental-risks/data/report-latest.json \
   --jq '.content' | base64 -d | python3 -c \
-  "import json,sys; d=json.load(sys.stdin); print(d.get('meta',{{}}).get('published','')[:10])")
-echo "Last published: $LAST"
-TODAY=$(date -u +%Y-%m-%d)
-DAYS=$(python3 -c "
+  "import json,sys; d=json.load(sys.stdin); print(d.get('meta',{{}}).get('published','2000-01-01')[:10])")
+DAYS_AGO=$(python3 -c "
 from datetime import date
-last = date.fromisoformat('$LAST') if '$LAST' else date(2000,1,1)
-print((date.fromisoformat('$TODAY') - last).days)
+last = date.fromisoformat('$LAST_PUB')
+today = date.today()
+print((today - last).days)
 ")
-echo "Days since last publish: $DAYS"
+echo "GUARD: Last published $LAST_PUB ($DAYS_AGO days ago)"
+if [ "$DAYS_AGO" -lt 6 ]; then
+  echo "GUARD: Published $DAYS_AGO days ago — too recent. Minimum interval is 6 days. Exiting."
+  exit 0
+fi
+
+echo "GUARD: All checks passed. Proceeding with publish pipeline."
 ```
 
-IF $DAYS < 6:
-  → Published fewer than 6 days ago. Do NOT run. Exit silently.
-
-IF $DAYS >= 6:
-  → Proceed with the full pipeline below.
-
-
-
-This guard prevents accidental mid-week runs triggered by prompt reloads.
-
-DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
+If the bash block above exits with code 0 after printing "GUARD: ... Exiting" → STOP HERE.
+Do not proceed. Do not perform any research or writes.
+Only continue if the final line printed is "GUARD: All checks passed."
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
