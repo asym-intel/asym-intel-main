@@ -179,6 +179,103 @@
     [data-theme="dark"] .fcw-active-text {
       color: #6b6660;
     }
+
+    /* ── ADDITIONAL OPERATIONS CONDENSED GRID ── */
+    .fcw-ops-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.75rem;
+    }
+    .fcw-ops-card {
+      border: 1px solid var(--color-border, #d8d4cd);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      background: var(--color-bg, #faf9f7);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    [data-theme="dark"] .fcw-ops-card {
+      border-color: #2d2c2a;
+      background: #1a1917;
+    }
+    .fcw-ops-card__name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text, #1a1917);
+      line-height: 1.35;
+    }
+    [data-theme="dark"] .fcw-ops-card__name {
+      color: #e0dfdc;
+    }
+    .fcw-ops-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: var(--text-xs);
+      color: var(--color-text-muted, #6b6660);
+    }
+    .fcw-ops-card__stale {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted, #6b6660);
+      font-style: italic;
+      margin-top: 0.1rem;
+    }
+    [data-theme="dark"] .fcw-ops-card__stale {
+      color: #6b6660;
+    }
+
+    /* ── ATTRIBUTION LOG TABLE ── */
+    .fcw-log-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .fcw-log-table th {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-text-muted, #6b6660);
+      padding: 0.45rem 0.65rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border, #d8d4cd);
+    }
+    [data-theme="dark"] .fcw-log-table th {
+      border-bottom-color: #2d2c2a;
+      color: #6b6660;
+    }
+    .fcw-log-table td {
+      font-size: var(--text-sm);
+      padding: 0.55rem 0.65rem;
+      vertical-align: top;
+      border-bottom: 1px solid var(--color-border-subtle, #e8e4de);
+      line-height: 1.45;
+    }
+    [data-theme="dark"] .fcw-log-table td {
+      border-bottom-color: #252422;
+    }
+    .fcw-log-table tr:last-child td {
+      border-bottom: none;
+    }
+    .fcw-log-table tr:hover td {
+      background: rgba(56, 189, 248, 0.04);
+    }
+    .fcw-log-id {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary, #3d3a35);
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .fcw-log-id {
+      color: #9e9b97;
+    }
+    .fcw-log-headline {
+      color: var(--color-text, #1a1917);
+    }
+    [data-theme="dark"] .fcw-log-headline {
+      color: #e0dfdc;
+    }
   </style>
 </head>
 
@@ -306,6 +403,39 @@
       </div>
     </section>
 
+    <!-- ADDITIONAL ACTIVE OPERATIONS -->
+    <section class="module-section" id="section-all-ops">
+      <div class="module-header">
+        <div class="module-title">Additional Active Operations</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:0.2rem">All tracked campaigns not in featured section above</div>
+      </div>
+      <div id="all-ops-grid">
+        <div class="loading-state">Loading operations…</div>
+      </div>
+    </section>
+
+    <!-- ATTRIBUTION LOG -->
+    <section class="module-section" id="section-attr-log">
+      <div class="module-header">
+        <div class="module-title">Attribution Log</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:0.2rem">Evidentiary record of confidence assessments and analytical flags</div>
+      </div>
+      <div id="attr-log-block">
+        <div class="loading-state">Loading attribution log…</div>
+      </div>
+    </section>
+
+    <!-- PLATFORM ENFORCEMENT -->
+    <section class="module-section" id="section-platform-enforce">
+      <div class="module-header">
+        <div class="module-title">Platform Enforcement</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:0.2rem">Takedowns, enforcement actions, and policy gaps by platform</div>
+      </div>
+      <div id="platform-enforce-block">
+        <div class="loading-state">Loading platform enforcement…</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -315,6 +445,9 @@
       <li><a href="#section-actor-matrix">Actor Threat Board</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Top Campaigns</a></li>
+      <li><a href="#section-all-ops">All Operations</a></li>
+      <li><a href="#section-attr-log">Attribution Log</a></li>
+      <li><a href="#section-platform-enforce">Platform Enforcement</a></li>
     </ul>
   </nav>
 
@@ -512,24 +645,46 @@ document.addEventListener('DOMContentLoaded', function () {
           flagsHtml +
         '</div>';
 
-      // Delta strip — top campaigns from archive delta_strip or build from campaigns
+      // ── STALENESS HELPER ──
+      function weeksAgo(dateStr) {
+        if (!dateStr) return null;
+        var then = new Date(dateStr);
+        var now = new Date();
+        var diffMs = now - then;
+        var diffWeeks = diffMs / (1000 * 60 * 60 * 24 * 7);
+        return diffWeeks;
+      }
+
+      function stalenessLabel(dateStr) {
+        var w = weeksAgo(dateStr);
+        if (w === null || w < 4) return '';
+        var rounded = Math.floor(w);
+        return 'Last active: ' + rounded + ' week' + (rounded !== 1 ? 's' : '') + ' ago';
+      }
+
+      // ── FEATURED TOP 5 DELTA STRIP ──
       var archiveSource = d.archive || [];
       var deltaItems = [];
+      var featuredCampaigns = [];
+      var remainingCampaigns = [];
 
-      // Try to get delta_strip from archive.json's first entry
-      // Otherwise build from active_campaigns
-      if (!deltaItems.length && Array.isArray(campaigns) && campaigns.length) {
-        campaigns.slice(0, 5).forEach(function(c, i) {
+      if (Array.isArray(campaigns) && campaigns.length) {
+        featuredCampaigns = campaigns.slice(0, 5);
+        remainingCampaigns = campaigns.slice(5);
+        featuredCampaigns.forEach(function(c, i) {
           deltaItems.push({
             rank: i + 1,
             title: c.operation_name || c.headline || '',
             actor: c.actor || '',
+            module_tag: c.actor || '',
+            delta_type: c.id || '',
             one_line: c.summary || '',
-            status: c.status || ''
+            status: c.status || '',
+            attribution_confidence: c.attribution_confidence || '',
+            last_activity: c.last_activity || ''
           });
         });
-      }
-      if (!deltaItems.length && typeof campaigns === 'object' && !Array.isArray(campaigns)) {
+      } else if (typeof campaigns === 'object' && !Array.isArray(campaigns)) {
         var rank = 1;
         actorKeys.forEach(function(actor) {
           (campaigns[actor] || []).slice(0, 2).forEach(function(c) {
@@ -540,7 +695,8 @@ document.addEventListener('DOMContentLoaded', function () {
               delta_type: c.status || 'Campaign',
               one_line: c.summary ? c.summary.slice(0, 120) + '…' : '',
               attribution_confidence: c.attribution_confidence || '',
-              status: c.status || ''
+              status: c.status || '',
+              last_activity: c.last_activity || ''
             });
           });
         });
@@ -549,6 +705,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var deltaHtml = '';
       deltaItems.forEach(function(item) {
+        var stale = stalenessLabel(item.last_activity);
         deltaHtml +=
           '<div class="intel-item">' +
             '<div class="intel-item__header">' +
@@ -563,10 +720,85 @@ document.addEventListener('DOMContentLoaded', function () {
               (item.status ? statusBadge(item.status) : '') +
             '</div>' +
             '<div class="intel-item__summary">' + escHtml(item.one_line || '') + '</div>' +
-            (item.attribution_confidence ? '<div style="margin-top:var(--space-2)">' + confidenceBadge(item.attribution_confidence) + '</div>' : '') +
+            '<div style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center">' +
+              (item.attribution_confidence ? confidenceBadge(item.attribution_confidence) : '') +
+              (stale ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic">' + escHtml(stale) + '</span>' : '') +
+            '</div>' +
           '</div>';
       });
       document.getElementById('delta-strip').innerHTML = deltaHtml || '<p class="text-muted">No campaign data available.</p>';
+
+      // ── ADDITIONAL ACTIVE OPERATIONS (remaining campaigns not in top 5) ──
+      var opsHtml = '';
+      if (Array.isArray(remainingCampaigns) && remainingCampaigns.length) {
+        opsHtml = '<div class="fcw-ops-grid">';
+        remainingCampaigns.forEach(function(c) {
+          var stale = stalenessLabel(c.last_activity);
+          opsHtml +=
+            '<div class="fcw-ops-card">' +
+              '<div class="fcw-ops-card__name">' + escHtml(c.operation_name || c.headline || '') + '</div>' +
+              '<div class="fcw-ops-card__meta">' +
+                (c.actor ? '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:1px 5px;border-radius:3px">' + escHtml(c.actor) + '</span>' : '') +
+                (c.status ? statusBadge(c.status) : '') +
+                (c.attribution_confidence ? confidenceBadge(c.attribution_confidence) : '') +
+                (c.last_activity ? '<span>' + escHtml(c.last_activity) + '</span>' : '') +
+              '</div>' +
+              (stale ? '<div class="fcw-ops-card__stale">' + escHtml(stale) + '</div>' : '') +
+            '</div>';
+        });
+        opsHtml += '</div>';
+      } else if (Array.isArray(remainingCampaigns) && remainingCampaigns.length === 0 && Array.isArray(campaigns) && campaigns.length) {
+        opsHtml = '<p class="text-muted">All campaigns shown in featured section above.</p>';
+      } else {
+        opsHtml = '<p class="text-muted">No additional operations data.</p>';
+      }
+      document.getElementById('all-ops-grid').innerHTML = opsHtml;
+
+      // ── ATTRIBUTION LOG ──
+      var attrLog = d.attribution_log || [];
+      var attrLogHtml = '';
+      if (Array.isArray(attrLog) && attrLog.length) {
+        attrLogHtml = '<div style="overflow-x:auto"><table class="fcw-log-table" role="table" aria-label="Attribution log">';
+        attrLogHtml += '<thead><tr>';
+        attrLogHtml += '<th>Date</th><th>Campaign</th><th>Confidence</th><th>Headline</th><th>Actor</th>';
+        attrLogHtml += '</tr></thead><tbody>';
+        attrLog.forEach(function(entry) {
+          attrLogHtml += '<tr>';
+          attrLogHtml += '<td class="fcw-log-id">' + escHtml(entry.date || '') + '</td>';
+          attrLogHtml += '<td class="fcw-log-id">' + escHtml(entry.campaign_id || '') + '</td>';
+          attrLogHtml += '<td>' + confidenceBadge(entry.confidence || '') + '</td>';
+          attrLogHtml += '<td class="fcw-log-headline">' + escHtml(entry.headline || entry.note || '') + '</td>';
+          attrLogHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:1px 5px;border-radius:3px">' + escHtml(entry.actor || '') + '</span></td>';
+          attrLogHtml += '</tr>';
+        });
+        attrLogHtml += '</tbody></table></div>';
+      } else {
+        attrLogHtml = '<p class="text-muted">No attribution log entries this issue.</p>';
+      }
+      document.getElementById('attr-log-block').innerHTML = attrLogHtml;
+
+      // ── PLATFORM ENFORCEMENT ──
+      var platforms = d.platform_responses || d.platform_actions || [];
+      var platHtml = '';
+      if (Array.isArray(platforms) && platforms.length) {
+        platHtml = '<div style="overflow-x:auto"><table class="fcw-log-table" role="table" aria-label="Platform enforcement actions">';
+        platHtml += '<thead><tr>';
+        platHtml += '<th>Platform</th><th>Action</th><th>Headline</th><th>Actor</th><th>Date</th>';
+        platHtml += '</tr></thead><tbody>';
+        platforms.forEach(function(p) {
+          platHtml += '<tr>';
+          platHtml += '<td style="font-weight:600;white-space:nowrap">' + escHtml(p.platform || '') + '</td>';
+          platHtml += '<td><span class="severity-badge severity-badge--high">' + escHtml(p.action_type || '') + '</span></td>';
+          platHtml += '<td class="fcw-log-headline">' + escHtml(p.headline || '') + '</td>';
+          platHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:1px 5px;border-radius:3px">' + escHtml(p.actor || '') + '</span></td>';
+          platHtml += '<td class="fcw-log-id">' + escHtml(p.date || '') + '</td>';
+          platHtml += '</tr>';
+        });
+        platHtml += '</tbody></table></div>';
+      } else {
+        platHtml = '<p class="text-muted">No platform enforcement actions this issue.</p>';
+      }
+      document.getElementById('platform-enforce-block').innerHTML = platHtml;
     })
     .catch(function (err) {
       console.error(err);
