@@ -169,6 +169,18 @@
       "applies_to": "All monitor pages \u2014 tables, charts, timelines, cards, delta strips, actor boards. Wherever a country name or ISO-2 actor code appears.",
       "real_world_case": "FCW campaign timeline actor group labels showed 'RU', 'CN' etc with no flags. Actor profiles (same page) already used AsymRenderer.flag correctly \u2014 inconsistency.",
       "detected_by": "User review 2026-04-01"
+    },
+    {
+      "id": "FE-017",
+      "category": "css",
+      "severity": "error",
+      "description": "Raw --monitor-accent used as text colour on tinted panel background (monitor-accent-bg)",
+      "wrong": "style=\"background:var(--monitor-accent-bg);color:var(--monitor-accent)\"",
+      "correct": "style=\"background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000)\"",
+      "root_cause": "var(--monitor-accent-bg) is a light tinted surface (~12% opacity). Raw --monitor-accent fails WCAG AA contrast on it for 5 of 7 monitors. The 65% darkened mix gives minimum 4.8:1 contrast.",
+      "applies_to": "All JS-generated elements with tinted backgrounds: badges, risk-heat cells, tag chips, timeline labels, actor boards, delta strip items, campaign cards.",
+      "scope_note": "This violation occurs almost entirely in JavaScript-generated innerHTML strings \u2014 not detectable by the static validator (Check 20). Must be caught by code review and anti-patterns awareness.",
+      "detected_by": "COMPUTER.md CONTRAST RULES + code review"
     }
   ]
 }
