@@ -27,6 +27,34 @@ IF today IS Monday AND UTC hour >= scheduled time:
   → Proceed with the full pipeline below.
 
 IF unsure: Do NOT run. Exit silently.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECENCY GUARD — CHECK BEFORE RUNNING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Even if today is the correct day, check when this monitor last published.
+If it published fewer than 6 days ago, skip this run silently.
+
+```bash
+LAST=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/democratic-integrity/data/report-latest.json \
+  --jq '.content' | base64 -d | python3 -c \
+  "import json,sys; d=json.load(sys.stdin); print(d.get('meta',{{}}).get('published','')[:10])")
+echo "Last published: $LAST"
+TODAY=$(date -u +%Y-%m-%d)
+DAYS=$(python3 -c "
+from datetime import date
+last = date.fromisoformat('$LAST') if '$LAST' else date(2000,1,1)
+print((date.fromisoformat('$TODAY') - last).days)
+")
+echo "Days since last publish: $DAYS"
+```
+
+IF $DAYS < 6:
+  → Published fewer than 6 days ago. Do NOT run. Exit silently.
+
+IF $DAYS >= 6:
+  → Proceed with the full pipeline below.
+
+
 
 This guard prevents accidental mid-week runs triggered by prompt reloads.
 
