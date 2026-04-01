@@ -369,6 +369,12 @@ for f in flags:
     if f.get('body'): print(f'    {f["body"][:120]}')
 "
 
+  # Internal full methodology spec (scoring rubrics, source hierarchy, formula weights):
+  # Read this before any schema changes or analytical framework work on this monitor.
+  SPEC=$(gh api /repos/asym-intel/asym-intel-internal/contents/methodology/democratic-integrity-full.md \
+    --jq '.content' | base64 -d 2>/dev/null || echo "spec unavailable")
+  echo "$SPEC" | head -50  # Read the first 50 lines for context
+
 # Schema changelog — confirm what you must produce this issue
 gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/schema-changelog.json \
   --jq '.content' | base64 -d | python3 -c "
