@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (item.category_tag) footer.push('<span class="severity-badge severity-badge--moderate">' + escHtml(item.category_tag) + '</span>');
       if (item.severity) footer.push('<span class="severity-badge severity-badge--high">' + escHtml(item.severity) + '</span>');
       if (item.status) footer.push('<span>' + escHtml(item.status) + '</span>');
-      if (item.actor) footer.push('<span><strong>Actor:</strong> ' + escHtml(item.actor) + '</span>');
+      if (item.actor) footer.push('<span><strong>Actor:</strong> ' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.actor)||'') + (AsymRenderer.flag(item.actor) ? '\u00a0' : '') : '') + escHtml(item.actor) + '</span>');
       if (footer.length) html += '<div class="card__footer">' + footer.join('') + '</div>';
       if (item.source_url) html += '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener">Source &rarr;</a></div>';
       html += '</div>';
