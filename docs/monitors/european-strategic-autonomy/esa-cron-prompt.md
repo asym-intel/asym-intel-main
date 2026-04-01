@@ -62,9 +62,30 @@ STEP 1 — Research: ECFR, IISS, Chatham House, European Council,
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
   { "meta": {..., "schema_version": "2.0"},
-    "signal": {}, "defence_developments": [], "hybrid_threats": [],
-    "institutional_developments": [], "member_state_tracker": [],
+    "signal": {},
+    "defence_developments": [
+      { "headline": "...", "summary": "...", "actor": "Russia|China|Turkey|...",
+        "source_url": "..." }
+    ],
+    "hybrid_threats": [
+      { "headline": "...", "summary": "...", "actor": "Russia|China|...",
+        "source_url": "..." }
+    ],
+    "institutional_developments": [
+      { "headline": "...", "summary": "...", "actor": "France|Germany|EU|...",
+        "source_url": "..." }
+    ],
+    "member_state_tracker": [
+      { "country": "HU", "headline": "...", "status": "...",
+        "change_from_last_week": "...", "source_url": "..." }
+    ],
     "cross_monitor_flags": {}, "source_url": "..." }
+
+  ACTOR FIELD RULE: Use the primary state or institutional actor name exactly
+  as it appears in the country flag alias map (e.g. "Russia", "China", "France",
+  "Germany", "Ukraine", "Turkey", "United States"). Use the most specific single
+  actor. If genuinely multi-actor, use the dominant one. Omit actor field if
+  no clear state/institutional actor is attributable.
   
   Commit: "data(esa): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
