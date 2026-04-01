@@ -1,441 +1,314 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asym Intel Macro Monitor — Methodology v2.0</title>
-  <meta name="description" content="Full methodology for the Asym Intel Macro Monitor: 24 indicators, 8 asset classes, scoring engine, conviction model, Tactical Alerts, Blind Spot Rules, and weekly update protocol. Version 2.0, effective 25 March 2026.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-/* ── Reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; scroll-behavior: smooth; }
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: #f8f9fa;
-  color: #1a1a2e;
-  line-height: 1.65;
-}
-
-/* ── CSS variables (light theme) ── */
-:root {
-  --bg: #f8f9fa;
-  --surface: #ffffff;
-  --border: #e2e6ea;
-  --border-light: #c8cdd2;
-  --text: #1a1a2e;
-  --text-muted: #4a5568;
-  --text-faint: #9aa5b1;
-  --amber: #d97706;
-  --amber-dim: rgba(217,119,6,0.1);
-  --red: #dc2626;
-  --red-dim: rgba(220,38,38,0.08);
-  --green: #16a34a;
-  --green-dim: rgba(22,163,74,0.08);
-  --cyan: #0891b2;
-  --cyan-dim: rgba(8,145,178,0.1);
-  --font-ui: 'Inter', -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
-}
-
-/* ── Page chrome ── */
-.page-header {
-  background: #0d1117;
-  color: #e6edf3;
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  border-bottom: 1px solid #30363d;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-.page-header-brand {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #e6edf3;
-  text-decoration: none;
-  letter-spacing: -0.01em;
-}
-.page-header-brand:hover { color: #06b6d4; }
-.page-header-sep { color: #30363d; font-size: 1.2rem; }
-.page-header-title { font-size: 0.9rem; color: #8b949e; flex: 1; }
-.page-header-link {
-  font-size: 0.78rem;
-  color: #06b6d4;
-  text-decoration: none;
-  padding: 0.3rem 0.75rem;
-  border: 1px solid rgba(6,182,212,0.3);
-  border-radius: 20px;
-  white-space: nowrap;
-}
-.page-header-link:hover { background: rgba(6,182,212,0.08); }
-
-.page-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 2.5rem 2rem 5rem;
-}
-
-.page-footer {
-  background: #0d1117;
-  color: #8b949e;
-  text-align: center;
-  padding: 1.25rem 2rem;
-  font-size: 0.78rem;
-  margin-top: 3rem;
-  border-top: 1px solid #30363d;
-}
-.page-footer a { color: #06b6d4; text-decoration: none; }
-.page-footer a:hover { text-decoration: underline; }
-
-/* ── Section wrapper overrides ── */
-.section {
-  background: transparent;
-  padding: 0;
-  border: none;
-  box-shadow: none;
-}
-.section-title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 0.3rem;
-  letter-spacing: -0.03em;
-  font-family: var(--font-ui);
-}
-.section-subtitle {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
-  font-family: var(--font-ui);
-}
-.section-footer { display: none; }
-
-/* ── Version bar ── */
-.meth-version-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.5rem 0.9rem;
-  margin-bottom: 1.75rem;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-.meth-version-badge {
-  background: rgba(6,182,212,0.12);
-  color: #0891b2;
-  border: 1px solid rgba(8,145,178,0.3);
-  border-radius: 20px;
-  padding: 0.15rem 0.6rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  font-family: var(--font-mono);
-}
-.meth-version-sep { color: var(--border-light); }
-.meth-version-link { color: var(--cyan); text-decoration: none; }
-.meth-version-link:hover { text-decoration: underline; }
-
-/* ── Meth content ── */
-.meth-h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-  margin: 1.75rem 0 0.6rem;
-  padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--border);
-  font-family: var(--font-ui);
-}
-.meth-p {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
-  line-height: 1.65;
-}
-.meth-formula {
-  font-family: var(--font-mono);
-  font-size: 1.05rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--cyan);
-  padding: 0.75rem 1.25rem;
-  border-radius: 0 6px 6px 0;
-  color: var(--text);
-  margin: 0.75rem 0 1rem;
-  letter-spacing: 0.02em;
-}
-.meth-note {
-  font-size: 0.82rem;
-  background: rgba(139,148,158,0.07);
-  border-left: 3px solid var(--border-light);
-  padding: 0.5rem 0.85rem;
-  border-radius: 0 4px 4px 0;
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
-}
-.meth-blind-spot {
-  background: var(--red-dim);
-  border: 1px solid rgba(220,38,38,0.2);
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-}
-.meth-list {
-  font-size: 0.88rem;
-  color: var(--text-muted);
-  padding-left: 1.4rem;
-  margin-bottom: 0.75rem;
-  line-height: 1.8;
-}
-
-/* ── Table ── */
-.meth-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-  margin: 0.5rem 0 1.25rem;
-  background: var(--surface);
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-.meth-table th {
-  text-align: left;
-  padding: 0.5rem 0.85rem;
-  border-bottom: 2px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: rgba(139,148,158,0.05);
-}
-.meth-table td {
-  padding: 0.45rem 0.85rem;
-  border-bottom: 1px solid var(--border);
-  vertical-align: top;
-  color: var(--text-muted);
-}
-.meth-table tr:last-child td { border-bottom: none; }
-.meth-table tr:hover td { background: rgba(0,0,0,0.02); }
-
-/* ── Badges ── */
-.badge {
-  display: inline-block;
-  padding: 0.15rem 0.55rem;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  font-family: var(--font-mono);
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-.badge-red   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(220,38,38,0.25); }
-.badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(217,119,6,0.25); }
-.badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(22,163,74,0.25); }
-
-/* ── Mono / colour text ── */
-.mono       { font-family: var(--font-mono); font-size: 0.82rem; }
-.red-text   { color: var(--red); font-family: var(--font-mono); }
-.amber-text { color: var(--amber); font-family: var(--font-mono); }
-.green-text { color: var(--green); font-family: var(--font-mono); }
-
-/* ── Version history ── */
-#version-history h3 { margin-top: 0; }
-
-/* ── Responsive ── */
-@media (max-width: 640px) {
-  .page-container { padding: 1.5rem 1rem 3rem; }
-  .section-title { font-size: 1.4rem; }
-  .meth-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .page-header { padding: 0.75rem 1rem; gap: 0.75rem; }
-  .page-header-title { display: none; }
-}
-</style>
+  <title>Methodology — Global Macro Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="GMM methodology: what the monitor tracks, the five-tier source hierarchy, signal scoring criteria, stress labels, and blind spot override rules.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
 </head>
+
 <body>
 
-<header class="page-header">
-  <a href="https://asym-intel.info/monitors/macro-monitor/" class="page-header-brand">Asym Intel Macro Monitor</a>
-  <span class="page-header-sep">|</span>
-  <span class="page-header-title">Methodology v2.0</span>
-  <a href="https://asym-intel.info/monitors/macro-monitor/dashboard.html" class="page-header-link">Full Dashboard &rarr;</a>
-</header>
-
-<div class="page-container">
-  <div class="section" id="sec-methodology">
-  <div class="section-title">XIV. Methodology</div>
-  <div class="section-subtitle">Data collection framework, scoring engine, conviction model, and weekly update protocol</div>
-  <div class="meth-version-bar">
-    <span class="meth-version-badge">Version 2.0</span>
-    <span class="meth-version-sep">·</span>
-    <span>Effective: 25 March 2026</span>
-    <span class="meth-version-sep">·</span>
-    <span>Introduces: Direction multipliers · Metals formula update (no VIX) · Two-tier alerts (0.45/0.60)</span>
-    <span class="meth-version-sep">·</span>
-    <a href="#version-history" onclick="document.getElementById('version-history').scrollIntoView({behavior:'smooth'});return false;" class="meth-version-link">Version History ↓</a>
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="overview.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 38 38" fill="none" aria-hidden="true" style="flex-shrink:0">
+      <rect x="2" y="2" width="34" height="34" rx="6" stroke="var(--monitor-accent)" stroke-width="2" fill="none"/>
+      <circle cx="12" cy="10" r="2.5" fill="#e87040"/>
+      <line x1="12" y1="12.5" x2="12" y2="18" stroke="#e87040" stroke-width="1.5"/>
+      <line x1="8" y1="15" x2="16" y2="15" stroke="#e87040" stroke-width="1.5"/>
+      <line x1="12" y1="18" x2="9" y2="22" stroke="#e87040" stroke-width="1.5"/>
+      <line x1="12" y1="18" x2="15" y2="22" stroke="#e87040" stroke-width="1.5"/>
+      <polyline points="5,30 10,30 13,24 17,33 21,26 25,33 29,22 33,30" stroke="#e87040" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    </svg>
+    <span>Global Macro Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="methodology.html" class="active">Methodology</a></li>
+    <li><a href="search.html">Search</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
   </div>
+</nav>
 
-  <div style="max-width:860px">
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
 
-    <h3 class="meth-h3">1. Data Collection</h3>
-    <p class="meth-p">The report tracks <strong>24 indicators</strong> across six domains, each sourced from a named primary publisher. Data is gathered weekly; each indicator receives a three-level flag relative to its documented crisis threshold.</p>
-    <table class="meth-table">
-      <thead><tr><th>Domain</th><th>Indicators</th><th>Primary Sources</th></tr></thead>
-      <tbody>
-        <tr><td>§I Debt &amp; Sovereign</td><td>US debt/deficit, JGB yields, EM distress, custody migration, gold-reserve ratio</td><td>BPC, CBO, YCharts, World Gold Council, IIF</td></tr>
-        <tr><td>§II Banking &amp; Credit</td><td>SLOOS, CRE delinquency, G-SIB capital, private credit/NBFI</td><td>Federal Reserve, Trepp, S&amp;P Global, BPI</td></tr>
-        <tr><td>§III Market Structure</td><td>VIX, Treasury liquidity, margin debt, FX swap basis, M2/Real M2</td><td>CBOE, TBAC, FINRA, Reuters, Fed H.6</td></tr>
-        <tr><td>§IV Real Economy</td><td>ISM PMI, jobless claims, Cass Freight, consumer confidence, earnings revisions</td><td>ISM, BLS, Cass, U-Mich, FactSet</td></tr>
-        <tr><td>§V Composite Indices</td><td>STLFSI, NFCI, IIF Global Debt Monitor, 0DTE volume ratio</td><td>St. Louis Fed, Chicago Fed, IIF, CBOE</td></tr>
-        <tr><td>§VI Amplifiers</td><td>Trump tariffs, oil/supply shock, dollar weaponisation, AI infra debt</td><td>Baker Botts, Windward/Kpler, BIS, Futurum</td></tr>
-      </tbody>
-    </table>
-
-    <h3 class="meth-h3">2. Flag Assignment</h3>
-    <p class="meth-p">Each indicator is assigned one of three flags:</p>
-    <table class="meth-table">
-      <thead><tr><th>Flag</th><th>Score Value</th><th>Meaning</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge badge-red">🔴 WARNING</span></td><td class="mono">−1.0</td><td>In or approaching crisis territory; direction deteriorating</td></tr>
-        <tr><td><span class="badge badge-amber">🟡 ELEVATED</span></td><td class="mono">−0.3</td><td>Above normal baseline; direction of concern but not critical</td></tr>
-        <tr><td><span class="badge badge-green">🟢 GREEN</span></td><td class="mono">+1.0</td><td>Within normal range; supportive or neutral</td></tr>
-      </tbody>
-    </table>
-    <p class="meth-p meth-note">Where an indicator shows both an aggregate and a sub‑component flag (e.g. EM aggregate 🟡 and Fragile Five 🔴), the scoring engine always uses the <strong>aggregate flag</strong>. Sub‑component flags are discussed in the prose narrative but do not enter the numeric formulas.</p>
-    <p class="meth-p meth-note"><strong>Metals note (v2.0):</strong> Metals are now driven by monetary credibility and reserve diversification (gold_reserve_ratio_em ×0.40, us_debt_deficit ×0.25, oil_supply_shock ×0.15, dollar_weaponization ×0.20). Equity volatility (VIX) is no longer an input to the Metals score.</p>
-    <p class="meth-p meth-note"><strong>Special case — Source-neutral oil indicator:</strong> <code>oil_supply_shock</code> is named for the economic effect (price × active disruption), not the geopolitical cause. The <em>Current Driver</em> note records the active cause each week. Formula weight never changes.</p>
-
-    <h3 class="meth-h3">3. Weighted Sum Formula</h3>
-    <p class="meth-p">For each of the 8 asset classes, a score <strong>S</strong> is computed as:</p>
-    <div class="meth-formula">S = Σ ( indicator_score<sub>i</sub> × weight<sub>i</sub> )</div>
-    <p class="meth-p">Weights for each asset class sum to 1.0. Score range: <strong>−1.0</strong> (all red) to <strong>+1.0</strong> (all green). Weights are fixed — only the flags change week to week.</p>
-    <h3 class="meth-h3" style="margin-top:1.5rem">2b. Direction Multiplier (v2.0)</h3>
-    <p class="meth-p">Within each flag level, the Direction field slightly scales each indicator's contribution before summing:</p>
-    <table class="meth-table">
-      <thead><tr><th>Direction</th><th>Multiplier</th></tr></thead>
-      <tbody>
-        <tr><td>DETERIORATING</td><td class="mono">× 1.1</td></tr>
-        <tr><td>IMPROVING</td><td class="mono">× 0.9</td></tr>
-        <tr><td>STABLE or BIFURCATED</td><td class="mono">× 1.0</td></tr>
-      </tbody>
-    </table>
-    <p class="meth-p meth-note">Final asset scores are capped between −1.0 and +1.0.</p>
-
-    <p class="meth-p"><strong>Example — Real Estate:</strong></p>
-    <table class="meth-table">
-      <thead><tr><th>Indicator</th><th>Flag</th><th>Score</th><th>Weight</th><th>Contribution</th></tr></thead>
-      <tbody>
-        <tr><td class="mono">cre_delinquency</td><td>🔴</td><td class="mono">−1.0</td><td class="mono">× 0.40</td><td class="mono red-text">= −0.40</td></tr>
-        <tr><td class="mono">private_credit_nbfi</td><td>🔴</td><td class="mono">−1.0</td><td class="mono">× 0.30</td><td class="mono red-text">= −0.30</td></tr>
-        <tr><td class="mono">fed_sloos</td><td>🟢</td><td class="mono">+1.0</td><td class="mono">× 0.15</td><td class="mono green-text">= +0.15</td></tr>
-        <tr><td class="mono">gsib_capital</td><td>🟡</td><td class="mono">−0.3</td><td class="mono">× 0.15</td><td class="mono amber-text">= −0.045</td></tr>
-        <tr style="border-top:2px solid var(--border-light)"><td colspan="4"><strong>Total S</strong></td><td class="mono red-text"><strong>= −0.59</strong></td></tr>
-      </tbody>
-    </table>
-
-    <h3 class="meth-h3">4. Outlook Labels</h3>
-    <table class="meth-table">
-      <thead><tr><th>Score Range</th><th>Outlook</th></tr></thead>
-      <tbody>
-        <tr><td class="mono">+0.50 to +1.00</td><td><span class="badge badge-green">BULLISH</span></td></tr>
-        <tr><td class="mono">+0.10 to +0.49</td><td><span class="badge" style="background:rgba(22,163,74,0.1);color:#16a34a;border:1px solid rgba(22,163,74,0.3)">MILD POSITIVE</span></td></tr>
-        <tr><td class="mono">−0.09 to +0.09</td><td><span class="badge" style="background:rgba(139,148,158,0.1);color:#8b949e;border:1px solid rgba(139,148,158,0.3)">NEUTRAL</span></td></tr>
-        <tr><td class="mono">−0.10 to −0.49</td><td><span class="badge badge-amber">MILD NEGATIVE</span></td></tr>
-        <tr><td class="mono">−0.50 to −1.00</td><td><span class="badge badge-red">BEARISH</span></td></tr>
-      </tbody>
-    </table>
-
-    <h3 class="meth-h3">5. Conviction Calculation</h3>
-    <p class="meth-p">Conviction measures how internally consistent the formula indicators are — i.e. how much they agree with each other.</p>
-    <p class="meth-p"><strong>Method:</strong> Count the flags used in the formula. Find the percentage in the single largest group (all-red, all-yellow, or all-green).</p>
-    <table class="meth-table">
-      <thead><tr><th>Dominant Group %</th><th>Conviction Level</th></tr></thead>
-      <tbody>
-        <tr><td class="mono">&gt; 80%</td><td><strong>HIGH CONVICTION</strong></td></tr>
-        <tr><td class="mono">50% – 80%</td><td><strong>MEDIUM CONVICTION</strong></td></tr>
-        <tr><td class="mono">No group reaches 50%</td><td><strong>LOW — BIFURCATED</strong></td></tr>
-      </tbody>
-    </table>
-    <p class="meth-p meth-note">A HIGH CONVICTION score means the indicators pull strongly in one direction — the outlook label is more reliable. LOW — BIFURCATED means genuinely mixed inputs; the score is driven by offsetting forces, not absence of signal. Bifurcated scores warrant more qualitative judgement.</p>
-
-    <h3 class="meth-h3">6. Tactical Alerts</h3>
-    <p class="meth-p">Two alert tiers are triggered based on week-on-week score changes:
-      <table class="meth-table" style="margin-top:0.5rem">
-        <thead><tr><th>Tier</th><th>Condition</th><th>Meaning</th></tr></thead>
-        <tbody>
-          <tr><td><span class="badge badge-amber">👁 WATCH</span></td><td class="mono">|Δ| ≥ 0.45</td><td>Meaningful shift; monitor closely</td></tr>
-          <tr><td><span class="badge badge-red">⚡ CRITICAL</span></td><td class="mono">|Δ| ≥ 0.60</td><td>Regime shift signal; act on positioning</td></tr>
-        </tbody>
-      </table> At this threshold, at least one major indicator has flipped between 🔴 and 🟢 — or several indicators have shifted simultaneously. Changes of this magnitude signal a genuine regime shift, not data noise.</p>
-    <p class="meth-p"><strong>Alert output:</strong> Previous score → Current score · Delta (↑ or ↓) · Which indicator(s) moved · Three most affected related asset classes to watch.</p>
-    <p class="meth-p meth-note">⓪ <em>Week of 24 March 2026 is the baseline week. No prior scores exist; no Tactical Alerts are produced. Comparisons begin 31 March 2026.</em></p>
-
-    <h3 class="meth-h3">7. Blind Spot Rules (Automated)</h3>
-    <p class="meth-p">Two checks run automatically each week, regardless of scores:</p>
-    <div class="meth-blind-spot">
-      <strong>Rule 1 — Earnings Suppression</strong><br>
-      If <code>earnings_revisions</code> is 🟢, append to affected asset class (currently: Tech):<br>
-      <em>⚠️ Score may be suppressed by buyback distortion and non-GAAP adjustments. Watch Q2 guidance season.</em>
-    </div>
-    <div class="meth-blind-spot" style="margin-top:0.75rem">
-      <strong>Rule 2 — Nominal M2 Mirage</strong><br>
-      If <code>m2_money_supply</code> is 🟡 AND Direction = "Deteriorating", append to affected asset class (currently: Crypto):<br>
-      <em>⚠️ Nominal M2 expansion is thinning in real terms. Forward Real M2 may turn negative by Q3 2026 on current inflation pipeline.</em>
+    <div class="page-header">
+      <div class="page-header__eyebrow">GMM · Asymmetric Intelligence</div>
+      <h1 class="page-header__title">Methodology</h1>
+      <p class="page-header__sub">What the Global Macro Monitor tracks, how indicators are scored, the source hierarchy, stress label definitions, and the blind spot override framework.</p>
     </div>
 
-    <p class="meth-p meth-note"><strong>Important:</strong> Blind spot warnings affect commentary and UI labels only. The underlying score uses the mechanical flag value (🟢 = +1.0, 🟡 = −0.3, 🔴 = −1.0) without discretionary adjustment. Any change requires a versioned methodology update.</p>
+    <!-- What GMM Tracks -->
+    <section class="module-section" id="section-what-gmm-tracks">
+      <div class="module-header">
+        <div class="module-title">What GMM Tracks</div>
+      </div>
+      <div class="card">
+        <p>GMM monitors <strong>25+ indicators across six strategic domains</strong>. Each domain maps to a coherent area of macro-financial risk. Domains are scored independently; the system average is the unweighted mean of all indicator scores.</p>
+        <table class="heatmap-table" style="margin-top:var(--space-4)">
+          <thead>
+            <tr><th>Domain</th><th>Scope</th><th>Indicators</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>D1 — Debt &amp; Sovereign</strong></td>
+              <td class="text-sm">Sovereign debt trajectories, yield dynamics, EM distress, reserve reallocation</td>
+              <td class="text-sm">US debt/deficit, Japan JGB yields, EM sovereign distress, custody migration, gold/reserve ratio</td>
+            </tr>
+            <tr>
+              <td><strong>D2 — Banking &amp; Credit</strong></td>
+              <td class="text-sm">Bank lending standards, commercial real estate, systemic capital, non-bank finance</td>
+              <td class="text-sm">Fed SLOOS, CRE delinquency, G-SIB capital, private credit/NBFI</td>
+            </tr>
+            <tr>
+              <td><strong>D3 — Market Structure</strong></td>
+              <td class="text-sm">Volatility regime, Treasury liquidity, margin leverage, cross-currency basis, money supply</td>
+              <td class="text-sm">VIX term structure, Treasury market liquidity, margin debt, FX swap basis, M2/real net liquidity</td>
+            </tr>
+            <tr>
+              <td><strong>D4 — Real Economy</strong></td>
+              <td class="text-sm">Industrial activity, labour market, freight volumes, consumer sentiment, earnings</td>
+              <td class="text-sm">ISM Manufacturing PMI, jobless claims, Cass Freight Index, consumer confidence, earnings revisions</td>
+            </tr>
+            <tr>
+              <td><strong>D5 — Composite Indices</strong></td>
+              <td class="text-sm">Synthesised stress indices: Fed/Chicago financial conditions, global debt stock, options fragility</td>
+              <td class="text-sm">STLFSI, NFCI, IIF Global Debt Monitor, 0DTE volume ratio</td>
+            </tr>
+            <tr>
+              <td><strong>D6 — Systemic Amplifiers</strong></td>
+              <td class="text-sm">Geopolitical and structural factors that amplify stress across all domains</td>
+              <td class="text-sm">Trump tariff escalation, oil/supply shock, dollar weaponisation, AI infrastructure debt</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-    <h3 class="meth-h3">8. Weekly Update Protocol</h3>
-    <ol class="meth-list">
-      <li>Pull live data for all 24 indicators from primary sources</li>
-      <li>Assign flags (🔴 / 🟡 / 🟢) based on current reading vs. crisis threshold and direction</li>
-      <li>Run scoring engine — apply fixed weights, compute S for each of 8 asset classes</li>
-      <li>Compare to prior week's baselines — produce Tactical Alerts for |Δ| ≥ 0.60</li>
-      <li>Apply blind spot rules — check earnings and M2 flags automatically</li>
-      <li>Update Current Driver note on <code>oil_supply_shock</code></li>
-      <li>Update Positioning Overlay (§IX) — Fed Funds Futures and BofA FMS data</li>
-      <li>Update Intelligence section (§XI) — Hormuz data, alpha signals, contrarian corner</li>
-      <li>Redeploy dashboard to permanent URL</li>
-    </ol>
-    <p class="meth-p meth-note">The formula weights, outlook thresholds, conviction thresholds, and Tactical Alert delta trigger (0.60) are <strong>fixed parameters</strong>. They are not adjusted in response to market conditions. Proposed changes require a versioned update to this section.</p>
+    <!-- Source Hierarchy -->
+    <section class="module-section" id="section-sources">
+      <div class="module-header">
+        <div class="module-title">Source Hierarchy</div>
+      </div>
+      <div class="card">
+        <p>GMM uses a named five-tier source hierarchy. Sources are always cited at the indicator level. Higher tiers take precedence. Downgrading to a lower tier requires a documented reason.</p>
+        <table class="heatmap-table" style="margin-top:var(--space-4)">
+          <thead><tr><th>Tier</th><th>Sources</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge--accent">T1</span></td>
+              <td class="text-sm"><strong>BIS, IMF, World Bank, Federal Reserve, ECB</strong> — official publications, statistical releases, working papers, financial stability reports, and regulatory data</td>
+              <td class="text-sm"><strong>Always use.</strong> Link directly to primary data release, never to press coverage.</td>
+            </tr>
+            <tr>
+              <td><span class="badge">T2</span></td>
+              <td class="text-sm"><strong>National statistical agencies, central banks (non-T1), treasury departments, BLS, BEA, ONS, Eurostat, BoJ, FINRA, CBOE, FRED, TIC data</strong></td>
+              <td class="text-sm">Use when T1 source does not publish the specific series.</td>
+            </tr>
+            <tr>
+              <td><span class="badge">T3</span></td>
+              <td class="text-sm"><strong>Specialised financial data providers</strong>: Trepp (CRE), IIF (global debt), PIIE (trade), BofA FMS (positioning), Cass Information Systems (freight), ISM, University of Michigan (sentiment)</td>
+              <td class="text-sm">Use for proprietary datasets not covered by T1/T2. Always link to primary report.</td>
+            </tr>
+            <tr>
+              <td><span class="badge">T4</span></td>
+              <td class="text-sm"><strong>High-quality financial press and research</strong>: Reuters, Bloomberg, FT, Goldman Sachs Global Investment Research, Morgan Stanley Research</td>
+              <td class="text-sm">Use only when no T1–T3 source covers the item. Flagged in the indicator record.</td>
+            </tr>
+            <tr>
+              <td><span class="badge">T5</span></td>
+              <td class="text-sm"><strong>Specialised data aggregators and market structure sources</strong>: Windward (AIS/shipping), TradingEconomics (for secondary confirmation only)</td>
+              <td class="text-sm">Last resort. Always flagged. Cross-checked against T1–T3 where possible.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  </div>
+    <!-- Signal Scoring Criteria -->
+    <section class="module-section" id="section-scoring">
+      <div class="module-header">
+        <div class="module-title">Signal Scoring Criteria</div>
+      </div>
+      <div class="card" style="margin-bottom:var(--space-4)">
+        <div class="card__label">Indicator Scoring</div>
+        <p>Each indicator is scored weekly against a published crisis threshold:</p>
+        <table class="heatmap-table" style="margin-top:var(--space-3)">
+          <thead><tr><th>Score</th><th>Flag</th><th>Condition</th></tr></thead>
+          <tbody>
+            <tr><td><span class="score-chip score-chip--neg">−1.0</span></td><td><span class="flag-badge flag-badge--warning">WARNING</span></td><td class="text-sm">Indicator at or beyond crisis threshold. Immediate systemic concern.</td></tr>
+            <tr><td><span class="score-chip score-chip--neg">−0.3</span></td><td><span class="flag-badge flag-badge--elevated">ELEVATED</span></td><td class="text-sm">Indicator deteriorating, approaching crisis threshold, or structurally strained.</td></tr>
+            <tr><td><span class="score-chip score-chip--pos">+1.0</span></td><td><span class="flag-badge flag-badge--green">GREEN</span></td><td class="text-sm">Indicator within normal range. No systemic signal.</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text-secondary)">Direction multipliers may adjust the raw score within its tier. A WARNING indicator with an "easing" direction receives a direction multiplier of 0.9×, not a full reclassification.</p>
+      </div>
+      <div class="card" style="margin-bottom:var(--space-4)">
+        <div class="card__label">System Average Score</div>
+        <p>The system average score is the unweighted mean of all indicator scores in the current issue. It drives the system stress label. No domain is up- or down-weighted relative to another. All 25+ indicators contribute equally.</p>
+      </div>
+      <div class="card">
+        <div class="card__label">Asset Class Scoring</div>
+        <p>Eight asset classes are scored weekly: Consumer Staples, Energy, EM Equities, Real Estate, Metals, Bonds, Crypto, and Tech. Each asset class score is the domain-weighted composite of the indicators most directly affecting that asset class. Asset class scores range from −1.0 (BEARISH) to +1.0 (BULLISH).</p>
+      </div>
+    </section>
 
-    <div id="version-history" style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)">
-      <h3 class="meth-h3" style="margin-top:0">Version History</h3>
-      <table class="meth-table">
-        <thead><tr><th>Version</th><th>Date</th><th>Changes</th></tr></thead>
-        <tbody>
-          <tr><td class="mono">1.0</td><td class="mono">24 Mar 2026</td><td>Initial release. 24 indicators, 8 asset classes, fixed weights. Tactical Alert delta threshold set at ±0.60.</td></tr>
-        </tbody>
-      </table>
-      <p class="meth-p meth-note">Future versions will be logged here with a summary of what changed and why. Version numbers increment on any change to formula weights, threshold values, indicator definitions, or the Tactical Alert delta trigger.</p>
-    </div>
+    <!-- Stress Label Definitions -->
+    <section class="module-section" id="section-labels">
+      <div class="module-header">
+        <div class="module-title">What Stress Labels Mean</div>
+      </div>
+      <div class="card">
+        <p>The system stress label is derived from the system average score and the directional momentum across domains. Labels are:</p>
+        <table class="heatmap-table" style="margin-top:var(--space-4)">
+          <thead><tr><th>Label</th><th>Score Range</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="flag-badge flag-badge--green">LOW</span></td>
+              <td class="text-sm">+0.5 to +1.0</td>
+              <td class="text-sm">No material systemic stress. Normal macro environment. Most indicators GREEN.</td>
+            </tr>
+            <tr>
+              <td><span class="flag-badge flag-badge--neutral">GUARDED</span></td>
+              <td class="text-sm">0.0 to +0.5</td>
+              <td class="text-sm">Minor pockets of stress. One or two ELEVATED indicators. No immediate systemic threat.</td>
+            </tr>
+            <tr>
+              <td><span class="flag-badge flag-badge--mild-neg">MODERATE</span></td>
+              <td class="text-sm">−0.3 to 0.0</td>
+              <td class="text-sm">Multiple ELEVATED indicators. Systemic stress building. Regime conviction may not yet be HIGH.</td>
+            </tr>
+            <tr>
+              <td><span class="flag-badge flag-badge--elevated">ELEVATED</span></td>
+              <td class="text-sm">−0.5 to −0.3</td>
+              <td class="text-sm">Several WARNING indicators or widespread ELEVATED signals. Regime confirmed. Tactical positioning warranted.</td>
+            </tr>
+            <tr>
+              <td><span class="flag-badge flag-badge--warning">HIGH</span></td>
+              <td class="text-sm">−0.7 to −0.5</td>
+              <td class="text-sm">Multiple WARNING indicators across domains. Systemic risk acute. Crisis threshold breaches confirmed.</td>
+            </tr>
+            <tr>
+              <td><span class="flag-badge flag-badge--bearish">CRITICAL</span></td>
+              <td class="text-sm">Below −0.7</td>
+              <td class="text-sm">Systemic crisis conditions. Most indicators at or beyond crisis thresholds. Immediate risk of cascading failures.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)">Composite labels such as "ELEVATED → HIGH" indicate that the score is at the boundary between two tiers and directional momentum points toward the higher tier. They signal that the next issue is likely to show a label change if the trajectory continues.</p>
+      </div>
+    </section>
 
-  </div>
+    <!-- Blind Spot Override Framework -->
+    <section class="module-section" id="section-blind-spots">
+      <div class="module-header">
+        <div class="module-title">Blind Spot Override Framework</div>
+      </div>
+      <div class="card">
+        <p>Certain indicators contain structural distortions that make their raw value misleading. GMM maintains a named catalogue of blind spot rules. When a rule is active, the indicator record is flagged and the warning is published in the report. Scores are <em>not</em> changed automatically — blind spot overrides are informational flags that require the human editor to apply a documented adjustment.</p>
+        <div style="margin-top:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)">
+          <div class="card" style="border-left:3px solid var(--high)">
+            <div class="card__label" style="color:var(--high)">Rule 1 — Earnings Suppression</div>
+            <p class="text-sm">Earnings revision scores may be suppressed by share buyback distortion and non-GAAP adjustments. When Rule 1 is active on the earnings_revisions indicator, the score is flagged as potentially overstated. Watch Q2 guidance season for real-earnings confirmation.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--high)">
+            <div class="card__label" style="color:var(--high)">Rule 2 — Nominal M2 Mirage</div>
+            <p class="text-sm">Nominal M2 growth can mislead when real M2 (deflated by Core PCE or PPI pipeline) is flat or negative. When Rule 2 is active on m2_money_supply, the nominal figure is flagged and the real M2 calculation is published alongside the nominal reading. Affected asset class: Crypto (narrative thinning in real terms).</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<!-- SECTION: PREVIOUS REPORTS -->
+    <!-- Regime Framework -->
+    <section class="module-section" id="section-regime">
+      <div class="module-header">
+        <div class="module-title">Regime Framework</div>
+      </div>
+      <div class="card">
+        <p>GMM identifies the prevailing macro regime each week. The regime is the structural backdrop within which the stress label is interpreted. Current regime definitions:</p>
+        <table class="heatmap-table" style="margin-top:var(--space-4)">
+          <thead><tr><th>Regime</th><th>Conditions</th><th>Asset Implication</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="regime-badge" style="font-size:0.55rem">STAGFLATION</span></td>
+              <td class="text-sm">Persistent above-target inflation + sub-trend growth + tightening financial conditions. All asset classes negatively biased.</td>
+              <td class="text-sm">No bullish asset class; defensive positioning only. Duration, EM, and real estate most exposed.</td>
+            </tr>
+            <tr>
+              <td><span class="badge">GOLDILOCKS</span></td>
+              <td class="text-sm">Inflation at or below target + above-trend growth + easing financial conditions.</td>
+              <td class="text-sm">Broad bullish bias. Equities outperform; duration extends. Risk assets perform.</td>
+            </tr>
+            <tr>
+              <td><span class="badge">REFLATION</span></td>
+              <td class="text-sm">Rising inflation with recovering growth + monetary easing still in place or beginning.</td>
+              <td class="text-sm">Commodities, energy, and cyclicals outperform. Short duration.</td>
+            </tr>
+            <tr>
+              <td><span class="badge">DEFLATION BUST</span></td>
+              <td class="text-sm">Falling inflation with contracting growth. Credit stress acute. Demand collapse.</td>
+              <td class="text-sm">Long duration, gold, and cash. Equities deeply negative. Credit spreads blow out.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="margin-top:var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)">Regime conviction levels (LOW, MEDIUM, HIGH) reflect how many of the regime's structural preconditions are simultaneously confirmed. A HIGH conviction regime requires confirmation across at least four of the six domains.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-what-gmm-tracks">What GMM Tracks</a></li>
+      <li><a href="#section-sources">Source Hierarchy</a></li>
+      <li><a href="#section-scoring">Scoring Criteria</a></li>
+      <li><a href="#section-labels">Stress Labels</a></li>
+      <li><a href="#section-blind-spots">Blind Spots</a></li>
+      <li><a href="#section-regime">Regime Framework</a></li>
+    </ul>
+  </nav>
 </div>
 
-<footer class="page-footer">
-  Asym Intel Macro Monitor &nbsp;&middot;&nbsp; Methodology v2.0 &nbsp;&middot;&nbsp; Effective 25 March 2026
-  &nbsp;&nbsp;|&nbsp;&nbsp;
-  <a href="https://asym-intel.info/monitors/macro-monitor/dashboard.html">Full Dashboard</a>
-  &nbsp;&middot;&nbsp;
-  <a href="https://asym-intel.info">asym-intel.info</a>
+<footer class="monitor-footer">
+  <span>Global Macro Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
 </footer>
 
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
 </body>
 </html>

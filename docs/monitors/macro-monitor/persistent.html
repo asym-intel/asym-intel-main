@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Living Knowledge — Global Macro Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="GMM persistent living knowledge: asset class baselines, active tactical alerts, conviction history, and cross-monitor flags carried forward across issues.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+</head>
+
+<body>
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="overview.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 38 38" fill="none" aria-hidden="true" style="flex-shrink:0">
+      <rect x="2" y="2" width="34" height="34" rx="6" stroke="var(--monitor-accent)" stroke-width="2" fill="none"/>
+      <circle cx="12" cy="10" r="2.5" fill="#e87040"/>
+      <line x1="12" y1="12.5" x2="12" y2="18" stroke="#e87040" stroke-width="1.5"/>
+      <line x1="8" y1="15" x2="16" y2="15" stroke="#e87040" stroke-width="1.5"/>
+      <line x1="12" y1="18" x2="9" y2="22" stroke="#e87040" stroke-width="1.5"/>
+      <line x1="12" y1="18" x2="15" y2="22" stroke="#e87040" stroke-width="1.5"/>
+      <polyline points="5,30 10,30 13,24 17,33 21,26 25,33 29,22 33,30" stroke="#e87040" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    </svg>
+    <span>Global Macro Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html" class="active">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="methodology.html">Methodology</a></li>
+    <li><a href="search.html">Search</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <div class="page-header">
+      <div class="page-header__eyebrow">GMM · Asymmetric Intelligence</div>
+      <h1 class="page-header__title">Living Knowledge</h1>
+      <p class="page-header__sub">Persistent state carried forward across every GMM issue. Asset class baselines, active tactical alerts, conviction history, and cross-monitor flags. Updated by the cron task on each publication cycle.</p>
+      <div class="page-header__meta" id="ps-meta">Loading…</div>
+    </div>
+
+    <div id="ps-error"></div>
+
+    <!-- Asset Class Baseline -->
+    <section class="module-section" id="section-baseline">
+      <div class="module-header">
+        <div class="module-num-large">01</div>
+        <h2 class="module-title">Asset Class Baseline</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Rolling baseline scores for each asset class. Current score, flag, and version history from the inaugural scoring run.</p>
+      <div id="ps-baseline" class="baseline-grid"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Active Tactical Alerts -->
+    <section class="module-section" id="section-alerts">
+      <div class="module-header">
+        <div class="module-num-large">02</div>
+        <h2 class="module-title">Active Tactical Alerts</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Live tactical alerts triggered by threshold breaches. Carried forward until explicitly resolved.</p>
+      <div id="ps-alerts"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Conviction History -->
+    <section class="module-section" id="section-conviction">
+      <div class="module-header">
+        <div class="module-num-large">03</div>
+        <h2 class="module-title">Conviction History</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Historical log of regime and stress label conviction changes across issues.</p>
+      <div id="ps-conviction"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Cross-Monitor Flags (persistent view) -->
+    <section class="module-section" id="section-cmf">
+      <div class="module-header">
+        <div class="module-num-large">04</div>
+        <h2 class="module-title">Cross-Monitor Flags</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Persistent cross-monitor intelligence from sister monitors. Loaded from the latest report's cross_monitor_flags object.</p>
+      <div id="ps-cmf"><div class="loading-state">Loading…</div></div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-baseline"><span class="sidebar-num">01</span> Baselines</a></li>
+      <li><a href="#section-alerts"><span class="sidebar-num">02</span> Alerts</a></li>
+      <li><a href="#section-conviction"><span class="sidebar-num">03</span> Conviction</a></li>
+      <li><a href="#section-cmf"><span class="sidebar-num">04</span> Cross-Monitor</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer">
+  <span>Global Macro Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmtDate(str) {
+    if (!str) return '';
+    try { return new Date(str).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}); }
+    catch(e) { return str; }
+  }
+
+  function flagClass(flag) {
+    if (!flag) return 'neutral';
+    var f = String(flag).toUpperCase();
+    if (f === 'WARNING') return 'warning';
+    if (f === 'ELEVATED') return 'elevated';
+    if (f === 'GREEN') return 'green';
+    if (f.indexOf('BEARISH') !== -1) return 'bearish';
+    if (f.indexOf('MILD') !== -1) return 'mild-neg';
+    return 'neutral';
+  }
+
+  function cmfStatusClass(status) {
+    var s = String(status || '').toLowerCase();
+    if (s === 'active') return 'warning';
+    if (s === 'nosignal') return 'green';
+    return 'elevated';
+  }
+
+  // Load persistent-state.json
+  var psPromise = fetch('data/persistent-state.json')
+    .then(function (r) { return r.json(); });
+
+  // Load report-latest.json for CMF
+  var reportPromise = fetch('data/report-latest.json')
+    .then(function (r) { return r.json(); });
+
+  Promise.all([psPromise, reportPromise])
+    .then(function (results) {
+      renderPersistent(results[0], results[1]);
+    })
+    .catch(function (e) {
+      document.getElementById('ps-error').innerHTML = '<div class="error-state">Failed to load data: ' + esc(e.message) + '</div>';
+    });
+
+  function renderPersistent(ps, report) {
+    var meta = ps._meta || {};
+
+    // Meta
+    document.getElementById('ps-meta').innerHTML =
+      '<span>Last updated: ' + esc(fmtDate(meta.last_updated)) + '</span>' +
+      '<span>Last issue: ' + esc(meta.last_issue || '—') + '</span>' +
+      '<span>Schema v' + esc(meta.schema_version || '—') + '</span>';
+
+    // Asset Class Baseline
+    var baselines = ps.asset_class_baseline || [];
+    var bEl = document.getElementById('ps-baseline');
+    if (!baselines.length) {
+      bEl.innerHTML = '<p class="text-muted text-sm">No baseline data.</p>';
+    } else {
+      var bHtml = '';
+      baselines.forEach(function (b) {
+        var scorePos = parseFloat(b.current_score || 0) >= 0;
+        var delta = b.current_score != null && b.baseline_score != null ?
+          (parseFloat(b.current_score) - parseFloat(b.baseline_score)).toFixed(2) : null;
+        bHtml += '<div class="baseline-item">' +
+          '<div>' +
+            '<div class="baseline-item__name">' + esc(b.asset_class) + '</div>' +
+            '<div class="baseline-item__dir">' + esc(b.current_direction || '') + ' · Baseline ' + esc(b.baseline_date || '') + '</div>' +
+          '</div>' +
+          '<span class="flag-badge flag-badge--' + flagClass(b.current_flag) + '">' + esc(b.current_flag) + '</span>' +
+          '<div style="text-align:right">' +
+            '<span class="score-chip score-chip--' + (scorePos?'pos':'neg') + '">' + (parseFloat(b.current_score||0)>0?'+':'') + esc(b.current_score) + '</span>' +
+            (delta !== null ? '<div style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:2px">Δ ' + (parseFloat(delta)>0?'+':'') + delta + '</div>' : '') +
+          '</div>' +
+        '</div>';
+        // Version history toggle
+        if (b.version_history && b.version_history.length) {
+          bHtml += '<div style="padding:0 var(--space-4) var(--space-4);background:var(--color-surface);border:1px solid var(--color-border-subtle);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);margin-top:-4px">' +
+            '<button class="version-history__toggle">Version history →</button>' +
+            '<div class="version-history">';
+          b.version_history.forEach(function (v) {
+            bHtml += '<div class="conviction-row">' +
+              '<span class="conviction-row__date">' + esc(v.date || '') + '</span>' +
+              '<span class="conviction-row__change">' + esc(v.change || '') + '</span>' +
+              '<span class="conviction-row__reason">' + esc(v.reason || '') + '</span>' +
+            '</div>';
+          });
+          bHtml += '</div></div>';
+        }
+      });
+      bEl.innerHTML = bHtml;
+    }
+
+    // Active Tactical Alerts
+    var alerts = ps.active_tactical_alerts || [];
+    var aEl = document.getElementById('ps-alerts');
+    if (!alerts.length) {
+      aEl.innerHTML = '<div class="card"><p class="text-muted text-sm">No active tactical alerts this period.</p></div>';
+    } else {
+      var aHtml = '';
+      alerts.forEach(function (a) {
+        aHtml += '<div class="cmf-item">' +
+          '<div class="cmf-item__header"><div>' +
+            '<div class="cmf-item__source">' + esc(a.asset_class || '') + ' · ' + esc(a.active_since || '') + '</div>' +
+            '<div class="cmf-item__title">' + esc(a.title || a.rule || '') + '</div>' +
+          '</div>' +
+          '<span class="flag-badge flag-badge--warning">ACTIVE</span></div>' +
+          '<div class="cmf-item__body">' + esc(a.warning || a.body || '') + '</div>' +
+        '</div>';
+      });
+      aEl.innerHTML = aHtml;
+    }
+
+    // Conviction History
+    var conviction = ps.conviction_history || [];
+    var cEl = document.getElementById('ps-conviction');
+    if (!conviction.length) {
+      cEl.innerHTML = '<p class="text-muted text-sm">No conviction history recorded yet.</p>';
+    } else {
+      var cHtml = '<div class="card" style="padding:0">';
+      conviction.slice().reverse().forEach(function (c) {
+        cHtml += '<div class="conviction-row" style="padding:var(--space-3) var(--space-4)">' +
+          '<span class="conviction-row__date">' + esc(c.date || '') + '</span>' +
+          '<span class="conviction-row__change">' + esc(c.change || '') + '</span>' +
+          '<span class="conviction-row__reason">' + esc(c.reason || '') + '</span>' +
+        '</div>';
+      });
+      cHtml += '</div>';
+      cEl.innerHTML = cHtml;
+    }
+
+    // Cross-Monitor Flags (from latest report)
+    var cmf = report.cross_monitor_flags || {};
+    var flags = cmf.flags || [];
+    var cmfEl = document.getElementById('ps-cmf');
+    if (!flags.length) {
+      cmfEl.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags available.</p>';
+    } else {
+      var cmfMeta = cmf.updated ? '<div class="section-label" style="margin-bottom:var(--space-3)">Updated: ' + esc(fmtDate(cmf.updated)) + '</div>' : '';
+      var cmfHtml = cmfMeta;
+      flags.forEach(function (flag) {
+        cmfHtml += '<div class="cmf-item">' +
+          '<div class="cmf-item__header"><div>' +
+            '<div class="cmf-item__source">' + esc(flag.monitor || '') + ' · ' + esc(flag.type || '') + '</div>' +
+            '<div class="cmf-item__title">' + esc(flag.title || '') + '</div>' +
+          '</div>' +
+          '<span class="flag-badge flag-badge--' + cmfStatusClass(flag.status) + '">' + esc(flag.status || '') + '</span></div>' +
+          '<div class="cmf-item__body cmf-item__body--collapsed">' + esc(flag.body || '') + '</div>' +
+          '<button class="cms-read-more">Read more →</button>' +
+          (flag.macro_indicators_affected && flag.macro_indicators_affected.length ?
+            '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Affects: ' + flag.macro_indicators_affected.map(function(x){return esc(x);}).join(', ') + '</div>' : '') +
+          (flag.source_url ? '<a href="' + esc(flag.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
+        '</div>';
+      });
+      cmfEl.innerHTML = cmfHtml;
+    }
+  }
+});
+</script>
+</body>
+</html>
