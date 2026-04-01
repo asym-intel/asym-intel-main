@@ -358,6 +358,15 @@
     </section>
 
     <!-- ── TIPPING SYSTEM FLAGS ── -->
+    <!-- Tipping Point Proximity Bars -->
+    <section class="module-section" id="section-tipping-proximity">
+      <div class="module-header">
+        <div class="module-title">Tipping Point Proximity</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-3)">Estimated proximity to irreversible threshold. Based on current rate of change vs. threshold range.</p>
+      <div id="tipping-proximity-wrap"></div>
+    </section>
+
     <section class="module-section" id="section-tipping">
       <div class="module-header">
         <div class="module-title">Tipping System Flags</div>
@@ -727,6 +736,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('tipping-board-loading').style.display = 'none';
         document.getElementById('tipping-board').style.display = 'block';
 
+        // Tipping Point Proximity bars
+        renderTippingProximity(tipping);
+
         var gridHtml = '';
         tipping.forEach(function (t) {
           var cls    = tippingCellClass(t.status);
@@ -755,6 +767,52 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('pb-chart-loading').innerHTML = '<div class="error-state">Failed to load boundary chart data.</div>';
       document.getElementById('tipping-board-loading').innerHTML = '<div class="error-state">Failed to load tipping system data.</div>';
     });
+
+  function renderTippingProximity(systems) {
+    var wrap = document.getElementById('tipping-proximity-wrap');
+    if (!wrap || !systems || !systems.length) return;
+    // Derive proximity from status since proximity_score not yet in schema
+    // Transgressed=0.90, At Risk=0.65, Elevated=0.45, Monitoring=0.20
+    var STATUS_PROXIMITY = {
+      'Transgressed': 0.90, 'transgressed': 0.90,
+      'At Risk': 0.65, 'at risk': 0.65, 'At risk': 0.65,
+      'Elevated': 0.45, 'elevated': 0.45,
+      'Monitoring': 0.20, 'monitoring': 0.20,
+      'Safe': 0.05, 'safe': 0.05
+    };
+    var STATUS_COLOURS = {
+      'Transgressed': '#dc2626', 'transgressed': '#dc2626',
+      'At Risk': '#c1440e', 'at risk': '#c1440e', 'At risk': '#c1440e',
+      'Elevated': '#d97706', 'elevated': '#d97706',
+      'Monitoring': '#2563eb', 'monitoring': '#2563eb',
+      'Safe': '#059669', 'safe': '#059669'
+    };
+    // Sort by proximity descending
+    var sorted = systems.slice().sort(function(a, b) {
+      return (STATUS_PROXIMITY[b.status] || 0) - (STATUS_PROXIMITY[a.status] || 0);
+    });
+    var html = '<div style="display:flex;flex-direction:column;gap:8px">';
+    sorted.forEach(function(t) {
+      // Use proximity_score if present, otherwise derive from status
+      var prox = t.proximity_score != null
+        ? parseFloat(t.proximity_score)
+        : (STATUS_PROXIMITY[t.status] || 0.10);
+      var pct = Math.round(prox * 100);
+      var col = STATUS_COLOURS[t.status] || '#94a3b8';
+      var name = (t.system || '').replace(' / ', ' / ').slice(0, 40);
+      html +=
+        '<div style="display:flex;align-items:center;gap:var(--space-3)">' +
+          '<div style="width:200px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right">' + escHtml(name) + '</div>' +
+          '<div style="flex:1;height:20px;background:rgba(100,116,139,0.08);border-radius:10px;overflow:hidden">' +
+            '<div style="width:' + pct + '%;height:100%;background:' + col + ';border-radius:10px;opacity:0.85;transition:width 0.4s"></div>' +
+          '</div>' +
+          '<div style="width:46px;text-align:right;font-size:var(--text-xs);font-weight:600;color:' + col + ';flex-shrink:0">' + pct + '%</div>' +
+          '<div style="width:80px;font-size:var(--text-min);color:var(--color-text-muted);flex-shrink:0;padding-left:4px">' + escHtml(t.status || '') + '</div>' +
+        '</div>';
+    });
+    html += '</div><p style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted);font-style:italic">Proximity derived from status classification. Quantified scores will appear once schema is updated.</p>';
+    wrap.innerHTML = html;
+  }
 });
 </script>
 </body>
