@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 12:49 UTC | **Last commit (main):** 6948a1e
+**Date:** 2026-04-01 12:56 UTC | **Last commit (main):** bb442ed
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -79,5 +79,13 @@ All 7 cron prompts updated on main (commit e2db654). Additions:
 - `changelog` rule on persistent array items (WDM, GMM, ESA, ERM, SCEM, AGM cross_monitor_flags)
 Next cron run for each monitor will naturally produce JSON with the new fields.
 
-### Priority 4 — Schema audit
-Check field alignment across all 7 monitors after renderer fixes.
+
+### ✅ Schema audit — COMPLETE (2026-04-01)
+Full field audit across all 7 monitors (live JSON vs cron prompt schemas).
+Findings and resolutions:
+- INFO (7): methodology_url + flag_definitions missing from all meta — expected, appear on next cron run
+- INFO (2): FCW source_date, AGM module_1 summary — expected, v2.1 fields appear on next run
+- FIXED: ESA actor field promoted to REQUIRED with renderer context in prompt
+- FIXED: FCW signal schema expanded from {} stub to full field definition
+- FIXED: FCW actor_tracker summary marked REQUIRED with renderer consequence note
+- CLEAN: GMM, AGM, ERM, SCEM — no gaps
