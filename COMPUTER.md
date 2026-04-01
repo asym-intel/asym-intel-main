@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.6 — 1 April 2026
+# Version: 1.7 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -7,17 +7,24 @@
 STEP 0 — ALWAYS READ THIS FILE FIRST
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-At the start of every session, fetch and read this file:
+At the start of every session, fetch and read ALL of these:
 
   gh api /repos/asym-intel/asym-intel-main/contents/COMPUTER.md \
     --jq '.content' | base64 -d
 
-Then fetch the handoff brief for current task state:
-
   gh api /repos/asym-intel/asym-intel-main/contents/HANDOFF.md \
     --jq '.content' | base64 -d
 
-Do not begin any work until both files have been read.
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/anti-patterns.json \
+    --jq '.content' | base64 -d
+
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/site-decisions.json \
+    --jq '.content' | base64 -d
+
+Do not begin any work until all four files have been read.
+
+anti-patterns.json: known HTML/CSS/JS errors — check before writing any code.
+site-decisions.json: WHY things are built the way they are — check before changing architecture.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
