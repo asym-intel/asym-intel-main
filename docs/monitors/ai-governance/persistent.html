@@ -419,13 +419,10 @@
   fetch('data/persistent-state.json')
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        var P = (typeof AsymPersistent !== 'undefined') ? AsymPersistent : null;
-
         // Risk Vectors
         var rv = Array.isArray(d.module_7_risk_vectors) ? d.module_7_risk_vectors : [];
-        document.getElementById('risk-vectors-content').innerHTML = P
-          ? P.renderEntityList(rv)
-          : renderEntityList(rv, ['vector', 'rating', 'summary', 'confidence']);
+        document.getElementById('risk-vectors-content').innerHTML =
+          renderEntityList(rv, ['vector', 'summary', 'confidence']);
 
         // EU AI Act Tracker — visual pipeline
         var euact = d.module_9_eu_ai_act_tracker || {};
@@ -437,9 +434,7 @@
 
         // AISI Pipeline
         var aisi = d.module_15_aisi_pipeline || {};
-        document.getElementById('aisi-pipeline-content').innerHTML = P
-          ? P.renderEntityList([aisi])
-          : renderEntityObj(aisi);
+        document.getElementById('aisi-pipeline-content').innerHTML = renderEntityObj(aisi);
 
         // Standards Vacuum
         var sv = d.module_5_standards_vacuum || {};
@@ -451,9 +446,8 @@
 
         // Lab Postures
         var postures = Array.isArray(d.ongoing_lab_postures) ? d.ongoing_lab_postures : [];
-        document.getElementById('lab-postures-content').innerHTML = P
-          ? P.renderEntityList(postures)
-          : renderEntityList(postures, ['lab', 'posture', 'summary']);
+        document.getElementById('lab-postures-content').innerHTML =
+          renderEntityList(postures, ['actor', 'posture']);
 
         // Cross-Monitor Flags (from report if available, or persistent)
         var cmf = d.cross_monitor_flags || {};
