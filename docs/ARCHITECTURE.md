@@ -264,6 +264,14 @@ The rule is simple: **never edit it**. It is the build artifact, not the source.
 
 ---
 
+## Known CI/CDN timing issues
+
+- **Hugo CI build lag:** The `build.yml` GitHub Actions workflow rebuilds `docs/` on every push to non-`docs/` paths. Occasionally the Actions build completes but produces output from a slightly stale working tree. If `docs/` looks wrong after a push, run Hugo locally (`/tmp/hugo --minify`) and commit `docs/` directly — the local build is always correct.
+
+- **GitHub Pages CDN cache:** After a `docs/` commit, GitHub Pages CDN may serve a stale version for 2–5 minutes. The repo file size via `gh api ... --jq '.size'` is the ground truth — if the repo has the correct size, the CDN will catch up without intervention.
+
+---
+
 *This document is the single source of truth for build and deployment architecture.
 Update it when the pipeline changes. Commit directly to main.*
 *Maintainer: Computer*
