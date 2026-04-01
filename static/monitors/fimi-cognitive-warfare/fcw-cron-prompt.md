@@ -186,9 +186,12 @@ archive.json: append only.
   Commit: "data(fcw): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
-  content/monitors/fimi-cognitive-warfare/[DATE]-weekly-brief.md
+  PUBLISH_DATE = today's UTC date in YYYY-MM-DD format (e.g. 2026-04-03)
+  ⚠️  The filename MUST equal PUBLISH_DATE. The front matter date: field must also equal PUBLISH_DATE.
+      A mismatch causes a future-dated or wrong URL in sitemap.xml (anti-pattern FE-019).
+  Filename: content/monitors/fimi-cognitive-warfare/[PUBLISH_DATE]-weekly-brief.md
   title: "FIMI & Cognitive Warfare Monitor — W/E [DD Month YYYY]"
-  date: [DATE]T09:00:00Z | monitor: "fimi-cognitive-warfare"
+  date: [PUBLISH_DATE]T09:00:00Z | monitor: "fimi-cognitive-warfare"
 
 STEP 4 — Notify with lead campaign, top 3 developments, F-flags, cross-monitor flags.
   Dashboard: https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html
