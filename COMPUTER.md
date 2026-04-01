@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.3 — 1 April 2026
+# Version: 1.4 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -110,6 +110,22 @@ TYPOGRAPHY FLOOR:
   Use var(--text-min) for badges, tags, metadata labels
   Use var(--text-xs) or larger for all body/content text
   Violation = text that becomes illegible on mobile
+
+CONTRAST RULES (WCAG AA — apply globally, never fix piecemeal):
+  Raw --monitor-accent fails WCAG AA on white for 5 of 7 monitors (WDM/GMM/FCW/ESA/ERM).
+  base.css uses color-mix(in srgb, var(--monitor-accent) 65%, #000) wherever accent
+  appears on a white/surface background. This applies to:
+    .signal-block { background } — dark bg, white text (darkened 35%)
+    .kpi-card__value { color }   — accent text on white card
+    .card__label { color }       — accent label text on white card
+  When adding any new element that uses --monitor-accent on a light surface,
+  ALWAYS use color-mix(in srgb, var(--monitor-accent) 65%, #000) not raw --monitor-accent.
+
+SIGNAL-BLOCK OWNERSHIP (architectural rule):
+  base.css owns the background property on .signal-block. It is set with !important.
+  monitor.css MUST NOT set background on .signal-block — any such override is silently
+  defeated by !important and creates confusion. Personality files may only set:
+  border, border-radius, font-family, and other non-background properties.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRON TASK RULES
