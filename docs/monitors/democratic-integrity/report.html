@@ -338,9 +338,19 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>';
 
       /* Weekly Brief */
+
+      function renderMarkdown(md) {
+        if (!md) return '';
+        return md
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em>$1</em>')
+          .replace(/\n\n/g, '</p><p>')
+          .replace(/\n/g, ' ')
+          .replace(/^/, '<p>').replace(/$/, '</p>');
+      }
       var wbEl = document.getElementById('weekly-brief-block');
       if (wb) {
-        wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + wb + '</div>';
+        wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + renderMarkdown(wb) + '</div>';
       } else {
         wbEl.innerHTML = '<p class="text-muted">Weekly brief not available for this issue.</p>';
       }
