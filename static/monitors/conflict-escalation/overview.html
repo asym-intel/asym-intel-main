@@ -88,26 +88,7 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
         <p class="page-header__sub">
           Weekly structured intelligence on active armed conflicts. SCEM tracks 8–12 conflicts simultaneously across six indicators — rhetoric, military posture, nuclear/strategic, economic warfare, diplomatic, and displacement — measuring deviation from each conflict's rolling baseline rather than absolute severity. Published every Sunday at 18:00 UTC.
         </p>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-active">—</div>
-          <div class="kpi-card__label">Active Conflicts</div>
-          <div class="kpi-card__sub">Current roster</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-issue">—</div>
-          <div class="kpi-card__label">Latest Issue</div>
-          <div class="kpi-card__sub" id="kpi-week">Loading…</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-signal">—</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub">Highest deviation this week</div>
-        </div>
-      </div>
-    </section>
+      </div></section>
 
     <section class="module-section" id="section-latest">
       <div class="module-header">
@@ -132,7 +113,6 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-overview">Overview</a></li>
       <li><a href="#section-latest">Latest Issue</a></li>
       <li><a href="#section-archive">Archive</a></li>
     </ul>
@@ -176,12 +156,6 @@ document.addEventListener('DOMContentLoaded', function () {
       var meta = d.meta || {};
       var ls   = d.lead_signal || {};
       var roster = d.conflict_roster || [];
-
-      document.getElementById('kpi-active').textContent = roster.length;
-      document.getElementById('kpi-issue').textContent  = 'Issue ' + (meta.issue || '—');
-      document.getElementById('kpi-week').textContent   = meta.week_label || '';
-      document.getElementById('kpi-signal').textContent = (ls.conflict || '—').split(' ')[0];
-
       var card = document.getElementById('latest-card');
       card.innerHTML = '<div class="card__label">Week Ending ' + (meta.week_label || '') + '</div>' +
         '<div class="card__title">' + escHtml(ls.headline || 'No lead signal') + '</div>' +
