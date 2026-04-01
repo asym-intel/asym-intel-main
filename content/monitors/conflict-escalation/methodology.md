@@ -125,7 +125,38 @@ Each weekly edition produces:
 
 ---
 
-## 10 · Companion Monitors
+## 10 · Global Escalation Index
+
+The **Global Escalation Index** is a derived summary metric displayed on the dashboard. It synthesises the deviation signals across all active roster conflicts into a single four-level indicator: **Low / Moderate / High / Critical**.
+
+**Derivation method (from 1 April 2026):**
+
+The index is computed from **deviation magnitude**, not colour band classification. This change was made because colour bands are suppressed (shown as CONTESTED) during the first 12 weeks of monitoring, creating a structural false-negative risk — a conflict with large deviations from its emerging baseline would read as Low on the index even when it was analytically significant.
+
+| Index Level | Condition |
+|---|---|
+| **Critical** | >20% of active roster conflicts have at least one indicator with deviation ≥ +2 |
+| **High** | Any conflict has deviation ≥ +2, or >40% have deviation ≥ +1 |
+| **Moderate** | Any conflict has deviation ≥ +1 |
+| **Low** | No conflict has any indicator deviation above baseline |
+
+**CONTESTED baseline period:** During the first 12 weeks of monitoring (before individual baselines lock at W13), colour bands are marked CONTESTED. The index continues to function using deviation magnitude calculated from the emerging median. A disclaimer note is shown on the dashboard whenever any conflicts are in the CONTESTED period, explaining that band classifications are provisional.
+
+**Prior method (before 1 April 2026):** Index was derived from colour band counts (RED-band conflicts → High/Critical; AMBER-band → Moderate). This produced systematic false negatives during the CONTESTED period.
+
+---
+
+## 11 · Indicator Breakdown Chart
+
+The dashboard **Indicator Breakdown** chart shows the six indicators (I1–I6) for a selected conflict as a horizontal bar chart. From 1 April 2026, bars show **deviation from baseline** on a scale of −2 to +4, with a bold zero line at baseline. A bar extending right of zero indicates the indicator is above baseline; a bar extending left indicates below-baseline de-escalation.
+
+Tooltips show the exact deviation value and the baseline reference point. Bars are coloured by band (Green/Amber/Red/Contested). During the CONTESTED period, all bars are shown in the Contested colour (grey), but deviation is still visualised.
+
+Prior to 1 April 2026, bars showed absolute level (1–5 scale), which did not communicate deviation and made indicators with identical levels but different deviations visually indistinguishable.
+
+---
+
+## 12 · Companion Monitors
 
 | Monitor | Role |
 |---|---|
@@ -182,7 +213,7 @@ The transition from CONTESTED to locked baseline for each conflict is
 itself a Delta Strip entry (Delta Type: Baseline Locked).
 
 
-## 12 · Persistent Data
+## 13 · Persistent Data
 
 The SCEM maintains the following baseline data week-to-week:
 
@@ -199,3 +230,4 @@ The full archive of published weekly briefs is available at [asym-intel.info/mon
 | Version | Date | Changes |
 |---|---|---|
 | 1.0 | 2026-03-30 | Initial publication |
+| 1.1 | 2026-04-01 | Global Escalation Index method updated: deviation-magnitude derivation replaces band-count derivation, resolving CONTESTED-period false negatives. Indicator Breakdown chart updated: bars now show deviation from baseline (−2 to +4), not absolute level (0–5). CONTESTED disclaimer added to index display. |
