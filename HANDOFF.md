@@ -196,6 +196,21 @@ Sprint 2 (schema + medium rendering): sentiment_overlay renderer, scenario cards
 Sprint 3 (structural): FCW narratives registry, AGM governance health score,
   ERM proximity scores, SCEM I7 proxy warfare indicator
 
+### AUTOMATED VERIFICATIONS SCHEDULED
+- **SCEM Sunday 5 Apr 18:30 UTC** — cron ID: a67a9739 — checks escalation_velocity, esc_score, negotiation_status, two-pass, publish guard
+- **WDM Monday 6 Apr 06:30 UTC** — cron ID: 10ddf5f0 — checks Category B sections present for first time, data quality fixes, publish guard
+Both will notify on completion.
+
+### SPRINT 2A COMPLETE (2026-04-01)
+All 9 visual/chart items delivered across 6 monitors:
+- WDM: map as default, 29-country severity bar, nav labels
+- GMM: prior-week bar opacity, regime shift 4-bar
+- ERM: tipping point proximity bars
+- AGM: risk vector radar + concentration diverging bar + Chart.js
+- ESA: 50% benchmark on Lagrange radar
+- SCEM: 10-conflict comparison bar
+Committed directly to main (fdfe29d–43fac9a) after staging PR divergence.
+
 ### Priority 1 — Verify SCEM Sunday (5 Apr 18:00 UTC)
 First run with: escalation_velocity, esc_score, negotiation_status, conflict_context.
 First run reading shared intelligence digest at Step 0B.
