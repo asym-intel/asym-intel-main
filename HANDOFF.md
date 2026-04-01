@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 12:56 UTC | **Last commit (main):** bb442ed
+**Date:** 2026-04-01 13:10 UTC | **Last commit (main):** b5972038
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -79,6 +79,14 @@ All 7 cron prompts updated on main (commit e2db654). Additions:
 - `changelog` rule on persistent array items (WDM, GMM, ESA, ERM, SCEM, AGM cross_monitor_flags)
 Next cron run for each monitor will naturally produce JSON with the new fields.
 
+
+
+### ✅ AGM renderer fixes — COMPLETE (2026-04-01)
+Three rendering bugs fixed in AGM report.html + persistent.html (merged b5972038):
+- renderCrossMonitor: replaced naive Object.keys/JSON.stringify with proper flags[] renderer
+- programme_updates: corrected field names title/summary → programme/update; added lab tag
+- arxiv_highlights: corrected field names summary→significance, added url fallback, published/venue/tier meta tags
+- inject-network-bar YAML fix also confirmed working on this merge (first successful run)
 
 ### ✅ Schema audit — COMPLETE (2026-04-01)
 Full field audit across all 7 monitors (live JSON vs cron prompt schemas).
