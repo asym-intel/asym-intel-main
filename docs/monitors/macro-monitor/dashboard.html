@@ -152,7 +152,7 @@
   .risk-chip--increasing { border-left: 2px solid #c1440e; background: rgba(193,68,14,0.08); color: var(--color-text); }
   .risk-chip--stable     { border-left: 2px solid var(--color-text-muted); background: rgba(128,128,128,0.06); color: var(--color-text); }
   .risk-chip--decreasing { border-left: 2px solid #059669; background: rgba(5,150,105,0.08); color: var(--color-text); }
-  .risk-chip__arrow { font-size: 8px; flex-shrink: 0; }
+  .risk-chip__arrow { font-size: var(--text-min); flex-shrink: 0; }
   [data-theme="dark"] .risk-chip--increasing { background: rgba(193,68,14,0.14); }
   [data-theme="dark"] .risk-chip--stable     { background: rgba(128,128,128,0.10); }
   [data-theme="dark"] .risk-chip--decreasing { background: rgba(5,150,105,0.14); }
@@ -801,7 +801,7 @@ document.addEventListener('DOMContentLoaded', function () {
         (eb.one_number_to_watch ? '<p style="margin-top:var(--space-4);font-size:var(--text-sm);color:var(--color-text-secondary)"><strong>One number to watch:</strong> ' + esc(eb.one_number_to_watch) + '</p>' : '') +
         '<div class="signal-block__meta">' +
           '<span class="regime-badge">' + esc(regime || '—') + ' · ' + esc(conviction || '—') + ' conviction</span>' +
-          (eb.source_url ? '<a href="' + esc(eb.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent)">Full brief →</a>' : '') +
+          (eb.source_url ? '<a href="' + esc(eb.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent)">Read the top story ↓</a>' : '') +
         '</div>' +
       '</div>';
 

@@ -690,7 +690,9 @@
       document.getElementById('signal-block').innerHTML =
         '<h3 class="signal-block__title">' + esc(signal) + '</h3>' +
         '<p class="signal-block__body">' + esc(signalBody) + '</p>' +
-        '<a class="signal-block__link" href="report.html#module-0">Read in full report →</a>';
+        '<a class="signal-block__link" href="report.html#module-0">Read in full report →</a>' +
+        (d.source_url ? '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + esc(d.source_url) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
+        '';
 
       // Delta strip — top 5
       var top5 = deltaStrip.slice(0, 5);
