@@ -125,6 +125,12 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
       </div>
     </section>
 
+    <section class="module-section" id="section-f-flags">
+      <h2 class="section-title">Asymmetric Flag History</h2>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Active F-flags (asymmetric risk markers) applied to conflicts in the current cycle.</p>
+      <div id="f-flag-list"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <section class="module-section" id="section-cross-monitor">
       <div class="module-header">
         <div class="module-title">Cross-Monitor Flags</div>
@@ -142,6 +148,7 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
       <li><a href="#section-header">Overview</a></li>
       <li><a href="#section-baselines">Baselines</a></li>
       <li><a href="#section-roster-watch">Roster Watch</a></li>
+      <li><a href="#section-f-flags">F-Flag History</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
   </nav>
@@ -263,6 +270,28 @@ document.addEventListener('DOMContentLoaded', function () {
     // Cross-monitor flags — from persistent-state
     var cmf = d.cross_monitor_flags || {};
     var flags = cmf.flags || [];
+    // F-flag history
+    var fFlags = d.f_flag_history || [];
+    var ffEl = document.getElementById('f-flag-list');
+    if (ffEl) {
+      if (!fFlags.length) {
+        ffEl.innerHTML = '<p class="text-muted text-sm">No active asymmetric flags this cycle.</p>';
+      } else {
+        ffEl.innerHTML = fFlags.map(function(f) {
+          return '<div class="card" style="margin-bottom:var(--space-3)">' +
+            '<div class="card__label">' +
+              '<span class="severity-badge severity-badge--high">' + escHtml(f.flag||'') + '</span>' +
+              ' ' + escHtml(f.conflict||'') +
+              (f.indicator ? ' · ' + escHtml(f.indicator) : '') +
+              ' · ' + escHtml(f.applied||'') +
+            '</div>' +
+            '<div class="card__body">' + escHtml(f.detail||'') + '</div>' +
+            '<div class="card__footer"><span class="severity-badge ' + (f.status==='Active'?'severity-badge--high':'severity-badge--moderate') + '">' + escHtml(f.status||'') + '</span></div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
     var cmEl = document.getElementById('cross-monitor');
     if (!flags.length) {
       cmEl.innerHTML = '<p class="text-muted text-sm">Cross-monitor flags are written by the weekly cron task and accumulate here across issues. Flags will appear after the next publish cycle.</p>';
