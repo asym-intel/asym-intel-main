@@ -266,7 +266,7 @@ The rule is simple: **never edit it**. It is the build artifact, not the source.
 
 ## Known CI/CDN timing issues
 
-- **Hugo CI build lag:** The `build.yml` GitHub Actions workflow rebuilds `docs/` on every push to non-`docs/` paths. Occasionally the Actions build completes but produces output from a slightly stale working tree. If `docs/` looks wrong after a push, run Hugo locally (`/tmp/hugo --minify`) and commit `docs/` directly — the local build is always correct.
+- **Hugo CI race condition:** The `build.yml` workflow triggers on every push to non-`docs/` paths, rebuilds, then commits `docs/` with `[skip ci]`. If two pushes land in quick succession, the second CI build may run from a tree that includes the first push's source changes but not its `docs/` output — producing stale output. **Fix:** After any layout or partial change, run Hugo locally (`/tmp/hugo --minify`), then commit `docs/` with `[skip ci]` in the message. This bypasses the CI entirely and the race cannot occur.
 
 - **GitHub Pages CDN cache:** After a `docs/` commit, GitHub Pages CDN may serve a stale version for 2–5 minutes. The repo file size via `gh api ... --jq '.size'` is the ground truth — if the repo has the correct size, the CDN will catch up without intervention.
 
