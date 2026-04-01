@@ -358,3 +358,118 @@
     _renderCrossMonitorFlags: renderCrossMonitorFlags
   };
 })();
+
+/* ─── Persistent State Renderer ─────────────────────────────
+   window.AsymPersistent — renders persistent-state.json sections
+   into container elements. Handles null/missing fields gracefully.
+   ─────────────────────────────────────────────────────────── */
+
+window.AsymPersistent = (function () {
+  'use strict';
+
+  function escHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function severityClass(val) {
+    var v = String(val||'').toLowerCase();
+    if (v==='transgressed'||v==='critical'||v==='rapid decay'||v==='red'||v==='high') return 'critical';
+    if (v==='high risk'||v==='elevated'||v==='amber'||v==='watchlist') return 'high';
+    if (v==='increasing risk'||v==='contested'||v==='moderate') return 'moderate';
+    if (v==='safe'||v==='green'||v==='recovery'||v==='positive') return 'positive';
+    return 'moderate';
+  }
+
+  /* Render version history toggle */
+  function renderVersionHistory(history) {
+    if (!history || !history.length) return '';
+    var entries = history.map(function(h) {
+      return '<div class="version-entry">' +
+        '<div class="version-entry__date">' + escHtml(h.date||'') + '</div>' +
+        '<div class="version-entry__change">' + escHtml(h.change||'') + '</div>' +
+        (h.reason ? '<div class="version-entry__reason">' + escHtml(h.reason) + '</div>' : '') +
+      '</div>';
+    }).join('');
+    return '<div class="version-history" id="vh-' + Math.random().toString(36).slice(2,7) + '">' + entries + '</div>' +
+           '<button class="version-history__toggle" onclick="var vh=this.previousElementSibling;vh.classList.toggle(\'version-history--open\');this.textContent=vh.classList.contains(\'version-history--open\')?\'Hide history ↑\':\'Version history →\'">Version history →</button>';
+  }
+
+  /* Generic entity card — works for any persistent entity with standard fields */
+  function renderEntityCard(entity, opts) {
+    opts = opts || {};
+    var statusVal  = entity.status || entity.tier || entity.band || entity.severity || '';
+    var scoreVal   = entity.severity_score != null ? entity.severity_score : (entity.score != null ? entity.score : '');
+    var trendVal   = entity.trend || entity.severity_arrow || entity.trajectory_arrow || '';
+    var nameVal    = entity.country || entity.boundary || entity.conflict || entity.name || entity.chain_id || '';
+    var bodyVal    = entity.headline || entity.lead_signal || entity.summary || entity.signal || entity.note || '';
+    var metaItems  = [];
+    if (entity.theatre)      metaItems.push(escHtml(entity.theatre));
+    if (entity.first_seen)   metaItems.push('First seen: ' + escHtml(entity.first_seen));
+    if (entity.last_updated) metaItems.push('Updated: ' + escHtml(entity.last_updated));
+    if (entity.last_material_change) metaItems.push('Changed: ' + escHtml(entity.last_material_change));
+
+    return '<div class="persistent-entity">' +
+      '<div class="persistent-entity__header">' +
+        '<div class="persistent-entity__country">' + escHtml(nameVal) + '</div>' +
+        '<div class="persistent-entity__badges">' +
+          (statusVal ? '<span class="severity-badge severity-badge--' + severityClass(statusVal) + '">' + escHtml(statusVal) + '</span>' : '') +
+          (scoreVal !== '' ? '<span class="severity-badge severity-badge--' + severityClass(statusVal) + '">' + escHtml(scoreVal) + (trendVal ? ' ' + escHtml(trendVal) : '') + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      (metaItems.length ? '<div class="persistent-entity__meta">' + metaItems.join(' · ') + '</div>' : '') +
+      (bodyVal ? '<div class="card__body" style="margin-top:var(--space-3)">' + escHtml(bodyVal) + '</div>' : '') +
+      renderVersionHistory(entity.version_history || []) +
+    '</div>';
+  }
+
+  /* Render a cross_monitor_flags block */
+  function renderCrossMonitorFlags(cmf, containerId) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    var flags = [];
+    if (cmf && Array.isArray(cmf.flags)) flags = cmf.flags;
+    else if (cmf && typeof cmf === 'object') flags = Object.values(cmf).filter(Array.isArray).flat();
+
+    var active = flags.filter(function(f){ return (f.status||'').toLowerCase() !== 'resolved'; });
+    if (!active.length) {
+      el.innerHTML = '<p class="text-muted text-sm">Cross-monitor flags are written by the weekly cron task and accumulate here across issues. Flags will appear after the next publish cycle.</p>';
+      return;
+    }
+    el.innerHTML = active.map(function(f) {
+      return '<div class="cms-flag">' +
+        '<div class="cms-flag__header">' +
+          '<div><div class="cms-flag__id">' + escHtml(f.id||'') + '</div>' +
+          '<div class="cms-flag__title">' + escHtml(f.title||'') + '</div></div>' +
+          '<span class="severity-badge severity-badge--moderate">' + escHtml(f.status||'Active') + '</span>' +
+        '</div>' +
+        (f.monitors_involved&&f.monitors_involved.length ? '<div class="cms-flag__monitors">↔ ' + f.monitors_involved.map(escHtml).join(' · ') + '</div>' : '') +
+        '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(f.linkage||f.title||'') + '</div>' +
+        '<span class="cms-read-more" onclick="var b=this.previousElementSibling;b.classList.toggle(\'cms-flag__body--collapsed\');this.textContent=b.classList.contains(\'cms-flag__body--collapsed\')?\'Read more →\':\'Show less ↑\'">Read more →</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* Render an array of entities into a container */
+  function renderEntityList(items, containerId, opts) {
+    var el = document.getElementById(containerId);
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No entries recorded yet.</p>';
+      return;
+    }
+    // Flatten if items is an object (dict of arrays)
+    var list = Array.isArray(items) ? items : Object.values(items).flat();
+    el.innerHTML = list.map(function(item) { return renderEntityCard(item, opts); }).join('');
+  }
+
+  return {
+    renderEntityCard: renderEntityCard,
+    renderEntityList: renderEntityList,
+    renderCrossMonitorFlags: renderCrossMonitorFlags,
+    renderVersionHistory: renderVersionHistory,
+    severityClass: severityClass,
+    escHtml: escHtml
+  };
+}());
