@@ -1,4 +1,4 @@
-name: Inject network bar into dashboards
+name: Inject network bar into all monitor pages
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
       - staging
     paths:
-      - 'static/monitors/**/dashboard.html'
+      - 'static/monitors/**/*.html'
       - '.github/network-bar.html'
 
 concurrency:
@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   inject:
-    name: Inject network bar
+    name: Inject network bar into all monitor pages
     runs-on: ubuntu-latest
 
     permissions:
@@ -27,49 +27,58 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Inject network bar into all dashboards
-        env:
-          STRIP_SCRIPT: |
-            import sys, re
-            path = sys.argv[1]
-            with open(path, 'r') as f:
-                c = f.read()
-            c = re.sub(r'(<style>body\{padding-top:40px!important\}</style>)?<nav data-asym-network-bar[^>]*>.*?</nav>', '', c, flags=re.DOTALL)
-            with open(path, 'w') as f:
-                f.write(c)
+      - name: Inject network bar into all monitor HTML pages
         run: |
-          echo "$STRIP_SCRIPT" > /tmp/strip_bar.py
-          NETWORK_BAR=$(cat .github/network-bar.html)
           CHANGED=0
 
-          for DASHBOARD in static/monitors/*/dashboard.html static/monitors/*/index.html; do
-            if [ ! -f "$DASHBOARD" ]; then continue; fi
-            if [[ "$DASHBOARD" == *"/index.html" ]]; then
-              MONITOR_DIR=$(dirname "$DASHBOARD")
-              if [ -f "${MONITOR_DIR}/dashboard.html" ]; then continue; fi
+          # All standard monitor pages — all 8 per monitor
+          for PAGE in static/monitors/*/*.html; do
+            if [ ! -f "$PAGE" ]; then continue; fi
+
+            # Skip shared templates (they are partials, not served pages)
+            if [[ "$PAGE" == *"/shared/"* ]]; then continue; fi
+
+            # nav.js now auto-injects the network bar — so this workflow's job
+            # is purely a belt-and-suspenders backstop: it verifies nav.js is
+            # referenced. If nav.js is missing entirely, flag it but don't fail.
+            if ! grep -q 'shared/js/nav.js' "$PAGE"; then
+              echo "WARNING: $PAGE does not reference nav.js — network bar will not auto-inject"
             fi
 
-            if grep -q 'data-asym-network-bar' "$DASHBOARD" && grep -q 'position:fixed' "$DASHBOARD"; then
-              echo "Bar already present (current version) in $DASHBOARD — skipping"
-              continue
+            # Check for stale inline network bar HTML (pre-Blueprint-v2.1 pages)
+            # These will render a duplicate bar now that nav.js injects one.
+            if grep -q '<nav data-asym-network-bar' "$PAGE"; then
+              echo "STALE: $PAGE has inline network bar — stripping (nav.js handles injection now)"
+              python3 - "$PAGE" << 'PYEOF'
+import sys, re
+path = sys.argv[1]
+with open(path) as f:
+    c = f.read()
+# Remove full style+nav block (both format variants)
+c = re.sub(
+    r'</head>\s*<style>\s*body\{padding-top:40px[^<]*</style>'
+    r'<nav data-asym-network-bar[^>]*>.*?</nav>'
+    r'(?:<style>[^<]*\.nb-links[^<]*</style>)?\s*(<body>)',
+    r'</head>\n\n\1', c, flags=re.DOTALL)
+c = re.sub(
+    r'(<body>)\s*\n<style>\s*body\{padding-top:40px[^<]*</style>'
+    r'<nav data-asym-network-bar[^>]*>.*?</nav>'
+    r'(?:<style>[^<]*\.nb-links[^<]*</style>)?\s*\n',
+    r'\1\n\n', c, flags=re.DOTALL)
+with open(path, 'w') as f:
+    f.write(c)
+print(f"  Stripped inline bar from {path}")
+PYEOF
+              CHANGED=1
             fi
-
-            if grep -q 'data-asym-network-bar' "$DASHBOARD"; then
-              echo "Old bar found in $DASHBOARD — removing and re-injecting"
-              python3 /tmp/strip_bar.py "$DASHBOARD"
-            fi
-
-            echo "Injecting network bar into $DASHBOARD"
-            sed -i "s|<body>|<body>${NETWORK_BAR}|" "$DASHBOARD"
-            CHANGED=1
           done
 
           if [ "$CHANGED" -eq 0 ]; then
-            echo "No dashboards needed injection — skipping commit"
+            echo "All pages clean — no inline network bars found"
             exit 0
           fi
 
-      - name: Commit injected dashboards
+      - name: Commit cleaned pages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -77,7 +86,7 @@ jobs:
             echo "No changes — skipping commit"
           else
             git add static/monitors/
-            git commit -m "build: inject network bar into dashboards [skip ci]"
+            git commit -m "build: strip stale inline network bars — nav.js handles injection [skip ci]"
             git pull --rebase origin ${{ github.ref_name }}
             git push
           fi
