@@ -100,6 +100,24 @@ CHECK 10 — Staging branch is ahead of or equal to main
   WARN: if staging is 0 commits ahead of main AND recent commits to main were not from
         github-actions[bot] (i.e. a human pushed HTML/CSS directly to main)
 
+
+CHECK 11 — No hardcoded font sizes below var(--text-min) in monitor HTML pages
+  For each monitor, fetch and scan all 8 HTML pages (dashboard, report, persistent,
+  overview, search, archive, about, methodology) for hardcoded font-size values below
+  0.8rem or below 13px:
+    grep -rE 'font-size:\s*(0\.[0-7][0-9]*rem|[0-9]+(px))' static/monitors/{slug}/*.html
+  WARN: if any match found. These should use var(--text-min) or var(--text-xs) instead.
+  Note: badge and tag font sizes are the most common offenders.
+  Reference: COMPUTER.md — TYPOGRAPHY FLOOR section.
+
+CHECK 12 — Inline search CSS not duplicated (should be in base.css only)
+  For each monitor's search.html, check that it does NOT contain a <style> block
+  with .search-wrap or .search-input-el. Use a two-step check:
+    grep -l '<style>' static/monitors/*/search.html | xargs grep -l 'search-wrap\|search-input-el'
+  WARN only if BOTH a <style> tag AND the class definition are present in the same file.
+  Using the class name in the HTML body (e.g. <div class="search-wrap">) is correct — do not flag.
+  WARN: if inline CSS definition of .search-wrap found inside a <style> block.
+
 RESULT FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -108,7 +126,7 @@ Compile results as:
   WARN  — non-critical issue (degraded experience, not broken)
   FAIL  — critical issue (broken functionality)
 
-If all 9 checks pass for all monitors: exit silently. No notification.
+If all 12 checks pass for all monitors: exit silently. No notification.
 
 If any WARN or FAIL:
   Send notification with title: "Asym Intel — Housekeeping [DATE]: [N] issues"

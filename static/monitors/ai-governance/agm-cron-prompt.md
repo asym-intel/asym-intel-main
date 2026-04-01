@@ -33,11 +33,49 @@ IF today IS Friday AND the current UTC hour is 09 or later:
 IF you are unsure of the day or the check fails:
   → Do NOT run the pipeline. Exit silently.
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECENCY GUARD — CHECK BEFORE RUNNING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Even if today is the correct day, check when this monitor last published.
+If it published fewer than 6 days ago, skip this run silently.
+
+```bash
+LAST=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/ai-governance/data/report-latest.json \\
+  --jq '.content' | base64 -d | python3 -c \\
+  "import json,sys; d=json.load(sys.stdin); print(d.get('meta',{}).get('published','')[:10])")
+echo "Last published: $LAST"
+TODAY=$(date -u +%Y-%m-%d)
+DAYS=$(python3 -c "
+from datetime import date
+last = date.fromisoformat('$LAST') if '$LAST' else date(2000,1,1)
+print((date.fromisoformat('$TODAY') - last).days)
+")
+echo "Days since last publish: $DAYS"
+```
+
+IF $DAYS < 6:
+  → Published fewer than 6 days ago. Do NOT run. Exit silently.
+
+IF $DAYS >= 6:
+  → Proceed with the full pipeline below.
+
+
 This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━
+SCHEMA — FLAG DEFINITIONS (include in meta block):
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — not independently corroborated",
+        "F3": "Single source — treat as Assessed until corroborated"
+      }
+    },
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -48,6 +86,7 @@ CRITICAL RULES (read first)
    these until the AGM HTML rebuild (Build 7) is complete and live.
 
 2. LOAD PERSISTENT STATE FIRST. 3. schema_version: "2.0".
+4. Include in meta: "methodology_url": "https://asym-intel.info/monitors/ai-governance/methodology/"
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ROLE
@@ -73,12 +112,31 @@ STEP 1 — Research: 15 modules M00–M15 covering model frontier,
   Primary sources: arXiv, SEC filings, official regulatory texts,
   Congressional records, company investor disclosures.
 
+
+MODULE_1 ITEM SCHEMA — Executive Insight (mainstream + underweighted arrays):
+  Each item must include "summary" between "headline" and "why_it_matters":
+  {
+    "rank": 1,
+    "headline": "...",
+    "summary": "One quotable sentence, max 25 words, suitable for direct use without context.",
+    "why_it_matters": "...",
+    "source_url": "..."
+  }
+
 STEP 2 — Write 4 JSON files (single git commit).
   IMPORTANT: Keep module_0–module_15 key names until Build 7 HTML
   rebuild is live. Then migrate to named semantic keys.
   Add/update cross_monitor_flags in BOTH report-latest.json AND
   persistent-state.json.
-  Commit: "data(agm): weekly JSON pipeline — Issue [N] W/E [DATE]"
+  
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
+
+Commit: "data(agm): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
   content/monitors/ai-governance/[DATE]-weekly-digest.md

@@ -27,12 +27,50 @@ IF today IS Sunday AND UTC hour >= scheduled time:
   → Proceed with the full pipeline below.
 
 IF unsure: Do NOT run. Exit silently.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECENCY GUARD — CHECK BEFORE RUNNING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Even if today is the correct day, check when this monitor last published.
+If it published fewer than 6 days ago, skip this run silently.
+
+```bash
+LAST=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/conflict-escalation/data/report-latest.json \
+  --jq '.content' | base64 -d | python3 -c \
+  "import json,sys; d=json.load(sys.stdin); print(d.get('meta',{{}}).get('published','')[:10])")
+echo "Last published: $LAST"
+TODAY=$(date -u +%Y-%m-%d)
+DAYS=$(python3 -c "
+from datetime import date
+last = date.fromisoformat('$LAST') if '$LAST' else date(2000,1,1)
+print((date.fromisoformat('$TODAY') - last).days)
+")
+echo "Days since last publish: $DAYS"
+```
+
+IF $DAYS < 6:
+  → Published fewer than 6 days ago. Do NOT run. Exit silently.
+
+IF $DAYS >= 6:
+  → Proceed with the full pipeline below.
+
+
 
 This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━
+SCHEMA — FLAG DEFINITIONS (include in meta block):
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — not independently corroborated",
+        "F3": "Single source — treat as Assessed until corroborated"
+      }
+    },
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read before any other step)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -48,6 +86,15 @@ CRITICAL RULES (read before any other step)
 2. LOAD PERSISTENT STATE FIRST — before any research.
 3. NAMED SEMANTIC KEYS ONLY — never module_0, module_1 etc.
 4. schema_version: "2.0" in all JSON files.
+5. Include in meta: "methodology_url": "https://asym-intel.info/monitors/conflict-escalation/methodology/"
+
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
+
 5. archive.json is APPEND ONLY — never truncate or overwrite.
 6. Validate JSON before committing:
    python3 -c "import json; json.load(open('path/to/file.json'))"
@@ -173,6 +220,213 @@ Each week you MUST load and carry forward:
 5. COLOUR BAND TRAJECTORIES — carry forward with arrows (↑ escalating,
    → stable, ↓ de-escalating). Update only when indicator movement
    justifies reclassification.
+
+6. CONFLICT_CONTEXT — cumulative factual data per conflict, updated weekly.
+   Attaches inside each element of conflict_baselines[] in persistent-state.json.
+   Distinct from I1–I6 indicator scoring — holds raw empirical data rather than
+   deviation scores. All data is included regardless of source quality; the
+   data_confidence field carries the epistemic weight.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFLICT_CONTEXT SCHEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DATA_CONFIDENCE LEVELS (separate from I1–I6 indicator confidence):
+  Confirmed   — Tier 1 source, independently corroborated, methodology transparent
+  Assessed    — Tier 1/2 source, methodology sound, not independently corroborated
+  Contested   — Multiple sources with materially different figures; range replaces value;
+                confidence_note MANDATORY
+  Unverified  — Single T3 source or unverified claim; included for completeness;
+                explicitly flagged as such
+
+Single-source data point:
+  {
+    "value": 1900000,
+    "source": "OCHA",
+    "tier": "T1",
+    "note": "...",
+    "as_of": "YYYY-MM-DD",
+    "source_url": "https://...",
+    "data_confidence": "Confirmed",
+    "last_updated": "YYYY-MM-DD",
+    "changelog": "[YYYY-MM-DD: New entry]"
+  }
+
+Contested data point (multiple sources, range):
+  {
+    "range": { "low": 48500, "high": 186000 },
+    "sources": [
+      {
+        "source": "Gaza MoH",
+        "figure": 48500,
+        "tier": "T3",
+        "note": "Direct count. Access-restricted methodology. Historically validated post-conflict by Israeli military assessments and Lancet peer review.",
+        "as_of": "YYYY-MM-DD",
+        "source_url": "https://..."
+      },
+      {
+        "source": "The Lancet (modelled)",
+        "figure": 186000,
+        "tier": "T2",
+        "note": "Indirect deaths including disease and starvation cascades. Peer-reviewed upper bound.",
+        "as_of": "YYYY-MM-DD",
+        "source_url": "https://..."
+      }
+    ],
+    "data_confidence": "Contested",
+    "confidence_note": "...",
+    "last_updated": "YYYY-MM-DD",
+    "changelog": "[YYYY-MM-DD: New entry]"
+  }
+
+Per-conflict structure (inside conflict_baselines[] entry):
+  "conflict_context": {
+    "casualties": {
+      "killed": { ...data point... },
+      "wounded": { ...data point... }
+    },
+    "displacement": {
+      "total_displaced": { ...data point... }
+    },
+    "equipment_losses": {
+      "note": "string — explain source availability or absence",
+      "data": { ...data point or null... }
+    },
+    "territorial_control": {
+      "summary": "string — current control status",
+      "source": "...",
+      "tier": "T1|T2|T3",
+      "as_of": "YYYY-MM-DD",
+      "source_url": "...",
+      "data_confidence": "...",
+      "changelog": "[YYYY-MM-DD: ...]"
+    }
+  }
+
+If no Tier 1/2 source exists for a category: set data to null with a note explaining
+the gap. NEVER omit a category — absence of data is itself information.
+
+Latent/strategic conflicts (Taiwan Strait, Korean Peninsula):
+  All conflict_context fields present with value null and note:
+  "Latent theatre — no active casualty or displacement data."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFLICT_CONTEXT UPDATE RULES (weekly)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For each active roster conflict each week:
+
+EFFICIENCY RULE: Only search for a new figure if the designated source has
+  published since the current as_of date. If as_of is current, carry forward
+  unchanged — do not re-search. This keeps changelog entries meaningful
+  (they only appear when something actually changed).
+
+UPDATE PROCEDURE:
+  - New figure available: update value or range, update as_of, update
+    last_updated, append to changelog: "[YYYY-MM-DD: Updated to X (prev Y)]"
+  - No update available: carry forward entirely unchanged
+  - New source with materially different figure: convert single-source entry
+    to contested range; add source to sources[]; set data_confidence to
+    "Contested"; add confidence_note; update changelog
+  - Unverified → Assessed: ONLY with a second independent source. Never
+    upgrade on a single source's self-correction
+  - Contested → single figure: ONLY with explicit editorial note in
+    confidence_note explaining why the range collapsed
+
+EQUIPMENT LOSSES (Ukraine only via Oryx):
+  - Source: Oryx (photographic verification only)
+    https://www.oryxspioenkop.com/2022/02/attack-on-europe-documenting-equipment.html
+  - Record running total as value field
+  - Add week_delta field on the Oryx source object: delta from last week's total
+  - Do NOT use claimed figures from belligerent MoDs for equipment losses
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONFLICT_CONTEXT SOURCE ASSIGNMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Russia–Ukraine War:
+  casualties.killed:      HRMMU (T1/Confirmed) — civilian only; verified count
+                          UA/RU MoD in contested range as cross-check (Unverified)
+                          https://www.ohchr.org/en/news/2022/04/ukraine-civilian-casualty-update
+  equipment_losses.data:  Oryx (T2/Assessed) — running total + week_delta
+                          https://www.oryxspioenkop.com/2022/02/attack-on-europe-documenting-equipment.html
+  displacement:           UNHCR (T1/Confirmed)
+                          https://data.unhcr.org/en/situations/ukraine
+  territorial_control:    ISW (T2/Assessed)
+                          https://understandingwar.org/
+
+Gaza / Israel–Hamas:
+  casualties.killed:      Gaza MoH via OCHA (Contested) + Lancet modelled (Assessed)
+                          https://www.ochaopt.org
+                          https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(24)01169-3/fulltext
+  displacement:           OCHA (T1/Confirmed)
+                          https://www.ochaopt.org
+  equipment_losses:       null — no photographic verification source available
+  territorial_control:    ISW (T2/Assessed)
+                          https://understandingwar.org/
+
+Sudan Civil War:
+  casualties:             ACLED (T2/Assessed) + OCHA (T2/Assessed)
+                          https://acleddata.com/  https://www.unocha.org/sudan
+  displacement:           UNHCR/IOM (T1/Confirmed)
+                          https://data.unhcr.org/en/situations/sudansituation
+  equipment_losses:       null — no verification source available
+  territorial_control:    ACLED (T2/Assessed)
+
+Myanmar Civil War:
+  casualties:             AAPP (T2/Assessed) — human rights org with published
+                          methodology; apply F3 (single-source caution)
+                          https://aappb.org/
+  displacement:           UNHCR (T1/Confirmed)
+                          https://data.unhcr.org/en/situations/myanmar
+  equipment_losses:       null
+  territorial_control:    null — no reliable source available
+
+Haiti Political-Criminal:
+  casualties:             BINUH (T2/Assessed)
+                          https://binuh.unmissions.org/
+  displacement:           IOM (T1/Confirmed)
+                          https://dtm.iom.int/haiti
+  equipment_losses:       null
+  territorial_control:    null
+
+DRC Eastern Theatre:
+  casualties:             OCHA (T2/Assessed)
+                          https://www.unocha.org/democratic-republic-congo
+  displacement:           UNHCR (T1/Confirmed)
+                          https://data.unhcr.org/en/situations/drc
+  equipment_losses:       null
+  territorial_control:    MONUSCO (T1/Confirmed)
+                          https://monusco.unmissions.org/
+
+Israel–Lebanon / Hezbollah War:
+  casualties:             Lebanese MoH (Contested) + OHCHR (T2/Assessed)
+                          https://www.ohchr.org/en/press-releases/2024/10/
+  displacement:           UNHCR (T1/Confirmed)
+                          https://data.unhcr.org/en/situations/lebanon
+  equipment_losses:       null
+  territorial_control:    null — post-ceasefire; use UNIFIL reporting if available
+
+US–Israel vs Iran (Op Epic Fury / Roaring Lion):
+  cron_instruction_note: >
+    Both available sources (US DoD statements, IRGC claims) are belligerent
+    statements from active combatants on a live kinetic operation. Apply F2
+    (false-flag seeding) and F3 (capability theatre) checks before updating
+    any figure. Do not present either side's claims as ground truth. Populate
+    with data_confidence: "Unverified" only. Upgrade requires independent
+    Tier 1/2 corroboration (UN, ICRC, or equivalent).
+  casualties:             US DoD statements (Unverified/T3) + IRGC claims
+                          (Unverified/T3) — contested range; both Unverified
+  displacement:           null — no displacement data yet
+  equipment_losses:       null
+  territorial_control:    null
+
+Taiwan Strait / PRC–Taiwan:
+  All fields null. note: "Latent theatre — no active casualty or displacement data."
+
+Korean Peninsula:
+  All fields null. note: "Latent theatre — no active casualty or displacement data."
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CROSS-MONITOR SIGNALS — ISSUE WHERE TRIGGERED

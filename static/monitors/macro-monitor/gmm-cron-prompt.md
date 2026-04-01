@@ -27,12 +27,50 @@ IF today IS Monday AND UTC hour >= scheduled time:
   → Proceed with the full pipeline below.
 
 IF unsure: Do NOT run. Exit silently.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECENCY GUARD — CHECK BEFORE RUNNING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Even if today is the correct day, check when this monitor last published.
+If it published fewer than 6 days ago, skip this run silently.
+
+```bash
+LAST=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/macro-monitor/data/report-latest.json \
+  --jq '.content' | base64 -d | python3 -c \
+  "import json,sys; d=json.load(sys.stdin); print(d.get('meta',{{}}).get('published','')[:10])")
+echo "Last published: $LAST"
+TODAY=$(date -u +%Y-%m-%d)
+DAYS=$(python3 -c "
+from datetime import date
+last = date.fromisoformat('$LAST') if '$LAST' else date(2000,1,1)
+print((date.fromisoformat('$TODAY') - last).days)
+")
+echo "Days since last publish: $DAYS"
+```
+
+IF $DAYS < 6:
+  → Published fewer than 6 days ago. Do NOT run. Exit silently.
+
+IF $DAYS >= 6:
+  → Proceed with the full pipeline below.
+
+
 
 This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━
+SCHEMA — FLAG DEFINITIONS (include in meta block):
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — not independently corroborated",
+        "F3": "Single source — treat as Assessed until corroborated"
+      }
+    },
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -66,7 +104,7 @@ STEP 1 — Research: BIS, IMF WEO/GFSR, World Bank, Federal Reserve,
 
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
-  { "meta": {..., "schema_version": "2.0"},
+  { "meta": {..., "schema_version": "2.0", "methodology_url": "https://asym-intel.info/monitors/macro-monitor/methodology/"},
     "signal": {}, "debt_dynamics": [], "credit_stress": [],
     "systemic_risk": [], "asset_outlook": [], "safe_haven": [],
     "cross_monitor_flags": {}, "source_url": "..." }
@@ -79,7 +117,15 @@ STEP 2 — Write 4 JSON files (single git commit):
     blind_spot_overrides: update active flag and version_history only if status changes
     NOTE: conviction_history and asset_class_baseline.version_history are the live trend data
     displayed on persistent.html charts — always append, never overwrite history.
-  Commit: "data(gmm): weekly JSON pipeline — Issue [N] W/E [DATE]"
+  
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
+
+Commit: "data(gmm): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
   content/monitors/macro-monitor/[DATE]-weekly-brief.md
@@ -89,3 +135,65 @@ STEP 3 — Hugo brief:
 STEP 4 — Notify. Dashboard: https://asym-intel.info/monitors/macro-monitor/dashboard.html
 
 Cron: 0 8 * * 1 (every Monday at 08:00 UTC)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TAIL RISK HEATMAP — add to report-latest.json each issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add a "tail_risks" array to report-latest.json. Each entry is a named
+macro tail risk event that an investor should track this week.
+
+SCHEMA per item:
+{
+  "id":         "snake_case_unique_id",
+  "label":      "Short event name (≤4 words)",
+  "likelihood": 0.0–1.0,   // see sourcing rule below
+  "impact":     0.0–1.0,   // see sourcing rule below
+  "direction":  "Increasing" | "Stable" | "Decreasing",
+  "note":       "One sentence: what triggers this, why it matters now"
+}
+
+SOURCING RULES (always follow these — do not use gut estimates):
+
+likelihood (x-axis):
+  Source directly from the probability estimates you write in the
+  Horizon Matrix / tactical section of the report narrative.
+  e.g. "60% probability oil stays $90+ for 30 days" → likelihood: 0.60
+  e.g. "35% chance of VIX re-spike" → likelihood: 0.35
+  If no explicit probability exists, assign band midpoints:
+    LOW probability (<33%)    → 0.20
+    MEDIUM probability (33–66%) → 0.50
+    HIGH probability (>66%)   → 0.75
+  Always note the sourcing in "note".
+
+impact (y-axis) — FORMALISED METHOD:
+  Step 1: List asset classes materially affected (score change ≥0.15 if scenario triggers)
+  Step 2: Count affected asset classes (max 8)
+  Step 3: Estimate average score change across affected classes (0.0–1.0)
+  Step 4: impact = (count / 8) × average_score_change × 1.5, capped at 1.0
+  Example: Hormuz closure affects 6 asset classes avg 0.80 change →
+           impact = (6/8) × 0.80 × 1.5 = 0.90
+
+QUANTITY: 5–8 tail risks per issue. Cover a mix of near-term (≤4 weeks)
+and medium-term (1–3 month) horizons. Label each as "near" or "medium"
+in the "note" field prefix: "[Near]" or "[Medium]".
+
+EXAMPLE OUTPUT:
+"tail_risks": [
+  {
+    "id": "private_credit_cascade",
+    "label": "Private Credit Cascade",
+    "likelihood": 0.55,
+    "impact": 0.85,
+    "direction": "Increasing",
+    "note": "[Near] Gate events at Ares/Apollo signal retail outflow pressure that could trigger CLO and IG credit contagion simultaneously."
+  },
+  {
+    "id": "jgb_yield_spiral",
+    "label": "JGB Yield Spiral",
+    "likelihood": 0.25,
+    "impact": 0.90,
+    "direction": "Stable",
+    "note": "[Medium] BoJ forced to choose between FX defence and yield cap; no modern precedent for orderly resolution."
+  }
+]

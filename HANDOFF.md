@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 07:45 UTC | **Last commit (main):** 845d1078
+**Date:** 2026-04-01 18:15 UTC | **Last commit (main):** see below
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -18,7 +18,7 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 ## Repository
 
 - **Main:** `asym-intel/asym-intel-main` → https://asym-intel.info
-- **Staging:** `staging` branch → https://staging.asym-intel.info (synced to main ✅)
+- **Staging:** `staging` branch → https://staging.asym-intel.info (28 commits ahead of main)
 - **Hugo:** publishDir="docs", buildFuture=true
 - **Branch protection:** Blueprint validator required; no direct HTML/CSS/JS to main
 
@@ -28,13 +28,13 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 
 | Monitor | Abbr | Slug | Accent | Publish | Blueprint | Visual |
 |---|---|---|---|---|---|---|
-| World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | Mon 06:00 | v2.1 ✅ | ⚠️ Build 2 pending |
-| Global Macro Monitor | GMM | macro-monitor | #22a0aa | Mon 08:00 | v2.1 ✅ | ✅ |
+| World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | **Mon 13 Apr** | v2.1 ✅ | ✅ + choropleth map |
+| Global Macro Monitor | GMM | macro-monitor | #22a0aa | **Tue** 08:00 | v2.1 ✅ | ✅ + tail risk heatmap (gauge removed) |
 | FIMI & Cognitive Warfare | FCW | fimi-cognitive-warfare | #38bdf8 | Thu 09:00 | v2.1 ✅ | ✅ |
-| European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ |
-| AI Governance Monitor | AGM | ai-governance | #3a7d5a | Fri 09:00 | v2.1 ✅ | ✅ |
+| European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ (4 UX fixes + contrast fix) |
+| AI Governance Monitor | AGM | ai-governance | #3a7d5a | Fri 09:00 | v2.1 ✅ | ✅ + model tier layout |
 | Environmental Risks Monitor | ERM | environmental-risks | #4caf7d | Sat 05:00 | v2.1 ✅ | ✅ |
-| Strategic Conflict & Escalation | SCEM | conflict-escalation | #dc2626 | Sun 18:00 | v2.1 ✅ | ✅ |
+| Strategic Conflict & Escalation | SCEM | conflict-escalation | #dc2626 | Sun 18:00 | v2.1 ✅ | ✅ + I1-I6 chart + conflict_context (data: Sun Apr 5) |
 
 ---
 
@@ -43,9 +43,9 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 | Monitor | ID | Schedule | Scope |
 |---|---|---|---|
 | WDM | **db22db0d** | Mon 06:00 UTC | data/ + weekly-brief.md only |
-| GMM | **02c25214** | Mon 08:00 UTC | data/ + weekly-brief.md only |
-| FCW | **879686db** | Thu 09:00 UTC | data/ + weekly-brief.md only |
+| GMM | **02c25214** | **Tue** 08:00 UTC | data/ + weekly-brief.md only |
 | ESA | **0fa1c44e** | Wed 19:00 UTC | data/ + weekly-brief.md only |
+| FCW | **879686db** | Thu 09:00 UTC | data/ + weekly-brief.md only |
 | AGM | **267fd76e** | Fri 09:00 UTC | data/ + weekly-digest.md only |
 | ERM | **3e736a32** | Sat 05:00 UTC | data/ + weekly-brief.md only |
 | SCEM | **eb312202** | Sun 18:00 UTC | data/ + weekly-brief.md only |
@@ -53,62 +53,57 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 
 ---
 
+## PR #17 — OPEN (staging → main, awaiting user sign-off)
+
+Contains two sets of changes:
+
+### A. Global WCAG AA contrast fix (all 7 monitors)
+- `shared/css/base.css` — signal-block !important, kpi-card__value + card__label darkened with color-mix(65%,#000)
+- `european-strategic-autonomy/assets/monitor.css` — removed background linear-gradient override
+- `conflict-escalation/assets/monitor.css` — removed background rgba(0.06) override
+- `european-strategic-autonomy/dashboard.html` — removed inline color:var(--monitor-accent) on kpi-lead-signal
+- COMPUTER.md v1.4 — CONTRAST RULES + SIGNAL-BLOCK OWNERSHIP architectural rules added (already on main)
+
+### B. GMM tail risk heatmap
+- `macro-monitor/dashboard.html` — gauge replaced with 3×3 likelihood × impact heatmap
+- `macro-monitor/data/report-latest.json` — tail_risks backfilled for Issue 8 (already on main + staging)
+- `macro-monitor/gmm-cron-prompt.md` — tail_risks schema + formalised methodology (already on main)
+
+**Verified on staging:** all 7 signal-blocks ✅, KPI card values ✅, GMM heatmap ✅
+
+---
+
+## Changes already on main (not in PR)
+
+- `COMPUTER.md` v1.4 — contrast rules, signal-block ownership
+- `macro-monitor/data/report-latest.json` — tail_risks backfilled
+- `macro-monitor/gmm-cron-prompt.md` — tail_risks schema
+
+---
+
 ## PENDING TASKS (next session)
 
-### Priority 1 — WDM Build 2 (Category B sections)
-HTML files already prepared in workspace — push to staging → verify → PR to main → extend cron prompt.
-Fields to add: `electoral_watch`, `digital_civil`, `autocratic_export`, `state_capture`,
-`institutional_pulse`, `legislative_watch`, `research_360.friction_notes`, `networks`
-Workspace files: `/home/user/workspace/wdm-report-new.html`, `wdm-persistent-new.html`
+### Priority 1 — Merge PR #17
+Awaiting user visual sign-off on staging. Once approved, squash-merge to main.
 
-### Priority 2 — Visual design quality pass (monitor pages)
-From the session discussion — monitors need more individual character:
-- More use of images (SVG illustrations, flag maps)
-- Better contrast and colour variety per monitor
-- GMM: tick marks and currency symbols on chart axes
-- Overall: too text-heavy, needs more visual scanning points
-This is a design/UX task, not a data task. Requires staging-first.
+### Priority 2 — FCW campaign timeline (P5)
+BLOCKED until FCW cron run Thu Apr 9 populates start_date on campaigns.
+After Apr 9: build horizontal Gantt-style Chart.js timeline on FCW dashboard.
+start_date field is now in the cron prompt (commit 724f0ae).
 
-### Priority 3 — Homepage visual upgrade
-The homepage (`asym-intel.info`) is functional but plain. Agreed to revisit with:
-- Monitor cards with live signal pull
-- More visual hierarchy
-- Better mobile layout
+### Priority 3 — Verify first conflict_context data (SCEM)
+SCEM cron runs Sun Apr 5 18:00 UTC — first run with conflict_context schema.
+Check persistent.html after that run: "Conflict context ▸" buttons should appear
+on each baseline card. Verify data quality and renderer for all 10 conflicts.
 
-### Priority 4 — WDM cron prompt extension (after Build 2 HTML is merged)
-Add Category B field schemas to wdm-cron-prompt.md so the cron starts populating them.
+### Priority 4 — GMM heatmap: MED/LOW impact cells
+Current backfilled data has all 6 tail risks in HIGH impact row. Next cron run
+(Tue Apr 7) will produce fresh tail_risks — check if LLM naturally distributes
+across all three impact bands. If not, review the impact formula in the prompt.
 
-### Priority 5 — Schema audit across all 7 monitors
-Check if any monitor JSON is missing fields that the HTML now expects (e.g. AGM renderer
-mismatches fixed this session — check others still have clean field alignment).
+### Priority 5 — Mobile/tablet audit
+All visual enhancements + heatmap not audited on mobile. Quick review of staging.
 
----
-
-## Architecture State (Blueprint v2.1 — locked)
-
-✅ 12/12 validator checks passing on main
-✅ nav.js in `<head>` on all 57 pages
-✅ Chart.js CDN in `<head>` on all pages using charts
-✅ overflow-x:clip everywhere (not hidden) — sticky nav works on all mobile
-✅ Network bar: position:fixed, full-bleed, always visible on mobile
-✅ body{padding-top:40px} in base.css + main.css
-✅ site-nav: About + Subscribe only (no brand duplication, no hamburger, no Monitors)
-✅ main branch protection active
-✅ COMPUTER.md v1.2 + asym-intel skill in user library
-✅ 8 crons active with hard file-scope constraints
-
----
-
-## Key Technical Rules (do not break)
-
-1. **overflow-x: clip — never hidden** on body, monitor-layout, monitor-main
-   `overflow:hidden` on a parent silently breaks `position:sticky` on children (mobile)
-2. **nav.js in `<head>`** — must be before `</head>`, after theme.js
-3. **Chart.js CDN before charts.js wrapper** in `<head>`
-4. **Network bar: position:fixed** — not sticky — on both Hugo and monitor pages
-5. **site-nav**: About + Subscribe only; no brand, no SVG, no Monitors, no hamburger
-6. **Cron tasks**: data/ and content/monitors/{slug}/ only — no HTML/CSS/JS ever
-7. **staging-first** for all HTML/CSS/JS/layout changes
-8. **monitor.css**: ≤40 lines, accent tokens only
-9. **archive.json**: append-only, never truncate
-10. **schema_version: "2.0"** in all JSON files
+### DEFERRED — requires data first
+- FCW geospatial campaign map: needs lat/lng added to campaign schema
+- SCEM humanitarian impact charts: wait for ≥2 issues of conflict_context data

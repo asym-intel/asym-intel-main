@@ -31,6 +31,27 @@ jobs:
         run: |
           CHANGED=0
 
+          # Write the strip script to a temp file (heredoc inside run: breaks YAML parsing)
+          cat > /tmp/strip_bar.py << 'EOF'
+          import sys, re
+          path = sys.argv[1]
+          with open(path) as f:
+              c = f.read()
+          c = re.sub(
+              r'</head>\s*<style>\s*body\{padding-top:40px[^<]*</style>'
+              r'<nav data-asym-network-bar[^>]*>.*?</nav>'
+              r'(?:<style>[^<]*\.nb-links[^<]*</style>)?\s*(<body>)',
+              r'</head>\n\n\1', c, flags=re.DOTALL)
+          c = re.sub(
+              r'(<body>)\s*\n<style>\s*body\{padding-top:40px[^<]*</style>'
+              r'<nav data-asym-network-bar[^>]*>.*?</nav>'
+              r'(?:<style>[^<]*\.nb-links[^<]*</style>)?\s*\n',
+              r'\1\n\n', c, flags=re.DOTALL)
+          with open(path, 'w') as f:
+              f.write(c)
+          print(f"  Stripped inline bar from {path}")
+          EOF
+
           # All standard monitor pages — all 8 per monitor
           for PAGE in static/monitors/*/*.html; do
             if [ ! -f "$PAGE" ]; then continue; fi
@@ -38,37 +59,15 @@ jobs:
             # Skip shared templates (they are partials, not served pages)
             if [[ "$PAGE" == *"/shared/"* ]]; then continue; fi
 
-            # nav.js now auto-injects the network bar — so this workflow's job
-            # is purely a belt-and-suspenders backstop: it verifies nav.js is
-            # referenced. If nav.js is missing entirely, flag it but don't fail.
+            # nav.js now auto-injects the network bar — verify it is referenced
             if ! grep -q 'shared/js/nav.js' "$PAGE"; then
               echo "WARNING: $PAGE does not reference nav.js — network bar will not auto-inject"
             fi
 
             # Check for stale inline network bar HTML (pre-Blueprint-v2.1 pages)
-            # These will render a duplicate bar now that nav.js injects one.
             if grep -q '<nav data-asym-network-bar' "$PAGE"; then
-              echo "STALE: $PAGE has inline network bar — stripping (nav.js handles injection now)"
-              python3 - "$PAGE" << 'PYEOF'
-import sys, re
-path = sys.argv[1]
-with open(path) as f:
-    c = f.read()
-# Remove full style+nav block (both format variants)
-c = re.sub(
-    r'</head>\s*<style>\s*body\{padding-top:40px[^<]*</style>'
-    r'<nav data-asym-network-bar[^>]*>.*?</nav>'
-    r'(?:<style>[^<]*\.nb-links[^<]*</style>)?\s*(<body>)',
-    r'</head>\n\n\1', c, flags=re.DOTALL)
-c = re.sub(
-    r'(<body>)\s*\n<style>\s*body\{padding-top:40px[^<]*</style>'
-    r'<nav data-asym-network-bar[^>]*>.*?</nav>'
-    r'(?:<style>[^<]*\.nb-links[^<]*</style>)?\s*\n',
-    r'\1\n\n', c, flags=re.DOTALL)
-with open(path, 'w') as f:
-    f.write(c)
-print(f"  Stripped inline bar from {path}")
-PYEOF
+              echo "STALE: $PAGE has inline network bar — stripping"
+              python3 /tmp/strip_bar.py "$PAGE"
               CHANGED=1
             fi
           done

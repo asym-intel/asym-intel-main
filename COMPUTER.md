@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.3 — 1 April 2026
+# Version: 1.4 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -18,6 +18,31 @@ Then fetch the handoff brief for current task state:
     --jq '.content' | base64 -d
 
 Do not begin any work until both files have been read.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CENTRALISED SHARED ASSETS — DO NOT DUPLICATE INLINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+These are defined ONCE in shared/ files. Never copy them inline into individual pages:
+
+CSS in static/monitors/shared/css/base.css:
+  - Search page styles (.search-wrap, .search-input-el, .search-result etc.)
+  - Network bar link strip (.nb-links)
+  - Font size tokens (--text-xs, --text-sm, --text-base, --text-min etc.)
+  - All layout, component, and token CSS
+
+JS in static/monitors/shared/js/renderer.js:
+  - renderCrossMonitorFlags(cmf) — canonical CMF renderer, handles flags[] array
+  - esc(str) / escHtml(str) — HTML escaping (use esc() in new code)
+  - AsymRenderer.flag(code) — country flag emoji
+
+JS in static/monitors/shared/js/nav.js:
+  - Network bar injection, hamburger, scroll-spy, tab panels
+
+When a bug is fixed in a shared file, it propagates to all 7 monitors automatically.
+When a fix is made inline in one page, it must be manually replicated — this is the
+root cause of rendering inconsistencies across monitors.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DEPLOYMENT RULE — STAGING FIRST, ALWAYS
@@ -78,6 +103,29 @@ CANONICAL NAV ARCHITECTURE (Blueprint v2.1):
   Monitor-nav:  position:sticky, top:40px
   Site-nav:     position:sticky, top:40px (Hugo pages only)
   nav.js:       loaded in <head> (not bottom of body) — injects bar before paint
+
+TYPOGRAPHY FLOOR:
+  --text-min = var(--text-xs) = clamp(0.8125rem, ...) defined in base.css
+  NEVER hardcode font-size below var(--text-min) (e.g. 0.7rem, 0.65rem, 0.62rem)
+  Use var(--text-min) for badges, tags, metadata labels
+  Use var(--text-xs) or larger for all body/content text
+  Violation = text that becomes illegible on mobile
+
+CONTRAST RULES (WCAG AA — apply globally, never fix piecemeal):
+  Raw --monitor-accent fails WCAG AA on white for 5 of 7 monitors (WDM/GMM/FCW/ESA/ERM).
+  base.css uses color-mix(in srgb, var(--monitor-accent) 65%, #000) wherever accent
+  appears on a white/surface background. This applies to:
+    .signal-block { background } — dark bg, white text (darkened 35%)
+    .kpi-card__value { color }   — accent text on white card
+    .card__label { color }       — accent label text on white card
+  When adding any new element that uses --monitor-accent on a light surface,
+  ALWAYS use color-mix(in srgb, var(--monitor-accent) 65%, #000) not raw --monitor-accent.
+
+SIGNAL-BLOCK OWNERSHIP (architectural rule):
+  base.css owns the background property on .signal-block. It is set with !important.
+  monitor.css MUST NOT set background on .signal-block — any such override is silently
+  defeated by !important and creates confusion. Personality files may only set:
+  border, border-radius, font-family, and other non-background properties.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRON TASK RULES

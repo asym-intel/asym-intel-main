@@ -27,12 +27,56 @@ IF today IS Thursday AND UTC hour >= scheduled time:
   → Proceed with the full pipeline below.
 
 IF unsure: Do NOT run. Exit silently.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECENCY GUARD — CHECK BEFORE RUNNING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Even if today is the correct day, check when this monitor last published.
+If it published fewer than 6 days ago, skip this run silently.
+
+```bash
+LAST=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/fimi-cognitive-warfare/data/report-latest.json \
+  --jq '.content' | base64 -d | python3 -c \
+  "import json,sys; d=json.load(sys.stdin); print(d.get('meta',{{}}).get('published','')[:10])")
+echo "Last published: $LAST"
+TODAY=$(date -u +%Y-%m-%d)
+DAYS=$(python3 -c "
+from datetime import date
+last = date.fromisoformat('$LAST') if '$LAST' else date(2000,1,1)
+print((date.fromisoformat('$TODAY') - last).days)
+")
+echo "Days since last publish: $DAYS"
+```
+
+IF $DAYS < 6:
+  → Published fewer than 6 days ago. Do NOT run. Exit silently.
+
+IF $DAYS >= 6:
+  → Proceed with the full pipeline below.
+
+
 
 This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━
+SCHEMA — FLAG DEFINITIONS (include in meta block):
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — coordination confirmed but state attribution unestablished",
+        "F3": "Single source — not independently corroborated; do not upgrade confidence without Tier 1/2 second source"
+      },
+      "mf_flags": {
+        "MF1": "Meta-FIMI alert — the interference story itself may be a target of manipulation",
+        "MF2": "Attribution over-reach risk — content alignment is not sufficient for state attribution",
+        "MF3": "Single-source methodological caution — treat as Assessed until corroborated",
+        "MF4": "State media source — apply editorial discount"
+      }
+    },
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -68,12 +112,36 @@ STEP 1 — Research: EEAS FIMI reports, EU DisinfoLab, DFRLab,
 
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
-  { "meta": {..., "schema_version": "2.0"},
-    "signal": {}, "campaigns": [], 
+  { "meta": {..., "schema_version": "2.0", "methodology_url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/methodology/"},
+    "signal": {
+      "headline": "one-sentence lead — name the operation, actor, and target",
+      "actor": "RU|CN|IR|...",
+      "confidence": "Confirmed|Assessed|Unconfirmed",
+      "f_flags": ["F1"],
+      "note": "optional MF-flag alert or analytical caveat"
+    },
+    "campaigns": [
+      {
+        "id": "FCW-001",
+        "operation_name": "...",
+        "start_date": "YYYY-MM-DD",  // date operation first observed/confirmed; REQUIRED for timeline visualisation
+        "status": "ACTIVE|ONGOING|DISRUPTED|ASSESSED|RESOLVED",
+        "attribution_confidence": "Confirmed|Assessed|Unconfirmed",
+        "actor": "RU|CN|IR|...",
+        "platform": "YouTube|Telegram|X|...",
+        "target": "freetext — country/election/institution targeted",
+        "summary": "...",
+        "last_activity": "YYYY-MM-DD",
+        "f_flags": [],
+        "changelog": "[YYYY-MM-DD: New entry]",
+        "source_url": "..."
+      }
+    ],
     "actor_tracker": [
       { "actor": "RU", "status": "HIGHLY ACTIVE|ACTIVE|MONITORING",
         "doctrine": "...", "headline": "key development this week",
-        "summary": "...", "source_url": "..." }
+        "summary": "1–2 sentence analytical note on this actor's current posture — REQUIRED, not optional. The renderer displays summary as the card body; omitting it leaves the card blank.",
+        "source_url": "..." }
     ],
     "platform_responses": [],
     "attribution_log": [
@@ -82,7 +150,9 @@ STEP 2 — Write 4 JSON files (single git commit):
         "instrument": "confidence level e.g. Assessed|Confirmed",
         "headline": "one-sentence description of attribution finding",
         "summary": "full note text",
-        "mf_flags": [], "confidence": "...", "source_url": "..." }
+        "mf_flags": [], "confidence": "...", "source_url": "...",
+        "source_date": "YYYY-MM-DD"  // ISO date of primary source; omit if unknown
+      }
     ],
     "cognitive_warfare": [
       { "id": "CW-001", "classification": "COGNITIVE WARFARE",
@@ -94,9 +164,21 @@ STEP 2 — Write 4 JSON files (single git commit):
     "cross_monitor_flags": {},
     "source_url": "..." }
   
-  persistent-state.json: campaigns (carry forward/update),
+  persistent-state.json: campaigns (carry forward/update — IMPORTANT: when adding a new campaign,
+  always set start_date to the first observed/confirmed date. This field is required for the
+  campaign timeline visualisation on the dashboard. For existing campaigns missing start_date,
+  backfill with best available date and note in changelog.),
+  Campaign and attribution_log source objects: populate source_date (YYYY-MM-DD, ISO 8601) when known; omit if unknown.
   actor_tracker, cross_monitor_flags (never delete flags).
-  archive.json: append only.
+  
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
+
+archive.json: append only.
   Commit: "data(fcw): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
