@@ -613,12 +613,10 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-campaigns').textContent = activeCampaigns || '—';
       document.getElementById('kpi-actors').textContent = actorCount;
       document.getElementById('kpi-signal').textContent = signalConf || (signal ? signal.slice(0,30) + '…' : '—');
+      // KPI sub links to the Lead Signal section below
       var kpiSignalSub = document.getElementById('kpi-signal-sub');
       if (kpiSignalSub) {
-        var sigUrl = signalObj.source_url || d.source_url || '';
-        kpiSignalSub.innerHTML = sigUrl
-          ? '<a class="source-link" href="' + escHtml(sigUrl) + '" target="_blank" rel="noopener">Read the top story \u2193</a>'
-          : 'Top story this week';
+        kpiSignalSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
       }
 
       // Threat level badge
