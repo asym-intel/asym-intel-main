@@ -4,6 +4,29 @@
 # PUBLISH TO: https://asym-intel.info/monitors/environmental-risks/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DAY-OF-WEEK GUARD — READ THIS FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Check the current UTC day before doing anything else:
+
+```bash
+DAY=$(date -u +%A)
+echo "Today is: $DAY"
+```
+
+IF today is NOT Saturday:
+  → Do NOT run the pipeline.
+  → Verify the 4 data files exist and are non-empty, then exit silently.
+  → Optionally send: "Health check OK. Next publish: Saturday 09:00 UTC."
+
+IF today IS Saturday AND UTC hour >= scheduled time:
+  → Proceed with the full pipeline below.
+
+IF unsure: Do NOT run. Exit silently.
+
+This guard prevents accidental mid-week runs triggered by prompt reloads.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
