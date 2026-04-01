@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function actorTag(actor) {
-    return '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + escHtml(actor) + '</span>';
+    return '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + (AsymRenderer.flag(actor) ? AsymRenderer.flag(actor) + '\u00a0' : '') + escHtml(actor) + '</span>';
   }
 
   // Load report-latest.json for cross-monitor flags
@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var actorCampaigns = campaigns[actor] || [];
           if (!actorCampaigns.length) return;
           campHtml += '<div style="margin-bottom:var(--space-6)">';
-          campHtml += '<div style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--monitor-accent);margin-bottom:var(--space-3);padding-bottom:var(--space-2);border-bottom:1px solid var(--monitor-accent-bg)">' + escHtml(actor) + '</div>';
+          campHtml += '<div style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--monitor-accent);margin-bottom:var(--space-3);padding-bottom:var(--space-2);border-bottom:1px solid var(--monitor-accent-bg)">' + (AsymRenderer.flag(actor) ? AsymRenderer.flag(actor) + '\u00a0' : '') + escHtml(actor) + '</div>';
           actorCampaigns.forEach(function(c) {
             // Version history
             var vhHtml = '';
@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<tr>' +
               '<td><strong>' + escHtml(row.platform || '') + '</strong></td>' +
               '<td>' + escHtml(row.action_type || '') + '</td>' +
-              '<td>' + escHtml(row.actor || '') + '</td>' +
+              '<td>' + (AsymRenderer.flag(row.actor || '') ? AsymRenderer.flag(row.actor || '') + '\u00a0' : '') + escHtml(row.actor || '') + '</td>' +
               '<td>' + escHtml(row.date || '') + '</td>' +
               '<td>' + escHtml(String(row.assets_removed || 0)) + '</td>' +
               '<td>' + (row.source_url ? '<a class="source-link" href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">→</a>' : '—') + '</td>' +
