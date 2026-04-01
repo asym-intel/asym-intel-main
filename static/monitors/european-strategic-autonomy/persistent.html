@@ -8,11 +8,104 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/charts.js"></script>
 </head>
 
 <body>
 
 </nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
+
+<style>
+/* ── Lagrange Radar Chart ───────────────────── */
+.lagrange-radar-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .lagrange-radar-wrap { grid-template-columns: 1fr; }
+}
+.lagrange-radar-canvas-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+}
+.lagrange-radar-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+.lagrange-dim-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.lagrange-dim-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+.lagrange-dim-row__label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.lagrange-dim-row__note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+.lagrange-dim-row__score {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  min-width: 44px;
+  text-align: right;
+}
+.lagrange-dim-row__bar-wrap {
+  grid-column: 1 / -1;
+  background: var(--color-border-subtle);
+  border-radius: 3px;
+  height: 5px;
+  overflow: hidden;
+}
+.lagrange-dim-row__bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.lagrange-composite-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.lagrange-composite-badge__value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #5b8db0;
+  line-height: 1;
+}
+.lagrange-composite-badge__label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  max-width: 140px;
+  line-height: 1.3;
+}
+[data-theme="dark"] .lagrange-composite-badge {
+  background: rgba(91,141,176,0.1);
+  border-color: rgba(91,141,176,0.25);
+}
+</style>
+
 
 <nav class="monitor-nav" aria-label="Monitor navigation">
   <a class="monitor-nav__brand" href="dashboard.html">
@@ -250,38 +343,134 @@ document.addEventListener('DOMContentLoaded', function () {
       kpiHtml += '</div>';
       document.getElementById('kpi-state').innerHTML = kpiHtml;
 
-      // Lagrange Point Scorecard
+      // Lagrange Point Scorecard — Radar Chart
       var lagEl = document.getElementById('lagrange-scorecard');
       if (lagEl) {
         var lagDims = (kpi.lagrange_point_dimensions) || {};
         var lagProgress = kpi.lagrange_point_progress || '—';
         var dimOrder = ['energy','defence','technology','finance','materials','institutions'];
-        var dimLabels = {'energy':'Energy','defence':'Defence','technology':'Technology',
-                         'finance':'Finance','materials':'Materials','institutions':'Institutions'};
+        var dimLabels = {
+          energy: 'Energy Independence',
+          defence: 'Defence Sovereignty',
+          technology: 'Tech/Industrial',
+          finance: 'Financial Autonomy',
+          materials: 'Critical Materials',
+          institutions: 'Institutional Resilience'
+        };
         if (Object.keys(lagDims).length) {
-          var lagHtml = '<div style="margin-bottom:var(--space-4);font-size:var(--text-sm)">' +
-            '<strong>Composite Progress: ' + escHtml(String(lagProgress)) + '</strong>' +
-            ' <span style="color:var(--color-text-muted);font-size:var(--text-xs)">(0% = full dependence → 100% = full autonomy)</span>' +
-          '</div>';
-          lagHtml += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-3)">';
+          // Composite badge + radar + bar list
+          lagEl.innerHTML =
+            '<div class="lagrange-composite-badge">' +
+              '<div class="lagrange-composite-badge__value">' + escHtml(String(lagProgress)) + '</div>' +
+              '<div class="lagrange-composite-badge__label">Composite Lagrange Point Progress</div>' +
+            '</div>' +
+            '<div class="lagrange-radar-wrap">' +
+              '<div class="lagrange-radar-canvas-wrap">' +
+                '<canvas id="lagrange-radar-canvas" width="380" height="380" aria-label="Strategic Autonomy Radar Chart" role="img"></canvas>' +
+              '</div>' +
+              '<div class="lagrange-dim-list" id="lagrange-dim-list"></div>' +
+            '</div>';
+
+          // Build dimension list
+          var dimListEl = document.getElementById('lagrange-dim-list');
+          var dimListHtml = '';
           dimOrder.forEach(function(dim) {
             var d2 = lagDims[dim];
             if (!d2) return;
             var score = parseFloat(d2.score||0);
-            var barColor = score >= 50 ? 'var(--positive)' : score >= 30 ? 'var(--monitor-accent)' : 'var(--high)';
-            lagHtml += '<div class="card">' +
-              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-2)">' +
-                '<span style="font-weight:600;font-size:var(--text-sm)">' + escHtml(dimLabels[dim]||dim) + '</span>' +
-                '<span style="font-weight:700;color:' + barColor + '">' + escHtml(String(d2.score)) + '/100</span>' +
-              '</div>' +
-              '<div style="background:var(--color-border);border-radius:3px;height:6px;margin-bottom:var(--space-2)">' +
-                '<div style="width:' + Math.min(score,100) + '%;background:' + barColor + ';height:100%;border-radius:3px"></div>' +
-              '</div>' +
-              (d2.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(d2.note) + '</div>' : '') +
-            '</div>';
+            var barColor = score >= 50 ? 'var(--positive)' : score >= 30 ? '#5b8db0' : 'var(--high)';
+            dimListHtml +=
+              '<div class="lagrange-dim-row">' +
+                '<div>' +
+                  '<div class="lagrange-dim-row__label">' + escHtml(dimLabels[dim]||dim) + '</div>' +
+                  (d2.note ? '<div class="lagrange-dim-row__note">' + escHtml(d2.note) + '</div>' : '') +
+                '</div>' +
+                '<div class="lagrange-dim-row__score" style="color:' + barColor + '">' + escHtml(String(d2.score)) + '</div>' +
+                '<div class="lagrange-dim-row__bar-wrap">' +
+                  '<div class="lagrange-dim-row__bar" style="width:' + Math.min(score,100) + '%;background:' + barColor + '"></div>' +
+                '</div>' +
+              '</div>';
           });
-          lagHtml += '</div>';
-          lagEl.innerHTML = lagHtml;
+          if (dimListEl) dimListEl.innerHTML = dimListHtml;
+
+          // Draw radar chart
+          var radarCanvas = document.getElementById('lagrange-radar-canvas');
+          if (radarCanvas && typeof Chart !== 'undefined') {
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            var labelColor = isDark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
+            var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+            var radarLabels = dimOrder.map(function(d) { return dimLabels[d] || d; });
+            var radarScores = dimOrder.map(function(d) { return lagDims[d] ? parseFloat(lagDims[d].score||0) : 0; });
+            var radarChart = new Chart(radarCanvas.getContext('2d'), {
+              type: 'radar',
+              data: {
+                labels: radarLabels,
+                datasets: [{
+                  label: 'Autonomy Score',
+                  data: radarScores,
+                  backgroundColor: 'rgba(91,141,176,0.18)',
+                  borderColor: '#5b8db0',
+                  borderWidth: 2,
+                  pointBackgroundColor: '#5b8db0',
+                  pointBorderColor: isDark ? '#1e1d1b' : '#ffffff',
+                  pointBorderWidth: 2,
+                  pointRadius: 5,
+                  pointHoverRadius: 7,
+                  fill: true,
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                animation: { duration: 700, easing: 'easeInOutQuart' },
+                scales: {
+                  r: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                      stepSize: 25,
+                      color: labelColor,
+                      backdropColor: 'transparent',
+                      font: { size: 10 }
+                    },
+                    grid: { color: gridColor },
+                    angleLines: { color: gridColor },
+                    pointLabels: {
+                      color: labelColor,
+                      font: { size: 11, weight: '500' }
+                    }
+                  }
+                },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: function(ctx) {
+                        return ' ' + ctx.parsed.r + ' / 100';
+                      }
+                    }
+                  }
+                }
+              }
+            });
+            // Re-draw on theme change
+            var themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+              themeToggle.addEventListener('click', function() {
+                setTimeout(function() {
+                  var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+                  var lc = dark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
+                  var gc = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+                  radarChart.options.scales.r.ticks.color = lc;
+                  radarChart.options.scales.r.pointLabels.color = lc;
+                  radarChart.options.scales.r.grid.color = gc;
+                  radarChart.options.scales.r.angleLines.color = gc;
+                  radarChart.data.datasets[0].pointBorderColor = dark ? '#1e1d1b' : '#ffffff';
+                  radarChart.update();
+                }, 80);
+              });
+            }
+          }
         } else {
           lagEl.innerHTML = '<p class="text-muted text-sm">Scorecard data will appear after the next publish cycle.</p>';
         }
