@@ -193,7 +193,9 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var meta    = d.meta    || {};
-      var signal  = d.signal  || '';
+      var signalObj = d.signal || {};
+      var signal = signalObj.headline || '';
+      var signalBody = signalObj.body || signalObj.summary || '';
       var heatmap = d.heatmap || {};
       var intel   = d.intelligence_items || [];
       var flags   = d.institutional_integrity_flags || [];
