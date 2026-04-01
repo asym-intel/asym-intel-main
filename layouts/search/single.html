@@ -1,14 +1,14 @@
 {{ define "main" }}
 <style>
-.search-page{max-width:760px;margin:0 auto;padding:3rem 1.5rem 6rem}
+.search-page{max-width:720px;margin:0 auto;padding:3rem 1.5rem 6rem}
 .search-page__eyebrow{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-muted,#6b7280);margin-bottom:.5rem}
-.search-page__title{font-size:2rem;font-weight:700;letter-spacing:-.025em;color:var(--color-text,#111827);margin-bottom:.5rem;line-height:1.2}
+.search-page__title{font-size:1.75rem;font-weight:700;letter-spacing:-.025em;font-family:var(--font-body,'Satoshi',sans-serif);color:var(--color-text,#111827);margin-bottom:.375rem;line-height:1.2}
 .search-page__desc{font-size:1rem;color:var(--color-text-secondary,#4b5563);margin-bottom:2rem}
 .search-input-el{width:100%;padding:.75rem 1rem;font-family:inherit;font-size:1rem;background:var(--color-surface,#fff);border:1.5px solid var(--color-border,#e5e7eb);border-radius:8px;color:var(--color-text,#111827);outline:none;transition:border-color .15s,box-shadow .15s;box-sizing:border-box;margin-bottom:1rem}
 .search-input-el:focus{border-color:var(--color-primary,#2563eb);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
 .search-input-el::placeholder{color:var(--color-text-faint,#9ca3af)}
 .search-filter-bar{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
-.search-filter-btn{padding:.3rem .85rem;font-size:.8rem;font-weight:600;border-radius:999px;border:1.5px solid var(--color-border,#e5e7eb);background:transparent;color:var(--color-text-secondary,#4b5563);cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}
+.search-filter-btn{padding:.3rem .85rem;font-size:.8rem;font-weight:600;border-radius:999px;border:1.5px solid var(--color-border,#e5e7eb);background:transparent;color:var(--color-text-secondary,#4b5563);cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap;font-family:var(--font-body,'Satoshi',sans-serif)}
 .search-filter-btn:hover{background:var(--color-surface-raised,#f9fafb)}
 .search-filter-btn.active{background:var(--color-text,#111827);color:#fff;border-color:var(--color-text,#111827)}
 .search-filter-btn[data-monitor=democratic-integrity].active{background:#61a5d2;border-color:#61a5d2}
@@ -35,7 +35,7 @@
 <div class="search-page">
   <div class="search-page__eyebrow">Asymmetric Intelligence</div>
   <h1 class="search-page__title">Search all monitors</h1>
-  <p class="search-page__desc">Full-text search across all published briefs from all seven monitors on asym-intel.info. <a href="https://compossible.asym-intel.info">Compossible</a> has its own search.</p>
+  <p class="search-page__desc">Full-text search across all published briefs from all seven monitors. <a href="https://compossible.asym-intel.info">Compossible</a> has its own search.</p>
 
   <input type="search" class="search-input-el" id="search-input"
     placeholder="Search across all monitors and issues…" autocomplete="off" spellcheck="false">
@@ -91,14 +91,14 @@
     }).then(function(){done++;if(statusEl)statusEl.textContent='Loading '+done+'/'+MONITORS.length+' monitors…';}).catch(function(){done++;});
   })).then(function(){
     loaded=true;
-    if(statusEl)statusEl.textContent=corpus.length+' searchable items loaded.';
+    if(statusEl)statusEl.textContent=corpus.length+' searchable items loaded across all monitors.';
     var q=document.getElementById('search-input').value;
     if(q.trim())doSearch(q);
   });
   function doSearch(q){
     var el=document.getElementById('search-results');
     q=q.trim();
-    if(!q){el.innerHTML='';if(statusEl&&loaded)statusEl.textContent=corpus.length+' searchable items loaded.';return;}
+    if(!q){el.innerHTML='';if(statusEl&&loaded)statusEl.textContent=corpus.length+' searchable items loaded across all monitors.';return;}
     if(!loaded){if(statusEl)statusEl.textContent='Loading corpus…';return;}
     var lower=q.toLowerCase();
     var matches=corpus.filter(function(item){
