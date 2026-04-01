@@ -4,6 +4,34 @@
 # PUBLISH TO: https://asym-intel.info/monitors/ai-governance/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DAY-OF-WEEK GUARD — READ THIS FIRST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Check the current UTC day before doing anything else:
+
+```bash
+DAY=$(date -u +%A)
+echo "Today is: $DAY"
+```
+
+IF today is NOT Friday:
+  → Do NOT run the pipeline.
+  → Simply verify the 4 data files exist and are non-empty:
+    static/monitors/ai-governance/data/report-latest.json
+    static/monitors/ai-governance/data/archive.json
+    static/monitors/ai-governance/data/persistent-state.json
+  → Send a brief notification: "AGM health check: data files intact. Next publish: Friday 09:00 UTC."
+  → STOP. Do nothing else.
+
+IF today IS Friday AND the current UTC hour is 09 or later:
+  → Proceed with the full pipeline below.
+
+IF you are unsure of the day or the check fails:
+  → Do NOT run the pipeline. Exit silently.
+
+This guard prevents accidental mid-week runs triggered by prompt reloads.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
