@@ -53,6 +53,31 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 
 ---
 
+## Architecture — Two-Pass Commit Rule (ALL 7 monitors)
+
+All 7 cron prompts now enforce a mandatory two-pass commit pattern.
+Root cause: WDM Category B sections (electoral_watch, digital_civil,
+autocratic_export, state_capture, institutional_pulse, legislative_watch,
+research_360, networks) never appeared in any of 3 issues — cron was
+silently truncating output before reaching them.
+
+Fix applied globally (not piecemeal) to all 7 monitors:
+  PASS 1: core/fast sections committed immediately after research
+  PASS 2: deep/slow sections patched onto the Pass 1 JSON via gh API read → modify → PUT
+  VERIFY: each prompt now includes a bash verification check — if any keys are
+          missing after Pass 2 the agent must re-run Pass 2, not proceed to Step 3
+
+Per-monitor Pass 1 / Pass 2 split:
+  WDM:  Pass1=core heatmap/signal/intelligence | Pass2=electoral_watch/digital_civil/autocratic_export/state_capture/institutional_pulse/legislative_watch/research_360/networks
+  GMM:  Pass1=signal/executive_briefing/domain sections | Pass2=domain_indicators/tail_risks/sentiment_overlay/cross_monitor_flags
+  FCW:  Pass1=signal/campaigns/actor_tracker/platform_responses | Pass2=attribution_log/cognitive_warfare/cross_monitor_flags
+  ESA:  Pass1=signal/defence/hybrid_threats | Pass2=institutional_developments/member_state_tracker/cross_monitor_flags
+  AGM:  Pass1=modules 0–5 | Pass2=modules 6–15/cross_monitor_flags/delta_strip/country_grid
+  ERM:  Pass1=signal/planetary_boundaries/threat_multiplier | Pass2=extreme_weather/policy_law/ai_climate/biosphere/geostrategic/cross_monitor_flags
+  SCEM: Pass1=lead_signal/conflict_roster | Pass2=conflict_context/cross_monitor_flags
+
+---
+
 ## Recent Commits (main, this session)
 
 | Commit | Description |
