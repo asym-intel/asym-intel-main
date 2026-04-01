@@ -15,6 +15,7 @@
 
   /* Type scale */
   --text-xs:   clamp(0.8125rem, 0.78rem + 0.2vw,  0.875rem);
+  --text-min:  var(--text-xs); /* absolute floor — never use font-size below this */
   --text-sm:   clamp(0.9375rem, 0.9rem + 0.25vw, 1rem);
   --text-base: clamp(1rem,      0.96rem + 0.25vw, 1.125rem);
   --text-md:   clamp(1rem,     0.92rem + 0.4vw,  1.125rem);
@@ -1345,3 +1346,64 @@ body { padding-top: 40px; }
   .monitor-layout { display: block; }
   .signal-block { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* ── Search page ─────────────────────────────────────────────────────── */
+.search-wrap { max-width: 720px; padding: var(--space-10) 0; }
+.search-input-el {
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.search-input-el:focus { border-color: var(--monitor-accent); }
+.search-input-el::placeholder { color: var(--color-text-faint); }
+.search-status {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-4) 0;
+  min-height: 1.5em;
+}
+.search-result {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.search-result:last-child { border-bottom: none; }
+.search-result__meta {
+  font-size: var(--text-xs);
+  color: var(--monitor-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: var(--space-1);
+}
+.search-result__body {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.65;
+}
+.search-result__body mark {
+  background: var(--monitor-accent-bg);
+  color: var(--monitor-accent);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+.search-result__link {
+  display: inline-block;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--monitor-accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+.search-result__link:hover { text-decoration: underline; }
+
+/* ── Network bar link strip ──────────────────────────────────────────── */
+.nb-links { display: flex; }
+@media (max-width: 640px) { .nb-links { display: none; } }
