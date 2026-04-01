@@ -59,7 +59,7 @@ The JSON was inspected field-by-field across all top-level arrays. Each field wa
 | `summary` | ✓ | ✓ (top 5, abbreviated) | ✓ | ✓ (abbreviated) |
 | `last_activity` | ✓ | ✗ not shown | ✓ | ✓ ("Last activity") |
 | `f_flags` | ✓ | ✗ not shown | ✓ (inline in summary) | ✗ not shown |
-| `changelog` | ✓ | ✗ not shown | ✗ not shown | ✓ (version history) |
+| `changelog ✅ 2026-04-01 (rendered on report.html)` | ✓ | ✗ not shown | ✗ not shown | ✓ (version history) |
 | `source_url` | ✓ | ✗ not shown | ✓ ("Source →" link) | ✗ not a direct link per campaign |
 | `start_date` | **MISSING** (field recently added, not yet populated — first data expected Apr 9 cron) | ✗ | ✗ | ✗ (timeline Gantt uses `first documented` from persistent, not `start_date`) |
 
@@ -87,7 +87,7 @@ The JSON was inspected field-by-field across all top-level arrays. Each field wa
 
 ---
 
-### 1.5 `platform_responses[]` array
+### 1.5 `~~platform_responses ✅ 2026-04-01 (Platform Enforcement section added)~~ ✅ 2026-04-01 (Platform Enforcement section added to dashboard)[]` array
 
 | Field | In JSON | Dashboard | Report | Persistent |
 |---|---|---|---|---|
@@ -102,7 +102,7 @@ The JSON was inspected field-by-field across all top-level arrays. Each field wa
 
 ---
 
-### 1.6 `attribution_log[]` array
+### 1.6 `attribution_log ✅ 2026-04-01 (Attribution Log section added to dashboard)[]` array
 
 | Field | In JSON | Dashboard | Report | Persistent |
 |---|---|---|---|---|
@@ -230,7 +230,7 @@ Add a top-level `event_horizon[]` array tracking upcoming elections and high-FIM
 
 ### Dashboard Rendering Improvements (ranked by value)
 
-**1. Surface all 12 campaigns, not just top 5** *(High value)*  
+**1. ~~Surface all 12 campaigns~~ ✅ 2026-04-01, not just top 5** *(High value)*  
 Seven of twelve tracked campaigns are invisible on the dashboard. Even a condensed two-column grid with ID, name, status badge, attribution confidence, and actor flag would surface the full picture. Currently a dashboard user has no idea that CN-002 (United Front), IR-001 (IRGC), GULF-UAE-001, US-001, or IL-001 exist. The current "Top Campaigns" section implies editorial curation — fine as a featured section — but the remaining campaigns should be accessible in a secondary grid below, not absent entirely.
 
 **2. Add platform enforcement summary widget** *(High value)*  
@@ -296,7 +296,7 @@ Top 5 actions ranked by analytical value, with implementation effort:
 
 | Rank | Action | Effort | Value |
 |---|---|---|---|
-| **1** | **Fix `attribution_log[].instrument` and `.actor` field population errors** — these are active schema errors degrading the evidentiary record. `instrument` should carry technique (e.g. "impersonation website"), not confidence; `actor` should carry actor code, not campaign_id. Fix in next cron run. | **Low** | **Critical** |
+| **1** | **~~Fix `attribution_log[].instrument` and `.actor` field population errors~~ ✅ 2026-04-01 (enforced in cron prompt rules)** — these are active schema errors degrading the evidentiary record. `instrument` should carry technique (e.g. "impersonation website"), not confidence; `actor` should carry actor code, not campaign_id. Fix in next cron run. | **Low** | **Critical** |
 | **2** | **Add `narrative_ids[]` to campaigns and a top-level `narratives[]` registry** — enables cross-campaign narrative tracking, the highest-value analytical capability FCW currently lacks. Allows querying "which campaigns are running the same narrative" and tracking narrative persistence over time. | **High** | **High** |
 | **3** | **Surface platform_responses[], cognitive_warfare[], and ESCALATED cross_monitor_flags on the dashboard** — three entire sections with high analytical value are invisible on the primary view. Minimum viable: a Platform Enforcement widget, a CW panel with 2–3 headlines, and an escalation alert banner. | **Medium** | **High** |
 | **4** | **Add `threat_level` object to JSON schema** (level / basis / trend / previous_level) and wire it to the dashboard banner — the "ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS" label currently displayed on the dashboard appears to be editorially set outside the schema. Making this a structured field enables time-series tracking and cross-monitor aggregation. | **Low** | **Medium** |
