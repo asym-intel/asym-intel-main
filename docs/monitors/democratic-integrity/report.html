@@ -3,72 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Latest Report — World Democracy Monitor</title>
-  <meta name="description" content="Full issue report for the World Democracy Monitor. Country heatmap, intelligence items, institutional integrity flags, mimicry chains, and cross-monitor flags.">
+  <title>Latest Report — World Democracy Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Full issue report for the World Democracy Monitor. Country heatmap, intelligence items, institutional integrity flags, mimicry chains, electoral watch, legislative watch, and cross-monitor flags.">
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
-  <style>
-    /* ── Weekly Brief ─────────────────────────────────────────── */
-    .weekly-brief {
-      max-width: 72ch;
-      line-height: 1.75;
-      font-size: var(--text-base, 1rem);
-      color: var(--color-text);
-    }
-    .weekly-brief p {
-      margin: 0 0 1.1em;
-    }
-    .weekly-brief a {
-      color: var(--monitor-accent, #61a5d2);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-    .weekly-brief strong, .weekly-brief b {
-      font-weight: 600;
-    }
-    .weekly-brief h2, .weekly-brief h3 {
-      font-size: var(--text-sm, 0.875rem);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--color-text-muted);
-      margin: 1.5em 0 0.5em;
-    }
-    [data-theme="dark"] .weekly-brief {
-      color: var(--color-text, #e0dfdc);
-    }
-
-    /* ── Severity bar in heatmap ──────────────────────────────── */
-    .severity-bar-wrap {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-    .severity-bar-track {
-      display: inline-block;
-      width: 60px;
-      height: 6px;
-      border-radius: 3px;
-      background: var(--color-border-subtle, #e8e4de);
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .severity-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.3s ease;
-    }
-    .severity-bar-fill--positive { background: #059669; }
-    .severity-bar-fill--amber    { background: #d97706; }
-    .severity-bar-fill--orange   { background: #ea580c; }
-    .severity-bar-fill--deep-red { background: #b91c1c; }
-
-    [data-theme="dark"] .severity-bar-track {
-      background: #2d2c2a;
-    }
-  </style>
 </head>
 
 <body>
@@ -127,14 +69,11 @@
       <div class="loading-state">Loading report…</div>
     </div>
 
-    <section class="module-section" id="section-weekly-brief">
-      <div class="module-header">
-        <div class="module-title">Weekly Brief</div>
-      </div>
-      <div id="weekly-brief-block">
-        <div class="loading-state">Loading weekly brief…</div>
-      </div>
-    </section>
+    <!-- Module jump strip (10 modules) -->
+    <div class="module-jump-strip" id="module-jump-strip" style="display:none">
+      <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2)">Jump to:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:var(--space-2)" id="module-jump-buttons"></div>
+    </div>
 
     <section class="module-section" id="section-signal">
       <div class="module-header">
@@ -142,6 +81,15 @@
       </div>
       <div id="signal-block">
         <div class="loading-state">Loading signal…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-weekly-brief">
+      <div class="module-header">
+        <div class="module-title">Weekly Brief</div>
+      </div>
+      <div id="weekly-brief-block">
+        <div class="loading-state">Loading brief…</div>
       </div>
     </section>
 
@@ -172,12 +120,75 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-electoral-watch">
+      <div class="module-header">
+        <div class="module-title">Electoral Watch</div>
+      </div>
+      <div id="electoral-watch">
+        <div class="loading-state">Loading electoral watch…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-digital-civil">
+      <div class="module-header">
+        <div class="module-title">Digital &amp; Civil Space</div>
+      </div>
+      <div id="digital-civil">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-autocratic-export">
+      <div class="module-header">
+        <div class="module-title">Autocratic Export</div>
+      </div>
+      <div id="autocratic-export">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-state-capture">
+      <div class="module-header">
+        <div class="module-title">State &amp; Media Capture</div>
+      </div>
+      <div id="state-capture">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-institutional-pulse">
+      <div class="module-header">
+        <div class="module-title">Institutional Pulse</div>
+      </div>
+      <div id="institutional-pulse">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-legislative-watch">
+      <div class="module-header">
+        <div class="module-title">Legislative Watch</div>
+      </div>
+      <div id="legislative-watch">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
     <section class="module-section" id="section-mimicry">
       <div class="module-header">
         <div class="module-title">Mimicry Chains</div>
       </div>
       <div id="mimicry-chains">
         <div class="loading-state">Loading mimicry chains…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-friction-notes">
+      <div class="module-header">
+        <div class="module-title">Research 360 — Friction Notes</div>
+      </div>
+      <div id="friction-notes">
+        <div class="loading-state">Loading…</div>
       </div>
     </section>
 
@@ -195,12 +206,19 @@
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-signal">Signal</a></li>
+      <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-heatmap">Heatmap</a></li>
       <li><a href="#section-intel">Intel Items</a></li>
       <li><a href="#section-integrity">Integrity Flags</a></li>
+      <li><a href="#section-electoral-watch">Electoral Watch</a></li>
+      <li><a href="#section-digital-civil">Digital &amp; Civil</a></li>
+      <li><a href="#section-autocratic-export">Autocratic Export</a></li>
+      <li><a href="#section-state-capture">State &amp; Media</a></li>
+      <li><a href="#section-institutional-pulse">Inst. Pulse</a></li>
+      <li><a href="#section-legislative-watch">Legislative Watch</a></li>
       <li><a href="#section-mimicry">Mimicry Chains</a></li>
+      <li><a href="#section-friction-notes">Friction Notes</a></li>
       <li><a href="#section-cross">Cross-Monitor</a></li>
     </ul>
 
@@ -215,11 +233,13 @@
 <script src="../shared/js/renderer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  function escHtml(str) {
+  function esc(str) {
     return String(str == null ? '' : str)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-
+  function flag(c) {
+    return (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag) ? (AsymRenderer.flag(c) || '') : '';
+  }
   function severityClass(score) {
     var s = parseFloat(score) || 0;
     if (s >= 8) return 'critical';
@@ -227,29 +247,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (s >= 4) return 'moderate';
     return 'positive';
   }
-
-  /* ── Severity bar helpers ──────────────────────────────────── */
-  function severityBarColor(score) {
-    var s = parseFloat(score) || 0;
-    if (s <= 3) return 'positive';
-    if (s <= 5) return 'amber';
-    if (s <= 7) return 'orange';
-    return 'deep-red';
-  }
-
-  function severityBarHtml(score) {
-    var s = parseFloat(score) || 0;
-    var pct = Math.min(100, Math.round((s / 10) * 100));
-    var colorCls = severityBarColor(s);
-    var cls = severityClass(s);
-    return (
-      '<span class="severity-bar-wrap">' +
-        '<span class="severity-badge severity-badge--' + cls + '">' + escHtml(score) + '</span>' +
-        '<span class="severity-bar-track" aria-hidden="true">' +
-          '<span class="severity-bar-fill severity-bar-fill--' + colorCls + '" style="width:' + pct + '%"></span>' +
-        '</span>' +
-      '</span>'
-    );
+  function severityTextBadge(sev) {
+    if (!sev) return '';
+    var l = (sev||'').toLowerCase();
+    var cls = l === 'high' ? 'critical' : l === 'medium' ? 'moderate' : 'positive';
+    return '<span class="severity-badge severity-badge--' + cls + '">' + esc(sev) + '</span>';
   }
 
   function renderHeatmapTable(countries, tierClass) {
@@ -257,12 +259,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var html = '<table class="heatmap-table"><thead><tr><th>Country</th><th>Score</th><th>Trend</th><th>Key Development</th></tr></thead><tbody>';
     countries.forEach(function (c) {
       var cls = tierClass || severityClass(c.severity_score);
+      /* severity sub-scores inline */
+      var sub = c.severity_sub || {};
+      var subStr = Object.keys(sub).map(function(k){ return k.replace(/_/g,' ') + ': ' + sub[k]; }).join(' · ');
       html +=
         '<tr class="heatmap-row--' + cls + '">' +
-          '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
-          '<td>' + severityBarHtml(c.severity_score) + '</td>' +
-          '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
-          '<td>' + escHtml(c.lead_signal || c.summary || '') + '</td>' +
+          '<td><strong>' + flag(c.country) + ' ' + esc(c.country) + '</strong></td>' +
+          '<td><span class="severity-badge severity-badge--' + cls + '">' + esc(c.severity_score) + '</span>' +
+            (subStr ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px">' + esc(subStr) + '</div>' : '') +
+          '</td>' +
+          '<td>' + esc(c.severity_arrow || '') + '</td>' +
+          '<td>' + esc(c.lead_signal || c.summary || '') + '</td>' +
         '</tr>';
     });
     html += '</tbody></table>';
@@ -274,44 +281,71 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (d) {
       var meta    = d.meta    || {};
       var signalObj = d.signal || {};
-      var signal = signalObj.headline || '';
+      var signal  = signalObj.headline || signalObj.title || '';
       var signalBody = signalObj.body || signalObj.summary || '';
       var heatmap = d.heatmap || {};
       var intel   = d.intelligence_items || [];
       var flags   = d.institutional_integrity_flags || [];
       var mimicry = d.regional_mimicry_chains || [];
       var cross   = d.cross_monitor_flags || {};
+      var wb      = d.weekly_brief || '';
 
-      // Page header
+      /* Page header */
       var pub = meta.published
         ? new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
         : '';
       document.getElementById('page-header-block').innerHTML =
         '<div class="page-header">' +
-          '<div class="page-header__eyebrow">Issue ' + escHtml(meta.issue || '—') + ' · ' + escHtml(meta.week_label || '') + '</div>' +
+          '<div class="page-header__eyebrow">Issue ' + esc(meta.issue || '—') + ' · ' + esc(meta.week_label || '') + '</div>' +
           '<h1 class="page-header__title">World Democracy Monitor</h1>' +
           '<div class="page-header__meta">' +
             (pub ? '<span>Published ' + pub + '</span>' : '') +
-            (meta.schema_version ? '<span>Schema v' + escHtml(meta.schema_version) + '</span>' : '') +
+            (meta.schema_version ? '<span>Schema v' + esc(meta.schema_version) + '</span>' : '') +
           '</div>' +
         '</div>';
 
-      // Weekly brief
-      var briefEl = document.getElementById('weekly-brief-block');
-      if (d.weekly_brief) {
-        briefEl.innerHTML = '<div class="weekly-brief">' + d.weekly_brief + '</div>';
-      } else {
-        briefEl.innerHTML = '<p class="text-muted">No weekly brief available for this issue.</p>';
-      }
+      /* Module jump strip — show when 6+ modules present */
+      var jumpModules = [
+        {id:'section-signal',label:'Signal'},
+        {id:'section-weekly-brief',label:'Brief'},
+        {id:'section-heatmap',label:'Heatmap'},
+        {id:'section-intel',label:'Intel'},
+        {id:'section-integrity',label:'Integrity'},
+        {id:'section-electoral-watch',label:'Electoral'},
+        {id:'section-digital-civil',label:'Digital'},
+        {id:'section-autocratic-export',label:'Autocratic'},
+        {id:'section-state-capture',label:'Capture'},
+        {id:'section-institutional-pulse',label:'Pulse'},
+        {id:'section-legislative-watch',label:'Legislative'},
+        {id:'section-mimicry',label:'Mimicry'},
+        {id:'section-friction-notes',label:'Friction'},
+        {id:'section-cross',label:'Cross-Monitor'}
+      ];
+      var jumpStrip = document.getElementById('module-jump-strip');
+      var jumpBtns  = document.getElementById('module-jump-buttons');
+      jumpStrip.style.display = '';
+      jumpBtns.innerHTML = jumpModules.map(function(m) {
+        return '<a href="#' + m.id + '" style="font-size:var(--text-xs);padding:3px 8px;border-radius:4px;background:var(--color-surface-raised);color:var(--color-text-muted);text-decoration:none;white-space:nowrap">' + m.label + '</a>';
+      }).join('');
 
-      // Signal
+      /* Signal */
       document.getElementById('signal-block').innerHTML =
         '<div class="signal-block">' +
-          '<div class="signal-block__label">Lead Signal — Issue ' + escHtml(meta.issue || '') + '</div>' +
-          '<p>' + escHtml(signal) + '</p>' +
+          '<div class="signal-block__label">Lead Signal — Issue ' + esc(meta.issue || '') + '</div>' +
+          '<p>' + esc(signal) + '</p>' +
+          (signalBody ? '<p style="margin-top:var(--space-2);color:var(--color-text-muted);font-size:var(--text-sm)">' + esc(signalBody) + '</p>' : '') +
+          (signalObj.source_url ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + esc(signalObj.source_url) + '" target="_blank" rel="noopener">Full Brief →</a></div>' : '') +
         '</div>';
 
-      // Heatmap — tabbed
+      /* Weekly Brief */
+      var wbEl = document.getElementById('weekly-brief-block');
+      if (wb) {
+        wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + wb + '</div>';
+      } else {
+        wbEl.innerHTML = '<p class="text-muted">Weekly brief not available for this issue.</p>';
+      }
+
+      /* Heatmap — tabbed */
       var rd = heatmap.rapid_decay || [];
       var rc = heatmap.recovery    || [];
       var wl = heatmap.watchlist   || [];
@@ -322,10 +356,9 @@ document.addEventListener('DOMContentLoaded', function () {
           '<button class="tab-btn" data-tab="watchlist">Watchlist (' + wl.length + ')</button>' +
         '</div>' +
         '<div class="tab-panel active" id="tab-rapid-decay">' + renderHeatmapTable(rd, 'critical') + '</div>' +
-        '<div class="tab-panel" id="tab-recovery">' + renderHeatmapTable(rc, 'positive') + '</div>' +
-        '<div class="tab-panel" id="tab-watchlist">' + renderHeatmapTable(wl, 'high') + '</div>';
+        '<div class="tab-panel" id="tab-recovery">'         + renderHeatmapTable(rc, 'positive') + '</div>' +
+        '<div class="tab-panel" id="tab-watchlist">'        + renderHeatmapTable(wl, 'high')     + '</div>';
 
-      // Tab switching
       document.querySelectorAll('.tab-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
           document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -336,86 +369,283 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       });
 
-      // Intelligence items
+      /* Intelligence items */
       var intelHtml = '';
       intel.forEach(function (item) {
         intelHtml +=
           '<div class="intel-item">' +
             '<div class="intel-item__header">' +
-              '<div class="intel-item__rank">' + escHtml(item.rank || '') + '</div>' +
+              '<div class="intel-item__rank">' + esc(item.rank || '') + '</div>' +
               '<div class="intel-item__meta">' +
-                '<div class="intel-item__country">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.country||'')||'') + ' ' : '') + escHtml(item.country || '') + '</div>' +
-                '<div class="intel-item__headline">' + escHtml(item.headline || '') + '</div>' +
+                '<div class="intel-item__country">' + flag(item.country||'') + ' ' + esc(item.country || '') + '</div>' +
+                '<div class="intel-item__headline">' + esc(item.headline || '') + '</div>' +
               '</div>' +
-              (item.severity ? '<span class="severity-badge severity-badge--' + (item.severity === 'High' ? 'critical' : 'moderate') + '">' + escHtml(item.severity) + '</span>' : '') +
+              (item.severity ? '<span class="severity-badge severity-badge--' + (item.severity === 'High' ? 'critical' : 'moderate') + '">' + esc(item.severity) + '</span>' : '') +
             '</div>' +
-            '<div class="intel-item__summary">' + escHtml(item.summary || '') + '</div>' +
+            '<div class="intel-item__summary">' + esc(item.summary || '') + '</div>' +
             (item.source_url
-              ? '<div class="intel-item__footer"><a class="source-link" href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>'
+              ? '<div class="intel-item__footer"><a class="source-link" href="' + esc(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>'
               : '') +
           '</div>';
       });
       document.getElementById('intel-items').innerHTML = intelHtml || '<p class="text-muted">No intelligence items.</p>';
 
-      // Institutional integrity flags
+      /* Institutional integrity flags */
       var flagsHtml = '';
-      flags.forEach(function (flag) {
+      flags.forEach(function (f) {
         flagsHtml +=
           '<div class="card">' +
             '<div class="card__label">' +
-              escHtml(flag.institution || '') +
-              (flag.country ? ' · ' + escHtml(flag.country) : '') +
-              (flag.flag_type ? ' <span class="severity-badge severity-badge--high">' + escHtml(flag.flag_type) + '</span>' : '') +
+              esc(f.institution || '') +
+              (f.country ? ' · ' + flag(f.country) + ' ' + esc(f.country) : '') +
+              (f.flag_type ? ' <span class="severity-badge severity-badge--high">' + esc(f.flag_type) + '</span>' : '') +
             '</div>' +
-            '<div class="card__title">' + escHtml(flag.headline || '') + '</div>' +
-            '<div class="card__body">' + escHtml(flag.detail || '') + '</div>' +
+            '<div class="card__title">' + esc(f.headline || '') + '</div>' +
+            '<div class="card__body">' + esc(f.detail || '') + '</div>' +
             '<div class="card__footer">' +
-              (flag.first_raised ? '<span>First raised: ' + escHtml(flag.first_raised) + '</span>' : '') +
-              (flag.unchanged_since ? '<span>Unchanged since: ' + escHtml(flag.unchanged_since) + '</span>' : '') +
-              (flag.source_url ? '<a class="source-link" href="' + escHtml(flag.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
+              (f.first_raised ? '<span>First raised: ' + esc(f.first_raised) + '</span>' : '') +
+              (f.unchanged_since ? '<span>Unchanged since: ' + esc(f.unchanged_since) + '</span>' : '') +
+              (f.source_url ? '<a class="source-link" href="' + esc(f.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
             '</div>' +
           '</div>';
       });
       document.getElementById('integrity-flags').innerHTML = flagsHtml || '<p class="text-muted">No integrity flags this issue.</p>';
 
-      // Mimicry chains
+      /* Electoral Watch */
+      var ewData = d.electoral_watch || null;
+      var ewHtml = '';
+      if (ewData) {
+        var timeline = ewData.timeline || [];
+        if (timeline.length) {
+          ewHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">Upcoming Electoral Events</div>';
+          ewHtml += '<table class="heatmap-table"><thead><tr><th>Date</th><th>Country</th><th>Type</th><th>Risk</th><th>Note</th></tr></thead><tbody>';
+          timeline.forEach(function(ev) {
+            ewHtml += '<tr>' +
+              '<td>' + esc(ev.date || '') + '</td>' +
+              '<td>' + flag(ev.country) + ' ' + esc(ev.country || '') + '</td>' +
+              '<td>' + esc(ev.election_type || ev.type || '') + '</td>' +
+              '<td>' + severityTextBadge(ev.risk_level || ev.risk || '') + '</td>' +
+              '<td>' + esc(ev.note || ev.summary || '') + '</td>' +
+            '</tr>';
+          });
+          ewHtml += '</tbody></table>';
+        }
+        var env = ewData.environment || [];
+        if (env.length) {
+          ewHtml += '<div class="section-label" style="margin-top:var(--space-6);margin-bottom:var(--space-3)">Electoral Environment</div>';
+          env.forEach(function(item) {
+            ewHtml += '<div class="card"><div class="card__title">' + flag(item.country) + ' ' + esc(item.country || '') + '</div>' +
+              '<div class="card__body">' + esc(item.assessment || item.summary || '') + '</div></div>';
+          });
+        }
+        var pt = ewData.positive_transitions || [];
+        if (pt.length) {
+          ewHtml += '<div class="section-label" style="margin-top:var(--space-6);margin-bottom:var(--space-3)">Positive Transitions</div>';
+          pt.forEach(function(item) {
+            ewHtml += '<div class="card"><div class="card__title">' + flag(item.country) + ' ' + esc(item.country || '') + '</div>' +
+              '<div class="card__body">' + esc(item.note || item.summary || '') + '</div></div>';
+          });
+        }
+      }
+      document.getElementById('electoral-watch').innerHTML = ewHtml || '<p class="text-muted">No electoral watch data this issue.</p>';
+
+      /* Digital & Civil Space */
+      var dcData = d.digital_civil || null;
+      var dcHtml = '';
+      if (dcData) {
+        var dcArr = Array.isArray(dcData) ? dcData : (dcData.entries || dcData.items || []);
+        if (!dcArr.length && typeof dcData === 'object') {
+          Object.keys(dcData).forEach(function(k) {
+            var v = dcData[k];
+            if (Array.isArray(v)) {
+              dcHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(k.replace(/_/g,' ')) + '</div>';
+              v.forEach(function(item) {
+                dcHtml += '<div class="card">' +
+                  (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+                  '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+                  '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+                '</div>';
+              });
+            }
+          });
+        } else {
+          dcArr.forEach(function(item) {
+            dcHtml += '<div class="card">' +
+              (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+              '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+              '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+      }
+      document.getElementById('digital-civil').innerHTML = dcHtml || '<p class="text-muted">No digital/civil space entries this issue.</p>';
+
+      /* Autocratic Export */
+      var aeData = d.autocratic_export || null;
+      var aeHtml = '';
+      if (aeData) {
+        var aeArr = Array.isArray(aeData) ? aeData : (aeData.entries || aeData.items || []);
+        if (!aeArr.length && typeof aeData === 'object') {
+          Object.keys(aeData).forEach(function(k) {
+            var v = aeData[k];
+            if (Array.isArray(v)) {
+              aeHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(k.replace(/_/g,' ')) + '</div>';
+              v.forEach(function(item) {
+                aeHtml += '<div class="card">' +
+                  (item.exporter ? '<div class="card__label">Exporter: ' + flag(item.exporter) + ' ' + esc(item.exporter) + '</div>' : '') +
+                  (item.recipient ? '<div class="card__label">Recipient: ' + flag(item.recipient) + ' ' + esc(item.recipient) + '</div>' : '') +
+                  '<div class="card__title">' + esc(item.headline || item.title || item.template || '') + '</div>' +
+                  '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+                '</div>';
+              });
+            }
+          });
+        } else {
+          aeArr.forEach(function(item) {
+            aeHtml += '<div class="card">' +
+              (item.exporter ? '<div class="card__label">Exporter: ' + flag(item.exporter) + ' ' + esc(item.exporter) + '</div>' : '') +
+              '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+              '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+      }
+      document.getElementById('autocratic-export').innerHTML = aeHtml || '<p class="text-muted">No autocratic export entries this issue.</p>';
+
+      /* State & Media Capture */
+      var scData = d.state_capture || null;
+      var scHtml = '';
+      if (scData) {
+        var scArr = Array.isArray(scData) ? scData : (scData.entries || scData.items || []);
+        if (!scArr.length && typeof scData === 'object') {
+          Object.keys(scData).forEach(function(k) {
+            var v = scData[k];
+            if (Array.isArray(v)) {
+              scHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(k.replace(/_/g,' ')) + '</div>';
+              v.forEach(function(item) {
+                scHtml += '<div class="card">' +
+                  (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+                  (item.institution ? '<div class="card__label">' + esc(item.institution) + '</div>' : '') +
+                  '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+                  '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+                '</div>';
+              });
+            }
+          });
+        } else {
+          scArr.forEach(function(item) {
+            scHtml += '<div class="card">' +
+              (item.country ? '<div class="card__label">' + flag(item.country) + ' ' + esc(item.country) + '</div>' : '') +
+              '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+              '<div class="card__body">' + esc(item.detail || item.summary || '') + '</div>' +
+            '</div>';
+          });
+        }
+      }
+      document.getElementById('state-capture').innerHTML = scHtml || '<p class="text-muted">No state/media capture entries this issue.</p>';
+
+      /* Institutional Pulse */
+      var ipData = d.institutional_pulse || null;
+      var ipHtml = '';
+      if (ipData) {
+        var ipArr = Array.isArray(ipData) ? ipData : (ipData.entries || []);
+        if (!ipArr.length && typeof ipData === 'object' && ipData.entries) ipArr = ipData.entries;
+        if (!ipArr.length && typeof ipData === 'object') {
+          Object.keys(ipData).forEach(function(k) {
+            var v = ipData[k];
+            if (Array.isArray(v)) ipArr = ipArr.concat(v);
+          });
+        }
+        ipArr.forEach(function(item) {
+          var resilience = item.resilience_flag || item.resilience || '';
+          ipHtml += '<div class="card">' +
+            '<div class="card__label">' +
+              (item.country ? flag(item.country) + ' ' + esc(item.country) + ' · ' : '') +
+              esc(item.institution || '') +
+              (resilience ? ' <span class="severity-badge severity-badge--' + (resilience === 'high' ? 'positive' : resilience === 'low' ? 'critical' : 'moderate') + '">Resilience: ' + esc(resilience) + '</span>' : '') +
+            '</div>' +
+            '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
+            '<div class="card__body">' + esc(item.detail || item.assessment || item.summary || '') + '</div>' +
+            (item.source_url ? '<div class="card__footer"><a class="source-link" href="' + esc(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
+          '</div>';
+        });
+      }
+      document.getElementById('institutional-pulse').innerHTML = ipHtml || '<p class="text-muted">No institutional pulse data this issue.</p>';
+
+      /* Legislative Watch */
+      var lwData = d.legislative_watch || null;
+      var lwHtml = '';
+      if (lwData) {
+        var lwArr = Array.isArray(lwData) ? lwData : (lwData.entries || []);
+        if (lwArr.length) {
+          lwHtml = '<table class="heatmap-table"><thead><tr><th>Country</th><th>Bill / Law</th><th>Stage</th><th>Significance</th></tr></thead><tbody>';
+          lwArr.forEach(function(item) {
+            lwHtml += '<tr>' +
+              '<td>' + flag(item.country) + ' ' + esc(item.country || '') + '</td>' +
+              '<td>' + esc(item.bill || item.law || item.title || '') + '</td>' +
+              '<td><span class="severity-badge severity-badge--moderate">' + esc(item.stage || item.status || '') + '</span></td>' +
+              '<td>' + esc(item.significance || item.note || item.summary || '') + '</td>' +
+            '</tr>';
+          });
+          lwHtml += '</tbody></table>';
+        }
+      }
+      document.getElementById('legislative-watch').innerHTML = lwHtml || '<p class="text-muted">No legislative watch entries this issue.</p>';
+
+      /* Mimicry chains */
       var mimicryHtml = '';
       mimicry.forEach(function (chain) {
-        var nodes = (chain.nodes || []).map(function (n) {
+        var nodes = (chain.nodes || chain.links || []).map(function (n) {
           return '<div class="mimicry-node">' +
-            '<div class="mimicry-node__country">' + escHtml(n.country) + '</div>' +
-            '<div class="mimicry-node__law">' + escHtml(n.law || '') + '</div>' +
-            '<div class="mimicry-node__year">' + escHtml(n.year || '') + '</div>' +
+            '<div class="mimicry-node__country">' + flag(n.country) + ' ' + esc(n.country) + '</div>' +
+            '<div class="mimicry-node__law">' + esc(n.law || '') + '</div>' +
+            '<div class="mimicry-node__year">' + esc(n.year || '') + '</div>' +
           '</div>';
         }).join('<div class="mimicry-arrow">→</div>');
 
         mimicryHtml +=
           '<div class="mimicry-chain">' +
             '<div class="mimicry-chain__headline">' +
-              '<strong>Template:</strong> ' + escHtml(chain.template_law || '') +
-              (chain.origin_country ? ' &mdash; Origin: <span class="text-accent">' + escHtml(chain.origin_country) + '</span>' : '') +
+              '<strong>Template:</strong> ' + esc(chain.template_law || chain.headline || '') +
+              (chain.origin_country ? ' &mdash; Origin: <span class="text-accent">' + esc(chain.origin_country) + '</span>' : '') +
             '</div>' +
             '<div class="mimicry-chain__flow">' + nodes + '</div>' +
           '</div>';
       });
       document.getElementById('mimicry-chains').innerHTML = mimicryHtml || '<p class="text-muted">No mimicry chains this issue.</p>';
 
-      // Cross-monitor flags
+      /* Research 360 — Friction Notes */
+      var r360 = d.research_360 || {};
+      var frictionNotes = r360.friction_notes || d.friction_notes || [];
+      var fnHtml = '';
+      if (frictionNotes.length) {
+        frictionNotes.forEach(function(note) {
+          fnHtml += '<div class="card">' +
+            (note.id ? '<div class="card__label">' + esc(note.id) + (note.country ? ' · ' + flag(note.country) + ' ' + esc(note.country) : '') + '</div>' : '') +
+            '<div class="card__title">' + esc(note.headline || note.title || '') + '</div>' +
+            '<div class="card__body">' + esc(note.detail || note.note || note.summary || '') + '</div>' +
+            (note.status ? '<div class="card__footer"><span>' + esc(note.status) + '</span></div>' : '') +
+          '</div>';
+        });
+      }
+      document.getElementById('friction-notes').innerHTML = fnHtml || '<p class="text-muted">No friction notes this issue.</p>';
+
+      /* Cross-monitor flags */
       var cmFlags = cross.flags || [];
       var cmHtml = '';
       if (cross.updated) {
-        cmHtml += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + escHtml(cross.updated) + '</p>';
+        cmHtml += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + esc(cross.updated) + '</p>';
       }
       cmHtml += '<div class="cross-monitor-panel"><div class="cross-monitor-panel__title">Cross-Monitor Flags</div>';
-      cmFlags.forEach(function (flag) {
+      cmFlags.forEach(function (f) {
         cmHtml +=
           '<div class="cms-flag">' +
             '<div class="cms-flag__header">' +
-              '<div class="cms-flag__id">' + escHtml(flag.id || '') + '</div>' +
-              (flag.monitors ? '<div class="cms-flag__monitors">' + escHtml(Array.isArray(flag.monitors) ? flag.monitors.join(' · ') : flag.monitors) + '</div>' : '') +
+              '<div class="cms-flag__id">' + esc(f.id || '') + '</div>' +
+              (f.monitors ? '<div class="cms-flag__monitors">' + esc(Array.isArray(f.monitors) ? f.monitors.join(' · ') : f.monitors) + '</div>' : '') +
             '</div>' +
-            '<div class="cms-flag__title">' + escHtml(flag.headline || flag.title || '') + '</div>' +
-            '<div class="cms-flag__body">' + escHtml(flag.detail || flag.body || '') + '</div>' +
+            '<div class="cms-flag__title">' + esc(f.headline || f.title || '') + '</div>' +
+            '<div class="cms-flag__body">' + esc(f.detail || f.body || '') + '</div>' +
           '</div>';
       });
       cmHtml += '</div>';
