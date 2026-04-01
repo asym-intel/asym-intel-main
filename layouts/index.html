@@ -51,6 +51,51 @@
       {{ end }}
     {{ end }}
   {{ end }}
+
+<script>
+(function() {
+  var monitors = [
+    { slug: 'democratic-integrity',        accent: '#61a5d2' },
+    { slug: 'macro-monitor',               accent: '#22a0aa' },
+    { slug: 'fimi-cognitive-warfare',      accent: '#38bdf8' },
+    { slug: 'european-strategic-autonomy', accent: '#5b8db0' },
+    { slug: 'ai-governance',               accent: '#3a7d5a' },
+    { slug: 'environmental-risks',         accent: '#4caf7d' },
+    { slug: 'conflict-escalation',         accent: '#dc2626' },
+  ];
+  function extractSignal(d) {
+    // Normalised signal extraction across all 7 monitor schemas
+    if (d.signal) return d.signal.headline || d.signal.title || '';
+    if (d.lead_signal) return d.lead_signal.headline || '';
+    if (d.m00_the_signal) return d.m00_the_signal.title || '';
+    if (d.module_0) return (d.module_0.body || '').slice(0, 140);
+    return '';
+  }
+  monitors.forEach(function(m) {
+    fetch('/monitors/' + m.slug + '/data/report-latest.json')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var headline = extractSignal(d);
+        var meta = d.meta || {};
+        var issue = meta.issue ? 'Issue ' + meta.issue : '';
+        var card = document.querySelector('[data-monitor="' + m.slug + '"]');
+        if (!card) return;
+        // Set accent as CSS custom property so hover rule can pick it up
+        card.style.setProperty('--accent-live', m.accent);
+        card.style.borderLeftColor = m.accent;
+        var sigEl = card.querySelector('.tn-domain-row__signal');
+        if (sigEl && headline) {
+          sigEl.textContent = headline;
+          sigEl.style.display = 'block';
+        }
+        var issueEl = card.querySelector('.tn-domain-row__issue');
+        if (issueEl && issue) issueEl.textContent = issue;
+      })
+      .catch(function() {});
+  });
+})();
+</script>
+
 {{ end }}
 
 {{/* Sort all by date descending */}}
@@ -168,11 +213,13 @@
       <div class="tn-domains__grid">
         {{ range $domainData }}
         {{ $topicPage := site.GetPage (printf "/topics/%s" .slug) }}
-        <a class="tn-domain-row" href="/monitors/{{ .slug }}/dashboard.html">
+        <a class="tn-domain-row" href="/monitors/{{ .slug }}/dashboard.html" data-monitor="{{ .slug }}">
           <div class="tn-domain-row__logo" aria-hidden="true">{{ .logo | safeHTML }}</div>
           <div class="tn-domain-row__body">
             <span class="tn-domain-row__title">{{ .title }}</span>
             <span class="tn-domain-row__desc">{{ .description }}</span>
+            <span class="tn-domain-row__signal" style="display:none"></span>
+            <span class="tn-domain-row__issue" style="font-size:0.7rem;color:var(--color-text-faint)"></span>
           </div>
           <span class="tn-domain-row__arrow" aria-hidden="true">→</span>
         </a>
@@ -182,5 +229,43 @@
 
   </div>
 </div>
+
+
+<script>
+(function() {
+  var monitors = [
+    { slug: 'democratic-integrity',        accent: '#61a5d2' },
+    { slug: 'macro-monitor',               accent: '#22a0aa' },
+    { slug: 'fimi-cognitive-warfare',      accent: '#38bdf8' },
+    { slug: 'european-strategic-autonomy', accent: '#5b8db0' },
+    { slug: 'ai-governance',               accent: '#3a7d5a' },
+    { slug: 'environmental-risks',         accent: '#4caf7d' },
+    { slug: 'conflict-escalation',         accent: '#dc2626' },
+  ];
+  monitors.forEach(function(m) {
+    fetch('/monitors/' + m.slug + '/data/report-latest.json')
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        var signal = (d.signal || {});
+        var headline = signal.headline || signal.title || '';
+        var meta = d.meta || {};
+        var issue = meta.issue ? 'Issue ' + meta.issue : '';
+        // Find the domain row card for this monitor
+        var card = document.querySelector('[data-monitor="' + m.slug + '"]');
+        if (!card) return;
+        var sigEl = card.querySelector('.tn-domain-row__signal');
+        if (sigEl && headline) {
+          sigEl.textContent = headline;
+          sigEl.style.display = 'block';
+        }
+        var issueEl = card.querySelector('.tn-domain-row__issue');
+        if (issueEl && issue) issueEl.textContent = issue;
+        // Apply accent border
+        card.style.borderLeftColor = m.accent;
+      })
+      .catch(function() {});
+  });
+})();
+</script>
 
 {{ end }}
