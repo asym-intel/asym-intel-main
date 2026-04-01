@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "description": "Declarative specification of required fields per monitor. The housekeeping cron validates each monitor's report-latest.json against this file weekly. FAIL = notify. Used by cron agents to verify their own output before committing.",
+  "last_updated": "2026-04-01",
+  "monitors": {
+    "wdm": {
+      "slug": "democratic-integrity",
+      "required_top_level_keys": ["meta","signal","heatmap","intelligence_items","institutional_integrity_flags","regional_mimicry_chains","cross_monitor_flags","weekly_brief","source_url"],
+      "required_from_issue_4": ["electoral_watch","digital_civil","autocratic_export","state_capture","institutional_pulse","legislative_watch","research_360","networks"],
+      "required_heatmap_entry_fields": ["country","severity_score","severity_arrow","summary","confidence","entry_type","first_seen","last_material_change"],
+      "required_heatmap_entry_fields_note": "rapid_decay entries must also have lead_signal and severity_sub. recovery entries must have lead_signal.",
+      "required_signal_fields": ["headline","body","source_url"],
+      "validation_notes": ["heatmap.rapid_decay[*].source_url must be non-empty string","heatmap[*].severity_sub must be present with electoral/civil_liberties/judicial sub-scores"]
+    },
+    "gmm": {
+      "slug": "macro-monitor",
+      "required_top_level_keys": ["meta","signal","debt_dynamics","credit_stress","systemic_risk","asset_outlook","safe_haven","cross_monitor_flags","executive_briefing","domain_indicators","tail_risks","sentiment_overlay","source_url"],
+      "required_executive_briefing_fields": ["system_stress_label","system_stress_direction","summary","one_number_to_watch","one_indicator_lying","scenario_analysis","real_m2","hard_landing_risk","regime_shift_probabilities"],
+      "required_signal_fields": ["headline","system_stress_label","regime","regime_conviction","delta_vs_prior","regime_shift_probabilities"],
+      "required_tail_risks_min_count": 5,
+      "required_tail_risks_fields": ["id","label","likelihood","impact","direction","note"],
+      "required_sentiment_overlay_fields": ["fed_funds_futures","prob_zero_cuts_2026","matt_agreement_pct"],
+      "required_domain_indicators": ["domain_1_debt_sovereign","domain_2_banking_credit","domain_3_market_structure","domain_4_real_economy","domain_5_composite_indices","domain_6_amplifiers"],
+      "required_per_indicator_fields": ["indicator","slug","flag","score","direction","reading","indicator_type"]
+    },
+    "fcw": {
+      "slug": "fimi-cognitive-warfare",
+      "required_top_level_keys": ["meta","signal","campaigns","actor_tracker","platform_responses","attribution_log","cognitive_warfare","cross_monitor_flags","source_url"],
+      "required_signal_fields": ["headline","actor","confidence"],
+      "required_campaign_fields": ["id","operation_name","status","attribution_confidence","actor","platform","target","summary","last_activity","changelog"],
+      "required_campaigns_min_count": 3,
+      "validation_notes": ["attribution_log[*].instrument must be operational technique string, not confidence level","attribution_log[*].actor must be actor code, not campaign_id"]
+    },
+    "esa": {
+      "slug": "european-strategic-autonomy",
+      "required_top_level_keys": ["meta","signal","defence_developments","hybrid_threats","institutional_developments","member_state_tracker","cross_monitor_flags","source_url"],
+      "required_signal_fields": ["title","body","source_url"],
+      "required_min_counts": {
+        "defence_developments": 2,
+        "hybrid_threats": 2,
+        "institutional_developments": 1,
+        "member_state_tracker": 4
+      },
+      "required_persistent_kpi_fields": ["lagrange_point_dimensions","lagrange_point_progress","composite_index_history"],
+      "required_lagrange_dimensions": ["defence","energy","technology","finance","materials","institutions"]
+    },
+    "agm": {
+      "slug": "ai-governance",
+      "required_top_level_keys": ["meta","source_url","cross_monitor_flags","delta_strip","country_grid"],
+      "required_modules": ["module_0","module_1","module_2","module_3","module_4","module_5","module_6","module_7","module_8","module_9","module_10","module_11","module_12","module_13","module_14","module_15"],
+      "required_delta_strip_min_count": 3,
+      "validation_notes": ["module_7 risk vectors must be non-empty array","module_15 must have lab_movements or government_ai_bodies"]
+    },
+    "erm": {
+      "slug": "environmental-risks",
+      "required_top_level_keys": ["meta","m00_the_signal","m01_executive_insight","m02_planetary_boundaries","m03_threat_multiplier","m04_extreme_weather","m05_policy_law","m06_ai_climate","m07_biosphere","m08_geostrategic_resources","cross_monitor_flags","source_url"],
+      "required_m02_fields": ["boundaries","tipping_systems"],
+      "required_m03_fields_per_entry": ["region","cascade_chain","tier_1_physical","tier_2_human","tier_3_political","f1_trigger"],
+      "required_m01_min_count": 3
+    },
+    "scem": {
+      "slug": "conflict-escalation",
+      "required_top_level_keys": ["meta","lead_signal","conflict_roster","roster_watch","cross_monitor_flags","source_url"],
+      "required_conflict_roster_min_count": 5,
+      "required_per_conflict_fields": ["conflict","theatre","trajectory","baseline_status","indicators","lead_development","summary","source_url"],
+      "required_per_conflict_fields_from_sc013": ["escalation_velocity","esc_score","negotiation_status"],
+      "required_indicators": ["I1_rhetoric","I2_military_posture","I3_nuclear_strategic","I4_economic_warfare","I5_diplomatic","I6_displacement"],
+      "required_per_indicator_fields": ["level","baseline","deviation","band","confidence","note"]
+    }
+  }
+}
