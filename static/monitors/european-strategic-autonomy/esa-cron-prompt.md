@@ -101,6 +101,17 @@ STEP 0 — Load persistent state:
 STEP 1 — Research: ECFR, IISS, Chatham House, European Council,
   EUISS, Politico Europe, EUobserver. Primary institutional sources.
 
+KPI STATE FIELD RULES:
+  INCLUDE in kpi_state: threat_actors_tracked, hybrid_attacks_total,
+  hybrid_attacks_recent, elections_under_threat, fimi_incidents_eeas,
+  eu_legislation_targeted, eu_defence_total_2025,
+  eu_defence_spending_real_change, safe_programme_total,
+  lagrange_point_progress, lagrange_point_dimensions,
+  democratic_health_avg, vdem_autocratising_europe,
+  eu_support_ukraine_total, nato_at_2_percent.
+  DO NOT INCLUDE: ceasefire_probability_ukraine (this belongs to SCEM, not ESA).
+  DO NOT ADD new KPI fields unless explicitly instructed.
+
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
   { "meta": {..., "schema_version": "2.0", "methodology_url": "https://asym-intel.info/monitors/european-strategic-autonomy/methodology/"},
