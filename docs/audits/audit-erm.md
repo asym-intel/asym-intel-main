@@ -272,7 +272,7 @@ Recommendation: Add a proximity bar to each tipping flag card, rendered from the
 
 The boundary status chart on the persistent page (and the boundary count KPI tile on the dashboard) conveys safe/uncertain/transgressed but not degree of transgression. All seven "Transgressed" boundaries are shown as equal-height red bars. Biogeochemical Flows at 2–3× safe limit and Climate Change at 424 ppm (vs 350 ppm boundary) represent very different risk magnitudes. A normalised proximity score (see Schema #1) would allow the chart to show varying bar heights within the "Transgressed" zone.
 
-**4. M02 boundary summaries — substantive analysis invisible**
+**4. M02 boundary summaries ✅ 2026-04-01 (always-visible inline) — substantive analysis invisible**
 
 Each boundary object in the JSON has a `summary` field containing genuine analytical content (e.g. "Sahel groundwater depletion beyond seasonal variance constitutes the primary freshwater signal this week" for Freshwater; "Aragonite saturation thresholds being crossed in Arctic and Southern Ocean surface waters" for Ocean Acidification). This is never rendered anywhere. On the dashboard boundary table, clicking or expanding a row should reveal this summary. It transforms the table from a status board into an analytical brief.
 
@@ -352,7 +352,7 @@ Top 5 actions ranked by value delivered per unit of effort:
 
 | Rank | Action | Description | Value | Effort |
 |---|---|---|---|---|
-| 1 | **Add M03 cascade tier breakdown to report rendering** | Render tier_1_physical / tier_2_human / tier_3_political as a three-column structured section within each M03 item on the report page. Data already exists in JSON. This is the single most underutilised analytical asset in the product. | Critical | Low |
+| 1 | **~~Add M03 cascade tier breakdown to report rendering~~ ✅ 2026-04-01** | Render tier_1_physical / tier_2_human / tier_3_political as a three-column structured section within each M03 item on the report page. Data already exists in JSON. This is the single most underutilised analytical asset in the product. | Critical | Low |
 | 2 | **Add tipping system proximity-to-threshold schema fields + dashboard gauge** | Standardise threshold fields across all six tipping systems (extending the Amazon pattern to AMOC, Greenland, etc.), then render as a progress bar on tipping flag cards. Makes the "how close are we?" question answerable at a glance. | High | Medium |
 | 3 | **Cascade chain heatmap on dashboard** | Add a physical→human→political three-column grid to the dashboard showing all active cascade chains and their confirmed tier. Requires no new data — only rendering of existing M03 schema. The cascade chain is the ERM's methodological signature; it is invisible on the most-visited page. | High | Low |
 | 4 | **M04 cumulative YTD tracker + M05 regulatory pipeline tracker** | Two schema additions that shift the monitor from reactive (what happened) to predictive (what is building). YTD extreme weather counter addresses insurance/reinsurance audience; regulatory pipeline addresses legal and compliance audience. These are the two highest-value forward-looking gaps. | High | Medium |
