@@ -753,18 +753,32 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'radar',
             data: {
               labels: dimOrder.map(function(d){ return dimLabels[d]||d; }),
-              datasets: [{
-                label: 'Score',
-                data: dimScores,
-                backgroundColor: 'rgba(91,141,176,0.18)',
-                borderColor: '#5b8db0',
-                borderWidth: 2,
-                pointBackgroundColor: '#5b8db0',
-                pointBorderColor: isDark ? '#1e1d1b' : '#ffffff',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                fill: true,
-              }]
+              datasets: [
+                {
+                  label: 'Score',
+                  data: dimScores,
+                  backgroundColor: 'rgba(91,141,176,0.18)',
+                  borderColor: '#5b8db0',
+                  borderWidth: 2,
+                  pointBackgroundColor: '#5b8db0',
+                  pointBorderColor: isDark ? '#1e1d1b' : '#ffffff',
+                  pointBorderWidth: 2,
+                  pointRadius: 4,
+                  fill: true,
+                  order: 1
+                },
+                {
+                  label: 'Target (50%)',
+                  data: dimOrder.map(function(){ return 50; }),
+                  backgroundColor: 'transparent',
+                  borderColor: 'rgba(100,116,139,0.35)',
+                  borderWidth: 1.5,
+                  borderDash: [4, 4],
+                  pointRadius: 0,
+                  fill: false,
+                  order: 2
+                }
+              ]
             },
             options: {
               responsive: true,
