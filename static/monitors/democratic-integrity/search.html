@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — World Democracy Monitor</title>
+  <meta name="description" content="Search the World Democracy Monitor archive.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+</head>
+
+<body>
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="flex-shrink:0">
+  <circle cx="16" cy="16" r="13" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="5" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="5" ry="13" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <line x1="3" y1="16" x2="29" y2="16" stroke="var(--monitor-accent)" stroke-width="1"/>
+  <line x1="16" y1="3" x2="16" y2="29" stroke="var(--monitor-accent)" stroke-width="1"/>
+</svg>
+    <span>World Democracy Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <section class="module-section" id="section-search">
+      <div class="page-header">
+        <div class="page-header__eyebrow">WDM · Search</div>
+        <h1 class="page-header__title">Search Archive</h1>
+        <p class="page-header__sub">Search across all WDM issues by keyword, country, or topic.</p>
+      </div>
+
+      <div style="display:flex;gap:var(--space-3);margin-bottom:var(--space-6)">
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search issues, countries, signals…"
+          autocomplete="off"
+          style="flex:1;padding:var(--space-3) var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);color:var(--color-text);font-family:var(--font-sans);font-size:var(--text-sm);outline:none;transition:border-color 0.15s"
+          onfocus="this.style.borderColor='var(--monitor-accent)'"
+          onblur="this.style.borderColor='var(--color-border)'"
+        >
+        <button
+          id="search-btn"
+          class="btn btn--primary"
+          onclick="runSearch()"
+        >Search</button>
+      </div>
+
+      <div id="search-results">
+        <p class="text-muted" style="font-size:var(--text-sm)">Enter a search term to begin.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-search">Search</a></li>
+      <li><a href="archive.html">Archive</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
+    </ul>
+
+  </nav>
+
+</div>
+
+<footer class="monitor-footer">
+  <span>World Democracy Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script>
+var archiveData = null;
+
+function escHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function loadArchive() {
+  if (archiveData) return Promise.resolve(archiveData);
+  return fetch('data/archive.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) { archiveData = data; return data; });
+}
+
+function runSearch() {
+  var query = (document.getElementById('search-input').value || '').trim().toLowerCase();
+  var resultsEl = document.getElementById('search-results');
+  if (!query) {
+    resultsEl.innerHTML = '<p class="text-muted" style="font-size:var(--text-sm)">Enter a search term to begin.</p>';
+    return;
+  }
+  resultsEl.innerHTML = '<p class="text-muted" style="font-size:var(--text-sm)">Searching…</p>';
+
+  loadArchive().then(function (issues) {
+    var matches = [];
+    issues.forEach(function (issue) {
+      var searchableText = [
+        issue.week_label || '',
+        issue.signal || '',
+        (issue.delta_strip || []).map(function (d) { return (d.title || '') + ' ' + (d.one_line || ''); }).join(' '),
+      ].join(' ').toLowerCase();
+
+      if (searchableText.indexOf(query) !== -1) {
+        matches.push(issue);
+      }
+    });
+
+    if (!matches.length) {
+      resultsEl.innerHTML = '<p class="text-muted" style="font-size:var(--text-sm)">No results found for <strong>' + escHtml(query) + '</strong>.</p>';
+      return;
+    }
+
+    var html = '<div class="section-label">' + matches.length + ' result' + (matches.length !== 1 ? 's' : '') + ' for “' + escHtml(query) + '”</div>';
+    matches.slice().reverse().forEach(function (issue) {
+      var pub = issue.published
+        ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
+        : '';
+      html +=
+        '<div class="archive-entry">' +
+          '<div class="archive-entry__date">' + escHtml(pub) + '</div>' +
+          '<div>' +
+            '<div class="archive-entry__issue">Issue ' + escHtml(issue.issue || '—') + ' · ' + escHtml(issue.week_label || '') + '</div>' +
+            '<div class="archive-entry__signal">' + escHtml(issue.signal || '') + '</div>' +
+            (issue.source_url
+              ? '<a class="archive-entry__link" href="' + escHtml(issue.source_url) + '" target="_blank" rel="noopener">Full brief →</a>'
+              : '') +
+          '</div>' +
+        '</div>';
+    });
+    resultsEl.innerHTML = html;
+  }).catch(function () {
+    resultsEl.innerHTML = '<div class="error-state">Failed to load archive data for search.</div>';
+  });
+}
+
+// Allow Enter key to trigger search
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('search-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') runSearch();
+  });
+});
+</script>
+</body>
+</html>
