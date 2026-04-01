@@ -403,7 +403,9 @@ strong { font-weight: 600; }
 .kpi-card__value {
   font-size: var(--text-2xl);
   font-weight: 700;
-  color: var(--monitor-accent);
+  /* Darken accent so text passes WCAG AA on white card surface.
+     Raw --monitor-accent fails on 5 of 7 monitors (WDM/GMM/FCW/ESA/ERM). */
+  color: color-mix(in srgb, var(--monitor-accent) 65%, #000);
   line-height: 1;
   letter-spacing: -0.03em;
   display: flex;
@@ -433,8 +435,10 @@ strong { font-weight: 600; }
   /* Darken accent 35% so white text passes WCAG AA on all 7 monitor accents.
      color-mix(in srgb, accent 65%, #000) gives min 4.8:1 contrast vs #fff
      across WDM #61a5d2, GMM #22a0aa, FCW #38bdf8, ESA #5b8db0,
-     AGM #3a7d5a, ERM #4caf7d, SCEM #dc2626. */
-  background: color-mix(in srgb, var(--monitor-accent) 65%, #000);
+     AGM #3a7d5a, ERM #4caf7d, SCEM #dc2626.
+     !important prevents monitor.css personality files from overriding this —
+     ARCHITECTURAL RULE: monitor.css MUST NOT set background on .signal-block. */
+  background: color-mix(in srgb, var(--monitor-accent) 65%, #000) !important;
   color: #fff;
   border-radius: var(--radius-md);
   padding: var(--space-8) var(--space-10);
@@ -1041,7 +1045,8 @@ a.intel-item__source {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  color: var(--monitor-accent);
+  /* Darken accent so label text passes WCAG AA on white card surface. */
+  color: color-mix(in srgb, var(--monitor-accent) 65%, #000);
   margin-bottom: var(--space-2);
 }
 .card__title {
