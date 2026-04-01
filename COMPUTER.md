@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.5 — 1 April 2026
+# Version: 1.6 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -84,6 +84,35 @@ SHARED LIBRARY (one change propagates to all 7 monitors):
                                             scroll-spy, tab panels
   static/monitors/shared/js/renderer.js  — AsymRenderer, AsymPersistent, flags
   static/monitors/shared/js/charts.js    — Chart.js wrappers
+
+SHARED INTELLIGENCE LAYER (read by all cron agents at Step 0B):
+  static/monitors/shared/intelligence-digest.json
+    — Cross-monitor flag aggregator. Compiled weekly by housekeeping cron
+      from all 7 monitors' cross_monitor_flags. Every cron agent filters
+      for flags relevant to its domain before beginning research.
+      Never edit manually — housekeeping cron owns this file.
+
+  static/monitors/shared/schema-changelog.json
+    — Machine-readable record of all schema additions across all monitors.
+      Each entry: id, date, monitor, field, description, required_from_issue.
+      Cron agents read this to know exactly what they must produce.
+      When adding any new field to any cron prompt, ADD AN ENTRY HERE.
+      Append-only — never delete entries.
+
+  static/monitors/shared/monitor-schema-requirements.json
+    — Declarative spec of required fields per monitor. Housekeeping cron
+      (Check 13) validates each report-latest.json against this weekly.
+      When the cron prompt schema changes, UPDATE THIS FILE to match.
+
+  docs/audits/
+    — Domain expert audit files per monitor + master-action-plan.md.
+      Updated with ✅/⏸ status as sprint items are implemented.
+      All 7 audits completed 2026-04-01.
+
+STEP 0B RULE — ALL CRON AGENTS:
+  Every cron agent MUST read intelligence-digest.json and schema-changelog.json
+  at Step 0B (after loading own persistent-state, before research). This is
+  how adjacent-monitor signals propagate into each agent's analysis.
 
 PER-MONITOR (accent colour only):
   static/monitors/{slug}/assets/monitor.css  — MAX 40 lines, accent tokens only
