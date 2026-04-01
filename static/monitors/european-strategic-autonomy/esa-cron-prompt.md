@@ -123,11 +123,14 @@ STEP 2 — Write 4 JSON files (single git commit):
     ],
     "cross_monitor_flags": {}, "source_url": "..." }
 
-  ACTOR FIELD RULE: Use the primary state or institutional actor name exactly
-  as it appears in the country flag alias map (e.g. "Russia", "China", "France",
-  "Germany", "Ukraine", "Turkey", "United States"). Use the most specific single
-  actor. If genuinely multi-actor, use the dominant one. Omit actor field if
-  no clear state/institutional actor is attributable.
+  ACTOR FIELD RULE — REQUIRED on all defence_developments, hybrid_threats,
+  and institutional_developments items. Use the primary state or institutional
+  actor name exactly as it appears in the country flag alias map (e.g. "Russia",
+  "China", "France", "Germany", "Ukraine", "Turkey", "United States"). Use the
+  most specific single actor. If genuinely multi-actor, use the dominant one.
+  Only omit if truly no state/institutional actor is attributable — this should
+  be rare. The renderer displays actor as a flag + label footer on every card;
+  a missing actor leaves the card footer blank.
   
   
 CHANGELOG RULE — persistent array items:
