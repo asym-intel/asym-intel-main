@@ -212,20 +212,73 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'elevated';
   }
 
+  function directionArrow(dir) {
+    if (!dir) return '';
+    var d = dir.toLowerCase();
+    var isDown = d.indexOf('deteriorat') > -1 || d.indexOf('escalat') > -1 ||
+                 d.indexOf('erosion') > -1 || d.indexOf('tighten') > -1 ||
+                 d.indexOf('contract') > -1;
+    var isUp   = d.indexOf('improv') > -1 || d.indexOf('recover') > -1 ||
+                 d.indexOf('positive') > -1;
+    var isAccel = d.indexOf('accelerat') > -1 || d.indexOf('structural increase') > -1;
+    var isStable = d.indexOf('stable') > -1;
+
+    if (isDown) {
+      return '<span class="dir-arrow dir-arrow--down" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M7 2v10M3 8l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    if (isUp) {
+      return '<span class="dir-arrow dir-arrow--up" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    if (isAccel) {
+      return '<span class="dir-arrow dir-arrow--accel" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    if (isStable) {
+      return '<span class="dir-arrow dir-arrow--stable" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    // Fallback: show text only
+    return '<span class="dir-arrow dir-arrow--neutral" title="' + esc(dir) + '">' +
+      '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+  }
+
   function renderIndicatorDomain(arr) {
     if (!arr || !arr.length) return '<p class="text-muted text-sm">No data.</p>';
     var html = '<div>';
     arr.forEach(function (ind) {
+      var scoreVal = parseFloat(ind.score || 0);
+      var scorePos = scoreVal >= 0;
+      var updateHtml = ind.update_this_week
+        ? '<div class="indicator-row__update">' + esc(ind.update_this_week) + '</div>'
+        : '';
       html += '<div class="indicator-row">' +
-        '<div>' +
+        '<div class="indicator-row__body">' +
           '<div class="indicator-row__name">' + esc(ind.indicator) + '</div>' +
           '<div class="indicator-row__reading">' + esc(ind.reading || '') + '</div>' +
+          updateHtml +
           (ind.crisis_threshold ? '<div class="indicator-row__threshold">Crisis threshold: ' + esc(ind.crisis_threshold) + '</div>' : '') +
-          (ind.blind_spot_rule ? '<div style="margin-top:var(--space-1);font-size:var(--text-xs);color:var(--high);font-style:italic">⚠ ' + esc(ind.blind_spot_rule) + '</div>' : '') +
-          (ind.source_url ? '<a href="' + esc(ind.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-1);display:inline-block">Source →</a>' : '') +
+          (ind.blind_spot_rule ? '<div class="indicator-row__blind-spot">⚠ ' + esc(ind.blind_spot_rule) + '</div>' : '') +
+          (ind.source_url ? '<a href="' + esc(ind.source_url) + '" target="_blank" rel="noopener" class="source-link" style="margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
         '</div>' +
-        '<span class="flag-badge flag-badge--' + flagClass(ind.flag) + '">' + esc(ind.flag) + '</span>' +
-        '<span class="score-chip score-chip--' + (parseFloat(ind.score||0) >= 0 ? 'pos' : 'neg') + '">' + (parseFloat(ind.score||0) > 0 ? '+' : '') + esc(ind.score) + '</span>' +
+        '<div class="indicator-row__signals">' +
+          directionArrow(ind.direction) +
+          '<span class="flag-badge flag-badge--' + flagClass(ind.flag) + '">' + esc(ind.flag || '—') + '</span>' +
+          '<span class="score-chip score-chip--' + (scorePos ? 'pos' : 'neg') + '">' + (scoreVal > 0 ? '+' : '') + esc(ind.score) + '</span>' +
+        '</div>' +
       '</div>';
     });
     html += '</div>';
