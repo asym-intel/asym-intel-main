@@ -465,7 +465,32 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       document.getElementById('campaigns-block').innerHTML = campHtml || '<p class="text-muted">No active campaigns this issue.</p>';
 
+      function weeksAgoReport(dateStr) {
+        if (!dateStr) return null;
+        var then = new Date(dateStr);
+        var now = new Date();
+        var diffMs = now - then;
+        var diffWeeks = diffMs / (1000 * 60 * 60 * 24 * 7);
+        return diffWeeks;
+      }
+
+      function stalenessLabelReport(dateStr) {
+        var w = weeksAgoReport(dateStr);
+        if (w === null || w < 4) return '';
+        var rounded = Math.floor(w);
+        return 'Last active: ' + rounded + ' week' + (rounded !== 1 ? 's' : '') + ' ago';
+      }
+
       function renderCampaign(c, actor) {
+        var stale = stalenessLabelReport(c.last_activity);
+        var changelogHtml = '';
+        if (c.changelog && c.changelog.trim()) {
+          changelogHtml =
+            '<div style="margin-top:var(--space-3);padding:0.5rem 0.75rem;border-left:2px solid var(--color-border,#d8d4cd);background:var(--color-bg-alt,#f0ede8);border-radius:0 4px 4px 0">' +
+              '<div style="font-size:var(--text-xs);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--color-text-muted,#6b6660);margin-bottom:0.3rem">What changed this issue</div>' +
+              '<div style="font-size:var(--text-sm);color:var(--color-text-secondary,#3d3a35);line-height:1.5">' + escHtml(c.changelog) + '</div>' +
+            '</div>';
+        }
         return '<div class="card">' +
           '<div class="card__label">' +
             (actor ? actorTag(actor) : '') +
@@ -475,10 +500,12 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>' +
           '<div class="card__title">' + escHtml(c.headline || c.operation_name || '') + '</div>' +
           '<div class="card__body">' + escHtml(c.summary || '') + '</div>' +
+          changelogHtml +
           '<div class="card__footer">' +
             (c.target ? '<span>Target: ' + escHtml(c.target) + '</span>' : '') +
             (c.platform ? '<span>Platform: ' + escHtml(c.platform) + '</span>' : '') +
             (c.last_activity ? '<span>Last activity: ' + escHtml(c.last_activity) + '</span>' : '') +
+            (stale ? '<span style="font-style:italic;color:var(--color-text-muted,#6b6660)">' + escHtml(stale) + '</span>' : '') +
             (c.source_url ? '<a class="source-link" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
           '</div>' +
         '</div>';
