@@ -197,3 +197,98 @@ EXAMPLE OUTPUT:
     "note": "[Medium] BoJ forced to choose between FX defence and yield cap; no modern precedent for orderly resolution."
   }
 ]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SCENARIO ANALYSIS — add to executive_briefing each issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add a "scenario_analysis" array to executive_briefing every issue.
+Always produce exactly 3 scenarios: Base Case, De-escalation, Fast Cascade.
+Probabilities must sum to 1.0 (±0.01 allowed for rounding).
+
+SCHEMA per scenario:
+{
+  "label":       "Base Case" | "De-escalation" | "Fast Cascade",
+  "name":        "Short evocative name (2–4 words)",
+  "probability": 0.0–1.0,    // analyst estimate; must sum to 1.0 across 3
+  "horizon":     "e.g. 3 months",
+  "description": "2–3 sentences: what triggers it, key market impact, asset class direction"
+}
+
+SOURCING RULES:
+- Base Case: the most likely path given current macro regime and data.
+  Use the probability from base_case_probability (keep both in sync).
+- De-escalation: policy pivot, trade deal, or resolution that relieves stress.
+  Lower probability than Base Case in STAGFLATION / RISK-OFF regimes.
+- Fast Cascade: tail scenario — rapid credit, liquidity, or political shock.
+  Probability reflects analyst conviction; do not artificially inflate.
+- All probabilities sourced from your Horizon Matrix estimates.
+- Set base_case_label and base_case_probability as before (kept for
+  backward compat), but scenario_analysis is the authoritative source.
+
+EXAMPLE:
+"scenario_analysis": [
+  {
+    "label": "Base Case",
+    "name": "Slow Burn",
+    "probability": 0.55,
+    "horizon": "3 months",
+    "description": "Tariff shock absorbed gradually; Fed on hold; credit stress contained to private markets; S&P range-bound -10% to +5%; stagflation regime persists."
+  },
+  {
+    "label": "De-escalation",
+    "name": "Policy Pivot",
+    "probability": 0.20,
+    "horizon": "6–8 weeks",
+    "description": "Trade deal framework or Fed pivot signal triggers relief rally; credit spreads compress; regime transitions toward RISK-ON; equities +8–15%."
+  },
+  {
+    "label": "Fast Cascade",
+    "name": "Credit Contagion",
+    "probability": 0.25,
+    "horizon": "4–6 weeks",
+    "description": "Private credit gate events escalate to CLO and IG contagion; VIX spikes above 40; hard landing surges; Fed forced to emergency cut; equities -20%+."
+  }
+]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REAL M2 & HARD LANDING RISK — add to executive_briefing each issue
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add "real_m2" and "hard_landing_risk" to executive_briefing every issue.
+
+REAL M2 SCHEMA:
+{
+  "value":     float,          // Real M2 YoY % change (nominal M2 minus Core PCE)
+  "direction": "Improving" | "Stable" | "Deteriorating",
+  "note":      "One sentence: current reading, trend, and what it signals"
+}
+
+Source: Federal Reserve H.6 (M2), BLS/BEA Core PCE. Calculate as:
+  real_m2 = nominal_m2_yoy_growth - core_pce_yoy
+If data unavailable, note in the "note" field and use previous issue value.
+
+HARD LANDING RISK SCHEMA:
+{
+  "score":     0.0–1.0,       // analyst probability of hard landing in next 12 months
+  "direction": "Improving" | "Stable" | "Increasing",
+  "note":      "One sentence: key drivers of the current score"
+}
+
+Hard landing defined as: GDP growth < -1.0% for 2+ consecutive quarters
+within the next 12 months. Score sources: BIS, IMF WEO probability tables,
+your own composite of leading indicators (yield curve, credit spreads,
+consumer confidence, unemployment claims). Do not fabricate; if anchoring
+to a published probability, cite it in the note.
+
+EXAMPLE:
+"real_m2": {
+  "value": 1.78,
+  "direction": "Deteriorating",
+  "note": "Real M2 vs. Core PCE +1.78% and narrowing — nominal M2 (+4.88%) masks the compression in real liquidity growth."
+},
+"hard_landing_risk": {
+  "score": 0.38,
+  "direction": "Increasing",
+  "note": "Private credit gate events, consumer confidence below GFC trough, and tariff shock raise hard landing probability above baseline; consistent with IMF April WEO downside scenario."
+}
