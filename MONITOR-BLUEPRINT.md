@@ -468,10 +468,11 @@ persistent-state patterns + lessons from Build 1.
 STANDARD PAGE SET (8 pages per monitor)
 ────────────────────────────────────────────────────────────────
 
-  overview.html    Monitor landing page — issue list, brief
-                   descriptions, monitor identity panel (SVG + CTAs).
-                   NOTE: Hugo owns index.html at root URL — never use
-                   index.html for Blueprint pages. Use overview.html.
+  overview.html    Monitor landing page — CLEAN BRIEF INDEX only.
+                   Shows: page header, issue list (title/date/signal),
+                   archive entries, identity panel (SVG + CTAs).
+                   NO KPI strip — KPIs belong on dashboard.html only.
+                   NOTE: Hugo owns index.html — use overview.html.
                    Hugo section.html redirects root URL → dashboard.html.
 
   dashboard.html   Current issue: KPI strip + signal block +
@@ -794,3 +795,46 @@ LESSONS FROM BUILD 1 (WDM) — carried into v2.0
 7. Confirm before pushing to main (Section 11). All build work
    on staging branch → review at staging.asym-intel.info →
    PR to main for production release.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SECTION 13 — CRON TASK ARCHITECTURE (repo-first pattern)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLEM SOLVED: Cron tasks baked with static instructions cannot
+receive Blueprint updates without manual re-configuration of each
+of the 7 cron schedules. This caused the April 2026 SCEM incident
+where an intra-week run used v1.0 instructions and overwrote HTML.
+
+SOLUTION: Repo-first instruction loading. Each cron schedule
+contains only a thin wrapper that reads its canonical instructions
+from the repo at runtime.
+
+CRON SCHEDULE CONTENT (identical for all monitors — change slug only):
+  Read your full instructions from the repo before doing anything:
+
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{SLUG}/cron-prompt.md \
+    --jq '.content' | base64 -d
+
+  Then follow those instructions exactly. The repo file is the
+  canonical source of truth. Ignore any older instructions.
+  Use api_credentials=["github"] for all GitHub operations.
+
+CANONICAL PROMPT FILES (stored in repo, version-controlled):
+  static/monitors/conflict-escalation/scem-cron-prompt.md     ✅
+  static/monitors/environmental-risks/erm-cron-prompt.md      ✅
+  static/monitors/democratic-integrity/wdm-cron-prompt.md     (Build 3 revision)
+  static/monitors/macro-monitor/gmm-cron-prompt.md            (Build 5)
+  static/monitors/fimi-cognitive-warfare/fcw-cron-prompt.md   (Build 4)
+  static/monitors/european-strategic-autonomy/esa-cron-prompt.md (Build 6)
+  static/monitors/ai-governance/agm-cron-prompt.md            (Build 7)
+
+UPDATING INSTRUCTIONS: Edit the repo file → all future cron runs
+pick up the change automatically. Never edit the cron schedule itself
+unless changing timing or the slug.
+
+WRAPPER REFERENCE: static/monitors/cron-wrapper-instructions.md
+
+CRITICAL RULE (from April 2026 incident):
+  Cron prompts must begin with:
+  "CRON TASKS NEVER TOUCH HTML, CSS, OR JS FILES. EVER."
+  This must be the first rule, in caps, before anything else.
