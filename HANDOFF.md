@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 17:32 UTC | **Last commit (main):** 372d5104
+**Date:** 2026-04-01 18:15 UTC | **Last commit (main):** see below
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -18,7 +18,7 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 ## Repository
 
 - **Main:** `asym-intel/asym-intel-main` → https://asym-intel.info
-- **Staging:** `staging` branch → https://staging.asym-intel.info (synced to main ✅)
+- **Staging:** `staging` branch → https://staging.asym-intel.info (28 commits ahead of main)
 - **Hugo:** publishDir="docs", buildFuture=true
 - **Branch protection:** Blueprint validator required; no direct HTML/CSS/JS to main
 
@@ -29,9 +29,9 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 | Monitor | Abbr | Slug | Accent | Publish | Blueprint | Visual |
 |---|---|---|---|---|---|---|
 | World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | **Mon 13 Apr** | v2.1 ✅ | ✅ + choropleth map |
-| Global Macro Monitor | GMM | macro-monitor | #22a0aa | **Tue** 08:00 | v2.1 ✅ | ✅ + score history chart |
+| Global Macro Monitor | GMM | macro-monitor | #22a0aa | **Tue** 08:00 | v2.1 ✅ | ✅ + tail risk heatmap (gauge removed) |
 | FIMI & Cognitive Warfare | FCW | fimi-cognitive-warfare | #38bdf8 | Thu 09:00 | v2.1 ✅ | ✅ |
-| European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ (4 UX fixes merged today) |
+| European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ (4 UX fixes + contrast fix) |
 | AI Governance Monitor | AGM | ai-governance | #3a7d5a | Fri 09:00 | v2.1 ✅ | ✅ + model tier layout |
 | Environmental Risks Monitor | ERM | environmental-risks | #4caf7d | Sat 05:00 | v2.1 ✅ | ✅ |
 | Strategic Conflict & Escalation | SCEM | conflict-escalation | #dc2626 | Sun 18:00 | v2.1 ✅ | ✅ + I1-I6 chart + conflict_context (data: Sun Apr 5) |
@@ -51,43 +51,59 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 | SCEM | **eb312202** | Sun 18:00 UTC | data/ + weekly-brief.md only |
 | Housekeeping | **73452bc6** | Mon 08:00 UTC | read-only audit, 12 checks |
 
-All monitors have a 6-day recency guard in their cron prompts — they will skip silently if fewer than 6 days have elapsed since the last publish.
+---
+
+## PR #17 — OPEN (staging → main, awaiting user sign-off)
+
+Contains two sets of changes:
+
+### A. Global WCAG AA contrast fix (all 7 monitors)
+- `shared/css/base.css` — signal-block !important, kpi-card__value + card__label darkened with color-mix(65%,#000)
+- `european-strategic-autonomy/assets/monitor.css` — removed background linear-gradient override
+- `conflict-escalation/assets/monitor.css` — removed background rgba(0.06) override
+- `european-strategic-autonomy/dashboard.html` — removed inline color:var(--monitor-accent) on kpi-lead-signal
+- COMPUTER.md v1.4 — CONTRAST RULES + SIGNAL-BLOCK OWNERSHIP architectural rules added (already on main)
+
+### B. GMM tail risk heatmap
+- `macro-monitor/dashboard.html` — gauge replaced with 3×3 likelihood × impact heatmap
+- `macro-monitor/data/report-latest.json` — tail_risks backfilled for Issue 8 (already on main + staging)
+- `macro-monitor/gmm-cron-prompt.md` — tail_risks schema + formalised methodology (already on main)
+
+**Verified on staging:** all 7 signal-blocks ✅, KPI card values ✅, GMM heatmap ✅
 
 ---
 
-## ESA — Changes merged today (2026-04-01, PR #16 + direct commits)
+## Changes already on main (not in PR)
 
-1. **archive.html** — View links fixed (were 404ing; now use source_url from archive.json)
-2. **dashboard.html** — Lead Signal KPI card: first 4 words at body size + scroll-to-signal, not raw truncated title at text-2xl
-3. **report.html** — Signal block darkened to #2d5a7e for WCAG AA contrast; Member State tracker now shows flag emoji + full country name + coloured status badge + change detail + source link
-4. **persistent.html** — Timeline redesigned as grouped visual timeline (month headers, connector line, date pills, module badges); ceasefire_probability_ukraine removed from KPI cards; lagrange_point_progress renamed "Autonomy Score"; scorecard description text linked to Compossible series
-5. **esa-cron-prompt.md** — Explicit KPI field allowlist added; ceasefire_probability_ukraine explicitly excluded (belongs to SCEM)
+- `COMPUTER.md` v1.4 — contrast rules, signal-block ownership
+- `macro-monitor/data/report-latest.json` — tail_risks backfilled
+- `macro-monitor/gmm-cron-prompt.md` — tail_risks schema
 
 ---
 
 ## PENDING TASKS (next session)
 
-### Priority 1 — FCW campaign timeline (P5)
+### Priority 1 — Merge PR #17
+Awaiting user visual sign-off on staging. Once approved, squash-merge to main.
+
+### Priority 2 — FCW campaign timeline (P5)
 BLOCKED until FCW cron run Thu Apr 9 populates start_date on campaigns.
 After Apr 9: build horizontal Gantt-style Chart.js timeline on FCW dashboard.
 start_date field is now in the cron prompt (commit 724f0ae).
 
-### Priority 2 — Verify first conflict_context data (SCEM)
+### Priority 3 — Verify first conflict_context data (SCEM)
 SCEM cron runs Sun Apr 5 18:00 UTC — first run with conflict_context schema.
 Check persistent.html after that run: "Conflict context ▸" buttons should appear
 on each baseline card. Verify data quality and renderer for all 10 conflicts.
 
-### Priority 3 — Mobile/tablet audit of new visual work
-All 4 dashboard visual enhancements + homepage signal cards + per-monitor
-personality CSS have not been audited on mobile. Quick visual review of staging
-before the next significant build cycle.
+### Priority 4 — GMM heatmap: MED/LOW impact cells
+Current backfilled data has all 6 tail risks in HIGH impact row. Next cron run
+(Tue Apr 7) will produce fresh tail_risks — check if LLM naturally distributes
+across all three impact bands. If not, review the impact formula in the prompt.
 
-### Priority 4 — Schema audit: v2.1 fields in production
-methodology_url, flag_definitions, changelog, summary (AGM), source_date (FCW)
-were added to all 7 cron prompts. First cron runs after today will produce these
-fields. Verify after each monitor's first run that fields appear correctly.
+### Priority 5 — Mobile/tablet audit
+All visual enhancements + heatmap not audited on mobile. Quick review of staging.
 
 ### DEFERRED — requires data first
 - FCW geospatial campaign map: needs lat/lng added to campaign schema
 - SCEM humanitarian impact charts: wait for ≥2 issues of conflict_context data
-- D3 force-directed FCW attribution network: Phase 3 if warranted
