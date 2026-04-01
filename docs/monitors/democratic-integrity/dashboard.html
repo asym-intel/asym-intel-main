@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
         var cls = severityClass(c.severity_score);
         tableHtml +=
           '<tr class="heatmap-row--' + cls + '">' +
-            '<td><strong>' + escHtml(c.country) + '</strong></td>' +
+            '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
             '<td><span class="severity-badge severity-badge--' + cls + '">' + escHtml(c.severity_score) + '</span></td>' +
             '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
             '<td>' + escHtml((c.lead_signal || c.summary || '').slice(0, 120)) + '…</td>' +
