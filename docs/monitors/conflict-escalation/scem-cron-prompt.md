@@ -640,3 +640,108 @@ VERIFICATION — run after Pass 2 before proceeding to Step 3:
     "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['conflict_context', 'cross_monitor_flags'] if k not in d]; print('MISSING:',missing) if missing else print('ALL SECTIONS PRESENT ✓')"
   ```
   If MISSING is non-empty — do NOT proceed to Step 3. Re-run Pass 2.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESCALATION VELOCITY — add to each conflict_roster entry
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add "escalation_velocity" to each conflict_roster entry every issue.
+This distinguishes a new breakout from a chronic plateau.
+
+SCHEMA:
+{
+  "escalation_velocity": {
+    "direction":                   "Accelerating" | "Steady" | "Decelerating" | "Stable",
+    "week_over_week_delta":        int,    // sum of all indicator deviation changes vs. prior week
+                                          // positive = net escalation, negative = net de-escalation
+    "consecutive_weeks_direction": int,   // how many consecutive weeks in current direction
+    "note":                        "One sentence: what is driving the velocity reading"
+  }
+}
+
+SOURCING RULES:
+- week_over_week_delta: compare each I1–I6 deviation value to last week's values
+  from persistent-state.json. Sum the deltas. If prior week is unavailable, use 0.
+- direction:
+    Accelerating  = week_over_week_delta ≥ +2, or any single indicator moved +2 or more
+    Steady        = week_over_week_delta +1 (net escalation but controlled)
+    Stable        = week_over_week_delta 0
+    Decelerating  = week_over_week_delta ≤ -1
+- consecutive_weeks_direction: count from persistent-state.json velocity history.
+  Start at 1 if no prior data.
+
+PERSISTENT STATE: Add velocity history to each conflict in persistent-state.json:
+  "velocity_history": [
+    { "week": "W/E YYYY-MM-DD", "direction": "...", "delta": int }
+  ]
+Always APPEND to velocity_history. Never overwrite. Max 12 entries (rolling).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMPOSITE ESCALATION SCORE — add to each conflict_roster entry
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add "esc_score" to each conflict_roster entry. Enables conflict ranking
+by overall escalation severity rather than single-indicator maximum.
+
+SCHEMA:
+{
+  "esc_score": {
+    "raw":              float,  // weighted sum of indicator deviations (see formula)
+    "band":             "GREEN" | "AMBER" | "RED" | "CONTESTED",
+    "methodology_note": "One sentence describing weighting applied"
+  }
+}
+
+FORMULA:
+  Weights by conflict type:
+    Interstate conflict (I3 nuclear-capable actors present):
+      I3 × 2.0, I2 × 1.5, I1 × 1.0, I4 × 1.0, I5 × 1.0, I6 × 0.8
+    Intrastate / civil conflict:
+      I6 × 1.5, I2 × 1.5, I1 × 1.0, I3 × 0.5, I4 × 1.0, I5 × 1.0
+    Default (unclassified):
+      All indicators × 1.0
+
+  raw = sum(indicator.deviation × weight) for I1–I6
+        Use deviation = (level - baseline); if baseline CONTESTED use level × 0.5
+  
+  Band thresholds:
+    raw ≥ 6.0  → RED
+    raw ≥ 3.0  → AMBER
+    raw ≥ 0.0  → GREEN
+    baseline_status CONTESTED AND raw < 3.0 → CONTESTED
+
+PERSISTENT STATE: Track esc_score history per conflict:
+  "esc_score_history": [
+    { "week": "W/E YYYY-MM-DD", "raw": float, "band": "..." }
+  ]
+Always APPEND. Max 12 entries (rolling).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NEGOTIATION STATUS — add to each conflict_roster entry
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add "negotiation_status" to each conflict_roster entry. This is the
+primary variable determining whether the current deviation trajectory
+will continue or reverse. F4 flags capture individual signals; this
+field captures the standing diplomatic state.
+
+SCHEMA:
+{
+  "negotiation_status": {
+    "status":       "None" | "Backchannel" | "Formal Talks" |
+                    "Ceasefire Holding" | "Ceasefire Violated" | "Post-Agreement",
+    "mechanism":    "Brief description of current diplomatic mechanism, or null",
+    "confidence":   "Confirmed" | "Probable" | "Possible" | "Unverified",
+    "last_updated": "YYYY-MM-DD",
+    "note":         "One sentence: current state and key risk to the status"
+  }
+}
+
+SOURCING RULES:
+- Source from Tier 1 (UN, OSCE, ICRC) and Tier 2 (quality diplomatic reporting).
+- "None" = no credible diplomatic track active.
+- "Backchannel" = unconfirmed/indirect contact only.
+- status carries forward from prior week unless new Tier 1-2 evidence changes it.
+- "Ceasefire Violated" supersedes "Ceasefire Holding" as soon as a single
+  Tier 1-verified violation is recorded.
+- confidence applies to the status field, not the underlying conflict data.
