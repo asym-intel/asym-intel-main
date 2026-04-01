@@ -112,9 +112,11 @@ CHECK 11 — No hardcoded font sizes below var(--text-min) in monitor HTML pages
 
 CHECK 12 — Inline search CSS not duplicated (should be in base.css only)
   For each monitor's search.html, check that it does NOT contain a <style> block
-  with .search-wrap or .search-input-el:
-    grep -l 'search-wrap\|search-input-el' static/monitors/*/search.html
-  WARN: if inline search CSS found (it has been centralised to base.css).
+  with .search-wrap or .search-input-el. Use a two-step check:
+    grep -l '<style>' static/monitors/*/search.html | xargs grep -l 'search-wrap\|search-input-el'
+  WARN only if BOTH a <style> tag AND the class definition are present in the same file.
+  Using the class name in the HTML body (e.g. <div class="search-wrap">) is correct — do not flag.
+  WARN: if inline CSS definition of .search-wrap found inside a <style> block.
 
 RESULT FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
