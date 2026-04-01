@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var cls = tierClass || severityClass(c.severity_score);
       html +=
         '<tr class="heatmap-row--' + cls + '">' +
-          '<td><strong>' + escHtml(c.country) + '</strong></td>' +
+          '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
           '<td><span class="severity-badge severity-badge--' + cls + '">' + escHtml(c.severity_score) + '</span></td>' +
           '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
           '<td>' + escHtml(c.lead_signal || c.summary || '') + '</td>' +
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="intel-item__header">' +
               '<div class="intel-item__rank">' + escHtml(item.rank || '') + '</div>' +
               '<div class="intel-item__meta">' +
-                '<div class="intel-item__country">' + escHtml(item.country || '') + '</div>' +
+                '<div class="intel-item__country">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.country||'')||'') + ' ' : '') + escHtml(item.country || '') + '</div>' +
                 '<div class="intel-item__headline">' + escHtml(item.headline || '') + '</div>' +
               '</div>' +
               (item.severity ? '<span class="severity-badge severity-badge--' + (item.severity === 'High' ? 'critical' : 'moderate') + '">' + escHtml(item.severity) + '</span>' : '') +
