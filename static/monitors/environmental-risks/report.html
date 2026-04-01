@@ -108,6 +108,106 @@
       font-size: var(--text-xs);
       color: var(--color-text-muted);
     }
+
+    /* ── M03 Cascade Tier Breakdown ── */
+    .m03-card {
+      margin-bottom: var(--space-5);
+    }
+    .m03-card__region {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+    .m03-card__chain {
+      font-size: var(--text-sm);
+      font-style: italic;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+    .m03-cascade-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    @media (max-width: 640px) {
+      .m03-cascade-grid { grid-template-columns: 1fr; }
+    }
+    .m03-tier {
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      border-top: 3px solid transparent;
+    }
+    .m03-tier--physical {
+      background: rgba(37,99,235,0.05);
+      border-top-color: #2563eb;
+    }
+    .m03-tier--human {
+      background: rgba(217,119,6,0.06);
+      border-top-color: #d97706;
+    }
+    .m03-tier--political {
+      background: rgba(193,68,14,0.06);
+      border-top-color: #c1440e;
+    }
+    [data-theme="dark"] .m03-tier--physical  { background: rgba(37,99,235,0.10); }
+    [data-theme="dark"] .m03-tier--human     { background: rgba(217,119,6,0.10); }
+    [data-theme="dark"] .m03-tier--political { background: rgba(193,68,14,0.10); }
+    .m03-tier__label {
+      font-size: var(--text-min);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-2);
+    }
+    .m03-tier--physical  .m03-tier__label { color: #2563eb; }
+    .m03-tier--human     .m03-tier__label { color: #b45309; }
+    .m03-tier--political .m03-tier__label { color: #c1440e; }
+    [data-theme="dark"] .m03-tier--physical  .m03-tier__label { color: #60a5fa; }
+    [data-theme="dark"] .m03-tier--human     .m03-tier__label { color: #fbbf24; }
+    [data-theme="dark"] .m03-tier--political .m03-tier__label { color: #f87171; }
+    .m03-tier__text {
+      font-size: var(--text-xs);
+      line-height: 1.55;
+      color: var(--color-text-secondary);
+    }
+    .m03-card__footer {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-top: var(--space-2);
+    }
+
+    /* ── M06 Dual-Edge Badge ── */
+    .dual-edge-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--text-min);
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .dual-edge-badge--positive {
+      background: rgba(76,175,125,0.12);
+      color: #2d7a52;
+      border: 1px solid rgba(76,175,125,0.25);
+    }
+    .dual-edge-badge--negative {
+      background: rgba(193,68,14,0.10);
+      color: #c1440e;
+      border: 1px solid rgba(193,68,14,0.20);
+    }
+    [data-theme="dark"] .dual-edge-badge--positive { background: rgba(76,175,125,0.18); color: #4caf7d; border-color: rgba(76,175,125,0.30); }
+    [data-theme="dark"] .dual-edge-badge--negative { background: rgba(193,68,14,0.20); color: #f87171; border-color: rgba(193,68,14,0.30); }
     /* strip loading state */
     .risk-strip-loading {
       padding: var(--space-4);
@@ -432,6 +532,56 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<div class="risk-category-strip">' + cards + '</div>';
   }
 
+
+  function renderM03Cards(items) {
+    if (!items || !items.length) return '<p class="text-muted">No threat multiplier entries this week.</p>';
+    return items.map(function (item) {
+      var tags = [item.filter_tag, item.cross_monitor].filter(Boolean);
+      return '<div class="card m03-card">' +
+        (item.region ? '<div class="m03-card__region">' + escHtml(item.region) + '</div>' : '') +
+        '<div class="card__title" style="margin-bottom:var(--space-2)">' + escHtml(item.headline || '') + '</div>' +
+        (item.cascade_chain ? '<div class="m03-card__chain">' + escHtml(item.cascade_chain) + '</div>' : '') +
+        '<div class="m03-cascade-grid">' +
+          '<div class="m03-tier m03-tier--physical">' +
+            '<div class="m03-tier__label">Physical</div>' +
+            '<div class="m03-tier__text">' + escHtml(item.tier_1_physical || '—') + '</div>' +
+          '</div>' +
+          '<div class="m03-tier m03-tier--human">' +
+            '<div class="m03-tier__label">Human</div>' +
+            '<div class="m03-tier__text">' + escHtml(item.tier_2_human || '—') + '</div>' +
+          '</div>' +
+          '<div class="m03-tier m03-tier--political">' +
+            '<div class="m03-tier__label">Political</div>' +
+            '<div class="m03-tier__text">' + escHtml(item.tier_3_political || '—') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="m03-card__footer">' +
+          (tags.length ? tags.map(function(t){ return '<span class="severity-badge severity-badge--moderate">' + escHtml(t) + '</span>'; }).join('') : '') +
+          (item.source_url ? '<a href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener" class="source-link" style="margin-left:auto">Source →</a>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderM06Cards(items) {
+    if (!items || !items.length) return '<p class="text-muted">No AI &amp; climate items this week.</p>';
+    return items.map(function (item) {
+      var dualEdge = item.dual_edge || '';
+      var badgeCls = dualEdge === 'Positive' ? 'dual-edge-badge--positive' : 'dual-edge-badge--negative';
+      var badgeSymbol = dualEdge === 'Positive' ? '▲' : '▼';
+      var tags = [item.filter_tag, item.tier, item.cross_monitor].filter(Boolean);
+      return '<div class="card" style="margin-bottom:var(--space-4)">' +
+        '<div style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center;margin-bottom:var(--space-2)">' +
+          (dualEdge ? '<span class="dual-edge-badge ' + badgeCls + '">' + badgeSymbol + ' ' + escHtml(dualEdge) + '</span>' : '') +
+          tags.map(function(t){ return '<span class="severity-badge severity-badge--moderate">' + escHtml(t) + '</span>'; }).join('') +
+        '</div>' +
+        '<div class="card__title">' + escHtml(item.headline || item.title || '') + '</div>' +
+        (item.summary ? '<div class="card__body">' + escHtml(item.summary) + '</div>' : '') +
+        (item.source_url ? '<div class="card__footer"><a href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener" class="source-link">Source →</a></div>' : '') +
+      '</div>';
+    }).join('');
+  }
+
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -511,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // M03 — Threat Multiplier
       var m03 = d.m03_threat_multiplier || [];
-      document.getElementById('m03-content').innerHTML = renderIntelCards(m03);
+      document.getElementById('m03-content').innerHTML = renderM03Cards(m03);
 
       // M04 — Extreme Weather
       var m04 = d.m04_extreme_weather || [];
@@ -548,7 +698,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('m05-content').innerHTML = m05Html || '<p class="text-muted">No policy items this week.</p>';
 
       // M06 — AI & Climate
-      document.getElementById('m06-content').innerHTML = renderIntelCards(d.m06_ai_climate || []);
+      document.getElementById('m06-content').innerHTML = renderM06Cards(d.m06_ai_climate || []);
 
       // M07 — Biosphere
       document.getElementById('m07-content').innerHTML = renderIntelCards(d.m07_biosphere || []);
