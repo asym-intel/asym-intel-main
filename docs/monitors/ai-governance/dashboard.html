@@ -378,6 +378,7 @@
       border-color: #3a3835;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 
 <body>
@@ -446,6 +447,23 @@
       <section id="eu-act-dash" aria-labelledby="euact-dash-heading">
         <h2 class="section-label" id="euact-dash-heading">EU AI Act — Regulatory Pipeline</h2>
         <div id="euact-dash-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Risk Dimension Radar -->
+      <section id="risk-radar-dash" aria-labelledby="risk-radar-heading">
+        <h2 class="section-label" id="risk-radar-heading">Risk Vector Radar</h2>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">5 governance risk dimensions scored HIGH / ELEVATED / MODERATE / LOW</p>
+        <div style="position:relative;height:280px;max-width:400px;margin:0 auto">
+          <canvas id="risk-radar-canvas" aria-label="AI Governance Risk Dimension Radar" role="img"></canvas>
+        </div>
+        <div id="risk-radar-legend" style="margin-top:var(--space-3)"></div>
+      </section>
+
+      <!-- Concentration Index Diverging Bar -->
+      <section id="concentration-dash" aria-labelledby="concentration-heading">
+        <h2 class="section-label" id="concentration-heading">AI Power Concentration Index</h2>
+        <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">Bars extending right = Concentrating · Extending left = Fragmenting · Centre = Stable</p>
+        <div id="concentration-bars-wrap"></div>
       </section>
 
       <!-- Risk Vector Heat Grid -->
@@ -640,9 +658,14 @@
       euhtml += '<a class="more-link" href="persistent.html#eu-ai-act" style="margin-top:var(--space-2)">Full tracker in Living Knowledge →</a>';
       document.getElementById('euact-dash-content').innerHTML = euhtml;
 
-      // Risk Vector Heat Grid
+      // Risk Dimension Radar
       var m7 = d.module_7 || {};
+      var m14 = d.module_14 || {};
       var vectors = Array.isArray(m7.vectors) ? m7.vectors : [];
+      renderRiskRadar(vectors);
+      renderConcentrationBars(m14.concentration_index || []);
+
+      // Risk Vector Heat Grid
       if (vectors.length) {
         var gridHtml = '<div class="risk-heat-grid">';
         vectors.forEach(function (v) {
@@ -820,6 +843,107 @@
       document.getElementById('risk-heat-content').innerHTML = '<p class="error-state">Could not load risk data.</p>';
       document.getElementById('model-frontier-content').innerHTML = '<p class="error-state">Could not load model data.</p>';
     });
+
+  // ── Risk Dimension Radar ───────────────────────────────────────────────────────────────
+  var _riskRadar = null;
+  function renderRiskRadar(vectors) {
+    var ctx = document.getElementById('risk-radar-canvas');
+    if (!ctx || !vectors.length || typeof Chart === 'undefined') return;
+    var RATING_SCORE = { 'CRITICAL': 4, 'HIGH': 3, 'ELEVATED': 2, 'MODERATE': 1, 'LOW': 0.5 };
+    var RATING_COLOUR = { 'CRITICAL': '#dc2626', 'HIGH': '#c1440e', 'ELEVATED': '#d97706', 'MODERATE': '#2563eb', 'LOW': '#059669' };
+    var labels = vectors.map(function(v) { return v.vector || ''; });
+    var scores  = vectors.map(function(v) { return RATING_SCORE[(v.rating||'MODERATE').toUpperCase()] || 1; });
+    var isDark  = document.documentElement.getAttribute('data-theme') === 'dark';
+    var lc = isDark ? 'rgba(224,223,220,0.8)' : 'rgba(26,25,23,0.7)';
+    var gc = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+    if (_riskRadar) { _riskRadar.destroy(); _riskRadar = null; }
+    _riskRadar = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Risk Level',
+          data: scores,
+          backgroundColor: 'rgba(193,68,14,0.12)',
+          borderColor: '#c1440e',
+          borderWidth: 2,
+          pointBackgroundColor: vectors.map(function(v){ return RATING_COLOUR[(v.rating||'MODERATE').toUpperCase()]||'#d97706'; }),
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          r: {
+            min: 0, max: 4,
+            ticks: { display: false },
+            pointLabels: { color: lc, font: { size: 11 } },
+            grid: { color: gc },
+            angleLines: { color: gc }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx2) {
+                var v = vectors[ctx2.dataIndex];
+                return (v ? v.rating : '') + ' — ' + (v ? (v.summary||'').slice(0,60) : '');
+              }
+            }
+          }
+        }
+      }
+    });
+    // Legend
+    var legendEl = document.getElementById('risk-radar-legend');
+    if (legendEl) {
+      legendEl.innerHTML = vectors.map(function(v) {
+        var col = RATING_COLOUR[(v.rating||'MODERATE').toUpperCase()] || '#64748b';
+        return '<span style="display:inline-flex;align-items:center;gap:4px;margin-right:12px;font-size:var(--text-xs)">' +
+          '<span style="width:10px;height:10px;border-radius:50%;background:' + col + ';flex-shrink:0"></span>' +
+          esc(v.vector||'') + '</span>';
+      }).join('');
+    }
+  }
+
+  // ── Concentration Index Diverging Bar ────────────────────────────────────────────
+  function renderConcentrationBars(items) {
+    var wrap = document.getElementById('concentration-bars-wrap');
+    if (!wrap || !items.length) return;
+    var TREND_CONFIG = {
+      'Concentrating':  { dir: +1, colour: '#dc2626', label: 'Concentrating' },
+      'Fragmenting':    { dir: -1, colour: '#059669', label: 'Fragmenting' },
+      'Stable':         { dir:  0, colour: '#64748b', label: 'Stable' },
+    };
+    var html = '<div style="display:flex;flex-direction:column;gap:8px">';
+    // Centre line layout: left half + right half around a centre divider
+    items.forEach(function(item) {
+      var cfg = TREND_CONFIG[item.trend] || { dir: 0, colour: '#94a3b8', label: item.trend || '?' };
+      var pct = cfg.dir !== 0 ? 35 : 0; // fixed visual magnitude; will be dynamic once score data available
+      var col = cfg.colour;
+      var leftPct  = cfg.dir < 0 ? pct : 0;
+      var rightPct = cfg.dir > 0 ? pct : 0;
+      html +=
+        '<div style="display:flex;align-items:center;gap:var(--space-2)">' +
+          '<div style="width:160px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right">' + esc(item.domain||'') + '</div>' +
+          '<div style="flex:1;display:flex;height:18px;gap:0">' +
+            '<div style="flex:1;display:flex;justify-content:flex-end;background:rgba(5,150,105,0.06);border-radius:3px 0 0 3px;overflow:hidden">' +
+              (leftPct ? '<div style="width:' + leftPct + '%;height:100%;background:#059669;opacity:0.8"></div>' : '') +
+            '</div>' +
+            '<div style="width:2px;background:rgba(100,116,139,0.4);flex-shrink:0"></div>' +
+            '<div style="flex:1;background:rgba(220,38,38,0.06);border-radius:0 3px 3px 0;overflow:hidden">' +
+              (rightPct ? '<div style="width:' + rightPct + '%;height:100%;background:#dc2626;opacity:0.8"></div>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div style="width:90px;font-size:var(--text-min);font-weight:600;color:' + col + ';flex-shrink:0;padding-left:4px">' + esc(cfg.label) + '</div>' +
+        '</div>';
+    });
+    html += '</div><p style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted);font-style:italic">Magnitude will be quantified once M14 concentration score is structured. Currently shows direction only.</p>';
+    wrap.innerHTML = html;
+  }
 
   });
   </script>
