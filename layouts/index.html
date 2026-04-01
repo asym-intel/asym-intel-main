@@ -63,17 +63,26 @@
     { slug: 'environmental-risks',         accent: '#4caf7d' },
     { slug: 'conflict-escalation',         accent: '#dc2626' },
   ];
+  function extractSignal(d) {
+    // Normalised signal extraction across all 7 monitor schemas
+    if (d.signal) return d.signal.headline || d.signal.title || '';
+    if (d.lead_signal) return d.lead_signal.headline || '';
+    if (d.m00_the_signal) return d.m00_the_signal.title || '';
+    if (d.module_0) return (d.module_0.body || '').slice(0, 140);
+    return '';
+  }
   monitors.forEach(function(m) {
     fetch('/monitors/' + m.slug + '/data/report-latest.json')
       .then(function(r) { return r.json(); })
       .then(function(d) {
-        var signal = (d.signal || {});
-        var headline = signal.headline || signal.title || '';
+        var headline = extractSignal(d);
         var meta = d.meta || {};
         var issue = meta.issue ? 'Issue ' + meta.issue : '';
-        // Find the domain row card for this monitor
         var card = document.querySelector('[data-monitor="' + m.slug + '"]');
         if (!card) return;
+        // Set accent as CSS custom property so hover rule can pick it up
+        card.style.setProperty('--accent-live', m.accent);
+        card.style.borderLeftColor = m.accent;
         var sigEl = card.querySelector('.tn-domain-row__signal');
         if (sigEl && headline) {
           sigEl.textContent = headline;
@@ -81,8 +90,6 @@
         }
         var issueEl = card.querySelector('.tn-domain-row__issue');
         if (issueEl && issue) issueEl.textContent = issue;
-        // Apply accent border
-        card.style.borderLeftColor = m.accent;
       })
       .catch(function() {});
   });
