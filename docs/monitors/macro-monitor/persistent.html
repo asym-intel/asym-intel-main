@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="../shared/js/charts.js"></script>
 </head>
 
 <body>
@@ -94,6 +96,10 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
         <h2 class="module-title">Asset Class Baseline</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Rolling baseline scores for each asset class. Current score, flag, and version history from the inaugural scoring run.</p>
+      <div style="margin-bottom:var(--space-6)">
+        <div style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:var(--space-3)">Asset Class Score Trends</div>
+        <canvas id="baseline-chart" style="max-height:240px;width:100%"></canvas>
+      </div>
       <div id="ps-baseline" class="baseline-grid"><div class="loading-state">Loading…</div></div>
     </section>
 
@@ -114,6 +120,10 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
         <h2 class="module-title">Conviction History</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Historical log of regime and stress label conviction changes across issues.</p>
+      <div style="margin-bottom:var(--space-6)">
+        <div style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:var(--space-3)">System Average Score — History</div>
+        <canvas id="conviction-chart" style="max-height:180px;width:100%"></canvas>
+      </div>
       <div id="ps-conviction"><div class="loading-state">Loading…</div></div>
     </section>
 
@@ -268,6 +278,76 @@ document.addEventListener('DOMContentLoaded', function () {
     var cEl = document.getElementById('ps-conviction');
     if (!conviction.length) {
       cEl.innerHTML = '<p class="text-muted text-sm">No conviction history recorded yet.</p>';
+
+    // Conviction history line chart
+    if (typeof AsymCharts !== 'undefined' && conviction.length >= 2) {
+      var cLabels = conviction.map(function(c){ return c.date; });
+      var cScores = conviction.map(function(c){ return parseFloat(c.system_average); });
+      AsymCharts.line('conviction-chart', cLabels, [{
+        label: 'System Average Score',
+        data: cScores,
+        tension: 0.3,
+        pointRadius: 4
+      }], {
+        scales: { y: { min: -1, max: 0.5,
+          title: { display: true, text: 'Score (neg = bearish)' }
+        }},
+        plugins: { legend: { display: false } }
+      });
+    } else if (conviction.length < 2) {
+      var el = document.getElementById('conviction-chart');
+      if (el) el.insertAdjacentHTML('afterend',
+        '<p style="font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic;margin-top:var(--space-2)">Chart will appear after 2+ issues.</p>');
+    }
+
+    // Asset class baseline score trend chart
+    var baselines = ps.asset_class_baseline || [];
+    var hasHistory = baselines.some(function(b){ return b.version_history && b.version_history.length >= 2; });
+    if (typeof AsymCharts !== 'undefined' && hasHistory) {
+      // Get all unique dates across all assets
+      var allDates = [];
+      baselines.forEach(function(b){
+        (b.version_history||[]).forEach(function(h){ if (allDates.indexOf(h.date)===-1) allDates.push(h.date); });
+      });
+      allDates.sort();
+      var assetColours = ['#3a7d5a','#dc2626','#2563eb','#d97706','#7c3aed','#0891b2','#be185d','#65a30d'];
+      var datasets = baselines.map(function(b, i){
+        var scoreByDate = {};
+        (b.version_history||[]).forEach(function(h){
+          var v = parseFloat(h.change.match(/-?\d+\.?\d*/)||[0]);
+          // Use prior_value to reconstruct scores
+        });
+        // Build data from version_history prior_value chain
+        var data = allDates.map(function(dt){
+          var entry = (b.version_history||[]).find(function(h){ return h.date===dt; });
+          if (!entry) return null;
+          // current value at this date
+          var nextEntry = (b.version_history||[]).find(function(h){ return h.date>dt; });
+          return entry.prior_value != null ? parseFloat(entry.prior_value) :
+                 (b.version_history.indexOf(entry)===0 ? null : null);
+        });
+        // Simpler: use prior_value for all but last, current_score for last
+        data = allDates.map(function(dt, di){
+          var entry = (b.version_history||[]).find(function(h){ return h.date===dt; });
+          if (!entry) return null;
+          if (di === allDates.length-1) return b.current_score != null ? parseFloat(b.current_score) : null;
+          return entry.prior_value != null ? parseFloat(entry.prior_value) : null;
+        });
+        return {
+          label: b.asset_class,
+          data: data,
+          borderColor: assetColours[i % assetColours.length],
+          backgroundColor: 'transparent',
+          tension: 0.2,
+          pointRadius: 3,
+          spanGaps: true
+        };
+      });
+      AsymCharts.line('baseline-chart', allDates, datasets, {
+        scales: { y: { title: { display: true, text: 'Score' } } },
+        plugins: { legend: { labels: { font: { size: 10 } } } }
+      });
+    }
     } else {
       var cHtml = '<div class="card" style="padding:0">';
       conviction.slice().reverse().forEach(function (c) {
