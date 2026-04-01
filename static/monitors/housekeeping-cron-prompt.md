@@ -141,3 +141,79 @@ SCHEDULE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Cron: 0 8 * * 1 (every Monday at 08:00 UTC — after all Monday publishes)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHECK 13 — SCHEMA REQUIREMENTS VALIDATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Read the schema requirements spec:
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/monitor-schema-requirements.json \
+    --jq '.content' | base64 -d
+
+For each monitor, fetch report-latest.json and validate:
+  1. All required_top_level_keys are present and non-null
+  2. Required sub-fields are present (e.g. executive_briefing fields for GMM)
+  3. Required min counts are met (e.g. tail_risks >= 5 for GMM)
+  4. Required_from_issue_N fields: check issue number vs. requirement date and flag if overdue
+
+FAIL: any required_top_level_keys missing
+WARN: any required sub-fields missing or min counts not met
+WARN: any required_from_issue_N fields missing when current issue >= N
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHECK 14 — COMPILE CROSS-MONITOR INTELLIGENCE DIGEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+THIS IS A WRITE OPERATION (exception to read-only rule — digest is infrastructure).
+
+After all checks complete, compile a fresh intelligence digest from all 7 monitors'
+cross_monitor_flags arrays and WRITE it to:
+  static/monitors/shared/intelligence-digest.json
+
+Steps:
+  1. For each of the 7 monitors, fetch cross_monitor_flags from report-latest.json
+  2. Normalise each flag to the standard digest schema:
+     { source_monitor, source_slug, flag_id, title, target_monitors[], body,
+       status, type, first_flagged, source_url }
+  3. Sort by source_monitor, then first_flagged
+  4. Write the compiled digest as:
+     {
+       "schema_version": "1.0",
+       "compiled": "[TODAY_UTC]",
+       "total_flags": N,
+       "flags_by_source": { "wdm": N, "gmm": N, ... },
+       "flags": [...]
+     }
+  5. Commit as: "data(housekeeping): compile cross-monitor intelligence digest [DATE]"
+
+NOTIFY: if total_flags changed significantly vs prior digest (±5 or more)
+        with title "Cross-Monitor Digest: [N] flags ([+/-N] vs last week)"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CHECK 15 — DATA FRESHNESS CHECK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For each monitor, verify report-latest.json was published within its
+expected cadence window:
+
+  WDM:  published within last 8 days (Mon cadence)
+  GMM:  published within last 8 days (Tue cadence)
+  FCW:  published within last 8 days (Thu cadence)
+  ESA:  published within last 8 days (Wed cadence)
+  AGM:  published within last 8 days (Fri cadence)
+  ERM:  published within last 8 days (Sat cadence)
+  SCEM: published within last 8 days (Sun cadence)
+
+FAIL: if any monitor's last publish is > 14 days ago (missed 2 cycles)
+WARN: if any monitor's last publish is > 8 days ago (missed 1 cycle)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+UPDATED RESULT FORMAT (15 checks)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If checks 1–12 pass AND schema validation passes AND digest compiled:
+  Exit silently — no notification (digest write is the only output).
+
+If any WARN or FAIL across all 15 checks:
+  Send notification with title: "Asym Intel — Housekeeping [DATE]: [N] issues"
+  Body: list each WARN/FAIL with monitor, check number, and description.
