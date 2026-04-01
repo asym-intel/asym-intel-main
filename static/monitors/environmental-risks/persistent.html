@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Living Knowledge — Environmental Risks Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Living knowledge base for the Environmental Risks Monitor — persistent planetary boundary status, tipping system flags, standing trackers, and cross-monitor connections.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <style>
+    .version-history { display: none; }
+    .version-history--open { display: block; }
+    .version-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: var(--text-xs);
+      color: var(--monitor-accent);
+      padding: 0;
+      margin-top: var(--space-2);
+      text-decoration: underline;
+    }
+    .version-history table { width: 100%; margin-top: var(--space-2); font-size: var(--text-xs); }
+    .version-history td, .version-history th { padding: var(--space-1) var(--space-2); text-align: left; border-bottom: 1px solid var(--color-border-subtle); }
+  </style>
+</head>
+
+<body>
+<style>
+body{padding-top:40px!important}
+/* WDM/blueprint monitors: monitor-nav and sidebar offset */
+.monitor-nav{top:40px!important}
+.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
+/* Legacy monitor overrides (pre-blueprint) */
+nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
+nav.sidebar{height:calc(100vh - 40px)!important}
+.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
+.header:not([data-asym-network-bar]){top:40px!important}
+nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
+</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;display:flex;align-items:center;padding:0 24px;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
+
+</nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
+
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 36 36" fill="none" aria-hidden="true" style="flex-shrink:0">
+      <circle cx="18" cy="18" r="14" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+      <circle cx="18" cy="18" r="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.5"/>
+      <path d="M18 4 Q22 10 18 18 Q14 26 18 32" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/>
+      <path d="M4 18 Q10 14 18 18 Q26 22 32 18" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/>
+      <circle cx="18" cy="18" r="2.5" fill="var(--monitor-accent)" opacity="0.9"/>
+      <circle cx="12" cy="11" r="1.2" fill="var(--monitor-accent)" opacity="0.6"/>
+      <circle cx="25" cy="13" r="1" fill="var(--monitor-accent)" opacity="0.4"/>
+      <circle cx="11" cy="24" r="0.9" fill="var(--monitor-accent)" opacity="0.5"/>
+    </svg>
+    <span>Environmental Risks Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html" class="active">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="7.5" cy="7.5" r="3"/><line x1="7.5" y1="1" x2="7.5" y2="2.5"/><line x1="7.5" y1="12.5" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.5" y2="7.5"/><line x1="12.5" y1="7.5" x2="14" y2="7.5"/></svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 12A5.5 5.5 0 1 1 11.7 3.8 6.5 6.5 0 0 0 7.5 13z"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <div class="page-header">
+      <div class="page-header__eyebrow">ERM · Asymmetric Intelligence</div>
+      <h1 class="page-header__title">Living Knowledge</h1>
+      <p class="page-header__sub">Persistent state across all issues — planetary boundary statuses, tipping system flags, standing trackers, and cross-monitor connections. Updated each Saturday publication cycle.</p>
+    </div>
+
+    <section class="module-section" id="section-boundaries">
+      <div class="module-header">
+        <div class="module-title">Planetary Boundary Status</div>
+      </div>
+      <div id="boundaries-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <section class="module-section" id="section-tipping">
+      <div class="module-header">
+        <div class="module-title">Tipping System Flags</div>
+      </div>
+      <div id="tipping-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <section class="module-section" id="section-trackers">
+      <div class="module-header">
+        <div class="module-title">Standing Trackers</div>
+      </div>
+      <div id="trackers-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <section class="module-section" id="section-attribution">
+      <div class="module-header">
+        <div class="module-title">Active Attribution Gap Cases</div>
+      </div>
+      <div id="attribution-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <section class="module-section" id="section-cascades">
+      <div class="module-header">
+        <div class="module-title">Regional Cascade Chains</div>
+      </div>
+      <div id="cascades-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Flags</div>
+      </div>
+      <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-boundaries">Planetary Boundaries</a></li>
+      <li><a href="#section-tipping">Tipping Systems</a></li>
+      <li><a href="#section-trackers">Standing Trackers</a></li>
+      <li><a href="#section-attribution">Attribution Gaps</a></li>
+      <li><a href="#section-cascades">Cascade Chains</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer">
+  <span>Environmental Risks Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function statusBadgeClass(status) {
+    switch (status) {
+      case 'Transgressed':    return 'severity-badge--critical';
+      case 'High Risk':       return 'severity-badge--high';
+      case 'Increasing Risk': return 'severity-badge--moderate';
+      case 'Safe':            return 'severity-badge--positive';
+      case 'Critical':        return 'severity-badge--critical';
+      case 'High':            return 'severity-badge--high';
+      case 'Elevated':        return 'severity-badge--moderate';
+      case 'Active':          return 'severity-badge--high';
+      default:                return 'severity-badge--moderate';
+    }
+  }
+
+  function trendBadgeClass(trend) {
+    switch (trend) {
+      case 'Worsening':  return 'severity-badge--critical';
+      case 'Stable':     return 'severity-badge--moderate';
+      case 'Improving':  return 'severity-badge--positive';
+      default:           return 'severity-badge--moderate';
+    }
+  }
+
+  function renderVersionHistory(history, toggleId, historyId) {
+    if (!history || !history.length) return '';
+    var rows = history.map(function (h) {
+      return '<tr><td>' + escHtml(h.date || '') + '</td><td>' + escHtml(h.change || '') + '</td><td>' + escHtml(h.reason || '') + '</td><td>' + (h.prior_value !== null ? escHtml(String(h.prior_value)) : '—') + '</td></tr>';
+    }).join('');
+    return '<button class="version-toggle" id="' + escHtml(toggleId) + '" onclick="toggleHistory(\'' + escHtml(historyId) + '\',\'' + escHtml(toggleId) + '\')">Show history (' + history.length + ')</button>' +
+      '<div class="version-history" id="' + escHtml(historyId) + '"><table><thead><tr><th>Date</th><th>Change</th><th>Reason</th><th>Prior Value</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
+  window.toggleHistory = function (historyId, toggleId) {
+    var el = document.getElementById(historyId);
+    var btn = document.getElementById(toggleId);
+    if (!el) return;
+    var open = el.classList.toggle('version-history--open');
+    if (btn) btn.textContent = open ? 'Hide history' : ('Show history (' + el.querySelectorAll('tbody tr').length + ')');
+  };
+
+  fetch('data/persistent-state.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+
+      // Planetary Boundary Status
+      var boundaries = d.planetary_boundary_status || [];
+      document.getElementById('boundaries-content').innerHTML = boundaries.map(function (b, i) {
+        var tid = 'bt-' + i;
+        var hid = 'bh-' + i;
+        return '<div class="card" style="margin-bottom:var(--space-3)">' +
+          '<div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-2)">' +
+            '<strong>' + escHtml(b.boundary) + '</strong>' +
+            '<span class="severity-badge ' + statusBadgeClass(b.status) + '">' + escHtml(b.status) + '</span>' +
+            '<span class="severity-badge ' + trendBadgeClass(b.trend) + '">' + escHtml(b.trend) + '</span>' +
+            '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Updated: ' + escHtml(b.last_updated || '') + '</span>' +
+          '</div>' +
+          renderVersionHistory(b.version_history || [], tid, hid) +
+        '</div>';
+      }).join('') || '<p class="text-muted">No boundary data available.</p>';
+
+      // Tipping System Flags
+      var tipping = d.tipping_system_flags || [];
+      document.getElementById('tipping-content').innerHTML = tipping.map(function (t, i) {
+        var tid = 'tt-' + i;
+        var hid = 'th-' + i;
+        var extra = '';
+        if (t.collapse_probability_range) extra += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)">Collapse probability: <strong>' + escHtml(t.collapse_probability_range) + '</strong></div>';
+        if (t.ipcc_ar6_baseline) extra += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)">IPCC AR6 baseline: ' + escHtml(t.ipcc_ar6_baseline) + '</div>';
+        if (t.proxy_value) extra += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)">Proxy: ' + escHtml(t.proxy_metric || '') + ' — ' + escHtml(t.proxy_value) + '</div>';
+        if (t.slr_equivalent_metres) extra += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)">SLR equivalent: ' + escHtml(String(t.slr_equivalent_metres)) + 'm</div>';
+        return '<div class="card" style="margin-bottom:var(--space-3)">' +
+          '<div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-2)">' +
+            '<strong>' + escHtml(t.system) + '</strong>' +
+            '<span class="severity-badge ' + statusBadgeClass(t.status) + '">' + escHtml(t.status) + '</span>' +
+            '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Updated: ' + escHtml(t.last_updated || '') + '</span>' +
+          '</div>' +
+          extra +
+          renderVersionHistory(t.version_history || [], tid, hid) +
+        '</div>';
+      }).join('') || '<p class="text-muted">No tipping system data available.</p>';
+
+      // Standing Trackers
+      var trackers = d.standing_trackers || {};
+      var trackHtml = '';
+      if (trackers.icj_climate_advisory) {
+        var icj = trackers.icj_climate_advisory;
+        trackHtml +=
+          '<div class="card" style="margin-bottom:var(--space-4)">' +
+            '<div class="card__label">ICJ Climate Advisory Opinion</div>' +
+            '<div class="card__title" style="font-size:var(--text-base)">' + escHtml(icj.status || '') + '</div>' +
+            '<div class="card__body">' + escHtml(icj.last_development || '') + '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)">Unchanged since: ' + escHtml(icj.unchanged_since || '') + ' · Last updated: ' + escHtml(icj.last_updated || '') + '</div>' +
+            (icj.source_url ? '<div class="card__footer"><a href="' + escHtml(icj.source_url) + '" target="_blank" rel="noopener" class="source-link">ICJ Case 187 →</a></div>' : '') +
+            renderVersionHistory(icj.version_history || [], 'icj-t', 'icj-h') +
+          '</div>';
+      }
+      if (trackers.loss_damage_finance) {
+        var ld = trackers.loss_damage_finance;
+        trackHtml +=
+          '<div class="card" style="margin-bottom:var(--space-4)">' +
+            '<div class="card__label">Loss &amp; Damage Finance Tracker</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin:var(--space-3) 0">' +
+              '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Committed</div><div style="font-weight:700">' + escHtml(ld.committed || '—') + '</div></div>' +
+              '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Disbursed</div><div style="font-weight:700;color:var(--critical)">' + escHtml(ld.disbursed || '—') + '</div></div>' +
+              '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Gap</div><div style="font-weight:700;color:var(--critical)">' + escHtml(ld.gap || '—') + '</div></div>' +
+            '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Unchanged since: ' + escHtml(ld.unchanged_since || '') + ' · Last updated: ' + escHtml(ld.last_updated || '') + '</div>' +
+            (ld.source_url ? '<div class="card__footer"><a href="' + escHtml(ld.source_url) + '" target="_blank" rel="noopener" class="source-link">UNFCCC Fund →</a></div>' : '') +
+            renderVersionHistory(ld.version_history || [], 'ld-t', 'ld-h') +
+          '</div>';
+      }
+      document.getElementById('trackers-content').innerHTML = trackHtml || '<p class="text-muted">No standing trackers available.</p>';
+
+      // Attribution Gap Cases
+      var gaps = d.active_attribution_gap_cases || [];
+      document.getElementById('attribution-content').innerHTML = gaps.map(function (g, i) {
+        var tid = 'at-' + i;
+        var hid = 'ah-' + i;
+        return '<div class="card" style="margin-bottom:var(--space-3)">' +
+          '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);flex-wrap:wrap">' +
+            '<strong>' + escHtml(g.case || '') + '</strong>' +
+            '<span class="severity-badge ' + (g.status === 'Open' ? 'severity-badge--high' : 'severity-badge--positive') + '">' + escHtml(g.status || '') + '</span>' +
+            '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Opened: ' + escHtml(g.opened || '') + '</span>' +
+          '</div>' +
+          (g.description ? '<div class="card__body">' + escHtml(g.description) + '</div>' : '') +
+          renderVersionHistory(g.version_history || [], tid, hid) +
+        '</div>';
+      }).join('') || '<p class="text-muted">No attribution gap cases.</p>';
+
+      // Regional Cascade Chains
+      var cascades = d.regional_cascade_chains || [];
+      document.getElementById('cascades-content').innerHTML = cascades.map(function (c, i) {
+        var tid = 'ct-' + i;
+        var hid = 'ch-' + i;
+        return '<div class="card" style="margin-bottom:var(--space-3)">' +
+          '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);flex-wrap:wrap">' +
+            '<strong>' + escHtml(c.region || '') + '</strong>' +
+            '<span class="severity-badge ' + statusBadgeClass(c.status) + '">' + escHtml(c.status || '') + '</span>' +
+          '</div>' +
+          '<div style="font-size:var(--text-sm);font-family:monospace;padding:var(--space-2);background:var(--monitor-accent-bg);border-radius:var(--radius-sm);margin-bottom:var(--space-2)">' + escHtml(c.chain || '') + '</div>' +
+          (c.current_stage ? '<div style="font-size:var(--text-xs);margin-bottom:var(--space-1)">Current stage: <strong>' + escHtml(c.current_stage) + '</strong></div>' : '') +
+          (c.reverse_cascade ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Reverse cascade: ' + escHtml(c.reverse_cascade) + '</div>' : '') +
+          renderVersionHistory(c.version_history || [], tid, hid) +
+        '</div>';
+      }).join('') || '<p class="text-muted">No cascade chain data.</p>';
+
+      // Cross-Monitor Flags
+      var cmf = d.cross_monitor_flags || {};
+      var flags = cmf.flags || [];
+      document.getElementById('cross-monitor-content').innerHTML =
+        (cmf.updated ? '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + escHtml(cmf.updated) + '</p>' : '') +
+        (flags.length ? flags.map(function (flag, i) {
+          var tid = 'cmt-' + i;
+          var hid = 'cmh-' + i;
+          return '<div class="card" style="margin-bottom:var(--space-4);border-left:3px solid var(--monitor-accent)">' +
+            '<div class="card__label">→ ' + escHtml(flag.target_monitor || '') + '</div>' +
+            '<div style="display:flex;gap:var(--space-2);margin:var(--space-2) 0;flex-wrap:wrap">' +
+              '<span class="severity-badge severity-badge--moderate">' + escHtml(flag.significance || '') + '</span>' +
+              '<span class="severity-badge ' + (flag.status === 'Active' ? 'severity-badge--positive' : 'severity-badge--moderate') + '">' + escHtml(flag.status || '') + '</span>' +
+            '</div>' +
+            '<div class="card__body">' + escHtml(flag.linkage || '') + '</div>' +
+            (flag.gerp_perspective ? '<div style="margin-top:var(--space-3);padding:var(--space-3);background:var(--monitor-accent-bg);border-radius:var(--radius-sm);font-size:var(--text-xs)">' + escHtml(flag.gerp_perspective) + '</div>' : '') +
+            (flag.target_url ? '<div class="card__footer"><a href="' + escHtml(flag.target_url) + '" target="_blank" rel="noopener" class="source-link">View monitor →</a></div>' : '') +
+            renderVersionHistory(flag.version_history || [], tid, hid) +
+          '</div>';
+        }).join('') : '<p class="text-muted">No cross-monitor flags.</p>');
+    })
+    .catch(function (e) {
+      document.getElementById('boundaries-content').innerHTML = '<div class="error-state">Failed to load persistent state: ' + e.message + '</div>';
+    });
+});
+</script>
+</body>
+</html>
