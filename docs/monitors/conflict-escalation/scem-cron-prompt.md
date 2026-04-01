@@ -745,3 +745,42 @@ SOURCING RULES:
 - "Ceasefire Violated" supersedes "Ceasefire Holding" as soon as a single
   Tier 1-verified violation is recorded.
 - confidence applies to the status field, not the underlying conflict data.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STEP 0B — READ SHARED INTELLIGENCE LAYER (before research)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After loading your own persistent-state.json, read these two shared files:
+
+```bash
+# Cross-monitor intelligence digest (compiled weekly by housekeeping cron)
+# Filters for flags relevant to SCEM (either targeting or sourced from this monitor)
+gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/intelligence-digest.json \
+  --jq '.content' | base64 -d | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+abbr='scem'
+flags=[f for f in d.get('flags',[])
+       if abbr in [x.lower() for x in f.get('target_monitors',[])]
+       or f.get('source_monitor','')==abbr]
+print(f'Relevant cross-monitor flags: {{len(flags)}} of {{d.get("total_flags",0)}} total')
+for f in flags:
+    print(f'  [{f["source_monitor"].upper()}→{abbr.upper()}] {f["title"][:80]}')
+    if f.get('body'): print(f'    {f["body"][:120]}')
+"
+
+# Schema changelog — confirm what you must produce this issue
+gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/schema-changelog.json \
+  --jq '.content' | base64 -d | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+entries=[e for e in d.get('entries',[]) if e.get('monitor') in ['SCEM','ALL']]
+print(f'Schema requirements for SCEM ({len(entries)} entries):')
+for e in entries:
+    print(f'  [{e["id"]}] {e["field"]}: required from {e.get("required_from_issue","launch")}')
+"
+```
+
+Use cross-monitor flags to incorporate adjacent signals into your analysis
+and update your own cross_monitor_flags where new linkages are found.
+Use schema changelog to verify your output includes all required fields.
