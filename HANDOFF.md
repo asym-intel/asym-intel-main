@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 12:36 UTC | **Last commit (main):** bdcee41
+**Date:** 2026-04-01 12:45 UTC | **Last commit (main):** f8bfdbd0
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -63,11 +63,11 @@ starts populating: electoral_watch, digital_civil, autocratic_export,
 state_capture, institutional_pulse, legislative_watch, research_360.friction_notes, networks.
 This is a cron prompt edit — commits directly to main, no staging needed.
 
-### Priority 2 — Visual design pass
-More character per monitor, images, better contrast. Requires staging-first.
+### ✅ Visual design pass — COMPLETE
+Homepage live signal cards + per-monitor CSS personality. Merged to main.
 
-### Priority 3 — Homepage upgrade
-Monitor cards with live signal pull, better mobile layout. Staging-first.
+### ✅ Homepage upgrade — COMPLETE
+Domain cards fetch report-latest.json on page load. Merged to main.
 
 ### Priority 4 — Schema audit
 Check field alignment across all 7 monitors after renderer fixes.
