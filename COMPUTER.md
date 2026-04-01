@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.4 — 1 April 2026
+# Version: 1.5 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -209,3 +209,52 @@ UPDATING THIS FILE
 When a new architectural decision is made, update this file immediately.
 This file may be committed directly to main (it is not HTML/CSS/JS).
 Bump the version number and date at the top.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+MONITOR IMPROVEMENT WORKFLOW — MANDATORY FOR ALL SPRINT WORK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+When implementing any item from the domain audit (docs/audits/):
+
+STEP 1 — IMPLEMENT (staging → PR → merge as normal)
+
+STEP 2 — UPDATE AUDIT FILE (direct to main, after merge)
+  Mark the implemented item in docs/audits/audit-{abbr}.md:
+  Change: | Description |
+  To:     | ~~Description~~ ✅ YYYY-MM-DD |
+  Also mark in docs/audits/master-action-plan.md under the relevant section.
+
+STEP 3 — UPDATE INTERNAL METHODOLOGY (direct to main, after merge)
+  Update HANDOFF.md with what changed and when.
+  If an architectural rule changed, update COMPUTER.md.
+
+STEP 4 — UPDATE PUBLIC METHODOLOGY PAGE (staging → PR → merge)
+  Every monitor has a public methodology page:
+    https://asym-intel.info/monitors/{slug}/methodology/
+  Rendered from: content/monitors/{slug}/methodology.md (Hugo markdown)
+  
+  Update the methodology page when any of these change:
+  - How an indicator is scored or sourced
+  - How a composite index / heatmap / score is calculated
+  - What sections the monitor covers
+  - What data schema fields are collected
+  - Any change to the analytical framework or indicator set
+
+  The methodology page must always accurately describe what the monitor
+  CURRENTLY does — not what it did at launch. It is the user-facing
+  source of truth.
+
+  Methodology page update is part of the same PR as the feature change
+  wherever possible. If updating methodology only, it may go direct to
+  main (it is Hugo markdown, not HTML/CSS/JS).
+
+STEP 5 — UPDATE CRON PROMPT (direct to main, if schema changed)
+  If the change adds or modifies a collected data field, update the
+  cron prompt schema documentation in {abbr}-cron-prompt.md to match.
+  The cron prompt is the agent's source of truth — keep it current.
+
+AUDIT FILE STATUS KEY:
+  | Description |                    → Pending
+  | ~~Description~~ ✅ YYYY-MM-DD |  → Implemented
+  | ~~Description~~ ⏸ BLOCKED |      → Blocked (note reason inline)
+  | Description 🔜 |                  → In progress this session
