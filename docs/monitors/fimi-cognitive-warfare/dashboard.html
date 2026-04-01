@@ -45,7 +45,7 @@
     }
     .fcw-threat-banner__level {
       font-family: var(--font-mono, 'Courier New', monospace);
-      font-size: 0.7rem;
+      font-size: var(--text-xs);
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
@@ -53,7 +53,7 @@
       margin-bottom: 0.25rem;
     }
     .fcw-threat-banner__title {
-      font-size: 0.95rem;
+      font-size: var(--text-sm);
       font-weight: 600;
       color: var(--color-text, #1a1917);
       line-height: 1.4;
@@ -63,7 +63,7 @@
       color: #e0dfdc;
     }
     .fcw-threat-banner__sub {
-      font-size: 0.78rem;
+      font-size: var(--text-xs);
       color: var(--color-text-secondary, #3d3a35);
       line-height: 1.5;
     }
@@ -77,13 +77,12 @@
       border-collapse: collapse;
     }
     .fcw-actor-matrix th {
-      font-family: var(--font-mono, 'Courier New', monospace);
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       color: var(--color-text-muted, #6b6660);
-      padding: 0.4rem 0.75rem;
+      padding: 0.5rem 0.75rem;
       text-align: left;
       border-bottom: 1px solid var(--color-border, #d8d4cd);
     }
@@ -92,7 +91,8 @@
       border-bottom-color: #2d2c2a;
     }
     .fcw-actor-matrix td {
-      padding: 0.55rem 0.75rem;
+      font-size: var(--text-sm);
+      padding: 0.6rem 0.75rem;
       vertical-align: middle;
       border-bottom: 1px solid var(--color-border-subtle, #e8e4de);
     }
@@ -109,23 +109,19 @@
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      font-family: var(--font-mono, 'Courier New', monospace);
-      font-size: 0.78rem;
+      font-size: var(--text-sm);
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       white-space: nowrap;
     }
-    .fcw-actor-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
+    .fcw-actor-flag {
+      font-size: 1.1em;
+      line-height: 1;
     }
+    /* .fcw-actor-dot removed — replaced by flag emoji */
     .fcw-count-badge {
       display: inline-block;
-      font-family: var(--font-mono, 'Courier New', monospace);
-      font-size: 0.8rem;
+      font-size: var(--text-sm);
       font-weight: 700;
       min-width: 1.6rem;
       text-align: center;
@@ -177,7 +173,7 @@
       background: #9e9b97;
     }
     .fcw-active-text {
-      font-size: 0.72rem;
+      font-size: var(--text-sm);
       color: var(--color-text-muted, #6b6660);
     }
     [data-theme="dark"] .fcw-active-text {
@@ -423,8 +419,8 @@ document.addEventListener('DOMContentLoaded', function () {
         html += '<tr>';
         // Actor ID
         html += '<td><span class="fcw-actor-id">';
-        html += '<span class="fcw-actor-dot" style="background:' + cfg.color + '"></span>';
-        html += '<span style="color:' + cfg.color + '">' + escHtml(cfg.label) + '</span>';
+        html += '<span class="fcw-actor-flag">' + escHtml(cfg.flag || '') + '</span>';
+        html += '<span style="color:' + cfg.color + ';font-weight:700">' + escHtml(cfg.label) + '</span>';
         html += '</span></td>';
         // Count
         html += '<td style="text-align:center"><span class="fcw-count-badge">' + count + '</span></td>';
