@@ -10,6 +10,189 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <style>
+    /* ── Risk Vector Heat Grid (M07) ─────────────────────────────── */
+    .risk-heat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+    .risk-heat-cell {
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .risk-heat-cell--HIGH {
+      background: rgba(193, 68, 14, 0.1);
+      border: 1px solid rgba(193, 68, 14, 0.3);
+    }
+    .risk-heat-cell--ELEVATED {
+      background: rgba(217, 119, 6, 0.09);
+      border: 1px solid rgba(217, 119, 6, 0.28);
+    }
+    .risk-heat-cell--MODERATE,
+    .risk-heat-cell--LOW {
+      background: rgba(37, 99, 235, 0.06);
+      border: 1px solid rgba(37, 99, 235, 0.18);
+    }
+    .risk-heat-cell__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .risk-heat-cell__name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .risk-rating-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .risk-rating-badge--HIGH     { background: #c1440e; color: #fff; }
+    .risk-rating-badge--ELEVATED { background: #d97706; color: #fff; }
+    .risk-rating-badge--MODERATE { background: #2563eb; color: #fff; }
+    .risk-rating-badge--LOW      { background: #6b6660; color: #fff; }
+    .risk-heat-cell__summary {
+      font-size: 0.78rem;
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+    }
+    .risk-heat-cell__meta {
+      display: flex;
+      gap: var(--space-2);
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      flex-wrap: wrap;
+      margin-top: var(--space-1);
+    }
+    .risk-heat-divider {
+      border: none;
+      border-top: 1px solid var(--color-border-subtle);
+      margin: var(--space-5) 0;
+    }
+
+    /* ── Model Frontier Tier Chart (M02) ─────────────────────────── */
+    .tier-chart {
+      margin-bottom: var(--space-5);
+    }
+    .tier-row {
+      margin-bottom: var(--space-5);
+      position: relative;
+    }
+    .tier-row__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+    .tier-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 2px 9px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .tier-badge--1 {
+      background: #3a7d5a;
+      color: #fff;
+    }
+    .tier-badge--2 {
+      background: #d97706;
+      color: #fff;
+    }
+    .tier-badge--3 {
+      background: var(--color-bg-alt);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .tier-row__label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+    .tier-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+    .tier-pill {
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .tier-pill--1 {
+      background: rgba(58, 125, 90, 0.1);
+      border: 1px solid rgba(58, 125, 90, 0.3);
+      min-width: 200px;
+      flex: 1;
+    }
+    .tier-pill--2 {
+      background: rgba(217, 119, 6, 0.08);
+      border: 1px solid rgba(217, 119, 6, 0.25);
+      min-width: 180px;
+      flex: 1;
+    }
+    .tier-pill--3 {
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border-subtle);
+      min-width: 160px;
+      flex: 1;
+      opacity: 0.85;
+    }
+    .tier-pill__name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .tier-pill__lab {
+      font-size: 0.72rem;
+      color: var(--color-text-muted);
+    }
+    .tier-pill__warn {
+      font-size: 0.65rem;
+      color: #d97706;
+      font-weight: 600;
+    }
+
+    /* Dark mode overrides */
+    [data-theme="dark"] .risk-heat-cell--HIGH {
+      background: rgba(193, 68, 14, 0.16);
+      border-color: rgba(193, 68, 14, 0.4);
+    }
+    [data-theme="dark"] .risk-heat-cell--ELEVATED {
+      background: rgba(217, 119, 6, 0.14);
+      border-color: rgba(217, 119, 6, 0.35);
+    }
+    [data-theme="dark"] .risk-heat-cell--MODERATE,
+    [data-theme="dark"] .risk-heat-cell--LOW {
+      background: rgba(37, 99, 235, 0.1);
+      border-color: rgba(37, 99, 235, 0.25);
+    }
+    [data-theme="dark"] .tier-pill--3 {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    @media (max-width: 640px) {
+      .risk-heat-grid { grid-template-columns: 1fr; }
+      .tier-pills { flex-direction: column; }
+    }
+  </style>
 </head>
 
 <body>
@@ -310,15 +493,54 @@
         }
         document.getElementById('m1-content').innerHTML = m1html || empty();
 
-        // M02 — Model Frontier
+        // M02 — Model Frontier (tier chart + intel list)
         var m2 = d.module_2 || {};
         var models = Array.isArray(m2.models) ? m2.models : [];
-        document.getElementById('m2-content').innerHTML = models.length
-          ? renderIntelItems(models, ['name','headline','asymmetric'], function(item){
-              return (item.lab ? '<span class="tag">' + esc(item.lab) + '</span>' : '') +
-                     (item.tier === 3 ? '<span class="tag tag--warn">T3 source</span>' : '');
-            })
-          : empty();
+        if (models.length) {
+          // Tier chart visual
+          var tierGroups = {1: [], 2: [], 3: []};
+          models.forEach(function(m) {
+            var t = m.tier || 3;
+            if (!tierGroups[t]) tierGroups[t] = [];
+            tierGroups[t].push(m);
+          });
+          var tierLabels = {1: 'Tier 1 — Frontier', 2: 'Tier 2 — Capable', 3: 'Tier 3 — Reported / Unverified'};
+          var m2html = '<div class="tier-chart">';
+          [1, 2, 3].forEach(function(t) {
+            var grp = tierGroups[t];
+            if (!grp || !grp.length) return;
+            m2html += '<div class="tier-row">' +
+              '<div class="tier-row__header">' +
+                '<span class="tier-badge tier-badge--' + t + '">T' + t + '</span>' +
+                '<span class="tier-row__label">' + esc(tierLabels[t]) + '</span>' +
+              '</div>' +
+              '<div class="tier-pills">';
+            grp.forEach(function(m) {
+              m2html += '<div class="tier-pill tier-pill--' + t + '">' +
+                '<div class="tier-pill__name">' + esc(m.name || '') + '</div>' +
+                '<div class="tier-pill__lab">' + esc(m.lab || '') + '</div>';
+              if (m.tier === 3 && m.flag) {
+                m2html += '<div class="tier-pill__warn">T3 — unverified source</div>';
+              }
+              if (m.released) {
+                m2html += '<div class="tier-pill__lab" style="margin-top:2px">' + esc(m.released) + '</div>';
+              }
+              m2html += '</div>';
+            });
+            m2html += '</div></div>';
+          });
+          m2html += '</div>';
+          m2html += '<hr class="risk-heat-divider">';
+          // Full intel list below the tier chart
+          m2html += renderIntelItems(models, ['name','headline','asymmetric'], function(item){
+            return (item.lab ? '<span class="tag">' + esc(item.lab) + '</span>' : '') +
+                   '<span class="tier-badge tier-badge--' + (item.tier || 3) + '" style="margin-left:4px">T' + (item.tier || 3) + '</span>' +
+                   (item.tier === 3 ? '<span class="tag tag--warn" style="margin-left:4px">T3 source</span>' : '');
+          });
+          document.getElementById('m2-content').innerHTML = m2html;
+        } else {
+          document.getElementById('m2-content').innerHTML = empty();
+        }
 
         // M03 — Investment & M&A
         var m3 = d.module_3 || {};
@@ -376,14 +598,41 @@
         }
         document.getElementById('m6-content').innerHTML = m6html || empty();
 
-        // M07 — Risk Indicators
+        // M07 — Risk Indicators (heat grid)
         var m7 = d.module_7 || {};
         var vectors = Array.isArray(m7.vectors) ? m7.vectors : [];
-        document.getElementById('m7-content').innerHTML = vectors.length
-          ? renderIntelItems(vectors, ['vector','summary'], function(item){
-              return item.rating ? '<span class="tag tag--risk-' + riskClass(item.rating) + '">' + esc(item.rating) + '</span>' : '';
-            })
-          : empty();
+        if (vectors.length) {
+          var m7html = '<div class="risk-heat-grid">';
+          vectors.forEach(function(v) {
+            var rating = (v.rating || 'MODERATE').toUpperCase();
+            var safeRating = rating.match(/^(HIGH|ELEVATED|MODERATE|LOW)$/) ? rating : 'MODERATE';
+            m7html += '<div class="risk-heat-cell risk-heat-cell--' + safeRating + '">' +
+              '<div class="risk-heat-cell__header">' +
+                '<div class="risk-heat-cell__name">' + esc(v.vector || '') + '</div>' +
+                '<span class="risk-rating-badge risk-rating-badge--' + safeRating + '">' + esc(rating) + '</span>' +
+              '</div>' +
+              '<div class="risk-heat-cell__summary">' + esc(v.summary || '') + '</div>';
+            if (v.asymmetric) {
+              m7html += '<div class="risk-heat-cell__summary" style="border-top:1px solid rgba(0,0,0,0.07);padding-top:var(--space-2);margin-top:var(--space-2);font-style:italic">' +
+                esc(v.asymmetric) + '</div>';
+            }
+            m7html += '<div class="risk-heat-cell__meta">';
+            if (v.confidence) m7html += '<span>Confidence: ' + esc(v.confidence) + '</span>';
+            if (v.unchanged_since) m7html += '<span>Unchanged since: ' + esc(v.unchanged_since) + '</span>';
+            if (v.changed) m7html += '<span style="color:#3a7d5a;font-weight:600">↑ Changed this issue</span>';
+            m7html += '</div>';
+            if (Array.isArray(v.sources) && v.sources.length) {
+              m7html += '<div style="margin-top:var(--space-2)">' + v.sources.map(function(s){
+                return '<a class="intel-item__source" href="' + esc(s) + '" target="_blank" rel="noopener">Source →</a>';
+              }).join(' ') + '</div>';
+            }
+            m7html += '</div>';
+          });
+          m7html += '</div>';
+          document.getElementById('m7-content').innerHTML = m7html;
+        } else {
+          document.getElementById('m7-content').innerHTML = empty();
+        }
 
         // M08 — Military AI
         var m8 = d.module_8 || {};
