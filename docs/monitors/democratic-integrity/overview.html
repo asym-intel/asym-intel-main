@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Archive — World Democracy Monitor</title>
-  <meta name="description" content="Archive of all World Democracy Monitor issues. Weekly democratic integrity intelligence since March 2026.">
+  <title>World Democracy Monitor — Overview</title>
+  <meta name="description" content="Weekly intelligence on democratic erosion, resilience, and state capture. Tracks structural health of democratic institutions worldwide.">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
@@ -45,10 +45,10 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
     </svg>
   </button>
   <ul class="monitor-nav__links" role="list">
-    <li><a href="overview.html">Overview</a></li>
+    <li><a href="overview.html" class="active">Overview</a></li>
     <li><a href="dashboard.html">Dashboard</a></li>
     <li><a href="report.html">Latest Issue</a></li>
-    <li><a href="archive.html" class="active">Archive</a></li>
+    <li><a href="archive.html">Archive</a></li>
     <li><a href="persistent.html">Living Knowledge</a></li>
     <li><a href="about.html">About</a></li>
   </ul>
@@ -75,13 +75,29 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <section class="module-section" id="section-archive">
+    <section class="module-section" id="section-overview">
       <div class="page-header">
         <div class="page-header__eyebrow">WDM · Asymmetric Intelligence</div>
-        <h1 class="page-header__title">Archive</h1>
-        <p class="page-header__sub">All World Democracy Monitor issues, most recent first. Full briefs are published at <a href="https://asym-intel.info/monitors/democratic-integrity/">asym-intel.info/monitors/democratic-integrity/</a>.</p>
+        <h1 class="page-header__title">World Democracy Monitor</h1>
+        <p class="page-header__sub">
+          The World Democracy Monitor tracks the structural health of democratic institutions worldwide, measuring erosion, resilience, and state capture using evidence from V-Dem, Freedom House, CIVICUS, Amnesty International, Human Rights Watch, IPI, RSF, OSCE/ODIHR, and International IDEA. Published every Monday at 06:00 UTC.
+        </p>
       </div>
+    </section>
 
+    <section class="module-section" id="section-latest">
+      <div class="module-header">
+        <div class="module-title">Latest Issue</div>
+      </div>
+      <div id="latest-card" class="card">
+        <div class="loading-state">Loading latest issue…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-archive">
+      <div class="module-header">
+        <div class="module-title">Archive</div>
+      </div>
       <div id="archive-list">
         <div class="loading-state">Loading archive…</div>
       </div>
@@ -92,9 +108,27 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
+      <li><a href="#section-overview">Overview</a></li>
+      <li><a href="#section-latest">Latest Issue</a></li>
       <li><a href="#section-archive">Archive</a></li>
     </ul>
 
+    <div style="padding:var(--space-6) var(--space-4) var(--space-4);border-top:1px solid var(--color-border-subtle);margin-top:var(--space-4)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+  <circle cx="16" cy="16" r="13" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="5" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="5" ry="13" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <line x1="3" y1="16" x2="29" y2="16" stroke="var(--monitor-accent)" stroke-width="1"/>
+  <line x1="16" y1="3" x2="16" y2="29" stroke="var(--monitor-accent)" stroke-width="1"/>
+</svg>
+      <div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5">Weekly intelligence on democratic erosion, resilience, and state capture. Published Mondays.</div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4)">
+        <a href="dashboard.html" class="btn btn--primary" style="justify-content:center;font-size:var(--text-xs)">Dashboard →</a>
+        <a href="report.html" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Latest Issue →</a>
+        <a href="https://asym-intel.info/subscribe/" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Subscribe →</a>
+      </div>
+    </div>
   </nav>
 
 </div>
@@ -105,6 +139,7 @@ nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
 </footer>
 
 <script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
@@ -112,29 +147,58 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // Load latest issue card
+  fetch('data/report-latest.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var meta   = d.meta || {};
+      var signalObj = d.signal || {};
+      var signal = signalObj.headline || '';
+      var signalBody = signalObj.body || '';
+      var heatmap = d.heatmap || {};
+      var rd = (heatmap.rapid_decay || []).length;
+      var rc = (heatmap.recovery   || []).length;
+      var wl = (heatmap.watchlist  || []).length;
+
+      var card = document.getElementById('latest-card');
+      card.innerHTML =
+        '<div class="card__label">Issue ' + escHtml(meta.issue || '—') + ' · ' + escHtml(meta.week_label || '') + '</div>' +
+        '<div class="card__title" style="margin-bottom:var(--space-3)">' + escHtml(signal) + '</div>' +
+          (signalBody ? '<div class="card__body">' + escHtml(signalBody) + '</div>' : '') +
+        '<div class="card__body">' +
+          '<span class="severity-badge severity-badge--rapid-decay" style="margin-right:var(--space-2)">' + rd + ' Rapid Decay</span>' +
+          '<span class="severity-badge severity-badge--recovery" style="margin-right:var(--space-2)">' + rc + ' Recovery</span>' +
+          '<span class="severity-badge severity-badge--watchlist">' + wl + ' Watchlist</span>' +
+        '</div>' +
+        '<div class="card__footer">' +
+          '<a class="btn btn--primary" href="dashboard.html">Dashboard →</a>' +
+          '<a class="btn btn--outline" href="report.html">Full Report →</a>' +
+        '</div>';
+    })
+    .catch(function () {
+      document.getElementById('latest-card').innerHTML = '<div class="error-state">Failed to load latest issue data.</div>';
+    });
+
+  // Load archive list
   fetch('data/archive.json')
     .then(function (r) { return r.json(); })
     .then(function (issues) {
       var list = document.getElementById('archive-list');
       if (!issues || !issues.length) {
-        list.innerHTML = '<p class="text-muted">No issues archived yet.</p>';
+        list.innerHTML = '<p class="text-muted">No archived issues yet.</p>';
         return;
       }
       var html = '';
       issues.slice().reverse().forEach(function (issue) {
         var pub = issue.published
-          ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
+          ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})
           : '';
-        var deltaItems = (issue.delta_strip || []).slice(0, 3).map(function (d) {
-          return '<span class="severity-badge severity-badge--high" style="margin-right:4px">' + escHtml(d.module || d.title || '') + '</span>';
-        }).join('');
         html +=
           '<div class="archive-entry">' +
             '<div class="archive-entry__date">' + escHtml(pub) + '</div>' +
             '<div>' +
               '<div class="archive-entry__issue">Issue ' + escHtml(issue.issue || '—') + ' · ' + escHtml(issue.week_label || '') + '</div>' +
               '<div class="archive-entry__signal">' + escHtml(issue.signal || '') + '</div>' +
-              (deltaItems ? '<div class="archive-entry__delta">' + deltaItems + '</div>' : '') +
               (issue.source_url
                 ? '<a class="archive-entry__link" href="' + escHtml(issue.source_url) + '" target="_blank" rel="noopener">Full brief →</a>'
                 : '') +

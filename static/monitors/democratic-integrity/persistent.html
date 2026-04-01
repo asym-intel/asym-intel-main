@@ -3,315 +3,306 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Living Knowledge — World Democracy Monitor · Asymmetric Intelligence</title>
-  <meta name="description" content="Persistent state of the World Democracy Monitor — accumulated country heatmap, mimicry chains, and institutional integrity flags across all issues.">
-  <link rel="preconnect" href="https://api.fontshare.com">
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+  <title>Living Knowledge — World Democracy Monitor</title>
+  <meta name="description" content="Persistent knowledge base for the World Democracy Monitor. Country heatmap history, mimicry chain tracking, and institutional integrity flags.">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
 </head>
+
 <body>
 <style>
 body{padding-top:40px!important}
-/* EGHTM: fixed nav sidebar */
+/* WDM/blueprint monitors: monitor-nav and sidebar offset */
+.monitor-nav{top:40px!important}
+.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
+/* Legacy monitor overrides (pre-blueprint) */
 nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
 nav.sidebar{height:calc(100vh - 40px)!important}
-/* WDM: fixed left-nav */
 .left-nav{top:40px!important;height:calc(100vh - 40px)!important}
-/* Macro: sticky header */
 .header:not([data-asym-network-bar]){top:40px!important}
-/* AI Frontier: any fixed nav not our bar */
-nav:not([data-asym-network-bar]){top:40px!important}
-</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;display:flex;align-items:center;padding:0 24px;gap:24px;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav>
+nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
+</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;display:flex;align-items:center;padding:0 24px;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
 
 
-  <nav class="monitor-nav" aria-label="Monitor navigation">
-    <a class="monitor-nav__brand" href="dashboard.html">
-      <span class="brand-abbr">WDM</span>
-      <span>World Democracy Monitor</span>
-    </a>
-    <button class="monitor-nav__hamburger" aria-label="Open menu" aria-expanded="false">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-        <line x1="3" y1="18" x2="21" y2="18"/>
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="flex-shrink:0">
+  <circle cx="16" cy="16" r="13" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="5" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="5" ry="13" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <line x1="3" y1="16" x2="29" y2="16" stroke="var(--monitor-accent)" stroke-width="1"/>
+  <line x1="16" y1="3" x2="16" y2="29" stroke="var(--monitor-accent)" stroke-width="1"/>
+</svg>
+    <span>World Democracy Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html" class="active">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
       </svg>
     </button>
-    <ul class="monitor-nav__links" role="list">
-      <li><a href="dashboard.html">Overview</a></li>
-      <li><a href="report.html">Latest Issue</a></li>
-      <li><a href="archive.html">Archive</a></li>
-      <li><a href="persistent.html" class="active">Living Knowledge</a></li>
-      <li><a href="about.html">About</a></li>
-    </ul>
-    <div class="monitor-nav__actions">
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode"></button>
-    </div>
-  </nav>
+  </div>
+</nav>
 
-  <!-- Sidebar + main -->
-  <div class="monitor-layout">
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
 
-    <aside class="monitor-sidebar" aria-label="Section navigation"></aside>
-
-    <div class="monitor-main">
-      <div id="persistent-content">
-        <div class="loading-state">Loading living knowledge…</div>
+    <div id="meta-header">
+      <div class="page-header">
+        <div class="page-header__eyebrow">WDM · Living Knowledge</div>
+        <h1 class="page-header__title">Persistent State</h1>
+        <p class="page-header__sub">Carries forward heatmap classifications, mimicry chain tracking, and institutional integrity flags across weekly issues.</p>
       </div>
     </div>
 
-  </div>
+    <section class="module-section" id="section-heatmap">
+      <div class="module-header">
+        <div class="module-title">Heatmap Countries</div>
+      </div>
+      <div id="heatmap-countries">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
 
-  <footer class="monitor-footer">
-    <span>Asymmetric Intelligence · <a href="https://asym-intel.info">asym-intel.info</a></span>
-    <span><a href="dashboard.html">← Back to Overview</a></span>
-  </footer>
+    <section class="module-section" id="section-mimicry">
+      <div class="module-header">
+        <div class="module-title">Mimicry Chains</div>
+      </div>
+      <div id="mimicry-chains">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
 
-  <script src="../shared/js/nav.js"></script>
-  <script>
-  (function () {
-    'use strict';
+    <section class="module-section" id="section-integrity">
+      <div class="module-header">
+        <div class="module-title">Institutional Integrity Flags</div>
+      </div>
+      <div id="integrity-flags">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
 
-    function esc(str) {
-      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
+    <section class="module-section" id="section-cross">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Flags</div>
+      </div>
+      <div id="cross-monitor">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
 
-    function formatDate(str) {
-      if (!str) return '';
-      try {
-        var d = new Date(str);
-        if (isNaN(d.getTime())) return str;
-        return d.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
-      } catch (e) { return str; }
-    }
+  </main>
 
-    function renderVersionHistory(history) {
-      if (!history || !history.length) return '';
-      var html = '<div class="version-history">';
-      history.forEach(function (vh) {
-        html += '<div class="version-entry">' +
-          '<div class="version-entry__date">' + esc(formatDate(vh.date)) + '</div>' +
-          '<div class="version-entry__change">' + esc(vh.change || '') + '</div>' +
-          (vh.reason ? '<div class="version-entry__reason">' + esc(vh.reason) + '</div>' : '') +
-        '</div>';
-      });
-      html += '</div>';
-      return html;
-    }
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-heatmap">Heatmap Countries</a></li>
+      <li><a href="#section-mimicry">Mimicry Chains</a></li>
+      <li><a href="#section-integrity">Integrity Flags</a></li>
+      <li><a href="#section-cross">Cross-Monitor</a></li>
+    </ul>
 
-    function renderCountryCard(entry) {
-      var score = parseFloat(entry.severity_score || 0);
-      var severityClass = score >= 8 ? 'critical' : score >= 6 ? 'high' : score >= 4 ? 'moderate' : 'positive';
+  </nav>
 
-      var statusBadge = {
-        'RapidDecay': 'severity-badge--rapid-decay',
-        'Recovery':   'severity-badge--recovery',
-        'Watchlist':  'severity-badge--watchlist'
-      }[entry.status] || 'badge';
+</div>
 
-      var html = '<div class="persistent-entity">' +
-        '<div class="persistent-entity__header">' +
-          '<div class="persistent-entity__country">' + esc(entry.country) + '</div>' +
-          '<div class="persistent-entity__badges">' +
-            '<span class="severity-badge ' + statusBadge + '">' + esc(entry.status || '') + '</span>' +
-            '<span class="badge">' + esc(entry.confidence || '') + '</span>' +
-          '</div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:baseline;gap:var(--space-3);margin-bottom:var(--space-3)">' +
-          '<span style="font-size:var(--text-2xl);font-weight:700;color:var(--monitor-accent)">' +
-            esc(String(entry.severity_score || '')) +
-          '</span>' +
-          '<span style="font-size:var(--text-lg)">' + esc(entry.severity_arrow || '') + '</span>' +
-          '<span class="severity-badge severity-badge--' + severityClass + '">' + severityClass.toUpperCase() + '</span>' +
-        '</div>' +
-        '<div class="persistent-entity__meta">' +
-          (entry.first_seen ? '<span>First seen: ' + esc(formatDate(entry.first_seen)) + '</span>' : '') +
-          (entry.last_material_change ? '<span>Last change: ' + esc(formatDate(entry.last_material_change)) + '</span>' : '') +
-          (entry.entry_type ? '<span><span class="badge">' + esc(entry.entry_type) + '</span></span>' : '') +
-        '</div>';
+<footer class="monitor-footer">
+  <span>World Democracy Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
 
-      /* Watch list extras */
-      if (entry.triggers && entry.triggers.length) {
-        html += '<div style="margin-bottom:var(--space-3)">' +
-          '<div class="section-label" style="margin-bottom:var(--space-2)">Active triggers (' + entry.threshold_crossed + '/' + entry.triggers.length + ')</div>' +
-          '<div style="display:flex;gap:var(--space-2);flex-wrap:wrap">';
-        entry.triggers.forEach(function (t) {
-          html += '<span class="severity-badge severity-badge--high">' + esc(t) + '</span>';
+<script src="../shared/js/nav.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function escHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function statusBadge(status) {
+    var cls = {
+      'RapidDecay': 'rapid-decay',
+      'Recovery':   'recovery',
+      'Watchlist':  'watchlist',
+    }[status] || 'moderate';
+    return '<span class="severity-badge severity-badge--' + cls + '">' + escHtml(status || '') + '</span>';
+  }
+
+  fetch('data/persistent-state.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var meta     = d._meta || {};
+      var heatmap  = d.heatmap_countries || {};
+      var mimicry  = d.mimicry_chains || [];
+      var intflags = d.institutional_integrity_active_flags || [];
+      var cross    = d.cross_monitor_flags || {};
+
+      // Update page meta
+      if (meta.last_updated) {
+        document.getElementById('meta-header').querySelector('.page-header__sub').textContent +=
+          ' Last updated: ' + meta.last_updated + '. Total issues: ' + (meta.total_issues || '—') + '.';
+      }
+
+      // Heatmap countries — all tiers
+      var tiers = [
+        { key: 'rapid_decay', label: 'Rapid Decay', status: 'RapidDecay' },
+        { key: 'recovery',    label: 'Recovery',    status: 'Recovery'   },
+        { key: 'watchlist',   label: 'Watchlist',   status: 'Watchlist'  },
+      ];
+      var hmHtml = '';
+      tiers.forEach(function (tier) {
+        var countries = heatmap[tier.key] || [];
+        if (!countries.length) return;
+        hmHtml += '<div class="section-label" style="margin-top:var(--space-6)">' + escHtml(tier.label) + ' (' + countries.length + ')</div>';
+        countries.forEach(function (c) {
+          var history = c.version_history || [];
+          var histId = 'hist-' + escHtml(c.country).replace(/[^a-z0-9]/gi, '-').toLowerCase();
+          hmHtml +=
+            '<div class="persistent-entity">' +
+              '<div class="persistent-entity__header">' +
+                '<div class="persistent-entity__country">' + escHtml(c.country) + '</div>' +
+                '<div class="persistent-entity__badges">' +
+                  statusBadge(c.status) +
+                  (c.confidence ? '<span class="severity-badge severity-badge--moderate">' + escHtml(c.confidence) + '</span>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div class="persistent-entity__meta">' +
+                (c.severity_score != null ? '<span>Score: <strong>' + escHtml(c.severity_score) + '</strong> ' + escHtml(c.severity_arrow || '') + '</span>' : '') +
+                (c.first_seen ? '<span>First seen: ' + escHtml(c.first_seen) + '</span>' : '') +
+                (c.last_material_change ? '<span>Last change: ' + escHtml(c.last_material_change) + '</span>' : '') +
+                (c.entry_type ? '<span>' + escHtml(c.entry_type) + '</span>' : '') +
+              '</div>' +
+              (history.length
+                ? '<button class="version-history__toggle" onclick="toggleHistory('' + histId + '')">Show version history (' + history.length + ' entries)</button>' +
+                  '<div class="version-history" id="' + histId + '">' +
+                    history.map(function (h) {
+                      return '<div class="version-entry">' +
+                        '<div class="version-entry__date">' + escHtml(h.date || '') + '</div>' +
+                        '<div class="version-entry__change">' + escHtml(h.change || '') + '</div>' +
+                        (h.reason ? '<div class="version-entry__reason">' + escHtml(h.reason) + '</div>' : '') +
+                      '</div>';
+                    }).join('') +
+                  '</div>'
+                : '') +
+            '</div>';
         });
-        html += '</div>';
-        if (entry.escalation_trigger) {
-          html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Escalation trigger:</strong> ' + esc(entry.escalation_trigger) + '</div>';
-        }
-        html += '</div>';
-      }
-
-      /* Version history */
-      if (entry.version_history && entry.version_history.length) {
-        html += '<button class="version-history__toggle">' +
-          'Version history (' + entry.version_history.length + ' ' + (entry.version_history.length === 1 ? 'entry' : 'entries') + ') →' +
-        '</button>' +
-        renderVersionHistory(entry.version_history);
-      }
-
-      html += '</div>';
-      return html;
-    }
-
-    function renderHeatmapSection(heatmap) {
-      var html = '<section class="module-section" id="section-heatmap">' +
-        '<div class="module-header">' +
-          '<div class="module-num-large">02</div>' +
-          '<h2 class="module-title">Country Heatmap</h2>' +
-        '</div>' +
-
-        '<div class="tabs" role="tablist">' +
-          '<button class="tab-btn active" data-tab="rd" role="tab">Rapid Decay (' + (heatmap.rapid_decay || []).length + ')</button>' +
-          '<button class="tab-btn" data-tab="rc" role="tab">Recovery (' + (heatmap.recovery || []).length + ')</button>' +
-          '<button class="tab-btn" data-tab="wl" role="tab">Watch List (' + (heatmap.watchlist || []).length + ')</button>' +
-        '</div>' +
-
-        '<div class="tab-panels">';
-
-      /* Rapid Decay */
-      html += '<div class="tab-panel active" data-tab="rd">';
-      var rdEntries = heatmap.rapid_decay || [];
-      /* Sort by severity descending */
-      rdEntries = rdEntries.slice().sort(function (a, b) {
-        return parseFloat(b.severity_score || 0) - parseFloat(a.severity_score || 0);
       });
-      rdEntries.forEach(function (e) { html += renderCountryCard(e); });
-      if (!rdEntries.length) html += '<p class="text-muted">No rapid decay entries.</p>';
-      html += '</div>';
+      document.getElementById('heatmap-countries').innerHTML = hmHtml || '<p class="text-muted">No countries tracked.</p>';
 
-      /* Recovery */
-      html += '<div class="tab-panel" data-tab="rc">';
-      var rcEntries = heatmap.recovery || [];
-      rcEntries.forEach(function (e) { html += renderCountryCard(e); });
-      if (!rcEntries.length) html += '<p class="text-muted">No recovery entries.</p>';
-      html += '</div>';
-
-      /* Watch List */
-      html += '<div class="tab-panel" data-tab="wl">';
-      var wlEntries = heatmap.watchlist || [];
-      wlEntries.forEach(function (e) { html += renderCountryCard(e); });
-      if (!wlEntries.length) html += '<p class="text-muted">No watchlist entries.</p>';
-      html += '</div>';
-
-      html += '</div></section>';
-      return html;
-    }
-
-    function renderMimicrySection(chains) {
-      var html = '<section class="module-section" id="section-mimicry">' +
-        '<div class="module-header">' +
-          '<div class="module-num-large">03</div>' +
-          '<h2 class="module-title">Mimicry Chains</h2>' +
-        '</div>';
-
-      (chains || []).forEach(function (chain) {
-        html += '<div class="mimicry-chain">' +
-          '<div class="mimicry-chain__headline">' + esc(chain.headline || chain.chain_id || '') + '</div>' +
-          '<div style="margin-bottom:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted)">First documented: ' + esc(formatDate(chain.first_documented)) + '</div>' +
-          '<div class="mimicry-chain__flow">';
-
-        (chain.links || []).forEach(function (node, idx) {
-          if (idx > 0) html += '<div class="mimicry-arrow" aria-hidden="true">→</div>';
-          html += '<div class="mimicry-node">' +
-            '<div class="mimicry-node__country">' + esc(node.country) + '</div>' +
-            '<div class="mimicry-node__law">' + esc(node.law || '') + '</div>' +
-            (node.year ? '<div class="mimicry-node__year">' + esc(String(node.year)) + '</div>' : '') +
+      // Mimicry chains
+      var mimHtml = '';
+      (Array.isArray(mimicry) ? mimicry : Object.values(mimicry)).forEach(function (chain) {
+        var nodes = (chain.nodes || []).map(function (n) {
+          return '<div class="mimicry-node">' +
+            '<div class="mimicry-node__country">' + escHtml(n.country) + '</div>' +
+            '<div class="mimicry-node__law">' + escHtml(n.law || '') + '</div>' +
+            '<div class="mimicry-node__year">' + escHtml(n.year || '') + '</div>' +
           '</div>';
-        });
-
-        html += '</div></div>';
-      });
-
-      if (!chains || !chains.length) html += '<p class="text-muted">No mimicry chains documented yet.</p>';
-
-      html += '</section>';
-      return html;
-    }
-
-    function renderIntegritySection(flags) {
-      var html = '<section class="module-section" id="section-integrity">' +
-        '<div class="module-header">' +
-          '<div class="module-num-large">04</div>' +
-          '<h2 class="module-title">Active Institutional Integrity Flags</h2>' +
-        '</div>';
-
-      (flags || []).forEach(function (flag) {
-        var sevClass = flag.severity === 'High' ? 'severity-badge--high' : 'severity-badge--moderate';
-        html += '<div class="card">' +
-          '<div class="card__label">' +
-            esc(flag.country) + ' · ' +
-            '<span class="severity-badge ' + sevClass + '">' + esc(flag.severity || '') + '</span>' +
-          '</div>' +
-          '<div class="card__title">' + esc(flag.indicator || flag.flag_type || '') + '</div>' +
-          '<div class="card__body">' + esc(flag.signal || flag.summary || '') + '</div>' +
-          '<div class="card__footer">' +
-            (flag.first_seen ? '<span>First seen: ' + esc(formatDate(flag.first_seen)) + '</span>' : '') +
-            (flag.lead_time ? '<span>Lead time: ' + esc(flag.lead_time) + '</span>' : '') +
-            (flag.status ? '<span><span class="badge badge--accent">' + esc(flag.status) + '</span></span>' : '') +
-          '</div>' +
-        '</div>';
-      });
-
-      if (!flags || !flags.length) html += '<p class="text-muted">No active integrity flags.</p>';
-
-      html += '</section>';
-      return html;
-    }
-
-    fetch('data/persistent-state.json')
-      .then(function (r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function (data) {
-        var container = document.getElementById('persistent-content');
-        var meta = data._meta || {};
-        var html = '';
-
-        /* Meta section */
-        html += '<section class="module-section" id="section-meta">' +
-          '<div class="module-header">' +
-            '<div class="module-num-large">01</div>' +
-            '<h2 class="module-title">Overview</h2>' +
-          '</div>' +
-          '<div class="page-header">' +
-            '<div class="page-header__eyebrow">World Democracy Monitor · Living Knowledge</div>' +
-            '<h3 class="page-header__title" style="font-size:var(--text-xl)">' + esc(meta.description || 'Persistent state across all issues') + '</h3>' +
-            '<div class="page-header__meta">' +
-              (meta.last_updated ? '<span>Last updated: ' + esc(formatDate(meta.last_updated)) + '</span>' : '') +
-              (meta.total_issues ? '<span>Issues processed: ' + esc(String(meta.total_issues)) + '</span>' : '') +
-              (meta.schema_version ? '<span>Schema v' + esc(meta.schema_version) + '</span>' : '') +
+        }).join('<div class="mimicry-arrow">→</div>');
+        mimHtml +=
+          '<div class="mimicry-chain">' +
+            '<div class="mimicry-chain__headline">' +
+              '<strong>' + escHtml(chain.template_law || chain.chain_id || '') + '</strong>' +
+              (chain.origin_country ? ' &mdash; Origin: <span class="text-accent">' + escHtml(chain.origin_country) + '</span>' : '') +
             '</div>' +
-          '</div>' +
-        '</section>';
-
-        /* Heatmap */
-        if (data.heatmap_countries) {
-          html += renderHeatmapSection(data.heatmap_countries);
-        }
-
-        /* Mimicry chains */
-        html += renderMimicrySection(data.mimicry_chains);
-
-        /* Integrity flags */
-        html += renderIntegritySection(data.institutional_integrity_active_flags);
-
-        container.innerHTML = html;
-
-        /* Re-init nav and toggles */
-        if (window.AsymNav) window.AsymNav.init();
-      })
-      .catch(function (err) {
-        document.getElementById('persistent-content').innerHTML =
-          '<div class="error-state">Could not load persistent state: ' + esc(err.message) + '</div>';
+            (nodes ? '<div class="mimicry-chain__flow">' + nodes + '</div>' : '') +
+          '</div>';
       });
-  })();
-  </script>
+      document.getElementById('mimicry-chains').innerHTML = mimHtml || '<p class="text-muted">No mimicry chains tracked.</p>';
 
+      // Institutional integrity flags
+      var ifHtml = '';
+      intflags.forEach(function (flag) {
+        ifHtml +=
+          '<div class="card">' +
+            '<div class="card__label">' +
+              escHtml(flag.institution || '') +
+              (flag.country ? ' · ' + escHtml(flag.country) : '') +
+              (flag.flag_type ? ' <span class="severity-badge severity-badge--high">' + escHtml(flag.flag_type) + '</span>' : '') +
+            '</div>' +
+            '<div class="card__title">' + escHtml(flag.headline || '') + '</div>' +
+            '<div class="card__body">' + escHtml(flag.detail || '') + '</div>' +
+            '<div class="card__footer">' +
+              (flag.first_raised ? '<span>First raised: ' + escHtml(flag.first_raised) + '</span>' : '') +
+              (flag.unchanged_since ? '<span>Unchanged since: ' + escHtml(flag.unchanged_since) + '</span>' : '') +
+            '</div>' +
+          '</div>';
+      });
+      document.getElementById('integrity-flags').innerHTML = ifHtml || '<p class="text-muted">No active integrity flags.</p>';
+
+      // Cross-monitor flags
+      var cmFlags = cross.flags || [];
+      var cmHtml = '';
+      if (cross.updated) cmHtml += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + escHtml(cross.updated) + '</p>';
+      if (cmFlags.length) {
+        cmHtml += '<div class="cross-monitor-panel"><div class="cross-monitor-panel__title">Cross-Monitor Flags</div>';
+        cmFlags.forEach(function (flag) {
+          cmHtml +=
+            '<div class="cms-flag">' +
+              '<div class="cms-flag__header">' +
+                '<div class="cms-flag__id">' + escHtml(flag.id || '') + '</div>' +
+              '</div>' +
+              '<div class="cms-flag__title">' + escHtml(flag.headline || flag.title || '') + '</div>' +
+              '<div class="cms-flag__body">' + escHtml(flag.detail || flag.body || '') + '</div>' +
+            '</div>';
+        });
+        cmHtml += '</div>';
+      }
+      // Version history
+      var vhist = cross.version_history || [];
+      if (vhist.length) {
+        cmHtml += '<div style="margin-top:var(--space-6)"><div class="section-label">Version History</div>';
+        vhist.forEach(function (h) {
+          cmHtml += '<div class="version-entry"><div class="version-entry__date">' + escHtml(h.date || '') + '</div><div class="version-entry__change">' + escHtml(h.change || '') + '</div></div>';
+        });
+        cmHtml += '</div>';
+      }
+      document.getElementById('cross-monitor').innerHTML = cmHtml || '<p class="text-muted">No cross-monitor flags.</p>';
+    })
+    .catch(function (err) {
+      console.error(err);
+      ['heatmap-countries','mimicry-chains','integrity-flags','cross-monitor'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = '<div class="error-state">Failed to load persistent state data.</div>';
+      });
+    });
+
+  window.toggleHistory = function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('version-history--open');
+    var btn = el.previousElementSibling;
+    if (btn) btn.textContent = el.classList.contains('version-history--open') ? 'Hide version history' : btn.textContent.replace('Hide', 'Show');
+  };
+});
+</script>
 </body>
 </html>
