@@ -138,9 +138,12 @@ Never delete changelog history.
 Commit: "data(agm): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
-  content/monitors/ai-governance/[DATE]-weekly-digest.md
+  PUBLISH_DATE = today's UTC date in YYYY-MM-DD format (e.g. 2026-04-10)
+  ⚠️  The filename MUST equal PUBLISH_DATE. The front matter date: field must also equal PUBLISH_DATE.
+      A mismatch causes a future-dated or wrong URL in sitemap.xml (anti-pattern FE-019).
+  Filename: content/monitors/ai-governance/[PUBLISH_DATE]-weekly-digest.md
   title: "AI Governance Monitor — W/E [DD Month YYYY]"
-  date: [DATE]T09:00:00Z | monitor: "ai-governance"
+  date: [PUBLISH_DATE]T09:00:00Z | monitor: "ai-governance"
 
 STEP 4 — Notify. Dashboard: https://asym-intel.info/monitors/ai-governance/dashboard.html
 
