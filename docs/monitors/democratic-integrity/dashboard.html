@@ -438,7 +438,8 @@
       <li><a href="#section-severity-cards">Most Severe</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Intelligence Highlights</a></li>
-      <li><a href="#section-heatmap">Heatmap</a></li>
+      <li><a href="#section-severity-bar">Severity Ranking</a></li>
+      <li><a href="#section-heatmap">Country Tracker</a></li>
       <li><a href="#geographic-view">Geographic View</a></li>
     </ul>
 
@@ -606,12 +607,12 @@ document.addEventListener('DOMContentLoaded', function () {
       var pct = Math.max(4, Math.round((c.score / maxScore) * 100));
       var col = COLOURS[c.tier] || '#94a3b8';
       html +=
-        '<div style="display:flex;align-items:center;gap:var(--space-3)">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">' +
           '<div style="width:120px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right">' + escHtml(c.country) + '</div>' +
-          '<div style="flex:1;height:18px;background:rgba(100,116,139,0.08);border-radius:3px;overflow:hidden">' +
-            '<div style="width:' + pct + '%;height:100%;background:' + col + ';border-radius:3px;opacity:0.82"></div>' +
+          '<div style="position:relative;flex:1;height:16px;background:rgba(100,116,139,0.1);border-radius:3px">' +
+            '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;background:' + col + ';border-radius:3px;opacity:0.80"></div>' +
           '</div>' +
-          '<div style="width:36px;font-size:var(--text-xs);font-weight:600;color:' + col + ';flex-shrink:0">' + c.score.toFixed(1) + '</div>' +
+          '<div style="width:34px;font-size:var(--text-xs);font-weight:600;color:' + col + ';flex-shrink:0;text-align:right">' + c.score.toFixed(1) + '</div>' +
         '</div>';
     });
     html += '</div>';
