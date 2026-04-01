@@ -194,6 +194,16 @@
       "rationale": "Users reading 'Confirmed Lead Signal: Hungary 11 days...' have no way to follow up without navigating manually. The source_url is collected every issue \u2014 surfacing it is a one-line fix.",
       "real_world_case": "FCW, WDM dashboards had no source link on signal block. ESA had 'Source \u2192'. SCEM had 'Primary source \u2192'. Standardised to 'Read the top story \u2193' across all 7 monitors.",
       "detected_by": "User review 2026-04-01"
+    },
+    {
+      "id": "FE-019",
+      "category": "content",
+      "description": "Hugo brief filename must match front-matter date. Filename slug determines the public URL \u2014 a filename of 2026-04-02-weekly-brief.md produces a future-dated URL even if the front matter says date: 2026-04-01. Always set filename = YYYY-MM-DD matching the date: field in front matter exactly.",
+      "example_bad": "Filename: 2026-04-02-weekly-brief.md with front matter date: 2026-04-01T09:00:00Z",
+      "example_good": "Filename: 2026-04-01-weekly-brief.md with front matter date: 2026-04-01T09:00:00Z",
+      "why": "Future-dated URLs appear in sitemap.xml and can cause Google Search Console to reject the sitemap as containing invalid entries. Dates must be consistent.",
+      "applies_to": "all cron agents writing Hugo briefs",
+      "first_seen": "2026-04-01"
     }
   ]
 }
