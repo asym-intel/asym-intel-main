@@ -673,13 +673,10 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-rapid-decay').textContent = rd.length;
       var firstWords = signal.split(' ').slice(0, 6).join(' ');
       document.getElementById('kpi-lead-signal').textContent = firstWords + (signal.split(' ').length > 6 ? '\u2026' : '');
-      // Replace static 'Top story this week' sub with a live source link
+      // KPI sub links to the Lead Signal section below
       var kpiSub = document.getElementById('kpi-lead-signal-sub');
       if (kpiSub) {
-        var sigUrl = signalObj.source_url || d.source_url || '';
-        kpiSub.innerHTML = sigUrl
-          ? '<a class="source-link" href="' + escHtml(sigUrl) + '" target="_blank" rel="noopener">Read the top story \u2193</a>'
-          : 'Top story this week';
+        kpiSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
       }
 
       // Page meta
