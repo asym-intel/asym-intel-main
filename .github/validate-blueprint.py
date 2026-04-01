@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+"""
+validate-blueprint.py  — Blueprint v2.1 structural validator
+Runs as a CI step before Hugo build. Exits non-zero on any FAIL.
+WARNs are printed but do not block the build.
+"""
+import os, re, json, sys, glob
+
+MONITORS_DIR = "static/monitors"
+STANDARD_PAGES = ["about", "archive", "dashboard", "methodology",
+                  "overview", "persistent", "report", "search"]
+AGM_EXTRA_PAGES = ["digest"]
+MONITOR_SLUGS = [
+    "ai-governance", "conflict-escalation", "democratic-integrity",
+    "environmental-risks", "european-strategic-autonomy",
+    "fimi-cognitive-warfare", "macro-monitor"
+]
+
+errors   = []   # FAIL — blocks build
+warnings = []   # WARN — printed, build continues
+
+def fail(msg):  errors.append(f"  FAIL  {msg}")
+def warn(msg):  warnings.append(f"  WARN  {msg}")
+
+# ── Check 1: All standard pages exist per monitor ─────────────────────────
+print("Check 1: Standard pages exist per monitor")
+for slug in MONITOR_SLUGS:
+    pages = STANDARD_PAGES + (AGM_EXTRA_PAGES if slug == "ai-governance" else [])
+    for page in pages:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path):
+            fail(f"{slug}/{page}.html — MISSING")
+
+# ── Check 2: No inline padding-top:40px style blocks ─────────────────────
+print("Check 2: No inline offset style blocks (should be in base.css)")
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as f: c = f.read()
+        if "padding-top:40px" in c or "padding-top: 40px" in c:
+            warn(f"{slug}/{page}.html — inline padding-top:40px (stale; base.css owns this)")
+
+# ── Check 3: nav.js referenced on every page ─────────────────────────────
+print("Check 3: nav.js referenced on every page")
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as f: c = f.read()
+        if "shared/js/nav.js" not in c:
+            fail(f"{slug}/{page}.html — nav.js not referenced (network bar won't inject)")
+
+# ── Check 4: base.css referenced on every page ───────────────────────────
+print("Check 4: base.css referenced on every page")
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as f: c = f.read()
+        if "shared/css/base.css" not in c:
+            fail(f"{slug}/{page}.html — base.css not referenced")
+
+# ── Check 5: monitor.css is accent-only (under 40 lines) ─────────────────
+print("Check 5: monitor.css accent-only (≤40 lines)")
+for slug in MONITOR_SLUGS:
+    path = f"{MONITORS_DIR}/{slug}/assets/monitor.css"
+    if not os.path.exists(path):
+        warn(f"{slug}/assets/monitor.css — MISSING")
+        continue
+    with open(path) as f: lines = f.readlines()
+    if len(lines) > 40:
+        warn(f"{slug}/assets/monitor.css — {len(lines)} lines (should be accent-only ≤40 lines)")
+
+# ── Check 6: JSON files are valid JSON ───────────────────────────────────
+print("Check 6: JSON files are valid")
+for slug in MONITOR_SLUGS:
+    data_dir = f"{MONITORS_DIR}/{slug}/data"
+    if not os.path.exists(data_dir): continue
+    for jf in glob.glob(f"{data_dir}/*.json"):
+        try:
+            with open(jf) as f: json.load(f)
+        except json.JSONDecodeError as e:
+            fail(f"{jf} — invalid JSON: {e}")
+
+# ── Check 7: report-latest.json has schema_version 2.0 ───────────────────
+print("Check 7: report-latest.json schema_version == 2.0")
+for slug in MONITOR_SLUGS:
+    path = f"{MONITORS_DIR}/{slug}/data/report-latest.json"
+    if not os.path.exists(path):
+        fail(f"{slug}/data/report-latest.json — MISSING")
+        continue
+    with open(path) as f:
+        try: d = json.load(f)
+        except: continue
+    sv = d.get("meta", {}).get("schema_version") or d.get("_meta", {}).get("schema_version")
+    if sv != "2.0":
+        warn(f"{slug}/data/report-latest.json — schema_version is '{sv}' (expected 2.0)")
+
+# ── Check 8: No stale inline network bar HTML ─────────────────────────────
+print("Check 8: No stale inline network bar HTML")
+for slug in MONITOR_SLUGS:
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as f: c = f.read()
+        if "<nav data-asym-network-bar" in c:
+            warn(f"{slug}/{page}.html — stale inline network bar (nav.js handles this now)")
+
+# ── Check 9: report-latest.json published date is not future ─────────────
+print("Check 9: report-latest.json not future-dated")
+from datetime import datetime, timezone
+today = datetime.now(timezone.utc).date()
+for slug in MONITOR_SLUGS:
+    path = f"{MONITORS_DIR}/{slug}/data/report-latest.json"
+    if not os.path.exists(path): continue
+    with open(path) as f:
+        try: d = json.load(f)
+        except: continue
+    pub = d.get("meta", {}).get("published", "")
+    if pub:
+        try:
+            pub_date = datetime.fromisoformat(pub.replace("Z", "+00:00")).date()
+            if pub_date > today:
+                fail(f"{slug}/data/report-latest.json — published date {pub_date} is FUTURE (Hugo will skip it)")
+        except: pass
+
+# ── Summary ───────────────────────────────────────────────────────────────
+print()
+if warnings:
+    print(f"WARNINGS ({len(warnings)}):")
+    for w in warnings: print(w)
+    print()
+
+if errors:
+    print(f"FAILURES ({len(errors)}) — build blocked:")
+    for e in errors: print(e)
+    print()
+    print("Fix all FAIL items before merging.")
+    sys.exit(1)
+else:
+    print(f"All checks passed. {len(warnings)} warning(s).")
+    sys.exit(0)
