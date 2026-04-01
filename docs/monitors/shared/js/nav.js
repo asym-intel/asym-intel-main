@@ -1,13 +1,81 @@
 /* ============================================================
-   Asymmetric Intelligence Monitor — nav.js
+   Asymmetric Intelligence Monitor — nav.js  v1.1
    Intersection Observer scroll-spy for .module-section[id]
    Updates active state on .monitor-nav a, .monitor-sidebar a,
    and .module-nav-strip a matching href="#id".
    Mobile: hamburger toggle for sidebar.
+   Network bar: auto-injected if absent (Blueprint standard).
    Exposes window.AsymNav.init()
    ============================================================ */
 (function () {
   'use strict';
+
+  /* ── Network Bar Auto-Injection ──────────────────────────── */
+  /* Injected once at script parse time — before DOMContentLoaded —
+     so it appears at the top of the viewport immediately.
+     Safe to call repeatedly; skips if already present.          */
+  function injectNetworkBar() {
+    if (document.querySelector('[data-asym-network-bar]')) return;
+
+    // Offset styles — injected into <head> so they apply before paint
+    var style = document.createElement('style');
+    style.setAttribute('data-asym-nb-styles', '');
+    style.textContent = [
+      'body{padding-top:40px!important}',
+      '.monitor-nav{top:40px!important}',
+      '.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}',
+      'nav.sidebar,#sidebar,.sidebar-header{top:40px!important}',
+      'nav.sidebar{height:calc(100vh - 40px)!important}',
+      '.left-nav{top:40px!important;height:calc(100vh - 40px)!important}',
+      '.header:not([data-asym-network-bar]){top:40px!important}',
+      'nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}',
+      '.nb-links{display:flex}',
+      '@media(max-width:640px){.nb-links{display:none}}'
+    ].join('');
+    document.head.appendChild(style);
+
+    var nav = document.createElement('nav');
+    nav.setAttribute('data-asym-network-bar', '');
+    nav.setAttribute('aria-label', 'Asymmetric Intelligence network');
+    nav.style.cssText = [
+      'height:40px','position:fixed','top:0','left:0','right:0',
+      'z-index:9999','background:#1a1918','border-bottom:1px solid #2d2c2a',
+      "font-family:'Satoshi','Inter',sans-serif",'font-size:13px',
+      'letter-spacing:0.02em','display:flex','align-items:center',
+      'padding:0 24px','gap:1.5rem'
+    ].join(';');
+
+    nav.innerHTML = [
+      '<a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0">',
+        '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">',
+          '<rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/>',
+          '<rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/>',
+          '<rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/>',
+        '</svg>',
+        '<span>Asymmetric Intelligence</span>',
+      '</a>',
+      '<div style="flex:1"></div>',
+      '<nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections">',
+        '<a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a>',
+        '<a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a>',
+        '<a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a>',
+      '</nav>'
+    ].join('');
+
+    // Insert as very first child of <body>, or before <body> opens if called early
+    var body = document.body || document.querySelector('body');
+    if (body) {
+      body.insertBefore(nav, body.firstChild);
+    } else {
+      // Called before body exists — defer to DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', function () {
+        document.body.insertBefore(nav, document.body.firstChild);
+      });
+    }
+  }
+
+  // Run immediately so bar appears before any other paint
+  injectNetworkBar();
 
   function init() {
     setupScrollSpy();
@@ -81,7 +149,6 @@
     var hamburger = document.querySelector('.monitor-nav__hamburger');
     if (!sidebar || !hamburger) return;
 
-    // Add a sidebar toggle button if it isn't already the hamburger
     var sidebarToggle = document.querySelector('.sidebar-toggle');
     if (!sidebarToggle) sidebarToggle = hamburger;
 
@@ -102,12 +169,10 @@
       }
     });
 
-    // Close sidebar when a section link is clicked
     sidebar.querySelectorAll('a[href^="#"]').forEach(function (a) {
       a.addEventListener('click', closeSidebar);
     });
 
-    // Close on outside click
     document.addEventListener('click', function (e) {
       if (
         sidebar.classList.contains('monitor-sidebar--open') &&
@@ -155,10 +220,8 @@
       var buttons = tabGroup.querySelectorAll('.tab-btn');
       buttons.forEach(function (btn) {
         btn.addEventListener('click', function () {
-          // Deactivate all in group
           buttons.forEach(function (b) { b.classList.remove('active'); });
           btn.classList.add('active');
-          // Find panels — look for parent and then sibling .tab-panels
           var panelContainer = tabGroup.nextElementSibling;
           if (!panelContainer) return;
           var panels = panelContainer.querySelectorAll('.tab-panel');
@@ -183,5 +246,5 @@
   }
 
   // Public API
-  window.AsymNav = { init: init };
+  window.AsymNav = { init: init, injectNetworkBar: injectNetworkBar };
 })();
