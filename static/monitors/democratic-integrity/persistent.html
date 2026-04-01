@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function () {
           hmHtml +=
             '<div class="persistent-entity">' +
               '<div class="persistent-entity__header">' +
-                '<div class="persistent-entity__country">' + escHtml(c.country) + '</div>' +
+                '<div class="persistent-entity__country">' + (typeof AsymRenderer!=='undefined'&&AsymRenderer.flag?(AsymRenderer.flag(c.country||'')||'')+' ':'') + escHtml(c.country) + '</div>' +
                 '<div class="persistent-entity__badges">' +
                   statusBadge(c.status) +
                   (c.confidence ? '<span class="severity-badge severity-badge--moderate">' + escHtml(c.confidence) + '</span>' : '') +
