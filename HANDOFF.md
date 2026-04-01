@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 07:45 UTC | **Last commit (main):** 0edbfc7f
+**Date:** 2026-04-01 12:36 UTC | **Last commit (main):** bdcee41
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -43,13 +43,15 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 | Monitor | ID | Schedule | Scope |
 |---|---|---|---|
 | WDM | **db22db0d** | Mon 06:00 UTC | data/ + weekly-brief.md only |
-| GMM | **02c25214** | Mon 08:00 UTC | data/ + weekly-brief.md only |
-| FCW | **879686db** | Thu 09:00 UTC | data/ + weekly-brief.md only |
+| GMM | **02c25214** | **Tue** 08:00 UTC | data/ + weekly-brief.md only |
 | ESA | **0fa1c44e** | Wed 19:00 UTC | data/ + weekly-brief.md only |
+| FCW | **879686db** | Thu 09:00 UTC | data/ + weekly-brief.md only |
 | AGM | **267fd76e** | Fri 09:00 UTC | data/ + weekly-digest.md only |
 | ERM | **3e736a32** | Sat 05:00 UTC | data/ + weekly-brief.md only |
 | SCEM | **eb312202** | Sun 18:00 UTC | data/ + weekly-brief.md only |
 | Housekeeping | **73452bc6** | Mon 08:00 UTC | read-only audit, 12 checks |
+
+All monitors have a 6-day recency guard in their cron prompts — they will skip silently if fewer than 6 days have elapsed since the last publish.
 
 ---
 
