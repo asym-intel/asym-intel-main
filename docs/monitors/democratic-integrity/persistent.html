@@ -160,7 +160,12 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var meta     = d._meta || {};
-      var heatmap  = d.heatmap_countries || {};
+      var heatmapObj = d.heatmap_countries || {};
+      var heatmap    = [].concat(
+        (heatmapObj.rapid_decay||[]).map(function(c){ return Object.assign({tier:'Rapid Decay'},c); }),
+        (heatmapObj.recovery||[]).map(function(c){ return Object.assign({tier:'Recovery'},c); }),
+        (heatmapObj.watchlist||[]).map(function(c){ return Object.assign({tier:'Watchlist'},c); })
+      );
       var mimicry  = d.mimicry_chains || [];
       var intflags = d.institutional_integrity_active_flags || [];
       var cross    = d.cross_monitor_flags || {};
@@ -220,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Mimicry chains
       var mimHtml = '';
       (Array.isArray(mimicry) ? mimicry : Object.values(mimicry)).forEach(function (chain) {
-        var nodes = (chain.nodes || []).map(function (n) {
+        var nodes = (chain.links || chain.nodes || []).map(function (n) {
           return '<div class="mimicry-node">' +
             '<div class="mimicry-node__country">' + escHtml(n.country) + '</div>' +
             '<div class="mimicry-node__law">' + escHtml(n.law || '') + '</div>' +
