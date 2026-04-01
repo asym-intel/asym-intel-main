@@ -1,449 +1,175 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Methodology — World Democracy Monitor</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f7f6f3;
-    --surface: #ffffff;
-    --border: #e0ddd7;
-    --text-primary: #1a1916;
-    --text-secondary: #4a4843;
-    --text-muted: #7a7874;
-    --accent: #1e3a5f;
-    --accent-light: #e8eef5;
-  }
-  body {
-    font-family: 'Georgia', 'Times New Roman', serif;
-    background: var(--bg);
-    color: var(--text-primary);
-    font-size: 16px;
-    line-height: 1.75;
-  }
-  .page-header {
-    background: var(--accent);
-    color: #fff;
-    padding: 28px 40px 24px;
-    border-bottom: 1px solid #2a3f5f;
-  }
-  .page-header .breadcrumb {
-    font-size: 12px;
-    font-family: 'Courier New', monospace;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 8px;
-  }
-  .page-header .breadcrumb a { color: rgba(255,255,255,0.75); text-decoration: none; }
-  .page-header .breadcrumb a:hover { color: #fff; }
-  .page-header h1 { font-size: 26px; font-weight: normal; letter-spacing: 0.02em; }
-  .page-header .subtitle { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 6px; font-family: 'Courier New', monospace; }
-  .wrapper { max-width: 960px; margin: 0 auto; padding: 40px 32px; }
-  h2 {
-    font-size: 20px;
-    font-weight: normal;
-    color: var(--accent);
-    border-bottom: 2px solid var(--accent);
-    padding-bottom: 8px;
-    margin: 40px 0 18px;
-    letter-spacing: 0.01em;
-  }
-  h3 {
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--text-primary);
-    margin: 24px 0 10px;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  p { margin-bottom: 14px; color: var(--text-secondary); }
-  .lead {
-    font-size: 18px;
-    color: var(--accent);
-    border-left: 4px solid var(--accent);
-    padding: 12px 20px;
-    background: var(--accent-light);
-    border-radius: 0 6px 6px 0;
-    margin-bottom: 28px;
-    font-style: italic;
-    line-height: 1.65;
-  }
-
-  /* Tier table */
-  .tier-table { width: 100%; border-collapse: collapse; margin: 18px 0 28px; font-size: 15px; }
-  .tier-table th {
-    text-align: left;
-    padding: 10px 14px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-family: 'Courier New', monospace;
-  }
-  .tier-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
-  .tier-table tbody tr:hover { background: #f5f4f1; }
-  .tier-num {
-    font-size: 20px;
-    font-weight: bold;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 6px;
-    flex-shrink: 0;
-  }
-  .t1 { background: #eff6ff; color: #1d4ed8; }
-  .t2 { background: #f0fdf4; color: #15803d; }
-  .t3 { background: #fef3c7; color: #b45309; }
-  .t4 { background: #fef2f2; color: #dc2626; }
-  .t5 { background: #fdf4ff; color: #7c3aed; }
-
-  /* Rubric cards */
-  .rubric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0 28px; }
-  .rubric-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 16px 18px;
-  }
-  .rubric-card-title {
-    font-size: 13px;
-    font-weight: bold;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 10px;
-  }
-  .rubric-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; border-bottom: 1px solid var(--border); color: var(--text-secondary); }
-  .rubric-row:last-child { border-bottom: none; }
-  .rubric-val { font-weight: bold; color: var(--text-primary); font-family: 'Courier New', monospace; }
-
-  /* Status tiers */
-  .status-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 18px 0 28px; }
-  .status-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 14px 16px;
-  }
-  .status-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 12px; font-weight: bold; padding: 3px 10px 3px 7px;
-    border-radius: 12px; margin-bottom: 10px;
-  }
-  .status-pill::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
-  .decay   { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
-  .decay::before { background: #dc2626; }
-  .recovery { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
-  .recovery::before { background: #16a34a; }
-  .watch   { background: #fefce8; color: #ca8a04; border: 1px solid #fde047; }
-  .watch::before { background: #ca8a04; }
-  .status-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
-
-  /* Process flow */
-  .process-steps { counter-reset: step; }
-  .process-step {
-    counter-increment: step;
-    display: flex;
-    gap: 18px;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .process-step:last-child { border-bottom: none; }
-  .step-num {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: #fff;
-    font-size: 15px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 2px;
-    font-family: 'Courier New', monospace;
-  }
-  .step-content {}
-  .step-title { font-size: 16px; font-weight: bold; margin-bottom: 6px; color: var(--text-primary); }
-  .step-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
-
-  /* Limitations */
-  .limitation-list { list-style: none; }
-  .limitation-list li {
-    padding: 10px 0 10px 28px;
-    border-bottom: 1px solid var(--border);
-    position: relative;
-    font-size: 15px;
-    color: var(--text-secondary);
-    line-height: 1.65;
-  }
-  .limitation-list li::before {
-    content: '!';
-    position: absolute;
-    left: 0;
-    top: 12px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #fef3c7;
-    color: #b45309;
-    font-size: 11px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    line-height: 18px;
-  }
-  .limitation-list li:last-child { border-bottom: none; }
-
-  a { color: var(--accent); }
-  a:hover { text-decoration: underline; }
-
-  .footer {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-muted);
-    padding: 28px 32px;
-    border-top: 1px solid var(--border);
-    font-family: 'Courier New', monospace;
-    line-height: 1.8;
-    margin-top: 40px;
-  }
-  .footer a { color: var(--text-muted); }
-
-  @media (max-width: 768px) {
-    .rubric-grid, .status-grid { grid-template-columns: 1fr; }
-    .wrapper { padding: 24px 20px; }
-    .page-header { padding: 20px 24px; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodology — World Democracy Monitor</title>
+  <meta name="description" content="World Democracy Monitor methodology: sources, heatmap tiers, institutional integrity flags, and mimicry chain definitions.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
 </head>
+
 <body>
 
-<header class="page-header">
-  <div class="breadcrumb">
-    <a href="https://asym-intel.info">Asymmetric Intelligence</a> ›
-    <a href="https://asym-intel.info/monitors/democratic-integrity/">Democratic Integrity</a> ›
-    Methodology
-  </div>
-  <h1>World Democracy Monitor — Methodology</h1>
-  <div class="subtitle">How the monitor works · Sources · Scoring · Limitations · Update cycle</div>
-</header>
-
-<div class="wrapper">
-
-  <div class="lead">
-    Democratic breakdown today rarely arrives as a coup. It comes through lawfare, media capture, economic coercion, and digital manipulation that remain technically "legal" — and therefore largely invisible to traditional democracy indices until it is too late. This document explains how the World Democracy Monitor is built to detect it earlier.
-  </div>
-
-  <h2>Purpose and Scope</h2>
-  <p>The World Democracy Monitor provides a weekly risk picture of democratic backsliding and institutional resilience across a monitored set of countries and emerging risk cases. It is designed to sit <em>on top of</em> the major annual democracy indices — not to replace them — as a real-time institutional radar.</p>
-  <p>Most global democracy rankings update annually. They are indispensable for measuring long-term trajectories, but they only register change after months of quiet erosion. This monitor exists to fill that gap, tracking the leading indicators that precede index downgrades by 6–18 months.</p>
-  <p>The monitor tracks six dimensions:</p>
-  <ul style="margin: 0 0 16px 24px; color: var(--text-secondary); line-height: 1.8; font-size: 15px;">
-    <li>Institutional hollowing — court-packing, term-limit manipulation, emergency powers, lawfare</li>
-    <li>Economic coercion and oligarchization — media, energy, finance</li>
-    <li>Election engineering — rules, voter rolls, candidates, certification</li>
-    <li>AI-driven information operations, censorship laws, shutdowns, and surveillance</li>
-    <li>Civil society and protest dynamics — both repression and successful pushback</li>
-    <li>Cross-border autocratic model export and transnational repression</li>
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 32 32" fill="none" aria-hidden="true" style="flex-shrink:0">
+  <circle cx="16" cy="16" r="13" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="5" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="13" ry="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <ellipse cx="16" cy="16" rx="5" ry="13" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/>
+  <line x1="3" y1="16" x2="29" y2="16" stroke="var(--monitor-accent)" stroke-width="1"/>
+  <line x1="16" y1="3" x2="16" y2="29" stroke="var(--monitor-accent)" stroke-width="1"/>
+</svg>
+    <span>World Democracy Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="about.html">About</a></li>
   </ul>
-
-  <h2>The Five-Tier Source Hierarchy</h2>
-  <p>Every claim in the monitor is sourced to a specific primary source, organised into five tiers by proximity to ground truth. When Tier 3 or 4 sources directly contradict Tier 1 official claims, a Critical Friction Note is published explaining the discrepancy.</p>
-
-  <table class="tier-table">
-    <thead>
-      <tr><th>Tier</th><th>Type</th><th>Role</th><th>Key Sources</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><span class="tier-num t1">1</span></td>
-        <td><strong>Institutional &amp; Diplomatic</strong><br><em style="font-size:12px;color:var(--text-muted)">The "Official" View</em></td>
-        <td style="font-size:14px;color:var(--text-secondary)">Stated policy, legislative texts, official election results</td>
-        <td style="font-size:13px;color:var(--text-secondary)">UN OHCHR, OSCE/ODIHR, Venice Commission, European Parliament, national government statements</td>
-      </tr>
-      <tr>
-        <td><span class="tier-num t2">2</span></td>
-        <td><strong>Quantitative Indices</strong><br><em style="font-size:12px;color:var(--text-muted)">The "Benchmark" View</em></td>
-        <td style="font-size:14px;color:var(--text-secondary)">Long-term scoring trends, global rankings, statistical backsliding measures</td>
-        <td style="font-size:13px;color:var(--text-secondary)">V-Dem (LDI, EDI, autocratization coding), Freedom House, EIU Democracy Index, International IDEA Democracy Tracker (173 countries, 29 indices), RSF Press Freedom Index, Global Terrorism Index</td>
-      </tr>
-      <tr>
-        <td><span class="tier-num t3">3</span></td>
-        <td><strong>Investigative &amp; Independent Media</strong><br><em style="font-size:12px;color:var(--text-muted)">The "Ground Truth"</em></td>
-        <td style="font-size:14px;color:var(--text-secondary)">Corruption, suppression of dissent, grassroots movements</td>
-        <td style="font-size:13px;color:var(--text-secondary)">The Guardian, ProPublica, Haaretz, +972 Magazine, The Wire (India), El Faro (Latin America), Lawfare Media, IPI Press Freedom Alerts</td>
-      </tr>
-      <tr>
-        <td><span class="tier-num t4">4</span></td>
-        <td><strong>Human Rights &amp; Civic Oversight</strong><br><em style="font-size:12px;color:var(--text-muted)">The "Accountability" View</em></td>
-        <td style="font-size:14px;color:var(--text-secondary)">Detention logs, protest crackdowns, internet shutdowns, civic space ratings</td>
-        <td style="font-size:13px;color:var(--text-secondary)">Amnesty International, Human Rights Watch, CIVICUS Monitor, Access Now (#KeepItOn), CPJ Imprisoned Journalists Database, ISHR</td>
-      </tr>
-      <tr>
-        <td><span class="tier-num t5">5</span></td>
-        <td><strong>Think Tanks &amp; Strategic Analysis</strong><br><em style="font-size:12px;color:var(--text-muted)">The "Expert" View</em></td>
-        <td style="font-size:14px;color:var(--text-secondary)">Backsliding mechanics, institutional resilience, geopolitical drivers</td>
-        <td style="font-size:13px;color:var(--text-secondary)">Carnegie Endowment, Journal of Democracy (NED), Chatham House, Brookings, Verfassungsblog, openDemocracy, Democratic Erosion Consortium, OSW (Centre for Eastern Studies), compossible.blog</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>Country Status Classification</h2>
-  <p>Every monitored country is assigned one of three status tiers, reviewed weekly. Status changes require corroboration from at least two independent primary sources from Tiers 2–4.</p>
-
-  <div class="status-grid">
-    <div class="status-card">
-      <div class="status-pill decay">Rapid Decay</div>
-      <div class="status-desc">Active, documented deterioration in at least two institutional pillars (judiciary, press, civil service, civil society, elections, legislature). Requires primary-source corroboration from Tier 2–4 sources within the past 90 days. Severity scored 1–10.</div>
-    </div>
-    <div class="status-card">
-      <div class="status-pill recovery">Recovery</div>
-      <div class="status-desc">Net positive institutional trajectory after a period of documented decay. Recovery status does not mean full democratic health — the severity score within this tier reflects residual fragility. Requires sustained positive signals across at least two pillars.</div>
-    </div>
-    <div class="status-card">
-      <div class="status-pill watch">Watch List</div>
-      <div class="status-desc">2+ active leading indicators of democratic backsliding but not yet at Rapid Decay threshold. Each entry includes an explicit escalation trigger — the specific development that would prompt promotion to Rapid Decay. Promoted when severity score exceeds 5.0 on two consecutive weekly assessments.</div>
-    </div>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
   </div>
+</nav>
 
-  <h2>Severity Scoring Rubric (1–10)</h2>
-  <p>Each Rapid Decay and Watch List country receives a severity score derived from four sub-dimensions (each scored 0–2.5), summed to a total of 0–10. For Recovery countries, the score reflects residual fragility rather than active decay.</p>
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
 
-  <div class="rubric-grid">
-    <div class="rubric-card">
-      <div class="rubric-card-title">A — LDI Trajectory</div>
-      <div class="rubric-row"><span>Stable / improving</span><span class="rubric-val">0</span></div>
-      <div class="rubric-row"><span>Gradual decline</span><span class="rubric-val">1.0</span></div>
-      <div class="rubric-row"><span>Steep decline</span><span class="rubric-val">2.0</span></div>
-      <div class="rubric-row"><span>Collapse-speed</span><span class="rubric-val">2.5</span></div>
-      <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">Source: V-Dem LDI annual score change; Freedom House direction</p>
+    <div class="page-header">
+      <div class="page-header__eyebrow">WDM · Methodology</div>
+      <h1 class="page-header__title">Methodology</h1>
+      <p class="page-header__sub">What the World Democracy Monitor tracks, which sources it uses, and what each analytical construct means.</p>
     </div>
-    <div class="rubric-card">
-      <div class="rubric-card-title">B — Institutional Breadth</div>
-      <div class="rubric-row"><span>0–1 pillars under attack</span><span class="rubric-val">0</span></div>
-      <div class="rubric-row"><span>2–3 pillars</span><span class="rubric-val">1.0</span></div>
-      <div class="rubric-row"><span>4–5 pillars</span><span class="rubric-val">2.0</span></div>
-      <div class="rubric-row"><span>All 6 pillars</span><span class="rubric-val">2.5</span></div>
-      <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">Pillars: judiciary, legislature, civil service, press, civil society, elections</p>
-    </div>
-    <div class="rubric-card">
-      <div class="rubric-card-title">C — Repression Severity</div>
-      <div class="rubric-row"><span>None documented</span><span class="rubric-val">0</span></div>
-      <div class="rubric-row"><span>Harassment / administrative</span><span class="rubric-val">0.5</span></div>
-      <div class="rubric-row"><span>Mass arrests</span><span class="rubric-val">1.0</span></div>
-      <div class="rubric-row"><span>Killings</span><span class="rubric-val">2.0</span></div>
-      <div class="rubric-row"><span>Mass killings / massacres</span><span class="rubric-val">2.5</span></div>
-      <p style="font-size:13px;color:var(--text-muted);margin-top:8px;">Source: Amnesty International, HRW, HRANA, CPJ, RSF primary documentation</p>
-    </div>
-    <div class="rubric-card">
-      <div class="rubric-card-title">D — Resilience (Inverted)</div>
-      <div class="rubric-row"><span>No resilience — subtracts 0</span><span class="rubric-val">0</span></div>
-      <div class="rubric-row"><span>Weak — subtracts 0.5</span><span class="rubric-val">0.5</span></div>
-      <div class="rubric-row"><span>Moderate — subtracts 1.0</span><span class="rubric-val">1.0</span></div>
-      <div class="rubric-row"><span>Significant — subtracts 1.5</span><span class="rubric-val">1.5</span></div>
-      <div class="rubric-row"><span>Strong — subtracts 2.0</span><span class="rubric-val">2.0</span></div>
-      <div class="rubric-row"><span>Robust — subtracts 2.5</span><span class="rubric-val">2.5</span></div>
-      <p style="font-size:13px;color:var(--text-muted);margin-top:8px;"><strong>Score = A + B + C + (2.5 − D)</strong>. High resilience lowers the score.</p>
-    </div>
-  </div>
 
-  <p>The direction arrow (↑ ↓ →) reflects week-on-week change. The <strong>Resilience Paradox</strong>: countries with functioning courts, civil society, and press score lower than countries at equivalent decay stages where those mechanisms have been captured — because active resilience genuinely constrains the trajectory.</p>
-
-  <h2>Institutional Integrity — Early Warning Layer</h2>
-  <p>In addition to the reactive heatmap, the monitor tracks four institutional integrity signals that typically <em>precede</em> CIVICUS and Freedom House rating downgrades by 6–18 months. These are sourced primarily from the <a href="https://www.idea.int/democracytracker/home" target="_blank" rel="noopener">International IDEA Democracy Tracker</a> (29 indices across Representation, Rights, Rule of Law and Participation) and V-Dem disaggregated sub-indicators:</p>
-  <ul style="margin: 0 0 16px 24px; color: var(--text-secondary); line-height: 1.8; font-size: 15px;">
-    <li><strong>Judicial independence</strong> — court-packing, removal of judges, attacks on judicial review authority</li>
-    <li><strong>Electoral administration integrity</strong> — redistricting, voter roll manipulation, registration barriers, certification capture</li>
-    <li><strong>Civil service politicisation</strong> — replacement of career officials with political appointees, removal of due-process protections</li>
-    <li><strong>Intelligence community misuse</strong> — redirection of security apparatus toward domestic political targets, omission of electoral security threats</li>
-  </ul>
-
-  <h2>The Weekly Research Process</h2>
-  <div class="process-steps">
-    <div class="process-step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <div class="step-title">Load baseline</div>
-        <div class="step-desc">The previous week's JSON data file is loaded as the baseline. All existing severity scores, status classifications, and notes are carried forward unless contradicted by new primary-source evidence.</div>
+    <section class="module-section" id="section-what">
+      <div class="module-header">
+        <div class="module-title">What WDM Tracks</div>
       </div>
-    </div>
-    <div class="process-step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <div class="step-title">Primary source scan</div>
-        <div class="step-desc">A structured search covers all monitored countries and three geographic zones requiring active scouting — Sub-Saharan Africa (using Carnegie Endowment Africa, CIVICUS Monitor, Atlantic Council Africa), Latin America (using Amnesty International Americas, Global Terrorism Index), and institutional integrity signals (IDEA Democracy Tracker monthly updates, V-Dem disaggregated data). The scan is not limited to countries already on the heatmap — Watch List additions are identified proactively.</div>
-      </div>
-    </div>
-    <div class="process-step">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <div class="step-title">Source verification and tier assignment</div>
-        <div class="step-desc">Each new claim is assigned a tier (1–5) and cross-checked against at least one independent source before inclusion. Where a Tier 1 official claim is contradicted by Tier 3 or 4 evidence, a Critical Friction Note is created documenting the specific discrepancy. No claim based solely on a single Tier 5 source is used to change a country's status classification.</div>
-      </div>
-    </div>
-    <div class="process-step">
-      <div class="step-num">4</div>
-      <div class="step-content">
-        <div class="step-title">Data merge and scoring update</div>
-        <div class="step-desc">Severity scores are updated where new primary-source evidence justifies a change. Status reclassifications (e.g. Watch List → Rapid Decay) require corroboration from at least two independent Tier 2–4 sources. Monthly trend values are recalculated from the rolling 4-week history. Legislative Watch entries are updated with status changes and new bills are added.</div>
-      </div>
-    </div>
-    <div class="process-step">
-      <div class="step-num">5</div>
-      <div class="step-content">
-        <div class="step-title">Weekly Intelligence Brief</div>
-        <div class="step-desc">A synthesis of up to 10 numbered analytical items covering all monitored dimensions — V-Dem quantitative signals, Network coordination events, Legislative Watch, Media Capture phase analysis, Watch List threshold changes, Critical Friction, Electoral Watch, Severity gradient insights, Autocratic Export patterns, and Recovery/Positive Deviant cases. Named reports are hyperlinked to primary sources. Minimum 600 words; target 900–1,200 words.</div>
-      </div>
-    </div>
-    <div class="process-step">
-      <div class="step-num">6</div>
-      <div class="step-content">
-        <div class="step-title">Publication</div>
-        <div class="step-desc">The interactive dashboard is updated and deployed to its permanent URL. The weekly brief is published as a standalone article at <a href="https://asym-intel.info/monitors/democratic-integrity/" target="_blank" rel="noopener">asym-intel.info/monitors/democratic-integrity/</a>. Both are published every Monday morning.</div>
-      </div>
-    </div>
-  </div>
+      <p>
+        The World Democracy Monitor focuses on the structural health of democratic institutions — not individual political events. It tracks erosion in electoral integrity, judicial independence, civil society space, press freedom, and legislative process. WDM distinguishes between <em>transient episodes</em> (events with clear temporal boundaries), <em>persistent conditions</em> (sustained structural changes), and <em>watchlist signals</em> (indicators that may cross the decay threshold).
+      </p>
+      <p style="margin-top:var(--space-4)">
+        WDM does not rate overall governance quality. A country may score poorly on development or corruption indices while remaining democratically healthy; conversely, a country with strong economic metrics may be undergoing significant democratic regression. WDM tracks the democratic dimension specifically.
+      </p>
+    </section>
 
-  <h2>Regional Mimicry Tracking</h2>
-  <p>The Legislative Watch section tags each entry with its regional mimicry pattern — identifying which earlier law or model it copies and where it is spreading. This produces a traceable autocratic learning network: Russia's 2012 foreign agent law → Hungary 2017 → Georgia 2025 → Serbia (pending) → Uganda (proposed) → Kazakhstan (NGO disclosure provisions).</p>
-  <p>Where a law is documented as a direct template export (same definitions, same architecture, same stigmatisation narrative), it is tagged as part of the <a href="https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html" target="_blank" rel="noopener">Global FIMI &amp; Cognitive Warfare Monitor</a>'s information operations layer where the legal export is accompanied by a coordinated narrative campaign.</p>
+    <section class="module-section" id="section-sources">
+      <div class="module-header">
+        <div class="module-title">Sources</div>
+      </div>
+      <p>WDM draws on a curated set of primary and institutional sources with established methodologies:</p>
+      <ul style="margin-top:var(--space-4);display:flex;flex-direction:column;gap:var(--space-3)">
+        <li><strong>V-Dem (Varieties of Democracy)</strong> — The primary academic framework. Provides the Liberal Democracy Index (LDI), electoral autocracy classifications, and autocratizing country identification. Used for baseline scoring and trend direction.</li>
+        <li><strong>Freedom House</strong> — Annual <em>Freedom in the World</em> report. Provides country-level freedom scores (Free / Partly Free / Not Free) and aggregate point changes. Used to confirm or qualify V-Dem findings, especially in hybrid contexts.</li>
+        <li><strong>CIVICUS Monitor</strong> — Civic space ratings (Open / Narrowed / Obstructed / Repressed / Closed) and real-time alerts on civil society restrictions. Primary source for civic space tier assessments.</li>
+        <li><strong>Amnesty International</strong> — Country reports and emergency alerts. Used for institutional repression documentation, political detention, and judicial misuse.</li>
+        <li><strong>Human Rights Watch</strong> — Country reports, thematic investigations. Used alongside Amnesty for cross-verification of repression events.</li>
+        <li><strong>International Press Institute (IPI)</strong> — Media freedom alerts and the Media Freedom Rapid Response (MJRC) system. Primary source for press freedom and public broadcaster independence assessments.</li>
+        <li><strong>Reporters Sans Frontières (RSF)</strong> — Annual World Press Freedom Index rankings. Used for press freedom trend signals and journalist safety data.</li>
+        <li><strong>OSCE/ODIHR</strong> — Election observation mission reports and Rapporteur mechanisms (including the Moscow Mechanism). Primary source for electoral integrity assessments and formal findings on democratic backsliding.</li>
+        <li><strong>International IDEA</strong> — Global State of Democracy reports and electoral risk monitoring. Used for systemic assessments and comparative democratic health analysis.</li>
+      </ul>
+    </section>
 
-  <h2>What the Monitor Does Not Do</h2>
-  <ul class="limitation-list">
-    <li><strong>It does not replace V-Dem, Freedom House, or IDEA.</strong> The annual indices provide the longitudinal quantitative baseline. This monitor uses them as a structural foundation and tracks what happens in the 51 weeks between their updates.</li>
-    <li><strong>It does not cover all countries.</strong> The heatmap focuses on countries in active acute phases. The Watch List covers emerging risks. Countries not in either tier are not assessed as safe — they are simply outside the current monitoring scope.</li>
-    <li><strong>Severity scores are analyst-assigned, not algorithmically derived.</strong> The rubric provides a consistent framework but the sub-dimension values reflect editorial judgment informed by primary sources. Two analysts applying the rubric to the same country might score it differently within a ±1 range.</li>
-    <li><strong>It does not cover occupied territories as part of their occupying state's score.</strong> Freedom House and V-Dem both apply this separation. The Philippines score, for example, covers democratic conditions within the Philippines under Filipino jurisdiction — it does not extend to occupied or disputed territories. Where relevant, occupied territories are noted separately.</li>
-    <li><strong>Weekly updates cannot be exhaustive.</strong> The monitor prioritises countries in acute phases and those approaching threshold. Gradual deterioration in mid-range countries may take several weeks to register if no acute primary-source event occurs.</li>
-  </ul>
+    <section class="module-section" id="section-heatmap">
+      <div class="module-header">
+        <div class="module-title">Heatmap Tiers</div>
+      </div>
+      <p>WDM maintains a three-tier country heatmap updated weekly:</p>
+      <div style="display:flex;flex-direction:column;gap:var(--space-4);margin-top:var(--space-4)">
+        <div class="card" style="border-left:3px solid var(--critical)">
+          <div class="card__label"><span class="severity-badge severity-badge--critical">Rapid Decay</span></div>
+          <div class="card__title">Active structural democratic regression</div>
+          <div class="card__body">Countries where two or more leading indicators are deteriorating concurrently, with confirmed or probable institutional damage. Threshold is evidence-based: requires documented actions (laws passed, institutions restructured, civic space restricted) rather than political rhetoric alone. Severity scored 1–10.</div>
+        </div>
+        <div class="card" style="border-left:3px solid var(--positive)">
+          <div class="card__label"><span class="severity-badge severity-badge--recovery">Recovery</span></div>
+          <div class="card__title">Positive trajectory from prior erosion</div>
+          <div class="card__body">Countries previously in decay or at elevated risk that are demonstrating measurable democratic improvement — typically following elections, leadership transitions, or court rulings that restore institutional accountability. Recovery entries are maintained until stabilisation is confirmed across multiple indicators.</div>
+        </div>
+        <div class="card" style="border-left:3px solid var(--high)">
+          <div class="card__label"><span class="severity-badge severity-badge--watchlist">Watchlist</span></div>
+          <div class="card__title">Elevated risk, below decay threshold</div>
+          <div class="card__body">Countries where leading indicators are activating but structural damage is not yet confirmed. Each Watchlist entry carries a threshold count (number of active triggers) and an escalation trigger (the specific event that would move the country to Rapid Decay). Entries are reviewed weekly.</div>
+        </div>
+      </div>
+    </section>
 
-  <h2>The Analytical Ecosystem</h2>
-  <p>The World Democracy Monitor is part of the <a href="https://asym-intel.info" target="_blank" rel="noopener">Asymmetric Intelligence</a> platform, an integrated analytical suite covering overlapping threat dimensions:</p>
-  <ul style="margin: 0 0 16px 24px; color: var(--text-secondary); line-height: 1.9; font-size: 15px;">
-    <li><a href="https://asym-intel.info/monitors/democratic-integrity/dashboard.html" target="_blank" rel="noopener"><strong>World Democracy Monitor</strong></a> — democratic resilience and institutional integrity (this monitor)</li>
-    <li><a href="https://www.perplexity.ai/computer/a/european-geopolitical-hybrid-t-ONqW4DtqTFSe2IHZUBWnfw" target="_blank" rel="noopener"><strong>European Geopolitical &amp; Hybrid Threat Monitor</strong></a> — external pressure vectors on European security and cohesion</li>
-    <li><a href="https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html" target="_blank" rel="noopener"><strong>Global FIMI &amp; Cognitive Warfare Monitor</strong></a> — the information operations layer that connects both: foreign information manipulation and interference, actor attribution, and platform responses</li>
-    <li><a href="https://compossible.blog" target="_blank" rel="noopener"><strong>compossible.blog</strong></a> — long-form analytical development of the underlying concepts: lawfare, FIMI, economic coercion, EU fragmentation, and the New Playbook of Power</li>
-  </ul>
+    <section class="module-section" id="section-flags">
+      <div class="module-header">
+        <div class="module-title">Institutional Integrity Flags</div>
+      </div>
+      <p>
+        Institutional integrity flags track sustained threats to specific democratic institutions — courts, broadcasters, electoral commissions, civil society frameworks — that persist across multiple weekly issues. Unlike heatmap entries (which are country-level), integrity flags are institution-level: they track what is happening to a specific body over time.
+      </p>
+      <p style="margin-top:var(--space-4)">
+        Each flag carries a <code>first_raised</code> date, an <code>unchanged_since</code> date (the last time material new information was added), and a <code>flag_type</code> classification: capture (political takeover), restriction (operational constraints), replacement (dissolution and substitution), or lawfare (use of legal mechanisms against the institution or its officials).
+      </p>
+    </section>
+
+    <section class="module-section" id="section-mimicry">
+      <div class="module-header">
+        <div class="module-title">Mimicry Chains</div>
+      </div>
+      <p>
+        Mimicry chains document the deliberate adoption of legislative or regulatory templates across jurisdictions. When a law restricting civil society, press freedom, or judicial independence is enacted in one country and subsequently adopted in modified form by others, WDM maps the chain to make the pattern visible.
+      </p>
+      <p style="margin-top:var(--space-4)">
+        Each chain identifies a <em>template law</em> (the originating instrument), an <em>origin country</em>, and a sequence of <em>adopter nodes</em> with the adopting law and year. Mimicry chains are analytical constructs — they document structural similarity, not necessarily formal coordination. Where coordination evidence exists, it is noted in the chain detail.
+      </p>
+      <p style="margin-top:var(--space-4)">
+        <a href="about.html">Return to About →</a>
+      </p>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-what">What WDM Tracks</a></li>
+      <li><a href="#section-sources">Sources</a></li>
+      <li><a href="#section-heatmap">Heatmap Tiers</a></li>
+      <li><a href="#section-flags">Integrity Flags</a></li>
+      <li><a href="#section-mimicry">Mimicry Chains</a></li>
+    </ul>
+
+  </nav>
 
 </div>
 
-<footer class="footer">
-  World Democracy Monitor — Methodology &nbsp;·&nbsp; <a href="https://asym-intel.info/monitors/democratic-integrity/dashboard.html">Interactive Dashboard</a> &nbsp;·&nbsp; <a href="https://asym-intel.info">Asymmetric Intelligence</a><br>
-  Published by Ramparts.gi / compossible.blog &nbsp;·&nbsp; Updates every Monday &nbsp;·&nbsp; Sources: V-Dem, CIVICUS, HRW, Amnesty, OSCE, IPI, IDEA, RSF
+<footer class="monitor-footer">
+  <span>World Democracy Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
 </footer>
 
+<script src="../shared/js/nav.js"></script>
 </body>
 </html>
