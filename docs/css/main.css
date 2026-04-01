@@ -837,17 +837,34 @@ a:hover { color: var(--color-primary-hover); }
 
 .home-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: var(--space-10);
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-8);
   align-items: start;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .home-grid {
     grid-template-columns: 1fr;
   }
   .home-panel {
+    /* On narrow viewports: horizontal scrollable strip of monitor cards */
     position: static !important;
+    max-height: none;
+    overflow-y: visible;
+  }
+  .home-panel__nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+    border-radius: var(--radius-lg);
+  }
+  .home-monitor-card:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .home-panel__nav {
+    grid-template-columns: 1fr;
   }
 }
 
