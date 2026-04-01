@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
-  "description": "Machine-readable record of all schema additions and changes across all 7 monitors. Cron agents read this at Step 0 to understand what fields they are expected to produce and since when. Append-only \u2014 never delete entries.",
-  "last_updated": "2026-04-02",
+  "description": "Machine-readable record of all schema additions and changes across all 7 monitors. Cron agents read this at Step 0 to understand what fields they are expected to produce and since when. Append-only — never delete entries.",
+  "last_updated": "2026-04-01",
   "entries": [
     {
       "id": "SC-001",
@@ -9,7 +9,7 @@
       "monitor": "ALL",
       "change_type": "schema_version",
       "field": "meta.schema_version",
-      "description": "Blueprint v2.0 baseline \u2014 all monitors launched with schema_version 2.0",
+      "description": "Blueprint v2.0 baseline — all monitors launched with schema_version 2.0",
       "required_from_issue": 1
     },
     {
@@ -27,7 +27,7 @@
       "monitor": "GMM",
       "change_type": "new_field",
       "field": "domain_indicators",
-      "description": "domain_indicators object added: 6 domains \u00d7 ~4 indicators each",
+      "description": "domain_indicators object added: 6 domains × ~4 indicators each",
       "required_from_issue": 1
     },
     {
@@ -38,7 +38,7 @@
       "field": "tail_risks",
       "description": "tail_risks array added: id, label, likelihood (0-1), impact (0-1), direction, note. Powers the risk heatmap on dashboard.",
       "required_from_issue": 8,
-      "methodology_ref": "Horizon Matrix probabilities for likelihood; (affected_classes/8 \u00d7 avg_score_change \u00d7 1.5) for impact"
+      "methodology_ref": "Horizon Matrix probabilities for likelihood; (affected_classes/8 × avg_score_change × 1.5) for impact"
     },
     {
       "id": "SC-005",
@@ -100,7 +100,7 @@
       "monitor": "WDM",
       "change_type": "new_section",
       "field": "electoral_watch / digital_civil / autocratic_export / state_capture / institutional_pulse / legislative_watch / research_360 / networks",
-      "description": "Category B sections \u2014 specified in cron prompt from Issue 1 but never produced due to output truncation. Two-pass commit fix applied 2026-04-01. First expected appearance: Issue 4 (Mon 7 Apr).",
+      "description": "Category B sections — specified in cron prompt from Issue 1 but never produced due to output truncation. Two-pass commit fix applied 2026-04-01. First expected appearance: Issue 4 (Mon 7 Apr).",
       "required_from_issue": 4
     },
     {
@@ -127,7 +127,7 @@
       "monitor": "SCEM",
       "change_type": "new_field",
       "field": "conflict_roster[*].esc_score",
-      "description": "esc_score: raw (weighted sum of I1-I6 deviations), band, methodology_note. Weights: interstate I3\u00d72.0, I2\u00d71.5, others\u00d71.0; intrastate I6\u00d71.5, I2\u00d71.5, I3\u00d70.5, others\u00d71.0. esc_score_history appended to persistent-state.",
+      "description": "esc_score: raw (weighted sum of I1-I6 deviations), band, methodology_note. Weights: interstate I3×2.0, I2×1.5, others×1.0; intrastate I6×1.5, I2×1.5, I3×0.5, others×1.0. esc_score_history appended to persistent-state.",
       "required_from_issue": "next run (Sun 5 Apr)"
     },
     {
@@ -147,60 +147,6 @@
       "field": "kpi_state.lagrange_point_dimensions",
       "description": "lagrange_point_dimensions in persistent-state.kpi_state: 6 pillars (defence, energy, technology, finance, materials, institutions) each with score (0-100), direction, note. Powers Autonomy Radar chart on dashboard. Also composite_index_history appended each issue.",
       "required_from_issue": "next run (Wed 8 Apr)"
-    },
-    {
-      "id": "SC-017",
-      "date": "2026-04-02",
-      "monitor": "ALL",
-      "change_type": "new_field",
-      "field": "_research_traceback",
-      "description": "Reproducibility traceback layer (P2 improvement). Optional for Possible/Assessed; MANDATORY for High/Confirmed. Structure: { sources_cited: [{source_name, source_url, retrieval_date, tier, excerpt}], search_queries_run (optional array of strings), analyst_confidence_notes (string) }. Housekeeping check 16 validates: every High/Confirmed has _research_traceback with min 2 sources and direct primary URLs.",
-      "required_from_issue": "next run for each monitor",
-      "mission_principle": "Principle 6 \u2014 reproducibility from public sources",
-      "p_ref": "P2"
-    },
-    {
-      "id": "SC-018",
-      "date": "2026-04-02",
-      "monitor": "ALL",
-      "change_type": "new_field",
-      "field": "_confidence_basis",
-      "description": "Explicit evidentiary standard met. Enum: Tier_1_primary | Tier_12_corroborated | Tier_34_assessed | Tier_4_possible | mixed. MANDATORY for High/Confirmed findings. Must be consistent with actual source tier composition in _research_traceback. Housekeeping check 17 cross-validates confidence_basis against sources_cited tiers.",
-      "required_from_issue": "next run for each monitor",
-      "mission_principle": "Principle 2 \u2014 source hierarchy is methodology",
-      "p_ref": "P2"
-    },
-    {
-      "id": "SC-019",
-      "date": "2026-04-02",
-      "monitor": "ALL",
-      "change_type": "new_field",
-      "field": "_data_date",
-      "description": "As-of date of analysis (YYYY-MM-DD), separate from publication date. MANDATORY for all scored findings. May lag publication by up to 21 days for sources on delayed publication cycles (e.g. UNHCR displacement data, V-Dem sub-annual releases, IPCC reports). Housekeeping check 19 warns if _data_date is >21 days older than publication date \u2014 requires justified exception.",
-      "required_from_issue": "next run for each monitor",
-      "p_ref": "P2"
-    },
-    {
-      "id": "SC-020",
-      "date": "2026-04-02",
-      "monitor": "ALL",
-      "change_type": "new_field",
-      "field": "episodic_flag",
-      "description": "Boolean (P3 improvement). True when a finding is event-triggered but does not reflect structural change (MISSION.md Principle 4 \u2014 Structural over episodic). When true: (1) episodic_reason is MANDATORY, (2) for SCEM: confidence reduced one tier, (3) finding does NOT drive baseline score changes in persistent-state. Housekeeping check 20 validates: episodic_flag: true requires episodic_reason populated with >20 chars.",
-      "required_from_issue": "next run for each monitor",
-      "mission_principle": "Principle 4 \u2014 Structural over episodic; deviation over level",
-      "p_ref": "P3"
-    },
-    {
-      "id": "SC-021",
-      "date": "2026-04-02",
-      "monitor": "ALL",
-      "change_type": "new_field",
-      "field": "episodic_reason",
-      "description": "String (>20 chars). Required when episodic_flag is true. Must state: (1) why the finding is episodic rather than structural, AND (2) why it is published despite being episodic (operationally significant / election-adjacent / time-sensitive positioning). Example: 'Presidential statement on nuclear doctrine, isolated incident. No change to formal military doctrine or sustained pattern. Reverting next issue if no follow-through.' Absent episodic_reason with episodic_flag: true = Housekeeping WARN.",
-      "required_from_issue": "next run for each monitor",
-      "mission_principle": "Principle 4 \u2014 Structural over episodic",
-      "p_ref": "P3"
     }
   ]
 }
