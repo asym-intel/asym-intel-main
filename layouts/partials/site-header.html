@@ -1,20 +1,12 @@
 {{/*
   site-header.html  — Blueprint v2.1
   ─────────────────────────────────────────────────────────────────────────────
-  Canonical second-tier nav for all Hugo-rendered pages.
-  Matches monitor-nav structure exactly: SVG + site name far left, links right.
-  Sits below the network-bar (40px) — sticky at top: 40px.
-  NEVER add a separate wordmark, strapline, or duplicate header above this.
+  Thin nav bar for Hugo content pages — sits below the network-bar (40px).
+  NO brand name, SVG, or Monitors link — all duplicated in the black bar above.
+  Right side: About · Subscribe
 */}}
 <nav class="site-nav" aria-label="Site navigation">
-  <a class="site-nav__brand" href="/">
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true" style="flex-shrink:0">
-      <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="#4f98a3"/>
-      <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/>
-      <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/>
-    </svg>
-    <span>Asymmetric Intelligence</span>
-  </a>
+  <div class="site-nav__spacer"></div>
 
   <button class="site-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
     <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -25,7 +17,6 @@
   </button>
 
   <ul class="site-nav__links" role="list">
-    <li><a href="/monitors/"{{ if eq .Section "monitors" }} class="active"{{ end }}>Monitors</a></li>
     <li><a href="/about/"{{ if eq .RelPermalink "/about/" }} class="active"{{ end }}>About</a></li>
   </ul>
 
