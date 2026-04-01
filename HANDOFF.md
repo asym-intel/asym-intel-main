@@ -88,6 +88,15 @@ Three rendering bugs fixed in AGM report.html + persistent.html (merged b5972038
 - arxiv_highlights: corrected field names summary→significance, added url fallback, published/venue/tier meta tags
 - inject-network-bar YAML fix also confirmed working on this merge (first successful run)
 
+
+### ✅ SCEM conflict_context — COMPLETE (2026-04-01)
+Schema designed, reviewed, confirmed. Implemented in two commits:
+- scem-cron-prompt.md (main, ce1f63e): full schema, data_confidence tiers, source assignments
+  for all 10 conflicts, update rules, efficiency rule, Oryx week_delta, Iran F2/F3 note
+- persistent.html (main via staging, PR #12): renderer with confidence badges,
+  contested ranges, toggleable panel per baseline card
+First data expected: SCEM cron run Sun Apr 5 18:00 UTC.
+
 ### ✅ Schema audit — COMPLETE (2026-04-01)
 Full field audit across all 7 monitors (live JSON vs cron prompt schemas).
 Findings and resolutions:
