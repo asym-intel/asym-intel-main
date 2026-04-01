@@ -157,9 +157,9 @@ All three require adding to each monitor's cron prompt:
 ## PENDING TASKS (next session)
 
 ### MASTER ACTION PLAN
-Full domain expert audit completed for all 6 non-WDM monitors.
-Saved to: /home/user/workspace/master-action-plan.md
-Individual audits: audit-gmm.md, audit-fcw.md, audit-esa.md, audit-agm.md, audit-erm.md, audit-scem.md
+Full domain expert audit completed for all 7 monitors (including WDM).
+Saved to repo: docs/audits/master-action-plan.md (all 7 monitors)
+Individual audits: docs/audits/audit-{gmm,wdm,fcw,esa,agm,erm,scem}.md
 
 Key findings:
 - 13 confirmed rendering bugs (5 AGM `undefined`, 3 SCEM template failures, 1 ESA missing radar spoke, etc.)
