@@ -226,6 +226,17 @@ img, svg { display: block; max-width: 100%; }
   background: var(--color-primary);
   color: #fff;
 }
+/* Search link in site-nav — plain link matching About style */
+.site-nav__links a[href="/search.html"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;  /* gap handled via inline margin on svg */
+}
+/* On mobile hide Subscribe to keep nav clean */
+@media (max-width: 640px) {
+  .site-nav__actions { display: none; }
+  .site-nav__links   { display: flex; }
+}
 /* Hamburger — mobile only */
 .site-nav__hamburger {
   display: none;
