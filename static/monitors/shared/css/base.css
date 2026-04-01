@@ -1253,7 +1253,8 @@ body { padding-top: 40px; }
 
 /* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
-  body { overflow-x: hidden; }
+  body { overflow-x: clip; } /* clip not hidden — preserves position:fixed children */
+  .monitor-layout { overflow-x: hidden; } /* contain horizontal overflow at layout level */
   .monitor-nav { padding: 0 var(--space-4); }
   .monitor-nav__hamburger { display: flex; }
   .monitor-nav__links {
