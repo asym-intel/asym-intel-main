@@ -156,6 +156,27 @@ All three require adding to each monitor's cron prompt:
 
 ## PENDING TASKS (next session)
 
+### SPRINT 1 STATUS — 2026-04-01
+
+All Sprint 1 items completed and merged to main today:
+
+| PR | Monitors | What merged |
+|---|---|---|
+| #18 | SCEM | Deviation chart, escalation index HIGH fix, CONTESTED disclaimer, schema version |
+| #19 | ESA | Institutional items in Top Items, source links on all items |
+| #20 | AGM | 3 `undefined` bugs fixed on persistent.html (M07, M15×2) |
+| #22 | ERM+FCW+GMM | ERM cascade tiers+heatmap+summaries+dual_edge / FCW all 12 campaigns+attribution log+platform enforcement+changelog / GMM hard landing KPI+scenarios+fed funds table+Real M2 waterfall |
+
+Direct-to-main (cron/data):
+- WDM: source_url, severity_sub, lead_signal enforcement in cron prompt
+- SCEM Sprint 2: escalation_velocity, esc_score, negotiation_status schemas
+- ESA: lagrange_point_dimensions schema added to cron prompt
+- ALL: hardened publish guard (day+hour+recency, hard-exit on prompt reload)
+- ALL: shared intelligence layer (intelligence-digest.json, schema-changelog.json, monitor-schema-requirements.json)
+- ALL: Step 0B in all cron prompts (read shared layer before research)
+- Housekeeping extended to 15 checks (schema validation, digest compilation, freshness)
+- COMPUTER.md v1.6, methodology pages updated
+
 ### MASTER ACTION PLAN
 Full domain expert audit completed for all 7 monitors (including WDM).
 Saved to repo: docs/audits/master-action-plan.md (all 7 monitors)
@@ -175,9 +196,28 @@ Sprint 2 (schema + medium rendering): sentiment_overlay renderer, scenario cards
 Sprint 3 (structural): FCW narratives registry, AGM governance health score,
   ERM proximity scores, SCEM I7 proxy warfare indicator
 
-### Priority 1 — Universal cron prompt fixes (all 7 monitors, direct to main)
-CHANGELOG RULE + top_3_developments + signal confidence.
-Simple appends to all 7 cron prompts. Do these together in one pass.
+### Priority 1 — Verify SCEM Sunday (5 Apr 18:00 UTC)
+First run with: escalation_velocity, esc_score, negotiation_status, conflict_context.
+First run reading shared intelligence digest at Step 0B.
+Check: new fields present, two-pass rule worked, no off-schedule publish.
+
+### Priority 2 — Verify WDM Monday (6 Apr 06:00 UTC)
+First run with two-pass fix — Category B sections must appear for the first time:
+  electoral_watch, digital_civil, autocratic_export, state_capture,
+  institutional_pulse, legislative_watch, research_360, networks
+Also check: source_url non-empty, severity_sub present, lead_signal on recovery entries.
+
+### Priority 3 — Sprint 2 (before next cron runs)
+GMM: Horizon Matrix section, Factor Attribution per asset
+FCW: threat_level aggregate, narrative persistence tracker
+ESA: defence spending tracker, US-dependency index
+AGM: regulatory_calendar, governance health score
+ERM: tipping proximity scores, boundary version history
+SCEM: render escalation_velocity + esc_score on dashboard once data arrives
+WDM: silent_erosion field, wdm_stress_index
+
+### Priority 4 — Universal cron prompt fixes (all 7 monitors)
+top_3_developments in signal + signal confidence field. Simple appends.
 
 ### Priority 2 — Per-monitor cron prompt additions (direct to main)
 Work through the per-monitor gap table above. Start with WDM (next to run Mon 06:00)
