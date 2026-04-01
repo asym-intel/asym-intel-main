@@ -145,8 +145,50 @@ Primary sources: V-Dem, Freedom House, CIVICUS, Amnesty International,
 Human Rights Watch, IPI, RSF, OSCE/ODIHR, IDEA, IFES.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STEP 2 — WRITE JSON PIPELINE (4 files, single git commit)
+STEP 2 — WRITE JSON PIPELINE (TWO-PASS COMMIT PATTERN)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  TWO-PASS RULE — MANDATORY. DO NOT SKIP.
+
+The WDM JSON is too large to produce in one pass. You MUST commit
+it in two separate git commits:
+
+PASS 1 — Core sections (commit immediately after research):
+  meta, signal, weekly_brief, heatmap, intelligence_items,
+  institutional_integrity_flags, regional_mimicry_chains,
+  cross_monitor_flags, source_url
+
+  Commit message: "data(wdm): Issue [N] W/E [DATE] — core sections"
+
+PASS 2 — Category B sections (second commit, immediately after Pass 1):
+  Read the Pass 1 JSON from the repo, then PATCH it by adding:
+  electoral_watch, digital_civil, autocratic_export, state_capture,
+  institutional_pulse, legislative_watch, research_360, networks
+
+  ```bash
+  # Read the Pass 1 JSON, add Category B sections, write back
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/democratic-integrity/data/report-latest.json \
+    --jq '.content' | base64 -d > /tmp/wdm-report.json
+  # ... add Category B fields to /tmp/wdm-report.json ...
+  # Then PUT it back
+  ```
+
+  Commit message: "data(wdm): Issue [N] W/E [DATE] — category B sections"
+
+Do the same two-pass write for report-{DATE}.json.
+archive.json and persistent-state.json: single commit is fine.
+
+VERIFICATION — after Pass 2, confirm these keys are present:
+  electoral_watch, digital_civil, autocratic_export, state_capture,
+  institutional_pulse, legislative_watch, research_360, networks
+
+  ```bash
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/democratic-integrity/data/report-latest.json \
+    --jq '.content' | base64 -d | python3 -c \
+    "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['electoral_watch','digital_civil','autocratic_export','state_capture','institutional_pulse','legislative_watch','research_360','networks'] if k not in d]; print('MISSING:',missing) if missing else print('ALL CATEGORY B SECTIONS PRESENT ✓')"
+  ```
+  If any are missing — do NOT proceed to Step 3. Re-run Pass 2.
+
 
 report-latest.json schema:
 {
