@@ -125,6 +125,36 @@ for slug in MONITOR_SLUGS:
                 fail(f"{slug}/data/report-latest.json — published date {pub_date} is FUTURE (Hugo will skip it)")
         except: pass
 
+
+# ── Check 10: base.css has body padding-top:40px ─────────────────────
+print("Check 10: base.css has body padding-top:40px")
+base_css_path = f"{MONITORS_DIR}/../../../static/monitors/shared/css/base.css"
+# Adjust path for CI context
+import glob as _glob
+base_candidates = _glob.glob("static/monitors/shared/css/base.css")
+if base_candidates:
+    with open(base_candidates[0]) as _f: _base = _f.read()
+    if 'padding-top: 40px' not in _base and 'padding-top:40px' not in _base:
+        fail("base.css — body padding-top:40px MISSING (network bar offset not set)")
+    else:
+        pass  # OK
+
+# ── Check 11: main.css network-bar is position:fixed ─────────────────
+print("Check 11: main.css network-bar is position:fixed")
+main_candidates = _glob.glob("assets/css/main.css")
+if main_candidates:
+    with open(main_candidates[0]) as _f: _main = _f.read()
+    if 'position: fixed' not in _main and '.network-bar' in _main:
+        fail("assets/css/main.css — .network-bar is not position:fixed (Hugo pages bar will scroll away)")
+
+# ── Check 12: monitor-nav has explicit top:40px ───────────────────────
+print("Check 12: base.css monitor-nav has top:40px")
+if base_candidates:
+    import re as _re
+    mn = _re.search(r'\.monitor-nav\s*\{[^}]+\}', _base)
+    if mn and 'top: 40px' not in mn.group() and 'top:40px' not in mn.group():
+        warn("base.css — .monitor-nav missing explicit top:40px (may hide behind network bar)")
+
 # ── Summary ───────────────────────────────────────────────────────────────
 print()
 if warnings:
