@@ -167,18 +167,16 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('data/persistent-state.json').then(function(r){return r.json();}),
     fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
   ]).then(function(results){
-    var d = results[0];
+    var ps = results[0];
     var report = results[1];
-    if (!d.cross_monitor_flags && report.cross_monitor_flags) {
-      d.cross_monitor_flags = report.cross_monitor_flags;
+    // Merge CMF from report-latest into persistent state
+    if (report.cross_monitor_flags) {
+      ps._report_cmf = report.cross_monitor_flags;
     }
-  }).catch(function(){});
-  fetch('data/persistent-state.json')
-    .then(function (r) { return r.json(); })
-    .then(renderPersistent)
-    .catch(function (e) {
-      document.getElementById('baselines-list').innerHTML = '<div class="error-state">Failed to load persistent state: ' + e.message + '</div>';
-    });
+    renderPersistent(ps);
+  }).catch(function (e) {
+    document.getElementById('baselines-list').innerHTML = '<div class="error-state">Failed to load persistent state: ' + e.message + '</div>';
+  });
 
   function renderPersistent(d) {
     var meta      = d._meta || {};
@@ -266,7 +264,15 @@ document.addEventListener('DOMContentLoaded', function () {
     var rwHtml = '';
     if (approaching.length) {
       rwHtml += '<div class="section-label">Approaching Inclusion</div><ul class="roster-watch-list">' +
-        approaching.map(function(r) { return '<li>' + escHtml(typeof r === 'string' ? r : (r.conflict||JSON.stringify(r))) + '</li>'; }).join('') + '</ul>';
+        approaching.map(function(r) {
+          if (typeof r === 'string') return '<li>' + escHtml(r) + '</li>';
+          return '<li><strong>' + escHtml(r.conflict||'') + '</strong>' +
+            (r.theatre ? ' · ' + escHtml(r.theatre) : '') +
+            (r.status ? ' <span class="severity-badge severity-badge--moderate">' + escHtml(r.status) + '</span>' : '') +
+            (r.notes || r.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px">' + escHtml(r.notes||r.note) + '</div>' : '') +
+            (r.criteria_met && r.criteria_met.length ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Criteria met: ' + r.criteria_met.map(escHtml).join(', ') + '</div>' : '') +
+          '</li>';
+        }).join('') + '</ul>';
     }
     if (retiring.length) {
       rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div><ul class="roster-watch-list">' +
@@ -277,8 +283,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     document.getElementById('roster-watch').innerHTML = rwHtml;
 
-    // Cross-monitor flags — from persistent-state
-    var cmf = d.cross_monitor_flags || {};
+    // Cross-monitor flags — from report-latest.json (merged in above)
+    var cmf = d._report_cmf || d.cross_monitor_flags || {};
     var flags = cmf.flags || [];
     // F-flag history
     var fFlags = d.f_flag_history || [];
