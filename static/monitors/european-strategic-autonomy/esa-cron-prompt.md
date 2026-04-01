@@ -158,9 +158,12 @@ Never delete changelog history.
 Commit: "data(esa): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
-  content/monitors/european-strategic-autonomy/[DATE]-weekly-brief.md
+  PUBLISH_DATE = today's UTC date in YYYY-MM-DD format (e.g. 2026-04-08)
+  ⚠️  The filename MUST equal PUBLISH_DATE. The front matter date: field must also equal PUBLISH_DATE.
+      A mismatch causes a future-dated or wrong URL in sitemap.xml (anti-pattern FE-019).
+  Filename: content/monitors/european-strategic-autonomy/[PUBLISH_DATE]-weekly-brief.md
   title: "European Strategic Autonomy Monitor — W/E [DD Month YYYY]"
-  date: [DATE]T19:00:00Z | monitor: "european-strategic-autonomy"
+  date: [PUBLISH_DATE]T19:00:00Z | monitor: "european-strategic-autonomy"
 
 STEP 4 — Notify. Dashboard: https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html
 
