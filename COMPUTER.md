@@ -179,6 +179,16 @@ CONTRAST RULES (WCAG AA — apply globally, never fix piecemeal):
   Catch those via: anti-patterns.json FE-003 + visual sign-off on every PR.
   Never rely on the validator alone for contrast compliance in JS-heavy pages.
 
+SIGNAL BLOCK SOURCE LINK RULE (FE-018 — see anti-patterns.json):
+  Every dashboard signal/lead-signal block MUST include a 'Read the top story ↓' link
+  wherever source_url is available. This applies to all 7 monitors.
+  Standard pattern:
+    var sourceUrl = signalObj.source_url || d.source_url || '';
+    // In innerHTML:
+    (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="'
+      + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '')
+  Link text is always exactly: 'Read the top story ↓' — no variations.
+
 COUNTRY FLAGS RULE (FE-016 — see anti-patterns.json):
   AsymRenderer.flag(iso2) is available on every page via renderer.js.
   ALWAYS use it wherever a country name or ISO-2 actor code appears:
