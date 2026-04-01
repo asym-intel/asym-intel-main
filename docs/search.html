@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search — Asymmetric Intelligence</title>
+  <meta name="description" content="Search all published briefs across all seven Asymmetric Intelligence monitors.">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script>
+    // Inline theme init — prevent flash
+    (function(){
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+      } catch(e){}
+    })();
+  </script>
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    /* ── Search page specific ─────────────────────────────────── */
+    .search-page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 6rem;
+    }
+    .search-page__eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-text-muted, #6b7280);
+      margin-bottom: 0.5rem;
+    }
+    .search-page__title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--color-text, #111827);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .search-page__desc {
+      font-size: 1rem;
+      color: var(--color-text-secondary, #4b5563);
+      margin-bottom: 2rem;
+    }
+    .search-input-wrap {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+    .search-input-wrap svg {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-muted, #9ca3af);
+      pointer-events: none;
+    }
+    .search-input-el {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.75rem;
+      font-family: inherit;
+      font-size: 1rem;
+      background: var(--color-surface, #fff);
+      border: 1.5px solid var(--color-border, #e5e7eb);
+      border-radius: 8px;
+      color: var(--color-text, #111827);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      box-sizing: border-box;
+    }
+    .search-input-el:focus {
+      border-color: var(--color-primary, #2563eb);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .search-input-el::placeholder { color: var(--color-text-faint, #9ca3af); }
+    .search-filter-bar {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .search-filter-btn {
+      padding: 0.3rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 999px;
+      border: 1.5px solid var(--color-border, #e5e7eb);
+      background: transparent;
+      color: var(--color-text-secondary, #4b5563);
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+      white-space: nowrap;
+    }
+    .search-filter-btn:hover,
+    .search-filter-btn.active {
+      background: var(--color-primary, #111827);
+      color: #fff;
+      border-color: var(--color-primary, #111827);
+    }
+    .search-filter-btn[data-monitor="democratic-integrity"].active   { background: #61a5d2; border-color: #61a5d2; }
+    .search-filter-btn[data-monitor="macro-monitor"].active          { background: #22a0aa; border-color: #22a0aa; }
+    .search-filter-btn[data-monitor="fimi-cognitive-warfare"].active  { background: #38bdf8; border-color: #38bdf8; }
+    .search-filter-btn[data-monitor="european-strategic-autonomy"].active { background: #5b8db0; border-color: #5b8db0; }
+    .search-filter-btn[data-monitor="ai-governance"].active          { background: #3a7d5a; border-color: #3a7d5a; }
+    .search-filter-btn[data-monitor="environmental-risks"].active    { background: #4caf7d; border-color: #4caf7d; }
+    .search-filter-btn[data-monitor="conflict-escalation"].active    { background: #dc2626; border-color: #dc2626; }
+    .search-status {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted, #6b7280);
+      margin-bottom: 1.5rem;
+      min-height: 1.25rem;
+    }
+    .search-result {
+      padding: 1.25rem 0;
+      border-bottom: 1px solid var(--color-border, #e5e7eb);
+    }
+    .search-result:last-child { border-bottom: none; }
+    .search-result__header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+      flex-wrap: wrap;
+    }
+    .search-result__monitor-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .search-result__monitor-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .search-result__issue {
+      font-size: 0.75rem;
+      color: var(--color-text-faint, #9ca3af);
+    }
+    .search-result__body {
+      font-size: 0.9375rem;
+      color: var(--color-text-secondary, #4b5563);
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
+    }
+    .search-result__body mark {
+      background: rgba(37,99,235,0.12);
+      color: inherit;
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+    .search-result__link {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--color-primary, #2563eb);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    .search-result__link:hover { text-decoration: underline; }
+    .search-empty {
+      padding: 3rem 0;
+      font-size: 0.9375rem;
+      color: var(--color-text-muted, #6b7280);
+      text-align: center;
+    }
+    @media (prefers-color-scheme: dark) {
+      [data-theme="dark"] .search-input-el:focus {
+        box-shadow: 0 0 0 3px rgba(96,165,250,0.15);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  {{/* Network bar injected by GitHub Actions */}}
+
+  <nav class="site-nav" aria-label="Site navigation">
+    <div class="site-nav__spacer"></div>
+    <ul class="site-nav__links" role="list">
+      <li><a href="/about/">About</a></li>
+      <li><a href="/search.html" class="active">Search</a></li>
+    </ul>
+    <div class="site-nav__actions">
+      <a class="site-nav__subscribe" href="/subscribe/">Subscribe</a>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="search-page">
+
+      <div class="search-page__eyebrow">Asymmetric Intelligence</div>
+      <h1 class="search-page__title">Search all monitors</h1>
+      <p class="search-page__desc">Full-text search across all published briefs from all seven monitors.</p>
+
+      <div class="search-input-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="9.9" y1="9.9" x2="13.5" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="search" class="search-input-el" id="search-input"
+          placeholder="Search across all monitors and issues…" autocomplete="off" spellcheck="false">
+      </div>
+
+      <div class="search-filter-bar" id="filter-bar">
+        <button class="search-filter-btn active" data-monitor="all">All monitors</button>
+        <button class="search-filter-btn" data-monitor="democratic-integrity">WDM</button>
+        <button class="search-filter-btn" data-monitor="macro-monitor">GMM</button>
+        <button class="search-filter-btn" data-monitor="fimi-cognitive-warfare">FCW</button>
+        <button class="search-filter-btn" data-monitor="european-strategic-autonomy">ESA</button>
+        <button class="search-filter-btn" data-monitor="ai-governance">AGM</button>
+        <button class="search-filter-btn" data-monitor="environmental-risks">ERM</button>
+        <button class="search-filter-btn" data-monitor="conflict-escalation">SCEM</button>
+      </div>
+
+      <div class="search-status" id="search-status">Loading corpus…</div>
+      <div id="search-results"></div>
+
+    </div>
+  </main>
+
+  <footer style="border-top:1px solid var(--color-border,#e5e7eb);padding:1.5rem;text-align:center;font-size:0.8125rem;color:var(--color-text-muted,#6b7280);">
+    <a href="https://asym-intel.info">asym-intel.info</a> ·
+    <a href="/monitors/" style="color:inherit">All monitors</a> ·
+    <a href="/subscribe/" style="color:inherit">Subscribe</a>
+  </footer>
+
+  <script>
+  (function () {
+    var MONITORS = [
+      { slug: 'democratic-integrity',       abbr: 'WDM',  label: 'World Democracy Monitor',             accent: '#61a5d2' },
+      { slug: 'macro-monitor',              abbr: 'GMM',  label: 'Global Macro Monitor',                accent: '#22a0aa' },
+      { slug: 'fimi-cognitive-warfare',     abbr: 'FCW',  label: 'FIMI & Cognitive Warfare Monitor',    accent: '#38bdf8' },
+      { slug: 'european-strategic-autonomy',abbr: 'ESA',  label: 'European Strategic Autonomy Monitor', accent: '#5b8db0' },
+      { slug: 'ai-governance',              abbr: 'AGM',  label: 'AI Governance Monitor',               accent: '#3a7d5a' },
+      { slug: 'environmental-risks',        abbr: 'ERM',  label: 'Environmental Risks Monitor',         accent: '#4caf7d' },
+      { slug: 'conflict-escalation',        abbr: 'SCEM', label: 'Strategic Conflict & Escalation',     accent: '#dc2626' }
+    ];
+
+    var BASE = 'https://asym-intel.info/monitors/';
+    var corpus = [];          // [{text, issue, slug, published, url}]
+    var loaded = false;
+    var activeFilter = 'all';
+
+    /* ── Helpers ───────────────────────────────────────────── */
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function highlight(text, q) {
+      var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+      return esc(text).replace(re, '<mark>$1</mark>');
+    }
+    function flatten(obj, meta, items) {
+      if (!obj || typeof obj !== 'object') return;
+      if (Array.isArray(obj)) { obj.forEach(function(i){ flatten(i, meta, items); }); return; }
+      var text = '';
+      ['title','headline','summary','body','detail','note','signal','significance',
+       'description','asymmetric','linkage','one_line','analysis'].forEach(function(k){
+        if (obj[k] && typeof obj[k] === 'string') text += ' ' + obj[k];
+      });
+      if (text.trim()) items.push({ text: text.trim(), meta: meta });
+      Object.keys(obj).forEach(function(k){
+        if (typeof obj[k] === 'object') flatten(obj[k], meta, items);
+      });
+    }
+    function monitorMeta(slug) {
+      return MONITORS.find(function(m){ return m.slug === slug; }) || { abbr: slug, label: slug, accent: '#6b7280' };
+    }
+
+    /* ── Load corpus from all 7 monitors ──────────────────── */
+    var statusEl = document.getElementById('search-status');
+    var totalLoaded = 0;
+    var totalMonitors = MONITORS.length;
+
+    var allPromises = MONITORS.map(function(mon) {
+      var archiveUrl = BASE + mon.slug + '/data/archive.json';
+      return fetch(archiveUrl)
+        .then(function(r){ return r.ok ? r.json() : []; })
+        .then(function(issues){
+          issues = Array.isArray(issues) ? issues : [];
+          var reportPromises = issues.map(function(issue){
+            var slug = issue.slug || issue.published || '';
+            var url = BASE + mon.slug + '/data/report-' + slug + '.json';
+            var briefUrl = BASE + mon.slug + '/' + slug + '-weekly-brief/';
+            return fetch(url)
+              .then(function(r){ return r.ok ? r.json() : null; })
+              .then(function(d){
+                if (!d) return;
+                var meta = {
+                  monitorSlug: mon.slug,
+                  monitorAbbr: mon.abbr,
+                  monitorLabel: mon.label,
+                  monitorAccent: mon.accent,
+                  issue: issue.slug || issue.published || '?',
+                  published: issue.published || '',
+                  url: briefUrl
+                };
+                flatten(d, meta, corpus);
+              }).catch(function(){});
+          });
+          return Promise.all(reportPromises);
+        })
+        .then(function(){
+          totalLoaded++;
+          if (statusEl) statusEl.textContent = 'Loading ' + totalLoaded + '/' + totalMonitors + ' monitors…';
+        })
+        .catch(function(){
+          totalLoaded++;
+        });
+    });
+
+    Promise.all(allPromises).then(function(){
+      loaded = true;
+      if (statusEl) {
+        statusEl.textContent = corpus.length + ' searchable items loaded across all monitors.';
+      }
+      // If user already typed something while loading
+      var q = document.getElementById('search-input').value;
+      if (q.trim()) doSearch(q);
+    });
+
+    /* ── Search ─────────────────────────────────────────────── */
+    function doSearch(q) {
+      var resultsEl = document.getElementById('search-results');
+      q = q.trim();
+      if (!q) { resultsEl.innerHTML = ''; if (statusEl) statusEl.textContent = corpus.length ? corpus.length + ' searchable items loaded across all monitors.' : ''; return; }
+      if (!loaded) { if (statusEl) statusEl.textContent = 'Loading corpus…'; return; }
+
+      var lower = q.toLowerCase();
+      var matches = corpus.filter(function(item){
+        if (activeFilter !== 'all' && item.meta.monitorSlug !== activeFilter) return false;
+        return item.text.toLowerCase().indexOf(lower) > -1;
+      });
+
+      // Deduplicate on text + issue + monitor
+      var seen = {}, deduped = [];
+      matches.forEach(function(m){
+        var k = m.meta.monitorSlug + '|' + m.meta.issue + '|' + m.text.slice(0,100);
+        if (!seen[k]) { seen[k] = true; deduped.push(m); }
+      });
+
+      if (statusEl) statusEl.textContent = deduped.length
+        ? deduped.length + ' result' + (deduped.length !== 1 ? 's' : '') + ' for "' + esc(q) + '"'
+        : 'No results for "' + esc(q) + '"';
+
+      if (!deduped.length) {
+        resultsEl.innerHTML = '<div class="search-empty">No results found. Try a different term or monitor.</div>';
+        return;
+      }
+
+      resultsEl.innerHTML = deduped.slice(0, 50).map(function(item){
+        var m = item.meta;
+        var preview = item.text.length > 220 ? item.text.slice(0, 220) + '…' : item.text;
+        var dateLabel = m.published ? ' · ' + m.published : '';
+        return '<div class="search-result">' +
+          '<div class="search-result__header">' +
+            '<span class="search-result__monitor-dot" style="background:' + esc(m.monitorAccent) + '"></span>' +
+            '<span class="search-result__monitor-label" style="color:' + esc(m.monitorAccent) + '">' + esc(m.monitorAbbr) + '</span>' +
+            '<span class="search-result__issue">' + esc(m.monitorLabel) + dateLabel + '</span>' +
+          '</div>' +
+          '<div class="search-result__body">' + highlight(preview, q) + '</div>' +
+          '<a class="search-result__link" href="' + esc(m.url) + '">View brief →</a>' +
+        '</div>';
+      }).join('');
+    }
+
+    /* ── Filter buttons ─────────────────────────────────────── */
+    document.getElementById('filter-bar').addEventListener('click', function(e){
+      var btn = e.target.closest('.search-filter-btn');
+      if (!btn) return;
+      document.querySelectorAll('.search-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      activeFilter = btn.getAttribute('data-monitor');
+      doSearch(document.getElementById('search-input').value);
+    });
+
+    /* ── Input handler ──────────────────────────────────────── */
+    var timer;
+    document.getElementById('search-input').addEventListener('input', function(){
+      clearTimeout(timer);
+      var val = this.value;
+      timer = setTimeout(function(){ doSearch(val); }, 200);
+    });
+    document.getElementById('search-input').focus();
+  })();
+  </script>
+</body>
+</html>
