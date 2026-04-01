@@ -11,19 +11,6 @@
 </head>
 
 <body>
-<style>
-body{padding-top:40px!important}
-/* WDM/blueprint monitors: monitor-nav and sidebar offset */
-.monitor-nav{top:40px!important}
-.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
-/* Legacy monitor overrides (pre-blueprint) */
-nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
-nav.sidebar{height:calc(100vh - 40px)!important}
-.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
-.header:not([data-asym-network-bar]){top:40px!important}
-nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
-</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;display:flex;align-items:center;padding:0 24px;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
-
 
 <nav class="monitor-nav" aria-label="Monitor navigation">
   <a class="monitor-nav__brand" href="overview.html">
@@ -225,20 +212,73 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'elevated';
   }
 
+  function directionArrow(dir) {
+    if (!dir) return '';
+    var d = dir.toLowerCase();
+    var isDown = d.indexOf('deteriorat') > -1 || d.indexOf('escalat') > -1 ||
+                 d.indexOf('erosion') > -1 || d.indexOf('tighten') > -1 ||
+                 d.indexOf('contract') > -1;
+    var isUp   = d.indexOf('improv') > -1 || d.indexOf('recover') > -1 ||
+                 d.indexOf('positive') > -1;
+    var isAccel = d.indexOf('accelerat') > -1 || d.indexOf('structural increase') > -1;
+    var isStable = d.indexOf('stable') > -1;
+
+    if (isDown) {
+      return '<span class="dir-arrow dir-arrow--down" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M7 2v10M3 8l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    if (isUp) {
+      return '<span class="dir-arrow dir-arrow--up" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    if (isAccel) {
+      return '<span class="dir-arrow dir-arrow--accel" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    if (isStable) {
+      return '<span class="dir-arrow dir-arrow--stable" title="' + esc(dir) + '">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
+        '<path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>' +
+        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+    }
+    // Fallback: show text only
+    return '<span class="dir-arrow dir-arrow--neutral" title="' + esc(dir) + '">' +
+      '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+  }
+
   function renderIndicatorDomain(arr) {
     if (!arr || !arr.length) return '<p class="text-muted text-sm">No data.</p>';
     var html = '<div>';
     arr.forEach(function (ind) {
+      var scoreVal = parseFloat(ind.score || 0);
+      var scorePos = scoreVal >= 0;
+      var updateHtml = ind.update_this_week
+        ? '<div class="indicator-row__update">' + esc(ind.update_this_week) + '</div>'
+        : '';
       html += '<div class="indicator-row">' +
-        '<div>' +
+        '<div class="indicator-row__body">' +
           '<div class="indicator-row__name">' + esc(ind.indicator) + '</div>' +
           '<div class="indicator-row__reading">' + esc(ind.reading || '') + '</div>' +
+          updateHtml +
           (ind.crisis_threshold ? '<div class="indicator-row__threshold">Crisis threshold: ' + esc(ind.crisis_threshold) + '</div>' : '') +
-          (ind.blind_spot_rule ? '<div style="margin-top:var(--space-1);font-size:var(--text-xs);color:var(--high);font-style:italic">⚠ ' + esc(ind.blind_spot_rule) + '</div>' : '') +
-          (ind.source_url ? '<a href="' + esc(ind.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-1);display:inline-block">Source →</a>' : '') +
+          (ind.blind_spot_rule ? '<div class="indicator-row__blind-spot">⚠ ' + esc(ind.blind_spot_rule) + '</div>' : '') +
+          (ind.source_url ? '<a href="' + esc(ind.source_url) + '" target="_blank" rel="noopener" class="source-link" style="margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
         '</div>' +
-        '<span class="flag-badge flag-badge--' + flagClass(ind.flag) + '">' + esc(ind.flag) + '</span>' +
-        '<span class="score-chip score-chip--' + (parseFloat(ind.score||0) >= 0 ? 'pos' : 'neg') + '">' + (parseFloat(ind.score||0) > 0 ? '+' : '') + esc(ind.score) + '</span>' +
+        '<div class="indicator-row__signals">' +
+          directionArrow(ind.direction) +
+          '<span class="flag-badge flag-badge--' + flagClass(ind.flag) + '">' + esc(ind.flag || '—') + '</span>' +
+          '<span class="score-chip score-chip--' + (scorePos ? 'pos' : 'neg') + '">' + (scoreVal > 0 ? '+' : '') + esc(ind.score) + '</span>' +
+        '</div>' +
       '</div>';
     });
     html += '</div>';
