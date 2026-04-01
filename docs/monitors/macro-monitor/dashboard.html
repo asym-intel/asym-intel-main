@@ -8,6 +8,16 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+<style>
+  .dir-arrow { display:inline-flex; align-items:center; gap:4px; font-size:var(--text-xs); font-weight:600; border-radius:var(--radius-sm); padding:2px 6px; white-space:nowrap; }
+  .dir-arrow svg { flex-shrink:0; }
+  .dir-arrow__label { letter-spacing:0.02em; }
+  .dir-arrow--down   { color:var(--critical); background:var(--critical-bg); }
+  .dir-arrow--up     { color:var(--positive); background:var(--positive-bg); }
+  .dir-arrow--accel  { color:var(--high);     background:var(--high-bg); }
+  .dir-arrow--stable { color:var(--color-text-muted); background:var(--color-bg-alt); }
+  .dir-arrow--neutral{ color:var(--color-text-muted); }
+</style>
 </head>
 
 <body>
@@ -173,6 +183,28 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'neutral';
   }
 
+
+  function directionArrow(dir) {
+    if (!dir) return '<span style="color:var(--color-text-faint);font-size:var(--text-xs)">—</span>';
+    var d = dir.toLowerCase();
+    var isDown  = d.indexOf('deteriorat') > -1 || d.indexOf('escalat') > -1 ||
+                 d.indexOf('erosion') > -1 || d.indexOf('tighten') > -1 || d.indexOf('contract') > -1;
+    var isUp    = d.indexOf('improv') > -1 || d.indexOf('recover') > -1 || d.indexOf('positive') > -1;
+    var isAccel = d.indexOf('accelerat') > -1 || d.indexOf('structural increase') > -1;
+    var isStable = d.indexOf('stable') > -1;
+    var cls = isDown ? 'down' : isUp ? 'up' : isAccel ? 'accel' : isStable ? 'stable' : 'neutral';
+    var arrowPath = isDown
+      ? '<path d="M7 2v10M3 8l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+      : (isStable
+        ? '<path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+        : '<path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>');
+    return '<span class="dir-arrow dir-arrow--' + cls + '" title="' + dir.replace(/"/g,"&quot;") + '">' +
+      '<svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">' + arrowPath + '</svg>' +
+      '<span class="dir-arrow__label">' + dir + '</span>' +
+      '</span>';
+  }
+
+
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -263,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '<td class="asset-table__name">' + esc(a.asset_class) + '</td>' +
           '<td><span class="score-chip score-chip--' + (scorePos ? 'pos' : 'neg') + '">' + (parseFloat(a.score||0) > 0 ? '+' : '') + esc(a.score) + '</span></td>' +
           '<td><span class="flag-badge flag-badge--' + flagClass(a.flag) + '">' + esc(a.flag) + '</span></td>' +
-          '<td style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(a.direction || '—') + '</td>' +
+          '<td>' + directionArrow(a.direction) + '</td>' +
           '<td><div class="asset-table__driver">' + esc(a.key_driver || '') + '</div></td>' +
           '</tr>';
       });
