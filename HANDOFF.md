@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 12:45 UTC | **Last commit (main):** e2db654
+**Date:** 2026-04-01 12:49 UTC | **Last commit (main):** 6948a1e
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -28,7 +28,7 @@ Load the skill: `load_skill("asym-intel", scope="user")`
 
 | Monitor | Abbr | Slug | Accent | Publish | Blueprint | Visual |
 |---|---|---|---|---|---|---|
-| World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | Mon 06:00 | v2.1 ✅ | ⚠️ Build 2 pending |
+| World Democracy Monitor | WDM | democratic-integrity | #61a5d2 | Mon 06:00 | v2.1 ✅ | ✅ |
 | Global Macro Monitor | GMM | macro-monitor | #22a0aa | Mon 08:00 | v2.1 ✅ | ✅ |
 | FIMI & Cognitive Warfare | FCW | fimi-cognitive-warfare | #38bdf8 | Thu 09:00 | v2.1 ✅ | ✅ |
 | European Strategic Autonomy | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 | v2.1 ✅ | ✅ |
@@ -57,11 +57,11 @@ All monitors have a 6-day recency guard in their cron prompts — they will skip
 
 ## PENDING TASKS (next session)
 
-### Priority 1 — WDM cron prompt: add Category B field schemas
-Now that Build 2 HTML is live, extend wdm-cron-prompt.md so the WDM cron
-starts populating: electoral_watch, digital_civil, autocratic_export,
-state_capture, institutional_pulse, legislative_watch, research_360.friction_notes, networks.
-This is a cron prompt edit — commits directly to main, no staging needed.
+### ✅ WDM Category B field schemas — COMPLETE (prior session)
+wdm-cron-prompt.md v2.1 already contains full JSON schemas for all 8 Category B fields:
+electoral_watch, digital_civil, autocratic_export, state_capture,
+institutional_pulse, legislative_watch, research_360.friction_notes, networks.
+persistent-state update instructions also cover all 8. No action needed.
 
 ### ✅ Visual design pass — COMPLETE
 Homepage live signal cards + per-monitor CSS personality. Merged to main.
