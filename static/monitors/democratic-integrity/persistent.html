@@ -335,11 +335,10 @@
           // Bold: **text**
           .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
           // Italic: *text* (single, not double)
-          .replace(/(?<!\*)\*([^*
-]+)\*(?!\*)/g, '<em>$1</em>')
+          
           // Paragraph breaks: blank lines
           .replace(/\n\n/g, '</p><p>')
-          // Single newlines → space (inline)
+          // Single newlines -> space
           .replace(/\n/g, ' ')
           // Wrap in paragraphs
           .replace(/^/, '<p>').replace(/$/, '</p>');
