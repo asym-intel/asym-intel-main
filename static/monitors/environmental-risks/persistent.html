@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Living Knowledge — Environmental Risks Monitor · Asymmetric Intelligence</title>
-  <meta name="description" content="Living knowledge base for the Environmental Risks Monitor — persistent planetary boundary status, tipping system flags, standing trackers, and cross-monitor connections.">
+  <meta name="description" content="Living knowledge base for the Environmental Risks Monitor — persistent planetary boundary statuses, tipping system flags, standing trackers, and cross-monitor connections.">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
@@ -23,6 +23,167 @@
     }
     .version-history table { width: 100%; margin-top: var(--space-2); font-size: var(--text-xs); }
     .version-history td, .version-history th { padding: var(--space-1) var(--space-2); text-align: left; border-bottom: 1px solid var(--color-border-subtle); }
+
+    /* ── Attribution Gap Tracker ── */
+    .attribution-tracker {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .attribution-case {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4) var(--space-5);
+      position: relative;
+      overflow: hidden;
+    }
+    .attribution-case::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--monitor-accent);
+      opacity: 0.6;
+    }
+    [data-theme="dark"] .attribution-case {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    .attribution-case__header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-3);
+    }
+    .attribution-case__title {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--color-text);
+      flex: 1 1 200px;
+    }
+    .attribution-case__meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .attribution-status-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+    .attribution-status-badge--open {
+      background: rgba(217,119,6,0.10);
+      color: #b45309;
+      border: 1px solid rgba(217,119,6,0.22);
+    }
+    .attribution-status-badge--closed {
+      background: rgba(5,150,105,0.10);
+      color: #059669;
+      border: 1px solid rgba(5,150,105,0.20);
+    }
+    .attribution-status-badge--partial {
+      background: rgba(37,99,235,0.10);
+      color: #2563eb;
+      border: 1px solid rgba(37,99,235,0.18);
+    }
+    [data-theme="dark"] .attribution-status-badge--open   { background: rgba(217,119,6,0.20); color: #fbbf24; border-color: rgba(217,119,6,0.30); }
+    [data-theme="dark"] .attribution-status-badge--closed { background: rgba(5,150,105,0.18); color: #34d399; border-color: rgba(5,150,105,0.28); }
+    [data-theme="dark"] .attribution-status-badge--partial{ background: rgba(37,99,235,0.18); color: #60a5fa; border-color: rgba(37,99,235,0.28); }
+
+    .attribution-case__description {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+      margin-bottom: var(--space-3);
+    }
+
+    /* Progress bar track */
+    .attribution-progress-wrap {
+      margin-bottom: var(--space-2);
+    }
+    .attribution-progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--space-1);
+    }
+    .attribution-progress-label__text {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+    }
+    .attribution-progress-label__pct {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+    .attribution-progress-track {
+      height: 6px;
+      background: var(--color-bg-alt);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .attribution-progress-track {
+      background: #2d2c2a;
+    }
+    .attribution-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .attribution-progress-fill--0   { background: #c1440e; width: 0%; }
+    .attribution-progress-fill--low { background: #d97706; }
+    .attribution-progress-fill--mid { background: #2563eb; }
+    .attribution-progress-fill--high{ background: #4caf7d; }
+
+    .attribution-case__footer {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-top: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border-subtle);
+    }
+    [data-theme="dark"] .attribution-case__footer {
+      border-top-color: #2d2c2a;
+    }
+    .attribution-case__opened {
+      font-size: 11px;
+      color: var(--color-text-muted);
+    }
+    .attribution-case__governance-gap {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-text-muted);
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border-subtle);
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+    [data-theme="dark"] .attribution-case__governance-gap {
+      background: #25231f;
+      border-color: #2d2c2a;
+    }
   </style>
   <!-- Chart.js for boundary trend visualisation -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -104,6 +265,7 @@
       <div id="trackers-content"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- ── ATTRIBUTION GAP TRACKER ── -->
     <section class="module-section" id="section-attribution">
       <div class="module-header">
         <div class="module-title">Active Attribution Gap Cases</div>
@@ -193,6 +355,89 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btn) btn.textContent = open ? 'Hide history' : ('Show history (' + el.querySelectorAll('tbody tr').length + ')');
   };
 
+  // ── Attribution progress bar helpers ──
+  // Map a case's status/attributes to a 0-100 attribution score
+  // "Open" with no evidence = 0; "Open" early = 10; partial attribution = 40-60;
+  // "Confirmed" = 90-100. Since the JSON only has status, we use keyword signals
+  // in the description to estimate progress.
+  function attributionScore(gap) {
+    var status = (gap.status || '').toLowerCase();
+    var desc   = (gap.description || '').toLowerCase();
+    if (status === 'confirmed' || status === 'closed') return 95;
+    if (status === 'partial') return 55;
+    // Detect keyword signals in description
+    if (desc.indexOf('no binding') !== -1 || desc.indexOf('no governance') !== -1 ||
+        desc.indexOf('no international') !== -1 || desc.indexOf('no baseline') !== -1) return 5;
+    if (desc.indexOf('failed') !== -1 || desc.indexOf('void') !== -1) return 8;
+    if (status === 'open') return 10;
+    return 0;
+  }
+
+  function attributionProgressClass(pct) {
+    if (pct <= 0)  return 'attribution-progress-fill--0';
+    if (pct < 30)  return 'attribution-progress-fill--low';
+    if (pct < 65)  return 'attribution-progress-fill--mid';
+    return 'attribution-progress-fill--high';
+  }
+
+  function attributionStatusBadgeClass(status) {
+    switch ((status || '').toLowerCase()) {
+      case 'open':      return 'attribution-status-badge--open';
+      case 'closed':
+      case 'confirmed': return 'attribution-status-badge--closed';
+      case 'partial':   return 'attribution-status-badge--partial';
+      default:          return 'attribution-status-badge--open';
+    }
+  }
+
+  function renderAttributionTracker(gaps) {
+    if (!gaps || !gaps.length) {
+      return '<p class="text-muted">No attribution gap cases open.</p>';
+    }
+    var html = '<div class="attribution-tracker">';
+    gaps.forEach(function (g, i) {
+      var tid  = 'at-' + i;
+      var hid  = 'ah-' + i;
+      var pct  = attributionScore(g);
+      var pgCls = attributionProgressClass(pct);
+      var badgeCls = attributionStatusBadgeClass(g.status);
+
+      // Governance gap label — derive from case title keywords
+      var govGap = '';
+      var caseTitle = (g.case || '').toLowerCase();
+      if (caseTitle.indexOf('governance') !== -1 || caseTitle.indexOf('isa') !== -1) govGap = 'Governance void';
+      else if (caseTitle.indexOf('liability') !== -1) govGap = 'No liability framework';
+      else if (caseTitle.indexOf('attribution') !== -1 || g.status === 'Open') govGap = 'Attribution gap';
+
+      html +=
+        '<div class="attribution-case">' +
+          '<div class="attribution-case__header">' +
+            '<div class="attribution-case__title">' + escHtml(g.case || '') + '</div>' +
+            '<div class="attribution-case__meta">' +
+              '<span class="attribution-status-badge ' + badgeCls + '">' + escHtml(g.status || 'Open') + '</span>' +
+              (govGap ? '<span class="attribution-case__governance-gap">' + escHtml(govGap) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          (g.description ? '<div class="attribution-case__description">' + escHtml(g.description) + '</div>' : '') +
+          '<div class="attribution-progress-wrap">' +
+            '<div class="attribution-progress-label">' +
+              '<span class="attribution-progress-label__text">Attribution progress</span>' +
+              '<span class="attribution-progress-label__pct">' + pct + '%</span>' +
+            '</div>' +
+            '<div class="attribution-progress-track" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Attribution progress for ' + escHtml(g.case || '') + '">' +
+              '<div class="attribution-progress-fill ' + pgCls + '" style="width:' + pct + '%"></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="attribution-case__footer">' +
+            (g.opened ? '<span class="attribution-case__opened">Opened: ' + escHtml(g.opened) + '</span>' : '') +
+            renderVersionHistory(g.version_history || [], tid, hid) +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
   Promise.all([
     fetch('data/persistent-state.json').then(function(r){return r.json();}),
     fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
@@ -203,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function () {
       d.cross_monitor_flags = report.cross_monitor_flags;
     }
   }).catch(function(){});
+
   fetch('data/persistent-state.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -227,7 +473,6 @@ document.addEventListener('DOMContentLoaded', function () {
       (function () {
         var statusScore = { 'Transgressed': 3, 'Zone of Uncertainty': 2, 'Increasing Risk': 1, 'Safe': 0 };
         var labels = boundaries.map(function(b) {
-          // Abbreviate long names for chart labels
           return b.boundary.replace('Biogeochemical Flows','Biogeochem.').replace('Atmospheric Aerosol Loading','Aerosol Load.').replace('Stratospheric Ozone','Ozone').replace('Land System Change','Land Change').replace('Freshwater Change','Freshwater').replace('Biosphere Integrity','Biosphere').replace('Novel Entities','Novel Ent.').replace('Ocean Acidification','Ocean Acid.');
         });
         var scores = boundaries.map(function(b) { return statusScore[b.status] != null ? statusScore[b.status] : 1; });
@@ -235,9 +480,8 @@ document.addEventListener('DOMContentLoaded', function () {
           if (b.status === 'Transgressed') return 'rgba(220,38,38,0.75)';
           if (b.status === 'Zone of Uncertainty') return 'rgba(234,179,8,0.75)';
           if (b.status === 'Increasing Risk') return 'rgba(249,115,22,0.75)';
-          return 'rgba(34,197,94,0.75)';
+          return 'rgba(76,175,125,0.75)';
         });
-        // Count data points from version_history to determine if chart is meaningful
         var maxHistory = Math.max.apply(null, boundaries.map(function(b){ return (b.version_history||[]).length; }));
         var noteEl = document.getElementById('boundary-chart-note');
         if (maxHistory < 2) {
@@ -313,21 +557,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       document.getElementById('trackers-content').innerHTML = trackHtml || '<p class="text-muted">No standing trackers available.</p>';
 
-      // Attribution Gap Cases
+      // ── Attribution Gap Cases — enhanced visual tracker ──
       var gaps = d.active_attribution_gap_cases || [];
-      document.getElementById('attribution-content').innerHTML = gaps.map(function (g, i) {
-        var tid = 'at-' + i;
-        var hid = 'ah-' + i;
-        return '<div class="card" style="margin-bottom:var(--space-3)">' +
-          '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);flex-wrap:wrap">' +
-            '<strong>' + escHtml(g.case || '') + '</strong>' +
-            '<span class="severity-badge ' + (g.status === 'Open' ? 'severity-badge--high' : 'severity-badge--positive') + '">' + escHtml(g.status || '') + '</span>' +
-            '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Opened: ' + escHtml(g.opened || '') + '</span>' +
-          '</div>' +
-          (g.description ? '<div class="card__body">' + escHtml(g.description) + '</div>' : '') +
-          renderVersionHistory(g.version_history || [], tid, hid) +
-        '</div>';
-      }).join('') || '<p class="text-muted">No attribution gap cases.</p>';
+      document.getElementById('attribution-content').innerHTML = renderAttributionTracker(gaps);
 
       // Regional Cascade Chains
       var cascades = d.regional_cascade_chains || [];
