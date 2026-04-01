@@ -160,6 +160,123 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- Leaflet.js for choropleth map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    /* ── Geographic View ──────────────────────────────────────── */
+    #geographic-view {
+      margin-bottom: var(--space-6, 1.5rem);
+    }
+    .geo-view-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4, 1rem);
+      margin-bottom: var(--space-4, 1rem);
+      flex-wrap: wrap;
+    }
+    #map-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-md, 6px);
+      border: 1px solid var(--color-border, #d8d4cd);
+      background: var(--color-surface, #ffffff);
+      color: var(--color-text, #1a1917);
+      font-size: var(--text-sm, 0.875rem);
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    #map-toggle:hover {
+      background: var(--color-surface-raised, #f5f3f0);
+      border-color: var(--monitor-accent, #1d4ed8);
+    }
+    #map-toggle[data-active="map"] {
+      background: var(--monitor-accent, #1d4ed8);
+      color: #fff;
+      border-color: var(--monitor-accent, #1d4ed8);
+    }
+    [data-theme="dark"] #map-toggle {
+      background: var(--color-surface, #1e1d1b);
+      border-color: var(--color-border, #2d2c2a);
+      color: var(--color-text, #e0dfdc);
+    }
+    [data-theme="dark"] #map-toggle:hover {
+      border-color: var(--monitor-accent, #3b82f6);
+    }
+    [data-theme="dark"] #map-toggle[data-active="map"] {
+      background: var(--monitor-accent, #3b82f6);
+      color: #fff;
+    }
+    .wdm-map-wrap {
+      overflow-x: clip;
+      border-radius: var(--radius-lg, 10px);
+      border: 1px solid var(--color-border, #d8d4cd);
+    }
+    #wdm-map {
+      height: 420px;
+      width: 100%;
+      background: #f8f7f5;
+    }
+    @media (max-width: 640px) {
+      #wdm-map {
+        height: 300px;
+      }
+    }
+    /* Leaflet popup overrides */
+    .wdm-popup-name {
+      font-weight: 700;
+      font-size: var(--text-sm, 0.875rem);
+      margin-bottom: 4px;
+    }
+    .wdm-popup-tier {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: var(--text-xs, 0.75rem);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .wdm-popup-tier--rapid_decay  { background: #fee2e2; color: #b91c1c; }
+    .wdm-popup-tier--recovery      { background: #dcfce7; color: #15803d; }
+    .wdm-popup-tier--watchlist     { background: #fef3c7; color: #b45309; }
+    .wdm-popup-row {
+      font-size: var(--text-xs, 0.75rem);
+      margin-bottom: 3px;
+      line-height: 1.5;
+    }
+    .wdm-popup-signal {
+      font-size: var(--text-xs, 0.75rem);
+      color: #6b6660;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    /* Leaflet legend */
+    .wdm-map-legend {
+      background: rgba(255,255,255,0.93);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      font-size: var(--text-xs, 0.75rem);
+      line-height: 1.8;
+    }
+    [data-theme="dark"] .wdm-map-legend {
+      background: rgba(30,29,27,0.93);
+      border-color: #3d3a35;
+      color: #c5c2bc;
+    }
+    .wdm-map-legend-swatch {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      margin-right: 5px;
+      vertical-align: middle;
+    }
+  </style>
 </head>
 
 <body>
@@ -290,6 +407,19 @@
       </div>
     </section>
 
+    <!-- Geographic View -->
+    <section class="module-section" id="geographic-view">
+      <div class="geo-view-header">
+        <div class="module-header" style="margin-bottom:0">
+          <div class="module-title">Geographic View</div>
+        </div>
+        <button id="map-toggle" data-active="table" aria-pressed="false">Map view</button>
+      </div>
+      <div class="wdm-map-wrap">
+        <div id="wdm-map" style="display:none"></div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -300,6 +430,7 @@
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Intelligence Highlights</a></li>
       <li><a href="#section-heatmap">Heatmap</a></li>
+      <li><a href="#geographic-view">Geographic View</a></li>
     </ul>
 
   </nav>
@@ -509,6 +640,11 @@ document.addEventListener('DOMContentLoaded', function () {
       // Tier distribution strip
       renderTierChart(rd.length, wl.length, rc.length);
 
+      // Feed heatmap data to choropleth map module
+      if (typeof window._wdmMapReady === 'function') {
+        window._wdmMapReady(heatmap);
+      }
+
       // Severity league table cards
       renderSeverityCards(rd);
 
@@ -564,6 +700,207 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 });
+</script>
+<script>
+/* ── WDM Leaflet Choropleth Map ─────────────────────────────── */
+(function () {
+  var ISO_MAP = {
+    'United States':'US','Hungary':'HU','Serbia':'RS','India':'IN',
+    'Philippines':'PH','Georgia':'GE','Tunisia':'TN','Nicaragua':'NI',
+    'El Salvador':'SV','Venezuela':'VE','Bolivia':'BO','Mexico':'MX',
+    'Colombia':'CO','Iran':'IR','Tanzania':'TZ','Uganda':'UG','DRC':'CD',
+    'Kazakhstan':'KZ','Bangladesh':'BD','Slovakia':'SK','Poland':'PL',
+    'Italy':'IT','Romania':'RO','South Korea':'KR','Israel':'IL','Iraq':'IQ',
+    "C\u00f4te d'Ivoire":'CI','Benin':'BJ','United Kingdom':'GB','Turkey':'TR'
+  };
+
+  var TIER_COLORS = {
+    rapid_decay: '#dc2626',
+    recovery:    '#22c55e',
+    watchlist:   '#f59e0b',
+    unmonitored: '#e5e7eb'
+  };
+
+  var TIER_LABELS = {
+    rapid_decay: 'Rapid Decay',
+    recovery:    'Recovery',
+    watchlist:   'Watchlist',
+    unmonitored: 'Unmonitored'
+  };
+
+  // Country data indexed by ISO2
+  var countryData = {};
+  var mapInitialised = false;
+  var wdmMap = null;
+  var geoLayer = null;
+
+  // Build countryData from heatmap once data is loaded
+  // We hook into the existing fetch by overriding the global namespace
+  window._wdmMapReady = function (heatmap) {
+    var rd = heatmap.rapid_decay || [];
+    var rc = heatmap.recovery   || [];
+    var wl = heatmap.watchlist  || [];
+
+    function indexList(list, tier) {
+      list.forEach(function (c) {
+        var iso = ISO_MAP[c.country];
+        if (iso) {
+          countryData[iso] = {
+            country:        c.country,
+            tier:           tier,
+            severity_score: c.severity_score,
+            severity_arrow: c.severity_arrow || '',
+            lead_signal:    c.lead_signal || c.summary || ''
+          };
+        }
+      });
+    }
+    indexList(rd, 'rapid_decay');
+    indexList(rc, 'recovery');
+    indexList(wl, 'watchlist');
+  };
+
+  function opacityForScore(score) {
+    var s = parseFloat(score) || 0;
+    // Map 0-10 scale or 0-1 scale to 0.4–0.85
+    if (s > 1) s = s / 10;
+    return 0.4 + (s * 0.45);
+  }
+
+  function getStyle(feature) {
+    var iso = feature.properties.ISO_A2;
+    var info = countryData[iso];
+    if (!info) {
+      return {
+        fillColor:   TIER_COLORS.unmonitored,
+        fillOpacity: 0.45,
+        color:       '#adb5bd',
+        weight:      0.5
+      };
+    }
+    var opacity = info.tier === 'rapid_decay'
+      ? opacityForScore(info.severity_score)
+      : 0.72;
+    return {
+      fillColor:   TIER_COLORS[info.tier] || TIER_COLORS.unmonitored,
+      fillOpacity: opacity,
+      color:       '#ffffff',
+      weight:      0.6
+    };
+  }
+
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function tierLabel(tier) {
+    return TIER_LABELS[tier] || tier;
+  }
+
+  function onEachFeature(feature, layer) {
+    var iso  = feature.properties.ISO_A2;
+    var info = countryData[iso];
+    if (!info) return;
+
+    var signal = (info.lead_signal || '').slice(0, 100);
+    var popup =
+      '<div class="wdm-popup-name">' + escHtml(info.country) + '</div>' +
+      '<div class="wdm-popup-tier wdm-popup-tier--' + info.tier + '">' + escHtml(tierLabel(info.tier)) + '</div>' +
+      '<div class="wdm-popup-row">Score: <strong>' + escHtml(info.severity_score) + '</strong> ' + escHtml(info.severity_arrow) + '</div>' +
+      (signal ? '<div class="wdm-popup-signal">' + escHtml(signal) + (info.lead_signal && info.lead_signal.length > 100 ? '\u2026' : '') + '</div>' : '');
+
+    layer.bindPopup(popup, { maxWidth: 240, className: 'wdm-country-popup' });
+
+    layer.on('mouseover', function () { layer.setStyle({ weight: 1.5, color: '#334155' }); });
+    layer.on('mouseout',  function () { geoLayer && geoLayer.resetStyle(layer); });
+  }
+
+  function initMap() {
+    if (mapInitialised) return;
+    mapInitialised = true;
+
+    var isMobile = window.matchMedia && window.matchMedia('(max-width:640px)').matches;
+
+    wdmMap = L.map('wdm-map', {
+      center:          [20, 10],
+      zoom:            2,
+      minZoom:         1,
+      maxZoom:         6,
+      scrollWheelZoom: !isMobile,
+      zoomControl:     true,
+      attributionControl: false
+    });
+
+    // Blank white background — no tile layer (clean choropleth look)
+    // Set map pane background via CSS
+    wdmMap.getContainer().style.background = '#f0f0f0';
+
+    // Load GeoJSON
+    var geoUrl = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
+    fetch(geoUrl)
+      .then(function (r) { return r.json(); })
+      .then(function (geo) {
+        geoLayer = L.geoJSON(geo, {
+          style:          getStyle,
+          onEachFeature:  onEachFeature
+        }).addTo(wdmMap);
+        wdmMap.fitBounds(geoLayer.getBounds(), { padding: [4, 4] });
+      })
+      .catch(function (err) {
+        console.error('[WDM Map] GeoJSON load error', err);
+      });
+
+    // Legend
+    var legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function () {
+      var div = L.DomUtil.create('div', 'wdm-map-legend');
+      var tiers = ['rapid_decay','watchlist','recovery','unmonitored'];
+      var lines = tiers.map(function (t) {
+        return '<div><span class="wdm-map-legend-swatch" style="background:' + TIER_COLORS[t] + '"></span>' + TIER_LABELS[t] + '</div>';
+      });
+      div.innerHTML = lines.join('');
+      return div;
+    };
+    legend.addTo(wdmMap);
+  }
+
+  // Toggle logic
+  document.addEventListener('DOMContentLoaded', function () {
+    var btn    = document.getElementById('map-toggle');
+    var mapDiv = document.getElementById('wdm-map');
+    var heatmapSection = document.getElementById('heatmap-table');
+
+    if (!btn || !mapDiv) return;
+
+    btn.addEventListener('click', function () {
+      var isTable = btn.getAttribute('data-active') === 'table';
+      if (isTable) {
+        // Switch to map view
+        mapDiv.style.display = 'block';
+        btn.setAttribute('data-active', 'map');
+        btn.setAttribute('aria-pressed', 'true');
+        btn.textContent = 'Table view';
+        // Lazy init
+        initMap();
+        // Invalidate size so Leaflet redraws correctly
+        setTimeout(function () { if (wdmMap) wdmMap.invalidateSize(); }, 80);
+      } else {
+        // Switch to table view
+        mapDiv.style.display = 'none';
+        btn.setAttribute('data-active', 'table');
+        btn.setAttribute('aria-pressed', 'false');
+        btn.textContent = 'Map view';
+      }
+    });
+  });
+
+  // Hook into the existing data fetch: patch fetch in DOMContentLoaded
+  // We monkey-patch by listening for the custom wdmDataLoaded event
+  // Alternatively, we piggyback on the same fetch below in the data load section.
+  // We expose a global that the existing script block calls after loading heatmap.
+  // The existing script already runs _wdmMapReady if it exists — we add the call below.
+}());
 </script>
 </body>
 </html>
