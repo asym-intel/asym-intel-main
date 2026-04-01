@@ -666,12 +666,50 @@
     }
 
     function renderCrossMonitor(cmf) {
-      if (!cmf || !Object.keys(cmf).length) return '<p class="empty-state">No cross-monitor flags loaded.</p>';
-      return '<div class="intel-list">' + Object.keys(cmf).map(function (k) {
-        var v = cmf[k];
-        return '<div class="intel-item"><div class="intel-item__title">' + esc(k.replace(/_/g,' ')) + '</div>' +
-          '<div class="intel-item__field">' + esc(typeof v === 'string' ? v : JSON.stringify(v)) + '</div></div>';
-      }).join('') + '</div>';
+      if (!cmf) return '<p class="empty-state">No cross-monitor flags loaded.</p>';
+      var flags = cmf.flags || [];
+      if (!flags.length) return '<p class="empty-state">No cross-monitor flags.</p>';
+      var html = '';
+      if (cmf.updated) {
+        html += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + esc(cmf.updated) + '</p>';
+      }
+      flags.forEach(function(f) {
+        var statusColour = f.status === 'Active' ? 'var(--monitor-accent)' : 'var(--color-text-muted)';
+        var monitorsHtml = '';
+        if (f.monitors_involved && f.monitors_involved.length) {
+          monitorsHtml = '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-2)">' +
+            esc(f.monitors_involved.join(' · ')) + '</div>';
+        }
+        var vhist = (f.version_history && f.version_history.length)
+          ? '<div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted)">' +
+              f.version_history.map(function(v) {
+                return esc(v.date || '') + ' — ' + esc(v.change || '');
+              }).join(' | ') +
+            '</div>'
+          : '';
+        html += '<div class="intel-item" style="margin-bottom:var(--space-5)">' +
+          '<div style="display:flex;align-items:baseline;gap:var(--space-3);margin-bottom:var(--space-2)">' +
+            '<span class="intel-item__id" style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted)">' + esc(f.id || '') + '</span>' +
+            '<span style="font-size:var(--text-xs);color:' + statusColour + ';font-weight:600">' + esc(f.status || '') + '</span>' +
+            (f.type ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(f.type) + '</span>' : '') +
+          '</div>' +
+          monitorsHtml +
+          '<div class="intel-item__title" style="margin-bottom:var(--space-2)">' + esc(f.title || '') + '</div>' +
+          (f.linkage ? '<div class="intel-item__body" style="margin-bottom:var(--space-2)">' + esc(f.linkage) + '</div>' : '') +
+          (f.ai_governance_perspective ? '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);border-left:2px solid var(--monitor-accent);padding-left:var(--space-3);margin-top:var(--space-2)">' + esc(f.ai_governance_perspective) + '</div>' : '') +
+          (f.first_flagged ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)">First flagged: ' + esc(f.first_flagged) + (f.unchanged_since ? ' · Unchanged since: ' + esc(f.unchanged_since) : '') + '</div>' : '') +
+          vhist +
+        '</div>';
+      });
+      var vhistTop = cmf.version_history || [];
+      if (vhistTop.length) {
+        html += '<div style="margin-top:var(--space-6)"><div class="section-label">Version History</div>';
+        vhistTop.forEach(function(h) {
+          html += '<div class="version-entry"><span class="version-entry__date">' + esc(h.date || '') + '</span> — ' + esc(h.change || '') + '</div>';
+        });
+        html += '</div>';
+      }
+      return html;
     }
   });
   </script>
