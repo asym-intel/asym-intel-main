@@ -8,6 +8,100 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <style>
+    /* ── ATTRIBUTION CONFIDENCE DONUT ── */
+    .fcw-donut-section {
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    .fcw-donut-wrap {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      flex-shrink: 0;
+    }
+    .fcw-donut-wrap canvas {
+      width: 160px !important;
+      height: 160px !important;
+    }
+    .fcw-donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .fcw-donut-center__num {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text, #1a1917);
+      line-height: 1;
+    }
+    [data-theme="dark"] .fcw-donut-center__num {
+      color: #e0dfdc;
+    }
+    .fcw-donut-center__label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted, #6b6660);
+      margin-top: 2px;
+    }
+    .fcw-donut-legend {
+      flex: 1;
+      min-width: 160px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      justify-content: center;
+    }
+    .fcw-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .fcw-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fcw-legend-label {
+      font-size: 0.78rem;
+      color: var(--color-text-secondary, #3d3a35);
+      flex: 1;
+    }
+    [data-theme="dark"] .fcw-legend-label {
+      color: #9e9b97;
+    }
+    .fcw-legend-count {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--color-text, #1a1917);
+    }
+    [data-theme="dark"] .fcw-legend-count {
+      color: #e0dfdc;
+    }
+    .fcw-donut-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 2px dashed var(--color-border, #d8d4cd);
+      color: var(--color-text-muted, #6b6660);
+      font-size: 0.72rem;
+    }
+  </style>
 </head>
 
 <body>
@@ -94,6 +188,25 @@
       <div class="module-header">
         <div class="module-title">Actor Tracker</div>
       </div>
+      <!-- ATTRIBUTION CONFIDENCE DONUT -->
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:0.75rem">Attribution Confidence Breakdown</div>
+        <div class="fcw-donut-section">
+          <div class="fcw-donut-wrap">
+            <canvas id="fcw-attribution-donut" width="160" height="160" aria-label="Attribution confidence donut chart"></canvas>
+            <div class="fcw-donut-center">
+              <div class="fcw-donut-center__num" id="fcw-donut-total">—</div>
+              <div class="fcw-donut-center__label">Campaigns</div>
+            </div>
+          </div>
+          <div class="fcw-donut-legend" id="fcw-donut-legend">
+            <div class="fcw-legend-item"><div class="fcw-legend-dot" style="background:#059669"></div><span class="fcw-legend-label">Confirmed</span><span class="fcw-legend-count" id="fcw-leg-confirmed">—</span></div>
+            <div class="fcw-legend-item"><div class="fcw-legend-dot" style="background:#d97706"></div><span class="fcw-legend-label">High / Probable</span><span class="fcw-legend-count" id="fcw-leg-high">—</span></div>
+            <div class="fcw-legend-item"><div class="fcw-legend-dot" style="background:#2563eb"></div><span class="fcw-legend-label">Assessed / Possible</span><span class="fcw-legend-count" id="fcw-leg-assessed">—</span></div>
+            <div class="fcw-legend-item"><div class="fcw-legend-dot" style="background:#6b7280"></div><span class="fcw-legend-label">Unattributed</span><span class="fcw-legend-count" id="fcw-leg-unattr">—</span></div>
+          </div>
+        </div>
+      </div>
       <div id="actor-tracker-block">
         <div class="loading-state">Loading actor tracker…</div>
       </div>
@@ -159,6 +272,7 @@
 
 <script src="../shared/js/nav.js"></script>
 <script src="../shared/js/renderer.js"></script>
+<script src="../shared/js/charts.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
@@ -189,6 +303,109 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function actorTag(actor) {
     return '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + (AsymRenderer.flag(actor) ? AsymRenderer.flag(actor) + '\u00a0' : '') + escHtml(actor) + '</span>';
+  }
+
+  // Build attribution donut from persistent-state
+  fetch('data/persistent-state.json')
+    .then(function(r){ return r.json(); })
+    .then(function(ps) {
+      var campaigns = ps.active_campaigns || {};
+      var counts = { confirmed: 0, high: 0, assessed: 0, unattr: 0 };
+      var total = 0;
+      Object.keys(campaigns).forEach(function(actor) {
+        (campaigns[actor] || []).forEach(function(c) {
+          total++;
+          var conf = (c.attribution_confidence || '').toLowerCase();
+          if (conf === 'confirmed') counts.confirmed++;
+          else if (conf === 'high' || conf === 'probable') counts.high++;
+          else if (conf === 'assessed' || conf === 'possible') counts.assessed++;
+          else counts.unattr++;
+        });
+      });
+
+      // Update legend counts
+      document.getElementById('fcw-donut-total').textContent = total;
+      document.getElementById('fcw-leg-confirmed').textContent = counts.confirmed;
+      document.getElementById('fcw-leg-high').textContent = counts.high;
+      document.getElementById('fcw-leg-assessed').textContent = counts.assessed;
+      document.getElementById('fcw-leg-unattr').textContent = counts.unattr;
+
+      // Draw donut
+      var canvas = document.getElementById('fcw-attribution-donut');
+      if (!canvas) return;
+      if (typeof Chart === 'undefined') {
+        // Fallback: draw a simple SVG donut without Chart.js
+        canvas.style.display = 'none';
+        drawFallbackDonut(counts, total);
+        return;
+      }
+      var ctx = canvas.getContext('2d');
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Confirmed', 'High/Probable', 'Assessed/Possible', 'Unattributed'],
+          datasets: [{
+            data: [counts.confirmed, counts.high, counts.assessed, counts.unattr],
+            backgroundColor: ['#059669', '#d97706', '#2563eb', '#6b7280'],
+            borderColor: isDark ? '#1e1d1b' : '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          cutout: '62%',
+          responsive: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  var pct = total > 0 ? Math.round((ctx.parsed / total) * 100) : 0;
+                  return ' ' + ctx.label + ': ' + ctx.parsed + ' (' + pct + '%)';
+                }
+              }
+            }
+          }
+        }
+      });
+
+      // Re-draw on theme change
+      var observer = new MutationObserver(function() {
+        // handled by Chart.js hover; full redraw would need chart instance ref
+      });
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    })
+    .catch(function(err) {
+      console.warn('FCW donut: failed to load persistent-state.json', err);
+      var canvas = document.getElementById('fcw-attribution-donut');
+      if (canvas) canvas.parentNode.innerHTML = '<div class="fcw-donut-empty">No data</div>';
+    });
+
+  function drawFallbackDonut(counts, total) {
+    // Simple CSS-only fallback pie using conic-gradient
+    var wrap = document.querySelector('.fcw-donut-wrap');
+    if (!wrap) return;
+    if (total === 0) {
+      wrap.innerHTML = '<div class="fcw-donut-empty">No data</div>';
+      return;
+    }
+    var confirmed = counts.confirmed / total;
+    var high = counts.high / total;
+    var assessed = counts.assessed / total;
+    var unattr = counts.unattr / total;
+    var a1 = Math.round(confirmed * 360);
+    var a2 = a1 + Math.round(high * 360);
+    var a3 = a2 + Math.round(assessed * 360);
+    var gradient = 'conic-gradient(#059669 0deg ' + a1 + 'deg, #d97706 ' + a1 + 'deg ' + a2 + 'deg, #2563eb ' + a2 + 'deg ' + a3 + 'deg, #6b7280 ' + a3 + 'deg 360deg)';
+    var div = document.createElement('div');
+    div.style.cssText = 'width:160px;height:160px;border-radius:50%;background:' + gradient + ';mask:radial-gradient(transparent 48px, black 48px);-webkit-mask:radial-gradient(transparent 48px, black 48px)';
+    wrap.innerHTML = '';
+    wrap.appendChild(div);
+    var center = document.createElement('div');
+    center.className = 'fcw-donut-center';
+    center.innerHTML = '<div class="fcw-donut-center__num">' + total + '</div><div class="fcw-donut-center__label">Campaigns</div>';
+    wrap.appendChild(center);
   }
 
   fetch('data/report-latest.json')

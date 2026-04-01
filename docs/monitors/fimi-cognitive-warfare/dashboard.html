@@ -8,6 +8,181 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <style>
+    /* ── THREAT LEVEL BADGE ── */
+    .fcw-threat-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-left: 3px solid #38bdf8;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    [data-theme="dark"] .fcw-threat-banner {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+    .fcw-threat-banner__pulse {
+      flex-shrink: 0;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #38bdf8;
+      margin-top: 4px;
+      animation: fcw-pulse 2s ease-in-out infinite;
+    }
+    @keyframes fcw-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248,0.5); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(56,189,248,0); }
+    }
+    .fcw-threat-banner__body {
+      flex: 1;
+      min-width: 0;
+    }
+    .fcw-threat-banner__level {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      margin-bottom: 0.25rem;
+    }
+    .fcw-threat-banner__title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text, #1a1917);
+      line-height: 1.4;
+      margin-bottom: 0.25rem;
+    }
+    [data-theme="dark"] .fcw-threat-banner__title {
+      color: #e0dfdc;
+    }
+    .fcw-threat-banner__sub {
+      font-size: 0.78rem;
+      color: var(--color-text-secondary, #3d3a35);
+      line-height: 1.5;
+    }
+    [data-theme="dark"] .fcw-threat-banner__sub {
+      color: #9e9b97;
+    }
+
+    /* ── ACTOR ACTIVITY MATRIX ── */
+    .fcw-actor-matrix {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .fcw-actor-matrix th {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-text-muted, #6b6660);
+      padding: 0.4rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border, #d8d4cd);
+    }
+    [data-theme="dark"] .fcw-actor-matrix th {
+      color: #6b6660;
+      border-bottom-color: #2d2c2a;
+    }
+    .fcw-actor-matrix td {
+      padding: 0.55rem 0.75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--color-border-subtle, #e8e4de);
+    }
+    [data-theme="dark"] .fcw-actor-matrix td {
+      border-bottom-color: #252422;
+    }
+    .fcw-actor-matrix tr:last-child td {
+      border-bottom: none;
+    }
+    .fcw-actor-matrix tr:hover td {
+      background: rgba(56, 189, 248, 0.04);
+    }
+    .fcw-actor-id {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .fcw-actor-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fcw-count-badge {
+      display: inline-block;
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: 0.8rem;
+      font-weight: 700;
+      min-width: 1.6rem;
+      text-align: center;
+      color: var(--color-text, #1a1917);
+    }
+    [data-theme="dark"] .fcw-count-badge {
+      color: #e0dfdc;
+    }
+    .fcw-intensity-bar-wrap {
+      width: 100%;
+      min-width: 80px;
+      max-width: 220px;
+    }
+    .fcw-intensity-bar-track {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--color-bg-alt, #f0ede8);
+      overflow: hidden;
+    }
+    [data-theme="dark"] .fcw-intensity-bar-track {
+      background: #2d2c2a;
+    }
+    .fcw-intensity-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .fcw-status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fcw-status-dot--active {
+      background: #dc2626;
+      animation: fcw-pulse 2s ease-in-out infinite;
+    }
+    .fcw-status-dot--ongoing {
+      background: #d97706;
+    }
+    .fcw-status-dot--disrupted {
+      background: #059669;
+    }
+    .fcw-status-dot--assessed {
+      background: #2563eb;
+    }
+    .fcw-status-dot--quiet {
+      background: #9e9b97;
+    }
+    .fcw-active-text {
+      font-size: 0.72rem;
+      color: var(--color-text-muted, #6b6660);
+    }
+    [data-theme="dark"] .fcw-active-text {
+      color: #6b6660;
+    }
+  </style>
 </head>
 
 <body>
@@ -75,6 +250,18 @@
         <div class="page-header__meta" id="page-meta">Loading…</div>
       </div>
 
+      <!-- THREAT LEVEL BADGE -->
+      <div id="threat-banner">
+        <div class="fcw-threat-banner">
+          <div class="fcw-threat-banner__pulse"></div>
+          <div class="fcw-threat-banner__body">
+            <div class="fcw-threat-banner__level">Current Threat Level</div>
+            <div class="fcw-threat-banner__title" id="threat-level-text">ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS</div>
+            <div class="fcw-threat-banner__sub" id="threat-level-sub">Loading signal…</div>
+          </div>
+        </div>
+      </div>
+
       <div class="kpi-strip" id="kpi-strip">
         <div class="kpi-card">
           <div class="kpi-card__value" id="kpi-campaigns">—</div>
@@ -91,6 +278,16 @@
           <div class="kpi-card__label">Lead Signal</div>
           <div class="kpi-card__sub">Top story this week</div>
         </div>
+      </div>
+    </section>
+
+    <!-- ACTOR ACTIVITY MATRIX -->
+    <section class="module-section" id="section-actor-matrix">
+      <div class="module-header">
+        <div class="module-title">Actor Threat Board</div>
+      </div>
+      <div id="actor-matrix-block">
+        <div class="loading-state">Loading actor matrix…</div>
       </div>
     </section>
 
@@ -118,6 +315,7 @@
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-actor-matrix">Actor Threat Board</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Top Campaigns</a></li>
     </ul>
@@ -160,6 +358,96 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<span class="severity-badge severity-badge--' + cls + '">' + escHtml(status) + '</span>';
   }
 
+  // Actor colour config
+  var ACTOR_CONFIG = {
+    'RU':          { color: '#dc2626', label: 'RU', flag: '🇷🇺' },
+    'CN':          { color: '#ea580c', label: 'CN', flag: '🇨🇳' },
+    'IR':          { color: '#d97706', label: 'IR', flag: '🇮🇷' },
+    'US':          { color: '#2563eb', label: 'US', flag: '🇺🇸' },
+    'IL':          { color: '#0d9488', label: 'IL', flag: '🇮🇱' },
+    'GULF':        { color: '#b45309', label: 'GULF', flag: '🌙' },
+    'UNATTRIBUTED':{ color: '#6b7280', label: 'UNATTR', flag: '?' }
+  };
+
+  function getStatusDotClass(campaigns) {
+    if (!campaigns || !campaigns.length) return 'fcw-status-dot--quiet';
+    var hasActive = campaigns.some(function(c){ return (c.status||'').toUpperCase() === 'ACTIVE'; });
+    var hasOngoing = campaigns.some(function(c){ return (c.status||'').toUpperCase() === 'ONGOING'; });
+    var hasDisrupted = campaigns.every(function(c){ return (c.status||'').toUpperCase() === 'DISRUPTED'; });
+    if (hasActive) return 'fcw-status-dot--active';
+    if (hasOngoing) return 'fcw-status-dot--ongoing';
+    if (hasDisrupted) return 'fcw-status-dot--disrupted';
+    return 'fcw-status-dot--assessed';
+  }
+
+  function getActivityLabel(campaigns) {
+    if (!campaigns || !campaigns.length) return 'No campaigns';
+    var active = campaigns.filter(function(c){ return (c.status||'').toUpperCase() === 'ACTIVE'; }).length;
+    var ongoing = campaigns.filter(function(c){ return (c.status||'').toUpperCase() === 'ONGOING'; }).length;
+    var disrupted = campaigns.filter(function(c){ return (c.status||'').toUpperCase() === 'DISRUPTED'; }).length;
+    var parts = [];
+    if (active) parts.push(active + ' active');
+    if (ongoing) parts.push(ongoing + ' ongoing');
+    if (disrupted) parts.push(disrupted + ' disrupted');
+    return parts.join(', ') || campaigns.length + ' tracked';
+  }
+
+  // Load persistent-state for actor matrix
+  fetch('data/persistent-state.json')
+    .then(function(r){ return r.json(); })
+    .then(function(ps) {
+      var campaigns = ps.active_campaigns || {};
+      var actorOrder = ['RU','CN','IR','US','IL','GULF','UNATTRIBUTED'];
+      var maxCount = 0;
+      actorOrder.forEach(function(a){
+        var c = (campaigns[a]||[]).length;
+        if (c > maxCount) maxCount = c;
+      });
+
+      var html = '<div style="overflow-x:auto"><table class="fcw-actor-matrix" role="table" aria-label="Actor threat activity matrix">';
+      html += '<thead><tr>';
+      html += '<th>Actor</th>';
+      html += '<th style="text-align:center">Campaigns</th>';
+      html += '<th style="text-align:center">Status</th>';
+      html += '<th>Activity Level</th>';
+      html += '<th>Active / Ongoing</th>';
+      html += '</tr></thead><tbody>';
+
+      actorOrder.forEach(function(actor) {
+        var cfg = ACTOR_CONFIG[actor] || { color: '#6b7280', label: actor, flag: '' };
+        var actorCampaigns = campaigns[actor] || [];
+        var count = actorCampaigns.length;
+        var barPct = maxCount > 0 ? Math.round((count / maxCount) * 100) : 0;
+        var dotClass = getStatusDotClass(actorCampaigns);
+        var actLabel = getActivityLabel(actorCampaigns);
+
+        html += '<tr>';
+        // Actor ID
+        html += '<td><span class="fcw-actor-id">';
+        html += '<span class="fcw-actor-dot" style="background:' + cfg.color + '"></span>';
+        html += '<span style="color:' + cfg.color + '">' + escHtml(cfg.label) + '</span>';
+        html += '</span></td>';
+        // Count
+        html += '<td style="text-align:center"><span class="fcw-count-badge">' + count + '</span></td>';
+        // Status dot
+        html += '<td style="text-align:center"><span class="fcw-status-dot ' + dotClass + '" title="' + escHtml(actLabel) + '"></span></td>';
+        // Intensity bar
+        html += '<td><div class="fcw-intensity-bar-wrap">';
+        html += '<div class="fcw-intensity-bar-track">';
+        html += '<div class="fcw-intensity-bar-fill" style="width:' + barPct + '%;background:' + cfg.color + ';opacity:0.75"></div>';
+        html += '</div></div></td>';
+        // Activity label
+        html += '<td><span class="fcw-active-text">' + escHtml(actLabel) + '</span></td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+      document.getElementById('actor-matrix-block').innerHTML = html;
+    })
+    .catch(function(err) {
+      document.getElementById('actor-matrix-block').innerHTML = '<p class="text-muted">Actor matrix data unavailable.</p>';
+    });
+
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -197,6 +485,22 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-campaigns').textContent = activeCampaigns || '—';
       document.getElementById('kpi-actors').textContent = actorCount;
       document.getElementById('kpi-signal').textContent = signalConf || (signal ? signal.slice(0,30) + '…' : '—');
+
+      // Threat level badge
+      var threatLevel = 'ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS';
+      if (signalConf && signalConf.toLowerCase() === 'confirmed') {
+        threatLevel = 'ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS';
+      } else if (signalConf && signalConf.toLowerCase() === 'high') {
+        threatLevel = 'ELEVATED — HIGH CONFIDENCE OPERATIONS ACTIVE';
+      } else if (!signalConf || signalConf.toLowerCase() === 'assessed') {
+        threatLevel = 'GUARDED — ASSESSED THREAT ACTIVITY';
+      }
+      var threatEl = document.getElementById('threat-level-text');
+      if (threatEl) threatEl.textContent = threatLevel;
+      var threatSubEl = document.getElementById('threat-level-sub');
+      if (threatSubEl && signal) {
+        threatSubEl.textContent = signal.length > 140 ? signal.slice(0, 140) + '…' : signal;
+      }
 
       // Signal block
       var flagsHtml = '';
