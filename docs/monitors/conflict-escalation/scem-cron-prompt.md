@@ -599,3 +599,44 @@ cross_monitor_flags.flags[] MUST include ALL of these fields:
 persistent-state.json roster_watch MUST be an object:
   { "approaching_inclusion": [...], "approaching_retirement": [...] }
   NOT a flat array.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TWO-PASS COMMIT RULE — MANDATORY FOR EVERY RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  The JSON for this monitor is too large to produce safely in one pass.
+You MUST write it in two separate git commits. Never combine into one.
+
+PASS 1 — Core sections (commit first, immediately after research):
+  meta, lead_signal, conflict_roster (I1–I6 indicators for all active conflicts), roster_watch, source_url
+
+  Commit: "data(scem): Issue [N] W/E [DATE] — core sections"
+
+PASS 2 — Deep sections (commit second, by patching the Pass 1 file):
+  conflict_context (humanitarian/territorial data per conflict), cross_monitor_flags
+
+  Method:
+  ```bash
+  # 1. Download the Pass 1 JSON
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/conflict-escalation/data/report-latest.json \
+    --jq '.content' | base64 -d > /tmp/scem-report.json
+
+  # 2. Add the Pass 2 sections to /tmp/scem-report.json using Python/jq
+
+  # 3. Push it back (replace the file with the patched version)
+  SHA=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/conflict-escalation/data/report-latest.json --jq '.sha')
+  CONTENT=$(base64 -w 0 /tmp/scem-report.json)
+  gh api --method PUT /repos/asym-intel/asym-intel-main/contents/static/monitors/conflict-escalation/data/report-latest.json \
+    --field message="data(scem): Issue [N] W/E [DATE] — deep sections" \
+    --field content="$CONTENT" --field sha="$SHA" --field branch="main"
+  ```
+
+  Do the same two-pass write for report-{DATE}.json.
+
+VERIFICATION — run after Pass 2 before proceeding to Step 3:
+  ```bash
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/conflict-escalation/data/report-latest.json \
+    --jq '.content' | base64 -d | python3 -c \
+    "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['conflict_context', 'cross_monitor_flags'] if k not in d]; print('MISSING:',missing) if missing else print('ALL SECTIONS PRESENT ✓')"
+  ```
+  If MISSING is non-empty — do NOT proceed to Step 3. Re-run Pass 2.

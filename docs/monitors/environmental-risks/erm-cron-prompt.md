@@ -230,3 +230,44 @@ Brief: https://asym-intel.info/monitors/environmental-risks/[DATE]-weekly-brief/
 SCHEDULE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Cron: 0 5 * * 6 (every Saturday at 05:00 UTC)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TWO-PASS COMMIT RULE — MANDATORY FOR EVERY RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  The JSON for this monitor is too large to produce safely in one pass.
+You MUST write it in two separate git commits. Never combine into one.
+
+PASS 1 — Core sections (commit first, immediately after research):
+  meta, m00_the_signal, m01_executive_insight, m02_planetary_boundaries, m03_threat_multiplier, source_url
+
+  Commit: "data(erm): Issue [N] W/E [DATE] — core sections"
+
+PASS 2 — Deep sections (commit second, by patching the Pass 1 file):
+  m04_extreme_weather, m05_policy_law, m06_ai_climate, m07_biosphere, m08_geostrategic_resources, cross_monitor_flags
+
+  Method:
+  ```bash
+  # 1. Download the Pass 1 JSON
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/environmental-risks/data/report-latest.json \
+    --jq '.content' | base64 -d > /tmp/erm-report.json
+
+  # 2. Add the Pass 2 sections to /tmp/erm-report.json using Python/jq
+
+  # 3. Push it back (replace the file with the patched version)
+  SHA=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/environmental-risks/data/report-latest.json --jq '.sha')
+  CONTENT=$(base64 -w 0 /tmp/erm-report.json)
+  gh api --method PUT /repos/asym-intel/asym-intel-main/contents/static/monitors/environmental-risks/data/report-latest.json \
+    --field message="data(erm): Issue [N] W/E [DATE] — deep sections" \
+    --field content="$CONTENT" --field sha="$SHA" --field branch="main"
+  ```
+
+  Do the same two-pass write for report-{DATE}.json.
+
+VERIFICATION — run after Pass 2 before proceeding to Step 3:
+  ```bash
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/environmental-risks/data/report-latest.json \
+    --jq '.content' | base64 -d | python3 -c \
+    "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['m04_extreme_weather', 'm06_ai_climate', 'm08_geostrategic_resources'] if k not in d]; print('MISSING:',missing) if missing else print('ALL SECTIONS PRESENT ✓')"
+  ```
+  If MISSING is non-empty — do NOT proceed to Step 3. Re-run Pass 2.

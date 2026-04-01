@@ -146,3 +146,44 @@ STEP 3 — Hugo brief:
 STEP 4 — Notify. Dashboard: https://asym-intel.info/monitors/ai-governance/dashboard.html
 
 Cron: 0 9 * * 5 (every Friday at 09:00 UTC)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TWO-PASS COMMIT RULE — MANDATORY FOR EVERY RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  The JSON for this monitor is too large to produce safely in one pass.
+You MUST write it in two separate git commits. Never combine into one.
+
+PASS 1 — Core sections (commit first, immediately after research):
+  meta, source_url, module_0 (signal), module_1 (intelligence), module_2 (model tracker), module_3 (capital), module_4 (deployment), module_5 (regulation EU/China)
+
+  Commit: "data(agm): Issue [N] W/E [DATE] — core sections"
+
+PASS 2 — Deep sections (commit second, by patching the Pass 1 file):
+  module_6 (frontier research), module_7 (risk vectors), module_8 (dual use), module_9 (law/standards/litigation), module_10–15 (governance/misuse/power/health/autonomy/personnel), cross_monitor_flags, delta_strip, country_grid
+
+  Method:
+  ```bash
+  # 1. Download the Pass 1 JSON
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/ai-governance/data/report-latest.json \
+    --jq '.content' | base64 -d > /tmp/agm-report.json
+
+  # 2. Add the Pass 2 sections to /tmp/agm-report.json using Python/jq
+
+  # 3. Push it back (replace the file with the patched version)
+  SHA=$(gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/ai-governance/data/report-latest.json --jq '.sha')
+  CONTENT=$(base64 -w 0 /tmp/agm-report.json)
+  gh api --method PUT /repos/asym-intel/asym-intel-main/contents/static/monitors/ai-governance/data/report-latest.json \
+    --field message="data(agm): Issue [N] W/E [DATE] — deep sections" \
+    --field content="$CONTENT" --field sha="$SHA" --field branch="main"
+  ```
+
+  Do the same two-pass write for report-{DATE}.json.
+
+VERIFICATION — run after Pass 2 before proceeding to Step 3:
+  ```bash
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/ai-governance/data/report-latest.json \
+    --jq '.content' | base64 -d | python3 -c \
+    "import json,sys; d=json.load(sys.stdin); missing=[k for k in ['module_9', 'module_12', 'module_14', 'delta_strip', 'country_grid'] if k not in d]; print('MISSING:',missing) if missing else print('ALL SECTIONS PRESENT ✓')"
+  ```
+  If MISSING is non-empty — do NOT proceed to Step 3. Re-run Pass 2.
