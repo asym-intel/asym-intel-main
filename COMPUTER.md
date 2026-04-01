@@ -19,6 +19,31 @@ Then fetch the handoff brief for current task state:
 
 Do not begin any work until both files have been read.
 
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CENTRALISED SHARED ASSETS — DO NOT DUPLICATE INLINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+These are defined ONCE in shared/ files. Never copy them inline into individual pages:
+
+CSS in static/monitors/shared/css/base.css:
+  - Search page styles (.search-wrap, .search-input-el, .search-result etc.)
+  - Network bar link strip (.nb-links)
+  - Font size tokens (--text-xs, --text-sm, --text-base, --text-min etc.)
+  - All layout, component, and token CSS
+
+JS in static/monitors/shared/js/renderer.js:
+  - renderCrossMonitorFlags(cmf) — canonical CMF renderer, handles flags[] array
+  - esc(str) / escHtml(str) — HTML escaping (use esc() in new code)
+  - AsymRenderer.flag(code) — country flag emoji
+
+JS in static/monitors/shared/js/nav.js:
+  - Network bar injection, hamburger, scroll-spy, tab panels
+
+When a bug is fixed in a shared file, it propagates to all 7 monitors automatically.
+When a fix is made inline in one page, it must be manually replicated — this is the
+root cause of rendering inconsistencies across monitors.
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DEPLOYMENT RULE — STAGING FIRST, ALWAYS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -78,6 +103,13 @@ CANONICAL NAV ARCHITECTURE (Blueprint v2.1):
   Monitor-nav:  position:sticky, top:40px
   Site-nav:     position:sticky, top:40px (Hugo pages only)
   nav.js:       loaded in <head> (not bottom of body) — injects bar before paint
+
+TYPOGRAPHY FLOOR:
+  --text-min = var(--text-xs) = clamp(0.8125rem, ...) defined in base.css
+  NEVER hardcode font-size below var(--text-min) (e.g. 0.7rem, 0.65rem, 0.62rem)
+  Use var(--text-min) for badges, tags, metadata labels
+  Use var(--text-xs) or larger for all body/content text
+  Violation = text that becomes illegible on mobile
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRON TASK RULES
