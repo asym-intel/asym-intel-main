@@ -1,20 +1,10 @@
 {{/*
   site-header.html  — Blueprint v2.1
-  ─────────────────────────────────────────────────────────────────────────────
-  Thin nav bar for Hugo content pages — sits below the network-bar (40px).
-  NO brand name, SVG, or Monitors link — all duplicated in the black bar above.
-  Right side: About · Subscribe
+  White bar below network bar. About (plain link) + Subscribe. No hamburger.
+  Monitors/Compossible/White Space are in the black bar (hamburger on mobile).
 */}}
 <nav class="site-nav" aria-label="Site navigation">
   <div class="site-nav__spacer"></div>
-
-  <button class="site-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
-      <line x1="2" y1="9"   x2="16" y2="9"/>
-      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
-    </svg>
-  </button>
 
   <ul class="site-nav__links" role="list">
     <li><a href="/about/"{{ if eq .RelPermalink "/about/" }} class="active"{{ end }}>About</a></li>
