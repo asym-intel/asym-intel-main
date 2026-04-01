@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function actorTag(actor) {
-    return '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + escHtml(actor) + '</span>';
+    return '<span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:2px 6px;border-radius:3px;margin-right:var(--space-2)">' + (AsymRenderer.flag(actor) ? AsymRenderer.flag(actor) + '\u00a0' : '') + escHtml(actor) + '</span>';
   }
 
   fetch('data/report-latest.json')
@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="card__label">' +
               escHtml(p.platform || '') +
               (p.action_type ? ' · <span class="severity-badge severity-badge--high">' + escHtml(p.action_type) + '</span>' : '') +
-              (p.actor_attributed ? ' · ' + escHtml(p.actor_attributed) : '') +
+              (p.actor_attributed ? ' · ' + (AsymRenderer.flag(p.actor_attributed) ? AsymRenderer.flag(p.actor_attributed) + '\u00a0' : '') + escHtml(p.actor_attributed) : '') +
             '</div>' +
             '<div class="card__title">' + escHtml(p.headline || '') + '</div>' +
             '<div class="card__body">' + escHtml(p.summary || '') + '</div>' +
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
         attrHtml +=
           '<div class="card">' +
             '<div class="card__label">' +
-              escHtml(entry.jurisdiction || entry.actor || '') +
+              (AsymRenderer.flag(entry.jurisdiction || entry.actor || '') ? AsymRenderer.flag(entry.jurisdiction || entry.actor || '') + '\u00a0' : '') + escHtml(entry.jurisdiction || entry.actor || '') +
               (entry.instrument ? ' · ' + escHtml(entry.instrument) : '') +
             '</div>' +
             '<div class="card__title">' + escHtml(entry.headline || '') + '</div>' +
