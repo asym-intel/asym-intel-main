@@ -1,3 +1,7 @@
+# BEFORE STARTING — READ THE WORKING AGREEMENT:
+# gh api /repos/asym-intel/asym-intel-main/contents/COMPUTER.md --jq '.content' | base64 -d
+# This contains architecture rules, deployment constraints, and file scope limits.
+
 # TASK: World Democracy Monitor (WDM)
 # VERSION: 2.0 — Blueprint v2.0 compliant
 # CADENCE: Weekly — every Monday at 06:00 UTC

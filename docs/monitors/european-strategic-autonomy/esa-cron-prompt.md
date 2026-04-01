@@ -1,3 +1,7 @@
+# BEFORE STARTING — READ THE WORKING AGREEMENT:
+# gh api /repos/asym-intel/asym-intel-main/contents/COMPUTER.md --jq '.content' | base64 -d
+# This contains architecture rules, deployment constraints, and file scope limits.
+
 # TASK: European Strategic Autonomy Monitor (ESA)
 # VERSION: 2.0 — Blueprint v2.0 compliant
 # CADENCE: Weekly — every Wednesday at 19:00 UTC

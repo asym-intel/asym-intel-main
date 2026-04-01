@@ -1,3 +1,7 @@
+# BEFORE STARTING — READ THE WORKING AGREEMENT:
+# gh api /repos/asym-intel/asym-intel-main/contents/COMPUTER.md --jq '.content' | base64 -d
+# This contains architecture rules, deployment constraints, and file scope limits.
+
 # TASK: Strategic Conflict & Escalation Monitor (SCEM)
 # VERSION: 2.0 — Blueprint v2.1 compliant
 # CADENCE: Weekly — every Sunday at 18:00 UTC
