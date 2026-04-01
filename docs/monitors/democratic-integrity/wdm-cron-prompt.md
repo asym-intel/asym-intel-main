@@ -3,7 +3,7 @@
 # This contains architecture rules, deployment constraints, and file scope limits.
 
 # TASK: World Democracy Monitor (WDM)
-# VERSION: 2.0 — Blueprint v2.0 compliant
+# VERSION: 2.1 — Blueprint v2.1 compliant — Category B fields added
 # CADENCE: Weekly — every Monday at 06:00 UTC
 # PUBLISH TO: https://asym-intel.info/monitors/democratic-integrity/
 
@@ -30,7 +30,7 @@ IF unsure: Do NOT run. Exit silently.
 
 This guard prevents accidental mid-week runs triggered by prompt reloads.
 
-DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
+DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=true is set but validator blocks future dates). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
@@ -83,6 +83,16 @@ Institutional Integrity Flags — judiciary, civil service, electoral
 Mimicry Chains — documented spread of authoritarian legislative
   templates across countries
 
+Category B fields (Build 2 — added to HTML, now add to JSON):
+  Electoral Watch — upcoming elections, environment, positive transitions
+  Digital & Civil Space — internet restrictions, civil society crackdowns
+  Autocratic Export — template laws, financing, advisory exports
+  State & Media Capture — broadcaster capture, judicial packing
+  Institutional Pulse — 10 entries, resilience flags per institution
+  Legislative Watch — 11 active entries, bill stage tracking
+  Research 360 — 5 active friction notes (source conflicts, tier gaps)
+  Networks — transnational authoritarian network tracking
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 STEP 0 — LOAD PERSISTENT STATE (before any research)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -122,14 +132,82 @@ report-latest.json schema:
     "schema_version": "2.0"
   },
   "signal": {"headline": "...", "body": "...", "source_url": "..."},
+  "weekly_brief": "[900-1200 word narrative — HTML permitted for links. Use **bold** for item headings. Paragraphs separated by \\n\\n.]",
   "heatmap": {
-    "rapid_decay": [],
+    "rapid_decay": [
+      {"country": "", "severity_score": 0.0, "severity_arrow": "↑", "lead_signal": "",
+       "summary": "", "confidence": "Confirmed|Probable", "entry_type": "Episode|Persistent|Transient",
+       "first_seen": "YYYY-MM-DD", "last_material_change": "YYYY-MM-DD", "source_url": "",
+       "severity_sub": {"electoral": 0.0, "civil_liberties": 0.0, "judicial": 0.0}}
+    ],
     "recovery": [],
-    "watchlist": []
+    "watchlist": [
+      {"country": "", "severity_score": 0.0, "severity_arrow": "↑",
+       "triggers": [], "threshold_crossed": 0, "escalation_trigger": "",
+       "watch_since": "YYYY-MM-DD", "confidence": "Probable", "entry_type": "Persistent",
+       "first_seen": "YYYY-MM-DD", "last_material_change": "YYYY-MM-DD"}
+    ]
   },
   "intelligence_items": [],
   "institutional_integrity_flags": [],
   "regional_mimicry_chains": [],
+  "electoral_watch": {
+    "timeline": [
+      {"date": "YYYY-MM-DD", "country": "", "election_type": "",
+       "risk_level": "High|Elevated|Low", "note": ""}
+    ],
+    "environment": [
+      {"country": "", "assessment": ""}
+    ],
+    "positive_transitions": [
+      {"country": "", "note": ""}
+    ]
+  },
+  "digital_civil": {
+    "restrictions": [
+      {"country": "", "headline": "", "detail": "", "source_url": ""}
+    ],
+    "crackdowns": [
+      {"country": "", "headline": "", "detail": "", "source_url": ""}
+    ]
+  },
+  "autocratic_export": {
+    "template_laws": [
+      {"exporter": "", "recipient": "", "template": "", "detail": "", "source_url": ""}
+    ],
+    "financing": [
+      {"exporter": "", "recipient": "", "headline": "", "detail": "", "source_url": ""}
+    ]
+  },
+  "state_capture": {
+    "broadcaster_capture": [
+      {"country": "", "institution": "", "headline": "", "detail": "", "source_url": ""}
+    ],
+    "judicial_packing": [
+      {"country": "", "institution": "", "headline": "", "detail": "", "source_url": ""}
+    ]
+  },
+  "institutional_pulse": {
+    "entries": [
+      {"country": "", "institution": "", "headline": "", "assessment": "",
+       "resilience_flag": "high|medium|low", "source_url": ""}
+    ]
+  },
+  "legislative_watch": {
+    "entries": [
+      {"country": "", "bill": "", "stage": "", "significance": "", "source_url": ""}
+    ]
+  },
+  "research_360": {
+    "friction_notes": [
+      {"id": "FN-001", "country": "", "headline": "", "detail": "", "status": "Active"}
+    ]
+  },
+  "networks": {
+    "nodes": [
+      {"name": "", "type": "", "summary": "", "source_url": ""}
+    ]
+  },
   "cross_monitor_flags": {"updated": "...", "flags": []},
   "source_url": "https://asym-intel.info/monitors/democratic-integrity/[DATE]-weekly-brief/"
 }
@@ -139,6 +217,14 @@ persistent-state.json — update surgically:
   - mimicry_chains: carry forward, add new chains if confirmed
   - institutional_integrity_active_flags: update as warranted
   - cross_monitor_flags: carry forward + add new (never delete)
+  - electoral_watch: update timeline with next 8 weeks of elections
+  - digital_civil: carry forward active cases, add new confirmed ones
+  - autocratic_export: carry forward chains, add new confirmed exports
+  - state_capture: carry forward active cases
+  - institutional_pulse: maintain 10 entries, update resilience flags
+  - legislative_watch: maintain 11 entries, update stage/status
+  - research_360.friction_notes: maintain 5 active notes
+  - networks: carry forward, add new confirmed network nodes
   - _meta.schema_version: "2.0"
 
 archive.json — append only.
