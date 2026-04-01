@@ -60,7 +60,23 @@ This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━
+SCHEMA — FLAG DEFINITIONS (include in meta block):
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — coordination confirmed but state attribution unestablished",
+        "F3": "Single source — not independently corroborated; do not upgrade confidence without Tier 1/2 second source"
+      },
+      "mf_flags": {
+        "MF1": "Meta-FIMI alert — the interference story itself may be a target of manipulation",
+        "MF2": "Attribution over-reach risk — content alignment is not sufficient for state attribution",
+        "MF3": "Single-source methodological caution — treat as Assessed until corroborated",
+        "MF4": "State media source — apply editorial discount"
+      }
+    },
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -96,7 +112,7 @@ STEP 1 — Research: EEAS FIMI reports, EU DisinfoLab, DFRLab,
 
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
-  { "meta": {..., "schema_version": "2.0"},
+  { "meta": {..., "schema_version": "2.0", "methodology_url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/methodology/"},
     "signal": {}, "campaigns": [], 
     "actor_tracker": [
       { "actor": "RU", "status": "HIGHLY ACTIVE|ACTIVE|MONITORING",
@@ -110,7 +126,9 @@ STEP 2 — Write 4 JSON files (single git commit):
         "instrument": "confidence level e.g. Assessed|Confirmed",
         "headline": "one-sentence description of attribution finding",
         "summary": "full note text",
-        "mf_flags": [], "confidence": "...", "source_url": "..." }
+        "mf_flags": [], "confidence": "...", "source_url": "...",
+        "source_date": "YYYY-MM-DD"  // ISO date of primary source; omit if unknown
+      }
     ],
     "cognitive_warfare": [
       { "id": "CW-001", "classification": "COGNITIVE WARFARE",
@@ -123,8 +141,17 @@ STEP 2 — Write 4 JSON files (single git commit):
     "source_url": "..." }
   
   persistent-state.json: campaigns (carry forward/update),
+  Campaign and attribution_log source objects: populate source_date (YYYY-MM-DD, ISO 8601) when known; omit if unknown.
   actor_tracker, cross_monitor_flags (never delete flags).
-  archive.json: append only.
+  
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
+
+archive.json: append only.
   Commit: "data(fcw): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:

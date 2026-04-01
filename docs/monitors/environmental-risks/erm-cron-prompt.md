@@ -154,7 +154,15 @@ report-latest.json schema (named semantic keys):
     "slug": "[PUBLISH_DATE]",
     "publish_time_utc": "T05:00:00Z",
     "editor": "asym-intel",
-    "schema_version": "2.0"
+    "schema_version": "2.0",
+    "methodology_url": "https://asym-intel.info/monitors/environmental-risks/methodology/",
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — not independently corroborated",
+        "F3": "Single source — treat as Assessed until corroborated"
+      }
+    },
   },
   "m00_the_signal": {"title": "...", "body": "...", "filter_tag": "..."},
   "m01_executive_insight": {"items": []},
@@ -181,6 +189,14 @@ persistent-state.json — update surgically:
   - standing_trackers: icj_climate_advisory, loss_damage_finance
   - cross_monitor_flags: carry forward + add new (never delete, set "Resolved")
   - _meta.schema_version: "2.0"
+
+
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
 
 archive.json — append only:
   {"issue": N, "volume": 1, "week_label": "...", "published": "YYYY-MM-DD",
