@@ -1,3 +1,25 @@
+# ⚠️  STAGING-FIRST RULE — READ BEFORE ANYTHING ELSE
+# ══════════════════════════════════════════════════════════════════════
+# ALL changes to HTML, CSS, JS, or Hugo layouts MUST go to the
+# STAGING branch first and be reviewed at https://staging.asym-intel.info
+# before being merged to main.
+#
+# main branch now has branch protection:
+#   - Blueprint validator must pass
+#   - No direct pushes to main (use PRs from staging)
+#   - github-actions[bot] is exempt only for docs/ auto-rebuild
+#
+# CRON tasks are exempt: they write JSON data files only and are
+# permitted to commit directly to main (data, not code).
+#
+# WORKFLOW FOR HTML/CSS/JS CHANGES:
+#   1. Commit to staging branch
+#   2. Review on https://staging.asym-intel.info
+#   3. Open PR: staging → main
+#   4. Blueprint validator runs automatically
+#   5. Merge only after visual sign-off
+# ══════════════════════════════════════════════════════════════════════
+
 # CRON WRAPPER — All Asymmetric Intelligence Monitors
 # Blueprint v2.1 — Updated 1 April 2026
 
