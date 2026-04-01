@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.8 — 1 April 2026
+# Version: 1.9 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -25,6 +25,20 @@ Do not begin any work until all four files have been read.
 
 anti-patterns.json: known HTML/CSS/JS errors — check before writing any code.
 site-decisions.json: WHY things are built the way they are — check before changing architecture.
+
+INTERNAL METHODOLOGY REPO (private — asym-intel/asym-intel-internal):
+  Full canonical specs for all 7 monitors live in the PRIVATE repo:
+    gh api /repos/asym-intel/asym-intel-internal/contents/methodology/{slug}-full.md \
+      --jq '.content' | base64 -d
+
+  Slugs: wdm, macro-monitor, fimi-cognitive-warfare, european-strategic-autonomy,
+         ai-governance, environmental-risks, conflict-escalation
+
+  Read the relevant monitor's spec BEFORE any sprint work on that monitor.
+  These contain scoring rubrics, source hierarchies, formula weights, and
+  analytical frameworks that are not in the cron prompts.
+  This repo is private and will NOT appear in web searches or public repo lists.
+  Always use api_credentials=["github"] to access it.
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
