@@ -10,6 +10,212 @@
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
+  <style>
+    /* ── EU AI Act Compact Tracker (Dashboard) ─────────────────────── */
+    .euact-dash-wrap {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5) var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+    .euact-dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+      flex-wrap: wrap;
+    }
+    .euact-dash-countdown {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+    }
+    .euact-dash-days {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #3a7d5a;
+      line-height: 1;
+    }
+    .euact-dash-days-label {
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+    }
+    .euact-dash-appdate {
+      font-size: 0.78rem;
+      color: var(--color-text-muted);
+      margin-top: 0.25rem;
+    }
+    .euact-vacuum-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(193, 68, 14, 0.1);
+      color: #c1440e;
+      border: 1px solid rgba(193, 68, 14, 0.3);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+    /* Horizontal layer track */
+    .euact-track {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      position: relative;
+      overflow-x: auto;
+      padding-bottom: var(--space-2);
+    }
+    .euact-track-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      min-width: 70px;
+      position: relative;
+    }
+    .euact-track-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 13px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--color-border);
+      z-index: 0;
+    }
+    .euact-track-node {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      margin-bottom: var(--space-2);
+    }
+    .euact-track-node--active    { background: #3a7d5a; border-color: #3a7d5a; color: #fff; }
+    .euact-track-node--progress  { background: rgba(217,119,6,0.15); border-color: #d97706; color: #d97706; }
+    .euact-track-node--delayed   { background: rgba(193,68,14,0.12); border-color: #c1440e; color: #c1440e; }
+    .euact-track-node--pending   { background: var(--color-bg); border-color: var(--color-border); color: var(--color-text-muted); }
+    .euact-track-node--trilogue  { background: rgba(37,99,235,0.12); border-color: #2563eb; color: #2563eb; }
+    .euact-track-label {
+      font-size: 0.62rem;
+      color: var(--color-text-muted);
+      text-align: center;
+      line-height: 1.3;
+      max-width: 64px;
+    }
+    .euact-track-status {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-top: 2px;
+      text-align: center;
+    }
+    .euact-track-status--active   { color: #3a7d5a; }
+    .euact-track-status--progress { color: #d97706; }
+    .euact-track-status--delayed  { color: #c1440e; }
+    .euact-track-status--pending  { color: var(--color-text-muted); }
+    .euact-track-status--trilogue { color: #2563eb; }
+
+    /* ── Risk Heat Grid (Dashboard Widget) ─────────────────────────── */
+    .risk-heat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    .risk-heat-cell {
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    .risk-heat-cell--high {
+      background: rgba(193, 68, 14, 0.12);
+      border: 1px solid rgba(193, 68, 14, 0.3);
+    }
+    .risk-heat-cell--elevated {
+      background: rgba(217, 119, 6, 0.1);
+      border: 1px solid rgba(217, 119, 6, 0.28);
+    }
+    .risk-heat-cell--moderate, .risk-heat-cell--low {
+      background: rgba(37, 99, 235, 0.07);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+    .risk-heat-cell__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+    }
+    .risk-heat-cell__name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .risk-rating-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .risk-rating-badge--HIGH     { background: #c1440e; color: #fff; }
+    .risk-rating-badge--ELEVATED { background: #d97706; color: #fff; }
+    .risk-rating-badge--MODERATE { background: #2563eb; color: #fff; }
+    .risk-rating-badge--LOW      { background: #6b6660; color: #fff; }
+    .risk-heat-cell__summary {
+      font-size: 0.74rem;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* ── Dark mode ──────────────────────────────────────────────────── */
+    [data-theme="dark"] .euact-dash-wrap {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    [data-theme="dark"] .euact-track-node--pending {
+      background: #1a1917;
+      border-color: #3a3835;
+    }
+    [data-theme="dark"] .euact-track-item::after {
+      background: #2d2c2a;
+    }
+    [data-theme="dark"] .risk-heat-cell--high {
+      background: rgba(193, 68, 14, 0.18);
+      border-color: rgba(193, 68, 14, 0.4);
+    }
+    [data-theme="dark"] .risk-heat-cell--elevated {
+      background: rgba(217, 119, 6, 0.15);
+      border-color: rgba(217, 119, 6, 0.35);
+    }
+    [data-theme="dark"] .risk-heat-cell--moderate,
+    [data-theme="dark"] .risk-heat-cell--low {
+      background: rgba(37, 99, 235, 0.1);
+      border-color: rgba(37, 99, 235, 0.28);
+    }
+    @media (max-width: 600px) {
+      .risk-heat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 
 <body>
@@ -74,6 +280,18 @@
         </div>
       </div>
 
+      <!-- EU AI Act Compact Tracker -->
+      <section id="eu-act-dash" aria-labelledby="euact-dash-heading">
+        <h2 class="section-label" id="euact-dash-heading">EU AI Act — Regulatory Pipeline</h2>
+        <div id="euact-dash-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Risk Vector Heat Grid -->
+      <section id="risk-heat-dash" aria-labelledby="risk-heat-heading">
+        <h2 class="section-label" id="risk-heat-heading">Risk Vector Heat Grid</h2>
+        <div id="risk-heat-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
       <!-- Signal Block -->
       <section id="lead-signal" aria-labelledby="signal-heading">
         <h2 class="section-label" id="signal-heading">Lead Signal</h2>
@@ -105,6 +323,8 @@
       <nav class="sidebar-nav" aria-label="Page sections">
         <div class="sidebar-nav__title">Sections</div>
         <ul>
+          <li><a href="#eu-act-dash">EU AI Act Tracker</a></li>
+          <li><a href="#risk-heat-dash">Risk Heat Grid</a></li>
           <li><a href="#lead-signal">Lead Signal</a></li>
           <li><a href="#delta-strip-section">Delta Strip</a></li>
           <li><a href="#country-grid-section">Country Grid</a></li>
@@ -131,75 +351,197 @@
   <script src="../shared/js/renderer.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function () {
-    fetch('data/report-latest.json')
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        var meta = d.meta || {};
-        var m0 = d.module_0 || {};
-        var signal = m0.title || '';
-        var signalBody = m0.body || '';
-        var deltaStrip = Array.isArray(d.delta_strip) ? d.delta_strip : [];
-        var countryGrid = Array.isArray(d.country_grid) ? d.country_grid : [];
-
-        // Page header
-        document.getElementById('dash-title').textContent = 'Dashboard — Issue ' + (meta.issue || '');
-        document.getElementById('dash-meta').innerHTML =
-          '<span>' + esc(meta.week_label) + '</span>' +
-          '<span>Published ' + esc(meta.published) + '</span>';
-
-        // KPIs
-        document.getElementById('kpi-delta').textContent = deltaStrip.length;
-        document.getElementById('kpi-grid').textContent = countryGrid.length;
-        var words = signal.split(/\s+/).slice(0, 6).join(' ');
-        document.getElementById('kpi-signal').textContent = words + (signal.split(/\s+/).length > 6 ? '…' : '');
-
-        // Signal block
-        document.getElementById('signal-block').innerHTML =
-          '<h3 class="signal-block__title">' + esc(signal) + '</h3>' +
-          '<p class="signal-block__body">' + esc(signalBody) + '</p>' +
-          '<a class="signal-block__link" href="report.html#module-0">Read in full report →</a>';
-
-        // Delta strip — top 5
-        var top5 = deltaStrip.slice(0, 5);
-        if (top5.length) {
-          document.getElementById('delta-strip-content').innerHTML =
-            '<div class="delta-list">' + top5.map(function (item) {
-              return '<div class="delta-item">' +
-                '<div class="delta-item__rank">' + esc(item.rank) + '</div>' +
-                '<div class="delta-item__body">' +
-                  '<div class="delta-item__meta">' + esc(item.module) + ' · ' + esc(item.delta_type) + '</div>' +
-                  '<div class="delta-item__title">' + esc(item.title) + '</div>' +
-                  '<div class="delta-item__line">' + esc(item.one_line) + '</div>' +
-                '</div>' +
-              '</div>';
-            }).join('') + '</div>' +
-            '<a class="more-link" href="report.html">View full report →</a>';
-        } else {
-          document.getElementById('delta-strip-content').innerHTML = '<p class="empty-state">No delta items.</p>';
-        }
-
-        // Country grid — first 5
-        var first5 = countryGrid.slice(0, 5);
-        if (first5.length) {
-          document.getElementById('country-grid-content').innerHTML =
-            '<table class="data-table">' +
-            '<thead><tr><th>Country</th><th>Signal</th></tr></thead>' +
-            '<tbody>' + first5.map(function (row) {
-              return '<tr><td class="mono">' + esc(row.country) + '</td><td class="text-sm">' + esc(row.signal) + '</td></tr>';
-            }).join('') + '</tbody>' +
-            '</table>' +
-            '<a class="more-link" href="report.html#module-9">Full country grid →</a>';
-        } else {
-          document.getElementById('country-grid-content').innerHTML = '<p class="empty-state">No country grid data.</p>';
-        }
-      })
-      .catch(function () {
-        document.getElementById('signal-block').innerHTML = '<p class="error-state">Could not load data.</p>';
-      });
 
     function esc(s) {
       return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
+
+    /* ── EU Act helpers ── */
+    function euactNodeClass(status) {
+      if (!status) return 'euact-track-node--pending';
+      var s = status.toLowerCase();
+      if (s === 'active') return 'euact-track-node--active';
+      if (s.indexOf('trilogue') !== -1) return 'euact-track-node--trilogue';
+      if (s.indexOf('in progress') !== -1) return 'euact-track-node--progress';
+      if (s.indexOf('delayed') !== -1) return 'euact-track-node--delayed';
+      return 'euact-track-node--pending';
+    }
+    function euactStatusClass(status) {
+      if (!status) return 'euact-track-status--pending';
+      var s = status.toLowerCase();
+      if (s === 'active') return 'euact-track-status--active';
+      if (s.indexOf('trilogue') !== -1) return 'euact-track-status--trilogue';
+      if (s.indexOf('in progress') !== -1) return 'euact-track-status--progress';
+      if (s.indexOf('delayed') !== -1) return 'euact-track-status--delayed';
+      return 'euact-track-status--pending';
+    }
+    function euactShortStatus(status) {
+      if (!status) return 'Pending';
+      var s = status.toLowerCase();
+      if (s === 'active') return 'Active';
+      if (s.indexOf('trilogue') !== -1) return 'Trilogue';
+      if (s.indexOf('in progress') !== -1) return 'In progress';
+      if (s.indexOf('delayed') !== -1) return 'Delayed';
+      if (s.indexOf('not yet') !== -1) return 'Not active';
+      return status.split(' ').slice(0,2).join(' ');
+    }
+
+    /* ── Risk helpers ── */
+    function riskCellClass(rating) {
+      if (!rating) return 'risk-heat-cell--moderate';
+      var r = rating.toUpperCase();
+      if (r === 'HIGH') return 'risk-heat-cell--high';
+      if (r === 'ELEVATED') return 'risk-heat-cell--elevated';
+      if (r === 'LOW') return 'risk-heat-cell--low';
+      return 'risk-heat-cell--moderate';
+    }
+
+    // Parallel fetch: report + persistent
+    Promise.all([
+      fetch('data/report-latest.json').then(function(r){return r.json();}),
+      fetch('data/persistent-state.json').then(function(r){return r.json();}).catch(function(){return {};})
+    ]).then(function(results) {
+      var d = results[0];
+      var persistent = results[1];
+      var meta = d.meta || {};
+      var m0 = d.module_0 || {};
+      var signal = m0.title || '';
+      var signalBody = m0.body || '';
+      var deltaStrip = Array.isArray(d.delta_strip) ? d.delta_strip : [];
+      var countryGrid = Array.isArray(d.country_grid) ? d.country_grid : [];
+
+      // Page header
+      document.getElementById('dash-title').textContent = 'Dashboard — Issue ' + (meta.issue || '');
+      document.getElementById('dash-meta').innerHTML =
+        '<span>' + esc(meta.week_label) + '</span>' +
+        '<span>Published ' + esc(meta.published) + '</span>';
+
+      // KPIs
+      document.getElementById('kpi-delta').textContent = deltaStrip.length;
+      document.getElementById('kpi-grid').textContent = countryGrid.length;
+      var words = signal.split(/\s+/).slice(0, 6).join(' ');
+      document.getElementById('kpi-signal').textContent = words + (signal.split(/\s+/).length > 6 ? '…' : '');
+
+      // EU AI Act compact tracker from persistent state
+      var euact = (persistent && persistent.module_9_eu_ai_act_tracker) ? persistent.module_9_eu_ai_act_tracker : {};
+      var layers = Array.isArray(euact.layers) ? euact.layers : [];
+      var days = euact.current_days_to_deadline;
+      var appDate = euact.general_application_date || '';
+      var euhtml = '';
+
+      if (euact.standards_vacuum_active) {
+        euhtml += '<div style="margin-bottom:var(--space-4)">' +
+          '<span class="euact-vacuum-pill">⚠ Standards Vacuum Active</span> ' +
+          '<span style="font-size:0.75rem;color:var(--color-text-muted)">Harmonised standards still in draft — compliance obligations activate 2 Aug 2026 without technical safe harbour</span>' +
+          '</div>';
+      }
+
+      euhtml += '<div class="euact-dash-wrap">';
+      euhtml += '<div class="euact-dash-header">' +
+        '<div>' +
+          '<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--color-text-muted);margin-bottom:0.3rem">Regulatory Pipeline</div>' +
+          '<div style="font-size:0.78rem;color:var(--color-text-secondary)">' + esc(layers.length) + ' implementation layers tracked</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div class="euact-dash-countdown">' +
+            '<span class="euact-dash-days">' + (days !== undefined && days !== null ? esc(String(days)) : '—') + '</span>' +
+            '<span class="euact-dash-days-label">days</span>' +
+          '</div>' +
+          '<div class="euact-dash-appdate">General application: ' + esc(appDate) + '</div>' +
+        '</div>' +
+      '</div>';
+
+      if (layers.length) {
+        euhtml += '<div class="euact-track">';
+        layers.forEach(function (l) {
+          var nodeClass = euactNodeClass(l.status);
+          var statusClass = euactStatusClass(l.status);
+          var shortStatus = euactShortStatus(l.status);
+          // Short layer name: first 2 words
+          var shortName = (l.name || '').split(' ').slice(0,3).join(' ');
+          euhtml += '<div class="euact-track-item">' +
+            '<div class="euact-track-node ' + nodeClass + '">' + esc(String(l.layer || '')) + '</div>' +
+            '<div class="euact-track-label">' + esc(shortName) + '</div>' +
+            '<div class="euact-track-status ' + statusClass + '">' + esc(shortStatus) + '</div>' +
+          '</div>';
+        });
+        euhtml += '</div>';
+      } else {
+        euhtml += '<p class="empty-state">No layer data available.</p>';
+      }
+      euhtml += '</div>';
+      euhtml += '<a class="more-link" href="persistent.html#eu-ai-act" style="margin-top:var(--space-2)">Full tracker in Living Knowledge →</a>';
+      document.getElementById('euact-dash-content').innerHTML = euhtml;
+
+      // Risk Vector Heat Grid
+      var m7 = d.module_7 || {};
+      var vectors = Array.isArray(m7.vectors) ? m7.vectors : [];
+      if (vectors.length) {
+        var gridHtml = '<div class="risk-heat-grid">';
+        vectors.forEach(function (v) {
+          var rating = (v.rating || 'MODERATE').toUpperCase();
+          var cellClass = riskCellClass(rating);
+          gridHtml += '<div class="risk-heat-cell ' + cellClass + '">' +
+            '<div class="risk-heat-cell__header">' +
+              '<div class="risk-heat-cell__name">' + esc(v.vector || '') + '</div>' +
+              '<span class="risk-rating-badge risk-rating-badge--' + rating + '">' + esc(rating) + '</span>' +
+            '</div>' +
+            '<div class="risk-heat-cell__summary">' + esc((v.summary || '').slice(0, 180)) + '</div>' +
+          '</div>';
+        });
+        gridHtml += '</div>';
+        gridHtml += '<a class="more-link" href="report.html#module-7">Full risk analysis in report →</a>';
+        document.getElementById('risk-heat-content').innerHTML = gridHtml;
+      } else {
+        document.getElementById('risk-heat-content').innerHTML = '<p class="empty-state">No risk vectors available.</p>';
+      }
+
+      // Signal block
+      document.getElementById('signal-block').innerHTML =
+        '<h3 class="signal-block__title">' + esc(signal) + '</h3>' +
+        '<p class="signal-block__body">' + esc(signalBody) + '</p>' +
+        '<a class="signal-block__link" href="report.html#module-0">Read in full report →</a>';
+
+      // Delta strip — top 5
+      var top5 = deltaStrip.slice(0, 5);
+      if (top5.length) {
+        document.getElementById('delta-strip-content').innerHTML =
+          '<div class="delta-list">' + top5.map(function (item) {
+            return '<div class="delta-item">' +
+              '<div class="delta-item__rank">' + esc(item.rank) + '</div>' +
+              '<div class="delta-item__body">' +
+                '<div class="delta-item__meta">' + esc(item.module) + ' · ' + esc(item.delta_type) + '</div>' +
+                '<div class="delta-item__title">' + esc(item.title) + '</div>' +
+                '<div class="delta-item__line">' + esc(item.one_line) + '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('') + '</div>' +
+          '<a class="more-link" href="report.html">View full report →</a>';
+      } else {
+        document.getElementById('delta-strip-content').innerHTML = '<p class="empty-state">No delta items.</p>';
+      }
+
+      // Country grid — first 5
+      var first5 = countryGrid.slice(0, 5);
+      if (first5.length) {
+        document.getElementById('country-grid-content').innerHTML =
+          '<table class="data-table">' +
+          '<thead><tr><th>Country</th><th>Signal</th></tr></thead>' +
+          '<tbody>' + first5.map(function (row) {
+            return '<tr><td class="mono">' + esc(row.country) + '</td><td class="text-sm">' + esc(row.signal) + '</td></tr>';
+          }).join('') + '</tbody>' +
+          '</table>' +
+          '<a class="more-link" href="report.html#module-9">Full country grid →</a>';
+      } else {
+        document.getElementById('country-grid-content').innerHTML = '<p class="empty-state">No country grid data.</p>';
+      }
+    })
+    .catch(function () {
+      document.getElementById('signal-block').innerHTML = '<p class="error-state">Could not load data.</p>';
+      document.getElementById('euact-dash-content').innerHTML = '<p class="error-state">Could not load EU AI Act data.</p>';
+      document.getElementById('risk-heat-content').innerHTML = '<p class="error-state">Could not load risk data.</p>';
+    });
+
   });
   </script>
 </body>
