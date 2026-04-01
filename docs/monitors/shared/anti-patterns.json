@@ -20,7 +20,7 @@
       "description": "nav.js loaded at bottom of <body> instead of <head>",
       "wrong": "<body>...<script src='../shared/js/nav.js'></script></body>",
       "correct": "<head>...<script src='../shared/js/nav.js'></script></head>",
-      "root_cause": "Causes network bar not appearing on first paint — visible as layout flash on mobile",
+      "root_cause": "Causes network bar not appearing on first paint \u2014 visible as layout flash on mobile",
       "detected_by": "validate-blueprint.py Check 13"
     },
     {
@@ -40,7 +40,7 @@
       "description": "Component styles placed in monitor.css instead of base.css",
       "wrong": ".signal-block { padding: 1rem } in monitor.css",
       "correct": "monitor.css is MAX 40 lines, accent CSS custom properties only. All components live in base.css.",
-      "root_cause": "Agent writing scoped styles rather than consulting base.css — creates 7x maintenance burden",
+      "root_cause": "Agent writing scoped styles rather than consulting base.css \u2014 creates 7x maintenance burden",
       "detected_by": "validate-blueprint.py Check 15"
     },
     {
@@ -51,7 +51,7 @@
       "wrong": ".monitor-layout { overflow: hidden }",
       "correct": "overflow: clip (never hidden) on body, .monitor-layout, .monitor-main",
       "root_cause": "overflow:hidden creates a scroll container that silently breaks all sticky children",
-      "detected_by": "Manual audit — not yet automated"
+      "detected_by": "Manual audit \u2014 not yet automated"
     },
     {
       "id": "FE-006",
@@ -59,8 +59,8 @@
       "severity": "warning",
       "description": "Hardcoded font-size below --text-min token",
       "wrong": "font-size: 0.65rem  or  font-size: 10px",
-      "correct": "font-size: var(--text-min)  — never go below this token (clamp(0.8125rem,...))",
-      "root_cause": "Produces illegible text on mobile — not caught until viewport testing",
+      "correct": "font-size: var(--text-min)  \u2014 never go below this token (clamp(0.8125rem,...))",
+      "root_cause": "Produces illegible text on mobile \u2014 not caught until viewport testing",
       "detected_by": "validate-blueprint.py Check 11"
     },
     {
@@ -70,7 +70,7 @@
       "description": "Inline <nav data-asym-network-bar> HTML written into page source",
       "wrong": "<nav data-asym-network-bar>...</nav> hardcoded in HTML",
       "correct": "nav.js injects the network bar dynamically at runtime. Never write it inline.",
-      "root_cause": "Agent copying bar structure instead of letting nav.js own injection — produces duplicate bar",
+      "root_cause": "Agent copying bar structure instead of letting nav.js own injection \u2014 produces duplicate bar",
       "detected_by": "validate-blueprint.py Check 9"
     },
     {
@@ -79,8 +79,8 @@
       "severity": "error",
       "description": "Custom HTML-escaping function defined inline instead of using shared esc()",
       "wrong": "function escape(s){ return s.replace(/</g,'&lt;').replace(/>/g,'&gt;') }",
-      "correct": "Use esc(str) or escHtml(str) from renderer.js — already imported on every monitor page",
-      "root_cause": "Agent unaware of shared renderer utilities — creates divergent escaping logic",
+      "correct": "Use esc(str) or escHtml(str) from renderer.js \u2014 already imported on every monitor page",
+      "root_cause": "Agent unaware of shared renderer utilities \u2014 creates divergent escaping logic",
       "detected_by": "Code review only"
     },
     {
@@ -90,8 +90,8 @@
       "description": "background property set on .signal-block in monitor.css",
       "wrong": ".signal-block { background: var(--monitor-accent) } in monitor.css",
       "correct": "base.css owns .signal-block background with !important. monitor.css may only set border, border-radius, font-family.",
-      "root_cause": "Override silently defeated by !important in base.css — causing confusion and no visual effect",
-      "real_world_case": "ESA monitor.css had linear-gradient override; SCEM had rgba(0.06) override — both defeated silently",
+      "root_cause": "Override silently defeated by !important in base.css \u2014 causing confusion and no visual effect",
+      "real_world_case": "ESA monitor.css had linear-gradient override; SCEM had rgba(0.06) override \u2014 both defeated silently",
       "detected_by": "Session audit 2026-04-01"
     },
     {
@@ -101,7 +101,7 @@
       "description": "Chart.js CDN loaded after charts.js in <head>",
       "wrong": "<script src='../shared/js/charts.js'></script><script src='chart.umd.min.js'>",
       "correct": "Chart.js CDN MUST appear before charts.js in <head>",
-      "root_cause": "charts.js depends on Chart being defined at parse time — wrong order causes silent failure",
+      "root_cause": "charts.js depends on Chart being defined at parse time \u2014 wrong order causes silent failure",
       "detected_by": "validate-blueprint.py Check 17"
     },
     {
@@ -111,8 +111,8 @@
       "description": "innerHTML set to return value of void function (produces literal 'undefined')",
       "wrong": "element.innerHTML = AsymPersistent.renderEntityList(items)  when function returns void",
       "correct": "Check whether the renderer function returns a string or writes to DOM directly. Call accordingly.",
-      "root_cause": "AGM persistent.html: M07, M15 sections all set innerHTML to undefined — rendered as literal string",
-      "real_world_case": "AGM persistent.html M07 risk vectors, M15 AISI pipeline, M15 lab postures — fixed PR #20 2026-04-01",
+      "root_cause": "AGM persistent.html: M07, M15 sections all set innerHTML to undefined \u2014 rendered as literal string",
+      "real_world_case": "AGM persistent.html M07 risk vectors, M15 AISI pipeline, M15 lab postures \u2014 fixed PR #20 2026-04-01",
       "detected_by": "Domain audit 2026-04-01"
     },
     {
@@ -120,10 +120,10 @@
       "category": "js",
       "severity": "error",
       "description": "Variable defined in one IIFE/script block referenced from another",
-      "wrong": "Script block 1: (function(){ var KEYS = [...] })()  —  Script block 2: KEYS.forEach(...)",
+      "wrong": "Script block 1: (function(){ var KEYS = [...] })()  \u2014  Script block 2: KEYS.forEach(...)",
       "correct": "Variables used across script blocks must be defined in outer scope or re-declared in each block",
-      "root_cause": "SCEM dashboard: INDICATOR_KEYS defined inside IIFE in block 1; renderEscalationGauge() in block 2 referenced it — ReferenceError",
-      "real_world_case": "SCEM dashboard.html INDICATOR_KEYS scope error — fixed session 2026-04-01",
+      "root_cause": "SCEM dashboard: INDICATOR_KEYS defined inside IIFE in block 1; renderEscalationGauge() in block 2 referenced it \u2014 ReferenceError",
+      "real_world_case": "SCEM dashboard.html INDICATOR_KEYS scope error \u2014 fixed session 2026-04-01",
       "detected_by": "Browser console error"
     },
     {
@@ -134,17 +134,17 @@
       "wrong": "Cron agent runs full pipeline when prompt file is updated mid-week",
       "correct": "Publish guard (day + hour + recency) must be the FIRST executed block. Hard exit if any condition fails. Explicitly state: 'A prompt reload is NOT a reason to publish.'",
       "root_cause": "WDM/GMM/FCW/ESA/AGM all published mid-week on 2026-04-01 after prompt updates. Recency guard was present but not enforced as first action.",
-      "real_world_case": "5 monitors published out-of-schedule on 2026-04-01 — hardened guard applied to all 7 prompts",
+      "real_world_case": "5 monitors published out-of-schedule on 2026-04-01 \u2014 hardened guard applied to all 7 prompts",
       "detected_by": "User report 2026-04-01"
     },
     {
       "id": "FE-014",
       "category": "data",
       "severity": "error",
-      "description": "JSON output truncated silently — deep sections never written",
-      "wrong": "Cron agent produces one commit covering all sections — deep sections dropped when output is too long",
+      "description": "JSON output truncated silently \u2014 deep sections never written",
+      "wrong": "Cron agent produces one commit covering all sections \u2014 deep sections dropped when output is too long",
       "correct": "Use two-pass commit pattern: Pass 1 = core sections, Pass 2 = deep sections via read-modify-PUT. Verify all keys present before Step 3.",
-      "root_cause": "WDM Category B sections (electoral_watch, digital_civil, etc.) missing from all 3 issues — cron hit output limit",
+      "root_cause": "WDM Category B sections (electoral_watch, digital_civil, etc.) missing from all 3 issues \u2014 cron hit output limit",
       "real_world_case": "WDM Issues 1-3 missing 8 Category B sections. Two-pass rule applied to all 7 monitors 2026-04-01.",
       "detected_by": "Session audit 2026-04-01"
     },
@@ -157,6 +157,18 @@
       "correct": "Every heatmap entry, indicator, and intelligence item must have a non-empty source_url pointing to a Tier 1 or Tier 2 primary source",
       "root_cause": "WDM heatmap: all 29 entries had source_url = '' across Issues 1-3. Credibility gap for researchers.",
       "detected_by": "Domain audit 2026-04-01"
+    },
+    {
+      "id": "FE-016",
+      "category": "ux",
+      "severity": "warning",
+      "description": "Country name displayed without flag emoji where AsymRenderer.flag() is available",
+      "wrong": "escHtml(actor)  \u2192  'RU'",
+      "correct": "(AsymRenderer.flag(actor) ? AsymRenderer.flag(actor) + '\\u00a0' : '') + escHtml(actor)  \u2192  '\ud83c\uddf7\ud83c\uddfa RU'",
+      "root_cause": "AsymRenderer.flag(iso2) is available on every monitor page via renderer.js. Always use it wherever a country name or actor code appears in a table, chart label, card, or timeline.",
+      "applies_to": "All monitor pages \u2014 tables, charts, timelines, cards, delta strips, actor boards. Wherever a country name or ISO-2 actor code appears.",
+      "real_world_case": "FCW campaign timeline actor group labels showed 'RU', 'CN' etc with no flags. Actor profiles (same page) already used AsymRenderer.flag correctly \u2014 inconsistency.",
+      "detected_by": "User review 2026-04-01"
     }
   ]
 }
