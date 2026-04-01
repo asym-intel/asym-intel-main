@@ -327,10 +327,28 @@
       }
 
       /* ── Weekly Brief (from report-latest.json) ── */
+
+      /* ── Lightweight markdown renderer for weekly_brief field ── */
+      function renderMarkdown(md) {
+        if (!md) return '';
+        return md
+          // Bold: **text**
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          // Italic: *text* (single, not double)
+          .replace(/(?<!\*)\*([^*
+]+)\*(?!\*)/g, '<em>$1</em>')
+          // Paragraph breaks: blank lines
+          .replace(/\n\n/g, '</p><p>')
+          // Single newlines → space (inline)
+          .replace(/\n/g, ' ')
+          // Wrap in paragraphs
+          .replace(/^/, '<p>').replace(/$/, '</p>');
+      }
+
       var wbEl = document.getElementById('weekly-brief-content');
       var wb = report.weekly_brief || '';
       if (wb) {
-        wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + wb + '</div>';
+        wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + renderMarkdown(wb) + '</div>';
       } else {
         wbEl.innerHTML = '<p class="text-muted">Weekly brief not available for this issue.</p>';
       }
