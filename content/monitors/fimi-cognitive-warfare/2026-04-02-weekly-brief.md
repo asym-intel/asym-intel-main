@@ -1,6 +1,6 @@
 ---
-title: "FIMI & Cognitive Warfare Monitor — W/E 2 April 2026"
-date: 2026-04-02T09:00:00Z
+title: "FIMI & Cognitive Warfare Monitor — W/E 1 April 2026"
+date: 2026-04-01T09:00:00Z
 summary: "Storm-1516 deploys Euronews impersonation against Hungary as the April 12 election enters its critical phase — three simultaneous confirmed or assessed Russian operations now targeting the same election, the highest documented pre-election FIMI density for a single EU member state."
 draft: false
 monitor: "fimi-cognitive-warfare"
