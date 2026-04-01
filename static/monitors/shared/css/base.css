@@ -1259,18 +1259,24 @@ body { padding-top: 40px; }
   .monitor-nav__links {
     display: none;
     position: fixed;
-    top: calc(var(--network-bar-height) + var(--nav-height));
+    top: calc(40px + 52px); /* network bar + monitor nav */
     left: 0;
     right: 0;
+    max-height: calc(100vh - 40px - 52px);
+    overflow-y: auto;
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
     flex-direction: column;
     padding: var(--space-4);
     gap: var(--space-1);
-    z-index: 99;
+    z-index: 98; /* below network bar (9999) and monitor-nav (100) */
     box-shadow: var(--shadow-md);
   }
-  .monitor-nav__links--open { display: flex; }
+  .monitor-nav__links--open {
+    display: flex;
+    max-height: calc(100vh - 40px - 52px);
+    overflow-y: auto;
+  }
   .monitor-sidebar {
     position: fixed;
     top: calc(var(--network-bar-height) + var(--nav-height));
