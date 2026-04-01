@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.2 — 1 April 2026
+# Version: 1.3 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
