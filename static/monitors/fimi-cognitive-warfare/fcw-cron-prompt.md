@@ -65,9 +65,29 @@ STEP 1 — Research: EEAS FIMI reports, EU DisinfoLab, DFRLab,
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
   { "meta": {..., "schema_version": "2.0"},
-    "signal": {}, "campaigns": [], "actor_tracker": [],
-    "platform_responses": [], "attribution_log": [],
-    "cognitive_warfare": [], "cross_monitor_flags": {},
+    "signal": {}, "campaigns": [], 
+    "actor_tracker": [
+      { "actor": "RU", "status": "HIGHLY ACTIVE|ACTIVE|MONITORING",
+        "doctrine": "...", "headline": "key development this week",
+        "summary": "...", "source_url": "..." }
+    ],
+    "platform_responses": [],
+    "attribution_log": [
+      { "id": "ATTR-001", "date": "YYYY-MM-DD",
+        "actor": "campaign_id or actor code e.g. RU-005",
+        "instrument": "confidence level e.g. Assessed|Confirmed",
+        "headline": "one-sentence description of attribution finding",
+        "summary": "full note text",
+        "mf_flags": [], "confidence": "...", "source_url": "..." }
+    ],
+    "cognitive_warfare": [
+      { "id": "CW-001", "classification": "COGNITIVE WARFARE",
+        "headline": "theme/topic of the cognitive warfare development",
+        "detail": "full development description",
+        "summary": "significance or brief summary",
+        "source_url": "..." }
+    ],
+    "cross_monitor_flags": {},
     "source_url": "..." }
   
   persistent-state.json: campaigns (carry forward/update),
