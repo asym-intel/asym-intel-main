@@ -195,6 +195,34 @@ for slug in MONITOR_SLUGS:
             if _hits:
                 fail(f"{slug}/{page}.html — overflow:hidden on monitor-layout/main in inline style (breaks sticky nav)")
 
+# ── Check 16: Page titles contain full monitor name and brand ─────────────
+print("Check 16: Page titles contain monitor name and brand suffix")
+MONITOR_FULL_NAMES = {
+    'democratic-integrity': 'World Democracy Monitor',
+    'macro-monitor': 'Global Macro Monitor',
+    'fimi-cognitive-warfare': 'FIMI & Cognitive Warfare Monitor',
+    'european-strategic-autonomy': 'European Strategic Autonomy Monitor',
+    'ai-governance': 'AI Governance Monitor',
+    'environmental-risks': 'Environmental Risks Monitor',
+    'conflict-escalation': 'Strategic Conflict & Escalation Monitor',
+}
+import re as _re3
+for slug, full_name in MONITOR_FULL_NAMES.items():
+    for page in STANDARD_PAGES:
+        path = f"{MONITORS_DIR}/{slug}/{page}.html"
+        if not os.path.exists(path): continue
+        with open(path) as _f: _c = _f.read()
+        _title_m = _re3.search(r'<title>([^<]+)</title>', _c)
+        if not _title_m:
+            warn(f"{slug}/{page}.html — missing <title> tag")
+            continue
+        _title = _title_m.group(1)
+        _name_clean = full_name.replace('&', '&amp;')
+        if full_name.lower() not in _title.lower() and _name_clean.lower() not in _title.lower():
+            warn(f"{slug}/{page}.html — title missing full monitor name: '{_title}'")
+        if 'asymmetric intelligence' not in _title.lower():
+            warn(f"{slug}/{page}.html — title missing '· Asymmetric Intelligence' suffix: '{_title}'")
+
 # ── Summary ───────────────────────────────────────────────────────────────
 print()
 if warnings:
