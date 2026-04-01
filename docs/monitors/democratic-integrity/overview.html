@@ -152,7 +152,9 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var meta   = d.meta || {};
-      var signal = d.signal || '';
+      var signalObj = d.signal || {};
+      var signal = signalObj.headline || '';
+      var signalBody = signalObj.body || '';
       var heatmap = d.heatmap || {};
       var rd = (heatmap.rapid_decay || []).length;
       var rc = (heatmap.recovery   || []).length;
@@ -162,6 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
       card.innerHTML =
         '<div class="card__label">Issue ' + escHtml(meta.issue || '—') + ' · ' + escHtml(meta.week_label || '') + '</div>' +
         '<div class="card__title" style="margin-bottom:var(--space-3)">' + escHtml(signal) + '</div>' +
+          (signalBody ? '<div class="card__body">' + escHtml(signalBody) + '</div>' : '') +
         '<div class="card__body">' +
           '<span class="severity-badge severity-badge--rapid-decay" style="margin-right:var(--space-2)">' + rd + ' Rapid Decay</span>' +
           '<span class="severity-badge severity-badge--recovery" style="margin-right:var(--space-2)">' + rc + ' Recovery</span>' +
