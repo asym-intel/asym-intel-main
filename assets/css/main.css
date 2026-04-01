@@ -257,6 +257,44 @@ img, svg { display: block; max-width: 100%; }
 }
 
 
+/* ── Network bar mobile hamburger ────────────────────────────────────────── */
+.network-bar__hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #a8a7a4;
+  padding: 4px 0 4px 8px;
+  flex-shrink: 0;
+  line-height: 0;
+}
+.network-bar__dropdown {
+  display: none;
+  position: fixed;
+  top: 40px;
+  left: 0; right: 0;
+  background: #1a1918;
+  border-bottom: 1px solid #2d2c2a;
+  flex-direction: column;
+  z-index: 9998;
+}
+.network-bar__dropdown.network-bar__nav--open { display: flex; }
+.network-bar__dropdown a {
+  display: block;
+  padding: 0.65rem 1.5rem;
+  color: #a8a7a4;
+  text-decoration: none;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid #2d2c2a;
+  transition: color 0.15s;
+}
+.network-bar__dropdown a:last-child { border-bottom: none; }
+.network-bar__dropdown a:hover { color: #e0dfdc; }
+@media (max-width: 640px) {
+  .network-bar__hamburger { display: flex; align-items: center; }
+}
+
 /* ── Typography ──────────────────────────────────────────────────────────── */
 h1, h2, h3, h4 { line-height: 1.2; text-wrap: balance; }
 h1 {
