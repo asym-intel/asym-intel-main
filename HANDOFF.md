@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Session State
-**Date:** 2026-04-01 07:00 UTC | **Last commit:** e2efa166
+**Date:** 2026-04-01 07:00 UTC | **Last commit:** f529f86a
 **New thread prompt:** "Continuing asym-intel.info maintenance — please load the asym-intel skill first"
 
 ---
@@ -41,12 +41,12 @@ The `asym-intel` skill is saved to user skill library. Load it:
 
 ## Priority Outstanding Tasks
 
-### 1. nav.js → move to `<head>` — ON STAGING, AWAITING REVIEW ✅
+### ~~1. nav.js → move to `<head>`~~ — MERGED TO MAIN ✅
 **Why:** nav.js currently loads at bottom of `<body>`. The network bar is injected after content renders → invisible on mobile first paint. Moving to `<head>` fixes this.
 **How:** Edit all 57 `static/monitors/**/*.html` pages to move `<script src="../shared/js/nav.js">` from bottom of `<body>` to `<head>`.
 **Branch:** Pushed to `staging` — verify at https://staging.asym-intel.info/monitors/macro-monitor/dashboard.html on mobile, then PR to main.
 
-### 2. Mobile hamburger menu overlay — ON STAGING, AWAITING REVIEW ✅
+### ~~2. Mobile hamburger menu overlay~~ — MERGED TO MAIN ✅
 **Issue:** When hamburger opens on mobile, `.monitor-nav__links--open` renders as a full-screen overlay covering page content.
 **Fix:** In `base.css`, add `max-height: calc(100vh - 40px - 52px)` and `overflow-y: auto` to `.monitor-nav__links` mobile open state. Also ensure it doesn't cover the whole viewport.
 **Branch:** `staging` → verify → PR to main.
@@ -59,7 +59,7 @@ The `asym-intel` skill is saved to user skill library. Load it:
 - research_360.friction_notes (5 active), networks
 **Approach:** Push HTML files to `staging` first, verify, then PR to main. Then update cron prompt.
 
-### 4. Session-pushed changes that bypassed staging (KNOWN DEBT)
+### ~~4. Direct pushes bypassing staging~~ — PROCESS NOW ENFORCED ✅
 This entire session pushed directly to `main` before the staging rule was properly encoded. The main branch now has branch protection. Future sessions must use staging. No rollback needed — all changes were verified to build successfully.
 
 ---
@@ -125,5 +125,6 @@ This entire session pushed directly to `main` before the staging rule was proper
 15. `position:fixed` for network bar on ALL pages (Hugo and monitor) — sticky scrolls away
 16. GMM monitor.css was 200+ lines — component styles belong in base.css
 17. Hugo `--buildFuture` required: cron publish time races with Hugo build clock
+20. Chart.js CDN must be loaded before charts.js wrapper — add <script src="cdn.jsdelivr.net/npm/chart.js@4.4.4/..."> to <head> of any page using new Chart()
 19. Cron schedules now have hard file-scope constraints in the Computer task description itself — agents cannot touch HTML/CSS/JS even if confused by prompt content
 18. Two nav systems (Hugo partials + static HTML nav.js) must share the same CSS architecture
