@@ -523,6 +523,15 @@
       </ul>
     </section>
 
+    <!-- 10-Conflict Comparison Bar -->
+    <section class="module-section" id="section-conflict-overview">
+      <div class="module-header">
+        <div class="module-title">Conflict Overview — All Active Roster</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-3)">Highest single-indicator reading per conflict. Coloured by escalation trajectory. Click a bar to jump to that conflict's detail.</p>
+      <div id="conflict-overview-wrap"></div>
+    </section>
+
     <!-- CONFLICT ESCALATION CARDS -->
     <section class="module-section" id="section-conflict-cards">
       <div class="module-header">
@@ -943,6 +952,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('delta-strip').innerHTML = deltaHtml || '<li class="text-muted text-sm">No deviation data available.</li>';
 
     // Conflict escalation cards
+    renderConflictOverview(roster);
     renderConflictCards(roster);
 
     // Indicator breakdown chart
@@ -979,6 +989,60 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ── ESCALATION GAUGE ─────────────────────────────────────────────── */
+  // ── 10-Conflict Comparison Bar ─────────────────────────────────────────────────────
+  function renderConflictOverview(roster) {
+    var wrap = document.getElementById('conflict-overview-wrap');
+    if (!wrap || !roster.length) return;
+    var TRAJ_COLOURS = {
+      'Escalating':    '#dc2626',
+      'Stable':        '#64748b',
+      'De-escalating': '#059669',
+      'CONTESTED':     '#94a3b8'
+    };
+    // For each conflict: get max indicator reading (absolute level, pre-baseline)
+    var items = roster.map(function(c) {
+      var inds = c.indicators || {};
+      var maxLevel = 0;
+      var maxDev   = 0;
+      Object.keys(inds).forEach(function(k) {
+        var ind = inds[k] || {};
+        if ((ind.level || 0) > maxLevel) maxLevel = ind.level || 0;
+        if ((ind.deviation || 0) > maxDev)  maxDev   = ind.deviation || 0;
+      });
+      return {
+        conflict:  c.conflict || '?',
+        theatre:   c.theatre  || '',
+        trajectory: c.trajectory || 'Stable',
+        maxLevel:  maxLevel,
+        maxDev:    maxDev
+      };
+    });
+    // Sort by maxLevel descending
+    items.sort(function(a, b) { return b.maxLevel - a.maxLevel; });
+    var maxL = items[0] ? items[0].maxLevel : 5;
+    var html = '<div style="display:flex;flex-direction:column;gap:6px">';
+    items.forEach(function(item) {
+      var col = TRAJ_COLOURS[item.trajectory] || '#94a3b8';
+      var pct = Math.max(6, Math.round((item.maxLevel / 5) * 100));
+      var devStr = item.maxDev > 0 ? '+' + item.maxDev : (item.maxDev < 0 ? item.maxDev : '—');
+      html +=
+        '<div style="display:flex;align-items:center;gap:var(--space-3)" ' +
+            'role="button" tabindex="0" style="cursor:pointer" ' +
+            'onclick="var cards=document.getElementById(\'conflict-cards-wrap\');if(cards)cards.scrollIntoView({behavior:\'smooth\'});">' +
+          '<div style="width:180px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right;line-height:1.2">' +
+            escHtml(item.conflict) + '<br><span style="font-size:var(--text-min);opacity:0.6">' + escHtml(item.theatre) + '</span>' +
+          '</div>' +
+          '<div style="flex:1;height:22px;background:rgba(100,116,139,0.08);border-radius:3px;overflow:hidden">' +
+            '<div style="width:' + pct + '%;height:100%;background:' + col + ';opacity:0.75;border-radius:3px"></div>' +
+          '</div>' +
+          '<div style="width:28px;text-align:right;font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);flex-shrink:0">' + item.maxLevel + '/5</div>' +
+          '<div style="width:36px;text-align:right;font-size:var(--text-xs);font-weight:600;color:' + col + ';flex-shrink:0">' + devStr + '</div>' +
+        '</div>';
+    });
+    html += '</div><p style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted);font-style:italic">Bars show absolute indicator level (1–5). Deviation column (+N) shows change vs. baseline.</p>';
+    wrap.innerHTML = html;
+  }
+
   function renderEscalationGauge(roster) {
     // Count conflicts with high-severity DEVIATION indicators
     // Use deviation magnitude, not band (band is suppressed during CONTESTED period)
