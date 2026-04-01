@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-01",
+  "description": "Architecture Decision Records (ADRs) for asym-intel.info. Records WHY things are built the way they are — not just what. Every Computer session reads this at Step 0 before making structural changes.",
+  "decisions": [
+    {
+      "id": "SD-001",
+      "date": "2026-03-01",
+      "title": "overflow:clip not overflow:hidden on layout containers",
+      "decision": "Use overflow:clip on .monitor-layout, .monitor-main, and body. Never overflow:hidden.",
+      "rationale": "overflow:hidden on a parent creates a scroll container that silently breaks position:sticky on all children. overflow:clip suppresses scrollbar overflow without creating a scroll container, preserving sticky behaviour.",
+      "alternatives_rejected": ["overflow:hidden — breaks sticky nav on all 56 pages"],
+      "affects": ["base.css", "all 56 monitor HTML pages"],
+      "status": "active"
+    },
+    {
+      "id": "SD-002",
+      "date": "2026-03-01",
+      "title": "nav.js loaded in <head> not bottom of <body>",
+      "decision": "Load nav.js in <head> on all 56 pages, immediately after theme.js",
+      "rationale": "Loading nav.js at body bottom causes the network bar to be injected after page paint — visible as layout flash on mobile. Head loading ensures the bar is injected before first contentful paint.",
+      "alternatives_rejected": ["Bottom of body — acceptable on desktop, layout flash on mobile", "Deferred loading — unpredictable timing"],
+      "affects": ["all 56 monitor HTML pages"],
+      "status": "active — Outstanding Task #1 in COMPUTER.md (57 pages still need migration)"
+    },
+    {
+      "id": "SD-003",
+      "date": "2026-04-01",
+      "title": "color-mix() for accent colour on all light surfaces",
+      "decision": "All uses of --monitor-accent on white/light backgrounds use color-mix(in srgb, var(--monitor-accent) 65%, #000). This is enforced in base.css and applies globally.",
+      "rationale": "Raw --monitor-accent fails WCAG AA contrast ratio (4.5:1) on white for 5 of 7 monitors: WDM(#61a5d2, 2.69:1), GMM(#22a0aa, 3.15:1), FCW(#38bdf8, 2.14:1), ESA(#5b8db0, 3.57:1), ERM(#4caf7d, 2.71:1). The 65% mix produces minimum 4.8:1 across all monitors.",
+      "alternatives_rejected": ["Per-monitor darker accent variants — 7x maintenance and divergence risk", "Separate --accent-text tokens — additional token proliferation"],
+      "affects": [".kpi-card__value", ".card__label", ".signal-block background", "base.css"],
+      "status": "active"
+    },
+    {
+      "id": "SD-004",
+      "date": "2026-03-01",
+      "title": "base.css owns all component styles — monitor.css is accent-only (max 40 lines)",
+      "decision": "monitor.css is capped at 40 lines and contains only CSS custom property overrides (primarily --monitor-accent). All component styles live in base.css.",
+      "rationale": "Component styles duplicated in monitor.css diverge silently across 7 monitors — a bug fixed in base.css would need manual fixing 7 times if monitors own components. The 40-line cap is enforced by validate-blueprint.py.",
+      "alternatives_rejected": ["Full per-monitor stylesheets — 7x maintenance burden", "Shared base + optional per-monitor overrides — creep risk"],
+      "affects": ["all 7 monitor.css files", "base.css", "validate-blueprint.py Check 15"],
+      "status": "active"
+    },
+    {
+      "id": "SD-005",
+      "date": "2026-03-01",
+      "title": "Cron agents write JSON and Hugo briefs only — never HTML/CSS/JS",
+      "decision": "Domain cron agents are restricted to writing data files (report-latest.json, report-DATE.json, archive.json, persistent-state.json) and Hugo brief markdown. All frontend changes go through the site management Computer via staging → PR → merge workflow.",
+      "rationale": "Cron agents run on schedule without human oversight and cannot review visual output. Frontend changes require human sign-off to catch layout breaks. Mixing data writes with frontend changes creates unreviewed 3am deploys.",
+      "alternatives_rejected": ["Agents generating dashboard HTML — unreviewed frontend changes on schedule"],
+      "affects": ["all 7 cron prompts", "COMPUTER.md deployment rule"],
+      "status": "active"
+    },
+    {
+      "id": "SD-006",
+      "date": "2026-04-01",
+      "title": "Two-pass commit pattern for all cron agents",
+      "decision": "All 7 cron agents use a mandatory two-pass commit: Pass 1 = core sections committed immediately, Pass 2 = deep sections patched via gh API read-modify-PUT. Verification step required before Hugo brief.",
+      "rationale": "WDM Category B sections were silently missing from 3 consecutive issues because the cron hit LLM output limits before writing all sections. Two-pass splits the output load and includes an explicit verification check that errors if any key is missing.",
+      "real_world_case": "WDM Issues 1-3 missing 8 Category B sections (electoral_watch, digital_civil, autocratic_export, state_capture, institutional_pulse, legislative_watch, research_360, networks)",
+      "alternatives_rejected": ["Single larger commit — same truncation risk", "Separate cron runs — timing coordination complexity"],
+      "affects": ["all 7 cron prompts", "COMPUTER.md cron rules section"],
+      "status": "active"
+    },
+    {
+      "id": "SD-007",
+      "date": "2026-04-01",
+      "title": "Shared intelligence layer — three JSON files read by all cron agents",
+      "decision": "Three shared files in static/monitors/shared/ are read by all cron agents at Step 0B: intelligence-digest.json (cross-monitor flags), schema-changelog.json (required fields), monitor-schema-requirements.json (validation spec). Housekeeping cron compiles the digest weekly.",
+      "rationale": "Without a shared layer, each cron agent works in isolation. Cross-monitor flags existed in each monitor's JSON but were never aggregated — the WDM agent couldn't see GMM's credit stress flags. Schema changes were undocumented, causing agents to miss required fields.",
+      "alternatives_rejected": ["Agents read each other's full JSON directly — too much data, context bloat", "Manual synchronisation in Computer sessions — doesn't scale"],
+      "affects": ["all 7 cron prompts (Step 0B)", "housekeeping-cron-prompt.md (Checks 13-15)", "COMPUTER.md shared layer section"],
+      "status": "active"
+    },
+    {
+      "id": "SD-008",
+      "date": "2026-04-01",
+      "title": "Publish guard — day + hour + recency with hard exit on prompt reload",
+      "decision": "All 7 cron prompts begin with a three-condition guard: correct day of week, correct UTC hour, and >6 days since last publish. Any failed condition produces a hard exit. Explicitly states: 'A prompt reload is NOT a reason to publish.'",
+      "rationale": "5 monitors published off-schedule on 2026-04-01 after prompt file updates. The guards existed but were structured as conditional flows that agents could inadvertently skip. Hard exit + explicit prompt-reload prohibition closes both failure modes.",
+      "real_world_case": "WDM, GMM, FCW, ESA, AGM all published on Wednesday 2026-04-01 — wrong days, only 2 days after prior issue",
+      "alternatives_rejected": ["Soft guards with fallback paths — proved bypassable"],
+      "affects": ["all 7 cron prompts", "COMPUTER.md cron rules"],
+      "status": "active"
+    },
+    {
+      "id": "SD-009",
+      "date": "2026-04-01",
+      "title": "Global fix rule — never fix piecemeal, always fix in shared layer",
+      "decision": "When a bug is found on one monitor page, first check if it originates in a shared file (base.css, renderer.js, nav.js). If so, fix it in the shared file only — the fix propagates to all 7 monitors automatically. Never fix the same bug inline on individual pages.",
+      "rationale": "The WCAG contrast failure was fixed inline on ESA dashboard.html in one session. The same failure existed on WDM dashboard.html. The root fix belonged in base.css. Piecemeal fixes create divergence and maintenance debt.",
+      "real_world_case": "WCAG contrast: fixed in base.css as global rule (color-mix) — propagated to all 7 monitors simultaneously",
+      "alternatives_rejected": ["Per-page fixes — N monitors means N separate fixes, N opportunities for regression"],
+      "affects": ["base.css", "renderer.js", "all HTML pages", "COMPUTER.md centralised assets rule"],
+      "status": "active"
+    },
+    {
+      "id": "SD-010",
+      "date": "2026-04-01",
+      "title": "Monitor improvement workflow — audit tracking + methodology update on every sprint item",
+      "decision": "Every sprint item implementation follows 5 steps: (1) implement via staging→PR→merge, (2) mark ✅ in docs/audits/audit-{abbr}.md, (3) update HANDOFF.md, (4) update public methodology page if analytical method changed, (5) update cron prompt schema if data field changed.",
+      "rationale": "Without explicit tracking, sprint items were being implemented but not recorded — future sessions would re-audit the same gaps. Methodology pages were diverging from actual implementation.",
+      "affects": ["docs/audits/ all 7 files", "content/monitors/{slug}/methodology.md all 7", "HANDOFF.md", "COMPUTER.md v1.5+"],
+      "status": "active"
+    }
+  ]
+}
