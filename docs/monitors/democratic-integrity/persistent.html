@@ -156,6 +156,16 @@ document.addEventListener('DOMContentLoaded', function () {
     return '<span class="severity-badge severity-badge--' + cls + '">' + escHtml(status || '') + '</span>';
   }
 
+  Promise.all([
+    fetch('data/persistent-state.json').then(function(r){return r.json();}),
+    fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(results){
+    var d = results[0];
+    var report = results[1];
+    if (!d.cross_monitor_flags && report.cross_monitor_flags) {
+      d.cross_monitor_flags = report.cross_monitor_flags;
+    }
+  }).catch(function(){});
   fetch('data/persistent-state.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
