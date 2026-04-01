@@ -473,3 +473,70 @@ window.AsymPersistent = (function () {
     escHtml: escHtml
   };
 }());
+
+
+/* ─── Country Flag Utility ───────────────────────────────────
+   AsymRenderer.flag(code) — returns emoji flag for ISO 3166-1 alpha-2
+   or common abbreviations used across monitors.
+   Usage: AsymRenderer.flag('RU') → '🇷🇺'
+          AsymRenderer.flagLabel('RU') → '🇷🇺 RU'
+   ─────────────────────────────────────────────────────────── */
+
+(function () {
+  // Extended map covering all monitor-relevant country codes + abbreviations
+  var ALIASES = {
+    'RU': 'RU', 'RUSSIA': 'RU',
+    'US': 'US', 'USA': 'US', 'UNITED STATES': 'US',
+    'CN': 'CN', 'CHINA': 'CN',
+    'IL': 'IL', 'ISRAEL': 'IL',
+    'IR': 'IR', 'IRAN': 'IR',
+    'UA': 'UA', 'UKRAINE': 'UA',
+    'GB': 'GB', 'UK': 'GB',
+    'DE': 'DE', 'GERMANY': 'DE',
+    'FR': 'FR', 'FRANCE': 'FR',
+    'PL': 'PL', 'POLAND': 'PL',
+    'HU': 'HU', 'HUNGARY': 'HU',
+    'TR': 'TR', 'TURKEY': 'TR', 'TÜRKIYE': 'TR',
+    'KP': 'KP', 'DPRK': 'KP', 'NORTH KOREA': 'KP',
+    'KR': 'KR', 'SOUTH KOREA': 'KR',
+    'TW': 'TW', 'TAIWAN': 'TW',
+    'SD': 'SD', 'SUDAN': 'SD',
+    'MM': 'MM', 'MYANMAR': 'MM',
+    'HT': 'HT', 'HAITI': 'HT',
+    'CD': 'CD', 'DRC': 'CD',
+    'SA': 'SA', 'GULF': 'SA',
+    'IN': 'IN', 'INDIA': 'IN',
+    'JP': 'JP', 'JAPAN': 'JP',
+    'EU': 'EU',
+  };
+
+  function toEmoji(iso2) {
+    if (!iso2 || iso2.length !== 2) return '';
+    // EU is not a country — use a special rendering
+    if (iso2 === 'EU') return '🇪🇺';
+    var cp1 = iso2.toUpperCase().charCodeAt(0) - 65 + 0x1F1E6;
+    var cp2 = iso2.toUpperCase().charCodeAt(1) - 65 + 0x1F1E6;
+    return String.fromCodePoint(cp1) + String.fromCodePoint(cp2);
+  }
+
+  function flag(code) {
+    if (!code) return '';
+    var upper = String(code).toUpperCase().trim();
+    var iso = ALIASES[upper] || (upper.length === 2 ? upper : null);
+    if (!iso) return '';
+    return toEmoji(iso);
+  }
+
+  function flagLabel(code) {
+    var f = flag(code);
+    if (!f) return code || '';
+    return f + ' ' + code.toUpperCase();
+  }
+
+  // Attach to AsymRenderer if available, otherwise to window directly
+  if (window.AsymRenderer) {
+    window.AsymRenderer.flag = flag;
+    window.AsymRenderer.flagLabel = flagLabel;
+  }
+  window.AsymFlag = { flag: flag, flagLabel: flagLabel };
+}());
