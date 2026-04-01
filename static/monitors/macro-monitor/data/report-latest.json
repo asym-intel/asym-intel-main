@@ -18,7 +18,13 @@
     "regime_conviction": "HIGH",
     "delta_vs_prior": -0.007,
     "no_tactical_alerts": true,
-    "source_url": "https://asym-intel.info/monitors/macro-monitor/2026-04-01-weekly-brief/"
+    "source_url": "https://asym-intel.info/monitors/macro-monitor/2026-04-01-weekly-brief/",
+    "regime_shift_probabilities": {
+      "stay_stagflation": 0.6,
+      "deflationary_bust": 0.25,
+      "inflationary_boom": 0.1,
+      "goldilocks": 0.05
+    }
   },
   "debt_dynamics": [
     {
@@ -383,9 +389,14 @@
     "base_case_probability": 0.55,
     "source_url": "https://asym-intel.info/monitors/macro-monitor/2026-04-01-weekly-brief/",
     "real_m2": {
-      "value": 1.78,
+      "nominal": 4.88,
+      "vs_cpi": 2.48,
+      "vs_pce": 2.08,
+      "vs_core_pce": 1.78,
+      "vs_ppi": 1.48,
+      "vs_core_ppi": 0.98,
       "direction": "Deteriorating",
-      "note": "Real M2 vs. Core PCE +1.78% and narrowing \u2014 nominal M2 (+4.88%) is masking the compression in real liquidity growth"
+      "note": "Real M2 vs. Core PCE +1.78% and narrowing \u2014 nominal M2 (+4.88%) masks the compression in real liquidity growth; vs. Core PPI only +0.98%, signalling the transmission mechanism is nearly exhausted"
     },
     "hard_landing_risk": {
       "score": 0.38,
@@ -414,7 +425,13 @@
         "horizon": "4\u20136 weeks",
         "description": "Private credit gate events escalate to CLO and IG contagion; VIX spikes above 40; hard landing probability surges; Fed forced to emergency cut; equities -20%+"
       }
-    ]
+    ],
+    "regime_shift_probabilities": {
+      "stay_stagflation": 0.6,
+      "deflationary_bust": 0.25,
+      "inflationary_boom": 0.1,
+      "goldilocks": 0.05
+    }
   },
   "domain_indicators": {
     "domain_1_debt_sovereign": [
@@ -426,7 +443,8 @@
         "direction": "Deteriorating",
         "reading": "$38T debt; FY2026 deficit tracking ~$1.9T (7.2% GDP); US refinancing $10T this year",
         "update_this_week": "OECD Global Debt Report 2026: US accounts for 70% of OECD refinancing requirements ($9.5T of $13.5T total), up from 57% in 2020. IMF Article IV warns general government debt reaches 140% GDP by 2030.",
-        "source_url": "https://www.edwardconard.com/macro-roundup/across-the-oecd-last-year-13-5t-of-governmental-debt-needed-refinancing-70-9-5t-of-which-was-us-debt-up-from-57-in-2020-the-us-and-japan-were-outliers-in-refinancing-requirements-relative-to-g/?view=detail"
+        "source_url": "https://www.edwardconard.com/macro-roundup/across-the-oecd-last-year-13-5t-of-governmental-debt-needed-refinancing-70-9-5t-of-which-was-us-debt-up-from-57-in-2020-the-us-and-japan-were-outliers-in-refinancing-requirements-relative-to-g/?view=detail",
+        "indicator_type": "SA"
       },
       {
         "indicator": "Japan JGB Yields",
@@ -436,7 +454,8 @@
         "direction": "Deteriorating",
         "reading": "30yr JGB above 3.5%; BoJ pain threshold breached; ~\u00a5400T life insurer/pension holdings at risk",
         "update_this_week": "Unchanged from prior week \u2014 persistent stress.",
-        "source_url": "https://tradingeconomics.com/japan/30-year-bond-yield"
+        "source_url": "https://tradingeconomics.com/japan/30-year-bond-yield",
+        "indicator_type": "SA"
       },
       {
         "indicator": "EM Sovereign Distress",
@@ -446,7 +465,8 @@
         "direction": "Stable",
         "reading": "EMBI spreads widening; Fragile Five individually stressed",
         "update_this_week": "Liberation Day tariffs add EM stress: Asia facing heaviest impact (China 34%, other Asian economies similarly hit). Coface estimates average effective rate 26.2%.",
-        "source_url": "https://www.coface.com/news-economy-and-insights/us-reciprocal-tariffs-trade-war-is-declared"
+        "source_url": "https://www.coface.com/news-economy-and-insights/us-reciprocal-tariffs-trade-war-is-declared",
+        "indicator_type": "SA"
       }
     ],
     "domain_2_banking_credit": [
@@ -458,7 +478,8 @@
         "direction": "Deteriorating",
         "reading": "Gate events confirmed at Ares (11.6% redemption requests, restricted to 5%), Apollo, Blackstone BCRED (first monthly loss in 3 years, Feb -0.4%)",
         "update_this_week": "MATERIAL ESCALATION: Ares Management restricted A Strategic Income fund redemptions to 5% after withdrawal requests hit 11.6% (Bloomberg, March 25). Apollo implemented similar restrictions. Blackstone BCRED marked down loans including Medallia (SaaS). Morgan Stanley maintains 8% default rate forecast for direct lending. Goldman Sachs (Vivek Bantwal) argues fundamentals strong but acknowledges retail outflow pressure is technical stress. CNBC: this is the first substantial liquidity test for private credit 'at scale'.",
-        "source_url": "https://www.cnbc.com/2026/03/25/private-credit-defaults-loan-quality-debt-risk-systemic-ai-disruption.html"
+        "source_url": "https://www.cnbc.com/2026/03/25/private-credit-defaults-loan-quality-debt-risk-systemic-ai-disruption.html",
+        "indicator_type": "SA"
       },
       {
         "indicator": "CRE Delinquency",
@@ -468,7 +489,8 @@
         "direction": "Deteriorating",
         "reading": "CMBS office 12.34% \u2014 all-time high, approaching GFC peak (~13%)",
         "update_this_week": "Unchanged \u2014 persistent structural deterioration.",
-        "source_url": "https://www.trepp.com/"
+        "source_url": "https://www.trepp.com/",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Fed SLOOS",
@@ -478,7 +500,8 @@
         "direction": "Stable",
         "reading": "Modest net tightening; not distress-level",
         "update_this_week": "No new SLOOS data this week.",
-        "source_url": "https://www.federalreserve.gov/data/sloos.htm"
+        "source_url": "https://www.federalreserve.gov/data/sloos.htm",
+        "indicator_type": "TS"
       },
       {
         "indicator": "G-SIB Capital",
@@ -488,7 +511,8 @@
         "direction": "Deteriorating",
         "reading": "$45.2B capital reduction approved; buffer thinning",
         "update_this_week": "Unchanged.",
-        "source_url": "https://www.federalreserve.gov/"
+        "source_url": "https://www.federalreserve.gov/",
+        "indicator_type": "CC"
       }
     ],
     "domain_3_market_structure": [
@@ -500,7 +524,8 @@
         "direction": "Escalating",
         "reading": "Liberation Day April 2: 10%+ reciprocal tariffs on all trading partners; China 34%, EU 20%, Japan 24%; average effective rate 26.2% \u2014 highest since Smoot-Hawley 1930",
         "update_this_week": "MAJOR ESCALATION: Trump announced 'reciprocal' tariffs on all countries on April 2 ('Liberation Day'), effective April 5 for base 10%, April 9 for higher rates. China 34%, EU 20%, Japan 24%. Coface: average effective rate 26.2% vs 2.3% in 2024 \u2014 most abrupt change since Smoot-Hawley. Canada retaliating with 25% on US cars. EU Anti-Coercion Instrument possible. April 3 auto tariffs (25%) already in force. April 9 CIT court hearing on Section 122 authority is the primary reversal catalyst.",
-        "source_url": "https://www.coface.com/news-economy-and-insights/us-reciprocal-tariffs-trade-war-is-declared"
+        "source_url": "https://www.coface.com/news-economy-and-insights/us-reciprocal-tariffs-trade-war-is-declared",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Oil / Supply Shock",
@@ -511,7 +536,8 @@
         "reading": "Brent peaked $126/bbl; EIA Q2 2026 avg forecast $91/bbl; Hormuz flows at ~4M bpd (vs normal 16M); Gulf producers cutting 10M bpd",
         "current_driver": "Iran conflict / Hormuz restriction \u2014 largest supply disruption in history of global oil market",
         "update_this_week": "MATERIAL ESCALATION since March 24 baseline: Brent hit $126/bbl peak (intellectia.ai, March 23), Dubai crude $166.80/bbl. JPMorgan: Hormuz flows plummeted to ~4M bpd from normal 16M. EIA STEO raised 2026 Brent forecast to $78.84/bbl avg (was $57.69), Q2 avg ~$91/bbl. Goldman Sachs $18/bbl risk premium. Fed March FOMC explicitly cited Iran conflict as clouding policy path. EIA: shut-in production peaks early April, mainly Iraq.",
-        "source_url": "https://www.reuters.com/business/energy/oil-prices-expected-stay-high-days-all-eyes-strait-hormuz-flows-2026-03-02/"
+        "source_url": "https://www.reuters.com/business/energy/oil-prices-expected-stay-high-days-all-eyes-strait-hormuz-flows-2026-03-02/",
+        "indicator_type": "TS"
       },
       {
         "indicator": "Consumer Confidence",
@@ -521,7 +547,8 @@
         "direction": "Deteriorating",
         "reading": "UMich final March 2026: 53.3 \u2014 revised DOWN from 55.5 preliminary; below GFC November 2008 trough (55.3)",
         "update_this_week": "MATERIAL DETERIORATION: Final reading revised to 53.3 (Chronicle-Journal/Trading Economics, March 30\u201331). This is the 2026 low and below the November 2008 GFC trough (55.3) \u2014 previously our crisis threshold. 'Soft landing is in jeopardy; inflation expectations are unmooring' (Chronicle-Journal). Conference Board March index only 91.8 \u2014 Expectations sub-index at 70.9 (below 80 = recession signal historically).",
-        "source_url": "https://tradingeconomics.com/united-states/consumer-confidence"
+        "source_url": "https://tradingeconomics.com/united-states/consumer-confidence",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Federal Reserve Policy",
@@ -531,7 +558,8 @@
         "direction": "Deteriorating",
         "reading": "Fed held at 3.50\u20133.75% March 18; upgraded 2026 inflation forecast to 2.7% PCE; market now pricing zero cuts in 2026 (vs two cuts priced at start of year)",
         "update_this_week": "Fed March 18 meeting: held rates, upgraded PCE forecast to 2.7%, longer-run rate raised to 3.1%. Powell 'wait-and-see' on Iran impact. FedWatch: market pricing ~4% probability of hike at April meeting, 0% cut. JPMorgan Chase strategists: one 0.25% cut still expected by year-end. IMF Article IV (Feb): baseline calls for 3.25\u20133.50% by end 2026. Policy trap deepening: Hormuz oil shock adds inflationary pressure exactly when consumer confidence breaks GFC trough.",
-        "source_url": "https://www.chase.com/personal/investments/learning-and-insights/article/march-2026-federal-reserve-holds-interest-rates-steady"
+        "source_url": "https://www.chase.com/personal/investments/learning-and-insights/article/march-2026-federal-reserve-holds-interest-rates-steady",
+        "indicator_type": "CC"
       }
     ],
     "domain_4_real_economy": [
@@ -543,7 +571,8 @@
         "direction": "Recovering but cost-pressured",
         "reading": "52.4 \u2014 expansion with cost-push inflation caveat",
         "crisis_threshold": "PMI <45 sustained",
-        "source_url": "https://www.ismworld.org/"
+        "source_url": "https://www.ismworld.org/",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Jobless Claims",
@@ -553,7 +582,8 @@
         "direction": "Deteriorating",
         "reading": "205K claims; Feb payrolls -92K \u2014 unusual divergence; AI displacement may be masking labour weakness",
         "crisis_threshold": "Claims >300K; payrolls -200K+",
-        "source_url": "https://www.bls.gov/"
+        "source_url": "https://www.bls.gov/",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Cass Freight Index",
@@ -563,7 +593,8 @@
         "direction": "Deteriorating",
         "reading": "-7.2% YoY; -12.3% two-year stacked \u2014 inside sustained contraction territory",
         "crisis_threshold": "Sustained >10% YoY declines",
-        "source_url": "https://www.cassinfo.com/"
+        "source_url": "https://www.cassinfo.com/",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Consumer Confidence",
@@ -573,7 +604,8 @@
         "direction": "Deteriorating",
         "reading": "UMich final March 2026: 53.3 \u2014 revised down from 55.5; BELOW GFC November 2008 trough (55.3)",
         "crisis_threshold": "Sustained <55 (now breached)",
-        "source_url": "https://tradingeconomics.com/united-states/consumer-confidence"
+        "source_url": "https://tradingeconomics.com/united-states/consumer-confidence",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Earnings Revisions",
@@ -584,7 +616,8 @@
         "reading": "+12.5% Q1 est. \u2014 suppressed by buyback distortion (see Blind Spot Rule 1); Q1 earnings season starts this week",
         "crisis_threshold": "Revision breadth <40%",
         "blind_spot_rule": "Rule 1 active \u2014 score may be suppressed by buyback distortion and non-GAAP adjustments",
-        "source_url": "https://www.factset.com/"
+        "source_url": "https://www.factset.com/",
+        "indicator_type": "CC"
       }
     ],
     "domain_5_composite_indices": [
@@ -596,7 +629,8 @@
         "direction": "Deteriorating",
         "reading": "-0.299 (44% deterioration in 6 weeks from baseline)",
         "crisis_threshold": "0 = neutral; >1 = elevated; >2 = crisis",
-        "source_url": "https://fred.stlouisfed.org/series/STLFSI4"
+        "source_url": "https://fred.stlouisfed.org/series/STLFSI4",
+        "indicator_type": "CC"
       },
       {
         "indicator": "NFCI",
@@ -606,7 +640,8 @@
         "direction": "Tightening",
         "reading": "-0.486 (5-week tightening trend)",
         "crisis_threshold": "0 = neutral; positive = tight",
-        "source_url": "https://www.chicagofed.org/"
+        "source_url": "https://www.chicagofed.org/",
+        "indicator_type": "CC"
       },
       {
         "indicator": "IIF Global Debt Monitor",
@@ -616,7 +651,8 @@
         "direction": "Accelerating",
         "reading": "Record $348T global debt; OECD borrowing projected $18T in 2026; US accounts for 70% of OECD refinancing",
         "crisis_threshold": "Global debt/GDP >310% (at threshold)",
-        "source_url": "https://www.iif.com/"
+        "source_url": "https://www.iif.com/",
+        "indicator_type": "CC"
       },
       {
         "indicator": "0DTE Volume Ratio",
@@ -626,7 +662,8 @@
         "direction": "Structural increase",
         "reading": "59% of SPX volume is 0DTE \u2014 structural fragility amplifier",
         "crisis_threshold": "No established threshold",
-        "source_url": "https://www.cboe.com/"
+        "source_url": "https://www.cboe.com/",
+        "indicator_type": "CC"
       }
     ],
     "domain_6_amplifiers": [
@@ -638,7 +675,8 @@
         "direction": "Escalating",
         "reading": "Liberation Day April 2: 10%+ reciprocal tariffs on all countries; China 34%, EU 20%, Japan 24%; avg effective rate 26.2% \u2014 highest since Smoot-Hawley 1930",
         "crisis_threshold": "Effective rate ~25-30% (Smoot-Hawley levels) \u2014 breached",
-        "source_url": "https://www.coface.com/news-economy-and-insights/us-reciprocal-tariffs-trade-war-is-declared"
+        "source_url": "https://www.coface.com/news-economy-and-insights/us-reciprocal-tariffs-trade-war-is-declared",
+        "indicator_type": "CC"
       },
       {
         "indicator": "Oil / Supply Shock",
@@ -648,7 +686,8 @@
         "direction": "Deteriorating",
         "reading": "Brent peaked $126/bbl; Hormuz flows ~4M bpd (vs normal 16M); EIA Q2 2026 avg $91/bbl; largest supply disruption in history",
         "crisis_threshold": "Supply disruption >30 days = $120-150/bbl (reached)",
-        "source_url": "https://www.reuters.com/business/energy/oil-prices-expected-stay-high-days-all-eyes-strait-hormuz-flows-2026-03-02/"
+        "source_url": "https://www.reuters.com/business/energy/oil-prices-expected-stay-high-days-all-eyes-strait-hormuz-flows-2026-03-02/",
+        "indicator_type": "TS"
       },
       {
         "indicator": "Dollar Weaponisation",
@@ -658,7 +697,8 @@
         "direction": "Structural erosion",
         "reading": "USD reserve share ~58% (from 71% in 2001); gold surpassed Treasuries in global CB reserves",
         "crisis_threshold": "Reserve share <50%",
-        "source_url": "https://www.imf.org/en/Data"
+        "source_url": "https://www.imf.org/en/Data",
+        "indicator_type": "CC"
       },
       {
         "indicator": "AI Infrastructure Debt",
@@ -668,7 +708,8 @@
         "direction": "Accelerating",
         "reading": "$660-690B capex 2026; $750B hyperscaler capex with energy lock-in; $1.5T debt projected; capex/revenue 45-57%",
         "crisis_threshold": "Capex/revenue >60%; AI ROI failure",
-        "source_url": "https://www.goldmansachs.com/"
+        "source_url": "https://www.goldmansachs.com/",
+        "indicator_type": "CC"
       }
     ]
   },
@@ -721,5 +762,52 @@
       "direction": "Stable",
       "note": "[Medium] $10T US debt refinancing in 2026 at elevated rates; 70% of OECD refinancing requirement concentrated in one sovereign."
     }
-  ]
+  ],
+  "sentiment_overlay": {
+    "fed_funds_futures": [
+      {
+        "meeting": "Apr 28\u201329",
+        "meeting_date": "2026-04-29",
+        "weeks_ahead": 4,
+        "cut_probability": 0.02,
+        "our_view": "AGREES",
+        "note": "Hold certain \u2014 Liberation Day tariffs eliminate any near-term cut window"
+      },
+      {
+        "meeting": "Jun 16\u201317",
+        "meeting_date": "2026-06-17",
+        "weeks_ahead": 11,
+        "cut_probability": 0.14,
+        "our_view": "AGREES",
+        "note": "Unlikely \u2014 stagflation regime prevents pre-emptive cut"
+      },
+      {
+        "meeting": "Jul 28\u201329",
+        "meeting_date": "2026-07-29",
+        "weeks_ahead": 17,
+        "cut_probability": 0.35,
+        "our_view": "DISAGREES",
+        "note": "Market pricing too aggressive \u2014 inflation re-acceleration risk from tariff pass-through"
+      },
+      {
+        "meeting": "Sep 15\u201316",
+        "meeting_date": "2026-09-16",
+        "weeks_ahead": 24,
+        "cut_probability": 0.42,
+        "our_view": "DISAGREES",
+        "note": "Only if hard landing materialises; stagflation base case precludes"
+      },
+      {
+        "meeting": "Dec 8\u20139",
+        "meeting_date": "2026-12-09",
+        "weeks_ahead": 36,
+        "cut_probability": 0.76,
+        "our_view": "DISAGREES",
+        "note": "Year-end cumulative cuts priced too high; Macquarie base case is a hike in H1 2027"
+      }
+    ],
+    "prob_zero_cuts_2026": 0.22,
+    "matt_agreement_pct": 0.4,
+    "source_url": "https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html"
+  }
 }
