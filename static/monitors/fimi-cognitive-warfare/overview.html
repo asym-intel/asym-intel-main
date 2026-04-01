@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIMI &amp; Cognitive Warfare Monitor — Overview</title>
+  <meta name="description" content="Weekly intelligence on Foreign Information Manipulation and Interference (FIMI) and cognitive warfare operations. Multi-actor, open-source tracking — Russia, China, Iran, Gulf states, and commercial operators.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+</head>
+
+<body>
+<style>
+body{padding-top:40px!important}
+/* WDM/blueprint monitors: monitor-nav and sidebar offset */
+.monitor-nav{top:40px!important}
+.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}
+/* Legacy monitor overrides (pre-blueprint) */
+nav.sidebar,#sidebar,.sidebar-header{top:40px!important}
+nav.sidebar{height:calc(100vh - 40px)!important}
+.left-nav{top:40px!important;height:calc(100vh - 40px)!important}
+.header:not([data-asym-network-bar]){top:40px!important}
+nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}
+</style><nav data-asym-network-bar style="height:40px;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1a1918;border-bottom:1px solid #2d2c2a;font-family:'Satoshi','Inter',sans-serif;font-size:13px;letter-spacing:0.02em;display:flex;align-items:center;padding:0 24px;gap:1.5rem;"><a href="https://asym-intel.info" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;color:#e0dfdc;font-weight:500;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/><rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/><rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/></svg><span>Asymmetric Intelligence</span></a><div style="flex:1"></div><nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections"><a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a><a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a><a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a></nav></nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
+
+</nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 36 36" fill="none" aria-hidden="true" style="flex-shrink:0">
+  <circle cx="18" cy="18" r="14" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+  <circle cx="18" cy="18" r="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/>
+  <circle cx="18" cy="18" r="4" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.35"/>
+  <line x1="18" y1="4" x2="18" y2="32" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/>
+  <line x1="4" y1="18" x2="32" y2="18" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/>
+  <circle cx="18" cy="18" r="2" fill="#dc2626"/>
+  <circle cx="26" cy="10" r="1.5" fill="#dc2626" opacity="0.8"/>
+  <circle cx="10" cy="24" r="1" fill="var(--monitor-accent)" opacity="0.9"/>
+</svg>
+    <span>FIMI &amp; Cognitive Warfare Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html" class="active">Overview</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="search.html">Search</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="methodology.html">Methodology</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <section class="module-section" id="section-overview">
+      <div class="page-header">
+        <div class="page-header__eyebrow">FCW · Asymmetric Intelligence</div>
+        <h1 class="page-header__title">FIMI &amp; Cognitive Warfare Monitor</h1>
+        <p class="page-header__sub">
+          The FIMI &amp; Cognitive Warfare Monitor tracks Foreign Information Manipulation and Interference (FIMI) and cognitive warfare operations across all state and near-state actors. Multi-actor scope: Russia, China, Iran, Gulf states, Israel, US-linked entities, and commercial operators. Sources: EEAS, DFRLab, Stanford Internet Observatory (SIO), Google TAG, Meta CIB, ASPI ICPC, and investigative journalism outlets. Published every Thursday at 09:00 UTC.
+        </p>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-latest">
+      <div class="module-header">
+        <div class="module-title">Latest Issue</div>
+      </div>
+      <div id="latest-card" class="card">
+        <div class="loading-state">Loading latest issue…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-archive">
+      <div class="module-header">
+        <div class="module-title">Archive</div>
+      </div>
+      <div id="archive-list">
+        <div class="loading-state">Loading archive…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-overview">Overview</a></li>
+      <li><a href="#section-latest">Latest Issue</a></li>
+      <li><a href="#section-archive">Archive</a></li>
+    </ul>
+
+    <div style="padding:var(--space-6) var(--space-4) var(--space-4);border-top:1px solid var(--color-border-subtle);margin-top:var(--space-4)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+  <circle cx="18" cy="18" r="14" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+  <circle cx="18" cy="18" r="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/>
+  <circle cx="18" cy="18" r="4" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.35"/>
+  <line x1="18" y1="4" x2="18" y2="32" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/>
+  <line x1="4" y1="18" x2="32" y2="18" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/>
+  <circle cx="18" cy="18" r="2" fill="#dc2626"/>
+  <circle cx="26" cy="10" r="1.5" fill="#dc2626" opacity="0.8"/>
+  <circle cx="10" cy="24" r="1" fill="var(--monitor-accent)" opacity="0.9"/>
+</svg>
+      <div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5">Weekly intelligence on FIMI and cognitive warfare. Multi-actor scope. Published Thursdays.</div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4)">
+        <a href="dashboard.html" class="btn btn--primary" style="justify-content:center;font-size:var(--text-xs)">Dashboard →</a>
+        <a href="report.html" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Latest Issue →</a>
+        <a href="https://asym-intel.info/subscribe/" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Subscribe →</a>
+      </div>
+    </div>
+  </nav>
+
+</div>
+
+<footer class="monitor-footer">
+  <span>FIMI &amp; Cognitive Warfare Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
+  <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
+</footer>
+
+<script src="../shared/js/nav.js"></script>
+<script src="../shared/js/renderer.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function escHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Load latest issue card
+  fetch('data/report-latest.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var meta = d.meta || {};
+      var signalObj = d.signal || {};
+      var signal = signalObj.headline || '';
+      var signalBody = signalObj.note || signalObj.actor || '';
+      var campaigns = d.campaigns || d.active_campaigns || {};
+      var campaignCount = 0;
+      if (Array.isArray(campaigns)) {
+        campaignCount = campaigns.length;
+      } else if (typeof campaigns === 'object') {
+        Object.keys(campaigns).forEach(function (k) {
+          campaignCount += (campaigns[k] || []).length;
+        });
+      }
+
+      var card = document.getElementById('latest-card');
+      card.innerHTML =
+        '<div class="card__label">Issue ' + escHtml(meta.issue || '—') + ' · ' + escHtml(meta.week_label || '') + '</div>' +
+        '<div class="card__title" style="margin-bottom:var(--space-3)">' + escHtml(signal) + '</div>' +
+        (signalBody ? '<div class="card__body">' + escHtml(signalBody) + '</div>' : '') +
+        '<div class="card__footer">' +
+          '<a class="btn btn--primary" href="dashboard.html">Dashboard →</a>' +
+          '<a class="btn btn--outline" href="report.html">Full Report →</a>' +
+        '</div>';
+    })
+    .catch(function () {
+      document.getElementById('latest-card').innerHTML = '<div class="error-state">Failed to load latest issue data.</div>';
+    });
+
+  // Load archive list
+  fetch('data/archive.json')
+    .then(function (r) { return r.json(); })
+    .then(function (issues) {
+      var list = document.getElementById('archive-list');
+      if (!issues || !issues.length) {
+        list.innerHTML = '<p class="text-muted">No archived issues yet.</p>';
+        return;
+      }
+      var html = '';
+      issues.slice().reverse().forEach(function (issue) {
+        var pub = issue.published
+          ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})
+          : '';
+        html +=
+          '<div class="archive-entry">' +
+            '<div class="archive-entry__date">' + escHtml(pub) + '</div>' +
+            '<div>' +
+              '<div class="archive-entry__issue">Issue ' + escHtml(issue.issue || '—') + ' · ' + escHtml(issue.week_label || '') + '</div>' +
+              '<div class="archive-entry__signal">' + escHtml(issue.signal || '') + '</div>' +
+              (issue.source_url
+                ? '<a class="archive-entry__link" href="' + escHtml(issue.source_url) + '" target="_blank" rel="noopener">Full brief →</a>'
+                : '') +
+            '</div>' +
+          '</div>';
+      });
+      list.innerHTML = html;
+    })
+    .catch(function () {
+      document.getElementById('archive-list').innerHTML = '<div class="error-state">Failed to load archive data.</div>';
+    });
+});
+</script>
+</body>
+</html>
