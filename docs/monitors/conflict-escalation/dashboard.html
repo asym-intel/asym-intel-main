@@ -7,6 +7,8 @@
   <meta name="description" content="Live dashboard for the Strategic Conflict &amp; Escalation Monitor. KPIs, lead signal, delta strip, and conflict roster summary.">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="../shared/js/charts.js"></script>
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
   <style>
@@ -58,7 +60,7 @@
       color: #f87171;
     }
     .fflag-cell__status {
-      font-size: 0.6rem;
+      font-size: var(--text-min);
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -71,7 +73,7 @@
       color: #f87171;
     }
     .fflag-cell__conflict {
-      font-size: 0.6rem;
+      font-size: var(--text-min);
       font-weight: 600;
       color: var(--color-text-secondary);
       line-height: 1.3;
@@ -82,7 +84,7 @@
       position: absolute;
       top: 6px;
       right: 8px;
-      font-size: 0.65rem;
+      font-size: var(--text-min);
       font-weight: 700;
       color: #dc2626;
       background: rgba(220, 38, 38, 0.1);
@@ -104,7 +106,7 @@
       flex-wrap: wrap;
       gap: var(--space-2) var(--space-4);
       margin-top: var(--space-2);
-      font-size: 0.65rem;
+      font-size: var(--text-min);
       color: var(--color-text-muted);
     }
     .fflag-def { display: flex; gap: 4px; align-items: baseline; }
@@ -168,7 +170,7 @@
     .conflict-card__dot--moderate { background: #2563eb; }
     .conflict-card__dot--positive { background: #059669; }
     .conflict-card__theatre {
-      font-size: 0.65rem;
+      font-size: var(--text-min);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -184,12 +186,12 @@
       padding-top: var(--space-2);
     }
     .conflict-card__trajectory {
-      font-size: 0.65rem;
+      font-size: var(--text-min);
       color: var(--color-text-secondary);
       font-weight: 600;
     }
     .conflict-card__band {
-      font-size: 0.6rem;
+      font-size: var(--text-min);
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -264,7 +266,7 @@
     [data-theme="dark"] .escalation-gauge-zone--high     { background: rgba(217,119,6,0.22); }
     [data-theme="dark"] .escalation-gauge-zone--critical { background: rgba(220,38,38,0.25); }
     .escalation-gauge-zone__label {
-      font-size: 0.6rem;
+      font-size: var(--text-min);
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -298,7 +300,7 @@
     }
     .escalation-gauge-labels > span {
       flex: 1;
-      font-size: 0.6rem;
+      font-size: var(--text-min);
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--color-text-muted);
@@ -309,6 +311,91 @@
       color: var(--color-text-muted);
       margin-top: var(--space-3);
       line-height: 1.5;
+    }
+
+    /* ── INDICATOR BREAKDOWN ─────────────────────────────────────────── */
+    .indicator-breakdown-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      flex-wrap: wrap;
+    }
+    .indicator-breakdown-controls label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+    }
+    .indicator-breakdown-select {
+      font-size: var(--text-sm);
+      font-family: inherit;
+      color: var(--color-text);
+      background: var(--color-bg-alt);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 6px 10px;
+      cursor: pointer;
+      flex: 1;
+      min-width: 0;
+      max-width: 360px;
+    }
+    .indicator-breakdown-select:focus {
+      outline: none;
+      border-color: var(--monitor-accent, #4f98a3);
+    }
+    .indicator-breakdown-chart-wrap {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+    .indicator-breakdown-canvas-container {
+      position: relative;
+      height: 260px;
+    }
+    .indicator-note-panel {
+      margin-top: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-bg-alt);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      display: none;
+    }
+    .indicator-note-panel.visible {
+      display: block;
+    }
+    .indicator-note-label {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-1);
+    }
+    .indicator-breakdown-legend {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-top: var(--space-3);
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+    }
+    .indicator-breakdown-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .indicator-breakdown-legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -455,6 +542,28 @@
       </div>
     </section>
 
+
+    <!-- INDICATOR BREAKDOWN -->
+    <section class="module-section" id="indicator-breakdown">
+      <div class="module-header">
+        <div class="module-title">Indicator Breakdown</div>
+      </div>
+      <div class="indicator-breakdown-controls">
+        <label for="indicator-conflict-select">Conflict:</label>
+        <select id="indicator-conflict-select" class="indicator-breakdown-select" aria-label="Select conflict for indicator breakdown"></select>
+      </div>
+      <div class="indicator-breakdown-chart-wrap">
+        <div class="indicator-breakdown-canvas-container">
+          <canvas id="indicator-breakdown-chart" aria-label="Indicator breakdown horizontal bar chart"></canvas>
+        </div>
+        <div class="indicator-breakdown-legend" id="indicator-breakdown-legend"></div>
+        <div class="indicator-note-panel" id="indicator-note-panel">
+          <div class="indicator-note-label" id="indicator-note-label">Indicator Note</div>
+          <div id="indicator-note-text"></div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -467,6 +576,7 @@
       <li><a href="#section-delta">Delta Strip</a></li>
       <li><a href="#section-conflict-cards">Active Conflicts</a></li>
       <li><a href="#section-roster">Conflict Roster</a></li>
+      <li><a href="#indicator-breakdown">Indicator Breakdown</a></li>
     </ul>
   </nav>
 </div>
@@ -476,6 +586,280 @@
   <span class="monitor-footer__credit">Produced with <a href="https://www.perplexity.ai/computer">Perplexity Computer</a></span>
 </footer>
 <script src="../shared/js/renderer.js"></script>
+<script>
+/* ── INDICATOR BREAKDOWN CHART ─────────────────────────────────────────── */
+(function () {
+  'use strict';
+
+  var INDICATOR_KEYS = [
+    'I1_rhetoric',
+    'I2_military_posture',
+    'I3_nuclear_strategic',
+    'I4_economic_warfare',
+    'I5_diplomatic',
+    'I6_displacement'
+  ];
+  var INDICATOR_LABELS = [
+    'I1 Rhetoric',
+    'I2 Military',
+    'I3 Nuclear',
+    'I4 Economic',
+    'I5 Diplomatic',
+    'I6 Displacement'
+  ];
+  var BAND_COLOURS = {
+    'CONTESTED': '#94a3b8',
+    'GREEN':     '#22c55e',
+    'NORMAL':    '#22c55e',
+    'AMBER':     '#f59e0b',
+    'ELEVATED':  '#f59e0b',
+    'RED':       '#dc2626',
+    'ANOMALOUS': '#dc2626'
+  };
+
+  var _roster = [];
+  var _chart  = null;
+  var _currentRosterIndex = 0;
+
+  /* Watermark plugin — draws "CONTESTED BASELINE" diagonally when all bands are CONTESTED */
+  var contestedWatermarkPlugin = {
+    id: 'contestedWatermark',
+    beforeDraw: function (chart) {
+      if (!chart.config.options._showContestedWatermark) return;
+      var ctx  = chart.ctx;
+      var area = chart.chartArea;
+      if (!area) return;
+      ctx.save();
+      ctx.globalAlpha = 0.07;
+      ctx.fillStyle   = '#64748b';
+      var cx = (area.left + area.right) / 2;
+      var cy = (area.top  + area.bottom) / 2;
+      ctx.translate(cx, cy);
+      ctx.rotate(-Math.PI / 6);
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('CONTESTED BASELINE', 0, 0);
+      ctx.restore();
+    }
+  };
+
+  /* Register the plugin globally once */
+  Chart.register(contestedWatermarkPlugin);
+
+  function bandColour(band) {
+    return BAND_COLOURS[(band || '').toUpperCase()] || '#94a3b8';
+  }
+
+  function hexToRgba(hex, alpha) {
+    var r = parseInt(hex.slice(1, 3), 16);
+    var g = parseInt(hex.slice(3, 5), 16);
+    var b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+
+  function buildChartData(conflict) {
+    var inds   = conflict.indicators || {};
+    var levels    = [];
+    var baselines = [];
+    var colours   = [];
+
+    INDICATOR_KEYS.forEach(function (key) {
+      var ind = inds[key] || {};
+      levels.push(ind.level    != null ? ind.level    : 0);
+      baselines.push(ind.baseline != null ? ind.baseline : 0);
+      colours.push(bandColour(ind.band || 'CONTESTED'));
+    });
+
+    return {
+      levels:    levels,
+      baselines: baselines,
+      colours:   colours
+    };
+  }
+
+  function isAllContested(conflict) {
+    var inds = conflict.indicators || {};
+    return INDICATOR_KEYS.every(function (key) {
+      return ((inds[key] || {}).band || '').toUpperCase() === 'CONTESTED';
+    });
+  }
+
+  function renderChart(rosterIndex) {
+    _currentRosterIndex = rosterIndex;
+    var conflict = _roster[rosterIndex];
+    if (!conflict) return;
+
+    var data = buildChartData(conflict);
+    var allContested = isAllContested(conflict) ||
+                       (conflict.baseline_status || '').toUpperCase().indexOf('CONTESTED') >= 0;
+
+    var solidColours  = data.colours;
+    var fadedColours  = data.colours.map(function (c) { return hexToRgba(c, 0.38); });
+
+    /* Hide note panel when switching conflicts */
+    var notePanel = document.getElementById('indicator-note-panel');
+    if (notePanel) {
+      notePanel.classList.remove('visible');
+    }
+
+    if (_chart) {
+      /* Update existing chart in-place */
+      _chart.data.datasets[0].data            = data.levels;
+      _chart.data.datasets[0].backgroundColor = solidColours;
+      _chart.data.datasets[1].data            = data.baselines;
+      _chart.data.datasets[1].backgroundColor = fadedColours;
+      _chart.options._showContestedWatermark   = allContested;
+      _chart.update();
+      renderLegend(data.colours, INDICATOR_LABELS);
+      return;
+    }
+
+    var ctx = document.getElementById('indicator-breakdown-chart');
+    if (!ctx) return;
+
+    _chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: INDICATOR_LABELS,
+        datasets: [
+          {
+            label: 'Current',
+            data: data.levels,
+            backgroundColor: solidColours,
+            borderWidth: 0,
+            borderRadius: 3,
+            barPercentage: 0.55,
+            categoryPercentage: 0.85
+          },
+          {
+            label: 'Baseline',
+            data: data.baselines,
+            backgroundColor: fadedColours,
+            borderWidth: 0,
+            borderRadius: 3,
+            barPercentage: 0.55,
+            categoryPercentage: 0.85
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        _showContestedWatermark: allContested,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        onClick: function (evt, elements) {
+          if (!elements || !elements.length) return;
+          var idx = elements[0].index;
+          showNote(idx);
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterBody: function (items) {
+                var idx = items[0] && items[0].dataIndex;
+                if (idx == null) return '';
+                var conflict = _roster[_currentRosterIndex];
+                var ind = (conflict.indicators || {})[INDICATOR_KEYS[idx]] || {};
+                return ind.note ? ['', 'Note: ' + ind.note] : [];
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            min: 0,
+            max: 6,
+            ticks: {
+              stepSize: 1,
+              font: { size: 11 }
+            },
+            grid: { color: 'rgba(148,163,184,0.15)' }
+          },
+          y: {
+            ticks: {
+              font: { size: 11 }
+            },
+            grid: { display: false }
+          }
+        }
+      }
+    });
+
+    renderLegend(data.colours, INDICATOR_LABELS);
+  }
+
+  function showNote(indicatorIndex) {
+    var conflict = _roster[_currentRosterIndex];
+    if (!conflict) return;
+    var ind = (conflict.indicators || {})[INDICATOR_KEYS[indicatorIndex]] || {};
+    var notePanel = document.getElementById('indicator-note-panel');
+    var noteLabel = document.getElementById('indicator-note-label');
+    var noteText  = document.getElementById('indicator-note-text');
+    if (!notePanel || !noteText) return;
+    noteLabel.textContent = INDICATOR_LABELS[indicatorIndex] + ' — Note';
+    noteText.textContent  = ind.note || 'No note available.';
+    notePanel.classList.add('visible');
+  }
+
+  function renderLegend(colours, labels) {
+    var legendEl = document.getElementById('indicator-breakdown-legend');
+    if (!legendEl) return;
+    var html = '';
+    /* Show unique band/colour combos */
+    var seen = {};
+    var bandNames = { '#94a3b8': 'CONTESTED', '#22c55e': 'GREEN', '#f59e0b': 'AMBER', '#dc2626': 'RED' };
+    colours.forEach(function (c) {
+      var norm = c.toLowerCase();
+      if (!seen[norm]) {
+        seen[norm] = true;
+        html += '<span class="indicator-breakdown-legend-item">' +
+          '<span class="indicator-breakdown-legend-swatch" style="background:' + c + '"></span>' +
+          '<span>' + (bandNames[norm] || norm) + '</span>' +
+          '</span>';
+      }
+    });
+    /* Always show current vs baseline */
+    html += '<span class="indicator-breakdown-legend-item" style="margin-left:auto">' +
+      '<span class="indicator-breakdown-legend-swatch" style="background:#64748b"></span>' +
+      '<span>Current (solid) · Baseline (faded)</span></span>';
+    legendEl.innerHTML = html;
+  }
+
+  function initIndicatorBreakdown(roster) {
+    _roster = roster || [];
+    var select = document.getElementById('indicator-conflict-select');
+    if (!select) return;
+
+    /* Populate dropdown */
+    select.innerHTML = '';
+    _roster.forEach(function (c, i) {
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = c.conflict;
+      select.appendChild(opt);
+    });
+
+    /* Render first conflict immediately */
+    if (_roster.length > 0) {
+      renderChart(0);
+    }
+
+    /* On change update chart */
+    select.addEventListener('change', function () {
+      renderChart(parseInt(this.value, 10));
+    });
+  }
+
+  /* Hook into data load — wait for DOMContentLoaded + data fetch */
+  window._initIndicatorBreakdown = initIndicatorBreakdown;
+}());
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -552,6 +936,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Conflict escalation cards
     renderConflictCards(roster);
+
+    // Indicator breakdown chart
+    if (typeof window._initIndicatorBreakdown === 'function') {
+      window._initIndicatorBreakdown(roster);
+    }
 
     // Roster summary table
     var tableHtml =
