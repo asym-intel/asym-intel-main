@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.1 — 1 April 2026
+# Version: 1.2 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -37,7 +37,8 @@ Workflow:
   6. Merge only after explicit sign-off from the user
 
 EXCEPTIONS (may commit directly to main):
-  - JSON data files only: report-latest.json, persistent-state.json,
+  - JSON data files only — cron tasks do NOT need approval to publish data
+    Each monitor cron publishes its data on schedule autonomously: report-latest.json, persistent-state.json,
     archive.json, report-{DATE}.json
   - Hugo brief markdown files: content/monitors/*/*.md
   - This file (COMPUTER.md) and HANDOFF.md
@@ -72,6 +73,8 @@ HUGO LAYOUTS (for content pages — homepage, briefs, methodology):
 CANONICAL NAV ARCHITECTURE (Blueprint v2.1):
   Network bar: position:fixed, height:40px, full-bleed, always visible
   Body offset:  padding-top:40px on ALL pages (base.css + main.css)
+  overflow-x:   ALWAYS clip (never hidden) on body, monitor-layout, monitor-main
+                overflow:hidden on a parent breaks position:sticky on children
   Monitor-nav:  position:sticky, top:40px
   Site-nav:     position:sticky, top:40px (Hugo pages only)
   nav.js:       loaded in <head> (not bottom of body) — injects bar before paint
