@@ -16,9 +16,21 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    name: Blueprint structural validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Blueprint validator
+        run: python3 .github/validate-blueprint.py
+
   build:
     name: Hugo build and commit docs
     runs-on: ubuntu-latest
+    needs: validate
 
     permissions:
       contents: write
