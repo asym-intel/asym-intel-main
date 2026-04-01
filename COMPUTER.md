@@ -1,5 +1,5 @@
 # COMPUTER.md — Asymmetric Intelligence Working Agreement
-# Version: 1.0 — 1 April 2026
+# Version: 1.1 — 1 April 2026
 # This file is the canonical working agreement for all Computer sessions
 # touching asym-intel.info. READ THIS BEFORE DOING ANYTHING ELSE.
 
@@ -108,6 +108,10 @@ Every HTML page MUST have:
   <script src="../shared/js/nav.js"> in <head> (NOT bottom of body)
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
+
+Every page using Chart.js MUST have in <head>:
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js">
+  BEFORE <script src="../shared/js/charts.js">
 
 NO page may contain:
   - Inline <style>body{padding-top:40px</style> (base.css owns this)
