@@ -47,12 +47,12 @@
       flex-wrap: wrap;
     }
     .risk-heat-cell__name {
-      font-size: 0.88rem;
+      font-size: var(--text-sm);
       font-weight: 700;
       color: var(--color-text);
     }
     .risk-rating-badge {
-      font-size: 0.62rem;
+      font-size: var(--text-min);
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 20px;
@@ -66,14 +66,14 @@
     .risk-rating-badge--MODERATE { background: #2563eb; color: #fff; }
     .risk-rating-badge--LOW      { background: #6b6660; color: #fff; }
     .risk-heat-cell__summary {
-      font-size: 0.78rem;
+      font-size: var(--text-sm);
       color: var(--color-text-secondary);
-      line-height: 1.55;
+      line-height: 1.6;
     }
     .risk-heat-cell__meta {
       display: flex;
       gap: var(--space-2);
-      font-size: 0.7rem;
+      font-size: var(--text-xs);
       color: var(--color-text-muted);
       flex-wrap: wrap;
       margin-top: var(--space-1);
@@ -99,7 +99,7 @@
       margin-bottom: var(--space-3);
     }
     .tier-badge {
-      font-size: 0.65rem;
+      font-size: var(--text-min);
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.07em;
@@ -121,7 +121,7 @@
       border: 1px solid var(--color-border);
     }
     .tier-row__label {
-      font-size: 0.75rem;
+      font-size: var(--text-xs);
       font-weight: 600;
       color: var(--color-text-secondary);
     }
@@ -157,16 +157,16 @@
       opacity: 0.85;
     }
     .tier-pill__name {
-      font-size: 0.85rem;
+      font-size: var(--text-sm);
       font-weight: 700;
       color: var(--color-text);
     }
     .tier-pill__lab {
-      font-size: 0.72rem;
+      font-size: var(--text-min);
       color: var(--color-text-muted);
     }
     .tier-pill__warn {
-      font-size: 0.65rem;
+      font-size: var(--text-min);
       color: #d97706;
       font-weight: 600;
     }
@@ -707,18 +707,23 @@
         }
         if (m14.concentration_index && typeof m14.concentration_index === 'object') {
           var ci = m14.concentration_index;
-          var domains = Array.isArray(ci.domains) ? ci.domains : (Array.isArray(ci) ? ci : []);
+          var domains = Array.isArray(ci) ? ci : (Array.isArray(ci && ci.domains) ? ci.domains : []);
           if (domains.length) {
             m14html += '<h3 class="subsection-title">Concentration Index</h3>' +
-              '<table class="data-table"><thead><tr><th>Domain</th><th>Trend</th><th>Note</th></tr></thead><tbody>' +
+              '<div class="intel-list">' +
               domains.map(function (row) {
-                return '<tr>' +
-                  '<td class="mono">' + esc(row.domain) + '</td>' +
-                  '<td><span class="tag tag--trend-' + trendClass(row.trend) + '">' + esc(row.trend) + '</span></td>' +
-                  '<td class="text-sm">' + esc(row.note) + '</td>' +
-                  '</tr>';
+                var actors = Array.isArray(row.top_actors) ? row.top_actors.join(' · ') : '';
+                return '<div class="intel-item">' +
+                  '<div style="display:flex;align-items:baseline;gap:var(--space-3);margin-bottom:var(--space-1)">' +
+                    '<span style="font-size:var(--text-sm);font-weight:700;color:var(--color-text)">' + esc(row.domain) + '</span>' +
+                    '<span class="tag tag--trend-' + trendClass(row.trend) + '" style="flex-shrink:0">' + esc(row.trend) + '</span>' +
+                  '</div>' +
+                  (actors ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-bottom:var(--space-2)">' + esc(actors) + '</div>' : '') +
+                  '<div style="font-size:var(--text-sm);color:var(--color-text-secondary)">' + esc(row.note) + '</div>' +
+                  (row.unchanged_since ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-top:var(--space-2)">Unchanged since: ' + esc(row.unchanged_since) + '</div>' : '') +
+                '</div>';
               }).join('') +
-              '</tbody></table>';
+              '</div>';
           }
         }
         if (Array.isArray(m14.asymmetric_flags) && m14.asymmetric_flags.length) {
