@@ -60,7 +60,17 @@ This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━
+SCHEMA — FLAG DEFINITIONS (include in meta block):
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — not independently corroborated",
+        "F3": "Single source — treat as Assessed until corroborated"
+      }
+    },
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read first)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -93,7 +103,7 @@ STEP 1 — Research: ECFR, IISS, Chatham House, European Council,
 
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
-  { "meta": {..., "schema_version": "2.0"},
+  { "meta": {..., "schema_version": "2.0", "methodology_url": "https://asym-intel.info/monitors/european-strategic-autonomy/methodology/"},
     "signal": {},
     "defence_developments": [
       { "headline": "...", "summary": "...", "actor": "Russia|China|Turkey|...",
@@ -119,7 +129,15 @@ STEP 2 — Write 4 JSON files (single git commit):
   actor. If genuinely multi-actor, use the dominant one. Omit actor field if
   no clear state/institutional actor is attributable.
   
-  Commit: "data(esa): weekly JSON pipeline — Issue [N] W/E [DATE]"
+  
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
+
+Commit: "data(esa): weekly JSON pipeline — Issue [N] W/E [DATE]"
 
 STEP 3 — Hugo brief:
   content/monitors/european-strategic-autonomy/[DATE]-weekly-brief.md

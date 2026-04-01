@@ -60,7 +60,17 @@ This guard prevents accidental mid-week runs triggered by prompt reloads.
 
 DATE RULE: Always use today's actual UTC date for PUBLISH_DATE. Never use a future date. Hugo does not render future-dated pages (buildFuture=false). Use: PUBLISH_DATE=$(date -u +%Y-%m-%d)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━
+SCHEMA — FLAG DEFINITIONS (include in meta block):
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — not independently corroborated",
+        "F3": "Single source — treat as Assessed until corroborated"
+      }
+    },
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES (read before any other step)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -76,6 +86,15 @@ CRITICAL RULES (read before any other step)
 2. LOAD PERSISTENT STATE FIRST — before any research.
 3. NAMED SEMANTIC KEYS ONLY — never module_0, module_1 etc.
 4. schema_version: "2.0" in all JSON files.
+5. Include in meta: "methodology_url": "https://asym-intel.info/monitors/conflict-escalation/methodology/"
+
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
+
 5. archive.json is APPEND ONLY — never truncate or overwrite.
 6. Validate JSON before committing:
    python3 -c "import json; json.load(open('path/to/file.json'))"

@@ -157,7 +157,15 @@ report-latest.json schema:
     "slug": "[PUBLISH_DATE]",
     "publish_time_utc": "T06:00:00Z",
     "editor": "asym-intel",
-    "schema_version": "2.0"
+    "schema_version": "2.0",
+    "methodology_url": "https://asym-intel.info/monitors/democratic-integrity/methodology/",
+    "flag_definitions": {
+      "f_flags": {
+        "F1": "Counter-narrative active — a motivated source is contesting this claim",
+        "F2": "Attribution contested — not independently corroborated",
+        "F3": "Single source — treat as Assessed until corroborated"
+      }
+    },
   },
   "signal": {"headline": "...", "body": "...", "source_url": "..."},
   "weekly_brief": "[900-1200 word narrative — HTML permitted for links. Use **bold** for item headings. Paragraphs separated by \\n\\n.]",
@@ -254,6 +262,14 @@ persistent-state.json — update surgically:
   - research_360.friction_notes: maintain 5 active notes
   - networks: carry forward, add new confirmed network nodes
   - _meta.schema_version: "2.0"
+
+
+CHANGELOG RULE — persistent array items:
+Each item carries a "changelog" string. When updating an existing item, append:
+  "changelog": "[existing history] | [YYYY-MM-DD: description of change]"
+When creating a new item, set:
+  "changelog": "[YYYY-MM-DD: New entry]"
+Never delete changelog history.
 
 archive.json — append only.
 
