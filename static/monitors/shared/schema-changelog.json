@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0",
+  "description": "Machine-readable record of all schema additions and changes across all 7 monitors. Cron agents read this at Step 0 to understand what fields they are expected to produce and since when. Append-only — never delete entries.",
+  "last_updated": "2026-04-01",
+  "entries": [
+    {
+      "id": "SC-001",
+      "date": "2026-03-24",
+      "monitor": "ALL",
+      "change_type": "schema_version",
+      "field": "meta.schema_version",
+      "description": "Blueprint v2.0 baseline — all monitors launched with schema_version 2.0",
+      "required_from_issue": 1
+    },
+    {
+      "id": "SC-002",
+      "date": "2026-03-24",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "executive_briefing",
+      "description": "executive_briefing block added: system_stress_label, system_stress_direction, system_average_score, regime, regime_conviction, summary, one_number_to_watch, one_indicator_lying, base_case_label, base_case_probability",
+      "required_from_issue": 1
+    },
+    {
+      "id": "SC-003",
+      "date": "2026-03-24",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "domain_indicators",
+      "description": "domain_indicators object added: 6 domains × ~4 indicators each",
+      "required_from_issue": 1
+    },
+    {
+      "id": "SC-004",
+      "date": "2026-04-01",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "tail_risks",
+      "description": "tail_risks array added: id, label, likelihood (0-1), impact (0-1), direction, note. Powers the risk heatmap on dashboard.",
+      "required_from_issue": 8,
+      "methodology_ref": "Horizon Matrix probabilities for likelihood; (affected_classes/8 × avg_score_change × 1.5) for impact"
+    },
+    {
+      "id": "SC-005",
+      "date": "2026-04-01",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "executive_briefing.scenario_analysis",
+      "description": "scenario_analysis array: 3 scenarios (Base Case, De-escalation, Fast Cascade) with label, name, probability, horizon, description. Probabilities must sum to 1.0.",
+      "required_from_issue": 9
+    },
+    {
+      "id": "SC-006",
+      "date": "2026-04-01",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "executive_briefing.real_m2",
+      "description": "real_m2 extended to full 5-deflator stack: nominal, vs_cpi, vs_pce, vs_core_pce, vs_ppi, vs_core_ppi, direction, note",
+      "required_from_issue": 9
+    },
+    {
+      "id": "SC-007",
+      "date": "2026-04-01",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "executive_briefing.hard_landing_risk",
+      "description": "hard_landing_risk: score (0-1), direction, note. Sourced from IMF WEO and composite leading indicators.",
+      "required_from_issue": 9
+    },
+    {
+      "id": "SC-008",
+      "date": "2026-04-01",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "signal.regime_shift_probabilities",
+      "description": "regime_shift_probabilities: stay_stagflation, deflationary_bust, inflationary_boom, goldilocks. Must sum to 1.0. Also mirrored in executive_briefing.",
+      "required_from_issue": 9
+    },
+    {
+      "id": "SC-009",
+      "date": "2026-04-01",
+      "monitor": "GMM",
+      "change_type": "new_field",
+      "field": "sentiment_overlay",
+      "description": "sentiment_overlay top-level section: fed_funds_futures (5 FOMC meetings with cut_probability and our_view AGREES/DISAGREES), prob_zero_cuts_2026, matt_agreement_pct",
+      "required_from_issue": 9
+    },
+    {
+      "id": "SC-010",
+      "date": "2026-04-01",
+      "monitor": "GMM",
+      "change_type": "field_extension",
+      "field": "domain_indicators[*].indicator_type",
+      "description": "indicator_type added to every domain indicator: SA (Strategic Anchor), CC (Cycle Coincident), TS (Tactical Signal). Canonical mapping fixed in cron prompt.",
+      "required_from_issue": 9
+    },
+    {
+      "id": "SC-011",
+      "date": "2026-04-01",
+      "monitor": "WDM",
+      "change_type": "new_section",
+      "field": "electoral_watch / digital_civil / autocratic_export / state_capture / institutional_pulse / legislative_watch / research_360 / networks",
+      "description": "Category B sections — specified in cron prompt from Issue 1 but never produced due to output truncation. Two-pass commit fix applied 2026-04-01. First expected appearance: Issue 4 (Mon 7 Apr).",
+      "required_from_issue": 4
+    },
+    {
+      "id": "SC-012",
+      "date": "2026-04-01",
+      "monitor": "ALL",
+      "change_type": "process",
+      "field": "TWO-PASS COMMIT RULE",
+      "description": "All 7 cron prompts now enforce a two-pass commit pattern. Pass 1: core sections. Pass 2: deep sections patched onto Pass 1 JSON via gh API read-modify-PUT. Verification step required before Step 3.",
+      "required_from_issue": "next run for each monitor"
+    },
+    {
+      "id": "SC-013",
+      "date": "2026-04-01",
+      "monitor": "SCEM",
+      "change_type": "new_field",
+      "field": "conflict_roster[*].escalation_velocity",
+      "description": "escalation_velocity: direction (Accelerating/Steady/Stable/Decelerating), week_over_week_delta (sum of I1-I6 deviation changes vs prior week), consecutive_weeks_direction, note. velocity_history appended to persistent-state per conflict.",
+      "required_from_issue": "next run (Sun 5 Apr)"
+    },
+    {
+      "id": "SC-014",
+      "date": "2026-04-01",
+      "monitor": "SCEM",
+      "change_type": "new_field",
+      "field": "conflict_roster[*].esc_score",
+      "description": "esc_score: raw (weighted sum of I1-I6 deviations), band, methodology_note. Weights: interstate I3×2.0, I2×1.5, others×1.0; intrastate I6×1.5, I2×1.5, I3×0.5, others×1.0. esc_score_history appended to persistent-state.",
+      "required_from_issue": "next run (Sun 5 Apr)"
+    },
+    {
+      "id": "SC-015",
+      "date": "2026-04-01",
+      "monitor": "SCEM",
+      "change_type": "new_field",
+      "field": "conflict_roster[*].negotiation_status",
+      "description": "negotiation_status: status (None/Backchannel/Formal Talks/Ceasefire Holding/Ceasefire Violated/Post-Agreement), mechanism, confidence, last_updated, note. Carries forward unless new Tier 1-2 evidence changes it.",
+      "required_from_issue": "next run (Sun 5 Apr)"
+    },
+    {
+      "id": "SC-016",
+      "date": "2026-04-01",
+      "monitor": "ESA",
+      "change_type": "new_field",
+      "field": "kpi_state.lagrange_point_dimensions",
+      "description": "lagrange_point_dimensions in persistent-state.kpi_state: 6 pillars (defence, energy, technology, finance, materials, institutions) each with score (0-100), direction, note. Powers Autonomy Radar chart on dashboard. Also composite_index_history appended each issue.",
+      "required_from_issue": "next run (Wed 8 Apr)"
+    }
+  ]
+}
