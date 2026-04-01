@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
               (item.cross_monitor ? '<span class="severity-badge severity-badge--high">⇔ ' + escHtml(item.cross_monitor) + '</span>' : '') +
             '</div>' +
             '<div class="card__title">' + escHtml(item.headline || '') + '</div>' +
-            (item.actors ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Actors: ' + escHtml(item.actors) + '</div>' : '') +
+            (item.actors ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Actors: ' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.actors)||'') + (AsymRenderer.flag(item.actors) ? '\u00a0' : '') : '') + escHtml(item.actors) + '</div>' : '') +
             (item.summary ? '<div class="card__body">' + escHtml(item.summary) + '</div>' : '') +
             (item.source_url ? '<div class="card__footer"><a href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener" class="source-link">Source →</a></div>' : '') +
           '</div>';
