@@ -148,7 +148,7 @@ verified level, not the claimed level.
 This monitor functions as a SPOKE in the Asymmetric Intelligence
 hub-and-spoke architecture. It receives F1–F4 disinformation coding from
 the Global FIMI & Cognitive Warfare Monitor and feeds escalation context
-to the European Geopolitical & Hybrid Threat Monitor, World Democracy
+to the European Strategic Autonomy Monitor, World Democracy
 Monitor, Global Environmental Risks Monitor, Macro Monitor, and AI
 Governance Monitor.
 
@@ -462,7 +462,7 @@ CROSS-MONITOR SIGNALS — ISSUE WHERE TRIGGERED
 
 At the end of each weekly update, check and flag cross-monitor signals:
 
-→ EGHTM (https://asym-intel.info/monitors/european-strategic-autonomy/)
+→ ESA (https://asym-intel.info/monitors/european-strategic-autonomy/)
   Trigger: I2/I5 escalation in European theatre (Ukraine, Serbia, Kosovo,
   Moldova, Georgia); Russian hybrid operations intersecting kinetic conflict
 
