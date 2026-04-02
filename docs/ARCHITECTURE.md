@@ -359,25 +359,31 @@ Cron agent output fields — `weekly_brief`, `note`, `summary`, `narrative` and 
 
 Running `escHtml()` on these fields produces literal `**text**` and `&lt;a href=...&gt;` in the rendered page.
 
-### The canonical fix: `AsymRenderer.renderMarkdown(text)`
+### The canonical fix: inline renderMarkdown (report.html pattern)
 
 ```js
-// WRONG — destroys markdown and HTML anchors
+// WRONG — escHtml destroys markdown syntax and <a> tags
 element.innerHTML = '<p>' + escHtml(d.weekly_brief) + '</p>';
 
-// CORRECT — safe renderer handles both
-element.innerHTML = AsymRenderer.renderMarkdown(d.weekly_brief);
+// CORRECT — inline pattern from report.html (proven working)
+function renderMarkdown(md) {
+  if (!md) return '';
+  return md
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, ' ')
+    .replace(/^/, '<p>').replace(/$/, '</p>');
+}
+element.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + renderMarkdown(d.weekly_brief) + '</div>';
 ```
 
-`AsymRenderer.renderMarkdown()` is defined in `static/monitors/shared/js/renderer.js` and available on every monitor page. It:
-1. Splits the text on `<a ...>...</a>` anchors (odd-indexed parts → pass through untouched)
-2. Escapes only the text nodes (even-indexed parts)
-3. Applies `**bold**` → `<strong>` and `# heading` → `<strong>` transforms
-4. Wraps paragraphs (double-newline split)
+This pattern is proven working in `static/monitors/democratic-integrity/report.html`. Copy it inline into each dashboard — do not use `AsymRenderer.renderMarkdown()` for `weekly_brief`.
 
-**Rule:** Any data field retrieved from `report-latest.json` that contains narrative text should use `AsymRenderer.renderMarkdown()`. Only use `escHtml()` for structured data fields (scores, IDs, country codes, dates) that are guaranteed to be plain text.
+**Why not `AsymRenderer.renderMarkdown()`?** It splits on `<a>` tags before applying the `**bold**` regex. If a paragraph opens with `**bold text**` and the closing `**` is in the same text segment as an `<a>` tag, the split can leave orphaned asterisks that the regex doesn't match. The inline pattern avoids this by doing a single-pass replace with no splitting.
 
-**Added:** 2 April 2026 | **Anti-pattern:** FE-020 in `static/monitors/shared/anti-patterns.json`
+**Rule:** Use `escHtml()` only for structured data fields (scores, IDs, country codes, dates). For narrative text fields (`weekly_brief`, `summary`, `note`), use the inline renderMarkdown pattern above.
+
+**Added:** 2 April 2026 | **Updated:** 2 April 2026 (corrected — inline pattern is canonical, not AsymRenderer) | **Anti-pattern:** FE-020 in `static/monitors/shared/anti-patterns.json`
 
 ---
 
