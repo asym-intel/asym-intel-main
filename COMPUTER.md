@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 2.8 — 2 April 2026
+## Version 2.9 — 3 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -177,8 +177,11 @@ or `esc(country)` and verify the flag call precedes it.
 11. **Future-dated JSON** — validator catches this; Hugo skips future pages silently
 12. **archive.json** — append only, never truncate
 13. **schema_version** — must be "2.0" in all JSON files
-14. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
-15. **New governance file not wired into Step 0** — any new persistent reference file created in a session (ROADMAP.md, new methodology doc, new spec) must be added to Step 0 in COMPUTER.md, the asym-intel skill, and noted in notes-for-computer.md. If only one place is updated, other sessions won't find it. Canonical test (from `docs/prompts/platform-developer.md`): "Could a fresh Computer instance reading only the Step 0 files find this file without being told it exists?"
+14. **Platform IDs in public files** — Zone IDs, account IDs, GSC tokens belong in
+    `asym-intel-internal/platform-config.md`. Never paste them into COMPUTER.md,
+    HANDOFF.md, or any file in the public repo.
+15. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
+16. **New governance file not wired into Step 0** — any new persistent reference file created in a session (ROADMAP.md, new methodology doc, new spec) must be added to Step 0 in COMPUTER.md, the asym-intel skill, and noted in notes-for-computer.md. If only one place is updated, other sessions won't find it. Canonical test (from `docs/prompts/platform-developer.md`): "Could a fresh Computer instance reading only the Step 0 files find this file without being told it exists?"
 
 ## Three-Layer Intelligence Architecture (v2.3)
 
