@@ -6,7 +6,7 @@
 
 ## Immediate Actions — Next Session
 
-1. **Verify FCW cron schedule** — FCW fired at 18:00 UTC today (20:00 CEST), not 09:00 UTC as documented in COMPUTER.md. Likely the cron was created at 18:00 UTC during today's migration and COMPUTER.md was set to 09:00 UTC incorrectly. Check actual schedule on cron `1d51ae99` and correct whichever is wrong. Update COMPUTER.md cron table to match.
+1. **Verify FCW cron schedule** — FCW fired at 18:00 UTC today (20:00 CEST), not 09:00 UTC as documented in COMPUTER.md. Likely the cron was created at 18:00 UTC during today's migration and COMPUTER.md was set to 09:00 UTC incorrectly. Check actual schedule on cron `b17522c3` and correct whichever is wrong. Update COMPUTER.md cron table to match.
 
 2. **Check GMM Collector first run** (Fri 3 Apr 06:00 UTC):
    ```
@@ -81,7 +81,7 @@
 | Analyst | WDM | d22b7778 | Mon 06:00 UTC |
 | Analyst | GMM | 9983df74 | Tue 08:00 UTC |
 | Analyst | ESA | 26f24020 | Wed 19:00 UTC |
-| Analyst | FCW | 1d51ae99 | Thu 09:00 UTC |
+| Analyst | FCW | b17522c3 | Thu 09:00 UTC |
 | Analyst | AGM | 743fe004 | Fri 09:00 UTC |
 | Analyst | ERM | 1ec0d995 | Sat 05:00 UTC |
 | Analyst | SCEM | 40a62a34 | Sun 18:00 UTC |
