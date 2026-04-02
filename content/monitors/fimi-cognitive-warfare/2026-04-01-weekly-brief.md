@@ -56,6 +56,6 @@ The US permanent injunction barring NSO Group from targeting WhatsApp users with
 
 **Democratic Integrity Monitor** — Three simultaneous RU operations targeting Hungary's April 12 election represent the highest documented pre-election FIMI density for a single EU election. Democracy monitor entries for Hungary should be read alongside RU-001, RU-004, and RU-005 in this monitor.
 
-**European Strategic Autonomy Monitor** — Washington Post reporting on Hungarian FM Szijjártó allegedly leaking EU meeting content to Lavrov represents the intelligence-capture dimension of the Hungary state-capture picture tracked in EGHTM. If confirmed, this is FIMI infrastructure operating at the diplomatic level, not just social media.
+**European Strategic Autonomy Monitor** — Washington Post reporting on Hungarian FM Szijjártó allegedly leaking EU meeting content to Lavrov represents the intelligence-capture dimension of the Hungary state-capture picture tracked in ESA. If confirmed, this is FIMI infrastructure operating at the diplomatic level, not just social media.
 
 **AI Governance Monitor** — DFRLab AI YouTube network (1.8B views) is the most significant empirical data point on AI-FIMI convergence since the EEAS 47% figure. YouTube's failure to enforce against synthetic anchors presenting fabricated events as news is a platform governance failure with direct FIMI consequences.
