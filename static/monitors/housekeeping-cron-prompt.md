@@ -222,66 +222,76 @@ STEP 7 — VALIDATE TIER 0 DAILY FEEDER (FCW)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 The FCW Daily Feeder writes to pipeline/monitors/fimi-cognitive-warfare/daily/.
-Validate schema compliance and freshness of the daily feeder output.
+Scan ALL verified-YYYY-MM-DD.json files written in the past 7 days (not just
+daily-latest.json which is overwritten daily — the dated files are the audit trail).
 
 ```bash
 TODAY=$(date -u +%Y-%m-%d)
-YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d)
 FEEDER_PATH="pipeline/monitors/fimi-cognitive-warfare/daily"
 
-FEEDER_JSON=$(gh api /repos/asym-intel/asym-intel-main/contents/${FEEDER_PATH}/daily-latest.json \
-  --jq '.content' | base64 -d 2>/dev/null || echo "")
+# Discover all dated files written this week
+FILES_TO_CHECK=()
+for i in 0 1 2 3 4 5 6; do
+  CHECK_DATE=$(date -u -d "${i} days ago" +%Y-%m-%d 2>/dev/null || date -u -v-${i}d +%Y-%m-%d)
+  SHA=$(gh api "/repos/asym-intel/asym-intel-main/contents/${FEEDER_PATH}/verified-${CHECK_DATE}.json" \
+    --jq ".sha" 2>/dev/null || echo "")
+  [ -n "$SHA" ] && FILES_TO_CHECK+=("verified-${CHECK_DATE}.json")
+done
 
-if [ -z "$FEEDER_JSON" ]; then
-  echo "CHECK_16: FAIL — daily-latest.json missing"
+if [ ${#FILES_TO_CHECK[@]} -eq 0 ]; then
+  echo "CHECK_16: WARN — no verified-YYYY-MM-DD.json files found in past 7 days (feeder may not have run yet)"
 else
-  echo "$FEEDER_JSON" | python3 -c "
-import json, sys
-from datetime import datetime, timedelta
+  echo "Scanning ${#FILES_TO_CHECK[@]} feeder file(s): ${FILES_TO_CHECK[*]}"
+  for FILE in "${FILES_TO_CHECK[@]}"; do
+    FEEDER=$(gh api "/repos/asym-intel/asym-intel-main/contents/${FEEDER_PATH}/${FILE}" \
+      --jq ".content" | base64 -d 2>/dev/null || echo "")
+    [ -z "$FEEDER" ] && echo "CHECK_16: WARN — could not read ${FILE}" && continue
 
+    echo "$FEEDER" | python3 -c "
+import json, sys
 d = json.load(sys.stdin)
 meta = d.get('_meta', {})
 findings = d.get('findings', [])
-today = '$(echo $TODAY)'
-yesterday = '$(echo $YESTERDAY)'
+fname = '${FILE}'
 
-# CHECK 16 — Schema version present
+# CHECK 16 — Schema version
 if meta.get('schema_version') != 'tier0-v1.0':
-    print('CHECK_16: FAIL — schema_version not tier0-v1.0')
+    print(f'CHECK_16: FAIL [{fname}] — schema_version not tier0-v1.0, got: {meta.get("schema_version")}')
 else:
-    print('CHECK_16: PASS — schema_version ok')
+    print(f'CHECK_16: PASS [{fname}] — schema_version ok')
 
-# CHECK 17 — Freshness: data_date is today or yesterday (allows for timezone skew)
+# CHECK 17 — Freshness: data_date matches filename date
+file_date = '${FILE}'.replace('verified-','').replace('.json','')
 data_date = meta.get('data_date','')
-if data_date not in [today, yesterday]:
-    print(f'CHECK_17: WARN — data_date {data_date} is not today ({today}) or yesterday ({yesterday})')
+if data_date != file_date:
+    print(f'CHECK_17: WARN [{fname}] — data_date {data_date} does not match filename date {file_date}')
 else:
-    print(f'CHECK_17: PASS — data_date {data_date}')
+    print(f'CHECK_17: PASS [{fname}] — data_date matches filename')
 
-# CHECK 18 — research_traceback on every High/Confirmed finding
+# CHECK 18 — research_traceback on High/Confirmed findings
 for f in findings:
     conf = f.get('confidence_preliminary','')
     if conf in ['High','Confirmed']:
-        tb = f.get('research_traceback',{})
-        sources = tb.get('sources_cited',[])
+        sources = f.get('research_traceback',{}).get('sources_cited',[])
         if len(sources) < 2:
-            print(f'CHECK_18: FAIL — {f["finding_id"]} is {conf} but has <2 sources in traceback')
+            print(f'CHECK_18: FAIL [{fname}] — {f["finding_id"]} is {conf} but has {len(sources)} source(s) in traceback (need 2+)')
         else:
-            print(f'CHECK_18: PASS — {f["finding_id"]} has {len(sources)} sources')
+            print(f'CHECK_18: PASS [{fname}] — {f["finding_id"]} ({conf}) has {len(sources)} sources')
 
-# CHECK 19 — episodic_flag=true must have episodic_reason
+# CHECK 19 — episodic_flag=true requires episodic_reason
 for f in findings:
-    if f.get('episodic_flag') and not f.get('episodic_reason'):
-        print(f'CHECK_19: WARN — {f["finding_id"]} has episodic_flag=true but no episodic_reason')
+    if f.get('episodic_flag') and not (f.get('episodic_reason') or '').strip():
+        print(f'CHECK_19: WARN [{fname}] — {f["finding_id"]} has episodic_flag=true but no episodic_reason')
 
-# CHECK 20 — No findings with campaign_status_candidate missing
+# CHECK 20 — campaign_status_candidate must be present on all findings
 for f in findings:
     if not f.get('campaign_status_candidate'):
-        print(f'CHECK_20: WARN — {f["finding_id"]} missing campaign_status_candidate')
+        print(f'CHECK_20: WARN [{fname}] — {f["finding_id"]} missing campaign_status_candidate')
 
 if not findings:
-    print(f'INFO: No findings today (finding_count: {meta.get("finding_count",0)}) — normal if no new FIMI activity detected')
+    print(f'INFO [{fname}]: 0 findings — normal if no qualifying FIMI activity detected that day')
 "
+  done
 fi
 ```
 
