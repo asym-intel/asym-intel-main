@@ -130,8 +130,12 @@ Say **"wrap"** at any point to run the session checkpoint.
 3. Update `HANDOFF.md` with current state — what was done, what's pending, what's blocked
 4. Update `docs/ROADMAP.md` — mark completed items ✅, add new items
 5. Check: any unmerged staging changes? any new crons missing from COMPUTER.md? any new governance files missing from Step 0?
-6. Staging check — if staging is ahead of main, list the files and ask to merge
-7. Reset staging to main HEAD after any direct-file merge
+6. **Staging check and merge** — fetch `ahead_by` from staging vs main:
+   - If `ahead_by: 0` → staging is clean, nothing to do
+   - If staging is ahead → list the staged files, open a PR, and **merge immediately** as part of the wrap
+   - Do not ask Peter whether to merge — merging is part of wrap by default
+   - Exception: if staged changes are incomplete or visually unreviewed, state this explicitly and ask before merging
+7. Reset staging to main HEAD after merge
 8. **Produce the next-week plan** — a concise summary of:
    - What fires automatically (cron runs, GitHub Actions) and when
    - What is ready to build next session (top 3 items from ROADMAP, no blockers)
