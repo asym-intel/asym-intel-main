@@ -307,3 +307,54 @@ for e in entries:
 Use cross-monitor flags to incorporate adjacent signals into your analysis
 and update your own cross_monitor_flags where new linkages are found.
 Use schema changelog to verify your output includes all required fields.
+
+STEP 0C — LOAD TIER 0 DAILY FEEDER OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After loading persistent-state and intelligence digest, load the daily feeder
+output produced since the last weekly issue. The feeder runs daily at 08:00 UTC
+and writes pre-verified candidate findings to the pipeline/ directory.
+These are CANDIDATES — not final findings. You apply FCW methodology, source
+hierarchy, and final confidence assignment. The feeder prepares; you decide.
+
+```bash
+TODAY=$(date -u +%Y-%m-%d)
+FEEDER_PATH="pipeline/monitors/fimi-cognitive-warfare/daily"
+
+# Load daily-latest.json (most recent feeder run)
+FEEDER=$(gh api /repos/asym-intel/asym-intel-main/contents/${FEEDER_PATH}/daily-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$FEEDER" ]; then
+  echo "STEP 0C: No daily feeder output found. Proceeding without Tier 0 candidates."
+else
+  echo "$FEEDER" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+findings = d.get('findings', [])
+below = d.get('below_threshold', [])
+print(f'Feeder data_date: {meta.get(\"data_date\",\"unknown\")}')
+print(f'Total findings: {meta.get(\"finding_count\",0)} ({meta.get(\"net_new_count\",0)} net new, {meta.get(\"continuation_count\",0)} continuations)')
+print(f'Below threshold (excluded): {len(below)}')
+print()
+print('CANDIDATE FINDINGS FOR YOUR REVIEW:')
+for f in findings:
+    print(f'  [{f[\"confidence_preliminary\"]}] {f[\"finding_id\"]} — {f[\"title\"][:70]}')
+    print(f'    Actor(s): {f.get(\"actors\",[])} | Status: {f.get(\"campaign_status_candidate\",\"?\")}')
+    print(f'    Source tier: {f.get(\"source_tier\",\"?\")} | Episodic: {f.get(\"episodic_flag\",False)}')
+    for m, note in f.get('cross_monitor_relevance',{}).items():
+        if note: print(f'    → {m.upper()}: {note[:80]}')
+    print()
+"
+fi
+```
+
+USE THE FEEDER OUTPUT:
+  — For each candidate: apply FCW methodology to decide final confidence
+  — Check each against the active campaign registry in persistent-state
+  — campaign_status_candidate: "continuation" → update existing campaign record
+  — campaign_status_candidate: "net_new" → evaluate against 4-condition active entry threshold
+  — feeder's confidence_preliminary is your starting point, NOT your conclusion
+  — You may upgrade OR downgrade based on your full methodology review
+  — Feeder findings that don't survive your review → exclude from published output
