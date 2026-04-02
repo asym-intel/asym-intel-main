@@ -133,7 +133,57 @@ STEP 0 — Load persistent state:
   cat /tmp/asym-intel-main/static/monitors/fimi-cognitive-warfare/data/persistent-state.json
   cat /tmp/asym-intel-main/static/monitors/fimi-cognitive-warfare/data/report-latest.json
 
-STEP 1 — Apply methodology to research inputs (Steps 0C + 0D):
+STEP 0E — LOAD REASONER OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GitHub Actions runs sonar-deep-research every Wednesday 20:00 UTC to reason
+over accumulated attribution evidence. Load it now for pre-computed analytical
+recommendations. If unavailable, reason independently (fallback mode).
+
+```bash
+REASONER=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/fimi-cognitive-warfare/reasoner/reasoner-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$REASONER" ]; then
+  echo "STEP 0E: No reasoner output found — reasoning independently."
+else
+  echo "$REASONER" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+reviews  = d.get('attribution_reviews', [])
+linkages = d.get('linkage_detections', [])
+flags    = d.get('cross_monitor_escalation_flags', [])
+changes  = [r for r in reviews if r.get('recommendation') != 'unchanged']
+print(f'Reasoner date: {meta.get("data_date")}')
+print(f'Reviews: {len(reviews)} ({len(changes)} changes recommended)')
+print(f'Linkages: {len(linkages)} | Cross-monitor flags: {len(flags)}')
+print()
+print('ANALYST BRIEFING:')
+print(d.get('analyst_briefing','')[:500])
+print()
+if changes:
+    print('ATTRIBUTION CHANGES RECOMMENDED:')
+    for r in changes:
+        print(f'  {r["recommendation"].upper()}: {r["campaign_id_or_candidate"]} → {r["recommended_confidence"]}')
+        print(f'  Reason: {r["reasoning"][:100]}')
+        if r.get('needs_human_review'):
+            print(f'  ⚠ NEEDS HUMAN REVIEW')
+        print()
+"
+fi
+```
+
+USE REASONER OUTPUT AS FOLLOWS:
+  — attribution_reviews → apply recommended confidence changes unless you have
+    contradictory evidence. Never blindly accept — verify the reasoning.
+  — linkage_detections → check continuation vs net_new classification
+  — actor_posture_changes → inform actor_tracker status updates
+  — cross_monitor_escalation_flags → populate cross_monitor_flags in report
+  — contested_findings → flag for human review in output, reduce confidence tier
+  — analyst_briefing → read as your pre-session analytical briefing
+
+STEP 1 — Apply methodology to research inputs (Steps 0C + 0D + 0E):
   PRIMARY: Use weekly deep research (Step 0D) as the research base.
   SUPPLEMENT: Cross-check with daily Collector candidates (Step 0C).
   FALLBACK: If Step 0D unavailable, research directly: EEAS, EU DisinfoLab,
