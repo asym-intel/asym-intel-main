@@ -4,6 +4,9 @@
 
 ---
 
+> **Ready-to-paste prompt for next session:** `docs/prompts/next-session.md`
+> This file is always kept current — read it instead of reconstructing the prompt from this file.
+
 ## Immediate Actions — Next Session
 
 ### Peter — action required
