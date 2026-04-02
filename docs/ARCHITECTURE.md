@@ -471,3 +471,30 @@ grep -n "DOMContentLoaded\|function escHtml\|function yourNewFn" dashboard.html
 **Pre-staging checklist item added:** Check 6 — top-level escHtml present when renderCrossMonitor is outside DOMContentLoaded.
 
 **Added:** 2 April 2026
+
+---
+
+## FE-024 — renderCrossMonitor escHtml scope error ("Loading…" never resolves)
+
+**Pattern:** Any helper function injected outside the `DOMContentLoaded` block cannot access utilities (`escHtml`, `esc`) defined inside it. The section renders "Loading…" indefinitely — no error, no feedback.
+
+**Root cause:** The automated cross-monitor section injection appended `renderCrossMonitor` after the closing `});` of `DOMContentLoaded`. The function is defined but `escHtml` is out of scope, so it silently fails.
+
+**Fix:** Always define a top-level `escHtml` before the `<script>` block's `DOMContentLoaded` when any function sits outside it:
+```js
+// TOP OF SCRIPT BLOCK — before DOMContentLoaded
+function escHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+```
+
+**Pre-staging check:** When injecting any new function after `DOMContentLoaded` closes:
+```
+grep -n "DOMContentLoaded\|function escHtml\|function yourNewFn" dashboard.html
+```
+`escHtml` line number must be LESS than `DOMContentLoaded` line number (top-level), or the new function must be moved inside `DOMContentLoaded`.
+
+**Pre-staging checklist item added:** Check 6 — top-level escHtml present when renderCrossMonitor is outside DOMContentLoaded.
+
+**Added:** 2 April 2026
