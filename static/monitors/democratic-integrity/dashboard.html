@@ -689,13 +689,20 @@ document.addEventListener('DOMContentLoaded', function () {
         kpiSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
       }
 
-      // Weekly brief — uses AsymRenderer.renderMarkdown() from renderer.js (FE-020)
+      // Weekly brief — inline renderMarkdown (same pattern as report.html — do not use AsymRenderer here)
       var briefEl = document.getElementById('weekly-brief-content');
       if (briefEl) {
         var brief = d.weekly_brief || '';
-        briefEl.innerHTML = (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown)
-          ? AsymRenderer.renderMarkdown(brief)
-          : '<p>' + (brief || '<span class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</span>') + '</p>';
+        if (brief) {
+          var briefHtml = brief
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, ' ')
+            .replace(/^/, '<p>').replace(/$/, '</p>');
+          briefEl.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + briefHtml + '</div>';
+        } else {
+          briefEl.innerHTML = '<p class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</p>';
+        }
       }
 
       // Page meta
