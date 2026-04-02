@@ -1,0 +1,39 @@
+name: WDM Weekly Deep Research
+
+on:
+  schedule:
+    - cron: "0 18 * * 0"   # Sunday 18:00 UTC — 12 hours before WDM Analyst (Mon 06:00 UTC)
+  workflow_dispatch:         # allow manual trigger for testing
+
+jobs:
+  research:
+    name: WDM Weekly Deep Research (sonar-pro)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run weekly deep research
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/democratic-integrity/weekly-research.py
+
+      - name: Commit research output
+        run: |
+          git config user.name  "WDM Research Bot"
+          git config user.email "wdm-research@asym-intel.info"
+          git add pipeline/monitors/democratic-integrity/weekly/
+          git diff --staged --quiet && echo "No research output to commit" && exit 0
+          git commit -m "data(wdm-research): weekly deep research — $(date -u +%Y-%m-%d)"
+          git push
