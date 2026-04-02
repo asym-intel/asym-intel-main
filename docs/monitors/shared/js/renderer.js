@@ -10,6 +10,114 @@
   /* Keys excluded from generic module rendering */
   var EXCLUDED_KEYS = ['meta', 'signal', 'delta_strip', 'cross_monitor_flags', 'source_url'];
 
+  /* ── Source label map: domain → short display name ── */
+  var SOURCE_LABEL_MAP = [
+    /* Asym-intel internal monitor links */
+    { match: /asym-intel\.info\/monitors\/democratic-integrity/,      label: 'WDM Monitor' },
+    { match: /asym-intel\.info\/monitors\/macro-monitor/,             label: 'GMM Monitor' },
+    { match: /asym-intel\.info\/monitors\/fimi-cognitive-warfare/,     label: 'FCW Monitor' },
+    { match: /asym-intel\.info\/monitors\/european-strategic-autonomy/,label: 'ESA Monitor' },
+    { match: /asym-intel\.info\/monitors\/ai-governance/,             label: 'AGM Monitor' },
+    { match: /asym-intel\.info\/monitors\/environmental-risks/,       label: 'ERM Monitor' },
+    { match: /asym-intel\.info\/monitors\/conflict-escalation/,       label: 'SCEM Monitor' },
+    { match: /asym-intel\.info/,                                       label: 'asym-intel.info' },
+    /* News & media */
+    { match: /reuters\.com/,              label: 'Reuters' },
+    { match: /bloomberg\.com/,            label: 'Bloomberg' },
+    { match: /ft\.com/,                   label: 'FT' },
+    { match: /wsj\.com/,                  label: 'WSJ' },
+    { match: /nytimes\.com/,              label: 'NYT' },
+    { match: /washingtonpost\.com/,       label: 'Washington Post' },
+    { match: /theguardian\.com/,          label: 'The Guardian' },
+    { match: /bbc\.co\.uk|bbc\.com/,      label: 'BBC' },
+    { match: /politico\.eu|politico\.com/,label: 'Politico' },
+    { match: /euobserver\.com/,           label: 'EUobserver' },
+    { match: /euronews\.com/,             label: 'Euronews' },
+    { match: /cnbc\.com/,                 label: 'CNBC' },
+    { match: /apnews\.com/,               label: 'AP News' },
+    { match: /axios\.com/,                label: 'Axios' },
+    { match: /semafor\.com/,              label: 'Semafor' },
+    /* Intelligence & research */
+    { match: /eeas\.europa\.eu/,          label: 'EEAS' },
+    { match: /ec\.europa\.eu/,            label: 'European Commission' },
+    { match: /europa\.eu/,                label: 'EU' },
+    { match: /understandingwar\.org/,     label: 'ISW' },
+    { match: /iswresearch\.org/,          label: 'ISW' },
+    { match: /dfrlab\.org/,               label: 'DFRLab' },
+    { match: /bellingcat\.com/,           label: 'Bellingcat' },
+    { match: /icj-cij\.org/,              label: 'ICJ' },
+    { match: /un\.org/,                   label: 'UN' },
+    { match: /unfccc\.int/,               label: 'UNFCCC' },
+    { match: /nato\.int/,                 label: 'NATO' },
+    { match: /iiss\.org/,                 label: 'IISS' },
+    { match: /cfr\.org/,                  label: 'CFR' },
+    { match: /chathamhouse\.org/,         label: 'Chatham House' },
+    { match: /ecfr\.eu/,                  label: 'ECFR' },
+    { match: /v-dem\.net/,                label: 'V-Dem' },
+    { match: /civicus\.org/,              label: 'CIVICUS' },
+    { match: /scotusblog\.com/,           label: 'SCOTUSblog' },
+    { match: /politpro\.eu/,              label: 'PolitPro' },
+    { match: /mi5\.gov\.uk/,              label: 'MI5' },
+    { match: /protectdefenders\.eu/,      label: 'ProtectDefenders' },
+    { match: /euromaidanpress\.com/,      label: 'Euromaidan Press' },
+    /* Finance & macro */
+    { match: /federalreserve\.gov/,       label: 'Federal Reserve' },
+    { match: /imf\.org/,                  label: 'IMF' },
+    { match: /worldbank\.org/,            label: 'World Bank' },
+    { match: /bls\.gov/,                  label: 'BLS' },
+    { match: /eia\.gov/,                  label: 'EIA' },
+    { match: /ismworld\.org/,             label: 'ISM' },
+    { match: /tradingeconomics\.com/,     label: 'Trading Economics' },
+    { match: /trepp\.com/,                label: 'Trepp' },
+    { match: /coface\.com/,               label: 'Coface' },
+    { match: /edwardconard\.com/,         label: 'Conrad Macro' },
+    /* Science & environment */
+    { match: /rapid\.ac\.uk/,             label: 'RAPID Array' },
+    { match: /nsidc\.org/,                label: 'NSIDC' },
+    { match: /globalforestwatch\.org/,    label: 'Global Forest Watch' },
+    { match: /gml\.noaa\.gov/,            label: 'NOAA GML' },
+    { match: /noaa\.gov/,                 label: 'NOAA' },
+    { match: /nasa\.gov/,                 label: 'NASA' },
+    { match: /ipbes\.net/,                label: 'IPBES' },
+    { match: /iea\.org/,                  label: 'IEA' },
+    { match: /nature\.com/,               label: 'Nature' },
+    { match: /science\.org/,              label: 'Science' },
+    { match: /arxiv\.org/,                label: 'arXiv' },
+    { match: /fews\.net/,                 label: 'FEWS NET' },
+    { match: /icj-cij\.org/,              label: 'ICJ' },
+    { match: /isa\.org\.jm/,              label: 'ISA' },
+    /* Tech */
+    { match: /about\.fb\.com/,            label: 'Meta' },
+    { match: /blog\.google/,              label: 'Google' },
+    { match: /openai\.com/,               label: 'OpenAI' },
+    { match: /anthropic\.com/,            label: 'Anthropic' },
+    { match: /deepmind\.google/,          label: 'DeepMind' },
+    { match: /military\.com/,             label: 'Military.com' },
+    { match: /nber\.org/,                 label: 'NBER' },
+    { match: /alphafold\.ebi\.ac\.uk/,   label: 'AlphaFold' },
+    { match: /wikipedia\.org/,            label: 'Wikipedia' },
+  ];
+
+  /**
+   * AsymRenderer.sourceLabel(url)
+   * Returns a short human-readable label for a source URL.
+   * Falls back to the bare hostname if no match.
+   * Usage: AsymRenderer.sourceLabel('https://reuters.com/...') → 'Reuters'
+   */
+  function sourceLabel(url) {
+    if (!url) return 'Source';
+    for (var i = 0; i < SOURCE_LABEL_MAP.length; i++) {
+      if (SOURCE_LABEL_MAP[i].match.test(url)) {
+        return SOURCE_LABEL_MAP[i].label;
+      }
+    }
+    // Fallback: extract hostname
+    try {
+      var m = url.match(/^https?:\/\/(?:www\.)?([^/]+)/);
+      return m ? m[1] : 'Source';
+    } catch (e) { return 'Source'; }
+  }
+
   /* Custom renderer registry: key → function(data) → htmlString */
   var customRenderers = {};
 
@@ -138,7 +246,7 @@
 
     if (obj.source_url) {
       html += '<div style="margin-top:var(--space-3)">' +
-        '<a class="source-link" href="' + esc(obj.source_url) + '" target="_blank" rel="noopener">Source →</a>' +
+        '<a class="source-link" href="' + esc(obj.source_url) + '" target="_blank" rel="noopener">' + sourceLabel(obj.source_url) + ' →</a>' +
       '</div>';
     }
 
@@ -351,6 +459,7 @@
   window.AsymRenderer = {
     init: init,
     register: register,
+    sourceLabel: sourceLabel,
     /* exposed for testing */
     _renderMeta: renderMeta,
     _renderSignal: renderSignal,
