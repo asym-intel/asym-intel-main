@@ -11,7 +11,7 @@
 
 | Library | URL | Version(s) used | SRI hash present | SRI verified | CVE status | TLS cert expiry | Status |
 |---------|-----|-----------------|-----------------|--------------|------------|----------------|--------|
-| Chart.js | `cdn.jsdelivr.net/npm/chart.js` | 4.4.7, 4.4.4, 4.4.0 | ❌ NO | N/A | ✅ No CVEs affecting ≥4.x | N/A (CDN cert) | ⚠️ HIGH: No SRI |
+| Chart.js | `cdn.jsdelivr.net/npm/chart.js` | 4.4.7, 4.4.4, 4.4.0 | ✅ YES — PR #29 merged 3 Apr 2026 | sha384 per version | ✅ No CVEs affecting ≥4.x | N/A (CDN cert) | ✅ RESOLVED — SEC-010 |
 | Google Fonts | `fonts.googleapis.com` | N/A (CSS API) | ❌ NO | N/A | N/A | **2026-06-01** | ✅ Valid |
 | Fontshare | `api.fontshare.com` | N/A (font API) | ❌ NO | N/A | N/A | **2027-02-27** | ✅ Valid |
 
