@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Platform Roadmap
-**Last updated:** 2026-04-03  
+**Last updated:** 2026-04-03 (wrap)  
 **Maintained by:** Computer sessions — update this file at every wrap.  
 **Canonical location:** `docs/ROADMAP.md` (asym-intel-main)
 
@@ -53,8 +53,8 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 
 | Item | Priority | Owner | Notes |
 |------|----------|-------|-------|
-| FCW dashboard.html diverged | 🔴 CRITICAL | Platform Developer | static/ is 139k (legacy embedded CSS), docs/ is 37k (modern shared library) — wrong version may be serving readers. Investigate and fix. |
-| FCW-DAILY-FEEDER-PROMPT-v4.md missing | 🔴 CRITICAL | Computer | Referenced by fcw-daily-feeder-cron.md but does not exist in asym-intel-internal/prompts/. Daily FCW feeder cron may be broken. Verify and fix before Thu 9 Apr FCW pipeline run. |
+| FCW dashboard.html diverged | ✅ Done | — | Legacy 140k replaced with modern 37k shared-library version on main (3 Apr) |
+| FCW-DAILY-FEEDER-PROMPT-v4.md missing | ✅ Done | — | Both stub files corrected — GA architecture documented, no cron was broken |
 | docs/monitors/_shared/ stale artefact | 🟡 HIGH | Platform Developer | Older CSS/JS than docs/monitors/shared/ — nothing references it. Verify and delete. |
 | housekeeping-cron-prompt.md in docs/ only | 🟡 HIGH | Computer | Exists in docs/monitors/ but not static/monitors/ — source/output broken. Add to static/. |
 
@@ -99,8 +99,8 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 
 | Item | Severity | Est. | Notes |
 |------|----------|------|-------|
-| SRI hashes on all Chart.js CDN tags | 🔴 HIGH | 45 min | All 7 dashboards · standardise to 4.4.7 · hashes in docs/security/third-party-audit.md |
-| integrity-manifest.json — new GA workflow | 🔴 HIGH | 1 hr | Spec at docs/security/integrity-manifest-spec.md · Peter approval needed |
+| SRI hashes on all Chart.js CDN tags | ✅ Done | — | PR #29 merged 3 Apr · all 7 dashboards · SEC-010 resolved |
+| integrity-manifest.json — first manifest live | ✅ Done | — | static/monitors/shared/integrity-manifest.json committed · draft workflow in docs/security/drafts/ · Peter approval needed to move to .github/workflows/ |
 | GA workflow failure notifications | 🟡 MEDIUM | 30 min | All 14 Collector/Research/Reasoner workflows — add `if: failure()` step |
 
 ### SEO — requires Platform Developer session
@@ -108,8 +108,8 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 | Item | Severity | Est. | Notes |
 |------|----------|------|-------|
 | JSON-LD structured data — full suite | 🔴 HIGH | 2 hrs | Dataset + NewsArticle + FAQPage + BreadcrumbList in layouts/partials/head.html + layouts/_default/single.html · Full spec: docs/seo/ai-search-audit-2026-Q2.md Section 5 |
-| WDM meta description fix | 🔴 HIGH | 15 min | content/monitors/democratic-integrity/_index.md front-matter · add "democratic backsliding", "V-Dem", "Freedom House" |
-| Methodology page lastmod dates | 🟡 MEDIUM | 20 min | All 7 pages carry 2020-01-01 — set correct dates in Hugo front-matter |
+| WDM meta description fix | ✅ Done | — | SEO-010 resolved · "democratic backsliding" + V-Dem + Freedom House added |
+| Methodology page lastmod dates | ✅ Done | — | All 7 methodology pages corrected to actual launch dates |
 | 4 utility pages missing lastmod | 🟡 MEDIUM | 15 min | /about/, /search/, /subscribe/, /tags/ |
 | "Cite this" element on brief pages | 🟡 MEDIUM | 30 min | layouts/_default/single.html — citation block spec in docs/SEO.md |
 | 7 monitor-specific OG images | 🟡 MEDIUM | Design-gated 🎨 | All monitors share fallback image — PED session first |
@@ -122,6 +122,16 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 | Archive indexing policy for first 12 months | Recommend: index all, review at 12-month mark |
 | Static dashboard pages in sitemap? | Supplemental sitemap needed — Peter to decide |
 | GMM title "Macro Monitor" → "Global Macro Risk Monitor"? | Competitor domain global-macro-monitor.com appears in AI search |
+
+
+## PED SPRINT 1 — Deferred from 3 April session (>90min, fresh session needed)
+
+| Item | Priority | Est. | Notes |
+|------|----------|------|-------|
+| PED first session — knowhow dump | 🔴 HIGH | 1.5 hrs | docs/ux/decisions.md full population · colour-registry.md · 5-page progressive disclosure audit · gap list to notes-for-computer.md · Peter RTF observations as input |
+| docs/benchmarks/ — first-session knowhow | 🟡 MEDIUM | 30 min | Security / SEO / Platform Developer benchmark patterns for future sessions |
+| JSON-LD structured data (full suite) | 🔴 HIGH | 2 hrs | layouts/partials/head.html + layouts/_default/single.html · Dataset + NewsArticle + BreadcrumbList · spec in docs/seo/ai-search-audit-2026-Q2.md Section 5 |
+| 4 utility page lastmod dates | 🟡 LOW | 15 min | /about/ /search/ /subscribe/ /tags/ — missing lastmod in sitemap |
 
 ## SPRINT 3 REMAINDER
 
