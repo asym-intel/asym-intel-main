@@ -209,6 +209,23 @@ Do not begin without a written spec produced in a design session.
 | Housekeeping cron — Monday 08:00 UTC | 📅 Automated | Runs weekly |
 | Staging divergence guard — daily ~18:00 UTC | 📅 Automated | Runs daily |
 | Annual calibration reminder — 28 March | 📅 Automated | Next: Mar 2027 |
+| **Platform Security Expert** session | On-demand + quarterly | Prompt: `docs/prompts/platform-security-expert.md` |
+| **SEO & Discoverability Expert** session | On-demand + monthly GSC audit | Prompt: `docs/prompts/seo-discoverability-expert.md` |
+| **Platform Auditor** session | Quarterly (Q1/Q2/Q3/Q4) | Prompt: `docs/prompts/platform-auditor.md` |
+
+---
+
+## FIRST-RUN SETUP (create on first specialist session)
+
+The following `docs/` subdirectories do not yet exist. Each specialist role creates
+them on its first session. Do not create them speculatively — let the role create them
+with the correct stub files.
+
+| Directory | Created by | First session trigger |
+|-----------|------------|----------------------|
+| `docs/security/` | Platform Security Expert | First security audit session |
+| `docs/seo/` | SEO & Discoverability Expert | First SEO audit session |
+| `docs/audits/` | Platform Auditor | First Q1 calibration session |
 
 ---
 
