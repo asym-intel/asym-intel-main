@@ -28,7 +28,7 @@ Computer Analyst cron (weekly)
 | Layer | Model | Cadence | Est. cost/month |
 |-------|-------|---------|----------------|
 | Daily Collector | sonar | Daily | ~$0.02 |
-| Weekly Research | sonar-deep-research | Weekly | ~$0.50 |
+| Weekly Research | sonar-pro | Weekly | ~$0.05 |
 | Computer Analyst | n/a | Weekly | Computer credits |
 | **Total per monitor** | | | **~$0.52/month** |
 
@@ -69,7 +69,7 @@ asym-intel-internal/prompts/
 - Deduplicating against active registry
 - Producing candidate findings with confidence_preliminary
 
-**Moves to weekly research (sonar-deep-research):**
+**Moves to weekly research (sonar-pro — live web search with deeper synthesis):**
 - Deep synthesis across all sources for the past 7 days
 - Actor posture analysis
 - Campaign updates and new campaigns
@@ -240,8 +240,9 @@ echo '{
 **Model wraps JSON in code fences despite instructions**
 → `collect.py` / `weekly-research.py` strip fences automatically. Already handled.
 
-**sonar-deep-research times out (>120s)**
-→ Set `timeout=300` in the requests call. Already in `weekly-research.py`.
+**sonar-pro is the correct weekly model, NOT sonar-deep-research.**
+sonar-deep-research is a reasoning model — it cannot browse live URLs.
+sonar-pro does live web search with deeper synthesis. Always use sonar-pro for weekly research.
 
 **Schema validation fails on first run**
 → Check `pipeline/monitors/{slug}/debug-YYYY-MM-DD.json` for raw model output.
@@ -263,4 +264,8 @@ echo '{
 3. **JSON stripping is necessary.** Model occasionally wraps output in code fences despite explicit instruction. The strip logic in collect.py handles this.
 4. **GitHub Actions completes in ~20 seconds** for sonar daily calls. sonar-deep-research will take 60-120 seconds — set timeout to 300s.
 5. **One PPLX_API_KEY secret covers all monitors.** No per-monitor secrets needed.
+6. **sonar-deep-research is NOT for live web search.** It refused to generate FIMI intelligence
+   because it cannot browse live URLs — it is a reasoning/synthesis model for documents you
+   provide, not an OSINT collection tool. Use `sonar-pro` for weekly research workflows.
+   Model selection: `sonar` for daily (fast, cheap), `sonar-pro` for weekly (deeper search).
 6. **Analyst cron Step 0D is a fallback not a dependency.** If weekly research fails, Analyst runs in research-only mode. Never let research layer failure block publication.
