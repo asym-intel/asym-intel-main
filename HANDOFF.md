@@ -44,10 +44,12 @@
     - WDM: silent_erosion, signal.history, severity_sub
     - SCEM: GEI CONTESTED disclaimer, indicator deviation chart fix
 
-11. **User actions pending:**
-    - GSC domain property: DNS TXT record for asym-intel.info
-    - Cloudflare: enable Bot Fight Mode + Page Shield
-    - Fortiguard recategorisation: News and Media / Research
+11. **User actions — see `docs/security/platform-status.md` for full status:**
+    - ✅ DNS TXT record for GSC domain property — done 2 Apr
+    - ✅ Cloudflare Bot Fight Mode — done 2 Apr
+    - ✅ Fortiguard recategorisation via Cloudflare — submitted 2 Apr (allow ~10 days)
+    - ⚠️ Page Shield — not yet confirmed (separate toggle from Bot Fight Mode)
+    - ⚠️ Platform Security Expert session needed — WAF/HSTS/headers unconfirmed
 
 ---
 
