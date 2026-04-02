@@ -20,7 +20,7 @@ import sys
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY     = os.environ["PPLX_API_KEY"]
-MODEL       = "sonar-deep-research"   # weekly uses deep research
+MODEL       = "sonar-pro"             # sonar-pro: live web search with deeper synthesis
 TODAY       = datetime.date.today()
 TODAY_STR   = TODAY.isoformat()
 
@@ -55,7 +55,7 @@ prompt += f"\n\nCurrent date: {TODAY_STR}. Week ending (Saturday): {WEEK_ENDING}
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
 print(f"Calling Perplexity API ({MODEL}) for week ending {WEEK_ENDING}...")
-print("Note: sonar-deep-research may take 60-120 seconds...")
+print("Note: sonar-pro may take 10-30 seconds...")
 
 response = requests.post(
     "https://api.perplexity.ai/chat/completions",
@@ -68,7 +68,7 @@ response = requests.post(
         "messages":    [{"role": "user", "content": prompt}],
         "temperature": 0.1,
     },
-    timeout=300,   # deep research needs more time
+    timeout=120,
 )
 response.raise_for_status()
 
