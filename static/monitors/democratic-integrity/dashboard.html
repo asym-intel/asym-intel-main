@@ -307,6 +307,8 @@
     <li><a href="archive.html">Archive</a></li>
     <li><a href="persistent.html">Living Knowledge</a></li>
     <li><a href="about.html">About</a></li>
+    <li><a href="methodology.html">Methodology</a></li>
+    <li><a href="search.html">Search</a></li>
   </ul>
   <div class="monitor-nav__actions">
     <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
@@ -387,6 +389,11 @@
       <div id="signal-block">
         <div class="loading-state">Loading signal…</div>
       </div>
+    </section>
+
+    <section class="module-section" id="section-weekly-brief">
+      <div class="module-header"><div class="module-title">Weekly Brief</div></div>
+      <div id="weekly-brief-content"><div class="loading-state">Loading…</div></div>
     </section>
 
     <section class="module-section" id="section-delta">
@@ -608,7 +615,9 @@ document.addEventListener('DOMContentLoaded', function () {
       var col = COLOURS[c.tier] || '#94a3b8';
       html +=
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">' +
-          '<div style="width:120px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right">' + escHtml(c.country) + '</div>' +
+          '<div style="width:145px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right">' +
+          (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country) || '') + ' ' : '') +
+          escHtml(c.country) + '</div>' +
           '<div style="position:relative;flex:1;height:16px;background:rgba(100,116,139,0.1);border-radius:3px">' +
             '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;background:' + col + ';border-radius:3px;opacity:0.80"></div>' +
           '</div>' +
@@ -673,10 +682,23 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-rapid-decay').textContent = rd.length;
       var firstWords = signal.split(' ').slice(0, 6).join(' ');
       document.getElementById('kpi-lead-signal').textContent = firstWords + (signal.split(' ').length > 6 ? '\u2026' : '');
-      // KPI sub links to the Lead Signal section below
       var kpiSub = document.getElementById('kpi-lead-signal-sub');
       if (kpiSub) {
         kpiSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
+      }
+
+      // Weekly brief
+      var briefEl = document.getElementById('weekly-brief-content');
+      if (briefEl) {
+        var brief = d.weekly_brief || '';
+        if (brief) {
+          var paras = brief.split(/\n{2,}/).filter(function(p) { return p.trim(); });
+          briefEl.innerHTML = paras.length > 1
+            ? paras.map(function(p) { return '<p style="margin-bottom:var(--space-3)">' + escHtml(p.trim()) + '</p>'; }).join('')
+            : '<p>' + escHtml(brief) + '</p>';
+        } else {
+          briefEl.innerHTML = '<p class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</p>';
+        }
       }
 
       // Page meta
