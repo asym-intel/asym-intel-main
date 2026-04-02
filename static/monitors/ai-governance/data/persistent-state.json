@@ -1,14 +1,15 @@
 {
   "_meta": {
     "description": "Persistent knowledge base for the AI Governance Monitor. Updated only when material changes occur. Never delete entries — archive closed episodes instead.",
-    "last_updated": "2026-04-01",
+    "last_updated": "2026-04-02",
     "last_issue": "2026-04-01",
     "schema_version": "2.0",
     "source_url": "https://asym-intel.info/monitors/ai-governance/2026-04-01-weekly-digest/",
     "monitor_slug": "ai-governance",
     "monitor_name": "AI Governance Monitor",
     "publish_day": "Friday",
-    "publish_time_utc": "16:00"
+    "publish_time_utc": "16:00",
+    "calibration": "EU AI Act 2026 / GPAI Code of Practice applied 2026-04-02"
   },
   "module_7_risk_vectors": [
     {
@@ -621,5 +622,182 @@
         "prior_value": null
       }
     ]
-  }
+  },
+  "eu_ai_act_tracker": {
+    "baseline_date": "2026-04-02",
+    "source": "EU AI Act OJ L 2024/1689 + AGM Enhancement Addendum",
+    "layers": {
+      "layer_1_text": {
+        "status": "confirmed",
+        "note": "OJ L 2024/1689 — baseline"
+      },
+      "layer_2_delegated_acts": {
+        "status": "in_progress",
+        "note": "High-risk AI classification list expected Q2 2026"
+      },
+      "layer_3_harmonised_standards": {
+        "status": "standards_vacuum_active",
+        "note": "No harmonised standards in OJ as of Q1 2026. Track CEN-CENELEC JTC 21 weekly."
+      },
+      "layer_4_gpai_code": {
+        "status": "first_general_release_published",
+        "note": "Final Code expected Q2 2026"
+      },
+      "layer_5_nca": {
+        "status": "mostly_designated",
+        "note": "Track NCA enforcement capacity monthly"
+      },
+      "layer_6_ai_office": {
+        "status": "operational",
+        "note": "First supervisory decision expected H1 2026 — landmark M09+M10 item"
+      },
+      "layer_7_digital_omnibus": {
+        "status": "monitoring",
+        "note": "EP plenary outcome affects AI Liability Directive"
+      }
+    },
+    "standards_vacuum_flag": "ACTIVE",
+    "standards_vacuum_note": "Do not downgrade until at least one harmonised standard published in OJ. Include in M09 every issue with days-to-compliance-deadline."
+  },
+  "gpai_compliance": {
+    "baseline_date": "2026-04-02",
+    "labs": [
+      {
+        "lab": "OpenAI",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Anthropic",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Google DeepMind",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Meta AI",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Open-weight compliance ambiguity"
+      },
+      {
+        "lab": "Mistral",
+        "signatory": true,
+        "transparency_report": false,
+        "compute_disclosure": "limited",
+        "assessment": "EU-based; higher NCA scrutiny expected"
+      },
+      {
+        "lab": "xAI (Grok)",
+        "signatory": false,
+        "transparency_report": false,
+        "compute_disclosure": "none",
+        "assessment": "non_compliant_track"
+      },
+      {
+        "lab": "Chinese labs (general)",
+        "signatory": false,
+        "transparency_report": false,
+        "compute_disclosure": "none",
+        "assessment": "Ciyuan Standards Vacuum flag — standing"
+      }
+    ]
+  },
+  "risk_vectors_2026_baseline": {
+    "baseline_date": "2026-04-02",
+    "vectors": {
+      "governance_fragmentation": {
+        "rating": "HIGH",
+        "confidence": "Confirmed",
+        "last_updated": "2026-03-30",
+        "note": "EU/US schism confirmed — deregulatory pivot. US/EU AI safety alignment collapsed."
+      },
+      "cyber_escalation": {
+        "rating": "ELEVATED",
+        "confidence": "Confirmed",
+        "last_updated": "2026-03-30"
+      },
+      "platform_power": {
+        "rating": "HIGH",
+        "confidence": "Confirmed",
+        "last_updated": "2026-03-30",
+        "note": "Big Five hyperscaler concentration; M&A activity"
+      },
+      "export_controls": {
+        "rating": "ELEVATED",
+        "confidence": "Confirmed",
+        "last_updated": "2026-03-30",
+        "note": "H20 chip ban (Nvidia) — check BIS Federal Register every issue"
+      },
+      "disinfo_velocity": {
+        "rating": "ELEVATED",
+        "confidence": "Probable",
+        "last_updated": "2026-03-30"
+      }
+    }
+  },
+  "concentration_index_2026": {
+    "baseline_date": "2026-04-02",
+    "domains": {
+      "compute_gpu": {
+        "rating": "Extreme",
+        "primary_actor": "NVIDIA (>80% data centre GPU)",
+        "watch_signal": "AMD/Intel market share gain >=5%"
+      },
+      "foundation_models": {
+        "rating": "High",
+        "primary_actor": "OpenAI, Google, Anthropic, Meta",
+        "watch_signal": "Open-weight releases; Chinese labs closing gap"
+      },
+      "ai_infrastructure": {
+        "rating": "High-Extreme",
+        "primary_actor": "AWS, Azure, GCP",
+        "watch_signal": "Behind-the-meter power agreements; nuclear PPAs"
+      },
+      "ai_applications": {
+        "rating": "Moderate",
+        "primary_actor": "Sector-specific",
+        "watch_signal": "Stealth deployment flags M04"
+      },
+      "ai_safety_oversight": {
+        "rating": "Low-Fragmented",
+        "primary_actor": "None dominant",
+        "watch_signal": "AI Office first enforcement action"
+      }
+    },
+    "critical_note": "Microsoft/OpenAI structural relationship (Microsoft ~49% revenue share via Azure) is most concentrated combination. Any restructuring = M14+M03 item."
+  },
+  "aisi_status_2026": {
+    "uk": {
+      "name": "AI Security Institute (rebranded from AISI, early 2025)",
+      "note": "Mandate shift: safety evaluation → security-focused oversight. Track staff changes — departures/appointments carry higher significance in unstable institutional period."
+    },
+    "us": {
+      "name": "NIST AI Safety (Biden-era framework)",
+      "note": "Trump admin deregulatory pivot. 2023 Biden EO substantially rescinded. NIST AI RMF 1.0 in effect but lacks executive enforcement mandate. M07 Governance Fragmentation: update toward HIGH if not done."
+    },
+    "eu": {
+      "name": "EU AI Office",
+      "url": "digital-strategy.ec.europa.eu/en/policies/ai-office",
+      "note": "Operational, no binding enforcement decisions yet. First supervisory decision = landmark M09+M10 item."
+    }
+  },
+  "calibration_log": [
+    {
+      "date": "2026-04-02",
+      "source": "EU AI Act OJ L 2024/1689 + AGM Enhancement Addendum v1.0",
+      "applied_by": "Computer session",
+      "summary": "EU AI Act 7-layer tracker, Standards Vacuum ACTIVE flag, GPAI compliance table, M07 risk vector baselines, Concentration Index M14, AISI institutional update"
+    }
+  ]
 }
