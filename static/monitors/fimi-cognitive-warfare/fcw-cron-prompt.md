@@ -81,8 +81,15 @@ fi
 if [ "${ACTUAL_HOUR#0}" -lt "${EXPECTED_HOUR#0}" ]; then
   echo "SCHEDULE CHECK: ⚠ HOUR MISMATCH — invoked at ${ACTUAL_HOUR}:${ACTUAL_MIN} UTC, expected ${EXPECTED_HOUR}:00 UTC"
 fi
-if [ "$ACTUAL_DAY" = "$EXPECTED_DAY" ] && [ "${ACTUAL_HOUR#0}" -ge "${EXPECTED_HOUR#0}" ]; then
-  echo "SCHEDULE CHECK: ✓ On schedule"
+if [ "$ACTUAL_DAY" = "$EXPECTED_DAY" ]; then
+  HOUR_DIFF=$(( ${ACTUAL_HOUR#0} - ${EXPECTED_HOUR#0} ))
+  if [ "$HOUR_DIFF" -gt 2 ]; then
+    echo "SCHEDULE CHECK: ⚠ LATE INVOCATION — invoked at ${ACTUAL_HOUR}:${ACTUAL_MIN} UTC, expected ${EXPECTED_HOUR}:00 UTC (${HOUR_DIFF}h late)"
+    echo "SCHEDULE CHECK: Cron task may be scheduled at a different time than documented."
+    echo "SCHEDULE CHECK: Log this discrepancy in notes-for-computer.md for Peter to verify."
+  else
+    echo "SCHEDULE CHECK: ✓ On schedule (within 2h window)"
+  fi
 fi
 #
 # ══════════════════════════════════════════════════════════════
