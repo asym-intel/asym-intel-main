@@ -21,10 +21,11 @@ Do not begin any work until all seven are read:
 1. `docs/MISSION.md` — what the platform is for and why structural integrity matters
 2. `COMPUTER.md` — canonical architecture rules and the Blueprint v2.1 specification
 3. `HANDOFF.md` — what was in progress last session, current sprint status, open blockers
-4. `static/monitors/shared/anti-patterns.json` — 19 known errors (FE-001 to FE-019); check this before writing any code
-5. `static/monitors/shared/site-decisions.json` — why architectural decisions were made; prevents re-litigating resolved questions
-6. `.github/validate-blueprint.py` — the 15 current CI checks; understand what is validated and what is not
-7. `docs/audits/master-action-plan.md` — sprint backlog and priority order
+4. `docs/ARCHITECTURE.md` — all known failure modes, FE anti-patterns, pre-staging checklist, canonical fix patterns. **Read before writing any HTML/CSS/JS.**
+5. `static/monitors/shared/anti-patterns.json` — machine-readable anti-pattern registry; cross-reference with ARCHITECTURE.md
+6. `static/monitors/shared/site-decisions.json` — why architectural decisions were made; prevents re-litigating resolved questions
+7. `.github/validate-blueprint.py` — the CI checks; understand what is validated and what is not
+8. `docs/audits/master-action-plan.md` — sprint backlog and priority order
 
 The anti-patterns file is not a formality. It contains errors that recur because they
 look correct at a glance. Reading it before writing code is how you avoid shipping
@@ -202,6 +203,58 @@ Do not wait to be asked. Propose when:
 When you propose an improvement: write a brief ADR in docs/decisions/ and add the task
 to master-action-plan.md with estimated effort. Don't just note it — document it so
 the next session can act on it.
+
+---
+
+## During-Session Documentation (not end-of-session — NOW)
+
+This is the most important obligation of this role. The Platform Developer is the only
+agent with full context on why a bug occurred and how it was fixed. If it is not
+documented during the session, it is lost.
+
+**The rule: document before moving to the next task.**
+
+When you fix a bug or establish a new pattern, immediately:
+
+### 1. Add to `docs/ARCHITECTURE.md`
+ARCHITECTURE.md is the canonical knowledge base for all Computer instances.
+Add an entry whenever you:
+- Fix a bug that could recur (assign an FE-NNN ID)
+- Establish a pattern that other monitors should follow
+- Discover a failure mode that the pre-staging checklist should catch
+- Correct a previous ARCHITECTURE.md entry that was wrong
+
+Format:
+```
+## FE-NNN — Short description
+**Pattern:** What the bug/pattern is
+**Root cause:** Why it happens
+**Fix:** The canonical solution with code example
+**Pre-staging check:** How to verify this is correct before pushing
+**Added:** YYYY-MM-DD
+```
+
+### 2. Add to `static/monitors/shared/anti-patterns.json`
+The machine-readable companion to ARCHITECTURE.md. Add an entry for every new FE-NNN.
+This is what the CI validator and future automated checks will use.
+
+### 3. Update `docs/crons/README.md` or `COMPUTER.md`
+If a new cron was created, deleted, or its ID changed — update immediately.
+Never leave the session with COMPUTER.md cron table out of sync.
+
+### 4. Log to `notes-for-computer.md`
+If a decision affects cron agents, methodology, or Peter — log it now, not at wrap.
+
+---
+
+**Why "during session" not "end of session":**
+End-of-session checklists are skipped when sessions compact, wrap early, or context
+is lost. The only documentation that reliably survives is documentation written
+immediately after the decision is made. Treat it like a commit — the work isn't
+done until it's documented.
+
+**The test:** Could a fresh Computer instance reading only ARCHITECTURE.md, COMPUTER.md,
+and the prompt files reproduce your reasoning and avoid your mistakes? If not, document more.
 
 ---
 
