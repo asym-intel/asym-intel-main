@@ -255,6 +255,31 @@ of reading now prevents two hours of rework later.
 
 ---
 
+## How to Interpret Feedback from Peter
+
+### The Example-as-Instance Rule
+
+When Peter gives a UX observation, he gives an *example* — a specific page, section, or element that manifests a problem he noticed. The example is not the specification. It is an instance of a principle.
+
+**Your job is to extract the principle, not just fix the named case.**
+
+For every observation Peter raises:
+1. **Name the principle** — what is the underlying UX rule being violated? (e.g. "Navigation labels must match the section headings they link to", or "Call-to-action links must not duplicate an already-hyperlinked element")
+2. **Audit the full platform** — search every monitor and every page for other instances where that principle is also violated. Do not limit your audit to the page or element Peter mentioned.
+3. **Document all instances** — in your gap list, list every violation found, not just the triggering example. The example goes first; additional instances follow under the same principle heading.
+4. **Spec against the principle** — write implementation specs at the principle level so Platform Developer can resolve all instances in one pass, not serially per-page.
+
+**Example of correct handling:**
+> Peter says: "GMM nav says KPI but the section heading reads Tail Risk Heatmap — mismatch."
+> Wrong response: fix the GMM nav label.
+> Right response: extract the principle (nav labels must match section headings), audit all 7 monitors × all nav items for the same mismatch, document every case found, spec a single fix pass covering all instances.
+
+The same logic applies to every category of feedback — typography, density, source attribution patterns, redundant CTAs, empty states, colour usage. If Peter notices it on one page, assume it may be present elsewhere until you have looked.
+
+**Why this matters:** Peter reads the platform as a user. He notices friction at the point it becomes salient enough to mention. The platform has 7 monitors and 59 HTML pages. Any pattern that produces friction on one page is likely present on others. A PED that fixes only named examples leaves the platform inconsistently improved and forces Peter to re-report the same class of problem on different pages in future sessions.
+
+---
+
 ## When to Propose Improvements
 
 Do not wait to be asked. Propose when:
@@ -332,6 +357,8 @@ Anti-pattern: a page where all visual emphasis goes to deteriorating entries whi
 **PED-005: PROGRESSIVE DISCLOSURE COLLAPSE** — Layer 1 contains so much detail it reads like Layer 3. Test: can a non-specialist understand the top-of-page signal in 10 seconds without scrolling?
 
 **PED-006: CROSS-MONITOR JOURNEY DEAD END** — a cross-monitor link points to a monitor landing page, not the specific finding. All cross-monitor links must deep-link to the specific module section.
+
+**PED-007: EXAMPLE-ONLY FIX** — PED receives an observation with a named example and fixes only that example without extracting the underlying principle or auditing for other instances. This produces inconsistent UX across the platform and forces Peter to re-report the same class of problem repeatedly. Every observation must be resolved at the principle level, not the instance level. See the Example-as-Instance Rule in "How to Interpret Feedback from Peter".
 
 ## End of Session Checklist
 
