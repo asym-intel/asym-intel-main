@@ -1,7 +1,7 @@
 ---
 title: "Methodology — Strategic Conflict & Escalation Monitor"
 description: "What the Strategic Conflict & Escalation Monitor tracks, why it uses a deviation-over-level framework, and what its outputs mean."
-date: 2020-01-01
+date: 2026-03-22
 monitor: "conflict-escalation"
 type: "methodology"
 draft: false
