@@ -49,6 +49,17 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 
 ---
 
+## IMMEDIATE — Next Session (blockers, fix before content work)
+
+| Item | Priority | Owner | Notes |
+|------|----------|-------|-------|
+| FCW dashboard.html diverged | 🔴 CRITICAL | Platform Developer | static/ is 139k (legacy embedded CSS), docs/ is 37k (modern shared library) — wrong version may be serving readers. Investigate and fix. |
+| FCW-DAILY-FEEDER-PROMPT-v4.md missing | 🔴 CRITICAL | Computer | Referenced by fcw-daily-feeder-cron.md but does not exist in asym-intel-internal/prompts/. Daily FCW feeder cron may be broken. Verify and fix before Thu 9 Apr FCW pipeline run. |
+| docs/monitors/_shared/ stale artefact | 🟡 HIGH | Platform Developer | Older CSS/JS than docs/monitors/shared/ — nothing references it. Verify and delete. |
+| housekeeping-cron-prompt.md in docs/ only | 🟡 HIGH | Computer | Exists in docs/monitors/ but not static/monitors/ — source/output broken. Add to static/. |
+
+---
+
 ## IN FLIGHT THIS WEEK (automated — no session needed)
 
 | Item | Trigger | Action if OK |
@@ -57,6 +68,19 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 | SCEM verify cron (a67a9739) | 📅 Sun 5 Apr 18:30 UTC | Confirms FE-019 compliance on briefs |
 | WDM verify cron (10ddf5f0) | 📅 Mon 6 Apr 06:30 UTC | Confirms FE-019 compliance on briefs |
 | FCW full pipeline test | 📅 Thu 9 Apr 09:00 UTC | First full Collector→Weekly→Reasoner→Analyst pass |
+
+---
+
+## SPECIALIST SESSIONS — First Benchmark Runs (in order)
+
+| Session | Priority | Goal | Prompt |
+|---------|----------|------|--------|
+| Platform Security Expert | 🔴 Run first | Create docs/security/ files, verify branch protection, SHA-256 manifest spec, full quarterly checklist incl. filter vendors | `docs/prompts/platform-security-expert.md` |
+| SEO & Discoverability Expert | 🟡 Run second | Sitemap audit, meta tag three-of-five test, Dataset markup gap, AI search baseline (Perplexity audit) | `docs/prompts/seo-discoverability-expert.md` |
+| Platform Experience Designer | 🟡 Run third | Peter's reader observations + knowhow dump + colour-registry.md (must precede all implementation) | `docs/prompts/platform-experience-designer.md` |
+| Intelligence Surface Analyst | 🟢 After PED | Five-audience gap test, asymmetric signal audit, recovery parity audit | `docs/prompts/reader-experience-analyst.md` |
+
+**Benchmark prompts:** ready-to-paste prompts for all four sessions are in HANDOFF.md next-session notes.
 
 ---
 
