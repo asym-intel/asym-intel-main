@@ -1,6 +1,6 @@
 ---
-title: "Methodology -- European Geopolitical & Hybrid Threat Monitor"
-description: "Source hierarchy, four-actor framework, attribution confidence standards, and analytical dimensions for the European Geopolitical & Hybrid Threat Monitor (EGHTM)."
+title: "Methodology -- European Strategic Autonomy Monitor"
+description: "Source hierarchy, four-actor framework, attribution confidence standards, and analytical dimensions for the European Strategic Autonomy Monitor (ESA)."
 date: 2020-01-01
 monitor: "european-strategic-autonomy"
 type: "methodology"
@@ -16,7 +16,7 @@ Source hierarchy, four-actor framework, attribution confidence standards, and an
 ### Editor & Publisher
 Peter Howitt · asym-intel.info · Gibraltar
 
-Peter Howitt is the editor of the European Geopolitical & Hybrid Threat Monitor — Asymmetric Intelligence, published at [asym-intel.info](https://asym-intel.info). He writes and advises on geopolitical strategy, hybrid warfare, intelligence operations, and European strategic autonomy. Based in Gibraltar.
+Peter Howitt is the editor of the European Strategic Autonomy Monitor — Asymmetric Intelligence, published at [asym-intel.info](https://asym-intel.info). He writes and advises on geopolitical strategy, hybrid warfare, intelligence operations, and European strategic autonomy. Based in Gibraltar.
 
 ### Inclusion Standard
 
@@ -31,7 +31,7 @@ Factual reporting (what was observed, documented, or officially attributed) is a
 ### Five-Tier Intelligence Source Standard
 Each tier represents a distinct analytical lens
 
-The EGHTM operates a five-tier source hierarchy. Cross-referencing across tiers is standard practice: it exposes attribution gaps where institutional findings diverge from investigative ground truth. Where such gaps exist — for example, when investigative outlets name a perpetrator months before institutional bodies issue formal attribution — the gap itself is documented and analysed.
+The ESA operates a five-tier source hierarchy. Cross-referencing across tiers is standard practice: it exposes attribution gaps where institutional findings diverge from investigative ground truth. Where such gaps exist — for example, when investigative outlets name a perpetrator months before institutional bodies issue formal attribution — the gap itself is documented and analysed.
 
 | Tier | Category | Named Sources | Rule |
 |---|---|---|---|
@@ -51,7 +51,7 @@ Expanding beyond the EEAS two-actor ceiling
 
 The EEAS Foreign Information Manipulation and Interference (FIMI) framework — as operationalised in successive annual threat reports and the FIMI Explorer incident database — formally tracks **Russia and China only**. This constraint is institutional and political, not analytical. It reflects the diplomatic parameters under which the EEAS operates, not the actual threat landscape facing European democratic institutions.
 
-The EGHTM explicitly monitors FIMI and hybrid operations across four state actors. CIDOB (Barcelona Centre for International Affairs) has formally identified the EU's two-actor limitation as a critical analytical gap in published research. This monitor operationalises the correction.
+The ESA explicitly monitors FIMI and hybrid operations across four state actors. CIDOB (Barcelona Centre for International Affairs) has formally identified the EU's two-actor limitation as a critical analytical gap in published research. This monitor operationalises the correction.
 
 ### RU · Russia
 Russian Federation
@@ -164,7 +164,7 @@ This is an open-source intelligence synthesis product, not a classified intellig
 ## 09 · Weekly Research Process
 
 The following seven-step sequence is the canonical weekly cycle for the
-EGHTM. It is documented here so that the monitor is fully reproducible
+ESA. It is documented here so that the monitor is fully reproducible
 and the analytical chain from raw source to published output is
 transparent.
 
@@ -233,7 +233,7 @@ All four JSON files committed in the same git push as the dashboard.
 Asymmetric Intelligence Monitor Suite
 Cross-linked analytical coverage
 
-The EGHTM is one of four monitors published under the Asymmetric Intelligence brand at asym-intel.info. Each monitor covers a distinct analytical domain; they cross-link where coverage intersects.
+The ESA is one of four monitors published under the Asymmetric Intelligence brand at asym-intel.info. Each monitor covers a distinct analytical domain; they cross-link where coverage intersects.
 
 [
 Hub Monitor
@@ -248,12 +248,12 @@ AI regulation, model frontier, military AI, investment, and governance — globa
 [
 Democratic Integrity Monitor
 World Democracy Monitor
-Democratic backsliding, rule of law trajectories, and institutional resilience globally. Provides the comparative democratic health baseline against which EGHTM state capture risk assessments are calibrated.
+Democratic backsliding, rule of law trajectories, and institutional resilience globally. Provides the comparative democratic health baseline against which ESA state capture risk assessments are calibrated.
 ](https://asym-intel.info/monitors/democratic-integrity/dashboard.html)
 [
 Macro Monitor
 Geopolitical Macro Monitor
-Economic coercion instruments, sanctions architecture, trade dependencies, and financial warfare. Provides the economic sovereignty dimension that complements EGHTM's Lagrange Point strategic autonomy tracking.
+Economic coercion instruments, sanctions architecture, trade dependencies, and financial warfare. Provides the economic sovereignty dimension that complements ESA's Lagrange Point strategic autonomy tracking.
 ](https://asym-intel.info/monitors/macro-monitor/dashboard.html)
 
 ## 10 · Persistent Data
