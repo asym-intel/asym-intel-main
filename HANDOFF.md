@@ -1,146 +1,88 @@
-# HANDOFF.md - Asymmetric Intelligence
-**Generated:** 2026-04-03 session wrap (~00:30 CEST) — three-session benchmark complete
+# HANDOFF.md — Asymmetric Intelligence
+**Generated:** 2026-04-03 session wrap (~01:16 CEST) — full day + evening session
 **Next auto-generation:** Monday 7 April 08:00 UTC (Housekeeping)
 
 ---
 
 ## Immediate Actions — Next Session
 
-### Peter — action required before next Computer session
+### Peter — action required
 
-1. **FCW dashboard PR #28 — visual sign-off needed**
-   PR staging → main is open: https://github.com/asym-intel/asym-intel-main/pull/28
-   Browse the staging preview and confirm FCW dashboard renders correctly (modern Blueprint v2.1 shared-library version). Once confirmed, merge.
+1. **Branch protection on main** — HIGH security finding (SEC-009)
+   GitHub repo settings → Branches → require CI to pass, include administrators
 
-2. **Branch protection on main — HIGH security finding**
-   Enable branch protection on `asym-intel-main` → main:
-   - Require status checks to pass (CI build.yml)
-   - Include administrators (must apply to owner too, not just collaborators)
-   GitHub repo settings → Branches → Add rule for `main`
+2. **Integrity manifest GA workflow approval** — draft at `docs/security/drafts/generate-integrity-manifest.yml`
+   Review and move to `.github/workflows/` when ready
 
-3. **HSTS max-age — update Cloudflare Transform Rule**
-   Current: max-age=15552000 (180 days). Required: max-age=31536000 (365 days).
+3. **Cloudflare security headers** — HSTS max-age 31536000 + X-Frame-Options + CSP + Referrer-Policy
+   Via Cloudflare Transform Rules (spec in docs/prompts/platform-security-expert.md)
 
-4. **Add security headers via Cloudflare Transform Rules**
-   X-Frame-Options: DENY
-   Content-Security-Policy: (spec in docs/prompts/platform-security-expert.md)
-   Referrer-Policy: strict-origin-when-cross-origin
+4. **Cloudflare Zone ID + Account ID** → add to `asym-intel-internal/platform-config.md`
+   (Cloudflare dashboard → asym-intel.info overview → Zone ID in right sidebar)
 
-5. **GSC property verification** ✅ Confirmed — TXT record live in public DNS (`google-site-verification=3ig4MTYb8s0zrWYRlo5JskGc5SNFa8PwHmFuZ4xC5X0`). No action needed.
-
-6. **Verify WDM Collector first run** (Thu 3 Apr 07:00 UTC):
+5. **Verify WDM Collector first run** (Thu 3 Apr 07:00 UTC):
    ```
    gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/democratic-integrity/daily/daily-latest.json --jq '.content' | base64 -d | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['_meta'])"
    ```
 
-### Computer — platform work queue (in order)
+### Computer — next session work queue (start fresh session)
 
-7. **PR #28 merge** — after Peter confirms visual sign-off above, merge and reset staging to main.
+6. **PED first session** — Peter's RTF observations are the brief (Prompt-B-PED.rtf)
+   - docs/ux/decisions.md full population (Sections 1–4)
+   - docs/ux/colour-registry.md creation
+   - 5-page progressive disclosure audit
+   - Gap list → notes-for-computer.md for Platform Developer
+   - Split into two subagents: observe first → write second (session limit lesson)
 
-8. **SRI hashes on Chart.js CDN tags** — HIGH security finding
-   Platform Developer session: add `integrity=` + `crossorigin=anonymous` to all 7 monitor dashboard Chart.js `<script>` tags. Standardise to v4.4.7.
-   SRI hash for 4.4.7: `sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC`
-   Full hashes for 4.4.4 and 4.4.0 in docs/security/third-party-audit.md.
+7. **JSON-LD structured data** — HIGH SEO finding, blocks AI search
+   Platform Developer session: layouts/partials/head.html + layouts/_default/single.html
+   Spec: docs/seo/ai-search-audit-2026-Q2.md Section 5
 
-9. **JSON-LD structured data** — HIGH SEO finding, blocks AI search visibility
-   Platform Developer: implement in layouts/partials/head.html and layouts/_default/single.html.
-   Full spec: docs/seo/ai-search-audit-2026-Q2.md Section 5.
-   Types needed: Dataset, NewsArticle, FAQPage, BreadcrumbList.
+8. **docs/benchmarks/** — first-session knowhow for Security/SEO/Platform Developer
 
-10. **WDM meta description fix** — HIGH SEO finding
-    One front-matter update to content/monitors/democratic-integrity/_index.md.
-    Proposed: "Weekly early-warning intelligence on democratic backsliding, institutional erosion, and state capture — tracking V-Dem and Freedom House signals before annual indices catch up."
+9. **Sprint 3 remainder** (no blockers, ~2.5 hrs):
+   - GMM: tail risk note tooltips + scenario cards
+   - AGM: M06 arXiv stub + risk vector heat grid
 
-11. **Methodology page lastmod dates** — MEDIUM SEO finding
-    All 7 methodology pages carry lastmod 2020-01-01. Set correct dates in Hugo front-matter.
+10. **Sprint 2B data-gated** (fires this week):
+    - WDM Category B verify (Mon 6 Apr)
+    - ESA defence spending bar (Wed 8 Apr)
+    - FCW campaign Gantt (Thu 9 Apr)
 
-12. **integrity-manifest.json** — HIGH security finding
-    New GitHub Actions workflow generate-integrity-manifest.yml (Mon 09:00 UTC, after Housekeeping).
-    Full spec: docs/security/integrity-manifest-spec.md.
-    Requires Peter approval as a new workflow.
-
-13. **Automated pipeline failure notifications** — MEDIUM security finding
-    All 14 GA workflows (FCW/GMM/SCEM/WDM Collector/Research/Reasoner) need `if: failure()` notification step.
-
-14. **Sprint 3 remainder — doable now, no blockers (~2.5 hrs):**
-    - GMM: tail risk note tooltips (20 min)
-    - GMM: scenario cards (30 min)
-    - AGM: M06 arXiv stub section in report.html (20 min)
-    - AGM: risk vector heat grid in report.html (30 min)
-
-15. **Sprint 2B data-gated (fires this week):**
-    - WDM Category B sections verify (Mon 6 Apr after cron)
-    - ESA defence spending bar (Wed 8 Apr after cron)
-    - FCW campaign Gantt (Thu 9 Apr after cron)
-
-16. **Verification crons fire automatically:**
-    - SCEM: Sun 5 Apr 18:30 UTC (a67a9739)
-    - WDM: Mon 6 Apr 06:30 UTC (10ddf5f0)
-
-17. **WDM Analyst first full pipeline run: Mon 7 Apr 06:00 UTC**
-
-18. **Next pipeline builds** (sequential, after WDM validates Mon 7 Apr):
-    ESA → AGM → ERM
+11. **Next pipeline builds** (after WDM validates Mon 7 Apr): ESA → AGM → ERM
 
 ---
 
-## Completed — Three-Session Benchmark (2–3 April 2026)
+## Completed This Session (2–3 April 2026 — full day)
 
-### Session 1 — Platform Developer
+### Three-session benchmark (Sessions 1–3)
+- Platform Developer: FCW dashboard divergence investigated + fixed · FCW stub corrected · repo-audit committed
+- Security Expert (first-ever): docs/security/ created · secrets rotation · third-party audit with SRI hashes · integrity manifest spec · platform-status.md
+- SEO Expert (first-ever): docs/SEO.md + ai-search-audit-2026-Q2.md · robots.txt fixed · 0/3 AI search queries cited (baseline)
 
-- **FCW dashboard.html divergence investigated and fixed (staging)**
-  static/ (139k, legacy embedded CSS) vs docs/ (37k, modern shared library) — root cause identified: shared-library migration was never applied to static/. Maintenance cron was writing into legacy file. Staging branch updated with modern version. PR #28 open.
-- **FCW-DAILY-FEEDER-PROMPT-v4.md missing — resolved**
-  Both fcw-daily-feeder-cron.md stubs updated. No active cron was broken. GA workflow is canonical. Commits: fc489ff2, 00835ff2.
-- **Repo audit committed** to docs/audits/repo-audit-2026-04-02.md (commit afcecdce, 14,012 bytes). 2 CRITICAL, 2 HIGH, 3 MEDIUM, 2 LOW findings documented.
-- **platform-dev-findings.md** saved to workspace for Session 2/3 reference.
+### HIGH findings resolved this session
+- ✅ **SEC-010** SRI hashes — PR #29 merged, all 7 dashboards
+- ✅ **SEC-008** integrity-manifest.json — live on main, all 7 monitors hashed
+- ✅ **SEO-010** WDM meta description — "democratic backsliding" + V-Dem + Freedom House added
+- ✅ **FCW dashboard** — legacy 140k replaced with modern 37k shared-library version on main
+- ✅ **SEO methodology dates** — all 7 pages corrected from 2020-01-01 to actual dates
+- ✅ **FCW stub files** — both corrected, GA architecture documented
 
-### Session 2 — Platform Security Expert (first-ever session)
+### Governance improvements
+- COMPUTER.md v3.1 — wrap step 0 (incomplete work check), subagent sizing rules, cancelled-subagent pitfall
+- Skill v1.6 — matching updates
+- platform-config.md — created in asym-intel-internal (Zone ID placeholder for Peter)
+- docs/audits/repo-audit-2026-04-02.md — committed
 
-- **docs/security/ created** — all four required files committed to main:
-  - docs/security/secrets-rotation-schedule.md (7.4 KB, commit 44cbd432)
-  - docs/security/third-party-audit.md (10.4 KB, commit 375fe577) — SRI hashes computed for all Chart.js versions in use
-  - docs/security/integrity-manifest-spec.md (8.7 KB, commit e3ba824d)
-  - docs/security/platform-status.md (7.9 KB, commit 37e07da9) — quarterly checklist results
-- **Findings:** 0 CRITICAL, 3 HIGH, 3 MEDIUM, 3 LOW
-- **Positive:** Pipeline at /pipeline/ returns 404 ✅ · Single owner on both repos ✅ · No secrets in logs ✅ · No Chart.js CVEs ✅
-- **security-findings.md** saved to workspace for Session 3 reference.
-
-### Session 3 — SEO & Discoverability Expert (first-ever session)
-
-- **docs/seo/ created** — three files committed to main:
-  - docs/SEO.md (23.9 KB, commit 317303c0) — strategy + quarterly findings
-  - docs/seo/ai-search-audit-2026-Q2.md (14.9 KB, commit 3ed50a7e) — AI search baseline
-  - docs/seo/gsc-monthly-audit.md (6.2 KB, commit 23d9a435) — stub, pending GSC connection
-- **docs/robots.txt updated** (commit d8e56930) — Disallow: /pipeline/ and /*.json added (Security LOW finding resolved)
-- **Findings:** 3 HIGH, 5 MEDIUM, 2 LOW
-- **AI search baseline:** 0 of 3 benchmark queries cite asym-intel.info. Primary driver: no structured data on any page.
-- **notes-for-computer.md** updated in asym-intel-internal with all three sessions' findings.
+### Still open (HIGH — requires Peter)
+- ⚠️ Branch protection on main (SEC-009) — Peter action
+- ⚠️ Cloudflare headers — Peter action
+- ⚠️ Integrity manifest workflow approval — Peter action
+- ⚠️ Cloudflare Zone ID in platform-config.md — Peter action
 
 ---
 
-## Specialist Sessions — Status Update
-
-| Session | Status | Key output |
-|---------|--------|------------|
-| Platform Security Expert | ✅ First session complete | docs/security/ created, 3 HIGH findings documented |
-| SEO & Discoverability Expert | ✅ First session complete | docs/SEO.md + AI search baseline, 3 HIGH findings |
-| Platform Experience Designer | 📋 Next specialist session | Peter's reader observations + colour-registry.md |
-| Intelligence Surface Analyst | 📋 After PED | Five-audience gap test |
-
----
-
-## Completed Previously (2 April 2026)
-
-**Morning-afternoon:** All analyst crons migrated to slim repo pointers · 7/7 annual calibration files · FCW + GMM + SCEM GitHub Actions pipelines · Sprint 3A+B+C merged · Housekeeping dedup · EGHTM → ESA rename (21 files) · COMPUTER.md v2.7 · Skill v1.3 · ROADMAP.md · governance infrastructure
-
-**Evening:** WDM pipeline built (3 GA workflows) · COMPUTER.md v2.8
-
-**Late evening:** ROLES.md v1.2/v1.3 · role enhancement addenda v1.0 · all 6 role prompts updated · MISSION.md v1.2 · docs/security/platform-status.md + docs/ux/decisions.md created · governance mirror deleted from asym-intel-internal
-
----
-
-## Cron Table (confirmed correct — all slim repo pointers)
+## Cron Table (confirmed correct)
 
 | Layer | Name | ID | Schedule |
 |---|---|---|---|
@@ -158,7 +100,7 @@
 | Verification | WDM verify | 10ddf5f0 | Mon 6 Apr 06:30 (one-shot) |
 | Quarterly | GSC audit | f78e0c2c | 1 Jan/Apr/Jul/Oct 09:00 UTC |
 
-## GitHub Actions Pipelines (external — NOT Computer crons) — 12 active
+## GitHub Actions (12 active)
 
 | Monitor | Workflow | Schedule | Model |
 |---|---|---|---|
@@ -179,12 +121,10 @@
 
 ## Architecture Notes (stable)
 
+- COMPUTER.md v3.1 — wrap step 0, subagent sizing table, cancelled-subagent pitfall #16
+- Subagent rule: browse 5+ pages AND write docs → two subagents (observe then write)
+- Subagent rule: >90min session → defer complex multi-subagent work to fresh session
 - All crons slim repo pointers — edit .md in docs/crons/ or static/monitors/{slug}/, commit, done
-- ARCHITECTURE.md mandatory before any HTML/CSS/JS work
-- FE-020: inline renderMarkdown (report.html pattern), NOT AsymRenderer.renderMarkdown
+- FE-020: inline renderMarkdown for narrative fields, NOT AsymRenderer.renderMarkdown
 - DQ-001: SCEM roster_watch must not contain conflicts already in conflict_roster
-- Staging reset to main after every direct-file merge
-- AsymRenderer.sourceLabel(url) available for domain-aware source link labels
-- ROADMAP.md is the single source of truth for all planned work — update at every wrap
-- Governance file wiring rule: new persistent files → Step 0 in COMPUTER.md + skill + notes
-- 'wrap' = session checkpoint | 'merge' = HTML deployment approval
+- platform-config.md in asym-intel-internal — canonical home for Zone IDs, account IDs
