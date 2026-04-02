@@ -59,6 +59,40 @@ fi
 
 # Check 2: UTC hour >= scheduled hour (avoid running before scheduled time)
 EXPECTED_HOUR=18
+
+# ══════════════════════════════════════════════════════════════
+# STEP 0 — SCHEDULE SELF-REPORT (runs before publish guard)
+# ══════════════════════════════════════════════════════════════
+#
+# Report actual invocation time vs. documented schedule.
+# This surfaces any discrepancy between the cron task's scheduled
+# time and what COMPUTER.md / this prompt documents.
+#
+ACTUAL_DAY=$(date -u +%A)
+ACTUAL_HOUR=$(date -u +%H)
+ACTUAL_MIN=$(date -u +%M)
+echo "SCHEDULE CHECK: Invoked at ${ACTUAL_DAY} $(date -u +%H:%M) UTC"
+echo "SCHEDULE CHECK: Documented schedule — ${EXPECTED_DAY} at $(printf '%02d' $EXPECTED_HOUR):00 UTC"
+if [ "$ACTUAL_DAY" != "$EXPECTED_DAY" ]; then
+  echo "SCHEDULE CHECK: ⚠ DAY MISMATCH — invoked on $ACTUAL_DAY, expected $EXPECTED_DAY"
+  echo "SCHEDULE CHECK: Cron task scheduled time does not match documented schedule."
+  echo "SCHEDULE CHECK: Report this to Peter via notes-for-computer.md before proceeding."
+fi
+if [ "${ACTUAL_HOUR#0}" -lt "${EXPECTED_HOUR#0}" ]; then
+  echo "SCHEDULE CHECK: ⚠ HOUR MISMATCH — invoked at ${ACTUAL_HOUR}:${ACTUAL_MIN} UTC, expected ${EXPECTED_HOUR}:00 UTC"
+fi
+if [ "$ACTUAL_DAY" = "$EXPECTED_DAY" ]; then
+  HOUR_DIFF=$(( ${ACTUAL_HOUR#0} - ${EXPECTED_HOUR#0} ))
+  if [ "$HOUR_DIFF" -gt 2 ]; then
+    echo "SCHEDULE CHECK: ⚠ LATE INVOCATION — invoked at ${ACTUAL_HOUR}:${ACTUAL_MIN} UTC, expected ${EXPECTED_HOUR}:00 UTC (${HOUR_DIFF}h late)"
+    echo "SCHEDULE CHECK: Cron task may be scheduled at a different time than documented."
+    echo "SCHEDULE CHECK: Log this discrepancy in notes-for-computer.md for Peter to verify."
+  else
+    echo "SCHEDULE CHECK: ✓ On schedule (within 2h window)"
+  fi
+fi
+#
+# ══════════════════════════════════════════════════════════════
 TODAY_HOUR=$(date -u +%H | sed 's/^0//')
 if [ "${TODAY_HOUR:-0}" -lt "$EXPECTED_HOUR" ]; then
   echo "GUARD: Too early. UTC hour=$TODAY_HOUR, scheduled=$EXPECTED_HOUR. Exiting."
