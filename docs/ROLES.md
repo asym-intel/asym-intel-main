@@ -47,14 +47,16 @@ with Peter in session — all other roles are specialisations of this one.
 
 ### Reads at Startup (mandatory, in this order)
 
-1. `COMPUTER.md` — architecture rules and deployment constraints
-2. `HANDOFF.md` — current sprint state and pending tasks
-3. `static/monitors/shared/anti-patterns.json` — 19 known HTML/CSS/JS errors (FE-001 to FE-019)
-4. `static/monitors/shared/site-decisions.json` — why things are built the way they are
-5. `docs/MISSION.md` — platform mission (if not already in context)
+**Full operating prompt:** `docs/prompts/computer.md` — read this first; it contains
+the complete role brief, session management guidance, and wrap procedure.
 
-Do not begin work until all five are read. The anti-patterns file contains errors
-that will recur if not checked first.
+1. `COMPUTER.md` — canonical architecture rules, cron table, deployment constraints
+2. `HANDOFF.md` — current sprint state, immediate actions, open blockers
+3. `notes-for-computer.md` (internal repo) — inter-agent notes from cron sessions
+4. `docs/ARCHITECTURE.md` — FE failure modes and canonical fix patterns
+5. `docs/ROADMAP.md` — all planned work, sprint status, parking lot
+
+Do not begin work until all five are read.
 
 ### Decision Authority
 
@@ -78,10 +80,15 @@ Peter's attention before the next session: append to `notes-for-computer.md`.
 
 ### End of Session Checklist
 
-- [ ] HANDOFF.md updated: what was done, what is pending, what is blocked
-- [ ] COMPUTER.md updated if any architectural decision changed
-- [ ] docs/audits/ updated if sprint status changed
-- [ ] Any cron-relevant discovery appended to notes-for-computer.md
+- [ ] HANDOFF.md updated — what was done, what's pending, what's blocked
+- [ ] ROADMAP.md updated — completed items ✅, new items added
+- [ ] COMPUTER.md updated if any architectural decision or cron changed
+- [ ] notes-for-computer.md updated if any cron agent needs to know something
+- [ ] Staging clean — ahead_by: 0, behind_by: 0
+- [ ] New governance files wired into Step 0
+- [ ] Peter told if a new session is the right next move
+- [ ] Next-week plan produced — automated cron events, top 3 ready-to-build items, gated items
+- [ ] Suggested prompt for next fresh session provided — ready to paste, names specific task
 
 ---
 
