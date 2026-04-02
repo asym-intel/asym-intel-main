@@ -180,6 +180,13 @@ in March each year is discovered automatically by the Step 0B+ loader. You do no
 need to be told it exists — you load it by convention. If the file does not exist
 for the current year, proceed without. Log any unchecked §12 items in your output.
 
+**Wire any new reference file you create into Step 0.**
+If during your session you create or identify a new persistent file that future
+sessions should read (a calibration file, updated methodology spec, new data source
+registry) — add it to `notes-for-computer.md` immediately with a note explaining
+what it is. The Computer session that next touches this monitor reads those notes.
+The test: could a fresh instance with no memory find this file? If not, note it.
+
 **Leave a better persistent state than you found.** Every session should improve
 the longitudinal record: more precise baselines, better characterised trend lines,
 cleaner changelog entries. The agent running in your role next week will have
