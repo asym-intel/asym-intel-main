@@ -1,7 +1,7 @@
 ---
 title: "Methodology — Asym Intel Macro Monitor"
 description: "Full methodology for the Asym Intel Macro Monitor: 24 indicators across 6 domains, 8-asset-class scoring engine, conviction model, Tactical Alerts, Blind Spot Rules, and weekly update protocol. Version 2.0, effective 25 March 2026."
-date: 2020-01-01
+date: 2026-03-18
 monitor: "macro-monitor"
 type: "methodology"
 draft: false
