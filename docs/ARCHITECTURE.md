@@ -424,7 +424,10 @@ Every new section needs a corresponding `<li><a href="#section-id">Label</a></li
 ```
 grep -n "renderYourFunction\|\.catch(" dashboard.html
 ```
-Render call line number must be LESS than the nearest following `.catch(` line number. If greater — the function is defined but never called with live data.
+The render call must be INSIDE the `.then(function(d) { ... })` block — not after the `.catch`.
+The simplest check: the render call should be followed by `})` then `.catch` within a few lines.
+Note: in large fetch blocks (e.g. GMM), the `.catch` may be hundreds of lines after the render call — this is fine as long as the render call is inside the `then` block, not after the closing `});`.
+The reliable check is visual: look at the closing `}` immediately after your render call — it should be the close of the `then` block, not a standalone function.
 
 ### 4. Both `static/` and `docs/` mirrors updated
 Every change to `static/monitors/{slug}/page.html` must be mirrored to `docs/monitors/{slug}/page.html`. Hugo overwrites `docs/` on build — if `static/` and `docs/` diverge, the next build silently reverts your change.
