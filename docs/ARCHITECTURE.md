@@ -401,3 +401,43 @@ This pattern is proven working in `static/monitors/democratic-integrity/report.h
 **When to apply:** Next time the SCEM Analyst cron prompt is edited (Sprint 4 or sooner).
 
 **Added:** 2 April 2026
+
+---
+
+## Pre-Staging Checklist (run before every `git push staging`)
+
+When adding any new section to a monitor dashboard, verify ALL of the following before pushing:
+
+### 1. Section is inside `<main>`
+```
+grep -n "</main>\|id=\"section-{your-id}\"" dashboard.html
+```
+Section position must be LESS than `</main>` position. If greater — the section is orphaned outside the layout and will render broken.
+
+### 2. Sidebar nav link added
+```
+grep "your-section-id" dashboard.html | grep "monitor-sidebar\|sidebar-nav"
+```
+Every new section needs a corresponding `<li><a href="#section-id">Label</a></li>` in the right-hand sidebar nav.
+
+### 3. Render call is inside the fetch `.then()` block — not after `.catch`
+```
+grep -n "renderYourFunction\|\.catch(" dashboard.html
+```
+Render call line number must be LESS than the nearest following `.catch(` line number. If greater — the function is defined but never called with live data.
+
+### 4. Both `static/` and `docs/` mirrors updated
+Every change to `static/monitors/{slug}/page.html` must be mirrored to `docs/monitors/{slug}/page.html`. Hugo overwrites `docs/` on build — if `static/` and `docs/` diverge, the next build silently reverts your change.
+
+### 5. Flag field names match the monitor's actual data schema
+Before writing a render function, check the actual JSON:
+```
+gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{slug}/data/report-latest.json \
+  --jq '.content' | base64 -d | python3 -c "import json,sys; d=json.load(sys.stdin); print(list(d['cross_monitor_flags']['flags'][0].keys()))"
+```
+Different monitors use different field names (e.g. `title` vs `headline`). Always check before assuming.
+
+**Recurring bugs caught by this checklist:**
+- FE-021 (2 Apr 2026): cross-monitor section injected outside `</main>` on 5/6 dashboards — "Loading…" never resolved
+- FE-022 (2 Apr 2026): render call injected after `.catch` block — function defined but never called with live data
+- FE-023 (2 Apr 2026): sidebar nav link omitted on new sections — section unreachable from nav
