@@ -1,0 +1,39 @@
+name: WDM Reasoner — Deterioration Pattern Analysis
+
+on:
+  schedule:
+    - cron: "0 20 * * 0"   # Sunday 20:00 UTC — after weekly research (18:00), before Analyst (Mon 06:00)
+  workflow_dispatch:
+
+jobs:
+  reason:
+    name: WDM Deterioration Pattern Reasoning (sonar-deep-research)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run WDM Reasoner
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/democratic-integrity/wdm-reasoner.py
+
+      - name: Commit reasoner output
+        run: |
+          git config user.name  "WDM Reasoner Bot"
+          git config user.email "wdm-reasoner@asym-intel.info"
+          git add pipeline/monitors/democratic-integrity/reasoner/
+          git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
+          git commit -m "data(wdm-reasoner): deterioration pattern analysis — $(date -u +%Y-%m-%d)"
+          git push
