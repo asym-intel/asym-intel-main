@@ -8,7 +8,7 @@ monitor: "environmental-risks"
 
 ## AMOC FovS — `CRITICAL`
 
-The RAPID array has recorded a third consecutive week of anomalous freshwater flux at the FovS monitoring line, consistent with accelerated Greenland meltwater injection into the North Atlantic. Three independent modelling groups — Potsdam Institute, NCAR, and CSIRO — have revised AMOC collapse probability upward. Current ensemble range: 34–62% before 2100, versus 10–25% in IPCC AR6. Three-week persistence elevates this from an episodic signal to a sustained early-warning indicator. Cross-monitor flag issued to EGHTM (European fisheries, UK climate systems).
+The RAPID array has recorded a third consecutive week of anomalous freshwater flux at the FovS monitoring line, consistent with accelerated Greenland meltwater injection into the North Atlantic. Three independent modelling groups — Potsdam Institute, NCAR, and CSIRO — have revised AMOC collapse probability upward. Current ensemble range: 34–62% before 2100, versus 10–25% in IPCC AR6. Three-week persistence elevates this from an episodic signal to a sustained early-warning indicator. Cross-monitor flag issued to ESA (European fisheries, UK climate systems).
 
 ## Thwaites Glacier Grounding Line — `CRITICAL`
 
