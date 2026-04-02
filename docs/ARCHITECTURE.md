@@ -378,3 +378,20 @@ element.innerHTML = AsymRenderer.renderMarkdown(d.weekly_brief);
 **Rule:** Any data field retrieved from `report-latest.json` that contains narrative text should use `AsymRenderer.renderMarkdown()`. Only use `escHtml()` for structured data fields (scores, IDs, country codes, dates) that are guaranteed to be plain text.
 
 **Added:** 2 April 2026 | **Anti-pattern:** FE-020 in `static/monitors/shared/anti-patterns.json`
+
+---
+
+## SCEM: roster_watch Deduplication Rule (DQ-001)
+
+**Pattern:** The SCEM Analyst cron must never place a conflict in `roster_watch.approaching_inclusion` if it is already present in `conflict_roster`.
+
+**Root cause observed:** 2 April 2026. `US–Israel vs Iran` appeared in both `conflict_roster` (entry #10) and `roster_watch.approaching_inclusion`. The Analyst correctly identified escalation criteria but failed to cross-check against the current roster.
+
+**Fix location:** SCEM Analyst cron prompt — add to the `roster_watch` population step:
+> "Before adding any conflict to `roster_watch.approaching_inclusion`, verify it is not already present in `conflict_roster`. Scan `conflict_roster[*].conflict` values and exclude any matches."
+
+**Self-correcting?** Yes — next weekly run will not re-add a rostered conflict. But the explicit rule prevents edge cases where a conflict is promoted and watch-listed in the same cycle.
+
+**When to apply:** Next time the SCEM Analyst cron prompt is edited (Sprint 4 or sooner).
+
+**Added:** 2 April 2026
