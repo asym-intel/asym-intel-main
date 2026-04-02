@@ -1,7 +1,7 @@
 ---
 title: "Methodology -- European Strategic Autonomy Monitor"
 description: "Source hierarchy, four-actor framework, attribution confidence standards, and analytical dimensions for the European Strategic Autonomy Monitor (ESA)."
-date: 2020-01-01
+date: 2026-03-19
 monitor: "european-strategic-autonomy"
 type: "methodology"
 draft: false
