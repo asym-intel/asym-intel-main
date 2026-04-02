@@ -1,5 +1,5 @@
 # HANDOFF.md - Asymmetric Intelligence
-**Generated:** 2026-04-02 session wrap (~22:00 CEST) — updated
+**Generated:** 2026-04-02 session wrap (~22:15 CEST) — updated
 **Next auto-generation:** Monday 7 April 08:00 UTC (Housekeeping)
 
 ---
@@ -81,6 +81,15 @@
 - docs/crons/README.md — GSC cron f78e0c2c assigned, duplicate PENDING row removed
 - COMPUTER.md — GSC cron f78e0c2c added to cron table
 - GSC quarterly cron created: f78e0c2c (1 Jan/Apr/Jul/Oct 09:00 UTC, slim repo pointer, background=false, next run 1 Jul 2026)
+
+**~22:15 CEST — roles & security session:**
+- Platform Experience Designer role created — full UX role (reader journey, text presentation, information architecture, mobile, emotional register)
+- `docs/prompts/platform-experience-designer.md` v1.0 committed
+- `docs/ux/decisions.md` stub created — first-session knowhow dump pending
+- `docs/ROLES.md` v1.2 — PED registered
+- `docs/prompts/platform-security-expert.md` — quarterly filter vendor check added (Fortiguard / Cisco Umbrella / Symantec)
+- Architecture: Intelligence Surface Analyst (finds gaps) → Platform Experience Designer (fixes them)
+- Note: Platform Visualisation Expert prompt was drafted this session — scope now absorbed into PED; Peter to confirm if a separate chart-specialist role is still wanted
 
 ---
 
