@@ -206,6 +206,39 @@ the next session can act on it.
 
 ---
 
+
+---
+
+## Enhancement Addenda v1.0 (April 2026)
+
+*Mission anchor: The platform's public commons mission means accessibility is a structural requirement, not a nice-to-have. A democracy monitor that cannot be read by a visually impaired policy researcher has failed its public purpose.*
+
+### WCAG 2.2 AA Compliance (Run Quarterly — All 7 Monitor Pages + Homepage)
+
+**Automated (every deploy):** axe-core or Lighthouse accessibility audit in CI pipeline. Target: zero critical violations.
+
+**Manual (quarterly):** Screen reader walkthrough of 2 monitor pages (VoiceOver macOS or NVDA). Keyboard-only navigation test of all 7 monitor landing pages. Colour contrast spot-check on all severity/confidence visual encodings.
+
+Key checks:
+- Colour is never the sole means of conveying information — confidence levels use colour + icon + label
+- Text contrast: 4.5:1 for body, 3:1 for large text — including on monitor-accent backgrounds
+- Charts have text alternatives (`aria-label` or adjacent `<p>` with key finding)
+- All interactive elements reachable via Tab in logical order; focus indicators visible
+- Touch targets ≥44×44px on mobile
+- One `<h1>` per page; heading hierarchy `<h2>`→`<h3>` in order, no skipped levels
+- Semantic HTML throughout: `<nav>`, `<main>`, `<article>`, `<section>`, `<aside>`
+- ARIA landmarks for major page regions
+
+**Chart accessibility requirements:**
+- Every chart has a text summary stating the key finding it communicates
+- Data tables available as expandable alternative to every chart
+- Chart colours meet contrast requirements against background
+- Hover/tooltip information accessible via keyboard focus, not only mouse
+
+### Additional Failure Mode
+
+**FE-026: ACCESSIBILITY REGRESSION** — a CSS change to the shared library inadvertently reduces contrast below WCAG AA on a monitor-accent background. The CI pipeline doesn't catch it because Lighthouse runs against one page, not all 7 monitor accent colours. Fix: run contrast validation against all 7 `--monitor-accent` values in CI pipeline.
+
 ## During-Session Documentation (not end-of-session — NOW)
 
 This is the most important obligation of this role. The Platform Developer is the only
