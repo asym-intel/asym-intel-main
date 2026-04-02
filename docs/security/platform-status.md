@@ -133,4 +133,5 @@ Separate submission to Cisco Umbrella and Symantec still needed — see pending 
 | 2 Apr 2026 | Bot Fight Mode enabled in Cloudflare | Peter |
 | 2 Apr 2026 | Fortiguard recategorisation submitted via Cloudflare tool (News and Media / Research) | Peter |
 | 3 Apr 2026 | SRI hashes merged (PR #29) — all 7 dashboards · integrity-manifest.json first commit · FCW dashboard legacy→modern fix | Computer |
+| 3 Apr 2026 | SRI hashes merged (PR #29) — all 7 dashboards · integrity-manifest.json first commit · FCW dashboard legacy→modern fix | Computer |
 | 3 Apr 2026 | Security Expert Session 2: full quarterly checklist, docs/security/ created, SRI hashes computed, branch protection gap confirmed (HIGH), integrity manifest gap confirmed (HIGH), no SRI on CDN tags (HIGH), pipeline exposure confirmed benign (404), collaborator audit clean (solo owner) | Platform Security Expert |
