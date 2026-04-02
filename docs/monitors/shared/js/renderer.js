@@ -631,3 +631,40 @@ window.AsymPersistent = (function () {
   }
   window.AsymFlag = { flag: flag, flagLabel: flagLabel };
 }());
+
+/* ── AsymRenderer.renderMarkdown(text) ──────────────────────────────────────
+ * Safe renderer for LLM-generated narrative fields (weekly_brief, note, etc.)
+ * that contain markdown (**bold**) AND raw HTML anchor tags mixed together.
+ *
+ * Anti-pattern FE-020: never run escHtml() on these fields directly.
+ * That destroys both the markdown syntax and the <a href> tags.
+ *
+ * Usage:
+ *   element.innerHTML = AsymRenderer.renderMarkdown(d.weekly_brief);
+ * ─────────────────────────────────────────────────────────────────────────── */
+(function () {
+  function renderMarkdown(text) {
+    if (!text) return '<p class="text-muted text-sm">No content available.</p>';
+    var paras = String(text).split(/\n{2,}/).filter(function (p) { return p.trim(); });
+    return paras.map(function (para) {
+      var parts = para.split(/(<a\s[^>]*>.*?<\/a>)/gi);
+      var safe = parts.map(function (part, i) {
+        if (i % 2 === 1) return part; // <a> tag — pass through untouched
+        var s = part
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+        s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        s = s.replace(/^#{1,3}\s+(.+)$/gm, '<strong>$1</strong>');
+        return s;
+      }).join('');
+      return '<p style="margin-bottom:var(--space-4);line-height:1.7">' + safe + '</p>';
+    }).join('');
+  }
+
+  if (window.AsymRenderer) {
+    window.AsymRenderer.renderMarkdown = renderMarkdown;
+  }
+  window.AsymRenderMarkdown = renderMarkdown; // fallback direct access
+}());
