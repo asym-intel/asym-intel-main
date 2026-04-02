@@ -1,0 +1,139 @@
+# DRAFT — requires Peter's approval before moving to .github/workflows/
+#
+# generate-integrity-manifest.yml
+# Weekly automated integrity manifest generation for all 7 monitor report-latest.json files.
+# Schedule: Monday 09:00 UTC (after Housekeeping cron 7e058f57 at 08:00 UTC)
+# When approved, move to .github/workflows/ and update COMPUTER.md cron table.
+
+name: Generate Integrity Manifest
+
+on:
+  schedule:
+    # Monday 09:00 UTC — runs after Housekeeping (7e058f57) at 08:00 UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run — compute hashes but do not commit'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  generate-manifest:
+    name: Compute SHA-256 and commit integrity manifest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate integrity manifest
+        id: generate
+        run: |
+          python3 << 'PYEOF'
+          import hashlib, json, os, subprocess
+          from datetime import datetime, timezone
+
+          slugs = [
+              "democratic-integrity", "macro-monitor", "fimi-cognitive-warfare",
+              "european-strategic-autonomy", "ai-governance", "environmental-risks",
+              "conflict-escalation"
+          ]
+
+          monitors_data = {}
+          for slug in slugs:
+              report_path = f"static/monitors/{slug}/data/report-latest.json"
+              if not os.path.exists(report_path):
+                  print(f"WARNING: {report_path} not found — skipping")
+                  continue
+
+              with open(report_path, 'rb') as f:
+                  raw_content = f.read()
+
+              sha256 = hashlib.sha256(raw_content).hexdigest()
+
+              # Get the git commit SHA for this file
+              result = subprocess.run(
+                  ['git', 'log', '-1', '--format=%H', '--', report_path],
+                  capture_output=True, text=True
+              )
+              git_commit = result.stdout.strip()[:8] if result.stdout.strip() else 'unknown'
+
+              try:
+                  report_data = json.loads(raw_content)
+                  meta = report_data.get("meta", {})
+                  published_iso = meta.get("published", "")
+                  report_date = published_iso[:10] if published_iso else (
+                      report_data.get("report_date") or
+                      report_data.get("_meta", {}).get("report_date") or
+                      "unknown"
+                  )
+              except Exception as e:
+                  print(f"WARNING: Could not parse {report_path}: {e}")
+                  report_date = "unknown"
+
+              monitors_data[slug] = {
+                  "file": report_path,
+                  "report_date": report_date,
+                  "sha256": sha256,
+                  "size_bytes": len(raw_content),
+                  "git_commit": git_commit
+              }
+              print(f"  {slug}: {sha256[:16]}... ({report_date})")
+
+          manifest = {
+              "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+              "generated_by": "GitHub Actions — generate-integrity-manifest.yml",
+              "schema_version": "1.0",
+              "monitors": monitors_data
+          }
+
+          manifest_json = json.dumps(manifest, indent=2) + "\n"
+
+          # Write both static/ and docs/ copies (must always match)
+          for dest in [
+              "static/monitors/shared/integrity-manifest.json",
+              "docs/monitors/shared/integrity-manifest.json"
+          ]:
+              os.makedirs(os.path.dirname(dest), exist_ok=True)
+              with open(dest, 'w') as f:
+                  f.write(manifest_json)
+              print(f"Written: {dest}")
+
+          print("\nManifest summary:")
+          print(manifest_json)
+          PYEOF
+
+      - name: Commit manifest to main
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            static/monitors/shared/integrity-manifest.json \
+            docs/monitors/shared/integrity-manifest.json
+          if git diff --cached --quiet; then
+            echo "No changes to integrity manifest — already up to date."
+          else
+            git commit -m "chore(security): update integrity manifest — weekly auto-generated"
+            git push origin main
+            echo "Manifest committed and pushed."
+          fi
+
+      - name: Dry run summary
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: |
+          echo "DRY RUN — manifest computed but not committed."
+          echo "To commit, re-run with dry_run=false."
