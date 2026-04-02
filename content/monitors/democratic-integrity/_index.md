@@ -1,5 +1,5 @@
 ---
 title: "Democratic Integrity"
-description: "Weekly early-warning radar on democratic erosion, resilience, and state capture — tracking the leading indicators that annual indices miss. Published every Tuesday."
+description: "Weekly early-warning intelligence on democratic backsliding, institutional erosion, and state capture — tracking V-Dem and Freedom House signals before annual indices catch up. Published every Monday."
 publishDay: "Tuesday"
 ---
