@@ -200,6 +200,13 @@ LAYER 3 — PLATFORM VALIDATOR (Computer weekly cron, Monday)
 
 ## Active Crons (Computer)
 
+**CRON RECREATION RULE — CONFIRM BEFORE EXECUTING:**
+Never recreate crons autonomously in response to a hypothetical, question, or perceived gap.
+If a user asks "what would you do if X cron was missing?" — answer the question, do not execute.
+If crons appear missing from `schedule_cron list`, report what is missing and ask:
+"Shall I recreate these?" before taking any action.
+Cron recreation is irreversible (creates duplicate if the original still exists) — always confirm first.
+
 **Cron prompt registry:** `docs/crons/` — all cron logic lives here, not in the task.
 Cron tasks are slim pointers: `gh api .../docs/crons/{file}.md --jq '.content' | base64 -d`
 To update a cron: edit the .md file in docs/crons/ and commit. No cron task edit needed.
