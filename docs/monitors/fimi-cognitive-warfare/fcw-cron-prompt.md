@@ -133,10 +133,72 @@ STEP 0 — Load persistent state:
   cat /tmp/asym-intel-main/static/monitors/fimi-cognitive-warfare/data/persistent-state.json
   cat /tmp/asym-intel-main/static/monitors/fimi-cognitive-warfare/data/report-latest.json
 
-STEP 1 — Research: EEAS FIMI reports, EU DisinfoLab, DFRLab,
-  Stanford Internet Observatory, EDMO, Bellingcat.
-  Apply MF1 (is this story itself a FIMI operation?),
-  MF2 (single-actor attribution?), MF3 (verifiable?), MF4 (state media?)
+STEP 0E — LOAD REASONER OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GitHub Actions runs sonar-deep-research every Wednesday 20:00 UTC to reason
+over accumulated attribution evidence. Load it now for pre-computed analytical
+recommendations. If unavailable, reason independently (fallback mode).
+
+```bash
+REASONER=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/fimi-cognitive-warfare/reasoner/reasoner-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$REASONER" ]; then
+  echo "STEP 0E: No reasoner output found — reasoning independently."
+else
+  echo "$REASONER" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+reviews  = d.get('attribution_reviews', [])
+linkages = d.get('linkage_detections', [])
+flags    = d.get('cross_monitor_escalation_flags', [])
+changes  = [r for r in reviews if r.get('recommendation') != 'unchanged']
+print(f'Reasoner date: {meta.get("data_date")}')
+print(f'Reviews: {len(reviews)} ({len(changes)} changes recommended)')
+print(f'Linkages: {len(linkages)} | Cross-monitor flags: {len(flags)}')
+print()
+print('ANALYST BRIEFING:')
+print(d.get('analyst_briefing','')[:500])
+print()
+if changes:
+    print('ATTRIBUTION CHANGES RECOMMENDED:')
+    for r in changes:
+        print(f'  {r["recommendation"].upper()}: {r["campaign_id_or_candidate"]} → {r["recommended_confidence"]}')
+        print(f'  Reason: {r["reasoning"][:100]}')
+        if r.get('needs_human_review'):
+            print(f'  ⚠ NEEDS HUMAN REVIEW')
+        print()
+"
+fi
+```
+
+USE REASONER OUTPUT AS FOLLOWS:
+  — attribution_reviews → apply recommended confidence changes unless you have
+    contradictory evidence. Never blindly accept — verify the reasoning.
+  — linkage_detections → check continuation vs net_new classification
+  — actor_posture_changes → inform actor_tracker status updates
+  — cross_monitor_escalation_flags → populate cross_monitor_flags in report
+  — contested_findings → flag for human review in output, reduce confidence tier
+  — analyst_briefing → read as your pre-session analytical briefing
+
+STEP 1 — Apply methodology to research inputs (Steps 0C + 0D + 0E):
+  PRIMARY: Use weekly deep research (Step 0D) as the research base.
+  SUPPLEMENT: Cross-check with daily Collector candidates (Step 0C).
+  FALLBACK: If Step 0D unavailable, research directly: EEAS, EU DisinfoLab,
+    DFRLab, Stanford IO, EDMO, Bellingcat.
+
+  Apply to ALL findings regardless of source:
+  MF1: Is this story itself a FIMI operation? (meta-disinfo)
+  MF2: Is actor attribution based on single source? (flag if yes)
+  MF3: Is the claim independently verifiable? (flag if no)
+  MF4: Is primary source state media? (flag if yes)
+
+  Assign FINAL confidence (not preliminary):
+  Confirmed → Tier 1 platform disclosure + independent government attribution
+  Assessed  → Tier 2/3 sources, credible but not platform-confirmed
+  Unconfirmed → Single source or below Assessed threshold
 
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
@@ -307,3 +369,96 @@ for e in entries:
 Use cross-monitor flags to incorporate adjacent signals into your analysis
 and update your own cross_monitor_flags where new linkages are found.
 Use schema changelog to verify your output includes all required fields.
+
+STEP 0C — LOAD TIER 0 DAILY FEEDER OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After loading persistent-state and intelligence digest, load the daily feeder
+output produced since the last weekly issue. The feeder runs daily at 08:00 UTC
+and writes pre-verified candidate findings to the pipeline/ directory.
+These are CANDIDATES — not final findings. You apply FCW methodology, source
+hierarchy, and final confidence assignment. The feeder prepares; you decide.
+
+```bash
+TODAY=$(date -u +%Y-%m-%d)
+FEEDER_PATH="pipeline/monitors/fimi-cognitive-warfare/daily"
+
+# Load daily-latest.json (most recent feeder run)
+FEEDER=$(gh api /repos/asym-intel/asym-intel-main/contents/${FEEDER_PATH}/daily-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$FEEDER" ]; then
+  echo "STEP 0C: No daily feeder output found. Proceeding without Tier 0 candidates."
+else
+  echo "$FEEDER" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+findings = d.get('findings', [])
+below = d.get('below_threshold', [])
+print(f'Feeder data_date: {meta.get(\"data_date\",\"unknown\")}')
+print(f'Total findings: {meta.get(\"finding_count\",0)} ({meta.get(\"net_new_count\",0)} net new, {meta.get(\"continuation_count\",0)} continuations)')
+print(f'Below threshold (excluded): {len(below)}')
+print()
+print('CANDIDATE FINDINGS FOR YOUR REVIEW:')
+for f in findings:
+    print(f'  [{f[\"confidence_preliminary\"]}] {f[\"finding_id\"]} — {f[\"title\"][:70]}')
+    print(f'    Actor(s): {f.get(\"actors\",[])} | Status: {f.get(\"campaign_status_candidate\",\"?\")}')
+    print(f'    Source tier: {f.get(\"source_tier\",\"?\")} | Episodic: {f.get(\"episodic_flag\",False)}')
+    for m, note in f.get('cross_monitor_relevance',{}).items():
+        if note: print(f'    → {m.upper()}: {note[:80]}')
+    print()
+"
+fi
+```
+
+USE THE FEEDER OUTPUT:
+  — For each candidate: apply FCW methodology to decide final confidence
+  — Check each against the active campaign registry in persistent-state
+  — campaign_status_candidate: "continuation" → update existing campaign record
+  — campaign_status_candidate: "net_new" → evaluate against 4-condition active entry threshold
+  — feeder's confidence_preliminary is your starting point, NOT your conclusion
+  — You may upgrade OR downgrade based on your full methodology review
+  — Feeder findings that don't survive your review → exclude from published output
+
+STEP 0D — LOAD WEEKLY DEEP RESEARCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GitHub Actions runs sonar-deep-research every Wednesday 18:00 UTC and commits
+structured research to pipeline/weekly/. Load it now as your primary research input.
+If unavailable, conduct research directly (fallback mode — note in output).
+
+```bash
+WEEKLY=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/fimi-cognitive-warfare/weekly/weekly-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$WEEKLY" ]; then
+  echo "STEP 0D: No weekly research found — running in fallback research mode."
+else
+  echo "$WEEKLY" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+lead = d.get('lead_signal', {})
+campaigns = d.get('campaigns', [])
+print(f'Weekly research week_ending: {meta.get(\"week_ending\",\"unknown\")}')
+print(f'Lead: [{lead.get(\"confidence_preliminary\")}] {lead.get(\"headline\",\"\")[:80]}')
+print(f'Campaigns: {len(campaigns)} | Actors: {len(d.get(\"actor_tracker\",[]))} | Platform responses: {len(d.get(\"platform_responses\",[]))}')
+print(f'Cross-monitor signals: {[k for k,v in d.get(\"cross_monitor_signals\",{}).items() if v]}')
+print()
+for c in campaigns:
+    print(f'  [{c.get(\"attribution_confidence_preliminary\")}] {c.get(\"operation_name\",\"\")[:60]} ({c.get(\"actor\")})')
+"
+fi
+```
+
+USE WEEKLY RESEARCH AS FOLLOWS:
+  — campaigns[] → cross-check against persistent-state registry, update/add
+  — actor_tracker[] → update actor status and doctrine
+  — platform_responses[] → add to report
+  — cognitive_warfare[] → add to report
+  — attribution_log[] → apply MF-flags, confirm confidence, add to log
+  — weekly_brief_narrative → use as draft for Hugo brief (edit + apply analytical voice)
+  — cross_monitor_signals → populate cross_monitor_flags in report
+  — All confidence_preliminary values → apply FCW methodology to assign FINAL confidence
+  — NEVER publish research confidence_preliminary as final — always apply your own judgment
