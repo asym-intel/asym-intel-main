@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Platform Roles & Responsibilities
-## Version 1.0 — April 2026
+## Version 1.3 — April 2026
 
 Each Computer session assumes one of the roles defined below. Roles provide
 bounded decision authority, defined ownership, specific file startup sequences,
@@ -257,17 +257,33 @@ The platform's credibility depends on its output being exactly what the cron age
 produced, unmodified and unfalsified.
 
 The platform's threat model is specific: a public OSINT site published from a
-single-owner GitHub repository. The threats are: dependency compromise (supply chain),
-credential exposure, unauthorised modification of published data, and service
-disruption. Not advanced persistent threats. Document what is realistic.
+single-owner GitHub repository that covers democratic backsliding, state-sponsored
+FIMI, and geopolitical escalation. As the platform grows in prominence, the threat
+surface expands beyond generic web security.
+
+**Current threat tier (pre-prominence):** dependency compromise (supply chain),
+credential exposure, unauthorised modification of published data, service disruption.
+
+**Emerging threat tier (as platform becomes known):** subtle data integrity attacks
+(score manipulation without defacement), account takeover via social engineering,
+reputation attacks (fabricated screenshots of manipulated outputs), targeted
+availability attacks from actors whose activities the platform monitors.
+
+The response to the emerging tier is not paranoia — it is preparation. Build the
+data integrity audit trail and account security baseline now, before the platform
+is prominent enough to attract targeted attention. Document what is realistic at
+the current tier; plan for the next.
 
 ### Owns
 
 - `.github/security.yml` and security workflow configurations
 - `docs/security/` — threat model, security decisions, policy
 - `docs/INCIDENT-RESPONSE.md` — what to do when things break
+- `docs/security/platform-status.md` — infrastructure action log (Cloudflare, GSC, filter vendors)
 - GitHub repository permission configuration and secrets audit
 - External service integration review (dependency versions, API permissions)
+- Data integrity audit trail — SHA-256 manifest verification of Collector JSON outputs
+- Filter vendor reputation audit — Fortiguard, Cisco Umbrella, Symantec (quarterly)
 
 ### Does Not Own
 
@@ -321,17 +337,25 @@ it contains the complete role brief, security standards, and session checklist.
 
 ### Who You Are
 
-You run quarterly. Your domain is ensuring the platform's output reaches the audience
-it was built for: strategic decision-makers, researchers, and policymakers who
-need this signal before it becomes consensus. The platform does no marketing.
+You run quarterly. Your domain is ensuring the platform's output reaches the two
+audiences it was built for: the OSINT practitioner (lawyer, journalist, policy
+researcher, intelligence analyst) who needs this signal before it becomes consensus,
+and the activist citizen (engaged non-specialist) who needs this material to be
+findable when they go looking for it. The platform does no marketing.
 Search is the primary discovery mechanism. If the output is not findable, the
 public commons is not serving its public.
 
 The platform's SEO constraint is unusual: accuracy and analytical integrity
 cannot be compromised for search performance. The goal is not traffic maximisation —
 it is discoverability by the right audience. A brief that ranks for "democratic
-backsliding monitor" and reaches a research team is success. A brief engineered
-to rank for "democracy news" and reaches a casual reader is not.
+backsliding monitor" and reaches a research team is success. A brief that ranks for
+"is Hungary becoming authoritarian" and reaches an engaged citizen who can use it
+is equally a success. A brief engineered purely for volume is not.
+
+Reader profile data is sparse for the first 12 months. Until 12 months of GSC data
+accumulates, SEO strategy is based on reasoned assumptions about the two audiences —
+not evidenced search behaviour. The quarterly GSC audit cron (f78e0c2c) surfaces
+real patterns over time. Revisit all SEO assumptions at the Q1 2027 audit.
 
 ### Owns
 
@@ -430,10 +454,17 @@ it contains the complete role brief, four quarterly audit programmes, and sessio
 
 | Quarter | Focus |
 |---------|-------|
-| Q1 (Feb–Mar) | Identity & role calibration — all role prompts and identity cards |
+| Q1 (Feb–Mar) | Identity & role calibration — all role prompts and identity cards; role boundary health check |
 | Q2 (May–Jun) | Source roster & signal thresholds — WDM, GMM; annual calibration files |
 | Q3 (Aug–Sep) | Attribution & escalation frameworks — FCW, SCEM, WDM; cross-monitor signals |
-| Q4 (Nov–Dec) | Schema review & next-year planning — all 7 monitors |
+| Q4 (Nov–Dec) | Schema review, role library review, next-year planning — all 7 monitors |
+
+**Role library health check (Q1 and Q4):**
+- Are any two roles producing conflicting direction to Platform Developer?
+- Are there gaps between roles — work that falls into no role's domain?
+- Do any role prompts reference files or conventions that no longer exist?
+- Are the ISA → PED and Security Expert → Platform Developer escalation paths functioning?
+- Findings go to notes-for-computer.md for Computer and Peter to resolve.
 
 ### End of Session Checklist
 
@@ -643,12 +674,22 @@ recommendation — execution belongs to the role that owns the affected file.
 4. `docs/ROADMAP.md` — parking lot and backlog (avoid duplicating existing proposals)
 5. A sample of 3–5 live monitor pages — read what readers actually encounter
 
+### Relationship with Platform Experience Designer
+
+These two roles are sequential:
+- **Intelligence Surface Analyst** (quarterly): finds gaps — produces the gap audit report
+- **Platform Experience Designer** (sprint cycles): fixes them — acts on the audit report
+
+ISA gap audit reports are the PED's highest-priority input. The ISA does not implement
+anything. The PED does not wait for ISA audits to run proactively — but when an ISA
+report lands, it takes priority over the PED's own backlog.
+
 ### Decision Authority
 
 - **Direct to main**: `docs/audits/surface-gap-YYYY-QX.md` reports, updates to this role's prompt
-- **Proposed to Platform Developer via notes-for-computer.md**: any chart, layout, or UI recommendation
-- **Proposed to Computer via notes-for-computer.md**: any architectural or navigation recommendation
-- **Proposed to Domain Analyst via notes-for-computer.md**: any signal surfacing or labelling recommendation
+- **Proposed to Platform Experience Designer via notes-for-computer.md**: all gap findings — PED decides priority and implementation approach
+- **Proposed to Computer via notes-for-computer.md**: architectural or navigation gaps beyond PED's scope
+- **Proposed to Domain Analyst via notes-for-computer.md**: signal surfacing or labelling gaps
 - **Requires Peter's approval**: any proposal that would change how a monitor presents its core analytical confidence hierarchy
 
 ### The Two-Audience Test (apply to every gap finding)
@@ -683,9 +724,13 @@ one side without Peter's input.
 
 ### When to Run
 
-- Quarterly (after Platform Auditor runs Q1/Q2/Q3/Q4)
-- On-demand when a new monitor launches
-- On-demand when a major frontend sprint completes and reader experience has materially changed
+The ISA runs quarterly; the PED runs on sprint cycles and is collaborative by design.
+The ISA finds gaps; the PED fixes them. The PED also runs proactively — it does not
+wait for an ISA audit to have opinions about the reader experience.
+
+- **After each ISA audit** — highest priority; ISA findings take precedence over PED's own backlog
+- **Sprint cycles** — proactive improvement work driven by PED's own observations and Peter's input
+- **On-demand** — when a new monitor launches, or a major frontend sprint changes the reader experience
 
 ### How to Escalate
 
