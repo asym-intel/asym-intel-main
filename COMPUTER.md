@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 2.1 — April 2026
+## Version 2.3 — 2 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -171,38 +171,37 @@ or `esc(country)` and verify the flag call precedes it.
 13. **schema_version** — must be "2.0" in all JSON files
 14. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
 
-## Three-Layer Intelligence Architecture (v2.2)
+## Three-Layer Intelligence Architecture (v2.3)
 
 Canonical strategy document (read before building any Collector or Analyst):
   gh api /repos/asym-intel/asym-intel-internal/contents/COLLECTOR-ANALYST-ARCHITECTURE.md \
     --jq '.content' | base64 -d
 
+Pipeline build guide (step-by-step for adding any monitor):
+  gh api /repos/asym-intel/asym-intel-main/contents/pipeline/PIPELINE-BUILD-PATTERN.md \
+    --jq '.content' | base64 -d
 
+LAYER 1 — COLLECTOR (GitHub Actions — NOT a Computer cron)
+  Runs in GitHub Actions (.github/workflows/{monitor}-collector.yml)
+  Calls Perplexity API → validates schema → commits to pipeline/monitors/{slug}/daily/
+  Model: sonar (daily) | sonar-pro (weekly research) | sonar-deep-research (Reasoner only)
+  CRITICAL: sonar-deep-research does NOT search the web. Use only for reasoning over
+  structured data you provide. sonar-pro for all live web search workflows.
+  Output: pipeline/monitors/{slug}/daily/ and pipeline/monitors/{slug}/weekly/
+  NEVER write to data/, report-latest.json, persistent-state.json, or archive.json
 
-Every monitor runs an Analyst. Selected monitors also run a Collector.
-One Validator (Housekeeping) covers all monitors.
+LAYER 2 — ANALYST (Computer weekly cron)
+  Reads Steps 0C (daily Collector), 0D (weekly research), 0E (Reasoner) from pipeline/
+  Applies monitor methodology → assigns final confidence → publishes to data/
 
-LAYER 1 — COLLECTOR (daily Computer cron)
-  Searches public sources → structures into Tier 0 JSON → commits to pipeline/
-  Authority: confidence_preliminary only. Never touches data/, report-latest.json,
-  persistent-state.json, or archive.json. The Analyst reads and decides.
-  Prompt location: asym-intel-internal/prompts/{MONITOR}-COLLECTOR-PROMPT-v{N}.md
-  Bootstrap pattern: short cron wrapper (<1000 chars) loads prompt at runtime.
+LAYER 3 — PLATFORM VALIDATOR (Computer weekly cron, Monday)
+  Validates all Analyst outputs + all Collector pipeline files (checks 1–20)
+  Compiles intelligence-digest.json
 
-LAYER 2 — ANALYST (weekly Computer cron)
-  Reads pipeline/daily-latest.json at Step 0C (if Collector exists).
-  Applies monitor methodology → assigns final confidence → publishes to data/.
-  Prompt location: static/monitors/{slug}/{abbr}-cron-prompt.md (public repo)
-
-LAYER 3 — VALIDATOR (weekly Computer cron, Monday)
-  Validates all Analyst outputs + all Collector pipeline files.
-  Compiles intelligence-digest.json. Runs checks 1–20.
-
-## Active Crons
+## Active Crons (Computer)
 
 | Layer | Name | Cron ID | Schedule |
-|-------|------|---------|----------|
-| Collector | FCW Collector | GitHub Actions | Daily 07:00 UTC (external — see .github/workflows/fcw-collector.yml) |
+|---|---|---|---|
 | Analyst | WDM Analyst | db22db0d | Mon 06:00 UTC |
 | Analyst | GMM Analyst | 02c25214 | Tue 08:00 UTC |
 | Analyst | ESA Analyst | 0fa1c44e | Wed 19:00 UTC |
@@ -211,8 +210,17 @@ LAYER 3 — VALIDATOR (weekly Computer cron, Monday)
 | Analyst | ERM Analyst | 3e736a32 | Sat 05:00 UTC |
 | Analyst | SCEM Analyst | eb312202 | Sun 18:00 UTC |
 | Validator | Platform Validator | 73452bc6 | Mon 08:00 UTC |
+| Verification | SCEM verification | a67a9739 | Sun 5 Apr 18:30 UTC (one-shot) |
+| Verification | WDM verification | 10ddf5f0 | Mon 6 Apr 06:30 UTC (one-shot) |
+
+## Active GitHub Actions (external pipeline — NOT Computer crons)
+
+| Monitor | Workflow | Schedule | Model |
+|---|---|---|---|
+| FCW | fcw-collector.yml | Daily 07:00 UTC | sonar |
+| FCW | fcw-weekly-research.yml | Wed 18:00 UTC | sonar-pro |
+| FCW | fcw-reasoner.yml | Wed 20:00 UTC | sonar-deep-research |
 
 ## pipeline/ Directory
-pipeline/monitors/{slug}/daily/ — Collector outputs, internal only.
-Hugo never builds from pipeline/ — never publicly served.
-See pipeline/README.md for full pattern documentation.
+pipeline/monitors/{slug}/ — GitHub Actions Collector outputs. Internal only.
+Hugo never builds from pipeline/. Never publicly served.
