@@ -1,40 +1,23 @@
 {{ define "main" }}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "NewsArticle",
-  "headline": {{ .Title | strings.TrimPrefix "\"" | strings.TrimSuffix "\"" | jsonify }},
-  "description": {{ with .Params.summary }}{{ . | strings.TrimPrefix "\"" | strings.TrimSuffix "\"" | jsonify }}{{ else }}{{ .Summary | jsonify }}{{ end }},
-  "datePublished": "{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}",
-  "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
-  "url": "{{ .Permalink }}",
-  "isAccessibleForFree": true,
-  "license": "https://creativecommons.org/licenses/by/4.0/",
-  "author": {
-    "@type": "Organization",
-    "name": "Asymmetric Intelligence",
-    "url": "https://asym-intel.info"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Asymmetric Intelligence",
-    "url": "https://asym-intel.info",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://asym-intel.info/favicon-32x32.png"
-    }
-  },
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "{{ .Permalink }}"
-  }{{ with .Parent }},
-  "isPartOf": {
-    "@type": "Dataset",
-    "name": {{ printf "%s — Asymmetric Intelligence" .Title | strings.TrimPrefix "\"" | strings.TrimSuffix "\"" | jsonify }},
-    "url": {{ .Permalink | jsonify }}
-  }{{ end }}
-}
-</script>
+{{- $publisher := dict "@type" "Organization" "name" "Asymmetric Intelligence" "url" "https://asym-intel.info" "logo" (dict "@type" "ImageObject" "url" "https://asym-intel.info/favicon-32x32.png") -}}
+{{- $ld := dict
+    "@context"        "https://schema.org"
+    "@type"           "NewsArticle"
+    "headline"        .Title
+    "description"     (or .Params.summary .Summary)
+    "datePublished"   (.Date.Format "2006-01-02T15:04:05Z07:00")
+    "dateModified"    (.Lastmod.Format "2006-01-02T15:04:05Z07:00")
+    "url"             .Permalink
+    "isAccessibleForFree" true
+    "license"         "https://creativecommons.org/licenses/by/4.0/"
+    "author"          (dict "@type" "Organization" "name" "Asymmetric Intelligence" "url" "https://asym-intel.info")
+    "publisher"       $publisher
+    "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
+-}}
+{{- if .Parent -}}
+  {{- $ld = merge $ld (dict "isPartOf" (dict "@type" "Dataset" "name" (printf "%s — Asymmetric Intelligence" .Parent.Title) "url" .Parent.Permalink)) -}}
+{{- end -}}
+<script type="application/ld+json">{{ $ld | jsonify | safeHTML }}</script>
 <main class="single">
   <article class="post">
     <header class="post__header">
