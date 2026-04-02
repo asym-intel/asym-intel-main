@@ -21,6 +21,7 @@ or update a cron without needing the original session context.
 | aec126c5 | Staging divergence guard | Daily ~18:00 UTC | `staging-guard.md` | Silent unless behind_by > 30 |
 | 631c0fa0 | Annual calibration reminder | 28 Mar annually | inline | Lists missing calibration files |
 | cab5a19b | Quarterly GSC audit | 1 Jan/Apr/Jul/Oct 09:00 UTC | `gsc-quarterly-audit.md` | GSC search performance + reader profile validation |
+| cab5a19b | Quarterly GSC audit | 1 Jan/Apr/Jul/Oct 09:00 UTC | `gsc-quarterly-audit.md` | GSC search performance + reader profile validation |
 | a67a9739 | SCEM Sunday verification | Sun 5 Apr 18:30 UTC | inline (one-shot) | Verifies Sprint 2 schema fields |
 | 10ddf5f0 | WDM Monday verification | Mon 6 Apr 06:30 UTC | inline (one-shot) | Verifies Category B sections |
 
