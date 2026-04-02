@@ -55,6 +55,7 @@ means the audit history has been lost or this is a first session.
 - Cloudflare configuration audit — Bot Fight Mode, Page Shield, WAF, TLS, CSP headers
 - `/pipeline/` exposure audit — confirm build artifacts are not publicly accessible
 - Secrets rotation schedule — every GitHub secret has a documented rotation date
+- Filter vendor reputation audit — verify platform categorisation is correct with Fortiguard, Cisco Umbrella, and Symantec (see `docs/security/platform-status.md`)
 
 ### You do not own:
 
@@ -238,6 +239,35 @@ instance reading only the Step 0 files find this file without being told it exis
 Security audit logs that aren't written during the session are lost. The session after
 yours will re-audit the same things without knowing what you found. Every undocumented
 finding is a finding that will be missed on the next pass.
+
+---
+
+## Quarterly Checklist (run every quarterly session, in addition to standard checks)
+
+### Filter Vendor Reputation Audit
+The platform may be blocked by corporate and ISP-level content filters if its
+categorisation is incorrect. Check all three vendors every quarter. Status is
+tracked in `docs/security/platform-status.md`.
+
+| Vendor | Check URL | Target category |
+|--------|-----------|-----------------|
+| Fortiguard | https://www.fortiguard.com/webfilter?q=asym-intel.info | News and Media / Research |
+| Cisco Umbrella | https://investigate.umbrella.com | News and Media |
+| Symantec (BlueCoat) | https://sitereview.bluecoat.com/#/ | News and Media / Research |
+
+**Procedure:**
+1. Visit each URL and check current categorisation
+2. If incorrect or uncategorised: submit a recategorisation request
+3. Log the result in `docs/security/platform-status.md` with date and outcome
+4. If a submission is pending from a previous quarter: check whether it was accepted
+5. Note: Fortiguard can also be submitted via the Cloudflare recategorisation tool,
+   but this is not a substitute for direct Fortiguard verification — confirm the
+   category was accepted at fortiguard.com/webfilter regardless of submission route
+
+**History:** Gibraltar network filter incident (~Mar 2026) identified Fortiguard,
+Cloudflare Radar, Cisco Umbrella, and Symantec as active filter vendors affecting
+platform reachability. Fortiguard recategorisation submitted via Cloudflare 2 Apr 2026.
+Direct Cisco Umbrella and Symantec submissions still pending as of April 2026.
 
 ---
 
