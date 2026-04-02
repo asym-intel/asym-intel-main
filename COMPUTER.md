@@ -171,7 +171,13 @@ or `esc(country)` and verify the flag call precedes it.
 13. **schema_version** — must be "2.0" in all JSON files
 14. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
 
-## Three-Layer Intelligence Architecture (v2.1)
+## Three-Layer Intelligence Architecture (v2.2)
+
+Canonical strategy document (read before building any Collector or Analyst):
+  gh api /repos/asym-intel/asym-intel-internal/contents/COLLECTOR-ANALYST-ARCHITECTURE.md \
+    --jq '.content' | base64 -d
+
+
 
 Every monitor runs an Analyst. Selected monitors also run a Collector.
 One Validator (Housekeeping) covers all monitors.
