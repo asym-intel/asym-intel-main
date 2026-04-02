@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Platform Roadmap
-**Last updated:** 2026-04-03 (wrap)  
+**Last updated:** 2026-04-03 (wrap) (wrap)  
 **Maintained by:** Computer sessions — update this file at every wrap.  
 **Canonical location:** `docs/ROADMAP.md` (asym-intel-main)
 
@@ -122,6 +122,16 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 | Archive indexing policy for first 12 months | Recommend: index all, review at 12-month mark |
 | Static dashboard pages in sitemap? | Supplemental sitemap needed — Peter to decide |
 | GMM title "Macro Monitor" → "Global Macro Risk Monitor"? | Competitor domain global-macro-monitor.com appears in AI search |
+
+
+## PED SPRINT 1 — Deferred from 3 April session (>90min, fresh session needed)
+
+| Item | Priority | Est. | Notes |
+|------|----------|------|-------|
+| PED first session — knowhow dump | 🔴 HIGH | 1.5 hrs | docs/ux/decisions.md full population · colour-registry.md · 5-page progressive disclosure audit · gap list to notes-for-computer.md · Peter RTF observations as input |
+| docs/benchmarks/ — first-session knowhow | 🟡 MEDIUM | 30 min | Security / SEO / Platform Developer benchmark patterns for future sessions |
+| JSON-LD structured data (full suite) | 🔴 HIGH | 2 hrs | layouts/partials/head.html + layouts/_default/single.html · Dataset + NewsArticle + BreadcrumbList · spec in docs/seo/ai-search-audit-2026-Q2.md Section 5 |
+| 4 utility page lastmod dates | 🟡 LOW | 15 min | /about/ /search/ /subscribe/ /tags/ — missing lastmod in sitemap |
 
 
 ## PED SPRINT 1 — Deferred from 3 April session (>90min, fresh session needed)
