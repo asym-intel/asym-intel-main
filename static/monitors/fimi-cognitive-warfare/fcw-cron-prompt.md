@@ -370,6 +370,40 @@ Use cross-monitor flags to incorporate adjacent signals into your analysis
 and update your own cross_monitor_flags where new linkages are found.
 Use schema changelog to verify your output includes all required fields.
 
+STEP 0B+ — LOAD ANNUAL CALIBRATION FILE (if present)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```bash
+YEAR=$(date -u +%Y)
+CALIBRATION=$(gh api /repos/asym-intel/asym-intel-internal/contents/methodology/fimi-cognitive-warfare-eeas-${YEAR}.md \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$CALIBRATION" ]; then
+  echo "STEP 0B+: No annual calibration file for fimi-cognitive-warfare-eeas-${YEAR}.md — proceeding without."
+else
+  echo "STEP 0B+: Loaded annual calibration fimi-cognitive-warfare-eeas-${YEAR}.md"
+  echo "$CALIBRATION" | python3 -c "
+import sys
+content = sys.stdin.read()
+for section in ['## 2.', '## 3.', '## 4.', '## 5.', '## 6.', '## 7.', '## 8.']:
+    idx = content.find(section)
+    if idx > -1:
+        end = content.find('\n## ', idx + 10)
+        print(content[idx:end if end > idx else idx+800])
+        print()
+"
+fi
+```
+
+USE CALIBRATION FILE AS FOLLOWS:
+  — §2 AI-FIMI protocol → apply AI generation check before scoring content-based evidence
+  — §3 X/Twitter protocol → flag platformTransparencyGap:true, use alternative sources
+  — §4 DISARM version → use T0155 for AI-generated content TTPs
+  — §5 campaign baselines → assess Doppelganger against gen 3 architecture, not 2022 baseline
+  — §6 source hierarchy → X/Twitter CIB discontinued; DSA Transparency now Tier 1
+  — §7 cross-monitor routing → AGM AI-FIMI joint flag, WDM electoral calendar check
+  — §8 failure modes → apply FM-FCW-05 to FM-FCW-08
+
 STEP 0C — LOAD TIER 0 DAILY FEEDER OUTPUT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
