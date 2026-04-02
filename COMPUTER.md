@@ -217,6 +217,14 @@ Always fetch the staged file list first:
 Show the user exactly what will be merged and ask: "This will apply these N files to main — confirm?"
 Never merge based on approval given before the file list has been shown in the current session.
 
+**AFTER EVERY DIRECT-FILE MERGE — reset staging to main:**
+When files are applied directly to main (not via PR merge), staging retains its old commit history
+and will appear "ahead" with identical content. Always reset staging after a direct-file merge:
+  MAIN_SHA=$(gh api /repos/asym-intel/asym-intel-main/git/refs/heads/main --jq '.object.sha')
+  gh api /repos/asym-intel/asym-intel-main/git/refs/heads/staging -X PATCH -f sha="$MAIN_SHA" -F force=true
+Verify with: gh api /repos/asym-intel/asym-intel-main/compare/main...staging --jq '{ahead_by:.ahead_by,behind_by:.behind_by}'
+Expected result: {ahead_by: 0, behind_by: 0}
+
 **Cron prompt registry:** `docs/crons/` — all cron logic lives here, not in the task.
 Cron tasks are slim pointers: `gh api .../docs/crons/{file}.md --jq '.content' | base64 -d`
 To update a cron: edit the .md file in docs/crons/ and commit. No cron task edit needed.
