@@ -777,7 +777,9 @@ document.addEventListener('DOMContentLoaded', function () {
             '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
             '<td><span class="severity-badge severity-badge--' + cls + '">' + escHtml(c.severity_score) + '</span></td>' +
             '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
-            '<td>' + escHtml((c.lead_signal || c.summary || '').slice(0, 120)) + '…</td>' +
+            '<td>' + escHtml((c.lead_signal || c.summary || '').slice(0, 120)) + '…' +
+              (c.source_url ? ' <a class="source-link" style="font-size:var(--text-min)" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
+            '</td>' +
           '</tr>';
       });
       tableHtml += '</tbody></table>';
@@ -845,7 +847,8 @@ document.addEventListener('DOMContentLoaded', function () {
             tier:           tier,
             severity_score: c.severity_score,
             severity_arrow: c.severity_arrow || '',
-            lead_signal:    c.lead_signal || c.summary || ''
+            lead_signal:    c.lead_signal || c.summary || '',
+            source_url:     c.source_url || ''
           };
         }
       });
@@ -903,7 +906,8 @@ document.addEventListener('DOMContentLoaded', function () {
       '<div class="wdm-popup-name">' + escHtml(info.country) + '</div>' +
       '<div class="wdm-popup-tier wdm-popup-tier--' + info.tier + '">' + escHtml(tierLabel(info.tier)) + '</div>' +
       '<div class="wdm-popup-row">Score: <strong>' + escHtml(info.severity_score) + '</strong> ' + escHtml(info.severity_arrow) + '</div>' +
-      (signal ? '<div class="wdm-popup-signal">' + escHtml(signal) + (info.lead_signal && info.lead_signal.length > 100 ? '\u2026' : '') + '</div>' : '');
+      (signal ? '<div class="wdm-popup-signal">' + escHtml(signal) + (info.lead_signal && info.lead_signal.length > 100 ? '\u2026' : '') + '</div>' : '') +
+      (info.source_url ? '<div style="margin-top:4px"><a class="source-link" style="font-size:11px" href="' + escHtml(info.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '');
 
     layer.bindPopup(popup, { maxWidth: 240, className: 'wdm-country-popup' });
 
