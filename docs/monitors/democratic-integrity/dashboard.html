@@ -306,6 +306,7 @@
     <li><a href="report.html">Latest Issue</a></li>
     <li><a href="archive.html">Archive</a></li>
     <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="#section-weekly-brief" onclick="document.getElementById('section-weekly-brief').scrollIntoView({behavior:'smooth'});return false;">Weekly Brief</a></li>
     <li><a href="about.html">About</a></li>
     <li><a href="methodology.html">Methodology</a></li>
     <li><a href="search.html">Search</a></li>
@@ -391,6 +392,11 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-weekly-brief">
+      <div class="module-header"><div class="module-title">Weekly Brief</div></div>
+      <div id="weekly-brief-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <section class="module-section" id="section-delta">
       <div class="module-header">
         <div class="module-title">Intelligence Highlights</div>
@@ -439,6 +445,7 @@
       <li><a href="#section-kpi">Overview</a></li>
       <li><a href="#section-severity-cards">Most Severe</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
+      <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-delta">Intelligence Highlights</a></li>
       <li><a href="#section-severity-bar">Severity Ranking</a></li>
       <li><a href="#section-heatmap">Country Tracker</a></li>
@@ -680,6 +687,22 @@ document.addEventListener('DOMContentLoaded', function () {
       var kpiSub = document.getElementById('kpi-lead-signal-sub');
       if (kpiSub) {
         kpiSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
+      }
+
+      // Weekly brief — inline renderMarkdown (same pattern as report.html — do not use AsymRenderer here)
+      var briefEl = document.getElementById('weekly-brief-content');
+      if (briefEl) {
+        var brief = d.weekly_brief || '';
+        if (brief) {
+          var briefHtml = brief
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, ' ')
+            .replace(/^/, '<p>').replace(/$/, '</p>');
+          briefEl.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + briefHtml + '</div>';
+        } else {
+          briefEl.innerHTML = '<p class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</p>';
+        }
       }
 
       // Page meta
