@@ -1,10 +1,11 @@
 {
   "_meta": {
     "description": "Persistent living knowledge for the Strategic Conflict & Escalation Monitor (SCEM). Carries forward conflict baselines (indicator medians build over 13 weeks), F-flag history, and roster status across weekly issues.",
-    "last_updated": "2026-03-30",
+    "last_updated": "2026-04-02",
     "last_issue": "2026-03-30",
     "week_number": 1,
-    "schema_version": "1.0"
+    "schema_version": "1.0",
+    "calibration": "ACLED 2026 Watchlist + I1-I6 upgrades applied 2026-04-02"
   },
   "conflict_baselines": [
     {
@@ -38,7 +39,16 @@
           "reason": "Inaugural edition",
           "prior_value": null
         }
-      ]
+      ],
+      "indicatorBaselines": {
+        "I2": "FPV and Shahed operations are BASELINE — do not score above I2 Level 2 for routine drone exchange. Escalation signals: range extension, swarm doctrine, third-party cross-border incursion."
+      },
+      "doctrineshiftconfirmed": true,
+      "doctrine_note": "Russia Nov 2024 nuclear doctrine: formally lowered threshold for nuclear use in response to conventional attacks supported by nuclear states. This is a PERSISTENT BASELINE SHIFT for I3 — not a weekly event. Subsequent Medvedev/MFA rhetoric is episodic (flag with episodic:true, do not increment I3).",
+      "doctrine_date": "2024-11-19",
+      "q2_2026_recalc": true,
+      "recalc_note": "Structural break override needed — Nov 2024 doctrine shift. Recalibrate I3 baseline from Nov 2024.",
+      "recalc_break_date": "2024-11-19"
     },
     {
       "conflict": "Gaza / Israel–Hamas",
@@ -71,7 +81,10 @@
           "reason": "Inaugural edition",
           "prior_value": null
         }
-      ]
+      ],
+      "indicatorBaselines": {
+        "I2": "Drone use is baseline — escalation signal is swarm doctrine or cross-border incursion only."
+      }
     },
     {
       "conflict": "Sudan Civil War",
@@ -104,7 +117,13 @@
           "reason": "Inaugural edition",
           "prior_value": null
         }
-      ]
+      ],
+      "indicatorBaselines": {
+        "I2": "RSF drone use is structural shift from prior baseline — score as I2 Level 3 if confirmed given prior baseline."
+      },
+      "q2_2026_recalc": true,
+      "recalc_note": "Standard 3-year cycle (opened Apr 2023). Review all 6 indicators.",
+      "recalc_break_date": null
     },
     {
       "conflict": "Myanmar Civil War",
@@ -137,7 +156,10 @@
           "reason": "Inaugural edition",
           "prior_value": null
         }
-      ]
+      ],
+      "q2_2026_recalc": true,
+      "recalc_note": "Structural break: 2024 territorial fragmentation. Recalibrate I1/I2 baseline.",
+      "recalc_break_date": "2024-01-01"
     },
     {
       "conflict": "Haiti Political-Criminal",
@@ -508,7 +530,36 @@
         "version_history": []
       }
     ],
-    "approaching_retirement": []
+    "approaching_retirement": [],
+    "acled_2026_priority_1": [
+      "Sudan",
+      "Gaza/Israel-Hamas",
+      "Myanmar",
+      "Ukraine/Russia",
+      "DRC (Eastern)"
+    ],
+    "acled_2026_priority_2": [
+      {
+        "theatre": "Haiti",
+        "entry_trigger": "Gang coalition >80% Port-au-Prince territorial control"
+      },
+      {
+        "theatre": "Ethiopia (Amhara)",
+        "entry_trigger": "Resumption of organised armed confrontation"
+      },
+      {
+        "theatre": "Mali/Sahel Arc",
+        "entry_trigger": "Junta consolidation + Wagner/Africa Corps confirmation"
+      },
+      {
+        "theatre": "Pakistan-India (LoC)",
+        "entry_trigger": "Cross-border kinetic incident at battalion level+"
+      },
+      {
+        "theatre": "Iran-Israel (direct)",
+        "entry_trigger": "Naval or ballistic direct exchange"
+      }
+    ]
   },
   "cross_monitor_flags": {
     "updated": "2026-03-30T18:00:00Z",
@@ -735,5 +786,62 @@
         "reason": "C9 and C10 retroactively added to active roster"
       }
     ]
-  }
+  },
+  "source_hierarchy_2026": {
+    "t1_additions": [
+      {
+        "name": "ACLED Conflict Index 2026",
+        "url": "acleddata.com/conflict-index-2026-watchlist"
+      },
+      {
+        "name": "IDMC Global Report 2025",
+        "url": "internal-displacement.org"
+      },
+      {
+        "name": "UCDP GED 2025",
+        "url": "ucdp.uu.se"
+      }
+    ],
+    "t2_additions": [
+      {
+        "name": "ICG Crisis Watch (monthly)",
+        "url": "crisisgroup.org/crisiswatch"
+      },
+      {
+        "name": "OCHA Humanitarian Situation Reports",
+        "url": "reliefweb.int"
+      },
+      {
+        "name": "UNHCR Operational Data Portal",
+        "url": "data.unhcr.org"
+      }
+    ],
+    "reliability_flags": {
+      "telegram_ukraine_russia": "T4 maximum — velocity detection only. Fabricated PSYOP channels documented 2025.",
+      "sudan_osint_x": "T3 (not T4) — civil society networks have been primary early-warning ahead of T1. CGTN Sudan = likely F3.",
+      "cgtn": "State media disinformation pattern documented — treat as F4 (state media flag)"
+    }
+  },
+  "i5_calibration_2026": {
+    "us_channel_weight": "reduced",
+    "us_channel_note": "US withdrawal from 66+ multilateral institutions means US participation in multilateral forums is no longer a reliable I5 positive indicator for 2026. Weight EU/Gulf/African Union mediation channels more heavily in Gaza, Ukraine, Sudan theatres.",
+    "effective_date": "2026-04-02"
+  },
+  "calibration_log": [
+    {
+      "date": "2026-04-02",
+      "source": "ACLED 2026 Watchlist + SCEM Enhancement Addendum",
+      "applied_by": "Computer session",
+      "changes": [
+        "Russia–Ukraine War: I2 drone baseline",
+        "Russia–Ukraine War: doctrine shift baseline",
+        "Russia–Ukraine War: Q2 recalc flag",
+        "Gaza / Israel–Hamas: I2 drone baseline",
+        "Sudan Civil War: I2 drone baseline",
+        "Sudan Civil War: Q2 recalc flag",
+        "Myanmar Civil War: Q2 recalc flag"
+      ],
+      "summary": "I2 drone theatre baselines, Russia doctrine shift persistent flag, Q2 recalc triggers, ACLED Priority 1+2 watchlist, T1/T2 source additions, I5 US channel de-weighting"
+    }
+  ]
 }
