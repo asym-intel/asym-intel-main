@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 2.3 — 2 April 2026
+## Version 2.4 — 2 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -18,7 +18,7 @@
 
 ## Step 0 — Load Working Agreement (ALWAYS FIRST)
 
-Before any other action, fetch and read both files:
+Before any other action, fetch and read all three files:
 
 ```bash
 gh api /repos/asym-intel/asym-intel-main/contents/COMPUTER.md \
@@ -26,7 +26,15 @@ gh api /repos/asym-intel/asym-intel-main/contents/COMPUTER.md \
 
 gh api /repos/asym-intel/asym-intel-main/contents/HANDOFF.md \
   --jq '.content' | base64 -d
+
+gh api /repos/asym-intel/asym-intel-main/contents/docs/ROADMAP.md \
+  --jq '.content' | base64 -d
 ```
+
+**ROADMAP.md** is the single source of truth for all planned work — sprints, pipeline,
+schema items, parking lot. Read it to understand what is queued, what is schema-gated,
+and what needs a design session before building. Update it at every wrap when items
+are completed or added.
 
 Use `api_credentials=["github"]` for all GitHub operations.
 
