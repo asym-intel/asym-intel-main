@@ -209,6 +209,44 @@ instance reading only the Step 0 files find this file without being told it exis
 
 ---
 
+## Post-Wrap Deliverables
+
+After every wrap, before closing, produce both of the following. These are deliverables,
+not summaries — Peter should be able to act on them immediately without re-reading
+anything else.
+
+### 1. Next-Week Plan
+
+A concise, scannable breakdown in three parts:
+
+**Fires automatically** — table of every automated event this week: cron runs,
+GitHub Actions, one-shot verification crons. Columns: When (day + UTC time) · What.
+Do not omit anything. Peter should be able to see at a glance what will happen
+without him doing anything.
+
+**Ready to build** — top 3 items from ROADMAP.md with no blockers, in priority order.
+One line each: monitor, item, estimated time. Nothing schema-gated or design-gated.
+
+**Watch for** — data-gated or schema-gated items that are triggered by cron output
+this week. One line each: what to check, when, what it unlocks.
+
+### 2. Suggested Prompt for Next Fresh Session
+
+A single ready-to-paste task description. Format:
+
+> asym-intel.info [brief topic] — please load the asym-intel skill first. [One sentence
+> describing the first thing to check or verify if any.] Then [main task description
+> referencing specific monitor/sprint item].
+
+Requirements:
+- Starts with `asym-intel.info` so context is immediate
+- Includes `load the asym-intel skill first` — always
+- Names the specific task (monitor name, sprint item) — never generic
+- Includes a prerequisite check if one exists (e.g. verify cron output before building)
+- One paragraph, ready to paste without editing
+
+---
+
 **Why during session, not end of session:**
 End-of-session checklists are skipped when sessions run long, wrap early, or context
 is lost. The only documentation that reliably survives is written immediately after
