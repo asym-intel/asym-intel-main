@@ -220,6 +220,12 @@ LAYER 3 — PLATFORM VALIDATOR (Computer weekly cron, Monday)
 | FCW | fcw-collector.yml | Daily 07:00 UTC | sonar |
 | FCW | fcw-weekly-research.yml | Wed 18:00 UTC | sonar-pro |
 | FCW | fcw-reasoner.yml | Wed 20:00 UTC | sonar-deep-research |
+| GMM | gmm-collector.yml | Daily 06:00 UTC | sonar |
+| GMM | gmm-weekly-research.yml | Mon 18:00 UTC | sonar-pro |
+| GMM | gmm-reasoner.yml | Mon 20:00 UTC | sonar-deep-research |
+| SCEM | scem-collector.yml | Daily 06:00 UTC | sonar |
+| SCEM | scem-weekly-research.yml | Sat 18:00 UTC | sonar-pro |
+| SCEM | scem-reasoner.yml | Sat 20:00 UTC | sonar-deep-research |
 
 ## pipeline/ Directory
 pipeline/monitors/{slug}/ — GitHub Actions Collector outputs. Internal only.
