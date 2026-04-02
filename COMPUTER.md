@@ -211,6 +211,7 @@ LAYER 3 — PLATFORM VALIDATOR (Computer weekly cron, Monday)
 | Analyst | SCEM Analyst | eb312202 | Sun 18:00 UTC |
 | Validator | Platform Validator | 73452bc6 | Mon 08:00 UTC |
 | Verification | SCEM verification | a67a9739 | Sun 5 Apr 18:30 UTC (one-shot) |
+| Guard | Staging divergence guard | aec126c5 | Daily ~18:00 UTC (silent unless behind_by > 30) |
 | Verification | WDM verification | 10ddf5f0 | Mon 6 Apr 06:30 UTC (one-shot) |
 
 ## Active GitHub Actions (external pipeline — NOT Computer crons)
