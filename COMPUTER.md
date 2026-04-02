@@ -170,3 +170,15 @@ or `esc(country)` and verify the flag call precedes it.
 12. **archive.json** — append only, never truncate
 13. **schema_version** — must be "2.0" in all JSON files
 14. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
+
+## FCW Tier 0 Daily Feeder (added 2 April 2026)
+Cron ID: 6d67ba71 | Schedule: Daily 08:00 UTC | Prompt: static/monitors/fimi-cognitive-warfare/fcw-daily-feeder-cron.md
+
+New internal pipeline layer — pre-verification research agent for FCW.
+Output goes to pipeline/monitors/fimi-cognitive-warfare/daily/ — NEVER to public data files.
+
+## pipeline/ Directory Pattern
+pipeline/monitors/{slug}/daily/ stores Tier 0 feeder outputs.
+Hugo's publishDir=docs never builds from pipeline/ — files are repo-internal only.
+Weekly cron reads pipeline/daily-latest.json at Step 0C, applies own methodology, decides publication.
+Feeder NEVER writes to report-latest.json, persistent-state.json, or archive.json.
