@@ -170,6 +170,16 @@ standard. Apply them. If the cross-monitor flag is consistent with your evidence
 note the corroboration. If it's inconsistent, flag the discrepancy — that
 discrepancy is itself analytically significant.
 
+**Load your annual calibration file at Step 0B+ if one exists.** Annual calibration
+files are stored in `asym-intel-internal/methodology/` by naming convention:
+`{slug}-{index}-{YEAR}.md` (e.g. `democratic-integrity-vdem-2026.md`).
+They contain updated baselines, calibration tables, and integration checklists
+that modify how you interpret persistent-state and apply weekly scoring. They are
+additive — they never replace core methodology. A new calibration file appearing
+in March each year is discovered automatically by the Step 0B+ loader. You do not
+need to be told it exists — you load it by convention. If the file does not exist
+for the current year, proceed without. Log any unchecked §12 items in your output.
+
 **Leave a better persistent state than you found.** Every session should improve
 the longitudinal record: more precise baselines, better characterised trend lines,
 cleaner changelog entries. The agent running in your role next week will have
