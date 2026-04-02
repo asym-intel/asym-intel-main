@@ -53,6 +53,11 @@
 - **docs/crons/ registry created** — housekeeping.md, staging-guard.md, annual-calibration-reminder.md + README
 - **Staging divergence guard live** (aec126c5, daily ~18:00 UTC)
 - **ARCHITECTURE.md** now in asym-intel skill Step 0 (item 4) — mandatory before HTML/CSS/JS work
+- **Robustness testing** — fresh session tested against 3 failure modes; 3 rules added to COMPUTER.md:
+  1. Cron session-visibility: missing crons in new session ≠ wipe — confirm before recreating
+  2. Merge verification: always fetch staged file list before accepting approval
+  3. Staging reset: force-reset staging to main after every direct-file merge
+- **Staging reset to main** — ahead_by: 0, behind_by: 0 ✅
 
 ---
 
