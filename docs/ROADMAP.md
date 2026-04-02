@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Platform Roadmap
-**Last updated:** 2026-04-02  
+**Last updated:** 2026-04-03  
 **Maintained by:** Computer sessions — update this file at every wrap.  
 **Canonical location:** `docs/ROADMAP.md` (asym-intel-main)
 
@@ -75,14 +75,53 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 
 | Session | Priority | Goal | Prompt |
 |---------|----------|------|--------|
-| Platform Security Expert | 🔴 Run first | Create docs/security/ files, verify branch protection, SHA-256 manifest spec, full quarterly checklist incl. filter vendors | `docs/prompts/platform-security-expert.md` |
-| SEO & Discoverability Expert | 🟡 Run second | Sitemap audit, meta tag three-of-five test, Dataset markup gap, AI search baseline (Perplexity audit) | `docs/prompts/seo-discoverability-expert.md` |
+| Platform Security Expert | ✅ Complete | docs/security/ created, 3 HIGH: branch protection, SRI hashes, integrity manifest | `docs/prompts/platform-security-expert.md` |
+| SEO & Discoverability Expert | ✅ Complete | docs/SEO.md + AI search baseline · 0/3 benchmark queries cited · robots.txt fixed | `docs/prompts/seo-discoverability-expert.md` |
 | Platform Experience Designer | 🟡 Run third | Peter's reader observations + knowhow dump + colour-registry.md (must precede all implementation) | `docs/prompts/platform-experience-designer.md` |
 | Intelligence Surface Analyst | 🟢 After PED | Five-audience gap test, asymmetric signal audit, recovery parity audit | `docs/prompts/reader-experience-analyst.md` |
 
 **Benchmark prompts:** ready-to-paste prompts for all four sessions are in HANDOFF.md next-session notes.
 
 ---
+
+
+## SECURITY + SEO BACKLOG — From First Benchmark Sessions (3 April 2026)
+
+### Security — requires Peter's action (cannot be done autonomously)
+
+| Item | Severity | Owner | Notes |
+|------|----------|-------|-------|
+| Branch protection on main | 🔴 HIGH | Peter | Require CI to pass, include administrators — GitHub repo settings → Branches |
+| HSTS max-age 31536000 | 🟡 MEDIUM | Peter | Cloudflare Transform Rule — currently 15552000 |
+| X-Frame-Options + CSP + Referrer-Policy headers | 🟡 MEDIUM | Peter | Cloudflare Transform Rules — spec in platform-security-expert.md |
+
+### Security — requires Platform Developer + Computer session
+
+| Item | Severity | Est. | Notes |
+|------|----------|------|-------|
+| SRI hashes on all Chart.js CDN tags | 🔴 HIGH | 45 min | All 7 dashboards · standardise to 4.4.7 · hashes in docs/security/third-party-audit.md |
+| integrity-manifest.json — new GA workflow | 🔴 HIGH | 1 hr | Spec at docs/security/integrity-manifest-spec.md · Peter approval needed |
+| GA workflow failure notifications | 🟡 MEDIUM | 30 min | All 14 Collector/Research/Reasoner workflows — add `if: failure()` step |
+
+### SEO — requires Platform Developer session
+
+| Item | Severity | Est. | Notes |
+|------|----------|------|-------|
+| JSON-LD structured data — full suite | 🔴 HIGH | 2 hrs | Dataset + NewsArticle + FAQPage + BreadcrumbList in layouts/partials/head.html + layouts/_default/single.html · Full spec: docs/seo/ai-search-audit-2026-Q2.md Section 5 |
+| WDM meta description fix | 🔴 HIGH | 15 min | content/monitors/democratic-integrity/_index.md front-matter · add "democratic backsliding", "V-Dem", "Freedom House" |
+| Methodology page lastmod dates | 🟡 MEDIUM | 20 min | All 7 pages carry 2020-01-01 — set correct dates in Hugo front-matter |
+| 4 utility pages missing lastmod | 🟡 MEDIUM | 15 min | /about/, /search/, /subscribe/, /tags/ |
+| "Cite this" element on brief pages | 🟡 MEDIUM | 30 min | layouts/_default/single.html — citation block spec in docs/SEO.md |
+| 7 monitor-specific OG images | 🟡 MEDIUM | Design-gated 🎨 | All monitors share fallback image — PED session first |
+
+### SEO — requires Peter's decision
+
+| Item | Notes |
+|------|-------|
+| Complete GSC property verification | https://search.google.com/search-console/ |
+| Archive indexing policy for first 12 months | Recommend: index all, review at 12-month mark |
+| Static dashboard pages in sitemap? | Supplemental sitemap needed — Peter to decide |
+| GMM title "Macro Monitor" → "Global Macro Risk Monitor"? | Competitor domain global-macro-monitor.com appears in AI search |
 
 ## SPRINT 3 REMAINDER
 
