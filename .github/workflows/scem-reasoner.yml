@@ -1,0 +1,39 @@
+name: SCEM Reasoner — Conflict Trajectory Analysis
+
+on:
+  schedule:
+    - cron: "0 20 * * 6"  # Saturday 20:00 UTC — after weekly research (18:00), before Analyst (Sun 18:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  reason:
+    name: SCEM Conflict Trajectory Reasoning (sonar-deep-research)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run SCEM Reasoner
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/conflict-escalation/scem-reasoner.py
+
+      - name: Commit reasoner output
+        run: |
+          git config user.name  "SCEM Reasoner Bot"
+          git config user.email "scem-reasoner@asym-intel.info"
+          git add pipeline/monitors/conflict-escalation/reasoner/
+          git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
+          git commit -m "data(scem-reasoner): conflict trajectory analysis — $(date -u +%Y-%m-%d)"
+          git push
