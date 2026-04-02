@@ -77,7 +77,7 @@ Separate submission to Cisco Umbrella and Symantec still needed — see pending 
 
 | Library | Versions in use | SRI hashes | Last checked | CVE status |
 |---------|----------------|-----------|-------------|------------|
-| Chart.js (cdn.jsdelivr.net) | 4.4.7, 4.4.4, 4.4.0 | ⚠️ NOT implemented — HIGH finding | 3 Apr 2026 | ✅ No CVEs affecting 4.x |
+| Chart.js (cdn.jsdelivr.net) | 4.4.7, 4.4.4, 4.4.0 | ✅ IMPLEMENTED — PR #29 merged 3 Apr 2026 | 3 Apr 2026 | ✅ No CVEs affecting 4.x |
 | Fontshare (api.fontshare.com) | N/A (font API) | ⚠️ Not applicable for CSS links | 3 Apr 2026 | — |
 | Google Fonts (fonts.googleapis.com) | N/A (CSS API) | ⚠️ Not applicable for CSS links | 3 Apr 2026 | — |
 
@@ -90,7 +90,7 @@ Separate submission to Cisco Umbrella and Symantec still needed — see pending 
 
 | Item | Status | Notes |
 |------|--------|-------|
-| integrity-manifest.json | ❌ DOES NOT EXIST — HIGH finding | Spec at docs/security/integrity-manifest-spec.md |
+| integrity-manifest.json | ✅ EXISTS — static/monitors/shared/integrity-manifest.json committed 3 Apr 2026 | Draft GA workflow in docs/security/drafts/ — Peter approval needed to automate |
 | Canary statement (About page) | ❌ NOT IMPLEMENTED | Platform Developer task |
 | static/fallback/ CDN copies | ❌ NOT IMPLEMENTED | Medium priority |
 
@@ -114,10 +114,10 @@ Separate submission to Cisco Umbrella and Symantec still needed — see pending 
 ### Platform Developer (implementation required)
 | Action | Priority | Notes |
 |--------|----------|-------|
-| Add SRI integrity= attributes to all 7 Chart.js `<script>` tags | HIGH | Hashes in third-party-audit.md |
+| ~~Add SRI integrity= attributes to all 7 Chart.js `<script>` tags~~ | ✅ Done — PR #29 merged 3 Apr 2026 | — |
 | Standardise all monitors to Chart.js 4.4.7 | Medium | ERM currently on 4.4.0 |
 | Add `/pipeline/` to docs/robots.txt | Low | Defence-in-depth only |
-| Implement integrity manifest GitHub Actions workflow | HIGH | Spec in integrity-manifest-spec.md |
+| Approve + deploy integrity manifest GA workflow | HIGH | Draft at docs/security/drafts/generate-integrity-manifest.yml — Peter moves to .github/workflows/ |
 | Add canary statement to About page | Medium | See integrity-manifest-spec.md |
 | Create static/fallback/ with pinned CDN copies | Medium | CDN compromise playbook |
 
@@ -132,4 +132,5 @@ Separate submission to Cisco Umbrella and Symantec still needed — see pending 
 | 2 Apr 2026 | DNS TXT record added for GSC domain property verification | Peter |
 | 2 Apr 2026 | Bot Fight Mode enabled in Cloudflare | Peter |
 | 2 Apr 2026 | Fortiguard recategorisation submitted via Cloudflare tool (News and Media / Research) | Peter |
+| 3 Apr 2026 | SRI hashes merged (PR #29) — all 7 dashboards · integrity-manifest.json first commit · FCW dashboard legacy→modern fix | Computer |
 | 3 Apr 2026 | Security Expert Session 2: full quarterly checklist, docs/security/ created, SRI hashes computed, branch protection gap confirmed (HIGH), integrity manifest gap confirmed (HIGH), no SRI on CDN tags (HIGH), pipeline exposure confirmed benign (404), collaborator audit clean (solo owner) | Platform Security Expert |
