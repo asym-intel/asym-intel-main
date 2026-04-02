@@ -612,8 +612,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // KPIs
       document.getElementById('kpi-campaigns').textContent = activeCampaigns || '—';
       document.getElementById('kpi-actors').textContent = actorCount;
-      document.getElementById('kpi-signal').textContent = signalConf || (signal ? signal.slice(0,30) + '…' : '—');
-      // KPI sub links to the Lead Signal section below
+      document.getElementById('kpi-signal').textContent = signalConf || (signal ? signal.slice(0,30) + '\u2026' : '\u2014');
       var kpiSignalSub = document.getElementById('kpi-signal-sub');
       if (kpiSignalSub) {
         kpiSignalSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
@@ -676,8 +675,8 @@ document.addEventListener('DOMContentLoaded', function () {
       var remainingCampaigns = [];
 
       if (Array.isArray(campaigns) && campaigns.length) {
-        featuredCampaigns = campaigns.slice(0, 5);
-        remainingCampaigns = campaigns.slice(5);
+        featuredCampaigns = campaigns;
+        remainingCampaigns = [];
         featuredCampaigns.forEach(function(c, i) {
           deltaItems.push({
             rank: i + 1,
@@ -767,7 +766,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (Array.isArray(attrLog) && attrLog.length) {
         attrLogHtml = '<div style="overflow-x:auto"><table class="fcw-log-table" role="table" aria-label="Attribution log">';
         attrLogHtml += '<thead><tr>';
-        attrLogHtml += '<th>Date</th><th>Campaign</th><th>Confidence</th><th>Headline</th><th>Actor</th>';
+        attrLogHtml += '<th>Date</th><th>Campaign</th><th>Confidence</th><th>Headline</th><th>Actor</th><th>Instrument</th>';
         attrLogHtml += '</tr></thead><tbody>';
         attrLog.forEach(function(entry) {
           attrLogHtml += '<tr>';
@@ -776,6 +775,7 @@ document.addEventListener('DOMContentLoaded', function () {
           attrLogHtml += '<td>' + confidenceBadge(entry.confidence || '') + '</td>';
           attrLogHtml += '<td class="fcw-log-headline">' + escHtml(entry.headline || entry.note || '') + '</td>';
           attrLogHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:1px 5px;border-radius:3px">' + escHtml(entry.actor || '') + '</span></td>';
+          attrLogHtml += '<td class="fcw-log-id" style="font-size:var(--text-xs);color:var(--text-muted)">' + escHtml(entry.instrument || '—') + '</td>';
           attrLogHtml += '</tr>';
         });
         attrLogHtml += '</tbody></table></div>';
