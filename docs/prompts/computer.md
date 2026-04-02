@@ -132,7 +132,15 @@ Say **"wrap"** at any point to run the session checkpoint.
 5. Check: any unmerged staging changes? any new crons missing from COMPUTER.md? any new governance files missing from Step 0?
 6. Staging check — if staging is ahead of main, list the files and ask to merge
 7. Reset staging to main HEAD after any direct-file merge
-8. Confirm done before ending
+8. **Produce the next-week plan** — a concise summary of:
+   - What fires automatically (cron runs, GitHub Actions) and when
+   - What is ready to build next session (top 3 items from ROADMAP, no blockers)
+   - What is data-gated or schema-gated this week (what to watch for)
+9. **Provide a suggested prompt for the next fresh session** — a single ready-to-paste
+   task description Peter can use to open the next Computer session. It should name
+   the specific task, reference the relevant monitor or sprint item, and note any
+   prerequisite check (e.g. "first verify GMM Collector output").
+10. Confirm done before ending
 
 **Never leave a session with:**
 - Staging ahead of main (unless Peter explicitly deferred)
@@ -219,3 +227,5 @@ Before closing:
 - [ ] Staging clean — ahead_by: 0, behind_by: 0
 - [ ] New governance files wired into Step 0 (COMPUTER.md + skill + notes)
 - [ ] Peter told if a new session is the right next move
+- [ ] Next-week plan produced (automated events + ready-to-build items + gated items)
+- [ ] Suggested prompt for next fresh session provided
