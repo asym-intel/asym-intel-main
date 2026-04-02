@@ -133,10 +133,22 @@ STEP 0 — Load persistent state:
   cat /tmp/asym-intel-main/static/monitors/fimi-cognitive-warfare/data/persistent-state.json
   cat /tmp/asym-intel-main/static/monitors/fimi-cognitive-warfare/data/report-latest.json
 
-STEP 1 — Research: EEAS FIMI reports, EU DisinfoLab, DFRLab,
-  Stanford Internet Observatory, EDMO, Bellingcat.
-  Apply MF1 (is this story itself a FIMI operation?),
-  MF2 (single-actor attribution?), MF3 (verifiable?), MF4 (state media?)
+STEP 1 — Apply methodology to research inputs (Steps 0C + 0D):
+  PRIMARY: Use weekly deep research (Step 0D) as the research base.
+  SUPPLEMENT: Cross-check with daily Collector candidates (Step 0C).
+  FALLBACK: If Step 0D unavailable, research directly: EEAS, EU DisinfoLab,
+    DFRLab, Stanford IO, EDMO, Bellingcat.
+
+  Apply to ALL findings regardless of source:
+  MF1: Is this story itself a FIMI operation? (meta-disinfo)
+  MF2: Is actor attribution based on single source? (flag if yes)
+  MF3: Is the claim independently verifiable? (flag if no)
+  MF4: Is primary source state media? (flag if yes)
+
+  Assign FINAL confidence (not preliminary):
+  Confirmed → Tier 1 platform disclosure + independent government attribution
+  Assessed  → Tier 2/3 sources, credible but not platform-confirmed
+  Unconfirmed → Single source or below Assessed threshold
 
 STEP 2 — Write 4 JSON files (single git commit):
   report-latest.json schema:
@@ -358,3 +370,45 @@ USE THE FEEDER OUTPUT:
   — feeder's confidence_preliminary is your starting point, NOT your conclusion
   — You may upgrade OR downgrade based on your full methodology review
   — Feeder findings that don't survive your review → exclude from published output
+
+STEP 0D — LOAD WEEKLY DEEP RESEARCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GitHub Actions runs sonar-deep-research every Wednesday 18:00 UTC and commits
+structured research to pipeline/weekly/. Load it now as your primary research input.
+If unavailable, conduct research directly (fallback mode — note in output).
+
+```bash
+WEEKLY=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/fimi-cognitive-warfare/weekly/weekly-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$WEEKLY" ]; then
+  echo "STEP 0D: No weekly research found — running in fallback research mode."
+else
+  echo "$WEEKLY" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+lead = d.get('lead_signal', {})
+campaigns = d.get('campaigns', [])
+print(f'Weekly research week_ending: {meta.get(\"week_ending\",\"unknown\")}')
+print(f'Lead: [{lead.get(\"confidence_preliminary\")}] {lead.get(\"headline\",\"\")[:80]}')
+print(f'Campaigns: {len(campaigns)} | Actors: {len(d.get(\"actor_tracker\",[]))} | Platform responses: {len(d.get(\"platform_responses\",[]))}')
+print(f'Cross-monitor signals: {[k for k,v in d.get(\"cross_monitor_signals\",{}).items() if v]}')
+print()
+for c in campaigns:
+    print(f'  [{c.get(\"attribution_confidence_preliminary\")}] {c.get(\"operation_name\",\"\")[:60]} ({c.get(\"actor\")})')
+"
+fi
+```
+
+USE WEEKLY RESEARCH AS FOLLOWS:
+  — campaigns[] → cross-check against persistent-state registry, update/add
+  — actor_tracker[] → update actor status and doctrine
+  — platform_responses[] → add to report
+  — cognitive_warfare[] → add to report
+  — attribution_log[] → apply MF-flags, confirm confidence, add to log
+  — weekly_brief_narrative → use as draft for Hugo brief (edit + apply analytical voice)
+  — cross_monitor_signals → populate cross_monitor_flags in report
+  — All confidence_preliminary values → apply FCW methodology to assign FINAL confidence
+  — NEVER publish research confidence_preliminary as final — always apply your own judgment
