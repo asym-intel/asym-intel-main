@@ -245,6 +245,17 @@ Never leave the session with COMPUTER.md cron table out of sync.
 ### 4. Log to `notes-for-computer.md`
 If a decision affects cron agents, methodology, or Peter — log it now, not at wrap.
 
+### 5. Wire any new governance file into Step 0
+If you created a new persistent reference file that future sessions should read
+(a new spec, roadmap, methodology doc, architecture record) — wire it immediately:
+
+1. Add fetch command to **Step 0 in COMPUTER.md**
+2. Add fetch command to **Step 0 in the asym-intel skill**
+3. Add a note to **notes-for-computer.md** explaining what the file is
+
+**The test:** Could a fresh Computer instance reading only the Step 0 files find this
+new file without being told it exists? If not — it isn't wired.
+
 ---
 
 **Why "during session" not "end of session":**
