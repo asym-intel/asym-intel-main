@@ -65,6 +65,7 @@
 - platform-developer.md + domain-analyst-template.md — governance file wiring rule added
 - Three new role prompts: platform-security-expert.md, seo-discoverability-expert.md, platform-auditor.md
 - Computer role prompt: docs/prompts/computer.md v1.0 — session management, wrap procedure, post-wrap deliverables format
+- Computer role prompt: docs/prompts/computer.md v1.0 — session management, wrap procedure, post-wrap deliverables format
 - ROLES.md updated — prompt refs added; Platform Auditor role added
 
 **Late evening — cron infrastructure fix:**
