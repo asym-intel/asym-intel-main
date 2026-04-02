@@ -1,5 +1,6 @@
 ---
 title: "About"
+lastmod: 2026-04-01T00:00:00Z
 description: "About Asymmetric Intelligence — a public intelligence commons."
 type: "page"
 layout: "single"
