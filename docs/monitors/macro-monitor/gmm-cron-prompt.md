@@ -127,6 +127,78 @@ STEP 0 — Load persistent state:
   cat /tmp/asym-intel-main/static/monitors/macro-monitor/data/persistent-state.json
   cat /tmp/asym-intel-main/static/monitors/macro-monitor/data/report-latest.json
 
+
+STEP 0C — LOAD DAILY COLLECTOR OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```bash
+DAILY=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/macro-monitor/daily/daily-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+if [ -z "$DAILY" ]; then
+  echo "STEP 0C: No daily Collector output found."
+else
+  echo "$DAILY" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+m=d.get('_meta',{})
+f=d.get('findings',[])
+print('Collector date: ' + str(m.get('data_date','unknown')) + ' | Findings: ' + str(len(f)))
+for item in f[:5]:
+    print('  [' + str(item.get('confidence_preliminary')) + '] ' + str(item.get('title',''))[:70])
+"
+fi
+```
+
+STEP 0D — LOAD WEEKLY DEEP RESEARCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```bash
+WEEKLY=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/macro-monitor/weekly/weekly-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+if [ -z "$WEEKLY" ]; then
+  echo "STEP 0D: No weekly research found — running in fallback research mode."
+else
+  echo "$WEEKLY" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+m=d.get('_meta',{})
+lead=d.get('lead_signal',{})
+print('Weekly week_ending: ' + str(m.get('week_ending',m.get('data_date','unknown'))))
+print('Lead: [' + str(lead.get('confidence_preliminary')) + '] ' + str(lead.get('headline',''))[:80])
+print('Brief: ' + str(len(d.get('weekly_brief_narrative',''))) + ' chars')
+"
+fi
+```
+
+STEP 0E — LOAD REASONER OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```bash
+REASONER=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/macro-monitor/reasoner/reasoner-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+if [ -z "$REASONER" ]; then
+  echo "STEP 0E: No Reasoner output found — reasoning independently."
+else
+  echo "$REASONER" | python3 -c "
+import json,sys
+d=json.load(sys.stdin)
+briefing=d.get('analyst_briefing','')
+if briefing and len(briefing) > 50:
+    print('Reasoner briefing (' + str(len(briefing)) + ' chars):')
+    print(briefing[:400])
+else:
+    print('Reasoner: no substantive output this cycle.')
+"
+fi
+```
+
+USE PIPELINE INPUTS:
+  Step 0C (Collector): review daily pre-verified candidates against your methodology
+  Step 0D (Weekly Research): use as primary research input; apply your methodology and scoring
+  Step 0E (Reasoner): pre-computed analytical recommendations — verify before accepting
+  All confidence_preliminary values require your final confidence assignment
+  If all three absent: conduct research directly (fallback mode)
+
 STEP 1 — Research: BIS, IMF WEO/GFSR, World Bank, Federal Reserve,
   ECB, Bloomberg (T1), FT/Reuters/WSJ (T2). Named sources only.
 
