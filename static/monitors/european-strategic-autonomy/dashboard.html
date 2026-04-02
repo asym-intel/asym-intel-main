@@ -426,16 +426,6 @@
       </div>
     </section>
 
-    <section class="module-section" id="section-lagrange-radar">
-      <div class="module-header">
-        <div class="module-title">Lagrange Point — Autonomy Radar</div>
-      </div>
-      <p class="text-sm" style="color:var(--color-text-muted);margin-bottom:var(--space-5)">Six dimensions of European strategic autonomy, scored 0–100.</p>
-      <div id="dash-lagrange-wrap">
-        <div class="loading-state">Loading radar data&hellip;</div>
-      </div>
-    </section>
-
       <!-- Cross-Monitor Flags -->
       <section class="module-section" id="section-cross-monitor">
         <div class="module-header">
@@ -454,7 +444,6 @@
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Top Items</a></li>
       <li><a href="#section-member-states">Member States</a></li>
-      <li><a href="#section-lagrange-radar">Radar Chart</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
   </nav>
@@ -589,6 +578,9 @@ document.addEventListener('DOMContentLoaded', function () {
         gridHtml += '</div>';
         msEl.innerHTML = gridHtml;
       }
+
+      // Cross-monitor flags (d is in scope here)
+      renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
     })
     .catch(function (err) {
       console.error(err);
@@ -724,117 +716,6 @@ document.addEventListener('DOMContentLoaded', function () {
         kpiBarsEl.innerHTML = barsHtml;
       }
 
-      // ── Lagrange Radar Chart (dashboard compact) ──
-      var radarWrap = document.getElementById('dash-lagrange-wrap');
-      if (radarWrap && Object.keys(lagDims).length) {
-        var dimOrder = ['energy','defence','technology','finance','materials','institutions'];
-        var dimLabels = {
-          energy: 'Energy', defence: 'Defence', technology: 'Technology',
-          finance: 'Finance', materials: 'Materials', institutions: 'Institutions'
-        };
-        var dimScores = dimOrder.map(function(d) { return lagDims[d] ? parseFloat(lagDims[d].score||0) : 0; });
-
-        var dimRowsHtml = '<div class="dash-radar-dims">';
-        dimOrder.forEach(function(dim, i) {
-          var d2 = lagDims[dim]; if (!d2) return;
-          var sc = parseFloat(d2.score||0);
-          var bc = sc >= 50 ? 'var(--positive)' : sc >= 30 ? '#5b8db0' : 'var(--high)';
-          dimRowsHtml +=
-            '<div class="dash-radar-dim-row">' +
-              '<div class="dash-radar-dim-row__label">' + escHtml(dimLabels[dim]||dim) + '</div>' +
-              '<div class="dash-radar-dim-row__bar-wrap">' +
-                '<div class="dash-radar-dim-row__bar" style="width:' + Math.min(sc,100) + '%;background:' + bc + '"></div>' +
-              '</div>' +
-              '<div class="dash-radar-dim-row__score" style="color:' + bc + '">' + sc + '</div>' +
-            '</div>';
-        });
-        dimRowsHtml += '</div>';
-
-        radarWrap.innerHTML =
-          '<div class="dash-radar-section">' +
-            '<div class="dash-radar-canvas-wrap">' +
-              '<canvas id="dash-radar-canvas" width="280" height="280" aria-label="Autonomy Radar" role="img"></canvas>' +
-            '</div>' +
-            dimRowsHtml +
-          '</div>';
-
-        var rc = document.getElementById('dash-radar-canvas');
-        if (rc && typeof Chart !== 'undefined') {
-          var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-          var lc = isDark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
-          var gc = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
-          var dashRadar = new Chart(rc.getContext('2d'), {
-            type: 'radar',
-            data: {
-              labels: dimOrder.map(function(d){ return dimLabels[d]||d; }),
-              datasets: [
-                {
-                  label: 'Score',
-                  data: dimScores,
-                  backgroundColor: 'rgba(91,141,176,0.18)',
-                  borderColor: '#5b8db0',
-                  borderWidth: 2,
-                  pointBackgroundColor: '#5b8db0',
-                  pointBorderColor: isDark ? '#1e1d1b' : '#ffffff',
-                  pointBorderWidth: 2,
-                  pointRadius: 4,
-                  fill: true,
-                  order: 1
-                },
-                {
-                  label: 'Target (50%)',
-                  data: dimOrder.map(function(){ return 50; }),
-                  backgroundColor: 'transparent',
-                  borderColor: 'rgba(100,116,139,0.35)',
-                  borderWidth: 1.5,
-                  borderDash: [4, 4],
-                  pointRadius: 0,
-                  fill: false,
-                  order: 2
-                }
-              ]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: true,
-              animation: { duration: 600 },
-              scales: {
-                r: {
-                  min: 0, max: 100,
-                  ticks: { stepSize: 25, color: lc, backdropColor: 'transparent', font: { size: 9 } },
-                  grid: { color: gc },
-                  angleLines: { color: gc },
-                  pointLabels: { color: lc, font: { size: 10, weight: '500' } }
-                }
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { callbacks: { label: function(ctx){ return ' ' + ctx.parsed.r + '/100'; } } }
-              }
-            }
-          });
-          var tt2 = document.getElementById('theme-toggle');
-          if (tt2) {
-            tt2.addEventListener('click', function() {
-              setTimeout(function() {
-                var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-                var lc2 = dark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
-                var gc2 = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
-                dashRadar.options.scales.r.ticks.color = lc2;
-                dashRadar.options.scales.r.pointLabels.color = lc2;
-                dashRadar.options.scales.r.grid.color = gc2;
-                dashRadar.options.scales.r.angleLines.color = gc2;
-                dashRadar.data.datasets[0].pointBorderColor = dark ? '#1e1d1b' : '#ffffff';
-                dashRadar.update();
-              }, 80);
-            });
-          }
-        }
-      } else if (radarWrap) {
-        radarWrap.innerHTML = '<p class="text-muted text-sm">Radar data will appear after the next publish cycle.</p>';
-      }
-      // Cross-monitor flags
-      renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
     })
     .catch(function(err) {
       console.error('Persistent state load error:', err);
