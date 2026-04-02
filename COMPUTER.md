@@ -112,7 +112,7 @@ Each monitor cron publishes on its schedule without approval:
 | Monitor | Cron ID | Schedule |
 |---|---|---|
 | WDM | db22db0d | Mon 06:00 UTC |
-| GMM | 02c25214 | Mon 08:00 UTC |
+| GMM | 02c25214 | Tue 08:00 UTC |
 | FCW | 879686db | Thu 09:00 UTC |
 | ESA | 0fa1c44e | Wed 19:00 UTC |
 | AGM | 267fd76e | Fri 09:00 UTC |
@@ -125,7 +125,7 @@ Each monitor cron publishes on its schedule without approval:
 | Abbr | Slug | Accent | Publish |
 |------|------|--------|---------| 
 | WDM | democratic-integrity | #61a5d2 | Mon 06:00 |
-| GMM | macro-monitor | #22a0aa | Mon 08:00 |
+| GMM | macro-monitor | #22a0aa | Tue 08:00 |
 | FCW | fimi-cognitive-warfare | #38bdf8 | Thu 09:00 |
 | ESA | european-strategic-autonomy | #5b8db0 | Wed 19:00 |
 | AGM | ai-governance | #3a7d5a | Fri 09:00 |
