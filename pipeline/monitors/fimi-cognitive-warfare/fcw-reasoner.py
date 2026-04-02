@@ -25,6 +25,7 @@ import datetime
 import pathlib
 import requests
 import sys
+import re
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
@@ -265,24 +266,18 @@ print(f"Response received. Tokens: {api_response.get('usage', {}).get('total_tok
 
 # ── Parse ──────────────────────────────────────────────────────────────────────
 
-# Robust JSON extraction — handles all fence variants
+# Robust JSON extraction — strip fences, find outermost { }
 clean = raw_content.strip()
-# Extract JSON from markdown code fences if present
-fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', clean, re.DOTALL)
-if fence_match:
-    clean = fence_match.group(1).strip()
-elif clean.startswith("```"):
-    clean = re.sub(r'^```(?:json)?\s*', '', clean)
-    clean = re.sub(r'\s*```$', '', clean).strip()
-# Find the outermost JSON object if there's leading/trailing text
-if not clean.startswith('{'):
-    brace_start = clean.find('{')
-    if brace_start != -1:
-        clean = clean[brace_start:]
-if not clean.endswith('}'):
-    brace_end = clean.rfind('}')
-    if brace_end != -1:
-        clean = clean[:brace_end+1]
+if clean.startswith("```"):
+    # Remove opening fence line
+    clean = re.sub(r'^```(?:json)?[ \t]*\n?', '', clean)
+    # Remove closing fence
+    clean = re.sub(r'\n?```[ \t]*$', '', clean).strip()
+# Find outermost JSON object (handles any leading/trailing text)
+brace_start = clean.find('{')
+brace_end   = clean.rfind('}')
+if brace_start != -1 and brace_end != -1 and brace_end > brace_start:
+    clean = clean[brace_start:brace_end+1]
 
 try:
     data = json.loads(clean)
