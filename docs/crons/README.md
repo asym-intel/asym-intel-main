@@ -17,14 +17,14 @@ or update a cron without needing the original session context.
 
 | Cron ID | Name | Schedule | Prompt file | Notes |
 |---------|------|----------|-------------|-------|
-| 73452bc6 | Platform Housekeeping | Mon 08:00 UTC | `housekeeping.md` | Validation checks 1–21 + HANDOFF.md generation |
+| 7e058f57 | Platform Housekeeping | Mon 08:00 UTC | `housekeeping.md` | Validation checks 1–21 + HANDOFF.md generation |
 | aec126c5 | Staging divergence guard | Daily ~18:00 UTC | `staging-guard.md` | Silent unless behind_by > 30 |
 | 631c0fa0 | Annual calibration reminder | 28 Mar annually | inline | Lists missing calibration files |
 | a67a9739 | SCEM Sunday verification | Sun 5 Apr 18:30 UTC | inline (one-shot) | Verifies Sprint 2 schema fields |
 | 10ddf5f0 | WDM Monday verification | Mon 6 Apr 06:30 UTC | inline (one-shot) | Verifies Category B sections |
 
-**Analyst crons** (WDM db22db0d, GMM 02c25214, ESA 0fa1c44e, FCW 879686db,
-AGM 267fd76e, ERM 3e736a32, SCEM eb312202) use `cron-wrapper-instructions.md`
+**Analyst crons** (WDM d22b7778, GMM 9983df74, ESA 26f24020, FCW 1d51ae99,
+AGM 743fe004, ERM 1ec0d995, SCEM 40a62a34) use `cron-wrapper-instructions.md`
 as universal wrapper + their monitor-specific prompt files. See `COMPUTER.md`
 for the full cron table.
 
