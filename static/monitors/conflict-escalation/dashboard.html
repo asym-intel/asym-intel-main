@@ -977,7 +977,9 @@ document.addEventListener('DOMContentLoaded', function () {
       var rowClass  = bandToRowClass(worstBand.band);
       tableHtml +=
         '<tr class="heatmap-row--' + rowClass + '">' +
-          '<td><strong>' + escHtml(c.conflict) + '</strong></td>' +
+          '<td><strong>' + escHtml(c.conflict) + '</strong>' +
+            (c.source_url ? '<br><a class="source-link" style="font-size:var(--text-min);font-weight:normal" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
+          '</td>' +
           '<td>' + escHtml(c.theatre) + '</td>' +
           '<td>' + escHtml(c.trajectory_arrow || '') + ' ' + escHtml(c.trajectory || '') + '</td>' +
           '<td><span class="severity-badge severity-badge--' + rowClass + '">' + escHtml(worstBand.band) + '</span></td>' +
