@@ -1,0 +1,39 @@
+name: SCEM Weekly Deep Research
+
+on:
+  schedule:
+    - cron: "0 18 * * 6"  # Saturday 18:00 UTC — 24 hours before SCEM Analyst (Sun 18:00 UTC)
+  workflow_dispatch:        # allow manual trigger for testing
+
+jobs:
+  research:
+    name: SCEM Weekly Deep Research (sonar-deep-research)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run weekly deep research
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/conflict-escalation/weekly-research.py
+
+      - name: Commit research output
+        run: |
+          git config user.name  "SCEM Research Bot"
+          git config user.email "scem-research@asym-intel.info"
+          git add pipeline/monitors/conflict-escalation/weekly/
+          git diff --staged --quiet && echo "No research output to commit" && exit 0
+          git commit -m "data(scem-research): weekly deep research — $(date -u +%Y-%m-%d)"
+          git push
