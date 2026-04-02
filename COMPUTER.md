@@ -171,14 +171,42 @@ or `esc(country)` and verify the flag call precedes it.
 13. **schema_version** — must be "2.0" in all JSON files
 14. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
 
-## FCW Tier 0 Daily Feeder (added 2 April 2026)
-Cron ID: 6d67ba71 | Schedule: Daily 08:00 UTC | Prompt: static/monitors/fimi-cognitive-warfare/fcw-daily-feeder-cron.md
+## Three-Layer Intelligence Architecture (v2.1)
 
-New internal pipeline layer — pre-verification research agent for FCW.
-Output goes to pipeline/monitors/fimi-cognitive-warfare/daily/ — NEVER to public data files.
+Every monitor runs an Analyst. Selected monitors also run a Collector.
+One Validator (Housekeeping) covers all monitors.
 
-## pipeline/ Directory Pattern
-pipeline/monitors/{slug}/daily/ stores Tier 0 feeder outputs.
-Hugo's publishDir=docs never builds from pipeline/ — files are repo-internal only.
-Weekly cron reads pipeline/daily-latest.json at Step 0C, applies own methodology, decides publication.
-Feeder NEVER writes to report-latest.json, persistent-state.json, or archive.json.
+LAYER 1 — COLLECTOR (daily Computer cron)
+  Searches public sources → structures into Tier 0 JSON → commits to pipeline/
+  Authority: confidence_preliminary only. Never touches data/, report-latest.json,
+  persistent-state.json, or archive.json. The Analyst reads and decides.
+  Prompt location: asym-intel-internal/prompts/{MONITOR}-COLLECTOR-PROMPT-v{N}.md
+  Bootstrap pattern: short cron wrapper (<1000 chars) loads prompt at runtime.
+
+LAYER 2 — ANALYST (weekly Computer cron)
+  Reads pipeline/daily-latest.json at Step 0C (if Collector exists).
+  Applies monitor methodology → assigns final confidence → publishes to data/.
+  Prompt location: static/monitors/{slug}/{abbr}-cron-prompt.md (public repo)
+
+LAYER 3 — VALIDATOR (weekly Computer cron, Monday)
+  Validates all Analyst outputs + all Collector pipeline files.
+  Compiles intelligence-digest.json. Runs checks 1–20.
+
+## Active Crons
+
+| Layer | Name | Cron ID | Schedule |
+|-------|------|---------|----------|
+| Collector | FCW Collector | 6d67ba71 | Daily 08:00 UTC |
+| Analyst | WDM Analyst | db22db0d | Mon 06:00 UTC |
+| Analyst | GMM Analyst | 02c25214 | Tue 08:00 UTC |
+| Analyst | ESA Analyst | 0fa1c44e | Wed 19:00 UTC |
+| Analyst | FCW Analyst | 879686db | Thu 09:00 UTC |
+| Analyst | AGM Analyst | 267fd76e | Fri 09:00 UTC |
+| Analyst | ERM Analyst | 3e736a32 | Sat 05:00 UTC |
+| Analyst | SCEM Analyst | eb312202 | Sun 18:00 UTC |
+| Validator | Platform Validator | 73452bc6 | Mon 08:00 UTC |
+
+## pipeline/ Directory
+pipeline/monitors/{slug}/daily/ — Collector outputs, internal only.
+Hugo never builds from pipeline/ — never publicly served.
+See pipeline/README.md for full pattern documentation.
