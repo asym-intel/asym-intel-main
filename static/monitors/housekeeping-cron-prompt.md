@@ -217,3 +217,74 @@ If checks 1–12 pass AND schema validation passes AND digest compiled:
 If any WARN or FAIL across all 15 checks:
   Send notification with title: "Asym Intel — Housekeeping [DATE]: [N] issues"
   Body: list each WARN/FAIL with monitor, check number, and description.
+
+STEP 7 — VALIDATE TIER 0 DAILY FEEDER (FCW)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The FCW Daily Feeder writes to pipeline/monitors/fimi-cognitive-warfare/daily/.
+Validate schema compliance and freshness of the daily feeder output.
+
+```bash
+TODAY=$(date -u +%Y-%m-%d)
+YESTERDAY=$(date -u -d "yesterday" +%Y-%m-%d 2>/dev/null || date -u -v-1d +%Y-%m-%d)
+FEEDER_PATH="pipeline/monitors/fimi-cognitive-warfare/daily"
+
+FEEDER_JSON=$(gh api /repos/asym-intel/asym-intel-main/contents/${FEEDER_PATH}/daily-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$FEEDER_JSON" ]; then
+  echo "CHECK_16: FAIL — daily-latest.json missing"
+else
+  echo "$FEEDER_JSON" | python3 -c "
+import json, sys
+from datetime import datetime, timedelta
+
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+findings = d.get('findings', [])
+today = '$(echo $TODAY)'
+yesterday = '$(echo $YESTERDAY)'
+
+# CHECK 16 — Schema version present
+if meta.get('schema_version') != 'tier0-v1.0':
+    print('CHECK_16: FAIL — schema_version not tier0-v1.0')
+else:
+    print('CHECK_16: PASS — schema_version ok')
+
+# CHECK 17 — Freshness: data_date is today or yesterday (allows for timezone skew)
+data_date = meta.get('data_date','')
+if data_date not in [today, yesterday]:
+    print(f'CHECK_17: WARN — data_date {data_date} is not today ({today}) or yesterday ({yesterday})')
+else:
+    print(f'CHECK_17: PASS — data_date {data_date}')
+
+# CHECK 18 — research_traceback on every High/Confirmed finding
+for f in findings:
+    conf = f.get('confidence_preliminary','')
+    if conf in ['High','Confirmed']:
+        tb = f.get('research_traceback',{})
+        sources = tb.get('sources_cited',[])
+        if len(sources) < 2:
+            print(f'CHECK_18: FAIL — {f["finding_id"]} is {conf} but has <2 sources in traceback')
+        else:
+            print(f'CHECK_18: PASS — {f["finding_id"]} has {len(sources)} sources')
+
+# CHECK 19 — episodic_flag=true must have episodic_reason
+for f in findings:
+    if f.get('episodic_flag') and not f.get('episodic_reason'):
+        print(f'CHECK_19: WARN — {f["finding_id"]} has episodic_flag=true but no episodic_reason')
+
+# CHECK 20 — No findings with campaign_status_candidate missing
+for f in findings:
+    if not f.get('campaign_status_candidate'):
+        print(f'CHECK_20: WARN — {f["finding_id"]} missing campaign_status_candidate')
+
+if not findings:
+    print(f'INFO: No findings today (finding_count: {meta.get("finding_count",0)}) — normal if no new FIMI activity detected')
+"
+fi
+```
+
+REPORTING:
+  Add any CHECK_16–CHECK_20 FAIL/WARN to the notification alongside CHECK_1–15.
+  Update notification title count to include feeder check issues.
