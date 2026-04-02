@@ -11,7 +11,7 @@ draft: false
 
 The Global Environmental Risks & Planetary Boundaries Monitor (GERP Monitor) is a weekly open-source intelligence publication produced by Asymmetric Intelligence. It tracks Earth system processes as a strategic intelligence domain — not as an environmental science digest or sustainability report.
 
-The defining analytical position: the Earth system is the intelligence environment itself, not a background variable to geopolitics. Environmental degradation is treated as a structural condition that reshapes the strategic operating environment. The monitor's analytical register is identical to that of the European Geopolitical & Hybrid Threat Monitor and the World Democracy Monitor — cold, structured, and strategic.
+The defining analytical position: the Earth system is the intelligence environment itself, not a background variable to geopolitics. Environmental degradation is treated as a structural condition that reshapes the strategic operating environment. The monitor's analytical register is identical to that of the European Strategic Autonomy Monitor and the World Democracy Monitor — cold, structured, and strategic.
 
 The monitor covers nine planetary boundaries (as defined by the Stockholm Resilience Centre / Potsdam Institute framework), six tipping system clusters, cascading risk pathways from physical to political, and the weaponisation of natural assets as geopolitical instruments.
 
@@ -58,7 +58,7 @@ Items that do not meet signal criteria — including routine CO₂ milestone rep
 | V-Dem Institute | Democratic backsliding linked to climate governance | Cross-monitor linkage to Democracy Monitor |
 | CIVICUS Monitor | Civic space suppression of environmental activists | Attribution gap cases |
 | International Court of Justice | Climate obligation proceedings | Standing ICJ tracker |
-| EEAS Threat Reports | FIMI and hybrid threats targeting climate policy | Cross-monitor linkage to EGHTM |
+| EEAS Threat Reports | FIMI and hybrid threats targeting climate policy | Cross-monitor linkage to ESA |
 
 ### Tier 3 — Last Resort Only
 
@@ -78,7 +78,7 @@ Trigger: Any environmental event acting as a vector to disrupt a secondary human
 
 Action: Flag the transition of a risk from an ecological basin into a geopolitical or economic basin. The cascade chain must be explicitly traced through each tier (physical → human → political).
 
-**Reverse Cascade Check:** Also applied in reverse — does this geopolitical event actively accelerate an Earth system boundary transgression? Examples include armed conflict driving deforestation, sanctions blocking climate adaptation finance, and AMOC weakening accelerating Amazon dieback (which increases atmospheric CO₂, which further weakens AMOC). If a reverse cascade is confirmed, a cross-monitor flag is issued to the European Geopolitical & Hybrid Threat Monitor.
+**Reverse Cascade Check:** Also applied in reverse — does this geopolitical event actively accelerate an Earth system boundary transgression? Examples include armed conflict driving deforestation, sanctions blocking climate adaptation finance, and AMOC weakening accelerating Amazon dieback (which increases atmospheric CO₂, which further weakens AMOC). If a reverse cascade is confirmed, a cross-monitor flag is issued to the European Strategic Autonomy Monitor.
 
 ### Filter 2 — The Regulatory Vacuum
 
@@ -133,11 +133,11 @@ The GERP Monitor operates as a node in the Asymmetric Intelligence hub-and-spoke
 
 | Environmental Signal | Linked Monitor | Hand-off Trigger |
 |---------------------|----------------|-----------------|
-| State-attributed climate denial or greenwashing disinformation | European Geopolitical & Hybrid Threat Monitor | Confirmed state actor attribution |
+| State-attributed climate denial or greenwashing disinformation | European Strategic Autonomy Monitor | Confirmed state actor attribution |
 | Democratic backsliding blocking climate legislation | World Democracy Monitor | Executive overreach on environmental governance |
 | AI compute scaling crossing environmental threshold | AI Frontier Monitor | Quantifiable energy/water threshold breached |
-| Critical minerals export controls / natural capital sanctions | European Geopolitical & Hybrid Threat Monitor | State weaponisation confirmed |
-| Armed conflict accelerating deforestation or water system destruction | European Geopolitical & Hybrid Threat Monitor | Documented causal link |
+| Critical minerals export controls / natural capital sanctions | European Strategic Autonomy Monitor | State weaponisation confirmed |
+| Armed conflict accelerating deforestation or water system destruction | European Strategic Autonomy Monitor | Documented causal link |
 | Ecosystem collapse preceding political instability | World Democracy Monitor | BII/MSA degradation correlating with V-Dem index decline in same region |
 | AMOC or tipping point cascade affecting food/migration | World Democracy Monitor | Second-order political instability confirmed |
 
