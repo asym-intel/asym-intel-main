@@ -1,5 +1,5 @@
 # HANDOFF.md - Asymmetric Intelligence
-**Generated:** 2026-04-02 session wrap (~21:30 CEST)
+**Generated:** 2026-04-02 session wrap (~22:00 CEST) — updated
 **Next auto-generation:** Monday 7 April 08:00 UTC (Housekeeping)
 
 ---
@@ -73,6 +73,12 @@
 - WDM Analyst cron prompt: Steps 0C/0D/0E wired + Step 1 pipeline-aware
 - COMPUTER.md v2.8 — WDM added to GitHub Actions table (12 total)
 - notes-for-computer.md — WDM pipeline session logged
+
+**Late evening (governance wrap session):**
+- ROLES.md v1.1 — Intelligence Surface Analyst role registered (prompt at docs/prompts/reader-experience-analyst.md)
+- docs/crons/README.md — GSC cron f78e0c2c assigned, duplicate PENDING row removed
+- COMPUTER.md — GSC cron f78e0c2c added to cron table
+- GSC quarterly cron created: f78e0c2c (1 Jan/Apr/Jul/Oct 09:00 UTC, slim repo pointer, background=false, next run 1 Jul 2026)
 
 ---
 
