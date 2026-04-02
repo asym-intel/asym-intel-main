@@ -1,5 +1,5 @@
 # HANDOFF.md - Asymmetric Intelligence
-**Generated:** 2026-04-02 end-of-day wrap (~21:14 CEST)
+**Generated:** 2026-04-02 final wrap (~21:21 CEST)
 **Next auto-generation:** Monday 7 April 08:00 UTC (Housekeeping)
 
 ---
@@ -64,6 +64,7 @@
 - Skill v1.3 — ROADMAP in Step 0, correct cron IDs, GMM/SCEM pipelines added
 - platform-developer.md + domain-analyst-template.md — governance file wiring rule added
 - Three new role prompts: platform-security-expert.md, seo-discoverability-expert.md, platform-auditor.md
+- Computer role prompt: docs/prompts/computer.md v1.0 — session management, wrap procedure, post-wrap deliverables format
 - ROLES.md updated — prompt refs added; Platform Auditor role added
 
 **Late evening — cron infrastructure fix:**
