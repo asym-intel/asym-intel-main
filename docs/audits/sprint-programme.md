@@ -77,6 +77,25 @@ Sitemap correctness, SEO fixes, agent identity framework, governance documents, 
 
 ---
 
+## PIPELINE OUTSOURCING REVIEW — Gate before each new pipeline
+
+**Agreed 2 April 2026.** Before finalising the GitHub Actions pipeline for WDM, ESA, AGM, or ERM,
+run the following review against the FCW/GMM/SCEM reference pattern:
+
+> "Before we finalise the next Perplexity-linked monitors, check we have outsourced as much as is reasonable."
+
+**Review questions (per monitor, per pipeline layer):**
+1. Is there any step currently in the Computer Analyst cron that a sonar/sonar-pro Collector could do?
+2. Does the weekly Research layer (sonar-pro) capture everything that currently requires Analyst judgement?
+3. Is the Reasoner layer (sonar-deep-research) being used correctly — reasoning over structured data only, not web search?
+4. After the first 2-3 live runs: is the Analyst adding genuine value over raw Collector output, or just reformatting?
+
+**Reference:** FCW/GMM/SCEM pipelines. Pattern: sonar (daily) → sonar-pro (weekly) → sonar-deep-research (Reasoner) → Computer Analyst (methodology + publish).
+
+**Trigger:** Run this review before opening the pipeline build session for each remaining monitor.
+
+---
+
 ## SPRINT 3 — Rendering & Quick Schema (Next Session)
 **Goal:** Clear all pending low-effort rendering bugs and quick schema additions across all monitors in a single focused session.
 
