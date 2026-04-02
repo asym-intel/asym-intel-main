@@ -521,3 +521,26 @@ gh api "/repos/asym-intel/asym-intel-main/contents/docs/monitors/{slug}/dashboar
 Any size of 0 means an empty file was pushed — restore immediately from the local tmp file.
 
 **Added:** 2 April 2026
+
+---
+
+## FE-025 — Empty file push from bash associative array encoding
+
+**Pattern:** Using `declare -A` bash associative arrays to batch-push files produces empty files (0 bytes) silently — no error, HTTP 200, but the file is empty on GitHub.
+
+**Root cause:** `base64 -w 0 "$TMPFILE"` inside a `declare -A` iteration loses the variable content through subshell scoping. The content variable evaluates to empty string, producing a valid but empty base64 payload.
+
+**Fix:** Always push files individually with explicit variables, never via associative array loops. Always verify size before pushing:
+```bash
+CONTENT=$(base64 -w 0 "$TMPFILE")
+SIZE=${#CONTENT}
+if [ "$SIZE" -lt 100 ]; then echo "ABORT: empty content"; exit 1; fi
+```
+
+**Pre-staging check:** After every batch push, verify file sizes:
+```bash
+gh api "/repos/asym-intel/asym-intel-main/contents/docs/monitors/{slug}/dashboard.html?ref=staging" --jq '.size'
+```
+Any size of 0 means an empty file was pushed — restore immediately from the local tmp file.
+
+**Added:** 2 April 2026
