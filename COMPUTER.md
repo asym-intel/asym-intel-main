@@ -259,7 +259,11 @@ When you say "wrap", Computer:
 2. Logs significant items to notes-for-computer.md
 3. Updates HANDOFF.md with current session state
 4. Checks: any unmerged staging changes? any new crons missing from COMPUTER.md?
-5. Confirms all done before ending
+5. **Open staging check** — if staging is ahead of main, list the staged files and ask:
+   "Staging has N files ready. Do you want to merge before closing?"
+   If yes: open PR staging → main and merge immediately.
+   Never leave the day with an unreviewed staging branch unless Peter explicitly defers.
+6. Confirms all done before ending
 
 ### HANDOFF.md ownership
 - Auto-generated every Monday by Housekeeping (from live repo state)
