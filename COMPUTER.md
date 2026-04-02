@@ -252,6 +252,7 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 | Verification | SCEM verification | a67a9739 | Sun 5 Apr 18:30 UTC (one-shot) |
 | Guard | Staging divergence guard | aec126c5 | Daily ~18:00 UTC (silent unless behind_by > 30) |
 | Verification | WDM verification | 10ddf5f0 | Mon 6 Apr 06:30 UTC (one-shot) |
+| Quarterly | GSC audit | f78e0c2c | 1 Jan/Apr/Jul/Oct 09:00 UTC (background=false) |
 
 ## Active GitHub Actions (external pipeline — NOT Computer crons)
 
