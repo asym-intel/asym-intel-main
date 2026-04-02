@@ -20,7 +20,13 @@
    gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/macro-monitor/daily/daily-latest.json --jq '.content' | base64 -d | python3 -c "import json,sys; d=json.load(sys.stdin); print(d['_meta'])"
    ```
 
-3. **Sprint 2B items** — slot in as crons fire this week:
+3. **Pipeline outsourcing review** — before building WDM/ESA/AGM/ERM pipelines:
+   Agreed gate: for each new monitor pipeline, review whether steps currently done by the
+   Computer Analyst cron could be pushed to sonar/sonar-pro in GitHub Actions instead.
+   Question to ask: "Is there anything the Analyst does that a Collector could do cheaper/better?"
+   FCW/GMM/SCEM are the reference pattern — review against those before finalising each new pipeline.
+
+4. **Sprint 2B items** — slot in as crons fire this week:
    - WDM Category B sections render on report.html (after Mon 6 Apr WDM run)
    - ESA defence spending bar chart (after Wed 8 Apr ESA run)
    - FCW campaign Gantt — start_date field needed (after Thu 9 Apr FCW run)
