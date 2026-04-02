@@ -121,7 +121,7 @@ Each monitor cron publishes on its schedule without approval:
 |---|---|---|
 | WDM | d22b7778 | Mon 06:00 UTC |
 | GMM | 9983df74 | Tue 08:00 UTC |
-| FCW | 1d51ae99 | Thu 09:00 UTC |
+| FCW | b17522c3 | Thu 09:00 UTC |
 | ESA | 26f24020 | Wed 19:00 UTC |
 | AGM | 743fe004 | Fri 09:00 UTC |
 | ERM | 1ec0d995 | Sat 05:00 UTC |
@@ -244,7 +244,7 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 | Analyst | WDM Analyst | d22b7778 | Mon 06:00 UTC |
 | Analyst | GMM Analyst | 9983df74 | Tue 08:00 UTC |
 | Analyst | ESA Analyst | 26f24020 | Wed 19:00 UTC |
-| Analyst | FCW Analyst | 1d51ae99 | Thu 09:00 UTC |
+| Analyst | FCW Analyst | b17522c3 | Thu 09:00 UTC |
 | Analyst | AGM Analyst | 743fe004 | Fri 09:00 UTC |
 | Analyst | ERM Analyst | 1ec0d995 | Sat 05:00 UTC |
 | Analyst | SCEM Analyst | 40a62a34 | Sun 18:00 UTC |
