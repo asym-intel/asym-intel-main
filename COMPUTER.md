@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 2.4 — 2 April 2026
+## Version 2.5 — 2 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -178,6 +178,7 @@ or `esc(country)` and verify the flag call precedes it.
 12. **archive.json** — append only, never truncate
 13. **schema_version** — must be "2.0" in all JSON files
 14. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
+15. **New governance file not wired into Step 0** — any new persistent reference file created in a session (ROADMAP.md, new methodology doc, new spec) must be added to Step 0 in COMPUTER.md, the asym-intel skill, and noted in notes-for-computer.md. If only one place is updated, other sessions won't find it. Ask: "Would a fresh Computer instance with no memory find this file?"
 
 ## Three-Layer Intelligence Architecture (v2.3)
 
@@ -297,12 +298,23 @@ When you say "wrap", Computer:
 1. Summarises what changed this session (commits, decisions, new patterns)
 2. Logs significant items to notes-for-computer.md
 3. Updates HANDOFF.md with current session state
-4. Checks: any unmerged staging changes? any new crons missing from COMPUTER.md?
+4. Checks: any unmerged staging changes? any new crons missing from COMPUTER.md? any new governance files missing from Step 0?
 5. **Open staging check** — if staging is ahead of main, list the staged files and ask:
    "Staging has N files ready. Do you want to merge before closing?"
    If yes: open PR staging → main and merge immediately.
    Never leave the day with an unreviewed staging branch unless Peter explicitly defers.
 6. Confirms all done before ending
+
+### New governance files — mandatory wiring rule
+When any new persistent reference file is created (e.g. ROADMAP.md, a new methodology doc,
+a new architecture spec) that every future session should read:
+
+1. Add a fetch command to **Step 0** in this file (COMPUTER.md)
+2. Add the same fetch command to **Step 0** in the **asym-intel skill** (save_custom_skill)
+3. Add a note to **notes-for-computer.md** explaining what the file is and why it matters
+
+If you skip any of these three, the next session will not know the file exists.
+The question to ask: "Would a fresh Computer instance with no memory find this file?" If not — wire it.
 
 ### HANDOFF.md ownership
 - Auto-generated every Monday by Housekeeping (from live repo state)
