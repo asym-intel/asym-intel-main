@@ -203,9 +203,19 @@ LAYER 3 — PLATFORM VALIDATOR (Computer weekly cron, Monday)
 **CRON RECREATION RULE — CONFIRM BEFORE EXECUTING:**
 Never recreate crons autonomously in response to a hypothetical, question, or perceived gap.
 If a user asks "what would you do if X cron was missing?" — answer the question, do not execute.
-If crons appear missing from `schedule_cron list`, report what is missing and ask:
-"Shall I recreate these?" before taking any action.
-Cron recreation is irreversible (creates duplicate if the original still exists) — always confirm first.
+If crons appear missing from `schedule_cron list`, DO NOT conclude a "wipe" has occurred.
+Crons created in a previous session are invisible to a new session — this is normal, not an emergency.
+Cross-check COMPUTER.md cron table against `schedule_cron list`. Report the discrepancy and ask:
+"These cron IDs are in COMPUTER.md but not visible in this session — shall I recreate them?"
+Never log a "cron wipe" to notes-for-computer.md without first verifying with the user.
+
+**MERGE RULE — VERIFY STAGING BEFORE ACCEPTING APPROVAL:**
+When a user says "staging looks good" or "approved" or similar, DO NOT accept this at face value
+in a fresh session that has not yet inspected staging.
+Always fetch the staged file list first:
+  gh api /repos/asym-intel/asym-intel-main/compare/main...staging --jq '[.files[].filename]'
+Show the user exactly what will be merged and ask: "This will apply these N files to main — confirm?"
+Never merge based on approval given before the file list has been shown in the current session.
 
 **Cron prompt registry:** `docs/crons/` — all cron logic lives here, not in the task.
 Cron tasks are slim pointers: `gh api .../docs/crons/{file}.md --jq '.content' | base64 -d`
