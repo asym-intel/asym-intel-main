@@ -1,0 +1,29 @@
+name: TEST — GMM Weekly Research Sample
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: GMM Weekly sonar-pro test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Run GMM weekly test
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/macro-monitor/gmm-weekly-test.py
+      - name: Commit test output
+        run: |
+          git config user.name "Test Bot"
+          git config user.email "test@asym-intel.info"
+          git add pipeline/monitors/macro-monitor/weekly/
+          git diff --staged --quiet && echo "No output" && exit 0
+          git commit -m "test(gmm): weekly sonar-pro sample output"
+          git push
