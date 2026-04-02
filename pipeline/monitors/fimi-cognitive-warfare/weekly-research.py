@@ -80,12 +80,21 @@ print(f"API response received. Tokens: {api_response.get('usage', {}).get('total
 
 # ── Parse JSON output ──────────────────────────────────────────────────────────
 
+# Robust JSON extraction
+import re as _re
 clean = raw_content.strip()
-if clean.startswith("```"):
-    clean = clean.split("```", 2)[-1]
-    clean = clean.rsplit("```", 1)[0].strip()
-    if clean.startswith("json"):
-        clean = clean[4:].strip()
+fence_match = _re.search(r'''```(?:json)?\s*(\{.*?\})\s*```''', clean, _re.DOTALL)
+if fence_match:
+    clean = fence_match.group(1).strip()
+elif clean.startswith("```"):
+    clean = _re.sub(r'^```(?:json)?\s*', '', clean)
+    clean = _re.sub(r'\s*```$', '', clean).strip()
+if not clean.startswith('{'):
+    brace = clean.find('{')
+    if brace != -1: clean = clean[brace:]
+if not clean.endswith('}'):
+    brace = clean.rfind('}')
+    if brace != -1: clean = clean[:brace+1]
 
 try:
     data = json.loads(clean)
