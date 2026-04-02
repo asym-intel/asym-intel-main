@@ -415,6 +415,53 @@ Use cross-monitor flags to incorporate adjacent signals into your analysis
 and update your own cross_monitor_flags where new linkages are found.
 Use schema changelog to verify your output includes all required fields.
 
+STEP 0B+ — LOAD ANNUAL CALIBRATION FILE (if present)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Annual calibration files are stored in asym-intel-internal/methodology/ by convention:
+  {slug}-{index}-{YEAR}.md  e.g. democratic-integrity-vdem-2026.md
+
+Load the current year's calibration file if it exists. It contains updated
+baselines, calibration tables, and integration checklists that modify how
+you interpret your persistent-state data and weekly scoring. It does NOT
+replace the core methodology — it is additive.
+
+```bash
+YEAR=$(date -u +%Y)
+SLUG="democratic-integrity"
+INDEX="vdem"
+
+CALIBRATION=$(gh api /repos/asym-intel/asym-intel-internal/contents/methodology/${SLUG}-${INDEX}-${YEAR}.md \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$CALIBRATION" ]; then
+  echo "STEP 0B+: No annual calibration file found for ${SLUG}-${INDEX}-${YEAR}.md — proceeding without."
+else
+  echo "STEP 0B+: Loaded annual calibration file ${SLUG}-${INDEX}-${YEAR}.md"
+  echo "$CALIBRATION" | python3 -c "
+import sys
+content = sys.stdin.read()
+# Print key sections: purpose, integration checklist, calibration frame
+for section in ['## 2. Global Context', '## 9. Dimension A', '## 12. Integration Checklist']:
+    idx = content.find(section)
+    if idx > -1:
+        end = content.find('\n## ', idx + 10)
+        print(content[idx:end if end > idx else idx+1000])
+        print()
+"
+fi
+```
+
+USE CALIBRATION FILE AS FOLLOWS:
+  — §2 global context → calibrate what "stable" means in current environment
+  — §3–5 country entries → update vdemConfirmed flags and LDI anchors in persistent-state
+  — §7 Watchlist → add countries to Watch List if not already present
+  — §9 Dimension A table → update LDI anchor values in persistent-state for listed countries
+  — §12 Integration Checklist → apply all unchecked items in this week's brief
+  — V-Dem lag rule (always): V-Dem is a lagging calibration source (12–18 month lag),
+    NOT current intelligence. Never downgrade a severity score solely because V-Dem
+    improved a country — verify structural conditions have actually changed.
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL FIELD RULES — enforce every issue
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
