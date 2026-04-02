@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 2.9 — 3 April 2026
+## Version 3.0 — 3 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -177,7 +177,11 @@ or `esc(country)` and verify the flag call precedes it.
 11. **Future-dated JSON** — validator catches this; Hugo skips future pages silently
 12. **archive.json** — append only, never truncate
 13. **schema_version** — must be "2.0" in all JSON files
-14. **Platform IDs in public files** — Zone IDs, account IDs, GSC tokens belong in
+14. **Cancelled subagent treated as done** — a subagent that errors, cancels, or
+    returns "something went wrong" has NOT completed its work. Always verify outputs
+    exist (check repo, check workspace files) before marking a task complete. Surface
+    at wrap as an incomplete item.
+15. **Platform IDs in public files** — Zone IDs, account IDs, GSC tokens belong in
     `asym-intel-internal/platform-config.md`. Never paste them into COMPUTER.md,
     HANDOFF.md, or any file in the public repo.
 15. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
@@ -302,6 +306,16 @@ update HANDOFF.md?" -- same as asking "approve merge?".
 
 ### "wrap" trigger procedure
 When you say "wrap", Computer:
+0. **Incomplete work check (ALWAYS FIRST)** — before summarising, audit the current session
+   for any work that was started but not completed:
+   - Any subagents that were cancelled, errored, or returned partial results?
+   - Any todo list items still marked in_progress or pending?
+   - Any staged files that were pushed but the PR was never opened?
+   - Any files committed to a draft location that needed a follow-up step?
+   Surface every incomplete item explicitly. Do not proceed to step 1 until Peter
+   has confirmed: complete it now, defer to next session, or explicitly abandon it.
+   **Never silently drop incomplete work.** A cancelled subagent is not the same as
+   completed work — treat it as a gap until explicitly resolved.
 1. Summarises what changed this session (commits, decisions, new patterns)
 2. Logs significant items to notes-for-computer.md
 3. Updates HANDOFF.md with current session state
