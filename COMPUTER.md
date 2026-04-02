@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 2.5 — 2 April 2026
+## Version 2.6 — 2 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -178,7 +178,7 @@ or `esc(country)` and verify the flag call precedes it.
 12. **archive.json** — append only, never truncate
 13. **schema_version** — must be "2.0" in all JSON files
 14. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
-15. **New governance file not wired into Step 0** — any new persistent reference file created in a session (ROADMAP.md, new methodology doc, new spec) must be added to Step 0 in COMPUTER.md, the asym-intel skill, and noted in notes-for-computer.md. If only one place is updated, other sessions won't find it. Ask: "Would a fresh Computer instance with no memory find this file?"
+15. **New governance file not wired into Step 0** — any new persistent reference file created in a session (ROADMAP.md, new methodology doc, new spec) must be added to Step 0 in COMPUTER.md, the asym-intel skill, and noted in notes-for-computer.md. If only one place is updated, other sessions won't find it. Canonical test (from `docs/prompts/platform-developer.md`): "Could a fresh Computer instance reading only the Step 0 files find this file without being told it exists?"
 
 ## Three-Layer Intelligence Architecture (v2.3)
 
@@ -314,7 +314,7 @@ a new architecture spec) that every future session should read:
 3. Add a note to **notes-for-computer.md** explaining what the file is and why it matters
 
 If you skip any of these three, the next session will not know the file exists.
-The question to ask: "Would a fresh Computer instance with no memory find this file?" If not — wire it.
+Canonical test (from `docs/prompts/platform-developer.md`): "Could a fresh Computer instance reading only the Step 0 files find this file without being told it exists?" If not — wire it.
 
 ### HANDOFF.md ownership
 - Auto-generated every Monday by Housekeeping (from live repo state)
