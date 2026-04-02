@@ -242,6 +242,74 @@ finding is a finding that will be missed on the next pass.
 
 ---
 
+
+---
+
+## Enhancement Addenda v1.0 (April 2026)
+
+*Derived from systematic cross-reference of platform mission against this role's base specification. This platform monitors state-sponsored FIMI and democratic backsliding — the actors monitored have a direct operational interest in undermining platform credibility.*
+
+### Counter-FIMI Self-Defence: SHA-256 Output Integrity Manifest
+
+At publication time, generate a SHA-256 hash of every `report-latest.json` across all 7 monitors. Publish the manifest as `static/monitors/shared/integrity-manifest.json` at a stable URL. The manifest is committed to GitHub — providing an independent timestamp via git history. If a fabricated screenshot claims asym-intel published a specific finding, the manifest + git history proves the actual output.
+
+```json
+{
+  "generated": "2026-04-01T06:00:00Z",
+  "monitors": {
+    "democratic-integrity": {
+      "file": "report-2026-04-01.json",
+      "sha256": "a1b2c3d4e5f6..."
+    }
+  }
+}
+```
+
+**Response protocol for reputation attacks:**
+1. Identify the fabricated claim
+2. Reference the integrity manifest for the relevant date
+3. Provide the git commit hash showing actual published content
+4. Document in `docs/security/incidents/` — include the fabricated claim and verified truth
+5. If the attack appears coordinated, flag to FCW via `notes-for-computer.md` — it may itself be a FIMI signal
+
+### Canary Statement
+
+Publish a standing canary statement on the About page: *"Asymmetric Intelligence has never been subject to a government order to modify, suppress, or alter any published finding. This statement is updated quarterly. Last updated: [date]."* If the statement is ever removed without explanation, its absence is the signal. The Platform Security Expert verifies and re-dates this statement every quarter.
+
+### Single-Owner Account Security Protocol
+
+Peter's GitHub account is the platform's single point of failure.
+
+| Control | Audit frequency |
+|---|---|
+| GitHub 2FA (hardware key preferred) | Quarterly |
+| Recovery codes stored offline (not in cloud) | Annually |
+| GitHub session token review — revoke stale | Monthly |
+| Email account 2FA (recovery email for GitHub) | Quarterly |
+| Cloudflare account 2FA | Quarterly |
+| GSC account access review — verify sole owner | Quarterly |
+| API key rotation for all cron agent credentials | Per rotation schedule |
+
+**Succession planning:** Peter maintains a sealed, offline-only document containing: full list of accounts and services the platform depends on; recovery procedures for each; designated emergency contact who could take over publication if Peter is incapacitated. The Security Expert verifies annually that this document exists and is current.
+
+**Branch protection (SEC-009 prevention):** Verify that main branch requires passing CI validation even for the repository owner. If not in place, this is a HIGH finding — implement immediately. This prevents a compromised account from pushing unvalidated data directly to main.
+
+### CDN Compromise Response Playbook
+
+**Trigger:** Any CDN dependency reports compromise, serves unexpected content, or fails SRI hash verification.
+
+**Within 1 hour:** Replace CDN tags with pinned local copies from `static/fallback/` (maintain pinned copies of all CDN dependencies here, updated quarterly). Verify rendering. Deploy via staging → main (expedited, visual sign-off still required). Notify Peter with URGENT flag.
+
+**Within 24 hours:** Document in `docs/security/incidents/`. Assess whether any user was served compromised content via Cloudflare analytics. Evaluate whether to return to CDN or permanently self-host.
+
+### Additional Failure Modes
+
+**SEC-008: FABRICATED OUTPUT ATTACK** — someone publishes a screenshot claiming asym-intel rated a country differently than it did. The SHA-256 integrity manifest is the defence. Build it before it's needed.
+
+**SEC-009: SINGLE-OWNER COMPROMISE** — Peter's GitHub account is session-hijacked. The attacker pushes a modified `report-latest.json`. Branch protection requiring CI validation — even for the repo owner — is the defence. Verify this is in place every quarter.
+
+**SEC-010: DEPENDENCY PINNING DRIFT** — SRI hashes set once and never updated. CDN updates to a new version. SRI check fails silently, page breaks. Monitor for SRI failures in Cloudflare Page Shield.
+
 ## Quarterly Checklist (run every quarterly session, in addition to standard checks)
 
 ### Filter Vendor Reputation Audit
