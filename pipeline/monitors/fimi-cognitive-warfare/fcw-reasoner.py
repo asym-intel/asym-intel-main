@@ -181,7 +181,7 @@ Return ONLY valid JSON — no markdown, no prose, no code fences:
     "schema_version": "reasoner-v1.0",
     "monitor_slug": "fimi-cognitive-warfare",
     "job_type": "attribution-chain-reasoning",
-    "generated_at": "{datetime.datetime.utcnow().isoformat()}Z",
+    "generated_at": "{datetime.datetime.now(datetime.timezone.utc).isoformat()}",
     "data_date": "{TODAY_STR}",
     "campaigns_reviewed": <integer>,
     "candidates_reviewed": <integer>
@@ -265,12 +265,24 @@ print(f"Response received. Tokens: {api_response.get('usage', {}).get('total_tok
 
 # ── Parse ──────────────────────────────────────────────────────────────────────
 
+# Robust JSON extraction — handles all fence variants
 clean = raw_content.strip()
-if clean.startswith("```"):
-    clean = clean.split("```", 2)[-1]
-    clean = clean.rsplit("```", 1)[0].strip()
-    if clean.startswith("json"):
-        clean = clean[4:].strip()
+# Extract JSON from markdown code fences if present
+fence_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', clean, re.DOTALL)
+if fence_match:
+    clean = fence_match.group(1).strip()
+elif clean.startswith("```"):
+    clean = re.sub(r'^```(?:json)?\s*', '', clean)
+    clean = re.sub(r'\s*```$', '', clean).strip()
+# Find the outermost JSON object if there's leading/trailing text
+if not clean.startswith('{'):
+    brace_start = clean.find('{')
+    if brace_start != -1:
+        clean = clean[brace_start:]
+if not clean.endswith('}'):
+    brace_end = clean.rfind('}')
+    if brace_end != -1:
+        clean = clean[:brace_end+1]
 
 try:
     data = json.loads(clean)
