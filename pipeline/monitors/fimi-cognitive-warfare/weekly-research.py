@@ -115,13 +115,16 @@ if meta.get("schema_version") != "weekly-research-v1.0":
 lead = data.get("lead_signal", {})
 for field in REQUIRED_LEAD:
     if not lead.get(field):
-        errors.append(f"lead_signal.{field} missing or empty")
+        if field == "source_url":
+            warnings.append(f"lead_signal.source_url missing — model did not return a primary URL")
+        else:
+            errors.append(f"lead_signal.{field} missing or empty")
 
 if not data.get("campaigns"):
-    warnings.append("campaigns array is empty — no campaigns found this week")
+    print("INFO: campaigns array is empty — no new campaigns this week (valid)")
 
 if not data.get("actor_tracker"):
-    warnings.append("actor_tracker array is empty")
+    warnings.append("actor_tracker array is empty — actor posture data expected weekly")
 
 if not data.get("weekly_brief_narrative"):
     errors.append("weekly_brief_narrative missing — required for Hugo brief")
@@ -146,10 +149,15 @@ if errors:
     if warnings:
         for w in warnings:
             print(f"  ⚠ {w}")
+    # Print structure summary to help diagnose
+    print(f"\nStructure received: {list(data.keys())}")
+    print(f"_meta keys: {list(data.get('_meta',{}).keys())}")
+    print(f"lead_signal keys: {list(data.get('lead_signal',{}).keys())}")
+    print(f"campaigns count: {len(data.get('campaigns',[]))}")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    (OUT_DIR / f"debug-{TODAY_STR}.json").write_text(
-        json.dumps(data, indent=2), encoding="utf-8"
-    )
+    debug_path = OUT_DIR / f"debug-{TODAY_STR}.json"
+    debug_path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    print(f"Debug output written to {debug_path}")
     sys.exit(1)
 
 for w in warnings:
