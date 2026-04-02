@@ -45,3 +45,76 @@
 <meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
 <meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}{{ end }}">
 {{ with .Params.image }}<meta name="twitter:image" content="{{ . | absURL }}">{{ else }}<meta name="twitter:image" content="{{ "images/og-fallback.png" | absURL }}">{{ end }}
+
+{{/* ── JSON-LD Structured Data ── */}}
+
+{{/* BreadcrumbList — all non-home pages */}}
+{{ if not .IsHome }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ .Site.BaseURL }}"
+    }{{ if .Parent }},
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": {{ .Parent.Title | jsonify }},
+      "item": "{{ .Parent.Permalink }}"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": {{ .Title | jsonify }},
+      "item": "{{ .Permalink }}"
+    }{{ else }},
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": {{ .Title | jsonify }},
+      "item": "{{ .Permalink }}"
+    }{{ end }}
+  ]
+}
+</script>
+{{ end }}
+
+{{/* Dataset — monitor section landing pages (IsSection and has a monitor description) */}}
+{{ if and .IsSection .Description (not .IsHome) }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["WebPage", "Dataset"],
+  "name": {{ printf "%s — Asymmetric Intelligence" .Title | jsonify }},
+  "description": {{ .Description | jsonify }},
+  "url": {{ .Permalink | jsonify }},
+  "publisher": {
+    "@type": "Organization",
+    "name": "Asymmetric Intelligence",
+    "url": "https://asym-intel.info"
+  },
+  "creator": {
+    "@type": "Person",
+    "name": "Peter Howitt"
+  },
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "isAccessibleForFree": true,
+  "inLanguage": "en",
+  "temporalCoverage": "2026/..",
+  "updateFrequency": "P7D"{{ with .Params.monitor }},
+  "distribution": [
+    {
+      "@type": "DataDownload",
+      "encodingFormat": "application/json",
+      "contentUrl": {{ printf "https://asym-intel.info/monitors/%s/data/report-latest.json" . | jsonify }}
+    }
+  ]{{ end }}{{ with .Lastmod }},
+  "dateModified": {{ .Format "2006-01-02" | jsonify }}{{ end }}
+}
+</script>
+{{ end }}
