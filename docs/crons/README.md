@@ -23,8 +23,8 @@ or update a cron without needing the original session context.
 | a67a9739 | SCEM Sunday verification | Sun 5 Apr 18:30 UTC | inline (one-shot) | Verifies Sprint 2 schema fields |
 | 10ddf5f0 | WDM Monday verification | Mon 6 Apr 06:30 UTC | inline (one-shot) | Verifies Category B sections |
 
-**Analyst crons** (WDM d22b7778, GMM 9983df74, ESA 26f24020, FCW b17522c3,
-AGM 743fe004, ERM 1ec0d995, SCEM 40a62a34) use `cron-wrapper-instructions.md`
+**Analyst crons** (WDM f7bd54e9, GMM c94c4134, ESA 0b39626e, FCW b17522c3,
+AGM 5ac62731, ERM ce367026, SCEM 8cdb83c8) use `cron-wrapper-instructions.md`
 as universal wrapper + their monitor-specific prompt files. See `COMPUTER.md`
 for the full cron table.
 
