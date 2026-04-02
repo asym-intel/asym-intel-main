@@ -306,6 +306,7 @@
     <li><a href="report.html">Latest Issue</a></li>
     <li><a href="archive.html">Archive</a></li>
     <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="#section-weekly-brief" onclick="document.getElementById('section-weekly-brief').scrollIntoView({behavior:'smooth'});return false;">Weekly Brief</a></li>
     <li><a href="about.html">About</a></li>
     <li><a href="methodology.html">Methodology</a></li>
     <li><a href="search.html">Search</a></li>
@@ -687,15 +688,34 @@ document.addEventListener('DOMContentLoaded', function () {
         kpiSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
       }
 
-      // Weekly brief
+      // Weekly brief — safe markdown renderer
+      // Handles **bold**, numbered items, and passes through <a href> tags safely
       var briefEl = document.getElementById('weekly-brief-content');
       if (briefEl) {
         var brief = d.weekly_brief || '';
         if (brief) {
-          var paras = brief.split(/\n{2,}/).filter(function(p) { return p.trim(); });
-          briefEl.innerHTML = paras.length > 1
-            ? paras.map(function(p) { return '<p style="margin-bottom:var(--space-3)">' + escHtml(p.trim()) + '</p>'; }).join('')
-            : '<p>' + escHtml(brief) + '</p>';
+          // Safe renderer: escapes text nodes but preserves <a href> tags
+          function renderBrief(text) {
+            // Split into paragraphs on double newlines
+            var paras = text.split(/\n{2,}/).filter(function(p) { return p.trim(); });
+            return paras.map(function(para) {
+              var t = para.trim();
+              // Pass through lines that already contain HTML anchor tags
+              // by splitting on <a ...>...</a> and only escaping the text portions
+              var parts = t.split(/(<a\s[^>]+>.*?<\/a>)/gi);
+              var safe = parts.map(function(part, i) {
+                if (i % 2 === 1) return part; // it's an <a> tag — pass through
+                // Escape this text node, then apply markdown transforms
+                var s = part
+                  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                // **bold**
+                s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                return s;
+              }).join('');
+              return '<p style="margin-bottom:var(--space-4);line-height:1.7">' + safe + '</p>';
+            }).join('');
+          }
+          briefEl.innerHTML = renderBrief(brief);
         } else {
           briefEl.innerHTML = '<p class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</p>';
         }
