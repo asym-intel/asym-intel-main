@@ -1,0 +1,39 @@
+name: FCW Reasoner — Attribution Chain Analysis
+
+on:
+  schedule:
+    - cron: "0 20 * * 3"   # Wednesday 20:00 UTC — after weekly research (18:00), before Analyst (Thu 09:00)
+  workflow_dispatch:
+
+jobs:
+  reason:
+    name: FCW Attribution Chain Reasoning (sonar-deep-research)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run FCW Reasoner
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/fimi-cognitive-warfare/fcw-reasoner.py
+
+      - name: Commit reasoner output
+        run: |
+          git config user.name  "FCW Reasoner Bot"
+          git config user.email "fcw-reasoner@asym-intel.info"
+          git add pipeline/monitors/fimi-cognitive-warfare/reasoner/
+          git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
+          git commit -m "data(fcw-reasoner): attribution chain analysis — $(date -u +%Y-%m-%d)"
+          git push
