@@ -259,6 +259,73 @@ both are in context.
 
 ---
 
+
+---
+
+## Enhancement Addenda v1.0 (April 2026)
+
+*The following sections supplement the base role card. They were derived from a systematic cross-reference of the platform mission against this role's base specification. Read order: MISSION.md → base role card → these addenda → session startup sequence.*
+
+### Search Intent Matrix — Five Reader Profiles
+
+The platform defines five reader profiles with fundamentally different search behaviours. For every monitor's landing page and latest-issue page, verify the title tag, meta description, H1, and first paragraph match at least **three of the five search intent types**.
+
+| Reader profile | Search behaviour | Example query (WDM) | Example query (AGM) |
+|---|---|---|---|
+| OSINT practitioner | Named-source, data-specific, methodological | `V-Dem liberal democracy index Hungary 2026` | `EU AI Act harmonised standards CEN-CENELEC JTC21 status` |
+| Lawyer / policy expert | Structural-trajectory, compliance-focused, citable | `Hungary rule of law Article 7 proceedings current status` | `EU AI Act high-risk system compliance timeline 2026` |
+| Journalist | Pattern-seeking, event-triggered, verification-oriented | `Hungary democratic backsliding pattern evidence` | `AI governance gap between regulation and enforcement` |
+| Activist citizen | Natural language, concern-driven, exploratory | `is democracy declining in Europe` | `is AI dangerous who regulates it` |
+| Politician / civil society | Positional, cherry-pick-resistant, citable in debate | `independent assessment Hungary democratic institutions` | `AI Act implementation status independent analysis` |
+
+### Per-Monitor Keyword Strategy (Standing Reference)
+
+| Monitor | Primary keyword cluster | Secondary cluster | Long-tail opportunity |
+|---|---|---|---|
+| WDM | democratic backsliding, institutional erosion, democracy index | judicial independence, electoral integrity, authoritarian diffusion | `[country] democracy score 2026` |
+| SCEM | conflict escalation, early warning, geopolitical risk | civilian displacement, ceasefire monitoring, escalation indicators | `[region] conflict risk assessment` |
+| ESA | European strategic autonomy, EU defence, digital sovereignty | ReArm Europe, NATO European pillar, EU-US decoupling | `European defence industrial base progress` |
+| GMM | macro financial risk, global recession risk, systemic stress | credit conditions, sovereign debt, tariff economic impact | `US tariff impact on [asset class/region]` |
+| FCW | foreign information manipulation, FIMI, disinformation | cognitive warfare, election interference, state-sponsored | `[country] disinformation campaign evidence` |
+| ERM | environmental risk, climate tipping points, planetary boundaries | food security, biodiversity loss, climate migration | `[region] climate risk structural assessment` |
+| AGM | AI governance, AI regulation, AI safety | EU AI Act, frontier model risk, AI ethics accountability | `AI regulation tracker [jurisdiction] 2026` |
+
+Update this table quarterly when GSC query data reveals actual search patterns.
+
+### AI Search Engine Optimisation
+
+Google AI Overviews, Perplexity, ChatGPT Search, and Bing Copilot are significant discovery channels for the OSINT/policy audience. Requirements:
+
+- **Structured methodology pages** — named confidence levels and definitions, source hierarchy with explicit tier labels, scoring methodology in declarative sentences, update frequency stated explicitly
+- **Clean vocabulary for AI extraction** — use specific extractable phrasing: ✅ `"Hungary's WDM severity score is 7.2 (Amber-High), based on V-Dem EDI decline"` not ❌ `"Hungary continues to present concerning signals"`
+- **FAQ schema** — add `FAQPage` JSON-LD on monitor landing pages for the 3–5 most common questions each monitor answers
+- **Machine-readable timestamps** — `<time datetime="2026-04-01T06:00:00Z" itemprop="dateModified">` on every monitor page
+
+**Quarterly AI search audit procedure:**
+1. Search the primary keyword for each of the 7 monitors in Google (AI Overview), Perplexity, ChatGPT Search
+2. Screenshot results — is asym-intel.info cited?
+3. If not cited: identify which source IS cited and why
+4. Document findings in `docs/seo/ai-search-audit-YYYY-QX.md`
+5. If a competitor with less rigorous methodology consistently outranks asym-intel, this is a HIGH finding — diagnose root cause and produce specific remediation
+
+### Schema.org Dataset Markup
+
+The platform publishes structured JSON data files that are substantively **datasets**. Adding `Dataset` markup makes them discoverable in Google Dataset Search — directly serving the OSINT practitioner and academic researcher. Apply equivalent Dataset markup to all 7 monitors. Example schema in `docs/prompts/role-enhancement-addenda.md` section 1.3.
+
+### Citability Infrastructure
+
+**Absolute constraint — citation URL permanence overrides all archive policy.** If any archive policy would result in a citation URL returning 404, redirecting away from original content, or rendering without original data, that policy must be modified. Never 404 a cited page.
+
+Requirements: stable human-readable URLs per issue and module anchor; visible "Cite this" element with formatted citation; date-stamped corrections with timestamps; permanent archive URLs (noindex while keeping live).
+
+### Additional Failure Modes
+
+**SEO-008: AI-SEARCH INVISIBILITY** — see quarterly AI search audit procedure above.
+
+**SEO-009: CITABILITY URL BREAKAGE** — archive pages may be noindexed but must never return 404 or redirect away from cited content. Citation URL permanence is an absolute constraint.
+
+**SEO-010: SINGLE-PROFILE METADATA OPTIMISATION** — metadata written only for the OSINT practitioner fails the activist citizen. Apply the three-of-five test to every meta description.
+
 ## End of Session
 
 Before closing:
