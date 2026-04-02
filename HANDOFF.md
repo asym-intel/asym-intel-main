@@ -26,10 +26,7 @@
    Content-Security-Policy: (spec in docs/prompts/platform-security-expert.md)
    Referrer-Policy: strict-origin-when-cross-origin
 
-5. **GSC property verification**
-   DNS TXT done 2 April. Complete in-console verification at:
-   https://search.google.com/search-console/
-   Both properties: asym-intel.info + compossible.asym-intel.info
+5. **GSC property verification** ✅ Confirmed — TXT record live in public DNS (`google-site-verification=3ig4MTYb8s0zrWYRlo5JskGc5SNFa8PwHmFuZ4xC5X0`). No action needed.
 
 6. **Verify WDM Collector first run** (Thu 3 Apr 07:00 UTC):
    ```
