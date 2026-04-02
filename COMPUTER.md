@@ -111,14 +111,14 @@ Each monitor cron publishes on its schedule without approval:
 
 | Monitor | Cron ID | Schedule |
 |---|---|---|
-| WDM | db22db0d | Mon 06:00 UTC |
-| GMM | 02c25214 | Tue 08:00 UTC |
-| FCW | 879686db | Thu 09:00 UTC |
-| ESA | 0fa1c44e | Wed 19:00 UTC |
-| AGM | 267fd76e | Fri 09:00 UTC |
-| ERM | 3e736a32 | Sat 05:00 UTC |
-| SCEM | eb312202 | Sun 18:00 UTC |
-| Housekeeping | 73452bc6 | Mon 08:00 UTC |
+| WDM | d22b7778 | Mon 06:00 UTC |
+| GMM | 9983df74 | Tue 08:00 UTC |
+| FCW | 1d51ae99 | Thu 09:00 UTC |
+| ESA | 26f24020 | Wed 19:00 UTC |
+| AGM | 743fe004 | Fri 09:00 UTC |
+| ERM | 1ec0d995 | Sat 05:00 UTC |
+| SCEM | 40a62a34 | Sun 18:00 UTC |
+| Housekeeping | 7e058f57 | Mon 08:00 UTC |
 
 ## Monitor Reference
 
@@ -207,14 +207,14 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 
 | Layer | Name | Cron ID | Schedule |
 |---|---|---|---|
-| Analyst | WDM Analyst | db22db0d | Mon 06:00 UTC |
-| Analyst | GMM Analyst | 02c25214 | Tue 08:00 UTC |
-| Analyst | ESA Analyst | 0fa1c44e | Wed 19:00 UTC |
-| Analyst | FCW Analyst | 879686db | Thu 09:00 UTC |
-| Analyst | AGM Analyst | 267fd76e | Fri 09:00 UTC |
-| Analyst | ERM Analyst | 3e736a32 | Sat 05:00 UTC |
-| Analyst | SCEM Analyst | eb312202 | Sun 18:00 UTC |
-| Validator | Platform Validator | 73452bc6 | Mon 08:00 UTC |
+| Analyst | WDM Analyst | d22b7778 | Mon 06:00 UTC |
+| Analyst | GMM Analyst | 9983df74 | Tue 08:00 UTC |
+| Analyst | ESA Analyst | 26f24020 | Wed 19:00 UTC |
+| Analyst | FCW Analyst | 1d51ae99 | Thu 09:00 UTC |
+| Analyst | AGM Analyst | 743fe004 | Fri 09:00 UTC |
+| Analyst | ERM Analyst | 1ec0d995 | Sat 05:00 UTC |
+| Analyst | SCEM Analyst | 40a62a34 | Sun 18:00 UTC |
+| Housekeeping | Platform Housekeeping | 7e058f57 | Mon 08:00 UTC |
 | Verification | SCEM verification | a67a9739 | Sun 5 Apr 18:30 UTC (one-shot) |
 | Guard | Staging divergence guard | aec126c5 | Daily ~18:00 UTC (silent unless behind_by > 30) |
 | Verification | WDM verification | 10ddf5f0 | Mon 6 Apr 06:30 UTC (one-shot) |
