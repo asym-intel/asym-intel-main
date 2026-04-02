@@ -258,3 +258,37 @@ for e in entries:
 Use cross-monitor flags to incorporate adjacent signals into your analysis
 and update your own cross_monitor_flags where new linkages are found.
 Use schema changelog to verify your output includes all required fields.
+
+STEP 0B+ — LOAD ANNUAL CALIBRATION FILE (if present)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```bash
+YEAR=$(date -u +%Y)
+CALIBRATION=$(gh api /repos/asym-intel/asym-intel-internal/contents/methodology/ai-governance-euaiact-${YEAR}.md \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$CALIBRATION" ]; then
+  echo "STEP 0B+: No annual calibration file for ai-governance-euaiact-${YEAR}.md — proceeding without."
+else
+  echo "STEP 0B+: Loaded annual calibration ai-governance-euaiact-${YEAR}.md"
+  echo "$CALIBRATION" | python3 -c "
+import sys
+content = sys.stdin.read()
+for section in ['## 2.', '## 3.', '## 4.', '## 5.', '## 6.']:
+    idx = content.find(section)
+    if idx > -1:
+        end = content.find('\n## ', idx + 10)
+        print(content[idx:end if end > idx else idx+800])
+        print()
+"
+fi
+```
+
+USE CALIBRATION FILE AS FOLLOWS:
+  — §2 EU AI Act tracker → update M09 layer status; Standards Vacuum flag in every issue
+  — §3 GPAI compliance → update gpaiCompliance table; any new lab signatory or transparency report
+  — §4 capability calibration → apply benchmark saturation protocol to M02 scoring
+  — §5 AISI update → update M15 pipeline entries with current institutional status
+  — §6 M07 risk vectors → confirm or update vector ratings if triggers met
+  — §8 cross-monitor routing → apply updated signal routing table
+  — §9 failure mode corrections → apply FM-AGM-01 to FM-AGM-04 to this week's analysis
