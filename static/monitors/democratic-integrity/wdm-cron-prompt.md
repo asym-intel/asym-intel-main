@@ -200,11 +200,23 @@ and integrity flags unchanged unless new primary-source evidence
 justifies updating them this week.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-STEP 1 — RESEARCH
+STEP 1 — APPLY METHODOLOGY TO RESEARCH INPUTS (Steps 0C + 0D + 0E)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Primary sources: V-Dem, Freedom House, CIVICUS, Amnesty International,
-Human Rights Watch, IPI, RSF, OSCE/ODIHR, IDEA, IFES.
+PRIMARY: Use weekly deep research (Step 0D) as the research base.
+SUPPLEMENT: Cross-check with daily Collector candidates (Step 0C).
+ANALYTICAL: Apply Reasoner recommendations (Step 0E) for severity changes and mimicry detections.
+FALLBACK: If Step 0D unavailable, research directly using: V-Dem, Freedom House, CIVICUS,
+  Amnesty International, Human Rights Watch, IPI, RSF, OSCE/ODIHR, IDEA, IFES.
+
+For each erosion development or country status:
+  — Apply WDM severity formula: Score = A + B + C + (2.5 − D)
+  — Apply V-Dem lag rule: V-Dem is a structural baseline, not current intelligence
+  — Check Reasoner severity_reviews[] for upgrade/downgrade recommendations
+  — Check Reasoner mimicry_chain_detections[] for new or continuing chains
+  — Check Reasoner watchlist_threshold_assessments[] for promotion decisions
+  — Collector's confidence_preliminary is your starting point, NOT your conclusion
+  — Weekly brief narrative from Step 0D → edit and apply cold analytical voice
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 STEP 2 — WRITE JSON PIPELINE (TWO-PASS COMMIT PATTERN)
@@ -495,6 +507,145 @@ USE CALIBRATION FILE AS FOLLOWS:
   — V-Dem lag rule (always): V-Dem is a lagging calibration source (12–18 month lag),
     NOT current intelligence. Never downgrade a severity score solely because V-Dem
     improved a country — verify structural conditions have actually changed.
+
+
+STEP 0C — LOAD TIER 0 DAILY COLLECTOR OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After loading persistent-state and intelligence digest, load the daily Collector
+output produced since the last weekly issue. The Collector runs daily at 07:00 UTC
+and writes pre-verified candidate findings to the pipeline/ directory.
+These are CANDIDATES — not final findings. You apply WDM methodology, source
+hierarchy, and final confidence assignment. The Collector prepares; you decide.
+
+```bash
+TODAY=$(date -u +%Y-%m-%d)
+FEEDER_PATH="pipeline/monitors/democratic-integrity/daily"
+
+# Load daily-latest.json (most recent Collector run)
+FEEDER=$(gh api /repos/asym-intel/asym-intel-main/contents/${FEEDER_PATH}/daily-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$FEEDER" ]; then
+  echo "STEP 0C: No daily Collector output found. Proceeding without Tier 0 candidates."
+else
+  echo "$FEEDER" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+findings = d.get('findings', [])
+below = d.get('below_threshold', [])
+print(f'Collector data_date: {meta.get(\"data_date\",\"unknown\")}'  )
+print(f'Total findings: {meta.get(\"finding_count\",0)} ({meta.get(\"net_new_count\",0)} net new, {meta.get(\"continuation_count\",0)} continuations)')
+print(f'Below threshold (excluded): {len(below)}')
+print()
+print('CANDIDATE FINDINGS FOR YOUR REVIEW:')
+for f in findings:
+    print(f'  [{f[\"confidence_preliminary\"]}] {f[\"finding_id\"]} — {f[\"title\"][:70]}')
+    print(f'    Country: {f.get(\"geographies\",[])} | Pillar: {f.get(\"pillar_affected\",[])}')
+    print(f'    Erosion type: {f.get(\"erosion_type\",\"?\")} | Trajectory: {f.get(\"trajectory\",\"?\")}')
+    print(f'    Severity preliminary: {f.get(\"severity_preliminary\",\"?\")} | ERT active: {f.get(\"vdem_ert_active\",False)}')
+    for m, note in f.get('cross_monitor_relevance',{}).items():
+        if note: print(f'    → {m.upper()}: {note[:80]}')
+    print()
+"
+fi
+```
+
+USE THE COLLECTOR OUTPUT:
+  — For each candidate: apply WDM severity formula to assign final severity
+  — Check each against the active country registry in persistent-state
+  — campaign_status_candidate: "continuation" → update existing country record
+  — campaign_status_candidate: "net_new" → evaluate whether to add to heatmap or watchlist
+  — Collector's confidence_preliminary is your starting point, NOT your conclusion
+  — You may upgrade OR downgrade based on your full methodology review
+  — Collector findings that don't survive your review → exclude from published output
+
+STEP 0D — LOAD WEEKLY DEEP RESEARCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GitHub Actions runs sonar-pro every Sunday 18:00 UTC and commits
+structured research to pipeline/weekly/. Load it now as your primary research input.
+If unavailable, conduct research directly (fallback mode — note in output).
+
+```bash
+WEEKLY=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/democratic-integrity/weekly/weekly-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$WEEKLY" ]; then
+  echo "STEP 0D: No weekly research found — running in fallback research mode."
+else
+  echo "$WEEKLY" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+lead = d.get('lead_signal', {})
+devs = d.get('erosion_developments', [])
+print(f'Weekly research week_ending: {meta.get(\"week_ending\",\"unknown\")}'  )
+print(f'Lead: [{lead.get(\"confidence_preliminary\")}] {lead.get(\"headline\",\"\")[:80]}')
+print(f'Developments: {len(devs)} | Electoral: {len(d.get(\"electoral_watch\",[]))} | Institutional: {len(d.get(\"institutional_events\",[]))}'  )
+print(f'Autocratic export: {len(d.get(\"autocratic_export\",[]))} | Cross-monitor: {[k for k,v in d.get(\"cross_monitor_signals\",{}).items() if v]}')
+print()
+for dev in devs:
+    print(f'  [{dev.get(\"attribution_confidence_preliminary\")}] {dev.get(\"country\")} — {dev.get(\"title\",\"\")[:60]}')
+    print(f'    Pillar: {dev.get(\"pillar_affected\",[])} | Type: {dev.get(\"erosion_type\")} | Traj: {dev.get(\"trajectory\")}')
+"
+fi
+```
+
+USE WEEKLY RESEARCH AS FOLLOWS:
+  — erosion_developments[] → cross-check against persistent heatmap countries, update/add
+  — electoral_watch[] → update electoral_watch section in JSON output
+  — institutional_events[] → feed into institutional_pulse and institutional_integrity_flags
+  — autocratic_export[] → update autocratic_export section in JSON output
+  — actor_tracker[] → update relevant country entries in heatmap
+  — weekly_brief_narrative → use as draft for Hugo brief (edit + apply cold analytical voice)
+  — cross_monitor_signals → populate cross_monitor_flags in report
+  — All confidence_preliminary values → apply WDM severity formula to assign FINAL scores
+  — NEVER publish research confidence_preliminary as final — always apply your own judgment
+
+STEP 0E — LOAD REASONER OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GitHub Actions runs sonar-deep-research every Sunday 20:00 UTC (after weekly research).
+It reasons over persistent-state + weekly + daily data and produces analytical
+recommendations. Load it now as pre-work before applying your own methodology.
+
+```bash
+REASONER=$(gh api /repos/asym-intel/asym-intel-main/contents/pipeline/monitors/democratic-integrity/reasoner/reasoner-latest.json \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$REASONER" ]; then
+  echo "STEP 0E: No Reasoner output found — reasoning independently."
+else
+  echo "$REASONER" | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+meta = d.get('_meta', {})
+reviews = d.get('severity_reviews', [])
+mimicry = d.get('mimicry_chain_detections', [])
+watchlist = d.get('watchlist_threshold_assessments', [])
+flags = d.get('cross_monitor_escalation_flags', [])
+briefing = d.get('analyst_briefing', '')
+print(f'Reasoner data_date: {meta.get(\"data_date\",\"unknown\")}'  )
+print(f'Severity reviews: {len(reviews)} ({sum(1 for r in reviews if r.get(\"recommendation\") != \"unchanged\")} changes recommended)')
+print(f'Mimicry chain detections: {len(mimicry)}')
+print(f'Watchlist threshold assessments: {len(watchlist)} ({sum(1 for w in watchlist if w.get(\"threshold_crossed\")) } crossed)')
+print(f'Cross-monitor flags: {len(flags)}')
+print()
+print('ANALYST BRIEFING (Reasoner):')
+print(briefing[:600])
+"
+fi
+```
+
+USE REASONER OUTPUT AS FOLLOWS:
+  — severity_reviews[] → review each recommendation; accept if evidence supports it
+  — mimicry_chain_detections[] → update regional_mimicry_chains in persistent-state
+  — watchlist_threshold_assessments[] → apply promotion decisions where threshold_crossed=true
+  — cross_monitor_escalation_flags[] → populate cross_monitor_flags in report
+  — analyst_briefing → read for analytical pre-work context
+  — ALL Reasoner recommendations are advisory — you make the final call
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL FIELD RULES — enforce every issue
