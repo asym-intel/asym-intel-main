@@ -17,7 +17,7 @@
 {{- if .Parent -}}
   {{- $ld = merge $ld (dict "isPartOf" (dict "@type" "Dataset" "name" (printf "%s — Asymmetric Intelligence" .Parent.Title) "url" .Parent.Permalink)) -}}
 {{- end -}}
-<script type="application/ld+json">{{ $ld | jsonify | safeHTML }}</script>
+{{ printf `<script type="application/ld+json">%s</script>` ($ld | jsonify) | safeHTML }}
 <main class="single">
   <article class="post">
     <header class="post__header">
