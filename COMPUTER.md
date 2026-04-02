@@ -202,7 +202,7 @@ LAYER 3 — VALIDATOR (weekly Computer cron, Monday)
 
 | Layer | Name | Cron ID | Schedule |
 |-------|------|---------|----------|
-| Collector | FCW Collector | 6d67ba71 | Daily 08:00 UTC |
+| Collector | FCW Collector | GitHub Actions | Daily 07:00 UTC (external — see .github/workflows/fcw-collector.yml) |
 | Analyst | WDM Analyst | db22db0d | Mon 06:00 UTC |
 | Analyst | GMM Analyst | 02c25214 | Tue 08:00 UTC |
 | Analyst | ESA Analyst | 0fa1c44e | Wed 19:00 UTC |
