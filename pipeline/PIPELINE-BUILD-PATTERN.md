@@ -13,11 +13,14 @@ assignment, schema construction, and publication.
 
 ```
 GitHub Actions (daily, sonar)          → pipeline/{slug}/daily/
-GitHub Actions (weekly, sonar-deep-research) → pipeline/{slug}/weekly/
+GitHub Actions (daily, sonar)                    → pipeline/{slug}/daily/
+GitHub Actions (weekly Wed 18:00, sonar-pro)      → pipeline/{slug}/weekly/
+GitHub Actions (weekly Wed 20:00, sonar-deep-research) → pipeline/{slug}/reasoner/
 
-Computer Analyst cron (weekly)
+Computer Analyst cron (weekly, publish day)
   Step 0C: reads daily Collector output
-  Step 0D: reads weekly deep research output
+  Step 0D: reads weekly research output
+  Step 0E: reads Reasoner analytical conclusions
   Applies methodology → publishes
 ```
 
@@ -29,8 +32,9 @@ Computer Analyst cron (weekly)
 |-------|-------|---------|----------------|
 | Daily Collector | sonar | Daily | ~$0.02 |
 | Weekly Research | sonar-pro | Weekly | ~$0.05 |
+| Reasoner | sonar-deep-research | Weekly (day before Analyst) | ~$0.05 |
 | Computer Analyst | n/a | Weekly | Computer credits |
-| **Total per monitor** | | | **~$0.52/month** |
+| **Total per monitor** | | | **~$0.12/month + Computer** |
 
 ---
 
@@ -40,18 +44,22 @@ Computer Analyst cron (weekly)
 asym-intel-main/
   .github/workflows/
     {slug}-collector.yml         ← daily Perplexity call (sonar)
-    {slug}-weekly-research.yml   ← weekly Perplexity call (sonar-deep-research)
+    {slug}-weekly-research.yml   ← weekly Perplexity call (sonar-pro)
+    {slug}-reasoner.yml          ← weekly reasoning call (sonar-deep-research)
   pipeline/monitors/{slug}/
     collect.py                   ← daily collection script
     weekly-research.py           ← weekly research script
     fcw-collector-api-prompt.txt       ← daily Collector prompt (JSON output)
     {slug}-weekly-research-api-prompt.txt ← weekly research prompt (JSON output)
+    fcw-reasoner.py                        ← Reasoner script (no prompt file needed — prompt is inline)
     daily/
       README.md
       daily-latest.json          ← stub (overwritten daily)
     weekly/
       README.md
       weekly-latest.json         ← stub (overwritten weekly)
+    reasoner/
+      reasoner-latest.json       ← stub (overwritten weekly)
 
 asym-intel-internal/prompts/
   {MONITOR}-COLLECTOR-PROMPT-v1.md   ← identity card (not used by GitHub Actions)
@@ -214,6 +222,31 @@ STEP 1 — Apply methodology to weekly research output (Step 0D):
   In either case: cross-check against daily Collector candidates (Step 0C).
 ```
 
+### Step 8B — Write the Reasoner (optional but recommended for complex monitors)
+
+The Reasoner uses `sonar-deep-research` to reason over the accumulated structured data
+from persistent-state + Collector + weekly research. It does NOT search the web — it
+reasons over documents you feed it.
+
+Copy `pipeline/monitors/fimi-cognitive-warfare/fcw-reasoner.py` and adapt:
+- Change `OUT_DIR` and file paths
+- Adapt the context extraction (what sections to pull from persistent-state)
+- Adapt the prompt's analytical tasks for the monitor domain:
+  - FCW: attribution chain analysis, campaign linkage detection
+  - WDM: country deterioration pattern analysis, mimicry chain detection
+  - SCEM: conflict trajectory modelling, I1-I6 deviation pattern reasoning
+  - AGM: capability-governance lag analysis across 16 modules
+- Keep the context size limit (40,000 chars) and truncation logic
+- Keep the `import re` at the top
+
+Schedule: 2 hours after weekly research (same Wednesday, before Thursday Analyst):
+  FCW:  Wed 20:00 UTC  `"0 20 * * 3"`
+  WDM:  Sun 20:00 UTC  `"0 20 * * 0"`
+  SCEM: Sat 20:00 UTC  `"0 20 * * 6"`
+
+Add Step 0E to the Analyst cron after Step 0D — same pattern as Step 0D but reads
+`pipeline/{slug}/reasoner/reasoner-latest.json`.
+
 ### Step 9 — Create pipeline directory stubs
 
 ```bash
@@ -264,7 +297,12 @@ sonar-pro does live web search with deeper synthesis. Always use sonar-pro for w
 3. **JSON stripping is necessary.** Model occasionally wraps output in code fences despite explicit instruction. The strip logic in collect.py handles this.
 4. **GitHub Actions completes in ~20 seconds** for sonar daily calls. sonar-deep-research will take 60-120 seconds — set timeout to 300s.
 5. **One PPLX_API_KEY secret covers all monitors.** No per-monitor secrets needed.
-6. **sonar-deep-research is NOT for live web search.** It refused to generate FIMI intelligence
+6. **sonar-deep-research IS correct for the Reasoner.** Feed it structured JSON as
+   context in the prompt — it reasons over that data without searching the web.
+   The Reasoner prompt includes the actual JSON inline; the model reasons over it.
+   Empty input (no campaigns, no findings) → Reasoner correctly returns empty output
+   with a clear explanation. This is correct behaviour, not a failure.
+7. **sonar-deep-research is NOT for live web search.** It refused to generate FIMI intelligence
    because it cannot browse live URLs — it is a reasoning/synthesis model for documents you
    provide, not an OSINT collection tool. Use `sonar-pro` for weekly research workflows.
    Model selection: `sonar` for daily (fast, cheap), `sonar-pro` for weekly (deeper search).
