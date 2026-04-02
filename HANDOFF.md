@@ -1,5 +1,5 @@
 # HANDOFF.md - Asymmetric Intelligence
-**Generated:** 2026-04-02 session wrap (~22:15 CEST) — updated
+**Generated:** 2026-04-02 session wrap (~23:25 CEST) — updated
 **Next auto-generation:** Monday 7 April 08:00 UTC (Housekeeping)
 
 ---
@@ -90,6 +90,32 @@
 - `docs/prompts/platform-security-expert.md` — quarterly filter vendor check added (Fortiguard / Cisco Umbrella / Symantec)
 - Architecture: Intelligence Surface Analyst (finds gaps) → Platform Experience Designer (fixes them)
 - Note: Platform Visualisation Expert prompt was drafted this session — scope now absorbed into PED; Peter to confirm if a separate chart-specialist role is still wanted
+
+**~23:25 CEST — role enhancement addenda session:**
+- `docs/prompts/role-enhancement-addenda.md` v1.0 committed (Peter's enhancements + 4 adjustments)
+- All 6 role prompts updated with addenda v1.0:
+  - SEO: search intent matrix, AI search audit, Dataset markup, citability, SEO-008/009/010
+  - PED: progressive disclosure, colour registry (session 1 prerequisite), cross-monitor journeys, recovery parity, PED-004/005/006
+  - ISA: five-audience gap test, asymmetric signal audit, recovery parity audit
+  - Security: SHA-256 manifest, canary statement, account security, CDN playbook, SEC-008/009/010
+  - Auditor: cross-monitor signal integrity, schema drift detection, AUDIT-003/004
+  - Platform Developer: WCAG 2.2 AA, chart accessibility, FE-026
+- MISSION.md v1.2 — duplicate removed, fifth audience type added (Politicians/civil society)
+- ROLES.md v1.3 — security threat model elevated, SEO dual-audience, auditor role health, ISA→PED wiring
+- governance/ mirror deleted from asym-intel-internal (8 files), AGENT-IDENTITIES.md Section G patched
+- docs/security/platform-status.md + docs/ux/decisions.md created
+- Repo file audit completed — report at /home/user/workspace/repo-audit-report.md
+
+**Critical items from repo audit (next session):**
+- FCW dashboard.html: static/ (139k) vs docs/ (37k) — **diverged, investigate**
+- FCW-DAILY-FEEDER-PROMPT-v4.md missing from asym-intel-internal/prompts/ — **possible broken cron**
+- docs/monitors/_shared/ stale build artefact — verify nothing references it, then remove
+- housekeeping-cron-prompt.md in docs/ only, not in static/ — source/output relationship broken
+
+**Next benchmark sessions (in order):**
+1. Platform Security Expert — create docs/security/ files, verify branch protection, build SHA-256 manifest
+2. SEO & Discoverability Expert — sitemap audit, meta tags, Dataset markup
+3. Platform Experience Designer — Peter's reader observations + knowhow dump + colour-registry.md
 
 ---
 
