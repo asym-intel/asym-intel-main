@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 3.0 — 3 April 2026
+## Version 3.1 — 3 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -371,6 +371,52 @@ gh api /repos/asym-intel/asym-intel-main/contents/HANDOFF.md --jq '.size'
 - New file pattern established (e.g. annual calibration convention) -> log it
 
 **HANDOFF.md:** auto-generated Monday by Housekeeping. Updated mid-week by "wrap".
+
+
+## Subagent Usage — Known Limits and Patterns
+
+### Why subagents get cancelled
+
+Two distinct failure modes observed in practice (3 April 2026):
+
+**1. Step-count exhaustion** — a subagent that must do many sequential things
+(browse 5 live pages + read 7 files + write 2 large docs + update 3 governance files)
+will approach or exceed the 200-step limit. Signs: subagent is on the right track
+but never returns. Fix: **split the task**. Observation pass first (read + browse),
+write pass second (commit docs from findings).
+
+**2. Session-level timeout** — after ~90 minutes of intensive work in one session,
+launching additional subagents increases cancellation risk. Signs: subagent cancelled
+immediately with no partial output. Outputs may still exist in repo if the subagent
+completed just before the cancellation signal. Always verify repo state after any
+cancellation — do not assume nothing happened.
+
+### Subagent sizing rules
+
+| Task complexity | Approach |
+|---|---|
+| Single file change, <5 tool calls | Do it directly (no subagent) |
+| Multi-file change, same domain, <15 tool calls | Single subagent |
+| Observe 5+ live pages AND write docs | Two subagents: observe → write |
+| 3+ parallel subagents after 90min session | Defer to next session instead |
+
+### After a cancellation — always verify
+
+```bash
+# Check if subagent outputs exist despite cancellation
+gh api /repos/asym-intel/asym-intel-main/commits?per_page=5 --jq '[.[] | {sha:.sha[:8], msg:.commit.message[:80]}]'
+ls /home/user/workspace/*.md 2>/dev/null
+gh api /repos/asym-intel/asym-intel-main/compare/main...staging --jq '.ahead_by'
+```
+
+A cancelled subagent ≠ no work done. Verify before re-running — you may be about
+to duplicate work that already succeeded.
+
+### Session length awareness
+
+When a session has been running for >90 minutes, note it in wrap:
+"Session is >90min — recommend deferring remaining subagent work to a fresh session."
+Do not launch complex multi-step subagents as the last act of a long session.
 
 ## ARCHITECTURE.md (MANDATORY for HTML/CSS/JS work)
 
