@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 2.7 — 2 April 2026
+## Version 2.8 — 2 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -257,6 +257,9 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 
 | Monitor | Workflow | Schedule | Model |
 |---|---|---|---|
+| WDM | wdm-collector.yml | Daily 07:00 UTC | sonar |
+| WDM | wdm-weekly-research.yml | Sun 18:00 UTC | sonar-pro |
+| WDM | wdm-reasoner.yml | Sun 20:00 UTC | sonar-deep-research |
 | FCW | fcw-collector.yml | Daily 07:00 UTC | sonar |
 | FCW | fcw-weekly-research.yml | Wed 18:00 UTC | sonar-pro |
 | FCW | fcw-reasoner.yml | Wed 20:00 UTC | sonar-deep-research |
