@@ -818,3 +818,34 @@ for e in entries:
 Use cross-monitor flags to incorporate adjacent signals into your analysis
 and update your own cross_monitor_flags where new linkages are found.
 Use schema changelog to verify your output includes all required fields.
+
+STEP 0B+ — LOAD ANNUAL CALIBRATION FILE (if present)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+```bash
+YEAR=$(date -u +%Y)
+CALIBRATION=$(gh api /repos/asym-intel/asym-intel-internal/contents/methodology/conflict-escalation-acled-${YEAR}.md \
+  --jq '.content' | base64 -d 2>/dev/null || echo "")
+
+if [ -z "$CALIBRATION" ]; then
+  echo "STEP 0B+: No annual calibration file for conflict-escalation-acled-${YEAR}.md — proceeding without."
+else
+  echo "STEP 0B+: Loaded annual calibration conflict-escalation-acled-${YEAR}.md"
+  echo "$CALIBRATION" | python3 -c "
+import sys
+content = sys.stdin.read()
+for section in ['## 2.', '## 3.', '## 4.', '## 7.', '## 8.']:
+    idx = content.find(section)
+    if idx > -1:
+        end = content.find('\n## ', idx + 10)
+        print(content[idx:end if end > idx else idx+800])
+        print()
+"
+fi
+```
+
+USE CALIBRATION FILE AS FOLLOWS:
+  — §2 status/watchlist → update persistent-state baselines and roster
+  — §3-6 indicator/tipping upgrades → adjust scoring thresholds and search strings
+  — §7 cross-monitor routing → apply updated signal routing table
+  — §8 failure mode corrections → apply FM corrections to this week's analysis
