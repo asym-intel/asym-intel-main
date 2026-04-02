@@ -272,6 +272,67 @@ in `docs/ux/ux-audit-YYYY-QX.md` and flag it in notes-for-computer.md for Platfo
 
 ---
 
+
+---
+
+## Enhancement Addenda v1.0 (April 2026)
+
+*Derived from systematic cross-reference of platform mission against this role's base specification.*
+
+### Five-Profile Progressive Disclosure Framework
+
+Design for the activist citizen's first 10 seconds. Reward the OSINT practitioner's deep dive. Every page must be readable at Layer 1 without scrolling past the fold on mobile.
+
+**Layer 1 — Orientation (0–10 seconds):** Signal summary in one plain-language sentence stating direction (improving/stable/deteriorating). Severity/regime visual — colour-coded, immediately legible without domain knowledge. "What does this mean?" — a single expandable sentence translating the finding into plain consequence.
+
+**Layer 2 — Structural Picture (10–60 seconds):** Module-level findings with trajectory indicators. Source count and confidence level visible but not dominant. Cross-monitor links where signals compound.
+
+**Layer 3 — Analytical Depth (60+ seconds):** Full source attribution with tier labels. Confidence level methodology visible. Asymmetric signal callouts with technical detail. Historical severity charts. Raw data access (link to JSON).
+
+**Layer 4 — Citation Layer (on demand):** "Cite this" element with formatted citation. Permalink to specific finding. PDF/print-friendly view with full sourcing intact.
+
+**Design rule:** If Layer 1 and Layer 3 contain the same information at different verbosity levels, the progressive disclosure has failed — it's repetition, not architecture.
+
+### Platform-Wide Colour-Meaning Registry (Session 1 Prerequisite)
+
+Before implementing any visual encoding, create and commit `docs/ux/colour-registry.md`. This is the single source of truth for what every colour means across all 7 monitors. No colour may carry contradictory analytical meaning across monitors. If amber means "Assessed" in FCW and "Elevated" in SCEM, that is a collision — document and resolve before it reaches any reader. Commit the registry before the first visual change is staged.
+
+### Confidence-Level Visual Encoding Standards
+
+| Domain | Levels | Visual encoding rule |
+|---|---|---|
+| FCW attribution | Confirmed / High / Assessed / Possible | Four visually distinct states — colour + icon + label, never colour alone |
+| WDM severity | Score + band (Green/Amber/Red/Rapid Decay) | Amber-to-Red transition must be the most visually dramatic |
+| GMM regime | Green/Amber/Orange/Red + MATT score | Regime label and MATT divergence are separate visual elements — never combine |
+| SCEM escalation | Watch / Elevated / High / Critical | Escalation levels read as a sequence using progressive visual weight |
+
+PED may independently decide: typography, spacing, icon selection, animation. PED must escalate to Peter before: changing severity hex values, changing confidence vocabulary, any encoding that could imply a confidence level the methodology doesn't assign, any simplification that reduces visible confidence levels.
+
+### Cross-Monitor Reader Journeys (Highest Priority)
+
+This is the platform's analytical edge made visible. In-context cross-links when a finding references another monitor's domain — styled, visible, not just a text mention. Format: `[Cross-monitor signal] → FCW: Active FIMI campaign targeting Hungarian media (High confidence)`. Clicking navigates to the specific module entry.
+
+When two or more monitors flag the same country/actor in the same week, surface a compound signal indicator on both pages:
+```
+⟐ Compound Signal: Hungary flagged by WDM (severity ↑), FCW (FIMI campaign, High), ESA (bilateral capture risk). See cross-monitor view.
+```
+
+A cross-monitor landing page showing all active cross-monitor flags for the current week — the "so what?" page where compound signals become visible as systemic patterns.
+
+### Recovery Signal Presentation Parity
+
+MISSION.md states: "A democracy monitor that only tracks decay is analytically incomplete." Recovery signals receive equal visual weight to deterioration signals. Dedicated visual treatment for recovery — not just "green" (which reads as normal/nothing to see) but an active improvement indicator. Recovery signals appear in the same visual hierarchy, same position in Layer 1, same visual salience as deterioration. The severity colour system includes a "Measurable Improvement" state as visually salient as "Rapid Decay."
+
+Anti-pattern: a page where all visual emphasis goes to deteriorating entries while stable or improving entries are grey/muted text at the bottom.
+
+### Additional Failure Modes
+
+**PED-004: CONFIDENCE-LEVEL VISUAL COLLISION** — two monitors use the same colour for different confidence meanings. Maintain and enforce the platform-wide colour-meaning registry.
+
+**PED-005: PROGRESSIVE DISCLOSURE COLLAPSE** — Layer 1 contains so much detail it reads like Layer 3. Test: can a non-specialist understand the top-of-page signal in 10 seconds without scrolling?
+
+**PED-006: CROSS-MONITOR JOURNEY DEAD END** — a cross-monitor link points to a monitor landing page, not the specific finding. All cross-monitor links must deep-link to the specific module section.
+
 ## End of Session Checklist
 
 Before closing:
