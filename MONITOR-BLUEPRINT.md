@@ -151,7 +151,7 @@ overrides. No layout rules. No component styles. No font-face declarations.
 CURRENT MONITOR PAINT VALUES:
 | Monitor                    | Accent    | Abbr  | Font override |
 |----------------------------|-----------|-------|---------------|
-| European Strategic Autonomy | #5b8db0  | EGHTM | none          |
+| European Strategic Autonomy | #5b8db0  | ESA | none          |
 | Democratic Integrity        | #61a5d2  | WDM   | none          |
 | Global Macro                | #22a0aa  | GMM   | none          |
 | AI Governance               | #3a7d5a  | AIG   | none          |
