@@ -295,3 +295,10 @@ gh api /repos/asym-intel/asym-intel-main/contents/HANDOFF.md --jq '.size'
 - New file pattern established (e.g. annual calibration convention) -> log it
 
 **HANDOFF.md:** auto-generated Monday by Housekeeping. Updated mid-week by "wrap".
+
+## ARCHITECTURE.md (MANDATORY for HTML/CSS/JS work)
+
+Read before any build work:
+  gh api /repos/asym-intel/asym-intel-main/contents/docs/ARCHITECTURE.md --jq '.content' | base64 -d
+
+Update it when new patterns or fixes are discovered. Never end a build session without checking if ARCHITECTURE.md should be updated.
