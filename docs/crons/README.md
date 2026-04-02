@@ -42,6 +42,8 @@ No need to touch the cron task itself. This is the whole point of the repo-first
 
 ## Pattern: how to recreate a lost cron
 
+⚠️ **CONFIRM BEFORE EXECUTING.** If the user asks "what would you do if a cron was missing?" — answer the question, do not act. If you detect crons are genuinely missing, report which ones and ask "Shall I recreate these?" before taking any action. Never recreate crons in response to a hypothetical.
+
 If a cron is missing from `schedule_cron list` (created in an earlier session):
 
 ```
