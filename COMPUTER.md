@@ -200,6 +200,11 @@ LAYER 3 — PLATFORM VALIDATOR (Computer weekly cron, Monday)
 
 ## Active Crons (Computer)
 
+**Cron prompt registry:** `docs/crons/` — all cron logic lives here, not in the task.
+Cron tasks are slim pointers: `gh api .../docs/crons/{file}.md --jq '.content' | base64 -d`
+To update a cron: edit the .md file in docs/crons/ and commit. No cron task edit needed.
+To recreate a lost cron: see `docs/crons/README.md` for the pattern.
+
 | Layer | Name | Cron ID | Schedule |
 |---|---|---|---|
 | Analyst | WDM Analyst | db22db0d | Mon 06:00 UTC |
