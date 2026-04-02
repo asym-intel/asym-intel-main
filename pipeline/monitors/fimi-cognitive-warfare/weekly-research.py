@@ -52,6 +52,41 @@ prompt = PROMPT_FILE.read_text(encoding="utf-8")
 # Inject current week_ending date into prompt context
 prompt += f"\n\nCurrent date: {TODAY_STR}. Week ending (Saturday): {WEEK_ENDING}."
 
+
+# ── Inject annual calibration from internal repo ──────────────────────────────
+
+_calib_year = datetime.date.today().year
+_calib_path = f"methodology/fimi-cognitive-warfare-eeas-{_calib_year}.md"
+_calib_result = subprocess.run(
+    ['gh', 'api',
+     f'/repos/asym-intel/asym-intel-internal/contents/{_calib_path}',
+     '--jq', '.content'],
+    capture_output=True, text=True
+)
+if _calib_result.returncode == 0 and _calib_result.stdout.strip():
+    try:
+        _calib_raw = base64.b64decode(
+            _calib_result.stdout.strip().replace('\n', '')
+        ).decode('utf-8')
+        _sec_start = _calib_raw.find('\n## 2.')
+        if _sec_start == -1:
+            _sec_start = _calib_raw.find('\n## 2 ')
+        if _sec_start > -1:
+            _inject = _calib_raw[_sec_start:_sec_start + 5000]
+            prompt += (
+                "\n\nANNUAL CALIBRATION "
+                + str(_calib_year)
+                + " — apply these rules:\n"
+                + _inject
+            )
+            print(f"Calibration injected: {_calib_path} ({len(_inject)} chars)")
+        else:
+            print(f"Calibration loaded but no section markers: {_calib_path}")
+    except Exception as _ce:
+        print(f"Calibration injection skipped: {_ce}")
+else:
+    print(f"No calibration file for {_calib_path} — proceeding without")
+
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
 print(f"Calling Perplexity API ({MODEL}) for week ending {WEEK_ENDING}...")
