@@ -125,6 +125,87 @@ surface: which pages are found, via which queries, and with what
 engagement patterns. These profiles will be updated as data accumulates.
 The first evidence-based revision is scheduled for Q1 2027.
 
+
+## Reader Profiles
+
+These are the audiences the platform is built for. They are assumed profiles —
+the platform has not been running long enough to validate them with behavioural
+data. GSC audience data will be reviewed quarterly (see Admin cron schedule)
+and these profiles updated as real usage patterns emerge.
+
+### Who arrives here
+
+**OSINT practitioners and intelligence analysts**
+Professionals who work with structured open-source data as part of their job.
+They arrive with domain knowledge and a high tolerance for methodological detail.
+They want raw signal density, explicit confidence levels, source traceability,
+and cross-monitor linkage. They are frustrated when dashboards obscure depth
+behind clean summaries. What they need to leave with: a precise, sourced signal
+on a specific domain or country, with enough methodology visible to calibrate
+their own confidence.
+
+**Lawyers, policy experts, and public officials**
+People who need to understand structural conditions in a domain for professional
+purposes — regulatory analysis, policy development, risk assessment. They have
+domain knowledge in their own field but may not be OSINT practitioners. They
+need the platform to be legible without being simplified. What they need to
+leave with: a clear picture of the current structural state in a domain and
+the trajectory — improving, stable, or deteriorating — with enough sourcing
+to cite in their own work.
+
+**Journalists**
+Covering democracy, geopolitics, financial risk, AI governance, or climate.
+They arrive when a story prompts a question about structural context: is this
+a one-off event or part of a pattern? They need the platform to answer that
+question quickly and unambiguously. They also need the sourcing to be
+independently verifiable. What they need to leave with: a clear structural
+signal and the ability to trace it to primary sources without relying on
+this platform as the sole reference.
+
+**Activist citizens**
+Engaged non-experts who follow democratic erosion, geopolitical risk, or
+environmental conditions because they care about outcomes, not because it
+is their profession. This is the hardest group to serve and the most
+important. They may arrive from a news story, a social media reference,
+or organic search. They do not know what V-Dem is. They may find the
+dashboard overwhelming on first contact. What they need to leave with:
+a feeling that the complex and often frightening macro picture has been
+made more legible — and, where the data supports it, the genuine
+reassurance that conditions are not as bad as media coverage implies,
+or that recovery is measurable and real. The platform must earn this
+trust through accuracy, not through optimism.
+
+### What the platform must never trade away for accessibility
+
+Legibility for non-experts is a design goal. It is not a licence to:
+- Simplify confidence levels into binary good/bad judgments
+- Suppress deterioration signals to avoid alarming readers
+- Inflate recovery signals to provide false reassurance
+- Drop source attribution in the name of clean presentation
+
+The activist citizen deserves the same evidentiary rigour as the OSINT
+practitioner. The difference is presentation, not standard.
+
+### The editorial firewall
+
+The monitors carry the data-first mission. Recovery signals are surfaced
+when the data supports them — not to reassure, but because a democracy
+monitor that only tracks decay is analytically incomplete. The monitors
+do not have preferred outcomes. They do not celebrate when a specific
+actor loses an election; they record the structural signal that results.
+
+Editorial voice, interpretation, and commentary live at compossible.blog
+and any other hosted publication. They do not live on the monitor pages.
+This firewall is a founding constraint, not a style choice.
+
+### Audience data protocol
+
+Until the platform has 12 months of GSC data, reader profiles are
+assumed, not evidenced. The quarterly GSC audit (see Admin cron) will
+surface: which pages are found, via which queries, and with what
+engagement patterns. These profiles will be updated as data accumulates.
+The first evidence-based revision is scheduled for Q1 2027.
+
 ## What We Are Not
 
 **Not journalism.** The platform does not break stories, conduct investigations, or interview sources. It analyses public data using structured methodology. The distinction matters: journalism tells you what happened; this platform tells you what the structured signal picture looks like and what the trajectory implies.
