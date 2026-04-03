@@ -223,6 +223,23 @@ for slug, full_name in MONITOR_FULL_NAMES.items():
         if 'asymmetric intelligence' not in _title.lower():
             warn(f"{slug}/{page}.html — title missing '· Asymmetric Intelligence' suffix: '{_title}'")
 
+
+# ── Check 17: Shared JS files pass node syntax check ──────────────────────────
+import subprocess as _sp
+print("Check 17: Shared JS files — node syntax check")
+_shared_js_dir = f"{MONITORS_DIR}/shared/js"
+if os.path.isdir(_shared_js_dir):
+    for _js_file in sorted(os.listdir(_shared_js_dir)):
+        if not _js_file.endswith('.js'):
+            continue
+        _js_path = os.path.join(_shared_js_dir, _js_file)
+        _r = _sp.run(['node', '--check', _js_path], capture_output=True, text=True)
+        if _r.returncode != 0:
+            _err = _r.stderr.strip().split('\n')[0] if _r.stderr.strip() else 'unknown error'
+            fail(f"shared/js/{_js_file} — node syntax error: {_err}")
+        else:
+            pass  # silent on pass
+
 # ── Summary ───────────────────────────────────────────────────────────────
 print()
 if warnings:
