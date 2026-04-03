@@ -532,3 +532,82 @@ REPORTING:
   Add any CHECK_21 WARN to the notification.
   If all checks pass AND HANDOFF.md committed: notification body includes
   "HANDOFF.md auto-generated. COMPUTER.md version current."
+
+STEP 10 — CHATTER QUALITY AUDIT (CHECK 22-28)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+For each monitor, fetch chatter-latest.json and check:
+
+```python
+import subprocess, base64, json
+from datetime import datetime, timezone
+
+MONITORS = {
+    'fimi-cognitive-warfare': 'FCW',
+    'macro-monitor': 'GMM',
+    'democratic-integrity': 'WDM',
+    'conflict-escalation': 'SCEM',
+    'european-strategic-autonomy': 'ESA',
+    'ai-governance': 'AGM',
+    'environmental-risks': 'ERM',
+}
+
+today = datetime.now(timezone.utc).date()
+issues = []
+
+for slug, abbr in MONITORS.items():
+    r = subprocess.run(['gh','api',
+        f'/repos/asym-intel/asym-intel-main/contents/static/monitors/{slug}/data/chatter-latest.json',
+        '--jq','.content'], capture_output=True, text=True)
+    if r.returncode != 0:
+        issues.append(f'CHECK_2{list(MONITORS.keys()).index(slug)+2}: WARN -- {abbr} chatter-latest.json missing')
+        continue
+
+    d = json.loads(base64.b64decode(r.stdout.strip()).decode('utf-8'))
+    meta = d.get('_meta', {})
+    items = d.get('items', [])
+
+    # Check 1: data_date recency (should be within 7 days)
+    data_date_str = meta.get('data_date', '')
+    if data_date_str:
+        data_date = datetime.strptime(data_date_str, '%Y-%m-%d').date()
+        age_days = (today - data_date).days
+        if age_days > 7:
+            issues.append(f'{abbr} chatter: WARN -- data_date is {age_days} days old ({data_date_str})')
+
+    # Check 2: item count (fewer than 3 = may be over-filtered)
+    if len(items) < 3:
+        issues.append(f'{abbr} chatter: WARN -- only {len(items)} items (prompt may be too restrictive)')
+
+    # Check 3: Tier distribution (>60% T3/T4 = quality concern)
+    if items:
+        low_tier = sum(1 for i in items if int(str(i.get('source_tier', 3))) >= 3)
+        pct = low_tier / len(items)
+        if pct > 0.6:
+            issues.append(f'{abbr} chatter: WARN -- {int(pct*100)}% Tier 3/4 sources ({low_tier}/{len(items)} items). Review prompt quality.')
+
+    # Check 4: Source bloat (same domain 3+ times)
+    from urllib.parse import urlparse
+    domains = []
+    for item in items:
+        url = item.get('source_url', '')
+        if url:
+            try:
+                domain = urlparse(url).netloc.replace('www.', '')
+                domains.append(domain)
+            except: pass
+    from collections import Counter
+    for domain, count in Counter(domains).items():
+        if count >= 3:
+            issues.append(f'{abbr} chatter: WARN -- domain {domain} appears {count}x (source bloat)')
+
+    print(f'CHECK: {abbr} chatter OK ({len(items)} items, data_date={data_date_str})')
+
+for issue in issues:
+    print(f'CHATTER_QUALITY: {issue}')
+```
+
+REPORTING:
+  Add any CHATTER_QUALITY WARN to the weekly notification.
+  No notification needed if all checks pass.
+
