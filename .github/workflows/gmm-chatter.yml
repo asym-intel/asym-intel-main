@@ -28,4 +28,5 @@ jobs:
           git add static/monitors/macro-monitor/data/chatter*.json
           git diff --staged --quiet && echo "No chatter output to commit" && exit 0
           git commit -m "data(gmm-chatter): daily signal — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
