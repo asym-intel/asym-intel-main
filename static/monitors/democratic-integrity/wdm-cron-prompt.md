@@ -58,7 +58,7 @@ if [ "$TODAY_DAY" != "$EXPECTED_DAY" ]; then
 fi
 
 # Check 2: UTC hour >= scheduled hour (avoid running before scheduled time)
-EXPECTED_HOUR=06
+EXPECTED_HOUR=6
 
 # ══════════════════════════════════════════════════════════════
 # STEP 0 — SCHEDULE SELF-REPORT (runs before publish guard)
