@@ -526,7 +526,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="delta-item__module">' + escHtml(item.module) + '</div>' +
               '<div class="delta-item__title">' + escHtml(item.title) + '</div>' +
               (item.one_line ? '<div class="delta-item__one-line">' + escHtml(item.one_line) + '</div>' : '') +
-              (item.source_url ? (item.source_url ? ' ' + AsymRenderer.sourceLink(item.source_url) : '')) +
+              (item.source_url ? ' ' + AsymRenderer.sourceLink(item.source_url) : '') +
             '</div>' +
           '</li>';
       });
@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>' +
           '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' + escHtml(flag.title || flag.signal || '') + '</div>' +
           '<div style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.5">' + escHtml(flag.detail || flag.body || flag.summary || '') + '</div>' +
-          (flag.source_url ? (flag.source_url ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '')) +
+          (flag.source_url ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '') +
         '</div>';
     });
     html += '</div>';
