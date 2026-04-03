@@ -907,7 +907,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<div class="wdm-popup-tier wdm-popup-tier--' + info.tier + '">' + escHtml(tierLabel(info.tier)) + '</div>' +
       '<div class="wdm-popup-row">Score: <strong>' + escHtml(info.severity_score) + '</strong> ' + escHtml(info.severity_arrow) + '</div>' +
       (signal ? '<div class="wdm-popup-signal">' + escHtml(signal) + (info.lead_signal && info.lead_signal.length > 100 ? '\u2026' : '') + '</div>' : '') +
-      (info.source_url ? (escHtml(info.source_url) ? ' ' + AsymRenderer.sourceLink(info.source_url) : ''));
+      (info.source_url ? (info.source_url ? ' ' + AsymRenderer.sourceLink(info.source_url) : ''));
 
     layer.bindPopup(popup, { maxWidth: 240, className: 'wdm-country-popup' });
 
@@ -1035,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>' +
           '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' + escHtml(flag.title || flag.signal || '') + '</div>' +
           '<div style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.5">' + escHtml(flag.detail || flag.body || flag.summary || '') + '</div>' +
-          (flag.source_url ? (escHtml(flag.source_url) ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '')) +
+          (flag.source_url ? (flag.source_url ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '')) +
         '</div>';
     });
     html += '</div>';
