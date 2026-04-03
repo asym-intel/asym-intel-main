@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 3.3 — 3 April 2026
+## Version 3.4 — 3 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -257,9 +257,11 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 | Analyst | SCEM Analyst | 8cdb83c8 | Sun 18:00 UTC |
 | Housekeeping | Platform Housekeeping | 7e058f57 | Mon 08:00 UTC |
 | Verification | SCEM verification | a67a9739 | Sun 5 Apr 18:30 UTC (one-shot) |
-| Guard | Staging divergence guard | aec126c5 | Daily ~18:00 UTC (silent unless behind_by > 30) |
 | Verification | WDM verification | 10ddf5f0 | Mon 6 Apr 06:30 UTC (one-shot) |
-| Quarterly | GSC audit | f78e0c2c | 1 Jan/Apr/Jul/Oct 09:00 UTC (background=false) |
+
+**DELETED CRONS (3 April 2026 — do not recreate):**
+- Staging divergence guard (aec126c5) — deleted. Wrap procedure catches unmerged staging. Daily runs wasted credits.
+- GSC quarterly audit (f78e0c2c) — deleted. GSC property not yet verified; audit was running against unverified property. Recreate after GSC DNS TXT record confirmed.
 
 ## Active GitHub Actions (external pipeline — NOT Computer crons)
 
@@ -428,6 +430,18 @@ When a session has been running for >90 minutes, note it in wrap:
 "Session is >90min — recommend deferring remaining subagent work to a fresh session."
 Do not launch complex multi-step subagents as the last act of a long session.
 
+### Minimum session size rule (efficiency)
+
+Do not open a Computer session for fewer than 3 queued tasks. The Step 0 loading
+cost (6 API calls to read governance files) is fixed overhead paid on every session
+regardless of how much work gets done. Amortise it over more work per session.
+
+Good session: 3–6 tasks batched, run in sequence, closed with wrap.
+Waste session: open session → check one thing → close. Use the Housekeeping
+notification system instead — silence means all-OK.
+
+Housekeeping cron sends a notification on any WARN or FAIL. Absence of notification
+means the platform is healthy. Do not open a session to verify health — trust the silence.
 
 ## Subagent Usage — Known Limits and Patterns
 
