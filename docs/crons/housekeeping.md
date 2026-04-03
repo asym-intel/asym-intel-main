@@ -1,15 +1,20 @@
 # TASK: Weekly Housekeeping — Asymmetric Intelligence Platform
 # CRON ID: fc210493
-# CADENCE: Every Monday at 06:00 UTC (after all monitor publishes)
+# CADENCE: Every Monday at 08:00 UTC (after all Monday publishes)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CRITICAL RULES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1. THIS TASK NEVER MODIFIES ANY FILE. Read-only audit only.
-2. Send notification ONLY on WARN or FAIL results.
-3. On all-OK: exit silently with no notification.
+1. THIS TASK NEVER MODIFIES ANY FILE except HANDOFF.md and intelligence-digest.json.
+2. Send notification ONLY on WARN or FAIL results, OR when digest flag count changes significantly.
+3. On all-OK: exit silently (except the digest write, which always runs).
 4. Use api_credentials=["github"] for all GitHub operations.
+
+NOTE: HTML structural checks (network bar, shared JS, offset styles, font sizes,
+search CSS) are enforced by the CI validator on every push. Housekeeping does NOT
+re-run those checks — CI is the canonical source. Only data integrity, schema
+freshness, and intelligence compilation are checked here.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 STEP 0 — DATE GUARD
@@ -40,83 +45,24 @@ STANDARD 8 PAGES: about, archive, dashboard, methodology, overview, persistent, 
 AGM EXTRA PAGE: digest.html
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CHECKS (run for every HTML page of every monitor)
+DATA CHECKS (run per monitor — JSON files only, not HTML)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-For each page, fetch content from:
-  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{MONITOR}/{PAGE}.html \
+For each monitor fetch report-latest.json and persistent-state.json from:
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{MONITOR}/data/{FILE} \
     --jq '.content' | base64 -d
 
-Run these checks:
-
-CHECK 1 — Network bar present
-  PASS: content contains 'data-asym-network-bar'
-  NOTE: Since Blueprint v2.1, nav.js auto-injects the network bar if absent.
-        This check verifies the JS is loading correctly by checking the
-        rendered marker. Flag WARN if absent (may indicate nav.js not loading).
-
-CHECK 2 — Inline offset style block absent (Blueprint v2.1+)
-  PASS: content does NOT contain 'padding-top:40px'
-  WARN: if inline offset style block is still present (should have been stripped)
-
-CHECK 3 — Shared JS files referenced
-  PASS: content contains 'shared/js/nav.js'
-  FAIL: if nav.js reference is missing (network bar won't auto-inject)
-
-CHECK 4 — Monitor CSS referenced
-  PASS: content contains 'assets/monitor.css'
-  WARN: if missing
-
-CHECK 5 — No dead script blocks after </html>
-  PASS: no content after closing </html> tag
-  WARN: if content found after </html> (browser silently ignores it)
-
-CHECK 6 — No future dates in meta published fields (data files only)
-  For each monitor, fetch data/report-latest.json and check:
-    meta.published date is <= today's UTC date
-  FAIL: if published date is in the future (Hugo will skip it)
+CHECK 6 — No future dates in meta published fields
+  FAIL: if meta.published date is in the future (Hugo will skip it)
 
 CHECK 7 — report-latest.json and persistent-state.json exist and are non-empty
-  For each monitor:
-    gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{MONITOR}/data/report-latest.json --jq '.size'
-    gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{MONITOR}/data/persistent-state.json --jq '.size'
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{MONITOR}/data/report-latest.json --jq '.size'
+  gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/{MONITOR}/data/persistent-state.json --jq '.size'
   FAIL: if either file is missing (404) or size < 100 bytes
 
-CHECK 8 — schema_version is "2.0" in all JSON files
-  PASS: meta.schema_version == "2.0" in report-latest.json
+CHECK 8 — schema_version is "2.0" in report-latest.json
+  PASS: meta.schema_version == "2.0"
   WARN: if schema_version is missing or != "2.0"
-
-CHECK 9 — No inline network bar HTML present (Blueprint v2.1+)
-  PASS: content does NOT contain '<nav data-asym-network-bar' as inline HTML
-  NOTE: The bar is now injected by nav.js — if it appears as static HTML,
-        the page has not been updated to Blueprint v2.1 and will render
-        a duplicate bar once nav.js also injects one.
-  WARN: if static network bar HTML found in page source
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-CHECK 10 — Staging branch is ahead of or equal to main
-  Run: gh api /repos/asym-intel/asym-intel-main/compare/main...staging --jq '.ahead_by'
-  WARN: if staging is 0 commits ahead of main AND recent commits to main were not from
-        github-actions[bot] (i.e. a human pushed HTML/CSS directly to main)
-
-
-CHECK 11 — No hardcoded font sizes below var(--text-min) in monitor HTML pages
-  For each monitor, fetch and scan all 8 HTML pages (dashboard, report, persistent,
-  overview, search, archive, about, methodology) for hardcoded font-size values below
-  0.8rem or below 13px:
-    grep -rE 'font-size:\s*(0\.[0-7][0-9]*rem|[0-9]+(px))' static/monitors/{slug}/*.html
-  WARN: if any match found. These should use var(--text-min) or var(--text-xs) instead.
-  Note: badge and tag font sizes are the most common offenders.
-  Reference: COMPUTER.md — TYPOGRAPHY FLOOR section.
-
-CHECK 12 — Inline search CSS not duplicated (should be in base.css only)
-  For each monitor's search.html, check that it does NOT contain a <style> block
-  with .search-wrap or .search-input-el. Use a two-step check:
-    grep -l '<style>' static/monitors/*/search.html | xargs grep -l 'search-wrap\|search-input-el'
-  WARN only if BOTH a <style> tag AND the class definition are present in the same file.
-  Using the class name in the HTML body (e.g. <div class="search-wrap">) is correct — do not flag.
-  WARN: if inline CSS definition of .search-wrap found inside a <style> block.
 
 RESULT FORMAT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -125,22 +71,6 @@ Compile results as:
   PASS  — check passed
   WARN  — non-critical issue (degraded experience, not broken)
   FAIL  — critical issue (broken functionality)
-
-If all 12 checks pass for all monitors: exit silently. No notification.
-
-If any WARN or FAIL:
-  Send notification with title: "Asym Intel — Housekeeping [DATE]: [N] issues"
-  Body: list each WARN/FAIL with monitor, page, check number, and description.
-  Format:
-    ⚠️  WARN  democratic-integrity/overview.html  — Check 2: inline offset styles still present
-    ❌  FAIL  macro-monitor — Check 7: persistent-state.json missing or empty
-    etc.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SCHEDULE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Cron: 0 8 * * 1 (every Monday at 08:00 UTC — after all Monday publishes)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CHECK 13 — SCHEMA REQUIREMENTS VALIDATION
@@ -208,16 +138,6 @@ FAIL: if any monitor's last publish is > 14 days ago (missed 2 cycles)
 WARN: if any monitor's last publish is > 8 days ago (missed 1 cycle)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-UPDATED RESULT FORMAT (15 checks)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-If checks 1–12 pass AND schema validation passes AND digest compiled:
-  Exit silently — no notification (digest write is the only output).
-
-If any WARN or FAIL across all 15 checks:
-  Send notification with title: "Asym Intel — Housekeeping [DATE]: [N] issues"
-  Body: list each WARN/FAIL with monitor, check number, and description.
-
 STEP 7 — VALIDATE TIER 0 DAILY FEEDER (FCW)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -256,7 +176,7 @@ fname = '${FILE}'
 
 # CHECK 16 — Schema version
 if meta.get('schema_version') != 'tier0-v1.0':
-    print(f'CHECK_16: FAIL [{fname}] — schema_version not tier0-v1.0, got: {meta.get("schema_version")}')
+    print(f'CHECK_16: FAIL [{fname}] — schema_version not tier0-v1.0, got: {meta.get(\"schema_version\")}')
 else:
     print(f'CHECK_16: PASS [{fname}] — schema_version ok')
 
@@ -274,19 +194,19 @@ for f in findings:
     if conf in ['High','Confirmed']:
         sources = f.get('research_traceback',{}).get('sources_cited',[])
         if len(sources) < 2:
-            print(f'CHECK_18: FAIL [{fname}] — {f["finding_id"]} is {conf} but has {len(sources)} source(s) in traceback (need 2+)')
+            print(f'CHECK_18: FAIL [{fname}] — {f[\"finding_id\"]} is {conf} but has {len(sources)} source(s) in traceback (need 2+)')
         else:
-            print(f'CHECK_18: PASS [{fname}] — {f["finding_id"]} ({conf}) has {len(sources)} sources')
+            print(f'CHECK_18: PASS [{fname}] — {f[\"finding_id\"]} ({conf}) has {len(sources)} sources')
 
 # CHECK 19 — episodic_flag=true requires episodic_reason
 for f in findings:
     if f.get('episodic_flag') and not (f.get('episodic_reason') or '').strip():
-        print(f'CHECK_19: WARN [{fname}] — {f["finding_id"]} has episodic_flag=true but no episodic_reason')
+        print(f'CHECK_19: WARN [{fname}] — {f[\"finding_id\"]} has episodic_flag=true but no episodic_reason')
 
 # CHECK 20 — campaign_status_candidate must be present on all findings
 for f in findings:
     if not f.get('campaign_status_candidate'):
-        print(f'CHECK_20: WARN [{fname}] — {f["finding_id"]} missing campaign_status_candidate')
+        print(f'CHECK_20: WARN [{fname}] — {f[\"finding_id\"]} missing campaign_status_candidate')
 
 if not findings:
     print(f'INFO [{fname}]: 0 findings — normal if no qualifying FIMI activity detected that day')
@@ -296,7 +216,7 @@ fi
 ```
 
 REPORTING:
-  Add any CHECK_16–CHECK_20 FAIL/WARN to the notification alongside CHECK_1–15.
+  Add any CHECK_16–CHECK_20 FAIL/WARN to the notification alongside CHECK_6–15.
   Update notification title count to include feeder check issues.
 
 STEP 8 — GENERATE HANDOFF.md
@@ -331,16 +251,6 @@ done
 # Recent notes-for-computer entries (last 60 lines)
 RECENT_NOTES=$(gh api /repos/asym-intel/asym-intel-internal/contents/notes-for-computer.md \
   --jq '.content' | base64 -d | tail -60)
-
-# Sprint 2B items (data-gated this week)
-SPRINT=$(gh api /repos/${REPO}/contents/docs/audits/sprint-programme.md \
-  --jq '.content' | base64 -d | python3 -c "
-import sys
-content = sys.stdin.read()
-start = content.find('## SPRINT 2B')
-end = content.find('## SPRINT 3')
-print(content[start:end].strip() if start > -1 else 'Sprint programme not found')
-" 2>/dev/null || echo "")
 
 # Write HANDOFF.md
 python3 << PYEOF
@@ -380,12 +290,6 @@ ${RECENT_NOTES}
 
 ---
 
-## Sprint 2B -- Data-Gated This Week
-
-${SPRINT}
-
----
-
 ## COMPUTER.md Version
 
 ${COMPUTER_VER}
@@ -399,7 +303,7 @@ ${COMPUTER_VER}
 - Staging required for all monitor HTML/CSS/JS changes
 - Two-pass commit mandatory for all 7 Analyst crons
 - Annual calibration files: {slug}-{index}-{YEAR}.md auto-discovered at Step 0B+
-- All 7 Analyst crons + Platform Validator in COMPUTER.md cron table
+- All 7 Analyst crons + Housekeeping in COMPUTER.md cron table
 """
 
 sha_r = subprocess.run(
@@ -431,7 +335,7 @@ PYEOF
 echo "STEP 8: HANDOFF.md generated and committed for ${TODAY}"
 ```
 
-STEP 9 -- CHECK COMPUTER.md VERSION CURRENCY (CHECK 21)
+STEP 9 — CHECK COMPUTER.md VERSION CURRENCY (CHECK 21)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ```bash
@@ -440,8 +344,6 @@ COMP_VER=$(gh api /repos/asym-intel/asym-intel-main/contents/COMPUTER.md \
 
 echo "CHECK_21: $COMP_VER"
 
-# Warn if version date appears older than current month
-CURRENT_MONTH=$(date -u +"%B %Y")
 CURRENT_YEAR=$(date -u +"%Y")
 
 echo "$COMP_VER" | grep -q "$CURRENT_YEAR" \
@@ -449,7 +351,6 @@ echo "$COMP_VER" | grep -q "$CURRENT_YEAR" \
   || echo "CHECK_21: WARN -- COMPUTER.md version may be stale. Verify it reflects current session state."
 ```
 
-
 STEP 10 — CHATTER QUALITY AUDIT (CHECK 22-28)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -477,7 +378,7 @@ for slug, abbr in MONITORS.items():
         f'/repos/asym-intel/asym-intel-main/contents/static/monitors/{slug}/data/chatter-latest.json',
         '--jq','.content'], capture_output=True, text=True)
     if r.returncode != 0:
-        issues.append(f'CHECK_2{list(MONITORS.keys()).index(slug)+2}: WARN -- {abbr} chatter-latest.json missing')
+        issues.append(f'{abbr} chatter: WARN -- chatter-latest.json missing')
         continue
 
     d = json.loads(base64.b64decode(r.stdout.strip()).decode('utf-8'))
@@ -505,6 +406,7 @@ for slug, abbr in MONITORS.items():
 
     # Check 4: Source bloat (same domain 3+ times)
     from urllib.parse import urlparse
+    from collections import Counter
     domains = []
     for item in items:
         url = item.get('source_url', '')
@@ -513,7 +415,6 @@ for slug, abbr in MONITORS.items():
                 domain = urlparse(url).netloc.replace('www.', '')
                 domains.append(domain)
             except: pass
-    from collections import Counter
     for domain, count in Counter(domains).items():
         if count >= 3:
             issues.append(f'{abbr} chatter: WARN -- domain {domain} appears {count}x (source bloat)')
@@ -526,88 +427,19 @@ for issue in issues:
 
 REPORTING:
   Add any CHATTER_QUALITY WARN to the weekly notification.
-  No notification needed if all checks pass.
+  No notification needed if all chatter checks pass.
 
-REPORTING:
-  Add any CHECK_21 WARN to the notification.
-  If all checks pass AND HANDOFF.md committed: notification body includes
-  "HANDOFF.md auto-generated. COMPUTER.md version current."
-
-STEP 10 — CHATTER QUALITY AUDIT (CHECK 22-28)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINAL RESULT FORMAT (all checks)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-For each monitor, fetch chatter-latest.json and check:
+If all data checks (6–21) pass AND chatter checks pass AND digest compiled:
+  Exit silently — no notification (digest write is the only output).
 
-```python
-import subprocess, base64, json
-from datetime import datetime, timezone
-
-MONITORS = {
-    'fimi-cognitive-warfare': 'FCW',
-    'macro-monitor': 'GMM',
-    'democratic-integrity': 'WDM',
-    'conflict-escalation': 'SCEM',
-    'european-strategic-autonomy': 'ESA',
-    'ai-governance': 'AGM',
-    'environmental-risks': 'ERM',
-}
-
-today = datetime.now(timezone.utc).date()
-issues = []
-
-for slug, abbr in MONITORS.items():
-    r = subprocess.run(['gh','api',
-        f'/repos/asym-intel/asym-intel-main/contents/static/monitors/{slug}/data/chatter-latest.json',
-        '--jq','.content'], capture_output=True, text=True)
-    if r.returncode != 0:
-        issues.append(f'CHECK_2{list(MONITORS.keys()).index(slug)+2}: WARN -- {abbr} chatter-latest.json missing')
-        continue
-
-    d = json.loads(base64.b64decode(r.stdout.strip()).decode('utf-8'))
-    meta = d.get('_meta', {})
-    items = d.get('items', [])
-
-    # Check 1: data_date recency (should be within 7 days)
-    data_date_str = meta.get('data_date', '')
-    if data_date_str:
-        data_date = datetime.strptime(data_date_str, '%Y-%m-%d').date()
-        age_days = (today - data_date).days
-        if age_days > 7:
-            issues.append(f'{abbr} chatter: WARN -- data_date is {age_days} days old ({data_date_str})')
-
-    # Check 2: item count (fewer than 3 = may be over-filtered)
-    if len(items) < 3:
-        issues.append(f'{abbr} chatter: WARN -- only {len(items)} items (prompt may be too restrictive)')
-
-    # Check 3: Tier distribution (>60% T3/T4 = quality concern)
-    if items:
-        low_tier = sum(1 for i in items if int(str(i.get('source_tier', 3))) >= 3)
-        pct = low_tier / len(items)
-        if pct > 0.6:
-            issues.append(f'{abbr} chatter: WARN -- {int(pct*100)}% Tier 3/4 sources ({low_tier}/{len(items)} items). Review prompt quality.')
-
-    # Check 4: Source bloat (same domain 3+ times)
-    from urllib.parse import urlparse
-    domains = []
-    for item in items:
-        url = item.get('source_url', '')
-        if url:
-            try:
-                domain = urlparse(url).netloc.replace('www.', '')
-                domains.append(domain)
-            except: pass
-    from collections import Counter
-    for domain, count in Counter(domains).items():
-        if count >= 3:
-            issues.append(f'{abbr} chatter: WARN -- domain {domain} appears {count}x (source bloat)')
-
-    print(f'CHECK: {abbr} chatter OK ({len(items)} items, data_date={data_date_str})')
-
-for issue in issues:
-    print(f'CHATTER_QUALITY: {issue}')
-```
-
-REPORTING:
-  Add any CHATTER_QUALITY WARN to the weekly notification.
-  No notification needed if all checks pass.
-
+If any WARN or FAIL across all checks:
+  Send notification with title: "Asym Intel — Housekeeping [DATE]: [N] issues"
+  Body: list each WARN/FAIL with monitor, check number, and description.
+  Format:
+    ⚠️  WARN  macro-monitor — Check 15: last published 10 days ago (missed cycle)
+    ❌  FAIL  democratic-integrity — Check 7: persistent-state.json missing or empty
+    etc.
