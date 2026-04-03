@@ -1,0 +1,39 @@
+name: ERM Collector — Tier 0 daily pre-verification
+
+on:
+  schedule:
+    - cron: "0 7 * * *"    # 07:00 UTC daily — runs before FCW Analyst (Thu 09:00 UTC)
+  workflow_dispatch:        # allow manual trigger from Actions tab for testing
+
+jobs:
+  collect:
+    name: ERM Tier 0 Collection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # required to commit pipeline/ output back to repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run FCW Collector
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/environmental-risks/collect.py
+
+      - name: Commit Collector output
+        run: |
+          git config user.name  "ERM Collector Bot"
+          git config user.email "erm-collector@asym-intel.info"
+          git add pipeline/monitors/environmental-risks/daily/
+          git diff --staged --quiet && echo "No new findings to commit" && exit 0
+          git commit -m "data(erm-collector): Tier 0 daily pre-verification — $(date -u +%Y-%m-%d)"
+          git push
