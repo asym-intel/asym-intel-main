@@ -2,7 +2,7 @@
 ## Platform Experience Designer — Accumulated Decisions
 **Owner:** Platform Experience Designer
 **Created:** April 2026
-**Updated:** 2026-04-03 — PED Session 1 (first-session knowhow dump)
+**Updated:** 2026-04-03 — PED Session 1 (first-session knowhow dump + WDM audit)
 
 This is the persistent memory of the Platform Experience Designer role.
 It accumulates design principles, per-monitor decisions, cross-monitor standards,
@@ -293,7 +293,34 @@ vocabulary.
 **Status:** No PED changes implemented yet.
 
 ### WDM (democratic-integrity)
-Not yet reviewed in PED. Audit pending — PED Session 2.
+**Audited:** PED Session 1 (2026-04-03) — live dashboard review.
+
+**Nav/heading mismatches (minor — 4 found):**
+- "Overview" → eyebrow label reads "GLOBAL DEMOCRATIC HEALTH — THIS ISSUE" (loose match; acceptable)
+- "Most Severe" → heading reads "Most Severe — Rapid Decay"
+- "Severity Ranking" → heading reads "Country Severity Ranking"
+- "Cross-Monitor" → heading reads "Cross-Monitor Flags"
+
+**Orphaned sections:** None — all visible sections have nav entries. ✅
+
+**Signal panel contrast:** PASS. White text on dark teal background — no contrast failure.
+Secondary "Read the top story ↓" link is muted but readable. No violation of Principle 5. ✅
+
+**Source attribution:** PASS. Sources are inline hyperlinks within body text prose — not
+separate "Source →" block elements. WDM is ahead of other monitors on this standard. ✅
+
+**60-second test:** PASS. Lead finding visible above fold in KPI strip. Lead signal panel
+(dark teal block) delivers the headline democratic story in one readable paragraph.
+Non-specialist can grasp the top finding without scrolling.
+
+**Minor issues:**
+- Country cards in "Most Severe" show truncated body text at ~12–13px — tight but acceptable for card format
+- "WDM" abbreviation in page eyebrow may not be immediately clear to a first-time reader
+- No scroll-spy active state on right-hand nav during scroll (may not be implemented)
+- Loading flash on "Most Severe" and hero area before JS hydration — cosmetic, resolves quickly
+
+**Status:** No PED changes required this session. Minor nav label fixes can be batched
+with a future pass across all monitors.
 
 ### AGM (ai-governance)
 Not yet reviewed in PED. Audit pending — PED Session 2.
