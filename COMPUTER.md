@@ -267,16 +267,16 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 
 | Monitor | Workflow | Schedule | Model |
 |---|---|---|---|
-| WDM | wdm-collector.yml | Daily 07:00 UTC | sonar |
+| WDM | wdm-collector.yml | Mon/Wed/Fri 07:00 UTC | sonar |
 | WDM | wdm-weekly-research.yml | Sun 18:00 UTC | sonar-pro |
 | WDM | wdm-reasoner.yml | Sun 20:00 UTC | sonar-deep-research |
-| FCW | fcw-collector.yml | Daily 07:00 UTC | sonar |
+| FCW | fcw-collector.yml | Mon/Wed/Fri 07:00 UTC | sonar |
 | FCW | fcw-weekly-research.yml | Wed 18:00 UTC | sonar-pro |
 | FCW | fcw-reasoner.yml | Wed 20:00 UTC | sonar-deep-research |
-| GMM | gmm-collector.yml | Daily 06:00 UTC | sonar |
+| GMM | gmm-collector.yml | Mon/Wed/Fri 06:00 UTC | sonar |
 | GMM | gmm-weekly-research.yml | Mon 18:00 UTC | sonar-pro |
 | GMM | gmm-reasoner.yml | Mon 20:00 UTC | sonar-deep-research |
-| SCEM | scem-collector.yml | Daily 06:00 UTC | sonar |
+| SCEM | scem-collector.yml | Mon/Wed/Fri 06:00 UTC | sonar |
 | SCEM | scem-weekly-research.yml | Sat 18:00 UTC | sonar-pro |
 | SCEM | scem-reasoner.yml | Sat 20:00 UTC | sonar-deep-research |
 
@@ -494,3 +494,9 @@ Read before any build work:
   gh api /repos/asym-intel/asym-intel-main/contents/docs/ARCHITECTURE.md --jq '.content' | base64 -d
 
 Update it when new patterns or fixes are discovered. Never end a build session without checking if ARCHITECTURE.md should be updated.
+
+## Efficiency Configuration (2026-04-03)
+- Collectors: Mon/Wed/Fri 07:00 UTC (was daily)
+- Chatter: Mon/Wed/Fri 06:00 UTC (was daily)
+- Test workflows (gmm-weekly-test, scem-daily-test): scheduled trigger disabled
+- Target: ≤6,000 Computer credits/month, ≤$25 API/month
