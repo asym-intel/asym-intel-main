@@ -1,5 +1,5 @@
 /* ============================================================
-   Asymmetric Intelligence Monitor — nav.js  v1.1
+   Asymmetric Intelligence Monitor — nav.js  v1.2
    Intersection Observer scroll-spy for .module-section[id]
    Updates active state on .monitor-nav a, .monitor-sidebar a,
    and .module-nav-strip a matching href="#id".
@@ -80,7 +80,59 @@
   // Run immediately so bar appears before any other paint
   injectNetworkBar();
 
+
+  /* ── Monitor Nav Injection ───────────────────────────────────
+     Derives current monitor slug and page from the URL path.
+     Replaces .monitor-nav__links contents with the canonical
+     9-link set. Adding a new page = one line here, zero HTML.
+     ──────────────────────────────────────────────────────────── */
+  var MONITOR_NAV_LINKS = [
+    { href: 'overview.html',    label: 'Overview'        },
+    { href: 'chatter.html',     label: 'Chatter'         },
+    { href: 'dashboard.html',   label: 'Dashboard'       },
+    { href: 'report.html',      label: 'Latest Issue'    },
+    { href: 'archive.html',     label: 'Archive'         },
+    { href: 'persistent.html',  label: 'Living Knowledge'},
+    { href: 'search.html',      label: 'Search'          },
+    { href: 'about.html',       label: 'About'           },
+    { href: 'methodology.html', label: 'Methodology'     },
+  ];
+
+  function injectMonitorNav() {
+    var ul = document.querySelector('.monitor-nav__links');
+    if (!ul) return;
+
+    // Derive current page filename from URL
+    var pathname = window.location.pathname;
+    var currentPage = pathname.split('/').pop() || '';
+    // Strip query/hash
+    currentPage = currentPage.split('?')[0].split('#')[0];
+
+    // Build canonical li list
+    var html = '';
+    MONITOR_NAV_LINKS.forEach(function (link) {
+      var isActive = (link.href === currentPage);
+      html += '<li><a href="' + link.href + '"' +
+        (isActive ? ' class="active"' : '') +
+        '>' + link.label + '</a></li>';
+    });
+
+    ul.innerHTML = html;
+
+    // Re-wire hamburger click-to-close on the new anchors
+    var hamburger = document.querySelector('.monitor-nav__hamburger');
+    if (hamburger) {
+      ul.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          ul.classList.remove('monitor-nav__links--open');
+          hamburger.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+  }
+
   function init() {
+    injectMonitorNav();
     setupScrollSpy();
     setupHamburger();
     setupSiteNavHamburger();
