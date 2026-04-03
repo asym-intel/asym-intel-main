@@ -324,7 +324,8 @@ When you say "wrap", Computer:
    "Staging has N files ready. Do you want to merge before closing?"
    If yes: open PR staging → main and merge immediately.
    Never leave the day with an unreviewed staging branch unless Peter explicitly defers.
-6. Confirms all done before ending
+6. **Update next-session.md** — overwrite `docs/prompts/next-session.md` with the highest-priority prompt for the next session. This is the slim bootloader. Peter starts every session with "Computer: asym-intel.info" — the instance reads this file at Step 0 and knows exactly what to do. Do NOT recite this prompt back to Peter at wrap. Do NOT paste it into the conversation. Write it to the file and confirm done. One line to Peter: "next-session.md updated — start next session with: Computer: asym-intel.info"
+7. Confirms all done before ending
 
 ### New governance files — mandatory wiring rule
 When any new persistent reference file is created (e.g. ROADMAP.md, a new methodology doc,
