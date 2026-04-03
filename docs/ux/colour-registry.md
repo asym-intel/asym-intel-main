@@ -2,105 +2,150 @@
 ## Platform Colour-Meaning Registry
 **Owner:** Platform Experience Designer
 **Created:** 2026-04-03 — PED Session 1
-**Status:** v1.0 — initial registry from CSS audit + live page observation
+**Status:** v1.0 — initial registry from CSS audit + live page observation (4 of 7 monitors)
 
 This is the single source of truth for what every colour means across all 7 monitors.
 No colour may carry contradictory analytical meaning across monitors.
 A new colour encoding may not be implemented without first checking this registry.
 
+**Coverage:** GMM, FCW, ESA, SCEM observed. WDM, AGM, ERM pending PED Session 2.
+
 ---
 
 ## 1. Severity / Regime System (platform-wide)
 
-These colours carry severity/regime meaning across ALL monitors.
+These colours carry severity meaning across ALL monitors.
 Any use of these colours MUST align with the meaning defined here.
+Using them for any other purpose (confidence levels, monitor identity, status flags)
+creates analytical ambiguity.
 
-| CSS Token | Hex | Meaning | Do NOT use for |
+| CSS Token | Hex | Meaning | Badge classes |
 |---|---|---|---|
-| --critical | #c1440e | Critical / Rapid Decay / Highest severity | Confidence levels |
-| --high | #d97706 | High / Elevated / Watchlist | Confidence levels |
-| --moderate | #2563eb | Moderate / Stable | Confidence levels |
-| --positive | #059669 | Positive / Recovery / Improving | General success states |
-| --contested | #6366f1 | Contested / Uncertain | Severity levels |
+| `--critical` | #c1440e | Critical / Rapid Decay / Highest severity | `.severity-badge--critical`, `.severity-badge--rapid-decay` |
+| `--high` | #d97706 | High / Elevated / Watchlist | `.severity-badge--high`, `.severity-badge--watchlist` |
+| `--moderate` | #2563eb | Moderate / Stable | `.severity-badge--moderate` |
+| `--positive` | #059669 | Positive / Recovery / Improving | `.severity-badge--positive`, `.severity-badge--recovery` |
+| `--contested` | #6366f1 | Contested / Uncertain | `.severity-badge--contested` |
 
-**Severity badge class → colour mapping:**
-- `.severity-badge--critical`, `.severity-badge--rapid-decay` → --critical
-- `.severity-badge--high`, `.severity-badge--watchlist` → --high
-- `.severity-badge--moderate` → --moderate
-- `.severity-badge--positive`, `.severity-badge--recovery` → --positive
-- `.severity-badge--contested` → --contested
+Each token has a `--{name}-bg` counterpart at 8–10% alpha (light mode), 12–15% (dark mode).
+Use `--{name}-bg` as background + `--{name}` as text — always paired, never mixed.
 
 ---
 
 ## 2. Monitor Accent Colours
 
-Each monitor has a unique accent colour for visual identity.
-Accent colours carry monitor identity meaning ONLY — they do not carry severity or confidence meaning.
+Each monitor has a unique accent colour for visual identity only.
+Accent colours carry monitor identity meaning — NOT severity, NOT confidence, NOT status.
 
-| Monitor | Accent Hex | Usage |
-|---|---|---|
-| WDM (democratic-integrity) | #61a5d2 | Borders, links, panel tints |
-| GMM (macro-monitor) | #22a0aa | Borders, links, panel tints |
-| FCW (fimi-cognitive-warfare) | #38bdf8 | Borders, links, panel tints |
-| ESA (european-strategic-autonomy) | #5b8db0 | Borders, links, panel tints |
-| AGM (ai-governance) | #3a7d5a | Borders, links, panel tints |
-| ERM (environmental-risks) | #4caf7d | Borders, links, panel tints |
-| SCEM (conflict-escalation) | #dc2626 | Borders, links, panel tints |
+| Monitor | Slug | Accent Hex | Dark mode accent |
+|---|---|---|---|
+| WDM | democratic-integrity | #61a5d2 | (inherits via --monitor-accent-dark) |
+| GMM | macro-monitor | #22a0aa | (inherits) |
+| FCW | fimi-cognitive-warfare | #38bdf8 | (inherits) |
+| ESA | european-strategic-autonomy | #5b8db0 | (inherits) |
+| AGM | ai-governance | #3a7d5a | (inherits) |
+| ERM | environmental-risks | #4caf7d | (inherits) |
+| SCEM | conflict-escalation | #dc2626 | (inherits) |
 
-**⚠️ COLLISION RISK — AGM (#3a7d5a) and ERM (#4caf7d):**
-Both are green-family. In cross-monitor contexts (compound signal indicators, cross-monitor landing page), these may be indistinguishable. Do not render AGM and ERM signals side by side using accent colour alone — add monitor label.
+### Permitted accent uses
+- Borders, link colours, focus rings
+- Light tint backgrounds (via `--monitor-accent-bg` at 10–12% alpha)
+- Section nav active state
+- Monitor identity chips and labels
 
-**⚠️ COLLISION RISK — SCEM accent (#dc2626) and --critical severity:**
-SCEM uses the same red family as the platform severity "critical" token (#dc2626 vs #c1440e — both dark red). In cross-monitor contexts, a critical-severity finding on SCEM renders nearly identically to SCEM's monitor identity colour. Is the red SCEM identity, or SCEM-critical? Document and raise with Peter (see decisions.md Section 4, Q8).
-
----
-
-## 3. Confidence Level Encoding
-
-**Vocabulary (confirmed — from methodology):**
-Confirmed / High / Assessed / Possible — in descending order of certainty.
-
-**Current implementation (COLLISION — unresolved):**
-FCW uses `.severity-badge--high` (amber/--high) for confidence badges (e.g. "CONFIRMED").
-This creates a collision: amber = severity HIGH = confidence CONFIRMED. These are different analytical dimensions.
-
-**Required fix (pending Peter approval):**
-Create a separate `.confidence-badge` class with distinct visual treatment:
-- Uses a different shape or icon from severity badges (to distinguish by form, not just colour)
-- Uses a distinct colour family not in the severity system
-- Possible treatment: border-only badge (outline style) vs filled severity badge
-- DO NOT implement without Peter sign-off on the visual treatment
-
-**Interim rule:** Until resolved, document the collision. Do not extend the amber/severity treatment to additional confidence labels.
+### Prohibited accent uses
+- Solid panel backgrounds unless ALL text on the panel is white/near-white (see §4)
+- Encoding severity or confidence information
+- Text colour on any accent-coloured background
 
 ---
 
-## 4. Signal Panel Text Rule (CRITICAL)
+## 3. Collision Warnings
 
-**Rule:** When `--monitor-accent` is used as a **solid panel background** (not a tint/rgba), ALL text on that panel must be white (≥#f0f0f0) or near-white.
+### ⚠️ SCEM accent = --critical
+SCEM accent (#dc2626) is identical to the platform `--critical` severity token.
+In cross-monitor contexts (compound signal indicator, cross-monitor landing page),
+a red element is ambiguous: SCEM monitor identity, or platform-level CRITICAL severity?
+
+**Current status:** Unresolved — pending Peter decision (decisions.md Q8).
+**Interim rule:** In cross-monitor layouts, always pair SCEM red with the monitor label
+("Strategic Conflict & Escalation") — never rely on colour alone to identify the monitor.
+Never use SCEM accent to communicate severity level independently of the monitor label.
+
+### ⚠️ AGM (#3a7d5a) and ERM (#4caf7d) — green family collision risk
+Both monitors use green-family accents. In side-by-side cross-monitor contexts they may
+be visually indistinguishable, especially in peripheral vision or for colour-blind readers.
+
+**Interim rule:** In any layout where AGM and ERM appear side by side (cross-monitor
+landing page, compound signal indicator), always pair accent colour with monitor label.
+Never rely on the two greens being distinguishable by colour alone.
+
+### ⚠️ Confidence badge / severity badge collision — ACTIVE
+FCW uses `.severity-badge--high` (amber, `--high`) for confidence-level labels (e.g. "CONFIRMED").
+This means amber simultaneously means severity HIGH and confidence CONFIRMED.
+
+**Current status:** Unresolved — pending Peter decision (decisions.md Q4).
+**Interim rule:** Do not extend this pattern to any additional monitors or any new
+confidence-level badges until the collision is resolved with a dedicated confidence
+badge class.
+
+---
+
+## 4. Signal Panel Text Rule
+
+**Rule:** When `--monitor-accent` is used as a **solid** panel background (not a tint),
+all text on that panel must meet these minimums:
+
+| Text role | Minimum value |
+|---|---|
+| Primary body text | `#ffffff` or `rgba(255,255,255,0.9)` |
+| Secondary / deemphasised text | `rgba(255,255,255,0.72)` |
+| Links and CTAs on panel | `rgba(255,255,255,0.85)` |
 
 **Never use on a solid accent background:**
-- The accent colour itself as a text colour
+- The accent colour itself (near-collision)
 - A lighter or darker shade of the accent
-- The muted text tokens (--color-text-muted, --color-text-faint)
+- `--color-text-muted` or `--color-text-faint` (calibrated for page background, not accent)
 
-**Observed violations:**
-- FCW Lead Signal panel: secondary paragraph in muted teal on teal background (SCREENSHOT CONFIRMED)
-- GMM signal block: "One number to watch" sub-block in lighter teal on teal
-- SCEM Lead Signal panel: secondary text in pink-tinted tone on dark red background
+### Confirmed violations (PED Session 1)
 
-**Correct pattern:**
-- Panel background: solid `--monitor-accent`
-- All text: `#ffffff` or `rgba(255,255,255,0.9)` minimum
-- Deemphasised secondary text: `rgba(255,255,255,0.75)` minimum (not accent-derived)
+| Monitor | Element | Issue | Status |
+|---|---|---|---|
+| FCW | Lead Signal panel secondary text ("MF1 alert:...") | Dark teal on mid-teal — est. ~2:1 contrast | ❌ Unimplemented |
+| GMM | "One number to watch" sub-block | Lighter teal on dark teal | ❌ Unimplemented |
+| GMM | "Read the top story ↓" CTA | Muted teal on dark teal | ❌ Unimplemented |
+| SCEM | Lead Signal panel secondary text | Pink-tinted on dark red | ❌ Unimplemented |
+
+WDM, ESA, AGM, ERM signal panels: not yet audited.
 
 ---
 
-## 5. Pending Registry Items
+## 5. Confidence Level Encoding
 
-The following monitors were not observed in PED Session 1:
-- WDM (democratic-integrity) — audit pending
-- AGM (ai-governance) — audit pending
-- ERM (environmental-risks) — audit pending
+**Vocabulary (confirmed — from methodology):**
+Confirmed / High / Assessed / Possible (descending certainty)
 
-These must be audited in PED Session 2 before any cross-monitor colour encoding work begins.
+**Visual encoding: NOT YET ESTABLISHED**
+Current implementation is a collision with the severity system (see §3).
+A dedicated confidence badge class must be designed and approved by Peter before
+any new confidence-level badges are implemented.
+
+Candidate approaches (for Peter decision):
+- Outline/border style badge vs filled severity badge (distinguishes by form, not colour)
+- Separate colour token family not in the severity system
+- Icon + label (no colour encoding for confidence)
+
+---
+
+## 6. Pending Registry Items
+
+These monitors were not observed in PED Session 1 and may have undocumented colour usage:
+
+| Monitor | Status |
+|---|---|
+| WDM (democratic-integrity) | Audit pending — PED Session 2 |
+| AGM (ai-governance) | Audit pending — PED Session 2 |
+| ERM (environmental-risks) | Audit pending — PED Session 2 |
+
+No new colour encoding may be introduced to these monitors without first completing
+the audit and updating this registry.
