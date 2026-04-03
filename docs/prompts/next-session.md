@@ -17,7 +17,14 @@ before starting.
 First: surface Peter's open decisions before any implementation.
 Check decisions.md Section 4 — Q4, Q6, Q7, Q8 still need answers.
 
-VERIFY LIVE BEFORE STARTING:
+VERIFY LIVE BEFORE STARTING (do all three):
+1. curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
+   → Should show v1.3
+2. Screenshot https://asym-intel.info/monitors/democratic-integrity/dashboard.html
+   → Must NOT show "Failed to load data." or "Loading..." in any section
+3. Screenshot https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html
+   → Same check
+If any fail: check for double-ternary patterns (notes-for-computer.md postmortem) then workflow_dispatch + CF purge.
 curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
 Should show v1.3. If not: workflow_dispatch build.yml, then purge-all-files CF.
 
