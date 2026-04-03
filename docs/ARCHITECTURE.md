@@ -196,6 +196,37 @@ These pages use the shared monitor library (`shared/css/base.css`,
 by `nav.js` at runtime — it is **not** in the HTML source.
 **Edit `static/monitors/{slug}/*.html` directly.**
 
+### Shared module principle — fix once, propagates everywhere
+
+Any feature that appears on more than one monitor page belongs in the shared
+library, not in per-page HTML. This is the single most important architectural
+rule for the static monitor system.
+
+**Canonical shared modules (as of nav.js v1.3):**
+
+| Feature | Location | What it does |
+|---|---|---|
+| Network bar | `nav.js` → `injectNetworkBar()` | Black top bar, injected before paint |
+| Monitor nav links | `nav.js` → `injectMonitorNav()` | Canonical 9-link nav, active state from URL |
+| Monitor brand | `nav.js` → `injectMonitorBrand()` | Logo SVG + name + `--monitor-accent` CSS token |
+| Theme toggle button | `nav.js` → `injectThemeToggle()` | Sun/moon toggle, idempotent |
+| Monitor footer | `nav.js` → `injectMonitorFooter()` | Canonical footer markup |
+| Monitor identity registry | `nav.js` → `MONITOR_REGISTRY` | Slug → accent, SVG, name, abbr |
+| Nav link canonical list | `nav.js` → `MONITOR_NAV_LINKS` | 9 links in order |
+
+**Rule: if you find a bug on one page that affects all pages of the same type,
+the fix goes in the shared module, not in the HTML file.**
+
+**What still lives in per-page HTML (intentionally):**
+- Page-specific `<title>` and `<meta description>` (SEO, differs per page)
+- Page-specific `<style>` blocks (component CSS for that page only)
+- Page-specific JS (data fetching, rendering logic)
+- The `<nav class="monitor-nav">` stub with `.monitor-nav__brand`, `.monitor-nav__links`, `.monitor-nav__actions` — nav.js populates these at runtime
+
+**Adding a new nav page:** add one entry to `MONITOR_NAV_LINKS` in `nav.js`. Zero HTML edits.
+**Adding a new monitor:** add one entry to `MONITOR_REGISTRY` in `nav.js`. Zero HTML edits.
+**Changing the footer:** edit `injectMonitorFooter()` in `nav.js`. Propagates to all 63 pages.
+
 ### How to tell which system a page uses
 
 Look at the URL:
