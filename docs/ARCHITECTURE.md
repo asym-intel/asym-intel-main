@@ -215,6 +215,8 @@ rule for the static monitor system.
 | Nav link canonical list | `nav.js` → `MONITOR_NAV_LINKS` | 9 links in order |
 | Chatter page renderer | `shared/js/chatter.js` | Full render logic, derives slug from URL |
 | Search page engine | `shared/js/search.js` | Full-text search across all issues |
+| Chatter page renderer | `shared/js/chatter.js` | Full render logic, derives slug from URL |
+| Search page engine | `shared/js/search.js` | Full-text search across all issues |
 
 **Rule: if you find a bug on one page that affects all pages of the same type,
 the fix goes in the shared module, not in the HTML file.**
