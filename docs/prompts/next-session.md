@@ -1,5 +1,5 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 session wrap (~09:10 CEST)
+**Updated:** 2026-04-03 efficiency sprint wrap (~11:30 CEST)
 
 > **Bootloader:** Say "Computer: asym-intel.info" to the next instance.
 
@@ -12,60 +12,49 @@ Load the asym-intel skill first. Read COMPUTER.md, HANDOFF.md,
 notes-for-computer.md, docs/ARCHITECTURE.md, and docs/ROADMAP.md
 before starting.
 
---- SESSION: PED Sprint 2 + ESA/AGM/ERM pipeline completion ---
+--- SESSION: ESA/AGM/ERM pipelines + PED Sprint 2 ---
 
-First: surface Peter's open decisions before any implementation.
-Check decisions.md Section 4 — Q4, Q6, Q7, Q8 still need answers.
-
-VERIFY LIVE BEFORE STARTING (do all three):
-1. curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
-   → Should show v1.3
-2. Screenshot https://asym-intel.info/monitors/democratic-integrity/dashboard.html
-   → Must NOT show "Failed to load data." or "Loading..." in any section
-3. Screenshot https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html
-   → Same check
-If any fail: check for double-ternary patterns (notes-for-computer.md postmortem) then workflow_dispatch + CF purge.
+VERIFY LIVE BEFORE STARTING:
 curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
-Should show v1.3. If not: workflow_dispatch build.yml, then purge-all-files CF.
+→ Should show v1.3. If not: workflow_dispatch build.yml → CF purge-all-files.
 
 Priority queue:
 
 1. ESA/AGM/ERM weekly-research + reasoner workflows
-   Pattern in: .github/workflows/fcw-weekly-research.yml + fcw-reasoner.yml
-   Need for: european-strategic-autonomy, ai-governance, environmental-risks
+   Pattern: .github/workflows/fcw-weekly-research.yml + fcw-reasoner.yml
+   Apply to: european-strategic-autonomy, ai-governance, environmental-risks
    Also update their analyst cron prompts with Steps 0C/0D/0E
 
-2. Remaining Source → patterns (minor cleanup)
-   FCW dashboard (1), WDM dashboard (1), SCEM dashboard (1) — bespoke inline styles
-   Check: grep "Source →" in each file, fix manually
+2. PED Sprint 2 — surface Peter's open decisions FIRST
+   Read docs/ux/decisions.md Section 4 — Q4, Q6, Q7, Q8 need answers before any build.
+   If decisions available: run sprint (AGM+ERM audit, ESA mobile test, signal contrast, badge font)
 
-3. PED Sprint 2 (read docs/ux/decisions.md + docs/ux/colour-registry.md first)
-   - AGM + ERM dashboard audit (last 2 unreviewed)
-   - ESA mobile test — 375px #section-delta font
-   - Signal panel contrast fix — GMM + SCEM (extend FCW Principle 5)
-   - Severity badge font size — 0.6rem → --text-xs in base.css
+3. Source → pattern cleanup (minor)
+   FCW dashboard (1), WDM dashboard (1), SCEM dashboard (1)
+   grep "Source →" in each static/monitors/{slug}/dashboard.html, fix inline
 
 4. GMM/ESA annual calibration files
-   - macro-monitor-imf-2026.md (IMF WEO April 2026 data)
-   - european-strategic-autonomy-ecfr-2026.md
+   macro-monitor-imf-2026.md (IMF WEO April 2026 data)
+   european-strategic-autonomy-ecfr-2026.md
+
+EFFICIENCY REMINDER (new rule in COMPUTER.md v3.4):
+- Batch 3+ tasks per session. Step 0 loading is fixed overhead — amortise it.
+- Housekeeping notifies on any issue. Silence = healthy. Don't open a session to verify health.
 
 DEPLOYMENT REMINDER:
 After any shared JS/CSS change → verify live (Cache-Control: no-store) → if stale: workflow_dispatch + CF purge-all.
 CF Zone ID: cc419b7519eba04ef0dc6a7b851930c7
 ```
 
-## Previous session completed
-- ✅ nav.js v1.3 — MONITOR_REGISTRY, 4 injection functions, shared module principle
-- ✅ Deployment pipeline fixed — deploy-pages job, .nojekyll, force push
-- ✅ renderer.js sourceLabel/sourceLink — 80+ domain map
-- ✅ PR #32 — canonical 9-link nav across all 53 monitor pages
-- ✅ Homepage 3-column layout — chatter right panel >1280px
-- ✅ Chatter 7/7 — all monitors with 10 items, daily workflows running
-- ✅ ESA/AGM/ERM daily collectors built
-- ✅ Delta section headings canonical ("Top Items This Issue" across 6 monitors)
-- ✅ ARCHITECTURE.md — deployment runbook + shared module principle documented
+## Previous session completed (efficiency sprint — 3 Apr)
+- ✅ Staging guard cron deleted (aec126c5)
+- ✅ GSC audit cron deleted (f78e0c2c) — recreate after GSC DNS TXT verified
+- ✅ Housekeeping slimmed — HTML structural checks stripped, ~50% fewer steps
+- ✅ COMPUTER.md v3.4 — min session size rule added
+- ✅ docs/monitors/_shared/ artefact deleted
+- ✅ CRON-001 docs/ copies fixed for AGM/WDM/FCW/GMM
 
 ## Peter action required
-- ⚠️ Q4/Q6/Q7/Q8 in decisions.md
+- ⚠️ Q4/Q6/Q7/Q8 in decisions.md (gates PED Sprint 2)
 - ⚠️ Branch protection on main (SEC-009)
-- ⚠️ GSC property verification
+- ⚠️ GSC DNS TXT record verification
