@@ -1,7 +1,7 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 session wrap (~03:00 CEST) — PED Session 1 full
+**Updated:** 2026-04-03 session wrap (~03:15 CEST) — PED Session 1 + PVE role creation
 
-> **Bootloader:** Say "Load asym-intel" or "Computer: asym-intel.info" to the next instance.
+> **Bootloader:** Say "Computer: asym-intel.info" to the next instance.
 > It reads this file at Step 0. You do not need to paste the prompt below.
 
 ---
@@ -15,43 +15,41 @@ before starting.
 
 --- SESSION: PED Sprint 2 ---
 
-Priority order:
-1. Peter has decisions to make before implementation — check HANDOFF.md
-   items 2–5 (Q4 confidence badges, Q6 hero image, Q7 chatter feed, Q8 SCEM/critical).
-   Surface these to Peter at session start. Do not begin implementation until answered.
+First: surface Peter's open decisions (HANDOFF items 2–5).
+Do not begin implementation until Peter answers Q4/Q6/Q7/Q8 from decisions.md.
 
-2. PR #31 — if not yet merged, remind Peter to visually check and merge.
-   Check: gh api /repos/asym-intel/asym-intel-main/pulls/31 --jq '.state'
+Check PR #31 — if not merged, remind Peter.
+  gh api /repos/asym-intel/asym-intel-main/pulls/31 --jq '.state'
 
-3. AGM + ERM dashboard audit (last 2 unreviewed monitors):
-   - Visit https://asym-intel.info/monitors/ai-governance/
-   - Visit https://asym-intel.info/monitors/environmental-risks/
-   - Record findings using same observation categories as previous audits
-   - Append to docs/ux/decisions.md Section 2 (AGM + ERM stubs)
-   - Update docs/ux/colour-registry.md Section 6 pending items
+Then in order:
+1. AGM + ERM dashboard audit (last 2 unreviewed monitors)
+   Visit live pages, record findings, append to docs/ux/decisions.md Section 2
+   Update docs/ux/colour-registry.md Section 6 (pending items)
 
-4. ESA mobile test — 375px viewport on https://asym-intel.info/monitors/european-strategic-autonomy/
-   Look specifically at #section-delta font size. If confirmed small: spec fix for Platform Developer.
+2. ESA mobile test — 375px viewport on ESA dashboard
+   Check #section-delta font size specifically
 
-5. If Peter answered Q4 (confidence badges): spec the badge class.
-   If Peter answered Q8 (SCEM/critical): update colour-registry.md §3.
+3. If Peter answered Q4 (confidence badges): spec the badge class
+4. If Peter answered Q8 (SCEM/critical): update colour-registry.md §3
 
-Read docs/ux/decisions.md before any UX work — it is the PED persistent memory.
-Read docs/ux/colour-registry.md before any colour decisions.
+Read docs/ux/decisions.md + docs/ux/colour-registry.md before any UX work.
 ```
 
 ---
 
 ## What this session completed (do not re-do)
 
-- ✅ docs/ux/decisions.md — fully populated (8 principles + 4-monitor findings + 8 open Qs)
-- ✅ docs/ux/colour-registry.md — created
-- ✅ Homepage Read→ CTAs removed (live, commits 48e64d4 + 9e9673a)
+- ✅ docs/ux/decisions.md — 8 principles + 4-monitor findings + 8 open Qs
+- ✅ docs/ux/colour-registry.md — created (severity, accents, 3 collision warnings)
+- ✅ Homepage Read→ CTAs removed (live — 48e64d4, 9e9673a)
 - ✅ PR #31 staged — FCW contrast + SCEM nav + GMM nav (awaiting Peter sign-off)
-- ✅ WDM dashboard audited — PASS, findings in decisions.md
-- ✅ ROADMAP — PED Sprint 1 complete, Sprint 2 queued
+- ✅ WDM audited — PASS on contrast + attribution + 60s test
+- ✅ ROADMAP — PED Sprint 1 ✅, Sprint 2 queued
 - ✅ HANDOFF — updated
-- ✅ notes-for-computer.md — INCOMPLETE WORK TRACKER added
+- ✅ Platform Visualisation Expert role — docs/prompts/platform-visualisation-expert.md (184a33b)
+- ✅ Chart agent conversation safely retired — all knowhow in CHARTS-KNOWHOW.md + WHITESPACE-COLD-START.md
+- ✅ INCOMPLETE WORK TRACKER added to notes-for-computer.md
+- ✅ INCOMPLETE-002 resolved
 
 ## Open — Peter action required
 
