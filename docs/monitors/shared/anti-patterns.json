@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "last_updated": "2026-04-02",
+  "last_updated": "2026-04-03",
   "description": "Known HTML/CSS/JS anti-patterns for asym-intel.info. Every Computer session reads this at Step 0. When a new error is discovered in any session, append it here before the session ends.",
   "anti_patterns": [
     {
@@ -272,6 +272,17 @@
       "root_cause": "Bash associative arrays behave inconsistently across shells and environments (especially GitHub Actions runners). Base64 encoding of associative array output produces empty strings silently.",
       "applies_to": "GitHub Actions workflows and any shell scripts that write to repo files.",
       "detected_by": "Sprint 3 Groups B+C audit 2026-04-02"
+    },
+    {
+      "id": "FE-026",
+      "category": "hugo-template",
+      "severity": "error",
+      "description": "Hugo --minify double-escapes content inside <script> tags, breaking JSON-LD structured data",
+      "wrong": "<script type=\"application/ld+json\">{{ $dict | jsonify | safeHTML }}</script>  →  produces {\"@type\":\"NewsArticle\"} with escaped quotes — invalid JSON-LD",
+      "correct": "{{ printf `<script type=\"application/ld+json\">%s</script>` ($dict | jsonify) | safeHTML }}  →  wraps entire tag in safeHTML, preventing minifier from touching the JSON content",
+      "root_cause": "Hugo minifier (tdewolff/minify) processes <script> tag content as HTML and escapes double-quote characters. Applying safeHTML to the jsonify output alone does not prevent this — the minifier runs after template rendering. Wrapping the entire <script> tag in printf+safeHTML marks the whole element as trusted HTML, bypassing minification.",
+      "applies_to": "All Hugo templates that output JSON-LD, especially layouts/partials/head.html and layouts/_default/single.html. Also applies to any structured data (Schema.org, JSON config) rendered inside <script> tags via Hugo templates.",
+      "detected_by": "Session 2026-04-03 — JSON-LD structured data implementation"
     }
   ]
 }
