@@ -268,17 +268,17 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 | Monitor | Workflow | Schedule | Model |
 |---|---|---|---|
 | WDM | wdm-collector.yml | Mon/Wed/Fri 07:00 UTC | sonar |
-| WDM | wdm-weekly-research.yml | Sun 18:00 UTC | sonar-pro |
-| WDM | wdm-reasoner.yml | Sun 20:00 UTC | sonar-deep-research |
+| WDM | wdm-weekly-research.yml | PAUSED | sonar-pro |
+| WDM | wdm-reasoner.yml | PAUSED | sonar-deep-research |
 | FCW | fcw-collector.yml | Mon/Wed/Fri 07:00 UTC | sonar |
-| FCW | fcw-weekly-research.yml | Wed 18:00 UTC | sonar-pro |
-| FCW | fcw-reasoner.yml | Wed 20:00 UTC | sonar-deep-research |
+| FCW | fcw-weekly-research.yml | PAUSED | sonar-pro |
+| FCW | fcw-reasoner.yml | PAUSED | sonar-deep-research |
 | GMM | gmm-collector.yml | Mon/Wed/Fri 06:00 UTC | sonar |
-| GMM | gmm-weekly-research.yml | Mon 18:00 UTC | sonar-pro |
-| GMM | gmm-reasoner.yml | Mon 20:00 UTC | sonar-deep-research |
+| GMM | gmm-weekly-research.yml | PAUSED | sonar-pro |
+| GMM | gmm-reasoner.yml | PAUSED | sonar-deep-research |
 | SCEM | scem-collector.yml | Mon/Wed/Fri 06:00 UTC | sonar |
-| SCEM | scem-weekly-research.yml | Sat 18:00 UTC | sonar-pro |
-| SCEM | scem-reasoner.yml | Sat 20:00 UTC | sonar-deep-research |
+| SCEM | scem-weekly-research.yml | PAUSED | sonar-pro |
+| SCEM | scem-reasoner.yml | PAUSED | sonar-deep-research |
 
 ## pipeline/ Directory
 pipeline/monitors/{slug}/ — GitHub Actions Collector outputs. Internal only.
