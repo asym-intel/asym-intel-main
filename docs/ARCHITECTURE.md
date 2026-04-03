@@ -660,3 +660,25 @@ echo "$(printf '%02d' $EXPECTED_HOUR):00 UTC"  # prints 09:00 UTC
 **Discovered:** 3 April 2026 — AGM Analyst cron escalated with this error on first live run.
 **Fixed:** All 5 affected prompts patched in static/monitors/{slug}/{abbr}-cron-prompt.md
 **Added:** 3 April 2026
+
+---
+
+## CRON-001 — Bash octal literal error in publish guard (EXPECTED_HOUR)
+
+**Pattern:** `EXPECTED_HOUR=09` in bash — any integer with a leading zero is treated as octal. `09` is invalid octal (octal only uses 0–7), causing `printf '%02d' $EXPECTED_HOUR` to error and the guard to fail before reaching the publish step.
+
+**Affected monitors:** WDM (06), GMM (08), FCW (09), AGM (09), ERM (05)
+
+**Fix:** Never use leading zeros in bash integer assignments:
+```bash
+# WRONG
+EXPECTED_HOUR=09
+
+# CORRECT — printf '%02d' adds the padding
+EXPECTED_HOUR=9
+echo "$(printf '%02d' $EXPECTED_HOUR):00 UTC"  # prints 09:00 UTC
+```
+
+**Discovered:** 3 April 2026 — AGM Analyst cron escalated with this error on first live run.
+**Fixed:** All 5 affected prompts patched in static/monitors/{slug}/{abbr}-cron-prompt.md
+**Added:** 3 April 2026
