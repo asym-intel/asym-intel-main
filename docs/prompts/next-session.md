@@ -1,8 +1,8 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 session wrap (~03:15 CEST) — PED Session 1 + PVE role creation
+**Updated:** 2026-04-03 session wrap (~03:19 CEST) — final wrap, PR #31 merged
 
 > **Bootloader:** Say "Computer: asym-intel.info" to the next instance.
-> It reads this file at Step 0. You do not need to paste the prompt below.
+> It reads this file at Step 0. You do not need to paste anything manually.
 
 ---
 
@@ -15,45 +15,55 @@ before starting.
 
 --- SESSION: PED Sprint 2 ---
 
-First: surface Peter's open decisions (HANDOFF items 2–5).
-Do not begin implementation until Peter answers Q4/Q6/Q7/Q8 from decisions.md.
-
-Check PR #31 — if not merged, remind Peter.
-  gh api /repos/asym-intel/asym-intel-main/pulls/31 --jq '.state'
+First: surface Peter's open decisions before any implementation.
+Check decisions.md Section 4 — Q4, Q6, Q7, Q8 need answers:
+  Q4: confidence badge visual class (FCW CONFIRMED badge uses severity colour)
+  Q6: homepage hero image — in scope this sprint?
+  Q7: homepage chatter feed — PED spec or Platform Developer feature?
+  Q8: SCEM accent (#dc2626) = --critical — intentional or resolve?
 
 Then in order:
 1. AGM + ERM dashboard audit (last 2 unreviewed monitors)
-   Visit live pages, record findings, append to docs/ux/decisions.md Section 2
-   Update docs/ux/colour-registry.md Section 6 (pending items)
+   Visit https://asym-intel.info/monitors/ai-governance/
+   Visit https://asym-intel.info/monitors/environmental-risks/
+   Record findings using same categories as previous audits
+   Append to docs/ux/decisions.md Section 2
+   Update docs/ux/colour-registry.md Section 6
 
 2. ESA mobile test — 375px viewport on ESA dashboard
    Check #section-delta font size specifically
+   Peter observed small font — unconfirmed at desktop
 
-3. If Peter answered Q4 (confidence badges): spec the badge class
-4. If Peter answered Q8 (SCEM/critical): update colour-registry.md §3
+3. Signal panel contrast fix — GMM + SCEM
+   Extend Principle 5 fix (done on FCW) to GMM and SCEM signal panels
+   Stage → PR → visual sign-off → merge at wrap
+
+4. Severity badge font size — raise 0.6rem → --text-xs in base.css
+   One-line CSS fix, Platform Developer, staging → PR
+
+5. If Peter answered Q4: spec confidence badge class
+   If Peter answered Q8: update colour-registry.md §3
 
 Read docs/ux/decisions.md + docs/ux/colour-registry.md before any UX work.
 ```
 
 ---
 
-## What this session completed (do not re-do)
+## What the previous session completed (do not re-do)
 
-- ✅ docs/ux/decisions.md — 8 principles + 4-monitor findings + 8 open Qs
-- ✅ docs/ux/colour-registry.md — created (severity, accents, 3 collision warnings)
-- ✅ Homepage Read→ CTAs removed (live — 48e64d4, 9e9673a)
-- ✅ PR #31 staged — FCW contrast + SCEM nav + GMM nav (awaiting Peter sign-off)
-- ✅ WDM audited — PASS on contrast + attribution + 60s test
-- ✅ ROADMAP — PED Sprint 1 ✅, Sprint 2 queued
-- ✅ HANDOFF — updated
-- ✅ Platform Visualisation Expert role — docs/prompts/platform-visualisation-expert.md (184a33b)
-- ✅ Chart agent conversation safely retired — all knowhow in CHARTS-KNOWHOW.md + WHITESPACE-COLD-START.md
+- ✅ PR #31 merged — FCW contrast + SCEM nav + GMM nav (79b0b04)
+- ✅ Staging reset to main — ahead_by: 0
+- ✅ Homepage Read→ CTAs removed (live)
+- ✅ docs/ux/decisions.md — 8 principles, 4-monitor findings, 8 open Qs
+- ✅ docs/ux/colour-registry.md — created
+- ✅ WDM audited — PASS
+- ✅ Platform Visualisation Expert role — docs/prompts/platform-visualisation-expert.md
+- ✅ Chart agent conversation retired — knowhow in CHARTS-KNOWHOW.md + WHITESPACE-COLD-START.md
 - ✅ INCOMPLETE WORK TRACKER added to notes-for-computer.md
-- ✅ INCOMPLETE-002 resolved
+- ✅ ROADMAP — PED Sprint 1 ✅, Sprint 2 queued
 
 ## Open — Peter action required
 
-- ⚠️ PR #31 visual sign-off → merge
 - ⚠️ Q4: confidence badge visual class (decisions.md)
 - ⚠️ Q6: homepage hero image (decisions.md)
 - ⚠️ Q7: homepage chatter feed (decisions.md)
