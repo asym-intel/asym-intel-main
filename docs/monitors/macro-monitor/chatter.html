@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatter — Global Macro Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Daily raw GMM signal — top 10 unanalysed items from public FIMI sources. Updated every morning.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/nav.js"></script>
+  <style>
+    /* ── THREAT LEVEL BADGE ── */
+    .fcw-threat-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      border-left: 3px solid #22a0aa;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    [data-theme="dark"] .fcw-threat-banner {
+      background: rgba(56, 189, 248, 0.08);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+    .fcw-threat-banner__pulse {
+      flex-shrink: 0;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #22a0aa;
+      margin-top: 4px;
+      animation: fcw-pulse 2s ease-in-out infinite;
+    }
+    @keyframes fcw-pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248,0.5); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(56,189,248,0); }
+    }
+    .fcw-threat-banner__body {
+      flex: 1;
+      min-width: 0;
+    }
+    .fcw-threat-banner__level {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #22a0aa;
+      margin-bottom: 0.25rem;
+    }
+    .fcw-threat-banner__title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text, #1a1917);
+      line-height: 1.4;
+      margin-bottom: 0.25rem;
+    }
+    [data-theme="dark"] .fcw-threat-banner__title {
+      color: #e0dfdc;
+    }
+    .fcw-threat-banner__sub {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary, #3d3a35);
+      line-height: 1.5;
+    }
+    [data-theme="dark"] .fcw-threat-banner__sub {
+      color: #9e9b97;
+    }
+
+    /* ── ACTOR ACTIVITY MATRIX ── */
+    .fcw-actor-matrix {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .fcw-actor-matrix th {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-text-muted, #6b6660);
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border, #d8d4cd);
+    }
+    [data-theme="dark"] .fcw-actor-matrix th {
+      color: #6b6660;
+      border-bottom-color: #2d2c2a;
+    }
+    .fcw-actor-matrix td {
+      font-size: var(--text-sm);
+      padding: 0.6rem 0.75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--color-border-subtle, #e8e4de);
+    }
+    [data-theme="dark"] .fcw-actor-matrix td {
+      border-bottom-color: #252422;
+    }
+    .fcw-actor-matrix tr:last-child td {
+      border-bottom: none;
+    }
+    .fcw-actor-matrix tr:hover td {
+      background: rgba(56, 189, 248, 0.04);
+    }
+    .fcw-actor-id {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+    .fcw-actor-flag {
+      font-size: 1.1em;
+      line-height: 1;
+    }
+    /* .fcw-actor-dot removed — replaced by flag emoji */
+    .fcw-count-badge {
+      display: inline-block;
+      font-size: var(--text-sm);
+      font-weight: 700;
+      min-width: 1.6rem;
+      text-align: center;
+      color: var(--color-text, #1a1917);
+    }
+    [data-theme="dark"] .fcw-count-badge {
+      color: #e0dfdc;
+    }
+    .fcw-intensity-bar-wrap {
+      width: 100%;
+      min-width: 80px;
+      max-width: 220px;
+    }
+    .fcw-intensity-bar-track {
+      height: 6px;
+      border-radius: 3px;
+      background: var(--color-bg-alt, #f0ede8);
+      overflow: hidden;
+    }
+    [data-theme="dark"] .fcw-intensity-bar-track {
+      background: #2d2c2a;
+    }
+    .fcw-intensity-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+    .fcw-status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fcw-status-dot--active {
+      background: #dc2626;
+      animation: fcw-pulse 2s ease-in-out infinite;
+    }
+    .fcw-status-dot--ongoing {
+      background: #d97706;
+    }
+    .fcw-status-dot--disrupted {
+      background: #059669;
+    }
+    .fcw-status-dot--assessed {
+      background: #2563eb;
+    }
+    .fcw-status-dot--quiet {
+      background: #9e9b97;
+    }
+    .fcw-active-text {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted, #6b6660);
+    }
+    [data-theme="dark"] .fcw-active-text {
+      color: #6b6660;
+    }
+
+    /* ── ADDITIONAL OPERATIONS CONDENSED GRID ── */
+    .fcw-ops-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.75rem;
+    }
+    .fcw-ops-card {
+      border: 1px solid var(--color-border, #d8d4cd);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      background: var(--color-bg, #faf9f7);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    [data-theme="dark"] .fcw-ops-card {
+      border-color: #2d2c2a;
+      background: #1a1917;
+    }
+    .fcw-ops-card__name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text, #1a1917);
+      line-height: 1.35;
+    }
+    [data-theme="dark"] .fcw-ops-card__name {
+      color: #e0dfdc;
+    }
+    .fcw-ops-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: var(--text-xs);
+      color: var(--color-text-muted, #6b6660);
+    }
+    .fcw-ops-card__stale {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted, #6b6660);
+      font-style: italic;
+      margin-top: 0.1rem;
+    }
+    [data-theme="dark"] .fcw-ops-card__stale {
+      color: #6b6660;
+    }
+
+    /* ── ATTRIBUTION LOG TABLE ── */
+    .fcw-log-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .fcw-log-table th {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-text-muted, #6b6660);
+      padding: 0.45rem 0.65rem;
+      text-align: left;
+      border-bottom: 1px solid var(--color-border, #d8d4cd);
+    }
+    [data-theme="dark"] .fcw-log-table th {
+      border-bottom-color: #2d2c2a;
+      color: #6b6660;
+    }
+    .fcw-log-table td {
+      font-size: var(--text-sm);
+      padding: 0.55rem 0.65rem;
+      vertical-align: top;
+      border-bottom: 1px solid var(--color-border-subtle, #e8e4de);
+      line-height: 1.45;
+    }
+    [data-theme="dark"] .fcw-log-table td {
+      border-bottom-color: #252422;
+    }
+    .fcw-log-table tr:last-child td {
+      border-bottom: none;
+    }
+    .fcw-log-table tr:hover td {
+      background: rgba(56, 189, 248, 0.04);
+    }
+    .fcw-log-id {
+      font-family: var(--font-mono, 'Courier New', monospace);
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary, #3d3a35);
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .fcw-log-id {
+      color: #9e9b97;
+    }
+    .fcw-log-headline {
+      color: var(--color-text, #1a1917);
+    }
+    [data-theme="dark"] .fcw-log-headline {
+      color: #e0dfdc;
+    }
+  </style>
+</head>
+
+<body>
+
+</nav><style>.nb-links{display:flex}@media(max-width:640px){.nb-links{display:none}}</style>
+
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 36 36" fill="none" aria-hidden="true" style="flex-shrink:0">
+  <circle cx="18" cy="18" r="14" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
+  <circle cx="18" cy="18" r="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/>
+  <circle cx="18" cy="18" r="4" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.35"/>
+  <line x1="18" y1="4" x2="18" y2="32" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/>
+  <line x1="4" y1="18" x2="32" y2="18" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/>
+  <circle cx="18" cy="18" r="2" fill="#dc2626"/>
+  <circle cx="26" cy="10" r="1.5" fill="#dc2626" opacity="0.8"/>
+  <circle cx="10" cy="24" r="1" fill="var(--monitor-accent)" opacity="0.9"/>
+</svg>
+    <span>Global Macro Monitor</span>
+  </a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9" x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list">
+    <li><a href="overview.html">Overview</a></li>
+    <li><a href="chatter.html" class="active">Chatter</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="report.html">Latest Issue</a></li>
+    <li><a href="archive.html">Archive</a></li>
+    <li><a href="persistent.html">Living Knowledge</a></li>
+    <li><a href="search.html">Search</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="methodology.html">Methodology</a></li>
+  </ul>
+  <div class="monitor-nav__actions">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="7.5" cy="7.5" r="2.5"/>
+        <line x1="7.5" y1="1" x2="7.5" y2="2.5"/>
+        <line x1="7.5" y1="12.5" x2="7.5" y2="14"/>
+        <line x1="1" y1="7.5" x2="2.5" y2="7.5"/>
+        <line x1="12.5" y1="7.5" x2="14" y2="7.5"/>
+        <line x1="3.05" y1="3.05" x2="4.1" y2="4.1"/>
+        <line x1="10.9" y1="10.9" x2="11.95" y2="11.95"/>
+        <line x1="11.95" y1="3.05" x2="10.9" y2="4.1"/>
+        <line x1="4.1" y1="10.9" x2="3.05" y2="11.95"/>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12.5 10A6 6 0 0 1 5 2.5a6 6 0 1 0 7.5 7.5z"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-layout" id="skip-to-content">
+  <div class="monitor-main">
+
+    <!-- Page header -->
+    <header class="page-header" style="padding:var(--space-8) 0 var(--space-6)">
+      <div class="page-header__eyebrow" style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:color-mix(in srgb,var(--monitor-accent) 65%,#000);margin-bottom:var(--space-2)">GMM DASHBOARD</div>
+      <h1 class="page-header__title" style="font-size:var(--text-4xl);font-weight:700;line-height:1.1;margin:0 0 var(--space-3)">GMM Chatter</h1>
+      <div id="chatter-meta" style="font-size:var(--text-sm);color:var(--text-muted)">Loading…</div>
+      <div style="margin-top:var(--space-4);padding:var(--space-3) var(--space-4);background:var(--surface-2);border-radius:var(--radius-md);border-left:3px solid color-mix(in srgb,var(--monitor-accent) 65%,#000)">
+        <p style="font-size:var(--text-sm);color:var(--text-body);margin:0 0 var(--space-2)">
+          <strong>Unanalysed raw signal.</strong> These items are AI-generated from public sources and have not been editorially reviewed or verified. They represent the raw signal environment for this domain — surface-level curation only, with no methodology applied.
+        </p>
+        <p style="font-size:var(--text-sm);color:var(--text-muted);margin:0">
+          Do not cite or act on these items without independent verification. The <a href="dashboard.html" style="color:color-mix(in srgb,var(--monitor-accent) 65%,#000)">weekly brief</a> applies full analytical methodology to determine what matters.
+        </p>
+      </div>
+    </header>
+
+    <!-- Chatter items -->
+    <section class="module-section" id="chatter-items">
+      <div id="chatter-list"><div class="loading-state">Loading today's signals…</div></div>
+    </section>
+
+  </div>
+</main>
+
+<script>
+(function() {
+  var SLUG = 'macro-monitor';
+  var BASE = '../../../monitors/' + SLUG + '/data/';
+
+  function escHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function tierBadge(tier) {
+    var label = 'T' + tier;
+    var colours = {1:'#059669', 2:'#2563eb', 3:'#d97706', 4:'#94a3b8'};
+    var bg = colours[tier] || '#94a3b8';
+    return '<span style="font-size:var(--text-xs);font-family:var(--font-mono);background:' + bg + ';color:#fff;padding:1px 5px;border-radius:3px;margin-right:4px">' + label + '</span>';
+  }
+
+  function formatTime(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}) + ' UTC';
+    } catch(e) { return iso; }
+  }
+
+  fetch(BASE + 'chatter-latest.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var meta  = data._meta || {};
+      var items = data.items || [];
+
+      // Update meta
+      var metaEl = document.getElementById('chatter-meta');
+      if (metaEl) {
+        metaEl.innerHTML =
+          'W/E ' + escHtml(meta.data_date || '') +
+          ' &nbsp;·&nbsp; Updated ' + formatTime(meta.generated_at) +
+          ' &nbsp;·&nbsp; ' + items.length + ' items' +
+          ' &nbsp;·&nbsp; <em style="color:var(--text-muted)">' + escHtml(meta.coverage_note || '') + '</em>';
+      }
+
+      // Render items
+      var listEl = document.getElementById('chatter-list');
+      if (!listEl) return;
+
+      if (!items.length) {
+        listEl.innerHTML = '<p class="text-muted text-sm" style="padding:var(--space-6) 0">No chatter items for today yet. Check back after 08:00 UTC.</p>';
+        return;
+      }
+
+      var html = '<ol style="list-style:none;padding:0;margin:0">';
+      items.forEach(function(item, idx) {
+        var tags = '';
+        if (item.cross_monitor_tag && item.cross_monitor_tag.length) {
+          item.cross_monitor_tag.forEach(function(t) {
+            tags += '<span style="font-size:var(--text-xs);background:var(--surface-2);color:var(--text-muted);padding:1px 6px;border-radius:3px;margin-right:3px">' + escHtml(t.toUpperCase()) + '</span>';
+          });
+        }
+        if (item.is_episodic) {
+          tags += '<span style="font-size:var(--text-xs);background:var(--surface-2);color:var(--text-muted);padding:1px 6px;border-radius:3px;font-style:italic">Episodic</span>';
+        }
+
+        html += '<li style="padding:var(--space-4) 0;border-bottom:1px solid var(--border)">';
+        html += '<div style="display:flex;align-items:flex-start;gap:var(--space-3)">';
+        html += '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted);min-width:20px;padding-top:2px">' + (idx+1) + '</span>';
+        html += '<div style="flex:1;min-width:0">';
+
+        // Title linked
+        html += '<div style="margin-bottom:var(--space-1)">';
+        html += tierBadge(item.source_tier || 3);
+        if (tags) html += '<span style="display:inline">' + tags + '</span>';
+        html += '</div>';
+        html += '<a href="' + escHtml(item.source_url || '#') + '" target="_blank" rel="noopener" ' +
+          'style="font-weight:600;color:var(--text-heading);text-decoration:none;line-height:1.3;display:block;margin-bottom:var(--space-1)" ' +
+          'onmouseover="this.style.color='color-mix(in srgb,var(--monitor-accent) 65%,#000)'" ' +
+          'onmouseout="this.style.color='var(--text-heading)'">' +
+          escHtml(item.title) + '</a>';
+
+        // Source + relevance
+        html += '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-2)">';
+        html += escHtml(item.source_name || '');
+        if (item.domain_relevance) {
+          html += ' &nbsp;·&nbsp; <span style="color:color-mix(in srgb,var(--monitor-accent) 65%,#000)">' + escHtml(item.domain_relevance) + '</span>';
+        }
+        html += '</div>';
+
+        // Summary
+        html += '<p style="font-size:var(--text-sm);color:var(--text-body);margin:0">' + escHtml(item.summary || '') + '</p>';
+
+        html += '</div></div></li>';
+      });
+      html += '</ol>';
+      listEl.innerHTML = html;
+    })
+    .catch(function() {
+      var metaEl = document.getElementById('chatter-meta');
+      if (metaEl) metaEl.innerHTML = 'Not yet available';
+      document.getElementById('chatter-list').innerHTML =
+        '<p class="text-muted text-sm" style="padding:var(--space-6) 0">Chatter data not yet available. First run after 06:00 UTC.</p>';
+    });
+})();
+</script>
+</body>
+</html>
