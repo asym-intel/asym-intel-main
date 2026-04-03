@@ -26,12 +26,13 @@ DeepMind: deepmind.google/discover/blog
 Find 10 distinct signal items from TODAY or the past 48 hours. Cast wide — include new reports, regulatory actions, incidents, research publications, and operational signals. Do not cluster around a single story.
 
 MANDATORY RULES:
-- Return exactly 10 items. If fewer than 10 items exist from today/48h, extend window to 7 days.
-- Every item MUST be a specific, dated news event, report release, regulatory action, or incident.
-- Do NOT include: listicles ("Top 5...", "10 Best..."), evergreen guides, undated reference articles, or SEO content without a specific publication event.
-- Each item MUST have a direct URL to the specific article or report — not a homepage or category page.
-- Prefer Tier 1 and Tier 2 sources. Only use Tier 3 sources if no Tier 1/2 coverage exists for that event.
-- If you genuinely cannot find 10 qualifying items after exhausting the 7-day window, return fewer — an empty or short list is better than padded evergreen content.
+- Return up to 10 items. Do NOT pad with low-quality content to reach 10.
+- Every item MUST be a specific, dated news event published within the past 7 days.
+- BLOCKED CONTENT — never include: listicles ("Top 5...", "Top 10...", "10 Best..."), "tools roundup" articles, "frameworks guide" articles, SEO listicles, undated evergreen content, newsletter digests aggregating older news.
+- BLOCKED DOMAINS — never cite: dwealth.news, p3adaptive.com, atlan.com, getmaxim.ai, woolpert.com, arthur.ai/column, mindfoundry.ai — these are SEO content farms, not news sources.
+- Each item MUST have a direct URL to the specific article — not a homepage or category page.
+- Prefer Tier 1/2 sources. A list of 5 high-quality real news items is far better than 10 padded items.
+- If fewer than 5 qualifying items exist in 7 days, return what exists. Never invent or fabricate.
 
 OUTPUT FORMAT: Return ONLY valid JSON — no markdown, no prose, no code fences.
 
