@@ -1,0 +1,31 @@
+name: ESA Chatter — Daily Signal
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # 06:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  chatter:
+    name: ESA Daily Chatter (sonar)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Run FCW Chatter
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/european-strategic-autonomy/esa-chatter.py
+      - name: Commit chatter output
+        run: |
+          git config user.name "ESA Chatter Bot"
+          git config user.email "esa-chatter@asym-intel.info"
+          git add static/monitors/european-strategic-autonomy/data/chatter*.json
+          git diff --staged --quiet && echo "No chatter output to commit" && exit 0
+          git commit -m "data(esa-chatter): daily signal — $(date -u +%Y-%m-%d)"
+          git push
