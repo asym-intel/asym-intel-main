@@ -668,3 +668,155 @@ window.AsymPersistent = (function () {
   }
   window.AsymRenderMarkdown = renderMarkdown; // fallback direct access
 }());
+
+/* ── AsymRenderer.sourceLabel(url) ──────────────────────────────────────────
+ * Returns a short human-readable source name from a URL.
+ * Used to replace generic "Source →" labels with "Reuters →", "BBC →", etc.
+ *
+ * Usage:
+ *   AsymRenderer.sourceLabel('https://reuters.com/...')  → 'Reuters'
+ *   AsymRenderer.sourceLink(url)  → '<a href="..." ...>Reuters →</a>'
+ *   AsymRenderer.sourceInline(url, accent) → inline link for appending to text
+ * ─────────────────────────────────────────────────────────────────────────── */
+(function () {
+  var DOMAIN_MAP = {
+    // News wires
+    'reuters.com':          'Reuters',
+    'apnews.com':           'AP',
+    'afp.com':              'AFP',
+    // Broadcast
+    'bbc.co.uk':            'BBC',
+    'bbc.com':              'BBC',
+    'cnn.com':              'CNN',
+    'aljazeera.com':        'Al Jazeera',
+    'dw.com':               'DW',
+    'euronews.com':         'Euronews',
+    'rferl.org':            'RFE/RL',
+    'politico.eu':          'Politico EU',
+    'politico.com':         'Politico',
+    // Financial
+    'bloomberg.com':        'Bloomberg',
+    'ft.com':               'FT',
+    'wsj.com':              'WSJ',
+    'economist.com':        'The Economist',
+    'cnbc.com':             'CNBC',
+    // EU / Institutional
+    'ec.europa.eu':         'European Commission',
+    'eeas.europa.eu':       'EEAS',
+    'consilium.europa.eu':  'EU Council',
+    'europarl.europa.eu':   'European Parliament',
+    'eda.europa.eu':        'EDA',
+    'digital-strategy.ec.europa.eu': 'EU AI Office',
+    '2eu.brussels':         'European Commission',
+    // NATO / Defence
+    'nato.int':             'NATO',
+    'stratcomcoe.org':      'NATO StratCom',
+    'hybridcoe.fi':         'Hybrid CoE',
+    // Intelligence / OSINT
+    'bellingcat.com':       'Bellingcat',
+    'vsquare.org':          'VSquare',
+    'dfrlabs.org':          'DFRLab',
+    'atlanticcouncil.org':  'DFRLab',
+    'understandingwar.org': 'ISW',
+    'euvsdisinfo.eu':       'EUvsDisinfo',
+    'disinfo.eu':           'EU DisinfoLab',
+    'stopfake.org':         'StopFake',
+    // Think tanks
+    'ecfr.eu':              'ECFR',
+    'rusi.org':             'RUSI',
+    'iiss.org':             'IISS',
+    'chathamhouse.org':     'Chatham House',
+    'carnegieeurope.eu':    'Carnegie Europe',
+    'rand.org':             'RAND',
+    'piie.com':             'PIIE',
+    'wto.org':              'WTO',
+    'imf.org':              'IMF',
+    'worldbank.org':        'World Bank',
+    'bis.org':              'BIS',
+    'federalreserve.gov':   'Federal Reserve',
+    'ecb.europa.eu':        'ECB',
+    'ustr.gov':             'USTR',
+    // Democracy / Rights
+    'freedomhouse.org':     'Freedom House',
+    'v-dem.net':            'V-Dem',
+    'transparency.org':     'TI',
+    'rsf.org':              'RSF',
+    'hrw.org':              'HRW',
+    'amnesty.org':          'Amnesty',
+    // Climate / Environment
+    'ipcc.ch':              'IPCC',
+    'wmo.int':              'WMO',
+    'climate.copernicus.eu':'Copernicus',
+    'stockholmresilience.org': 'Stockholm Resilience',
+    'pik-potsdam.de':       'Potsdam Institute',
+    'nature.com':           'Nature',
+    'carbonbrief.org':      'Carbon Brief',
+    'climatechangenews.com':'Climate Home',
+    'internal-displacement.org': 'IDMC',
+    // Conflict / Humanitarian
+    'acleddata.com':        'ACLED',
+    'ucdp.uu.se':           'UCDP',
+    'reliefweb.int':        'UN OCHA',
+    'unocha.org':           'UN OCHA',
+    'crisisgroup.org':      'ICG',
+    // AI / Tech
+    'openai.com':           'OpenAI',
+    'anthropic.com':        'Anthropic',
+    'deepmind.google':      'DeepMind',
+    'hai.stanford.edu':     'Stanford HAI',
+    'governance.ai':        'GovAI',
+    'safe.ai':              'CAIS',
+    'nist.gov':             'NIST',
+    'techpolicy.press':     'Tech Policy Press',
+    'wired.com':            'Wired',
+    'theguardian.com':      'The Guardian',
+    'nytimes.com':          'NYT',
+    'washingtonpost.com':   'WaPo',
+    // Asym-intel monitors
+    'asym-intel.info':      'Asymmetric Intelligence',
+  };
+
+  function sourceLabel(url) {
+    if (!url) return 'Source';
+    try {
+      var hostname = new URL(url).hostname.replace(/^www\./, '');
+      // Exact match
+      if (DOMAIN_MAP[hostname]) return DOMAIN_MAP[hostname];
+      // Subdomain match (e.g. climate.copernicus.eu)
+      var keys = Object.keys(DOMAIN_MAP);
+      for (var i = 0; i < keys.length; i++) {
+        if (hostname === keys[i] || hostname.endsWith('.' + keys[i])) {
+          return DOMAIN_MAP[keys[i]];
+        }
+      }
+      // Fallback: first meaningful segment of hostname
+      var parts = hostname.split('.');
+      var name = parts.length >= 2 ? parts[parts.length - 2] : hostname;
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    } catch (e) {
+      return 'Source';
+    }
+  }
+
+  /* Returns a complete inline <a> tag: "Reuters →" */
+  function sourceLink(url, opts) {
+    opts = opts || {};
+    var label = sourceLabel(url);
+    var color = opts.color || 'var(--monitor-accent)';
+    var size  = opts.size  || 'var(--text-xs)';
+    return '<a href="' + (url || '#') + '" target="_blank" rel="noopener" ' +
+      'style="color:' + color + ';font-size:' + size + ';text-decoration:none;white-space:nowrap" ' +
+      'onmouseover="this.style.textDecoration='underline'" ' +
+      'onmouseout="this.style.textDecoration='none'">' +
+      label + ' →</a>';
+  }
+
+  /* Attach to AsymRenderer */
+  if (window.AsymRenderer) {
+    window.AsymRenderer.sourceLabel = sourceLabel;
+    window.AsymRenderer.sourceLink  = sourceLink;
+  }
+  window.AsymSourceLabel = sourceLabel;
+  window.AsymSourceLink  = sourceLink;
+})();
+

@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="card__footer">' +
               (f.first_raised ? '<span>First raised: ' + esc(f.first_raised) + '</span>' : '') +
               (f.unchanged_since ? '<span>Unchanged since: ' + esc(f.unchanged_since) + '</span>' : '') +
-              (f.source_url ? '<a class="source-link" href="' + esc(f.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
+              (f.source_url ? (esc(f.source_url) ? ' ' + AsymRenderer.sourceLink(f.source_url) : '') : '') +
             '</div>' +
           '</div>';
       });

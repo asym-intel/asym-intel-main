@@ -858,7 +858,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>' +
           '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' + escHtml(flag.title || flag.headline || flag.signal || '') + '</div>' +
           '<div style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.5">' + escHtml(flag.detail || flag.body || flag.summary || '') + '</div>' +
-          (flag.source_url ? '<div style="margin-top:var(--space-2)"><a class="source-link" style="font-size:var(--text-xs)" href="' + escHtml(flag.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
+          (flag.source_url ? (escHtml(flag.source_url) ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '')) +
         '</div>';
     });
     html += '</div>';
