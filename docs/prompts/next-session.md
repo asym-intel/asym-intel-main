@@ -1,73 +1,64 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 session wrap (~03:19 CEST) — final wrap, PR #31 merged
+**Updated:** 2026-04-03 session wrap (~09:10 CEST)
 
 > **Bootloader:** Say "Computer: asym-intel.info" to the next instance.
-> It reads this file at Step 0. You do not need to paste anything manually.
 
 ---
 
-## Prompt (for reference — do not paste manually)
+## Prompt
 
 ```
 Load the asym-intel skill first. Read COMPUTER.md, HANDOFF.md,
 notes-for-computer.md, docs/ARCHITECTURE.md, and docs/ROADMAP.md
 before starting.
 
---- SESSION: PED Sprint 2 ---
+--- SESSION: PED Sprint 2 + ESA/AGM/ERM pipeline completion ---
 
 First: surface Peter's open decisions before any implementation.
-Check decisions.md Section 4 — Q4, Q6, Q7, Q8 need answers:
-  Q4: confidence badge visual class (FCW CONFIRMED badge uses severity colour)
-  Q6: homepage hero image — in scope this sprint?
-  Q7: homepage chatter feed — PED spec or Platform Developer feature?
-  Q8: SCEM accent (#dc2626) = --critical — intentional or resolve?
+Check decisions.md Section 4 — Q4, Q6, Q7, Q8 still need answers.
 
-Then in order:
-1. AGM + ERM dashboard audit (last 2 unreviewed monitors)
-   Visit https://asym-intel.info/monitors/ai-governance/
-   Visit https://asym-intel.info/monitors/environmental-risks/
-   Record findings using same categories as previous audits
-   Append to docs/ux/decisions.md Section 2
-   Update docs/ux/colour-registry.md Section 6
+VERIFY LIVE BEFORE STARTING:
+curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
+Should show v1.3. If not: workflow_dispatch build.yml, then purge-all-files CF.
 
-2. ESA mobile test — 375px viewport on ESA dashboard
-   Check #section-delta font size specifically
-   Peter observed small font — unconfirmed at desktop
+Priority queue:
 
-3. Signal panel contrast fix — GMM + SCEM
-   Extend Principle 5 fix (done on FCW) to GMM and SCEM signal panels
-   Stage → PR → visual sign-off → merge at wrap
+1. ESA/AGM/ERM weekly-research + reasoner workflows
+   Pattern in: .github/workflows/fcw-weekly-research.yml + fcw-reasoner.yml
+   Need for: european-strategic-autonomy, ai-governance, environmental-risks
+   Also update their analyst cron prompts with Steps 0C/0D/0E
 
-4. Severity badge font size — raise 0.6rem → --text-xs in base.css
-   One-line CSS fix, Platform Developer, staging → PR
+2. Remaining Source → patterns (minor cleanup)
+   FCW dashboard (1), WDM dashboard (1), SCEM dashboard (1) — bespoke inline styles
+   Check: grep "Source →" in each file, fix manually
 
-5. If Peter answered Q4: spec confidence badge class
-   If Peter answered Q8: update colour-registry.md §3
+3. PED Sprint 2 (read docs/ux/decisions.md + docs/ux/colour-registry.md first)
+   - AGM + ERM dashboard audit (last 2 unreviewed)
+   - ESA mobile test — 375px #section-delta font
+   - Signal panel contrast fix — GMM + SCEM (extend FCW Principle 5)
+   - Severity badge font size — 0.6rem → --text-xs in base.css
 
-Read docs/ux/decisions.md + docs/ux/colour-registry.md before any UX work.
+4. GMM/ESA annual calibration files
+   - macro-monitor-imf-2026.md (IMF WEO April 2026 data)
+   - european-strategic-autonomy-ecfr-2026.md
+
+DEPLOYMENT REMINDER:
+After any shared JS/CSS change → verify live (Cache-Control: no-store) → if stale: workflow_dispatch + CF purge-all.
+CF Zone ID: cc419b7519eba04ef0dc6a7b851930c7
 ```
 
----
+## Previous session completed
+- ✅ nav.js v1.3 — MONITOR_REGISTRY, 4 injection functions, shared module principle
+- ✅ Deployment pipeline fixed — deploy-pages job, .nojekyll, force push
+- ✅ renderer.js sourceLabel/sourceLink — 80+ domain map
+- ✅ PR #32 — canonical 9-link nav across all 53 monitor pages
+- ✅ Homepage 3-column layout — chatter right panel >1280px
+- ✅ Chatter 7/7 — all monitors with 10 items, daily workflows running
+- ✅ ESA/AGM/ERM daily collectors built
+- ✅ Delta section headings canonical ("Top Items This Issue" across 6 monitors)
+- ✅ ARCHITECTURE.md — deployment runbook + shared module principle documented
 
-## What the previous session completed (do not re-do)
-
-- ✅ PR #31 merged — FCW contrast + SCEM nav + GMM nav (79b0b04)
-- ✅ Staging reset to main — ahead_by: 0
-- ✅ Homepage Read→ CTAs removed (live)
-- ✅ docs/ux/decisions.md — 8 principles, 4-monitor findings, 8 open Qs
-- ✅ docs/ux/colour-registry.md — created
-- ✅ WDM audited — PASS
-- ✅ Platform Visualisation Expert role — docs/prompts/platform-visualisation-expert.md
-- ✅ Chart agent conversation retired — knowhow in CHARTS-KNOWHOW.md + WHITESPACE-COLD-START.md
-- ✅ INCOMPLETE WORK TRACKER added to notes-for-computer.md
-- ✅ ROADMAP — PED Sprint 1 ✅, Sprint 2 queued
-
-## Open — Peter action required
-
-- ⚠️ Q4: confidence badge visual class (decisions.md)
-- ⚠️ Q6: homepage hero image (decisions.md)
-- ⚠️ Q7: homepage chatter feed (decisions.md)
-- ⚠️ Q8: SCEM accent / --critical collision (decisions.md)
-- ⚠️ Branch protection on main (SEC-009 HIGH)
-- ⚠️ Cloudflare headers + Zone ID
+## Peter action required
+- ⚠️ Q4/Q6/Q7/Q8 in decisions.md
+- ⚠️ Branch protection on main (SEC-009)
 - ⚠️ GSC property verification
