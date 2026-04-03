@@ -124,24 +124,28 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 | GMM title "Macro Monitor" → "Global Macro Risk Monitor"? | Competitor domain global-macro-monitor.com appears in AI search |
 
 
-## PED SPRINT 1 — Deferred from 3 April session (>90min, fresh session needed)
+## PED SPRINT 1 — ✅ Complete (2026-04-03 session)
+
+| Item | Status | Notes |
+|------|--------|-------|
+| docs/ux/decisions.md — full population | ✅ Done | 8 principles, 4-monitor findings, 8 open questions for Peter |
+| docs/ux/colour-registry.md — created | ✅ Done | Session 1 prerequisite — severity system, accents, 3 collision warnings |
+| FCW signal panel contrast fix | ✅ Staged PR #31 | rgba(255,255,255,0.82) secondary text — awaiting Peter sign-off |
+| SCEM nav gaps (Conflict Overview + Friction Flags) | ✅ Staged PR #31 | Awaiting Peter sign-off |
+| GMM nav alignment (4 labels) | ✅ Staged PR #31 | Awaiting Peter sign-off |
+| WDM live audit | ✅ Done | Findings in decisions.md — no implementation needed |
+| Homepage redundant Read→ CTAs removed | ✅ Done | Commits 48e64d4, 9e9673a — live |
+
+## PED SPRINT 2 — Queued
 
 | Item | Priority | Est. | Notes |
 |------|----------|------|-------|
-| PED first session — knowhow dump | 🔴 HIGH | 1.5 hrs | docs/ux/decisions.md full population · colour-registry.md · 5-page progressive disclosure audit · gap list to notes-for-computer.md · Peter RTF observations as input |
-| docs/benchmarks/ — first-session knowhow | 🟡 MEDIUM | 30 min | Security / SEO / Platform Developer benchmark patterns for future sessions |
-| JSON-LD structured data (full suite) | 🔴 HIGH | 2 hrs | layouts/partials/head.html + layouts/_default/single.html · Dataset + NewsArticle + BreadcrumbList · spec in docs/seo/ai-search-audit-2026-Q2.md Section 5 |
-| 4 utility page lastmod dates | 🟡 LOW | 15 min | /about/ /search/ /subscribe/ /tags/ — missing lastmod in sitemap |
-
-
-## PED SPRINT 1 — Deferred from 3 April session (>90min, fresh session needed)
-
-| Item | Priority | Est. | Notes |
-|------|----------|------|-------|
-| PED first session — knowhow dump | 🔴 HIGH | 1.5 hrs | docs/ux/decisions.md full population · colour-registry.md · 5-page progressive disclosure audit · gap list to notes-for-computer.md · Peter RTF observations as input |
-| docs/benchmarks/ — first-session knowhow | 🟡 MEDIUM | 30 min | Security / SEO / Platform Developer benchmark patterns for future sessions |
-| JSON-LD structured data (full suite) | 🔴 HIGH | 2 hrs | layouts/partials/head.html + layouts/_default/single.html · Dataset + NewsArticle + BreadcrumbList · spec in docs/seo/ai-search-audit-2026-Q2.md Section 5 |
-| 4 utility page lastmod dates | 🟡 LOW | 15 min | /about/ /search/ /subscribe/ /tags/ — missing lastmod in sitemap |
+| AGM + ERM dashboard audit | 🔴 HIGH | 30 min | Last 2 monitors not yet reviewed — complete colour-registry coverage |
+| ESA mobile viewport test (#section-delta font) | 🟡 MEDIUM | 15 min | Peter observed small font — unconfirmed at desktop; needs 375px test |
+| Signal panel contrast fix — GMM + SCEM | 🔴 HIGH | 30 min | Extend Principle 5 fix to GMM "One number to watch" + SCEM secondary text |
+| SCEM F-flag matrix — integrated labels | 🟡 MEDIUM | 45 min | Show "F2 · False-flag risk" inline in tile, not just legend below |
+| Severity badge font size floor | 🟡 MEDIUM | 15 min | Raise from 0.6rem to --text-xs across base.css |
+| Peter decisions needed before sprint | ⚠️ BLOCKER | — | Q4 (confidence badges), Q6 (hero image), Q7 (chatter feed), Q8 (SCEM/critical collision) |
 
 ## SPRINT 3 REMAINDER
 
