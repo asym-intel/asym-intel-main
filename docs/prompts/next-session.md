@@ -1,5 +1,5 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 efficiency sprint wrap (~11:30 CEST)
+**Updated:** 2026-04-03 post-renderer-fix wrap
 
 > **Bootloader:** Say "Computer: asym-intel.info" to the next instance.
 
@@ -15,8 +15,14 @@ before starting.
 --- SESSION: ESA/AGM/ERM pipelines + PED Sprint 2 ---
 
 VERIFY LIVE BEFORE STARTING:
+curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/renderer.js | node --check /dev/stdin && echo OK
+→ Must return OK. If not: check notes-for-computer.md for renderer.js bug pattern.
+
 curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
-→ Should show v1.3. If not: workflow_dispatch build.yml → CF purge-all-files.
+→ Should show v1.3.
+
+Screenshot https://asym-intel.info/monitors/macro-monitor/dashboard.html
+→ Must NOT show "Failed to load dashboard data" or "AsymRenderer is not defined".
 
 Priority queue:
 
@@ -31,28 +37,25 @@ Priority queue:
 
 3. Source → pattern cleanup (minor)
    FCW dashboard (1), WDM dashboard (1), SCEM dashboard (1)
-   grep "Source →" in each static/monitors/{slug}/dashboard.html, fix inline
+   grep "Source →" in static/monitors/{slug}/dashboard.html
 
 4. GMM/ESA annual calibration files
-   macro-monitor-imf-2026.md (IMF WEO April 2026 data)
-   european-strategic-autonomy-ecfr-2026.md
 
-EFFICIENCY REMINDER (new rule in COMPUTER.md v3.4):
+EFFICIENCY REMINDER (COMPUTER.md v3.4):
 - Batch 3+ tasks per session. Step 0 loading is fixed overhead — amortise it.
 - Housekeeping notifies on any issue. Silence = healthy. Don't open a session to verify health.
 
 DEPLOYMENT REMINDER:
-After any shared JS/CSS change → verify live (Cache-Control: no-store) → if stale: workflow_dispatch + CF purge-all.
+After any shared JS/CSS change → node --check on the file → commit → verify live → CF purge.
 CF Zone ID: cc419b7519eba04ef0dc6a7b851930c7
 ```
 
-## Previous session completed (efficiency sprint — 3 Apr)
-- ✅ Staging guard cron deleted (aec126c5)
-- ✅ GSC audit cron deleted (f78e0c2c) — recreate after GSC DNS TXT verified
-- ✅ Housekeeping slimmed — HTML structural checks stripped, ~50% fewer steps
-- ✅ COMPUTER.md v3.4 — min session size rule added
+## Previous session completed
+- ✅ renderer.js syntax bug fixed (sourceLink single-quote escaping — broke all dashboards)
+- ✅ CI validator CHECK 17 added — node --check on all shared JS files (commit 480d46cc)
+- ✅ Efficiency sprint: staging guard + GSC audit crons deleted, Housekeeping slimmed
+- ✅ COMPUTER.md v3.4 — min session size rule
 - ✅ docs/monitors/_shared/ artefact deleted
-- ✅ CRON-001 docs/ copies fixed for AGM/WDM/FCW/GMM
 
 ## Peter action required
 - ⚠️ Q4/Q6/Q7/Q8 in decisions.md (gates PED Sprint 2)
