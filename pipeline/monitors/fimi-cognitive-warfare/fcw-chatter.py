@@ -41,7 +41,6 @@ raw       = api_resp["choices"][0]["message"]["content"]
 citations = api_resp.get("citations", [])
 tokens    = api_resp.get("usage", {}).get("total_tokens", "?")
 print(f"Response received. Tokens: {tokens} | Citations: {len(citations)}")
-print(f"RAW_RESPONSE_PREVIEW: {repr(raw[:300])}")
 
 # Strip fences
 clean = raw.strip()
