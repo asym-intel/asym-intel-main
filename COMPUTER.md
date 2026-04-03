@@ -535,3 +535,44 @@ FCW/GMM/SCEM remain weekly (high-signal, active domains).
 Current cron IDs (weekly) still active until replaced:
 WDM: f7bd54e9 | ESA: 0b39626e | AGM: 5ac62731 | ERM: ce367026
 Run schedule_cron(action="delete") on each, then recreate with quarterly cron expression.
+
+## Efficiency Configuration (2026-04-03)
+**Target: ≤6,000 Computer credits/month, ≤$25 API/month**
+
+### GitHub Actions pipeline schedules
+| Workflow | New schedule | Old schedule |
+|---|---|---|
+| FCW chatter | Mon 06:00 UTC | daily |
+| GMM chatter | Tue 06:00 UTC | daily |
+| WDM chatter | Wed 06:00 UTC | daily |
+| SCEM chatter | Thu 06:00 UTC | daily |
+| ESA chatter | Fri 06:00 UTC | daily |
+| AGM chatter | Sat 06:00 UTC | daily |
+| ERM chatter | Sun 06:00 UTC | daily |
+| FCW collector | Mon 07:00 UTC | daily |
+| GMM collector | Tue 07:00 UTC | daily |
+| WDM collector | Wed 07:00 UTC | daily |
+| SCEM collector | Thu 07:00 UTC | daily |
+| ESA collector | Fri 07:00 UTC | daily |
+| AGM collector | Sat 07:00 UTC | daily |
+| ERM collector | Sun 07:00 UTC | daily |
+| Test workflows | DISABLED | scheduled |
+
+**Pattern: 1 monitor/day rotating. Chatter at 06:00, Collector at 07:00 same day.**
+Total GitHub Actions API calls: 14/week (was 42/week). Saves ~$1.20/month.
+
+### Analyst cron target schedules (quarterly, 1 per billing month)
+Computer crons for WDM/ESA/AGM/ERM need updating to quarterly cadence.
+FCW/GMM/SCEM remain weekly (high-signal, active domains).
+
+| Monitor | Quarterly schedule | cron expression |
+|---|---|---|
+| WDM | Jan/May/Sep — first Monday | 0 6 1-7 1,5,9 1 |
+| ESA | Feb/Jun/Oct — first Wednesday | 0 6 1-7 2,6,10 3 |
+| AGM | Mar/Jul/Nov — first Friday | 0 6 1-7 3,7,11 5 |
+| ERM | Apr/Aug/Dec — first Saturday | 0 6 1-7 4,8,12 6 |
+
+**NOTE: Computer cron IDs for WDM/ESA/AGM/ERM need updating at next session.**
+Current cron IDs (weekly) still active until replaced:
+WDM: f7bd54e9 | ESA: 0b39626e | AGM: 5ac62731 | ERM: ce367026
+Run schedule_cron(action="delete") on each, then recreate with quarterly cron expression.
