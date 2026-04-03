@@ -28,4 +28,5 @@ jobs:
           git add static/monitors/fimi-cognitive-warfare/data/chatter*.json
           git diff --staged --quiet && echo "No chatter output to commit" && exit 0
           git commit -m "data(fcw-chatter): daily signal — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
