@@ -842,9 +842,16 @@ a:hover { color: var(--color-primary-hover); }
 
 .home-grid {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 280px 1fr 260px;
   gap: var(--space-8);
   align-items: start;
+}
+
+@media (max-width: 1400px) {
+  .home-grid {
+    grid-template-columns: 280px 1fr;
+  }
+  .home-chatter { display: none; }
 }
 
 @media (max-width: 1100px) {
@@ -974,9 +981,80 @@ a:hover { color: var(--color-primary-hover); }
   min-width: 0;
 }
 
+
+/* ── Right chatter column ───────────────────────────────────────────────── */
+.home-chatter {
+  position: sticky;
+  top: calc(40px + var(--space-6));
+  max-height: calc(100vh - 40px - var(--space-12));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.home-chatter__header {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 1;
+}
+.home-chatter__title {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.home-chatter__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.home-chatter__item {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.home-chatter__item:last-child { border-bottom: none; }
+.home-chatter__chip {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  border-radius: 2px;
+  border: 1px solid currentColor;
+  opacity: 0.7;
+  margin-bottom: var(--space-1);
+}
+.home-chatter__link {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+  line-height: 1.35;
+  display: block;
+}
+.home-chatter__link:hover { color: var(--color-primary); }
+.home-chatter__source {
+  font-size: 0.7rem;
+  color: var(--color-text-faint);
+}
+
 /* ── Zone 1: Lead story ──────────────────────────────────────────────────── */
 .tn-lead {
-  padding-block: var(--space-8) var(--space-10);
+  padding-block: 0 var(--space-10);
   border-bottom: 2px solid var(--color-border-strong);
   margin-bottom: var(--space-8);
 }
