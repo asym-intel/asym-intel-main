@@ -1,11 +1,11 @@
 # HANDOFF.md — Asymmetric Intelligence Platform
-**Updated:** 2026-04-03 session wrap (~09:10 CEST)
+**Updated:** 2026-04-03 final wrap (~11:03 CEST)
 
 ## Platform Status
 - Site: ✅ Live at asym-intel.info
-- Build: ✅ build.yml with proper deploy-pages job (fixed today)
-- Staging: ✅ Clean (ahead_by: 0)
-- CF Cache: ✅ Purged post-deploy
+- Build: ✅ build.yml with deploy-pages job (fixed today)
+- Staging: ✅ Clean (ahead_by: 0, behind_by: 78 — expected after reset)
+- CF Cache: ✅ Purged multiple times today
 
 ## Cron IDs (all verified)
 | Monitor | Cron ID | Schedule |
@@ -19,38 +19,44 @@
 | SCEM | 8cdb83c8 | Sun 18:00 UTC |
 | Housekeeping | 7e058f57 | Mon 08:00 UTC |
 
-## GitHub Actions Pipelines (not Computer crons)
-**Collectors (daily 06:00/07:00 UTC):** FCW, GMM, SCEM, WDM ✅ | ESA, AGM, ERM ✅ (built today)
-**Chatter (daily 06:00 UTC):** All 7 monitors ✅ — 10 items each, data committed today
-**Weekly research + Reasoner:** FCW, GMM, SCEM ✅ | ESA, AGM, ERM ❌ not yet built
+## GitHub Actions Pipelines
+**Daily Collectors (06:00/07:00 UTC):** All 7 ✅
+**Chatter (06:00 UTC):** All 7 ✅ — FCW/GMM/WDM/SCEM/ESA/ERM 10 items; AGM 1 item (correct — quality filter active)
+**Weekly research + Reasoner:** FCW/GMM/SCEM ✅ | ESA/AGM/ERM ❌ not yet built
+
+## Shared Modules (nav.js v1.3 + new today)
+| Module | File | Function |
+|---|---|---|
+| Monitor registry | nav.js MONITOR_REGISTRY | Single source for accent, SVG, name, abbr |
+| Nav injection | nav.js injectMonitorNav() | Canonical 9-link nav from URL |
+| Brand injection | nav.js injectMonitorBrand() | Logo + name + --monitor-accent |
+| Theme toggle | nav.js injectThemeToggle() | Idempotent |
+| Footer | nav.js injectMonitorFooter() | Canonical footer |
+| Chatter renderer | shared/js/chatter.js | All chatter pages — derives slug from URL |
+| Search engine | shared/js/search.js | All search pages — full-text across issues |
+| Source labels | renderer.js sourceLabel/sourceLink | 80+ domain map, inline attribution |
+
+## Prompt Quality Infrastructure (new today)
+- Version headers on all 17 prompt files
+- `asym-intel-internal/prompt-improvements.md` — running quality log
+- Housekeeping Step 10 — weekly chatter quality audit (tier%, recency, source bloat)
+- AGM blocked domain list: dwealth.news, p3adaptive.com, atlan.com etc.
 
 ## Open — Needs next session
-1. ESA/AGM/ERM weekly-research + reasoner workflows (only daily collector built)
-2. Remaining ~4 unmatched Source → patterns (minor, no functional impact)
-3. GMM/ESA calibration annual files (imf-2026, ecfr-2026)
-4. Sprint 4 schema items (WDM/SCEM schema-gated renders)
-5. PED Sprint 2 (AGM + ERM dashboard audit, ESA mobile font, signal panel contrast GMM/SCEM)
+1. ESA/AGM/ERM weekly-research + reasoner workflows
+2. PED Sprint 2 (Q4/Q6/Q7/Q8 decisions gating it — see decisions.md)
+3. ~3 unmatched Source → patterns in FCW/WDM/SCEM dashboards (minor)
+4. GMM/ESA annual calibration files (imf-2026, ecfr-2026)
+5. Sprint 4 schema items (WDM/SCEM schema-gated renders)
+6. AGM chatter — consider 2-3x/week cadence vs daily (low-frequency domain)
 
 ## Open — Peter action required
-- ⚠️ Q4: confidence badge visual class (decisions.md)
-- ⚠️ Q6: homepage hero image (decisions.md)
-- ⚠️ Q7: homepage chatter feed spec (decisions.md)
-- ⚠️ Q8: SCEM accent / --critical collision (decisions.md)
+- ⚠️ Q4/Q6/Q7/Q8 in decisions.md (gates PED Sprint 2)
 - ⚠️ Branch protection on main (SEC-009 HIGH)
 - ⚠️ GSC property verification (DNS TXT record)
 
-## Chatter — all live
-7/7 monitors: 10 items each, accessible at /monitors/{slug}/data/chatter-latest.json
-Homepage chatter column: right panel >1280px, below feed ≤1100px
-
-## Key files changed today
-- `.github/workflows/build.yml` — added deploy-pages job, force push, .nojekyll
-- `static/monitors/shared/js/nav.js` — v1.3, MONITOR_REGISTRY, 4 injection functions
-- `static/monitors/shared/js/renderer.js` — sourceLabel + sourceLink, 80+ domains
-- `docs/ARCHITECTURE.md` — shared module principle, deployment pipeline runbook
-- `assets/css/main.css` — 3-col homepage, chatter breakpoints
-- `layouts/index.html` — chatter column HTML + fetch JS
-- All 53 monitor pages — canonical 9-link nav (PR #32)
-- 9 dashboard/report files — sourceLink inline source labels
-- All 7 chatter workflows + chatter.py + prompts for all monitors
-- ESA/AGM/ERM collector pipelines (collect.py, workflow, prompt, pipeline stubs)
+## Deployment reminder
+After ANY shared JS/CSS change:
+1. Verify live: `curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"`
+2. If stale: workflow_dispatch build.yml → `cloudflare_api_key-purge-all-files` (Zone: cc419b7519eba04ef0dc6a7b851930c7)
+3. Screenshot a dashboard — confirm no "Failed to load data."
