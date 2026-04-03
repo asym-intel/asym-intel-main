@@ -574,3 +574,32 @@ Wrapping the **entire `<script>` tag** in `printf` + `safeHTML` marks the whole 
 - `layouts/_default/single.html` (NewsArticle)
 - Any future layout adding Schema.org or other JSON-LD blocks
 
+---
+
+## FE-026 — Hugo Minifier Escapes JSON-LD Inside Script Tags
+
+**Discovered:** 2026-04-03 — JSON-LD structured data implementation
+
+**Problem:** Hugo `--minify` uses tdewolff/minify to process HTML output. The minifier treats content inside `<script>` tags as potentially unsafe HTML and escapes double-quote characters. This breaks JSON-LD and any other structured data rendered via Hugo templates.
+
+**Symptom:** `"headline":"\"World Democracy Monitor\""` in built HTML — extra backslash-escaped quotes wrapping every string value in the JSON-LD block. The JSON is syntactically invalid for structured data parsers.
+
+**Wrong pattern:**
+```html
+<script type="application/ld+json">{{ $dict | jsonify | safeHTML }}</script>
+```
+`safeHTML` on the `jsonify` output alone does not prevent minification — the minifier operates on the rendered HTML, after template execution.
+
+**Correct pattern:**
+```go
+{{ printf `<script type="application/ld+json">%s</script>` ($dict | jsonify) | safeHTML }}
+```
+Wrapping the **entire `<script>` tag** in `printf` + `safeHTML` marks the whole element as trusted HTML. The minifier skips it entirely.
+
+**Build the JSON as a Go `dict`** before passing to `jsonify` — never interpolate values inline inside the script tag with `{{ .Title }}` or `{{ .Title | jsonify }}`. Both approaches are defeated by the minifier.
+
+**Applies to:** All Hugo templates outputting structured data in script tags:
+- `layouts/partials/head.html` (BreadcrumbList, Dataset)
+- `layouts/_default/single.html` (NewsArticle)
+- Any future layout adding Schema.org or other JSON-LD blocks
+
