@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="card__label">' + actorTag(a.actor || a.id || '') + escHtml(a.name || '') + '</div>' +
               '<div class="card__title">' + escHtml(a.headline || '') + '</div>' +
               '<div class="card__body">' + escHtml(a.summary || a.doctrine || '') + '</div>' +
-              (a.source_url ? '<div class="card__footer"><a class="source-link" href="' + escHtml(a.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
+              (a.source_url ? (escHtml(a.source_url) ? AsymRenderer.sourceLink(escHtml(a.source_url)) : '')) +
             '</div>';
         });
       } else {
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="card__label">' + escHtml(item.id || '') + (item.classification ? ' · ' + escHtml(item.classification) : '') + '</div>' +
               '<div class="card__title">' + escHtml(item.headline || '') + '</div>' +
               '<div class="card__body">' + escHtml(item.detail || item.summary || '') + '</div>' +
-              (item.source_url ? '<div class="card__footer"><a class="source-link" href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
+              (item.source_url ? (escHtml(item.source_url) ? AsymRenderer.sourceLink(escHtml(item.source_url)) : '')) +
             '</div>';
         });
       } else {
