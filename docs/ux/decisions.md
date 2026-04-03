@@ -2,225 +2,417 @@
 ## Platform Experience Designer — Accumulated Decisions
 **Owner:** Platform Experience Designer
 **Created:** April 2026
-**Updated:** 2026-04-03 — PED Session 1 (first session knowhow dump)
+**Updated:** 2026-04-03 — PED Session 1 (first-session knowhow dump)
 
-First-ever PED session: 8 design principles confirmed from live page observation; per-monitor nav/heading audit across 4 monitors; colour system documented; signal panel contrast failure confirmed across FCW (screenshot), GMM, and SCEM; 7 open questions raised for Peter and next session.
+This is the persistent memory of the Platform Experience Designer role.
+It accumulates design principles, per-monitor decisions, cross-monitor standards,
+open questions, and lessons from what has been tried and didn't work.
+
+A fresh session reads this file before doing anything else. If this file is absent,
+run the first-session knowhow dump (see docs/prompts/platform-experience-designer.md)
+before any implementation.
 
 ---
 
 ## Section 1 — Design Principles
 
+Principles confirmed through direct observation and session work with Peter.
+Each entry includes the confirming example(s) so future sessions can recognise new violations.
+
+---
+
 **Principle 1: No redundant affordances**
-A CTA label placed beside an already-linked title is never acceptable. One element should do one navigational job. The title link is the affordance; a separate "Read →" or "Read briefing →" label adds visual noise without navigational value.
-*Date agreed: 2026-04-03 — PED Session 1*
+A CTA label beside or below an already-linked element adds no navigational value and costs
+vertical space that should show content. One element should do one navigational job.
+
+*Confirmed by (2026-04-03):*
+- Homepage brief cards: "Read →" and "Read briefing →" appeared below hyperlinked titles on
+  every card. The title itself was the link. Peter observed the CTA was forcing readers to scroll
+  past the excerpt to reach content that would otherwise fit above the fold.
+- Screenshot confirmed: secondary grid cards had excerpt text cut mid-sentence because the CTA
+  consumed the vertical space.
+
+*Fix applied (2026-04-03):* Removed `tn-lead__cta` and `tn-story__cta` elements from
+`layouts/index.html`. Dead CSS cleaned from `assets/css/main.css`. Commits 48e64d4, 9e9673a.
+
+*Watch for:* Any `Read →`, `View →`, `See more →` label that appears adjacent to or below
+a linked heading on any page. This includes monitor archive pages, brief index pages, and
+any future feed-style layout.
+
+---
 
 **Principle 2: Attribution proximity**
-Source attribution belongs inline with the attributed item, not as a separate line element below it. Readers should not need to visually decouple a source from its claim. A block-level "Source →" rendered below item text breaks the cognitive connection between claim and evidence.
-*Date agreed: 2026-04-03 — PED Session 1*
+Source attribution must be visually and spatially integrated with the item it supports.
+A "Source →" link rendered as a separate block element below the item body creates
+a visual gap between claim and evidence — readers have to mentally re-associate them.
+
+*Confirmed by (2026-04-03):*
+- `.intel-item__source` CSS: `display: inline-block; margin-top: var(--space-3)` — structurally
+  a separate block, not inline within body text.
+- Observed on GMM (Cross-Monitor Flags), FCW (campaign items), ESA (Top Items section):
+  "Source →" appears on its own line after the body paragraph.
+- Peter's observation: "Source → labels should be inline hyperlinks on the item itself."
+
+*Status:* Unimplemented — CSS structural change required. Raise with Platform Developer
+before implementing; inline vs block has implications for multi-source items.
+
+*Watch for:* Any element using `.intel-item__source`, `.source-link`, or equivalent that
+appears as a block-level element below item text rather than inline within it.
+
+---
 
 **Principle 3: Nav labels are promises**
-A nav label is a promise about what the reader will see when they click. If the section heading says something different, the promise is broken. Nav labels must match section headings exactly or within one word. Abbreviated labels are acceptable only if unambiguous. "KPI" for "Tail Risk Heatmap" is not acceptable. "Signal" for "Weekly Signal" is acceptable.
-*Date agreed: 2026-04-03 — PED Session 1*
+A right-hand section nav label is a promise about what the reader will find when they click.
+If the visible section heading says something different, the promise is broken.
+Nav labels must match section headings — exact text, or a clearly unambiguous abbreviation.
+Truncation is acceptable ("Regime Shift" for "Regime Shift Probabilities").
+Substitution is not ("KPI" for "Tail Risk Heatmap").
 
-**Principle 4: Coloured panels require white or near-white text**
-When `--monitor-accent` is used as a solid panel background (not a light tint at rgba 8–15%), all text on that panel must be white or near-white (≥#f0f0f0). Accent-derived text colours collapse in contrast when used on a solid accent background. This creates near-collision or WCAG failure at --text-sm body size. No exceptions.
-*Date agreed: 2026-04-03 — PED Session 1*
+*Confirmed by (2026-04-03) — systemic across all 4 monitors reviewed:*
 
-**Principle 5: Encoded systems need visible context at point of encounter**
-F-flags, MATT scores, severity bands, and confidence levels cannot rely on a reader having studied methodology documentation. Plain-language context must be visible at the point the encoded element appears — not in a separate legend below, not on a methodology page. A tile reading "F2 ACTIVE Sudan" communicates status but not significance. An integrated label reads "F2 (Adjacent escalation risk) ACTIVE — Sudan".
-*Date agreed: 2026-04-03 — PED Session 1*
+GMM (11 mismatches observed):
+- "KPIs" → section has no heading; TAIL RISK HEATMAP sits under this anchor with no own entry
+- "Signal" → heading reads "Weekly Signal"
+- "Regime Shift" → heading reads "Regime Shift Probabilities"
+- "Delta Strip" → heading reads "Delta Strip — Top Moves This Week"
+- "Asset Chart" → label reads "Asset Class Scores — Visual"
+- "Scenarios" → heading reads "Macro Scenarios"
+- "Fed Path" → label reads "Fed Funds Path — Market vs. Analyst"
+- "Cross-Monitor" → label reads "Cross-Monitor Flags"
 
-**Principle 6: Minimum readable body size is --text-sm**
-`--text-xs` (≈13px) is acceptable for metadata, timestamps, and UI chrome. It is not acceptable for body text that carries analytical meaning. `--text-sm` (≈15px) is the minimum for sustained analytical reading. Severity badges at `0.6rem` (≈9.6px) are below even the system's own `--text-min` floor — this is a CSS inconsistency, not a design choice.
-*Date agreed: 2026-04-03 — PED Session 1*
+FCW:
+- "Top Campaigns" → heading reads "Top Campaigns — This Issue"
+- "Top Campaigns" anchor href points to #section-delta (wrong anchor ID)
+- "Cross-Monitor" → heading reads "Cross-Monitor Flags"
 
-**Principle 7: Every visible section has a nav entry**
-If a section is prominent enough to appear on the page, it is prominent enough to appear in the right-hand nav. Orphaned sections — sections on the page with no corresponding nav entry — are a navigation failure. They are invisible to keyboard navigation and break the reader's spatial memory of the page.
-*Date agreed: 2026-04-03 — PED Session 1*
+ESA (4 mismatches):
+- "Autonomy Score" → heading reads "Strategic Autonomy Scorecard"
+- "Top Items" → heading reads "Top Items This Issue"
+- "Member States" → heading reads "Member State Tracker"
+- "Cross-Monitor" → heading reads "Cross-Monitor Flags"
+
+SCEM:
+- "F-Flag Matrix" → heading reads "Friction Flag Status Board"
+- "Escalation Index" → heading reads "Global Escalation Index"
+
+*Status:* Unimplemented — Platform Developer audit pass required across all 7 monitors.
+Decision needed: should nav labels be updated to match headings, or headings updated to match
+nav labels? In most cases nav labels are the abbreviation — update headings to use the
+same abbreviated form where the section heading is not a reader-facing title but a label.
+
+*Watch for:* Any nav entry whose label text cannot be recognised as the section heading by
+a first-time reader. Test: can someone click the nav label and immediately confirm they
+arrived at the right section?
+
+---
+
+**Principle 4: Every visible section has a nav entry**
+If a section is prominent enough to be on the page, it is prominent enough to be in the
+right-hand section nav. Orphaned sections are invisible to readers using the nav for
+orientation — they either scroll past them without reading, or cannot return to them.
+
+*Confirmed by (2026-04-03):*
+- SCEM: "Conflict Overview — All Active Roster" — a full bar-chart roster of all 10 active
+  conflicts with indicator scores — has no nav entry. Nav jumps from "Delta Strip" directly
+  to "Active Conflicts". Peter's exact observation.
+- GMM: "TAIL RISK HEATMAP" section (all-caps eyebrow label, visually prominent, full-width
+  heatmap grid) sits under the "KPIs" anchor with no own nav entry.
+- FCW: "All Operations" has a nav entry but renders "All campaigns shown in featured section
+  above." — near-empty, which is the inverse problem (nav entry for a near-empty section).
+
+*Status:* Unimplemented. Add nav entries to SCEM (Conflict Overview) and GMM (Tail Risk).
+Review FCW "All Operations" — if it persistently has no independent content, remove nav entry.
+
+*Watch for:* Any section with a visible heading, chart, or table that does not have a
+corresponding entry in the right-hand section nav. Run this check when new sections are
+added to any monitor.
+
+---
+
+**Principle 5: Coloured panels require white text**
+When `--monitor-accent` is used as a solid panel background (not a tint/rgba), all text
+on that panel must be white or near-white (≥ rgba(255,255,255,0.75)).
+Accent-derived text colours on accent-coloured backgrounds create near-collision contrast.
+This is not a border case — it fails WCAG at the text sizes used.
+
+*Confirmed by (2026-04-03):*
+- FCW Lead Signal panel (screenshot confirmed by Peter): panel background mid-teal (#38bdf8 family).
+  Primary headline text near-white — readable. Secondary paragraph ("MF1 alert: pro-Orbán
+  Hungarian Conservative outlet running counter-narrative...") rendered in dark teal on mid-teal
+  background. Estimated contrast ratio ≈ 2:1. WCAG minimum for body text is 4.5:1.
+  Peter's exact observation: "isn't the text too hard to see given the contrast between the
+  panel colour and this text."
+- GMM signal block: "One number to watch" sub-block rendered in lighter teal on dark teal.
+  Visually strained. "Read the top story ↓" CTA also in muted teal-on-teal.
+- SCEM Lead Signal panel: dark red/crimson background (#dc2626). Secondary text in pink-tinted
+  tone — reduced contrast against the crimson.
+
+*Root cause:* Signal panel uses `--monitor-accent` as solid background, then applies
+accent-derived or muted text colours. The muted tokens (--color-text-muted, --color-text-faint)
+are calibrated for the light/dark page background — not for solid accent backgrounds.
+
+*Fix rule:* On any solid accent-background panel:
+- All text: `#ffffff` or `rgba(255,255,255,0.9)`
+- Deemphasised secondary text: `rgba(255,255,255,0.72)` minimum
+- Never: accent-derived colours, muted tokens, or any colour not independently verified
+  for contrast against the specific panel background
+
+*Status:* Unimplemented. Affects FCW, GMM, SCEM confirmed. WDM, ESA, AGM, ERM: audit pending.
+Platform Developer implementation spec needed — raise in next session.
+
+*Watch for:* Any `.signal-block`, `.lead-signal`, or coloured panel element where text colour
+is set to anything other than white-family on a solid-coloured background.
+
+---
+
+**Principle 6: Encoded systems need visible context at point of encounter**
+Proprietary codes (F1–F7 flags, MATT score, severity bands, confidence levels) cannot
+rely on the reader having read methodology documentation. Plain-language context must be
+visible at the exact point the code appears — not in a separate legend below, not in a
+methodology page linked from the footer.
+
+*Confirmed by (2026-04-03):*
+- SCEM Friction Flag Status Board: 7 tiles labelled F1–F7, each showing CLEAR/ACTIVE and
+  a country name. Legend mapping codes to meanings (e.g. "F2: Adjacent escalation / false-flag
+  risk") is rendered in small, low-weight type below the matrix.
+  Peter's exact observation: "SCEM flag matrix — value unclear to non-specialist reader."
+  A reader sees "F2 ACTIVE Sudan" — ACTIVE communicates status but not significance.
+  Without reading the legend: what does F2 mean? Is ACTIVE serious?
+- GMM MATT score: score visible on dashboard but meaning not explained at point of encounter.
+- FCW confidence badges ("CONFIRMED", "F1"): shown without explanation of the confidence
+  vocabulary or what CONFIRMED means in the context of attribution.
+
+*The test:* A reader who has never seen the platform before should be able to read a data
+element and understand its significance without scrolling, clicking, or leaving the page.
+If they cannot, the context is missing.
+
+*Fix pattern:* Integrate the label meaning into the tile/badge itself, not just in a legend
+below. For F-flags: tile shows "F2 · False-flag risk" alongside ACTIVE/CLEAR status.
+Legend below can remain as reference — it is not sufficient as the only explanation.
+
+*Status:* Unimplemented. PED spec needed before Platform Developer implementation.
+Scope: SCEM flag matrix minimum; GMM MATT score; FCW confidence badges.
+
+*Watch for:* Any badge, tile, score, or encoded label where the meaning is defined only
+in a legend, tooltip, or external page — not visible at point of encounter.
+
+---
+
+**Principle 7: Minimum readable body size is --text-sm**
+`--text-xs` (clamp 0.8125rem → 0.875rem, ≈13–14px) is acceptable for metadata, timestamps,
+UI chrome, and non-semantic labels. It is not acceptable for body text that carries
+analytical meaning and requires sustained reading.
+
+*Confirmed by (2026-04-03):*
+- `.severity-badge { font-size: 0.6rem }` — 9.6px at 16px root. This is below the system's
+  own documented `--text-min` floor (which aliases to `--text-xs`). The badge font violates
+  the system's own minimum.
+- `.signal-block__label`, `.intel-item__source`: both use `--text-xs` (≈13px). These are
+  labels and attribution — metadata — so --text-xs may be acceptable here.
+- `.signal-block__body`: uses `--text-sm` (≈15px) — correct for body text.
+- Peter's observation: "small font sitewide" with ESA #section-delta called out specifically.
+  Desktop review showed consistent sizing on ESA — this may be a mobile viewport issue.
+  Requires mobile test.
+
+*Fix rule:*
+- Body text carrying analytical meaning: `--text-sm` minimum (≈15px)
+- Metadata (dates, source labels, UI chrome): `--text-xs` acceptable (≈13px)
+- Badges: raise from 0.6rem to `--text-xs` minimum — currently below system floor
+
+*Status:* Badge font size fix unimplemented. ESA mobile font issue unconfirmed — needs test.
+
+*Watch for:* Any `font-size` value set below `--text-xs` in base.css or any monitor.css.
+Any body text — paragraph, summary, signal narrative — set to `--text-xs` or below.
+
+---
 
 **Principle 8: Severity and confidence are separate analytical dimensions**
-Using severity colours (amber = HIGH severity) for confidence-level badges (CONFIRMED) creates analytical ambiguity. A reader may interpret a confidence label as a severity rating. Severity encodes "how bad is this". Confidence encodes "how certain are we". They must be visually distinct — separate badge classes, not separate values within the same colour system.
-*Date agreed: 2026-04-03 — PED Session 1*
+Severity (how bad is this situation?) and confidence (how certain are we of the attribution?)
+are fundamentally different analytical claims. Using the same visual encoding (colour, badge
+style) for both creates ambiguity — a reader may interpret a confidence label as severity
+information, or vice versa.
+
+*Confirmed by (2026-04-03):*
+- FCW uses `.severity-badge--high` (amber, `--high` colour token) for confidence badges
+  such as "CONFIRMED". This means amber = severity HIGH = confidence CONFIRMED — two different
+  meanings, one colour.
+- The "CONFIRMED" badge in the FCW Lead Signal panel uses orange/amber styling — the same
+  visual weight as a HIGH severity badge. A reader scanning the panel receives mixed signals.
+
+*Status:* Unresolved — requires Peter decision before implementation.
+Open question: should confidence badges use a separate class with distinct visual treatment
+(e.g. outline/border style vs filled severity badge, or a separate colour family entirely)?
+
+*Watch for:* Any badge, chip, or label that uses a severity colour token to communicate
+a confidence level. Check FCW attribution log, any monitor using "Confirmed/Assessed/Possible"
+vocabulary.
 
 ---
 
 ## Section 2 — Per-Monitor Decisions
 
-### GMM — Global Macro Monitor
+### GMM (macro-monitor)
+**Nav/heading mismatches:** 11 confirmed — see Principle 3 for full list.
+**Orphaned sections:** TAIL RISK HEATMAP has no nav entry (sits under KPIs anchor).
+**Signal panel:** "One number to watch" sub-block — teal-on-teal contrast failure (Principle 5).
+**Heading conventions:** Mixed — some H2, some all-caps eyebrow labels, some chart/table labels.
+  This creates an inconsistent visual hierarchy across 12 sections. Standardise in future sprint.
+**Fed Path:** Showed "Loading…" during observation — possible chart render failure or data gap.
+  Needs investigation.
+**Two simultaneous nav systems:** Page-level sub-nav (Overview/Dashboard/Latest Issue/Archive...)
+  AND right-hand section nav both visible. Potential orientation confusion for new readers.
+**Status:** No PED changes implemented yet. Nav/heading alignment is highest priority.
 
-**Nav label / section heading mismatches (confirmed — PED Session 1):**
-- Nav "KPIs" → No H2 heading — KPI area shows four stat cards with no heading text
-- Nav "KPIs" → Also orphans "TAIL RISK HEATMAP" section (sits under the KPIs anchor, no dedicated nav entry)
-- Nav "Signal" → Page heading "Weekly Signal"
-- Nav "Regime Shift" → Page heading "Regime Shift Probabilities"
-- Nav "Delta Strip" → Page heading "Delta Strip — Top Moves This Week"
-- Nav "Asset Chart" → Label "Asset Class Scores — Visual"
-- Nav "Asset Outlook" → Label "Asset Outlook Summary"
-- Nav "Scenarios" → Body text label "Macro Scenarios"
-- Nav "Fed Path" → Label "Fed Funds Path — Market vs. Analyst"
-- Nav "Real M2" → Label "Real M2 — Deflator Waterfall"
-- Nav "Cross-Monitor" → Label "Cross-Monitor Flags"
+### FCW (fimi-cognitive-warfare)
+**Nav/heading mismatches:** 2 confirmed + 1 anchor ID mismatch (Top Campaigns → #section-delta).
+**Signal panel contrast:** CONFIRMED failure — screenshot evidence. Secondary paragraph text
+  in dark teal on mid-teal background. (Principle 5)
+**Confidence badge collision:** CONFIRMED badge uses severity colour (Principle 8).
+**All Operations section:** Nav entry present but section renders near-empty ("All campaigns
+  shown in featured section above."). Either populate or remove nav entry.
+**Source labels:** Separate block elements, not inline (Principle 2).
+**Status:** No PED changes implemented yet beyond Principle 1 fix (CTA removal, homepage only).
 
-**Orphaned sections:**
-- "TAIL RISK HEATMAP" — no dedicated nav entry; sits under "KPIs" anchor. Substantive section invisible from nav.
+### ESA (european-strategic-autonomy)
+**Nav/heading mismatches:** 4 confirmed — see Principle 3.
+**#section-delta font size:** Peter observed small font. Desktop review showed consistent sizing.
+  Mobile viewport test required before any fix is specified.
+**Source labels:** "Source →" as separate block elements (Principle 2).
+**Status:** No PED changes implemented yet.
 
-**Signal panel contrast status:**
-- Confirmed contrast problem: "One number to watch" sub-block renders lighter teal text on solid teal background — noticeably hard to read.
-- "Read the top story ↓" CTA: muted teal-on-teal — easily missed.
-- Assessment: terminal aesthetic is distinctive but sacrifices scan-ability for dense prose text.
+### SCEM (conflict-escalation)
+**Nav/heading mismatches:** 2 confirmed (F-Flag Matrix, Escalation Index).
+**Orphaned section:** "Conflict Overview — All Active Roster" — no nav entry. (Principle 4)
+  Peter's exact observation. Contains a full bar-chart roster of 10 active conflicts.
+**Flag matrix:** Non-specialist legibility failure confirmed. F-codes opaque without legend;
+  legend is present but visually subordinate. (Principle 6)
+**Signal panel:** Dark red background + pink-tinted secondary text — reduced contrast. (Principle 5)
+**Emotional register:** Red/crimson accent throughout creates high-urgency feel even when
+  individual conflicts may be stable. This may be intentional (SCEM = highest-stakes monitor)
+  but should be confirmed with Peter.
+**Status:** No PED changes implemented yet.
 
-**Known presentation problems:**
-- Fed Path section shows "Loading…" — chart render failure or data not yet available at time of review.
-- Two simultaneous nav systems: page-level sub-nav (Overview/Dashboard/Latest Issue/Archive) AND right-hand section nav — potential orientation confusion for new readers.
-- Section heading conventions inconsistent: some H2, some all-caps eyebrow labels, some table/chart labels.
-- Source "→" labels rendered as separate block elements below items, not inline.
+### WDM (democratic-integrity)
+Not yet reviewed in PED. Audit pending — PED Session 2.
 
----
+### AGM (ai-governance)
+Not yet reviewed in PED. Audit pending — PED Session 2.
 
-### FCW — FIMI & Cognitive Warfare Monitor
-
-**Nav label / section heading mismatches (confirmed — PED Session 1):**
-- Nav "Top Campaigns" → Heading "Top Campaigns — This Issue"
-- Nav "Top Campaigns" → anchor href is `#section-delta` (not `#section-top-campaigns`) — anchor ID mismatch
-- Nav "Cross-Monitor" → Heading "Cross-Monitor Flags"
-
-**Orphaned sections:**
-- None confirmed. "All Operations" has a nav entry but near-empty content.
-
-**Signal panel contrast status:**
-- CONFIRMED WCAG FAILURE — screenshot from Peter confirms this directly.
-- Panel background: solid mid-teal (~#2a7fa0 range, FCW accent #38bdf8 family).
-- Primary text: near-white — readable.
-- Secondary paragraph (MF1 alert text): muted teal-on-teal — contrast estimated below WCAG 2:1 at --text-sm size.
-- "Full brief →" link: lighter teal-on-teal — marginal contrast.
-- Contrast failure is architectural: signal panel uses monitor accent as background, then renders secondary text in accent-derived colour.
-
-**Known presentation problems:**
-- "All Operations" section: contains only "All campaigns shown in featured section above." — minimal content, looks near-empty.
-- Nav "Top Campaigns" uses wrong anchor (#section-delta) — clicking may not navigate to expected position.
-- "CONFIRMED" badge uses `.severity-badge--high` styling (amber) — confidence level encoded with severity colour. See Section 3 Collision note.
-- "F1" badge: 0.6rem (≈9.6px) — below system --text-min floor.
-
----
-
-### ESA — European Strategic Autonomy Monitor
-
-**Nav label / section heading mismatches (confirmed — PED Session 1):**
-- Nav "Autonomy Score" → Heading "Strategic Autonomy Scorecard"
-- Nav "Top Items" → Heading "Top Items This Issue"
-- Nav "Member States" → Heading "Member State Tracker"
-- Nav "Cross-Monitor" → Heading "Cross-Monitor Flags"
-
-**Orphaned sections:**
-- None confirmed at time of review.
-
-**Signal panel contrast status:**
-- Not directly observed in PED Session 1 — ESA accent is #5b8db0 (slate blue). Assume same pattern risk as FCW/GMM; audit in PED Session 2.
-
-**Known presentation problems:**
-- Peter observed small font in #section-delta. Desktop review shows consistent sizing — this may be a mobile-specific rendering issue (see Q5 in Section 4).
-- Section delta heading says "Top Items This Issue" (nav says "Top Items") — mismatch confirmed.
-
----
-
-### SCEM — Conflict Escalation Monitor
-
-**Nav label / section heading mismatches (confirmed — PED Session 1):**
-- Nav "F-Flag Matrix" → Heading "Friction Flag Status Board"
-- Nav "Escalation Index" → Heading "Global Escalation Index"
-
-**Orphaned sections:**
-- "Conflict Overview — All Active Roster" — visible section on page, no nav entry. Nav jumps from "Delta Strip" directly to "Active Conflicts". The section contains a substantive bar-chart roster of all 10 active conflicts with indicator scores and deviation columns.
-
-**Signal panel contrast status:**
-- Confirmed contrast problem. SCEM accent is #dc2626 (red). Lead Signal panel: dark red/crimson background, white headline text (readable), lighter pink-tinted secondary text — same pattern as FCW: accent-background panel with accent-derived secondary text colour.
-
-**Known presentation problems:**
-- F-flag matrix opaque to non-specialist: F1–F7 tiles with "ACTIVE/CLEAR" status and country name; legend below in small low-weight type. Without reading legend, codes are meaningless. Fails 60-second activist citizen test.
-- SCEM uses red/crimson accent — most visually alarming of all 7 monitors. Emotional register is high-urgency even when individual conflicts may be stable (separate from nav/contrast issues — carry to emotional register discussion Q1).
-- SCEM accent #dc2626 is identical to --critical severity hex. See Section 3 collision note.
-
----
-
-### WDM, AGM, ERM
-
-Not yet reviewed in PED — audit pending.
+### ERM (environmental-risks)
+Not yet reviewed in PED. Audit pending — PED Session 2.
 
 ---
 
 ## Section 3 — Cross-Monitor Standards
 
-**Severity colour conventions (confirmed — Blueprint v2.1):**
-- CRITICAL / Rapid Decay: `--critical` = #c1440e (dark orange-red)
-- HIGH / Watchlist: `--high` = #d97706 (amber)
-- MODERATE / Stable: `--moderate` = #2563eb (blue)
-- POSITIVE / Recovery / Improving: `--positive` = #059669 (green)
-- CONTESTED / Uncertain: `--contested` = #6366f1 (indigo)
-- Corresponding `--{name}-bg` tints at 8–10% alpha (light mode), 12–15% alpha (dark mode)
+### Severity colour system (confirmed — Blueprint v2.1)
+| Token | Hex | Meaning |
+|---|---|---|
+| `--critical` / `--rapid-decay` | #c1440e | Critical / Rapid Decay / Highest severity |
+| `--high` / `--watchlist` | #d97706 | High / Elevated / Watchlist |
+| `--moderate` | #2563eb | Moderate / Stable |
+| `--positive` / `--recovery` | #059669 | Positive / Recovery / Improving |
+| `--contested` | #6366f1 | Contested / Uncertain |
 
-**Confidence level vocabulary (confirmed — from methodology):**
+These tokens carry severity meaning across ALL monitors.
+Using them for confidence levels, monitor identity, or any other purpose creates collision.
+
+### Confidence level vocabulary (from methodology)
 Confirmed / High / Assessed / Possible — in descending order of certainty.
-Never substitute editorial adjectives (Definite, Likely, Suspected).
+These exact words only. Never substitute: "Definite", "Likely", "Suspected", "Probable".
+Visual encoding: **not yet established** — see Open Questions Q4.
 
-**Signal panel rule (NEW — PED Session 1):**
-When `--monitor-accent` is used as a solid panel background, all text must be white (≥#f0f0f0) or near-white. Accent-derived text colours MUST NOT be used on accent-coloured panel backgrounds. Acceptable deemphasised secondary text: `rgba(255,255,255,0.75)` minimum. This rule supersedes any per-monitor override.
+### Signal panel text rule (confirmed — PED Session 1)
+When `--monitor-accent` is used as a solid panel background:
+- All text must be white or near-white (≥ rgba(255,255,255,0.9))
+- Secondary/deemphasised text: rgba(255,255,255,0.72) minimum
+- No accent-derived colours. No muted tokens. No exceptions.
 
-Confirmed violations: FCW (screenshot), GMM ("One number to watch" sub-block), SCEM (Lead Signal secondary text). WDM, ESA, AGM, ERM: audit in PED Session 2.
+### Badge font size floor (confirmed — PED Session 1)
+`.severity-badge { font-size: 0.6rem }` violates the system's own `--text-min` floor.
+Minimum badge font: `--text-xs` (clamp 0.8125rem → 0.875rem).
+Fix queued — Platform Developer.
 
-**Severity badge font size (FINDING — PED Session 1):**
-Current CSS: `.severity-badge { font-size: 0.6rem }` = ≈9.6px at 16px root. This is below the `--text-min` floor (`--text-xs` = clamp(0.8125rem+)) defined in the same stylesheet. The badge font is smaller than the system's own documented minimum — a CSS inconsistency, not a design choice.
-Required fix: raise to `--text-xs` minimum.
+### Nav completeness standard (confirmed — PED Session 1)
+Every visible section (heading + content) must have a right-hand nav entry.
+Near-empty sections should either be populated or removed from the nav.
+Nav labels must be recognisable as the section heading (see Principle 3).
 
-**Severity vs confidence encoding (COLLISION — unresolved):**
-FCW "CONFIRMED" confidence badge uses `.severity-badge--high` (amber/--high) styling. Severity HIGH and confidence CONFIRMED are different analytical dimensions — one encodes "how bad is this finding", the other encodes "how certain are we of this finding". They must not share a colour class.
-Resolution required: create separate `.confidence-badge` class with distinct visual treatment. Do not implement without Peter sign-off (see Q4).
+### Empty state standard
+Not yet established. Open question — see Section 4 Q2.
 
-**SCEM accent / --critical collision (COLLISION — documented):**
-SCEM accent #dc2626 is identical to `--critical` (#c1440e and #dc2626 — NOTE: Blueprint v2.1 uses #c1440e for --critical; SCEM accent #dc2626 is the same red family). In cross-monitor contexts (compound signal indicators, cross-monitor landing page), SCEM identity colour and critical severity indicator may be indistinguishable. Raise with Peter — may be intentional (SCEM is always in the critical register) or may need resolution (see Q8).
+### Caption format
+Not yet established. Open question — see Section 4 Q2.
 
-**Nav label standard (NEW — PED Session 1):**
-Nav labels must match section headings within one word. Abbreviated labels acceptable only if unambiguous. "KPI" for "Tail Risk Heatmap" is not acceptable. "Signal" for "Weekly Signal" is acceptable.
-
-**Empty state standard:**
-Not yet established — carry forward to Section 4 (Q2).
-
-**Caption format:**
-Not yet established — carry forward to Section 4.
+### Source attribution pattern
+Current: `.intel-item__source` is `display: inline-block; margin-top: var(--space-3)` — block.
+Target: inline within item body text, or immediately adjacent without block separation.
+Implementation: CSS + template change required. Not yet specified.
 
 ---
 
 ## Section 4 — Open Questions
 
 **Q1: Emotional register calibration**
-The platform covers democratic backsliding, cognitive warfare, and escalation risk. How alarming should the visual language be? Where is the line between "accurately serious" and "unnecessarily distressing" for the activist citizen audience? SCEM's red/crimson accent is an example of this question made concrete — is the high-urgency register appropriate even when individual conflicts are stable?
+The platform covers democratic backsliding, cognitive warfare, and escalation risk.
+How alarming should the visual language be? Where is the line between "accurately serious"
+and "unnecessarily distressing" for the activist citizen audience?
+SCEM uses red/crimson throughout — is this intentional (always critical-register monitor)
+or should calm states be visually represented differently?
 *Needs: session with Peter reviewing live pages.*
 
 **Q2: Empty states — broken vs explained**
-Several sections show blank renders while data accumulates (WDM map, SCEM baselines, chart history lines with 2 data points). These currently look like bugs.
+Several sections show blank renders while data accumulates (WDM map, SCEM baselines, chart
+history lines with 2 data points). These currently look like bugs.
 *Needs: agreed pattern for "data accumulating" vs "no data" vs "rendering error".*
 
 **Q3: Cross-monitor journey design**
-When a WDM finding is flagged as relevant to FCW, can a reader follow that connection? Currently: `cross_monitor_flags` exist in data but no navigation pattern surfaces them.
-*Needs: decision on whether cross-monitor linking is in scope for this role or Platform Developer sprint.*
+When a WDM finding connects to FCW, can a reader follow that connection?
+`cross_monitor_flags` exist in the data schema but no navigation pattern surfaces them
+beyond a text list. The compound signal indicator format is specified in the PED prompt
+addenda but not implemented.
+*Needs: decision on scope — this sprint or Sprint 5 structural work?*
 
-**Q4 (NEW): Severity vs confidence visual encoding**
-Should CONFIRMED/ASSESSED/POSSIBLE use a separate `.confidence-badge` class with a distinct colour family from the severity system? Raise with Peter before Platform Developer implements.
-*Blocks: FCW badge fix, any confidence badge implementation across all monitors.*
+**Q4: Severity vs confidence visual encoding**
+FCW "CONFIRMED" badge uses amber (--high severity colour). Two dimensions, one colour.
+Should confidence badges use a separate visual class? Options:
+  a) Outline/border badge vs filled severity badge (distinguishes by form)
+  b) Separate colour family not in the severity system
+  c) Icon + label (no colour encoding for confidence)
+*Needs: Peter decision before Platform Developer implements anything.*
 
-**Q5 (NEW): ESA #section-delta font size**
-Peter observed small font in ESA #section-delta. Desktop review shows consistent sizing with rest of page. Is this a mobile-specific rendering issue? Needs mobile viewport test before speccing a fix.
-*Needs: mobile viewport test (320px, 375px, 768px) of ESA dashboard.*
+**Q5: ESA #section-delta font size**
+Peter observed small font in ESA dashboard #section-delta. Desktop review showed consistent
+sizing across the page. This may be a mobile viewport issue, a zoom-level issue, or specific
+to a sub-element within the section (e.g. a table or metadata block).
+*Needs: mobile viewport test (375px) on ESA dashboard before any fix is specified.*
 
-**Q6 (NEW): Homepage hero image**
-Peter referenced whitespace.asym-intel.info as a visual benchmark — uses imagery above the fold. Is a hero image in scope for the homepage this sprint, or a later sprint item? If in scope: PED needs to spec the image type, dimensions, and content guidance before Platform Developer implements.
-*Needs: Peter decision on sprint scope.*
+**Q6: Homepage hero image**
+Peter noted whitespace.asym-intel.info uses visual imagery and suggested considering a
+hero image for the homepage. The current homepage is entirely text-based above the fold.
+*Needs: Peter decision on scope — this sprint, or later? Static image or dynamic?*
 
-**Q7 (NEW): Homepage chatter feed**
-Peter suggested surfacing top-5 daily chatters as an OSINT surface on the homepage. Is this a PED spec item (interaction design, information architecture) or a Platform Developer feature request (data pipeline, schema)? If both, what is the sequence?
-*Needs: Peter decision on ownership and sprint scope.*
+**Q7: Homepage chatter feed**
+Peter suggested a consolidated top-5 daily chatters feed on the homepage as an active
+OSINT surface. Individual monitors have Chatter/Digest pages (FCW Chatter, AGM Digest)
+but nothing is surfaced on the homepage.
+*Needs: Peter decision — PED spec item (design) or Platform Developer feature request (data)?
+If data: which monitors' chatter feeds would be included?*
+
+**Q8: SCEM accent / --critical collision**
+SCEM accent (#dc2626) is identical to `--critical`. In cross-monitor contexts (compound
+signal indicator, cross-monitor landing page), a red element could be SCEM monitor identity
+or platform-level CRITICAL severity — indistinguishable.
+*Needs: Peter decision — intentional (SCEM is always critical-register) or resolve?*
 
 ---
 
 ## Section 5 — What Has Been Tried
 
-*(No failed approaches yet — first session. This section will be populated as subsequent sessions attempt implementations.)*
+### Homepage CTA removal (2026-04-03) — DONE, working
+Removed `tn-lead__cta` ("Read briefing →") and `tn-story__cta` ("Read →") elements from
+`layouts/index.html`. Dead CSS removed from `assets/css/main.css`.
+Result: titles carry the link; cards recover vertical space for excerpt content.
+Commits: 48e64d4 (template), 9e9673a (CSS cleanup).
+
+*(No failed or reverted approaches yet — first session.)*
