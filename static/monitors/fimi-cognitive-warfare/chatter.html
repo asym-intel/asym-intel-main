@@ -457,6 +457,8 @@
       listEl.innerHTML = html;
     })
     .catch(function() {
+      var metaEl = document.getElementById('chatter-meta');
+      if (metaEl) metaEl.innerHTML = 'Not yet available';
       document.getElementById('chatter-list').innerHTML =
         '<p class="text-muted text-sm" style="padding:var(--space-6) 0">Chatter data not yet available. First run after 06:00 UTC.</p>';
     });
