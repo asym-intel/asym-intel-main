@@ -181,6 +181,17 @@
         {{ end }}
 
       </div>{{/* /home-feed */}}
+
+      {{/* ── RIGHT: chatter column ─────────────────────────────────────── */}}
+      <aside class="home-chatter" id="home-chatter-col">
+        <div class="home-chatter__header">
+          <h2 class="home-chatter__title">Signal Chatter</h2>
+        </div>
+        <ul class="home-chatter__list" id="chatter-col-list">
+          <li class="home-chatter__item" style="color:var(--color-text-faint);font-size:var(--text-xs);padding:var(--space-4)">Loading…</li>
+        </ul>
+      </aside>
+
     </div>{{/* /home-grid */}}
   </div>
 </div>
@@ -188,14 +199,16 @@
 <script>
 (function() {
   var monitors = [
-    { slug: 'democratic-integrity',        accent: '#61a5d2' },
-    { slug: 'macro-monitor',               accent: '#22a0aa' },
-    { slug: 'fimi-cognitive-warfare',      accent: '#38bdf8' },
-    { slug: 'european-strategic-autonomy', accent: '#5b8db0' },
-    { slug: 'ai-governance',               accent: '#3a7d5a' },
-    { slug: 'environmental-risks',         accent: '#4caf7d' },
-    { slug: 'conflict-escalation',         accent: '#dc2626' },
+    { slug: 'democratic-integrity',        accent: '#61a5d2', label: 'WDM' },
+    { slug: 'macro-monitor',               accent: '#22a0aa', label: 'GMM' },
+    { slug: 'fimi-cognitive-warfare',      accent: '#38bdf8', label: 'FCW' },
+    { slug: 'european-strategic-autonomy', accent: '#5b8db0', label: 'ESA' },
+    { slug: 'ai-governance',               accent: '#3a7d5a', label: 'AGM' },
+    { slug: 'environmental-risks',         accent: '#4caf7d', label: 'ERM' },
+    { slug: 'conflict-escalation',         accent: '#dc2626', label: 'SCEM' },
   ];
+
+  // ── Live signal cards (left panel) ──────────────────────────────────────
   monitors.forEach(function(m) {
     fetch('/monitors/' + m.slug + '/data/report-latest.json')
       .then(function(r) { return r.json(); })
@@ -206,6 +219,52 @@
       })
       .catch(function() {});
   });
+
+  // ── Chatter column ───────────────────────────────────────────────────────
+  var listEl = document.getElementById('chatter-col-list');
+  if (!listEl) return;
+
+  var allItems = [];
+  var pending = monitors.length;
+
+  monitors.forEach(function(m) {
+    fetch('/monitors/' + m.slug + '/data/chatter-latest.json')
+      .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function(d) {
+        (d.items || []).forEach(function(item) {
+          allItems.push({ item: item, accent: m.accent, label: m.label });
+        });
+      })
+      .catch(function() {})
+      .finally(function() {
+        pending--;
+        if (pending === 0) renderChatter();
+      });
+  });
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function renderChatter() {
+    if (!allItems.length) {
+      listEl.innerHTML = '<li class="home-chatter__item" style="font-size:var(--text-xs);color:var(--color-text-faint)">No chatter available yet. Check back after 08:00 UTC.</li>';
+      return;
+    }
+    // Shuffle and take top 10
+    allItems.sort(function() { return Math.random() - 0.5; });
+    var top = allItems.slice(0, 10);
+    var html = '';
+    top.forEach(function(entry) {
+      var item = entry.item;
+      html += '<li class="home-chatter__item">';
+      html += '<span class="home-chatter__chip" style="color:' + entry.accent + '">' + escHtml(entry.label) + '</span>';
+      html += '<a class="home-chatter__link" href="' + escHtml(item.source_url || '#') + '" target="_blank" rel="noopener">' + escHtml(item.title || '') + '</a>';
+      html += '<span class="home-chatter__source">' + escHtml(item.source_name || '') + '</span>';
+      html += '</li>';
+    });
+    listEl.innerHTML = html;
+  }
 })();
 </script>
 
