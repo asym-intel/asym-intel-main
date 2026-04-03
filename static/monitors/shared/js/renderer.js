@@ -806,8 +806,8 @@ window.AsymPersistent = (function () {
     var size  = opts.size  || 'var(--text-xs)';
     return '<a href="' + (url || '#') + '" target="_blank" rel="noopener" ' +
       'style="color:' + color + ';font-size:' + size + ';text-decoration:none;white-space:nowrap" ' +
-      'onmouseover="this.style.textDecoration='underline'" ' +
-      'onmouseout="this.style.textDecoration='none'">' +
+      'onmouseover="this.style.textDecoration=\'underline\'" ' +
+      'onmouseout="this.style.textDecoration=\'none\'">' +
       label + ' →</a>';
   }
 
