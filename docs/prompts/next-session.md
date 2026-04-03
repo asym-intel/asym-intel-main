@@ -1,21 +1,17 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 session wrap (~02:10 CEST)
-**Rule:** This file is overwritten at every wrap. Always current.
+**Updated:** 2026-04-03 session wrap (~02:13 CEST)
+
+> **Bootloader:** Say "Load asym-intel" or "Computer: asym-intel.info" to the next instance.
+> It reads this file at Step 0. You do not need to paste the prompt below.
 
 ---
 
-## Prompt
+## Prompt (for reference — do not paste manually)
 
 ```
 Load the asym-intel skill first. Read COMPUTER.md, HANDOFF.md,
 notes-for-computer.md, docs/ARCHITECTURE.md, and docs/ROADMAP.md
 before starting.
-
---- FIRST: merge PR #30 if Peter has signed off ---
-
-Check: https://github.com/asym-intel/asym-intel-main/pull/30
-FCW report + overview (Chatter added), AGM report + overview (Digest added).
-If Peter has approved, merge and reset staging to main before any other work.
 
 --- SESSION: Platform Experience Designer (first-ever) ---
 
@@ -58,12 +54,10 @@ Wrap at the end.
 - ✅ lastmod on about.md, search.md, subscribe.md
 - ✅ PED prompt v1.1 — Example-as-Instance Rule + PED-007
 - ✅ Jekyll Pages runner disabled (build_type: workflow)
-- ✅ Nav audit — FCW + AGM fixed in PR #30 (awaiting Peter sign-off)
-- ✅ All prior session work (SRI hashes, integrity manifest, SEO, FCW dashboard)
+- ✅ Nav fix PR #30 merged — FCW Chatter + AGM Digest added to all sibling pages
 
 ## Open — Peter action required
 
-- ⚠️ PR #30 visual sign-off + merge
 - ⚠️ Branch protection on main (SEC-009 HIGH)
 - ⚠️ Integrity manifest workflow approval
 - ⚠️ Cloudflare headers + Zone ID
