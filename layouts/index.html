@@ -258,8 +258,8 @@
     top.forEach(function(entry) {
       var item = entry.item;
       html += '<li class="home-chatter__item">';
-      html += '<span class="home-chatter__chip" style="color:' + entry.accent + '">' + escHtml(entry.label) + '</span>';
-      html += '<a class="home-chatter__link" href="' + escHtml(item.source_url || '#') + '" target="_blank" rel="noopener">' + escHtml(item.title || '') + '</a>';
+      html += '<span class="home-chatter__chip" style="color:' + entry.accent + ';border-color:' + entry.accent + '">' + escHtml(entry.label) + '</span>';
+      html += '<a class="home-chatter__link" href="' + escHtml(item.source_url || '#') + '" target="_blank" rel="noopener" style="--link-hover:' + entry.accent + '">' + escHtml(item.title || '') + '</a>';
       html += '<span class="home-chatter__source">' + escHtml(item.source_name || '') + '</span>';
       html += '</li>';
     });
