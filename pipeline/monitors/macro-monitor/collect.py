@@ -166,15 +166,19 @@ for i, finding in enumerate(findings):
         if field not in finding:
             errors.append(f"findings[{i}].{field} missing (id: {finding.get('finding_id', '?')})")
 
-    # High/Confirmed must have 2+ sources in traceback
+    # High/Confirmed with only 1 source: auto-downgrade to Assessed (Tier 0 tolerance)
+    # Daily collector captures signal; Analyst cron applies publication-grade rigour.
     conf = finding.get("confidence_preliminary", "")
     if conf in ("High", "Confirmed"):
         sources = finding.get("research_traceback", {}).get("sources_cited", [])
         if len(sources) < 2:
-            errors.append(
-                f"findings[{i}] ({finding.get('finding_id', '?')}) is {conf} "
-                f"but has {len(sources)} source(s) — need 2+"
+            old_conf = conf
+            finding["confidence_preliminary"] = "Assessed"
+            finding["confidence_basis"] = (
+                f"[AUTO-DOWNGRADED from {old_conf}: single source at Tier 0 — "                f"Analyst cron to verify] " + finding.get("confidence_basis", "")
             )
+            warnings.append(
+                f"findings[{i}] ({finding.get('finding_id', '?')}) auto-downgraded "                f"{old_conf} → Assessed (1 source; 2+ needed for {old_conf})"            )
 
     # episodic_flag=true must have episodic_reason
     if finding.get("episodic_flag") and not finding.get("episodic_reason"):
