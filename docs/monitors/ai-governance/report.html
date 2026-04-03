@@ -606,7 +606,7 @@
             m7html += '</div>';
             if (Array.isArray(v.sources) && v.sources.length) {
               m7html += '<div style="margin-top:var(--space-2)">' + v.sources.map(function(s){
-                return '<a class="intel-item__source" href="' + esc(s) + '" target="_blank" rel="noopener">Source →</a>';
+                return (esc(s) ? AsymRenderer.sourceLink(esc(s)) : '');
               }).join(' ') + '</div>';
             }
             m7html += '</div>';
@@ -796,7 +796,7 @@
             }
             return '';
           }).join('') +
-          ((item.source_url || item.url) ? '<a class="intel-item__source" href="' + esc(item.source_url || item.url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
+          ((item.source_url || item.url) ? (esc(item.source_url || item.url) ? AsymRenderer.sourceLink(esc(item.source_url || item.url)) : '') : '') +
           '</div>';
       }).join('') + '</div>';
     }

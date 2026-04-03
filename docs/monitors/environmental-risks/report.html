@@ -431,7 +431,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' : '') +
         '<div class="card__title">' + escHtml(title) + '</div>' +
         (summary ? '<div class="card__body">' + escHtml(summary) + '</div>' : '') +
-        (src ? '<div class="card__footer"><a href="' + escHtml(src) + '" target="_blank" rel="noopener" class="source-link">Source →</a></div>' : '') +
+        (src ? (escHtml(src) ? '<span class="card__footer-inline">' + AsymRenderer.sourceLink(escHtml(src)) + '</span>' : '') : '') +
       '</div>';
     }).join('');
   }
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' +
         '<div class="m03-card__footer">' +
           (tags.length ? tags.map(function(t){ return '<span class="severity-badge severity-badge--moderate">' + escHtml(t) + '</span>'; }).join('') : '') +
-          (item.source_url ? '<a href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener" class="source-link" style="margin-left:auto">Source →</a>' : '') +
+          (item.source_url ? (escHtml(item.source_url) ? AsymRenderer.sourceLink(escHtml(item.source_url)) : '') : '') +
         '</div>' +
       '</div>';
     }).join('');
@@ -580,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' +
         '<div class="card__title">' + escHtml(item.headline || item.title || '') + '</div>' +
         (item.summary ? '<div class="card__body">' + escHtml(item.summary) + '</div>' : '') +
-        (item.source_url ? '<div class="card__footer"><a href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener" class="source-link">Source →</a></div>' : '') +
+        (item.source_url ? (escHtml(item.source_url) ? '<span class="card__footer-inline">' + AsymRenderer.sourceLink(escHtml(item.source_url)) + '</span>' : '') : '') +
       '</div>';
     }).join('');
   }
@@ -625,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '</div>' +
             '<div class="card__title">' + escHtml(item.headline || '') + '</div>' +
             '<div class="card__body">' + escHtml(item.why_it_matters || '') + '</div>' +
-            (item.source_url ? '<div class="card__footer"><a href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener" class="source-link">Source →</a></div>' : '') +
+            (item.source_url ? (escHtml(item.source_url) ? '<span class="card__footer-inline">' + AsymRenderer.sourceLink(escHtml(item.source_url)) + '</span>' : '') : '') +
           '</div>';
         }).join('');
       }
@@ -721,7 +721,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="card__title">' + escHtml(item.headline || '') + '</div>' +
             (item.actors ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Actors: ' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.actors)||'') + (AsymRenderer.flag(item.actors) ? '\u00a0' : '') : '') + escHtml(item.actors) + '</div>' : '') +
             (item.summary ? '<div class="card__body">' + escHtml(item.summary) + '</div>' : '') +
-            (item.source_url ? '<div class="card__footer"><a href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener" class="source-link">Source →</a></div>' : '') +
+            (item.source_url ? (escHtml(item.source_url) ? '<span class="card__footer-inline">' + AsymRenderer.sourceLink(escHtml(item.source_url)) + '</span>' : '') : '') +
           '</div>';
         }).join('');
       }

@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
           updateHtml +
           (ind.crisis_threshold ? '<div class="indicator-row__threshold">Crisis threshold: ' + esc(ind.crisis_threshold) + '</div>' : '') +
           (ind.blind_spot_rule ? '<div class="indicator-row__blind-spot">⚠ ' + esc(ind.blind_spot_rule) + '</div>' : '') +
-          (ind.source_url ? '<a href="' + esc(ind.source_url) + '" target="_blank" rel="noopener" class="source-link" style="margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
+          (ind.source_url ? (esc(ind.source_url) ? AsymRenderer.sourceLink(esc(ind.source_url)) : '') : '') +
         '</div>' +
         '<div class="indicator-row__signals">' +
           directionArrow(ind.direction) +
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div></div>' +
           '<div class="cmf-item__body cmf-item__body--collapsed">' + esc(item.summary || '') + '</div>' +
           '<button class="cms-read-more">Read more →</button>' +
-          (item.source_url ? '<a href="' + esc(item.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
+          (item.source_url ? (esc(item.source_url) ? AsymRenderer.sourceLink(esc(item.source_url)) : '') : '') +
         '</div>';
       });
       shHtml += '</div>';
@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>' +
           '<span class="flag-badge flag-badge--' + flagClass(bs.flag) + '">' + esc(bs.flag || '') + '</span></div>' +
           '<div class="cmf-item__body">' + esc(bs.warning || '') + '</div>' +
-          (bs.source_url ? '<a href="' + esc(bs.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
+          (bs.source_url ? (esc(bs.source_url) ? AsymRenderer.sourceLink(esc(bs.source_url)) : '') : '') +
         '</div>';
       });
       shHtml += '</div>';
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
           (flag.macro_indicators_affected && flag.macro_indicators_affected.length ?
             '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Affects: ' + flag.macro_indicators_affected.map(function(x){return esc(x);}).join(', ') + '</div>'
             : '') +
-          (flag.source_url ? '<a href="' + esc(flag.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
+          (flag.source_url ? (esc(flag.source_url) ? AsymRenderer.sourceLink(esc(flag.source_url)) : '') : '') +
         '</div>';
       });
       document.getElementById('m-cross-monitor').innerHTML = cmfHtml;
