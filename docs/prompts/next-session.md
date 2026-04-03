@@ -1,9 +1,7 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 session wrap
+**Updated:** 2026-04-03 session wrap (~02:05 CEST)
 **Rule:** This file is overwritten at every wrap. It always contains the
 highest-priority prompt for the immediately next Computer Admin session.
-It is never left stale. A fresh instance reading this file gets the correct
-starting point without needing to reconstruct it from HANDOFF.md.
 
 ---
 
@@ -43,6 +41,11 @@ Run the full first-session PED benchmark:
    impact, each as a precise implementation spec passed to
    Platform Developer via notes-for-computer.md
 
+NEW IN THIS SESSION — PED-007 Example-as-Instance Rule now in prompt v1.1:
+Each of Peter's 9 observations is an INSTANCE of a PRINCIPLE.
+Extract the principle, audit all 7 monitors for all instances,
+spec at the principle level — not just the named example.
+
 MANDATORY SUBAGENT RULE (COMPUTER.md v3.2):
 Split into TWO subagents — not one.
   Subagent 1 (observe): browse the 5 pages + read shared/css/base.css
@@ -56,33 +59,37 @@ Do not implement anything. Design, document, and specify only.
 
 --- AFTER PED: JSON-LD structured data ---
 
-Platform Developer session immediately after PED wraps.
-Implement Schema.org structured data in Hugo layouts:
-- layouts/partials/head.html — Dataset + BreadcrumbList for monitor pages
-- layouts/_default/single.html — upgrade Article to NewsArticle
-Full spec: docs/seo/ai-search-audit-2026-Q2.md Section 5
-Goes direct to main (Hugo source, not static HTML — no staging needed).
+Already implemented this session (2026-04-03):
+- layouts/partials/head.html — BreadcrumbList + Dataset ✅
+- layouts/_default/single.html — NewsArticle ✅
+- FE-026 documented in ARCHITECTURE.md and anti-patterns.json ✅
+No further JSON-LD work needed next session.
 
-Wrap covering both tasks at the end.
+Wrap covering PED at the end.
 ```
 
 ---
 
 ## What this session completed (do not re-do)
 
+- ✅ JSON-LD structured data — BreadcrumbList + Dataset + NewsArticle live
+- ✅ FE-026 — Hugo minifier JSON-LD pattern documented (ARCHITECTURE.md + anti-patterns.json)
+- ✅ housekeeping-cron-prompt.md copied to static/monitors/
+- ✅ lastmod added to about.md, search.md, subscribe.md
+- ✅ PED prompt v1.1 — Example-as-Instance Rule + PED-007
+- ✅ GitHub Pages build_type switched to workflow (Jekyll runner disabled)
 - ✅ FCW dashboard — modern shared-library version on main (was legacy 140k)
 - ✅ SRI hashes — PR #29 merged, all 7 dashboards, SEC-010 closed
-- ✅ integrity-manifest.json — live on main, all 7 monitors hashed
+- ✅ integrity-manifest.json — live on main
 - ✅ WDM meta description — "democratic backsliding" + V-Dem + Freedom House
-- ✅ All 7 methodology page dates — corrected from 2020-01-01 to actual dates
-- ✅ docs/security/ — created and accurate (third-party-audit, platform-status, rotation-schedule)
+- ✅ All 7 methodology page dates corrected
+- ✅ docs/security/ — created and accurate
 - ✅ docs/SEO.md + docs/seo/ — created, robots.txt fixed
-- ✅ COMPUTER.md v3.2 — wrap step 0, memoryless-instance rule, subagent sizing
-- ✅ platform-config.md in asym-intel-internal (Zone ID placeholder for Peter)
 
-## Still open — Peter action required before or during next session
+## Still open — Peter action required
 
-- ⚠️ Branch protection on main (SEC-009 HIGH) — GitHub repo settings → Branches
-- ⚠️ Integrity manifest workflow approval — docs/security/drafts/generate-integrity-manifest.yml → .github/workflows/
-- ⚠️ Cloudflare: HSTS max-age 31536000 + X-Frame-Options + CSP + Referrer-Policy
-- ⚠️ Cloudflare Zone ID + Account ID → asym-intel-internal/platform-config.md
+- ⚠️ Branch protection on main (SEC-009 HIGH)
+- ⚠️ Integrity manifest workflow approval
+- ⚠️ Cloudflare security headers
+- ⚠️ Cloudflare Zone ID in platform-config.md
+- ⚠️ GSC property verification
