@@ -1,5 +1,5 @@
 # HANDOFF.md — Asymmetric Intelligence Platform
-**Updated:** 2026-04-04 final wrap (~16:20 BST)
+**Updated:** 2026-04-04 final wrap (~19:20 BST)
 
 ## Platform Status
 - Site: ✅ asym-intel.info live, all dashboards rendering
@@ -21,48 +21,49 @@
 ## Synthesiser Status
 | Monitor | Output | Notes |
 |---|---|---|
-| FCW | ✅ Validated v1.1 | Quiet-week, correct output |
+| FCW | ✅ Validated v1.1 | |
 | ESA | ✅ Full output | |
 | ERM | ✅ Full output | |
-| GMM | ⚠️ Apostrophe parse error | Prompt fix needed |
+| GMM | ⚠️ Apostrophe parse error | Prompt fix needed — see next session task 1 |
 | WDM | ⚠️ Apostrophe parse error | Prompt fix needed |
 | SCEM | ⚠️ Guard blocked | Retry tomorrow |
 | AGM | ⚠️ Guard blocked | Retry tomorrow |
 
-**Fix needed:** Add "no apostrophes/contractions in JSON values" to GMM/WDM/SCEM/AGM prompts.
-**Workflows:** All 7 workflow_dispatch only — enable schedules after all pass manual test.
+All 7 synthesiser workflows: workflow_dispatch only — enable schedules after all pass.
 
-## Pipeline Schedule (GitHub Actions)
-- Chatter: rotating daily Mon–Sun 06:00 UTC
-- Collectors: rotating daily Mon–Sun 07:00 UTC
-- Weekly-research: PAUSED (FCW/GMM/WDM/SCEM built, ESA/AGM/ERM not built)
-- Reasoner: PAUSED (same)
-- Synthesisers: All 7 built, workflow_dispatch only
+## GMM — Commercial Ring-Fence (4 Apr 2026)
+GMM methodology and prompt IP moved to asym-intel-internal/gmm-prompts/.
+Published reports and live dashboard remain public.
+RULE: Never commit GMM IP to any public repo.
+Commercial site architecture note in development-plan.md.
+
+## Pipeline Schedule
+- Chatter: rotating daily Mon–Sun 06:00 UTC ✅
+- Collectors: rotating daily Mon–Sun 07:00 UTC ✅
+- Weekly-research: PAUSED | Reasoner: PAUSED
+- Synthesisers: all 7 built, workflow_dispatch only
 
 ## Canonical Documents (asym-intel-internal)
-- `COLLECTOR-ANALYST-ARCHITECTURE.md` v2.2 — pipeline architecture
-- `editorial-strategy.md` v1.2 — audience tiers, epistemic hierarchy, access model
-- `development-plan.md` v1.2 — build sequence, corrections policy, open decisions
-- `prompt-improvements.md` — running quality log
-- `fcw-slimmed-analyst-cron.md` — FCW slimmed Analyst task (template for all 7)
+- COLLECTOR-ANALYST-ARCHITECTURE.md v2.2
+- editorial-strategy.md v1.2
+- development-plan.md v1.2 + GMM commercial section
+- prompt-improvements.md
+- fcw-slimmed-analyst-cron.md
+- gmm-prompts/ (GMM IP — never public)
 
 ## Housekeeping
-- Trimmed to 5 steps, 204 lines (was 445) — runs Monday 08:00 UTC as normal
-- Estimated ~200 credits/run (was ~400)
+Trimmed to 5 steps (204 lines). Runs Monday 08:00 UTC as normal.
 
 ## Next Session — First Tasks
 1. Fix apostrophe prompt rule in GMM/WDM/SCEM/AGM synthesiser prompts (v1.1)
 2. Re-run all 4 after guard clears (after midnight UTC)
 3. Once all 7 pass → enable scheduled triggers
 4. Recreate FCW Analyst cron using fcw-slimmed-analyst-cron.md
-5. Roll slimmed Analyst cron to all 7 monitors
+5. Roll slimmed Analyst cron to remaining 6 monitors
 
-## Open Decisions (from development-plan.md)
-- Analytics provider: Plausible vs Fathom (decide before Tier 3)
-- Buttondown cadence: manual weekly / automated monthly (recommended)
-- API tier timing: defer until audience established
-
-## Peter Action Required
+## Open — Peter Action Required
 - ⚠️ Q4/Q6/Q7/Q8 decisions.md (gates PED Sprint 2)
 - ⚠️ Branch protection on main (SEC-009)
 - ⚠️ GSC property verification
+- ⚠️ Analytics provider decision: Plausible vs Fathom (before Tier 3)
+- ⚠️ GMM commercial site: decide repo structure before building Tier 3 GMM content
