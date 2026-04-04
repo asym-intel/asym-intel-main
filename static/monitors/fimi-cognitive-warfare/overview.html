@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var meta = d.meta || {};
-      var signalObj = d.signal || {};
+      var signalObj = d.lead_signal || d.signal || {};
       var signal = signalObj.headline || '';
       var signalBody = signalObj.note || signalObj.actor || '';
       var campaigns = d.campaigns || d.active_campaigns || {};
