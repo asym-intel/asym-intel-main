@@ -413,11 +413,11 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var meta = d.meta || {};
-      var signalObj = d.signal || {};
+      var signalObj = d.lead_signal || d.signal || {};
       var signal = signalObj.headline || '';
       var signalBody = signalObj.note || signalObj.actor || '';
       var signalConf = signalObj.confidence || '';
-      var signalFlags = signalObj.f_flags || [];
+      var signalFlags = signalObj.mf_flags || signalObj.f_flags || [];
 
       // Page header
       var pub = meta.published
@@ -572,7 +572,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('attribution-block').innerHTML = attrHtml || '<p class="text-muted">No attribution log entries this issue.</p>';
 
       // Cognitive warfare
-      var cogWarfare = d.cognitive_warfare || [];
+      var cogWarfare = d.intelligence_highlights || d.cognitive_warfare || [];
       var cogHtml = '';
       if (Array.isArray(cogWarfare) && cogWarfare.length) {
         cogWarfare.forEach(function(item) {
