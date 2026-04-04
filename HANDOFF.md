@@ -1,10 +1,9 @@
 # HANDOFF.md — Asymmetric Intelligence Platform
-**Updated:** 2026-04-04 session wrap (~15:20 BST)
+**Updated:** 2026-04-04 final wrap (~16:20 BST)
 
 ## Platform Status
-- Site: ✅ Live at asym-intel.info
-- Build: ✅ build.yml with deploy-pages job
-- Staging: ⚠️ 6 files ahead (FCW schema fallbacks — awaiting Peter visual sign-off)
+- Site: ✅ asym-intel.info live, all dashboards rendering
+- Build: ✅ Successful, staging clean (0/0)
 - CF Cache: ✅ Zone ID cc419b7519eba04ef0dc6a7b851930c7
 
 ## Analyst Cron IDs (all weekly, unchanged)
@@ -19,48 +18,51 @@
 | SCEM | 8cdb83c8 | Sun 18:00 UTC |
 | Housekeeping | 7e058f57 | Mon 08:00 UTC |
 
-## GitHub Actions Pipeline State
-**Chatter:** 7/7 rotating daily (Mon-Sun 06:00 UTC) ✅
-**Collectors:** 7/7 rotating daily (Mon-Sun 07:00 UTC) ✅
-**Synthesisers:** All 7 built, workflow_dispatch only — schedules commented out until all 7 produce FULL_OUTPUT
-**Weekly-research:** FCW/GMM/WDM/SCEM — PAUSED
-**Reasoner:** FCW/GMM/WDM/SCEM — PAUSED
-
-## Synthesiser Status (post quality audit — 4 Apr 2026)
-| Monitor | Status | Ready for rerun? |
+## Synthesiser Status
+| Monitor | Output | Notes |
 |---|---|---|
-| FCW | ✅ FULL_OUTPUT validated | — (already working) |
-| ESA | ✅ null (no Collector data yet — correct) | Auto-resolves Wed Collector |
-| ERM | ✅ null (no Collector data yet — correct) | Auto-resolves Sun Collector |
-| GMM | ✅ Fixes committed | Yes — trigger tomorrow |
-| WDM | ✅ Fixes committed | Yes — trigger tomorrow |
-| SCEM | ✅ Fixes committed | Yes — trigger tomorrow |
-| AGM | ✅ Fixes committed | Yes — trigger tomorrow |
+| FCW | ✅ Validated v1.1 | Quiet-week, correct output |
+| ESA | ✅ Full output | |
+| ERM | ✅ Full output | |
+| GMM | ⚠️ Apostrophe parse error | Prompt fix needed |
+| WDM | ⚠️ Apostrophe parse error | Prompt fix needed |
+| SCEM | ⚠️ Guard blocked | Retry tomorrow |
+| AGM | ⚠️ Guard blocked | Retry tomorrow |
 
-## Fixes committed this session (4 Apr 2026)
-1. **repair_json corrected** in GMM/WDM/SCEM/AGM — was producing `\'` (invalid JSON); now uses `\u0027`
-2. **Apostrophe rule added** to all 7 synthesiser API prompts — prevents bad model output at source
-3. **FCW schema fallbacks staged** — dashboard/report/overview now read `d.signal || d.lead_signal`, `mf_flags`, `intelligence_highlights` — BUILD PASSES
+**Fix needed:** Add "no apostrophes/contractions in JSON values" to GMM/WDM/SCEM/AGM prompts.
+**Workflows:** All 7 workflow_dispatch only — enable schedules after all pass manual test.
 
-## Staged files (awaiting Peter visual sign-off)
-- `static/monitors/fimi-cognitive-warfare/dashboard.html`
-- `static/monitors/fimi-cognitive-warfare/report.html`
-- `static/monitors/fimi-cognitive-warfare/overview.html`
-- `docs/monitors/fimi-cognitive-warfare/dashboard.html` (mirror)
-- `docs/monitors/fimi-cognitive-warfare/report.html` (mirror)
-- `docs/monitors/fimi-cognitive-warfare/overview.html` (mirror)
+## Pipeline Schedule (GitHub Actions)
+- Chatter: rotating daily Mon–Sun 06:00 UTC
+- Collectors: rotating daily Mon–Sun 07:00 UTC
+- Weekly-research: PAUSED (FCW/GMM/WDM/SCEM built, ESA/AGM/ERM not built)
+- Reasoner: PAUSED (same)
+- Synthesisers: All 7 built, workflow_dispatch only
 
-**Staging URL:** https://staging.asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html
+## Canonical Documents (asym-intel-internal)
+- `COLLECTOR-ANALYST-ARCHITECTURE.md` v2.2 — pipeline architecture
+- `editorial-strategy.md` v1.2 — audience tiers, epistemic hierarchy, access model
+- `development-plan.md` v1.2 — build sequence, corrections policy, open decisions
+- `prompt-improvements.md` — running quality log
+- `fcw-slimmed-analyst-cron.md` — FCW slimmed Analyst task (template for all 7)
 
-## Open — Next session first tasks
-1. Visual sign-off on FCW staging (3 pages) → merge PR → reset staging
-2. Trigger GMM/WDM/SCEM/AGM synthesisers (stagger 45s) → verify FULL_OUTPUT
-3. If all 4 pass → enable scheduled triggers on all 7 synthesiser .yml files
-4. Recreate FCW Analyst cron (delete b17522c3, create from fcw-slimmed-analyst-cron.md)
+## Housekeeping
+- Trimmed to 5 steps, 204 lines (was 445) — runs Monday 08:00 UTC as normal
+- Estimated ~200 credits/run (was ~400)
+
+## Next Session — First Tasks
+1. Fix apostrophe prompt rule in GMM/WDM/SCEM/AGM synthesiser prompts (v1.1)
+2. Re-run all 4 after guard clears (after midnight UTC)
+3. Once all 7 pass → enable scheduled triggers
+4. Recreate FCW Analyst cron using fcw-slimmed-analyst-cron.md
 5. Roll slimmed Analyst cron to all 7 monitors
 
-## Open — Peter action required
-- ⚠️ FCW staging sign-off (3 pages — schema fallbacks, no visual change expected)
-- ⚠️ Q4/Q6/Q7/Q8 in decisions.md (gates PED Sprint 2)
+## Open Decisions (from development-plan.md)
+- Analytics provider: Plausible vs Fathom (decide before Tier 3)
+- Buttondown cadence: manual weekly / automated monthly (recommended)
+- API tier timing: defer until audience established
+
+## Peter Action Required
+- ⚠️ Q4/Q6/Q7/Q8 decisions.md (gates PED Sprint 2)
 - ⚠️ Branch protection on main (SEC-009)
 - ⚠️ GSC property verification
