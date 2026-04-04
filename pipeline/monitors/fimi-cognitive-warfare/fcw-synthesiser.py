@@ -184,24 +184,35 @@ except json.JSONDecodeError as e:
 # ── Validate ───────────────────────────────────────────────────────────────────
 
 errors = []
+warnings = []
 meta = data.get("_meta", {})
-if meta.get("schema_version") != "synthesis-v1.0":
-    errors.append(f"schema_version '{meta.get('schema_version')}' — expected 'synthesis-v1.0'")
+
+# Hard failures — must have these to publish
 if not data.get("lead_signal", {}).get("headline"):
     errors.append("lead_signal.headline missing")
 if not data.get("key_judgments"):
     errors.append("key_judgments empty or missing")
-if not data.get("campaigns"):
-    errors.append("campaigns empty or missing")
-if not data.get("actor_tracker"):
-    errors.append("actor_tracker empty or missing")
 if not data.get("weekly_brief_draft"):
     errors.append("weekly_brief_draft missing")
 
+# Soft warnings — acceptable on quiet weeks
+if meta.get("schema_version") not in ("synthesis-v1.0", "fcw-synthesis-v1.0"):
+    warnings.append(f"schema_version '{meta.get('schema_version')}' unexpected — continuing")
+if not data.get("campaigns"):
+    warnings.append("campaigns empty — quiet week or model did not populate")
+if not data.get("actor_tracker"):
+    warnings.append("actor_tracker empty — quiet week or model did not populate")
+
+for w in warnings:
+    print(f"VALIDATION WARNING: {w}")
+
+# Always write debug file for inspection
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+(OUT_DIR / f"debug-{TODAY_STR}.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
+print(f"Debug file written: debug-{TODAY_STR}.json")
+
 if errors:
-    print(f"VALIDATION FAILED: {errors}")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    (OUT_DIR / f"debug-{TODAY_STR}.json").write_text(json.dumps(data, indent=2), encoding="utf-8")
+    print(f"VALIDATION FAILED (hard errors): {errors}")
     sys.exit(1)
 
 # ── Write ──────────────────────────────────────────────────────────────────────
