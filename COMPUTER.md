@@ -117,16 +117,16 @@ Each monitor cron publishes on its schedule without approval:
 - NEVER touches HTML, CSS, JS, or any other file
 - All prompts start by reading COMPUTER.md and ARCHITECTURE.md from repo
 
-| Monitor | Cron ID | Schedule |
-|---|---|---|
-| WDM | f7bd54e9 | Mon 06:00 UTC |
-| GMM | c94c4134 | Tue 08:00 UTC |
-| FCW | b17522c3 | Thu 09:00 UTC |
-| ESA | 0b39626e | Wed 19:00 UTC |
-| AGM | 5ac62731 | Fri 09:00 UTC |
-| ERM | ce367026 | Sat 05:00 UTC |
-| SCEM | 8cdb83c8 | Sun 18:00 UTC |
-| Housekeeping | 7e058f57 | Mon 08:00 UTC |
+| Monitor | Cron ID | Schedule | Prompt |
+|---|---|---|---|
+| WDM | adad85f6 | Mon 06:00 UTC | docs/crons/wdm-slimmed-analyst-cron.md |
+| GMM | 6efe51b0 | Tue 08:00 UTC | asym-intel-internal/gmm-prompts/gmm-slimmed-analyst-cron.md |
+| ESA | 72398be9 | Wed 19:00 UTC | docs/crons/esa-slimmed-analyst-cron.md |
+| FCW | 478f4080 | Thu 09:00 UTC | asym-intel-internal/fcw-slimmed-analyst-cron.md |
+| AGM | b53d2f93 | Fri 09:00 UTC | docs/crons/agm-slimmed-analyst-cron.md |
+| ERM | 0aaf2bd7 | Sat 05:00 UTC | docs/crons/erm-slimmed-analyst-cron.md |
+| SCEM | 743bbe21 | Sun 18:00 UTC | docs/crons/scem-slimmed-analyst-cron.md |
+| Housekeeping | c725855f | Mon 08:00 UTC | docs/crons/housekeeping.md |
 
 ## Monitor Reference
 
@@ -258,16 +258,14 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 
 | Layer | Name | Cron ID | Schedule |
 |---|---|---|---|
-| Analyst | WDM Analyst | f7bd54e9 | Mon 06:00 UTC |
-| Analyst | GMM Analyst | c94c4134 | Tue 08:00 UTC |
-| Analyst | ESA Analyst | 0b39626e | Wed 19:00 UTC |
-| Analyst | FCW Analyst | b17522c3 | Thu 09:00 UTC |
-| Analyst | AGM Analyst | 5ac62731 | Fri 09:00 UTC |
-| Analyst | ERM Analyst | ce367026 | Sat 05:00 UTC |
-| Analyst | SCEM Analyst | 8cdb83c8 | Sun 18:00 UTC |
-| Housekeeping | Platform Housekeeping | 7e058f57 | Mon 08:00 UTC |
-| Verification | SCEM verification | a67a9739 | Sun 5 Apr 18:30 UTC (one-shot) |
-| Verification | WDM verification | 10ddf5f0 | Mon 6 Apr 06:30 UTC (one-shot) |
+| Analyst (slim) | WDM Analyst | adad85f6 | Mon 06:00 UTC |
+| Analyst (slim) | GMM Analyst | 6efe51b0 | Tue 08:00 UTC |
+| Analyst (slim) | ESA Analyst | 72398be9 | Wed 19:00 UTC |
+| Analyst (slim) | FCW Analyst | 478f4080 | Thu 09:00 UTC |
+| Analyst (slim) | AGM Analyst | b53d2f93 | Fri 09:00 UTC |
+| Analyst (slim) | ERM Analyst | 0aaf2bd7 | Sat 05:00 UTC |
+| Analyst (slim) | SCEM Analyst | 743bbe21 | Sun 18:00 UTC |
+| Housekeeping | Platform Housekeeping | c725855f | Mon 08:00 UTC |
 
 **DELETED CRONS (3 April 2026 — do not recreate):**
 - Staging divergence guard (aec126c5) — deleted. Wrap procedure catches unmerged staging. Daily runs wasted credits.
