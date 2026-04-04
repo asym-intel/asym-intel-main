@@ -1,0 +1,44 @@
+name: FCW Synthesiser
+
+on:
+  workflow_dispatch:
+  # Runs Wednesday 22:00 UTC — after the Reasoner (Wed 20:00 UTC)
+  # Uncomment to enable scheduled runs once validated:
+  # schedule:
+  #   - cron: "0 22 * * 3"
+
+jobs:
+  synthesise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run FCW Synthesiser
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: |
+          python3 pipeline/monitors/fimi-cognitive-warfare/fcw-synthesiser.py
+
+      - name: Commit synthesis output
+        run: |
+          git config user.name  "FCW Synthesiser Bot"
+          git config user.email "fcw-synthesiser@asym-intel.info"
+          if git diff --quiet; then
+            echo "No changes to commit — synthesis output unchanged."
+            exit 0
+          fi
+          git add pipeline/monitors/fimi-cognitive-warfare/synthesised/
+          git commit -m "data(fcw-synthesiser): weekly synthesis $(date -u +%Y-%m-%d) [skip ci]"
+          git pull --rebase origin main
+          git push
