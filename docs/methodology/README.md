@@ -1,7 +1,10 @@
 # Asymmetric Intelligence — Monitor Methodology
 
-This folder contains the full analytical methodology for each of the seven
+This folder contains the full analytical methodology for six of the seven
 monitors on [asym-intel.info](https://asym-intel.info).
+
+> **Note:** The Global Macro Monitor (GMM) methodology is not published here.
+> GMM is being developed as a separate commercial product.
 
 These documents are published as a **commons resource** — freely available for
 anyone to read, use, adapt, or build upon.
@@ -13,7 +16,6 @@ anyone to read, use, adapt, or build upon.
 | File | Monitor |
 |---|---|
 | `fimi-cognitive-warfare-full.md` | FIMI & Cognitive Warfare Monitor |
-| `macro-monitor-full.md` | Global Macro Monitor |
 | `democratic-integrity-full.md` | World Democracy Monitor |
 | `conflict-escalation-full.md` | Strategic Conflict & Escalation Monitor |
 | `european-strategic-autonomy-full.md` | European Strategic Autonomy Monitor |
@@ -28,7 +30,6 @@ updated benchmarks, revised thresholds) into each monitor's methodology.
 | File | Monitor | Source |
 |---|---|---|
 | `fimi-cognitive-warfare-eeas-2026.md` | FIMI | EEAS FIMI Explorer 2026 |
-| `macro-monitor-imf-2026.md` | GMM | IMF WEO April 2026 |
 | `democratic-integrity-vdem-2026.md` | WDM | V-Dem Institute 2026 |
 | `conflict-escalation-acled-2026.md` | SCEM | ACLED 2026 data |
 | `european-strategic-autonomy-ecfr-2026.md` | ESA | ECFR 2026 |
