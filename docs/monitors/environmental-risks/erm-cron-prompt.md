@@ -181,6 +181,10 @@ STEP 0 — LOAD PERSISTENT STATE (before any research)
 ```bash
 cd /tmp && rm -rf asym-intel-main
 gh repo clone asym-intel/asym-intel-main asym-intel-main -- --depth=1 --quiet
+cd asym-intel-main
+git config user.name "monitor-bot"
+git config user.email "monitor-bot@asym-intel.info"
+cd /tmp
 cat asym-intel-main/static/monitors/environmental-risks/data/persistent-state.json
 cat asym-intel-main/static/monitors/environmental-risks/data/report-latest.json
 cat asym-intel-main/static/monitors/environmental-risks/data/archive.json
@@ -302,6 +306,11 @@ You MUST write it in two separate git commits. Never combine into one.
 
 PASS 1 — Core sections (commit first, immediately after research):
   meta, m00_the_signal, m01_executive_insight, m02_planetary_boundaries, m03_threat_multiplier, source_url
+
+  Before committing, ensure git identity is set:
+    cd /tmp/asym-intel-main
+    git config user.name "monitor-bot"
+    git config user.email "monitor-bot@asym-intel.info"
 
   Commit: "data(erm): Issue [N] W/E [DATE] — core sections"
 
