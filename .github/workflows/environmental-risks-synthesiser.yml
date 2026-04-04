@@ -1,0 +1,45 @@
+name: "Global Environmental Risks Monitor Synthesiser"
+
+on:
+  # Uncomment after first manual test passes:
+  # schedule:
+  #   - cron: "0 20 * * 5"  # Friday 20:00 UTC (before Global Environmental Risks Monitor Analyst Saturday 05:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  synthesise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout asym-intel-main
+        uses: actions/checkout@v4
+        with:
+          repository: asym-intel/asym-intel-main
+          token: ${{ secrets.ASYM_INTEL_PAT }}
+          path: repo
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run ERM synthesiser
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          REPO_ROOT: ${{ github.workspace }}/repo
+        run: |
+          python repo/pipeline/synthesisers/erm/environmental-risks-synthesiser.py
+
+      - name: Commit synthesis output
+        working-directory: repo
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/environmental-risks/synthesised/
+          git diff --cached --quiet || git commit -m "chore(erm): synthesiser run $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push
