@@ -5,6 +5,11 @@
 
 ---
 
+> **Canonical editorial and development planning documents:**
+> - `asym-intel-internal/editorial-strategy.md` — audience strategy, epistemic hierarchy, tier architecture
+> - `asym-intel-internal/development-plan.md` — master build sequence, phase gates, annual report calendar
+> These supersede the sprint planning sections below for strategic direction.
+
 ## How to read this file
 
 - ✅ Done — shipped and live
