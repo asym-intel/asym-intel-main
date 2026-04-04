@@ -113,28 +113,25 @@ if brace_start != -1 and brace_end > brace_start:
 
 
 def repair_json(raw):
-    """Attempt basic JSON repairs before parse."""
-    # Fix unescaped apostrophes in string values
-    # Strategy: find all string values and escape single quotes within them
-    # This is approximate — a full JSON repair library would be better
-    # but we avoid adding dependencies
+    """Replace unescaped apostrophes inside JSON string values with \\u0027.
+    Walks char-by-char tracking string state and proper backslash escaping.
+    Does NOT produce \\' (invalid JSON escape). Handles escaped quotes correctly."""
     repaired = []
-    i = 0
     in_string = False
-    escape_next = False
+    i = 0
     while i < len(raw):
         c = raw[i]
-        if escape_next:
+        if c == '\\' and in_string:
+            # escape sequence — pass both chars through unchanged
             repaired.append(c)
-            escape_next = False
-        elif c == '\\':
-            repaired.append(c)
-            escape_next = True
-        elif c == '"' and not escape_next:
+            i += 1
+            if i < len(raw):
+                repaired.append(raw[i])
+        elif c == '"':
             in_string = not in_string
             repaired.append(c)
         elif c == "'" and in_string:
-            repaired.append("\\'")
+            repaired.append('\\u0027')
         else:
             repaired.append(c)
         i += 1
