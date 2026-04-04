@@ -1,13 +1,13 @@
 # HANDOFF.md — Asymmetric Intelligence Platform
-**Updated:** 2026-04-03 efficiency sprint wrap (~11:30 CEST)
+**Updated:** 2026-04-04 session wrap (~14:32 BST)
 
 ## Platform Status
 - Site: ✅ Live at asym-intel.info
-- Build: ✅ Passing
-- Staging: ✅ Clean (ahead_by: 0, behind_by: 0)
-- nav.js: ✅ v1.3 confirmed live
+- Build: ✅ build.yml with deploy-pages job
+- Staging: ✅ Clean
+- CF Cache: ✅ Zone ID cc419b7519eba04ef0dc6a7b851930c7
 
-## Cron IDs (active — all verified)
+## Analyst Cron IDs (all weekly, unchanged)
 | Monitor | Cron ID | Schedule |
 |---|---|---|
 | WDM | f7bd54e9 | Mon 06:00 UTC |
@@ -18,32 +18,49 @@
 | ERM | ce367026 | Sat 05:00 UTC |
 | SCEM | 8cdb83c8 | Sun 18:00 UTC |
 | Housekeeping | 7e058f57 | Mon 08:00 UTC |
-| SCEM verify (one-shot) | a67a9739 | Sun 5 Apr 18:30 UTC |
-| WDM verify (one-shot) | 10ddf5f0 | Mon 6 Apr 06:30 UTC |
 
-## DELETED CRONS (do not recreate)
-- aec126c5 — Staging guard (deleted 3 Apr). Wrap catches this.
-- f78e0c2c — GSC quarterly audit (deleted 3 Apr). Recreate after GSC DNS TXT verified.
+## GitHub Actions Pipeline State
+**Chatter:** 7/7 rotating daily (Mon-Sun 06:00 UTC) ✅
+**Collectors:** 7/7 rotating daily (Mon-Sun 07:00 UTC) ✅
+**Weekly-research:** FCW/GMM/WDM/SCEM — PAUSED (pending synthesiser validation)
+**Reasoner:** FCW/GMM/WDM/SCEM — PAUSED (pending synthesiser validation)
+**Synthesisers:** All 7 built, workflow_dispatch only — schedules to enable after validation
 
-## This Session (efficiency sprint)
-- ✅ Housekeeping slimmed — HTML structural checks removed (CI enforces them). ~50% fewer steps.
-- ✅ Staging guard cron deleted — was running daily for near-zero value.
-- ✅ GSC audit cron deleted — GSC unverified; pointless to audit.
-- ✅ COMPUTER.md v3.4 — min session size rule, deleted cron table, version bump.
-- ✅ docs/monitors/_shared/ deleted — stale pre-v1.3 artefact, nothing referenced it.
-- ✅ CRON-001 fix applied to docs/monitors/ cron prompts (AGM/WDM/FCW/GMM).
-- ✅ Staging reset clean.
+## Synthesiser Test Results (2026-04-04)
+| Monitor | Status | Notes |
+|---|---|---|
+| FCW | ✅ Validated v1.1 | Correct quiet-week output, schema fixed |
+| ESA | ✅ Full output | All schema fields populated |
+| ERM | ✅ Full output | All schema fields populated |
+| GMM | ⚠️ JSON parse error | Apostrophe in string at char 13064 — see below |
+| WDM | ⚠️ JSON parse error | Apostrophe in string at char 7683 |
+| SCEM | ⚠️ Guard blocked | Dated file exists, retry tomorrow |
+| AGM | ⚠️ Guard blocked | Dated file exists, retry tomorrow |
 
-## Open — Next Session
-1. ESA/AGM/ERM weekly-research + reasoner workflows (pattern: fcw-weekly-research.yml + fcw-reasoner.yml)
-2. Source → pattern cleanup (~3 items in FCW/WDM/SCEM dashboards — minor)
-3. PED Sprint 2 — needs Q4/Q6/Q7/Q8 decisions first
+**GMM/WDM fix needed:** Model outputs unescaped apostrophes (e.g. "week's") inside JSON string values.
+Two options for next session:
+A. Add prompt instruction: "Never use apostrophes or contractions in JSON string values. Use full words."
+B. Add `json-repair` pip dependency to the workflow and call it before json.loads()
+Option A is simpler. Option B is more robust.
 
-## Peter Action Required
-- ⚠️ Q4/Q6/Q7/Q8 in docs/ux/decisions.md (gates PED Sprint 2)
-- ⚠️ Branch protection on main (SEC-009 HIGH)
-- ⚠️ GSC property verification — DNS TXT record → then recreate GSC audit cron
+## Synthesiser File Locations
+| Monitor | Script | Prompt | Workflow | Slimmed cron |
+|---|---|---|---|---|
+| FCW | pipeline/monitors/fimi-cognitive-warfare/fcw-synthesiser.py | same dir | .github/workflows/fcw-synthesiser.yml | asym-intel-internal/fcw-slimmed-analyst-cron.md |
+| GMM-ERM | pipeline/synthesisers/{abbr}/ | same dir | .github/workflows/{slug}-synthesiser.yml | docs/crons/{abbr}-slimmed-analyst-cron.md |
 
-## GitHub Actions Pipelines
-**Daily Collectors:** All 7 ✅
-**Weekly research + Reasoner:** FCW/GMM/SCEM ✅ | ESA/AGM/ERM ❌ not yet built
+## Methodology — now public
+`docs/methodology/` — 14 files (7 full + 7 calibration), CC BY 4.0
+Synthesiser scripts load from `docs/methodology/{slug}-full.md` at runtime.
+
+## Open — Next session first tasks
+1. Fix GMM/WDM/SCEM/AGM apostrophe issue (prompt fix — 1 line each)
+2. Re-run SCEM and AGM (guard clear after midnight UTC)
+3. Once all 7 pass manual test → enable scheduled triggers on all 7 synthesisers
+4. Recreate FCW Analyst cron using fcw-slimmed-analyst-cron.md
+5. Roll slimmed Analyst cron to all 7 monitors
+
+## Open — Peter action required
+- ⚠️ Q4/Q6/Q7/Q8 in decisions.md (gates PED Sprint 2)
+- ⚠️ Branch protection on main (SEC-009)
+- ⚠️ GSC property verification
