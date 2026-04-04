@@ -186,6 +186,7 @@ or `esc(country)` and verify the flag call precedes it.
     HANDOFF.md, or any file in the public repo.
 15. **COMPUTER.md wiped** — never use Python `open(path, 'w')` without reading the file first; use `read()` → modify → `write()`
 16. **New governance file not wired into Step 0** — any new persistent reference file created in a session (ROADMAP.md, new methodology doc, new spec) must be added to Step 0 in COMPUTER.md, the asym-intel skill, and noted in notes-for-computer.md. If only one place is updated, other sessions won't find it. Canonical test (from `docs/prompts/platform-developer.md`): "Could a fresh Computer instance reading only the Step 0 files find this file without being told it exists?"
+17. **Staging reset while files await sign-off** — NEVER reset staging to main when staged files are awaiting Peter's visual review. This has destroyed staged work at least three times. At wrap: if staging is ahead and unreviewed, leave it in place and record the state in HANDOFF.md. See STAGING RESET PROTECTION rule.
 
 ## Three-Layer Intelligence Architecture (v2.3)
 
@@ -232,6 +233,15 @@ Always fetch the staged file list first:
   gh api /repos/asym-intel/asym-intel-main/compare/main...staging --jq '[.files[].filename]'
 Show the user exactly what will be merged and ask: "This will apply these N files to main — confirm?"
 Never merge based on approval given before the file list has been shown in the current session.
+
+**STAGING RESET PROTECTION — NEVER reset staging while files await visual sign-off:**
+If staging is ahead of main and contains files awaiting Peter's visual review:
+  1. Do NOT reset staging to main — this destroys the staged work.
+  2. At wrap: list the staged files, note "awaiting Peter sign-off — DO NOT RESET".
+  3. Write this state into HANDOFF.md so the next session knows.
+  4. Only reset staging AFTER a successful merge OR after Peter explicitly abandons the staged work.
+Violating this rule has caused staged work to be silently destroyed at least three times.
+The wrap procedure Step 5 exception ("incomplete or visually unreviewed") means LEAVE IN PLACE, not RESET.
 
 **AFTER EVERY DIRECT-FILE MERGE — reset staging to main:**
 When files are applied directly to main (not via PR merge), staging retains its old commit history
@@ -325,8 +335,11 @@ When you say "wrap", Computer:
 5. **Open staging check** — if staging is ahead of main, list the staged files and ask:
    "Staging has N files ready. Do you want to merge before closing?"
    If yes: open PR staging → main and merge immediately.
-   Never leave the day with an unreviewed staging branch unless Peter explicitly defers.
-6. **Reset staging to main HEAD** after any merge.
+   If no (Peter defers): **leave staging untouched** and record in HANDOFF.md:
+   "Staging: N files awaiting sign-off — DO NOT RESET". List the filenames.
+   NEVER reset staging when files await visual sign-off. See STAGING RESET PROTECTION rule above.
+6. **Reset staging to main HEAD** — ONLY after a successful merge, or after Peter explicitly
+   abandons staged work. Never reset as a cleanup step while files await review.
 7. **Update next-session.md** — this is ALWAYS the final commit of the session.
    Write it AFTER merge and staging reset — not before. The file must reflect the
    true final state of the repo. If next-session.md was written earlier in the session
