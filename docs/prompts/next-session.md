@@ -1,5 +1,5 @@
 # Next Computer Admin Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-03 post-renderer-fix wrap
+**Updated:** 2026-04-04 | Version: post-architecture-alignment
 
 > **Bootloader:** Say "Computer: asym-intel.info" to the next instance.
 
@@ -9,55 +9,73 @@
 
 ```
 Load the asym-intel skill first. Read COMPUTER.md, HANDOFF.md,
-notes-for-computer.md, docs/ARCHITECTURE.md, and docs/ROADMAP.md
-before starting.
+notes-for-computer.md, docs/ARCHITECTURE.md, and
+asym-intel-internal/COLLECTOR-ANALYST-ARCHITECTURE.md before starting.
 
---- SESSION: ESA/AGM/ERM pipelines + PED Sprint 2 ---
+--- VERIFY LIVE BEFORE ANY WORK ---
+1. curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
+   → Must show v1.3
+2. Screenshot https://asym-intel.info/monitors/democratic-integrity/dashboard.html
+   → Must NOT show "Failed to load data." or "Loading..."
+3. Screenshot https://asym-intel.info/monitors/fimi-cognitive-warfare/chatter.html
+   → Must show items (not "Loading today's signals...")
+If any fail: see ARCHITECTURE.md deployment runbook + CF purge Zone cc419b7519eba04ef0dc6a7b851930c7
 
-VERIFY LIVE BEFORE STARTING:
-curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/renderer.js | node --check /dev/stdin && echo OK
-→ Must return OK. If not: check notes-for-computer.md for renderer.js bug pattern.
+--- ARCHITECTURE STATUS ---
+All monitors: weekly cadence (quarterly idea superseded — synthesiser makes weekly affordable).
+All 7 Analyst crons: active, weekly, unchanged.
+Weekly-research + Reasoner (FCW/GMM/WDM/SCEM): PAUSED — being replaced by Synthesiser layer.
+Synthesiser (Layer 1C): NOT YET BUILT — Peter drafting FCW files.
 
-curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
-→ Should show v1.3.
+--- FIRST TASK: Review Peter's FCW synthesiser draft ---
+Peter is drafting these files:
+  1. pipeline/monitors/fimi-cognitive-warfare/fcw-synthesiser-api-prompt.txt
+  2. pipeline/monitors/fimi-cognitive-warfare/fcw-synthesiser.py
+  3. pipeline/monitors/fimi-cognitive-warfare/synthesised/synthesis-latest.json (stub)
+  4. .github/workflows/fcw-synthesiser.yml
+  5. Slim FCW Analyst cron task description (plain text → Computer converts to schedule_cron call)
 
-Screenshot https://asym-intel.info/monitors/macro-monitor/dashboard.html
-→ Must NOT show "Failed to load dashboard data" or "AsymRenderer is not defined".
+When Peter sends them:
+- Review each file against COLLECTOR-ANALYST-ARCHITECTURE.md v2.1
+- Check fcw-synthesiser.py embeds pipeline JSON into sonar-deep-research call correctly
+- Check synthesiser-api-prompt.txt instructs model NOT to web search (sonar-deep-research = docs only)
+- Validate synthesiser output schema matches report-latest.json structure minus cross_monitor_flags + persistent_state_delta
+- Commit, trigger workflow_dispatch, verify synthesis-latest.json output
+- Then build slim Analyst cron, delete old FCW cron (b17522c3), test end-to-end
 
-Priority queue:
+--- THEN: Roll pattern to remaining 6 monitors ---
+GMM, WDM, SCEM, ESA, AGM, ERM — same 5 files each.
+ESA/AGM/ERM also need weekly-research workflows built (currently have no Layer 1B).
 
-1. ESA/AGM/ERM weekly-research + reasoner workflows
-   Pattern: .github/workflows/fcw-weekly-research.yml + fcw-reasoner.yml
-   Apply to: european-strategic-autonomy, ai-governance, environmental-risks
-   Also update their analyst cron prompts with Steps 0C/0D/0E
+--- OTHER QUEUED WORK ---
+- PED Sprint 2: Q4/Q6/Q7/Q8 decisions in decisions.md gate this — surface first
+- Housekeeping: trim to 5 essential steps (~800 credits/month saving)
+- Signal refresh (Option B): weekly sonar-pro for all 7 monitors — keeps dashboard live
+- Source → minor cleanup: FCW/WDM/SCEM dashboards (3 patterns, non-blocking)
 
-2. PED Sprint 2 — surface Peter's open decisions FIRST
-   Read docs/ux/decisions.md Section 4 — Q4, Q6, Q7, Q8 need answers before any build.
-   If decisions available: run sprint (AGM+ERM audit, ESA mobile test, signal contrast, badge font)
-
-3. Source → pattern cleanup (minor)
-   FCW dashboard (1), WDM dashboard (1), SCEM dashboard (1)
-   grep "Source →" in static/monitors/{slug}/dashboard.html
-
-4. GMM/ESA annual calibration files
-
-EFFICIENCY REMINDER (COMPUTER.md v3.4):
-- Batch 3+ tasks per session. Step 0 loading is fixed overhead — amortise it.
-- Housekeeping notifies on any issue. Silence = healthy. Don't open a session to verify health.
-
-DEPLOYMENT REMINDER:
-After any shared JS/CSS change → node --check on the file → commit → verify live → CF purge.
-CF Zone ID: cc419b7519eba04ef0dc6a7b851930c7
+--- DEPLOYMENT REMINDER ---
+After any shared JS/CSS change:
+1. Verify live (Cache-Control: no-store)
+2. If stale: workflow_dispatch build.yml
+3. CF purge-all-files (Zone: cc419b7519eba04ef0dc6a7b851930c7)
+4. Screenshot a dashboard — confirm no "Failed to load data."
 ```
 
-## Previous session completed
-- ✅ renderer.js syntax bug fixed (sourceLink single-quote escaping — broke all dashboards)
-- ✅ CI validator CHECK 17 added — node --check on all shared JS files (commit 480d46cc)
-- ✅ Efficiency sprint: staging guard + GSC audit crons deleted, Housekeeping slimmed
-- ✅ COMPUTER.md v3.4 — min session size rule
-- ✅ docs/monitors/_shared/ artefact deleted
+## Current platform state
+
+- Site: ✅ asym-intel.info live, all dashboards rendering
+- nav.js: ✅ v1.3 — MONITOR_REGISTRY, 4 injection functions
+- Chatter: ✅ 7/7 monitors, rotating daily, shared/js/chatter.js
+- Search: ✅ 7/7 monitors, shared/js/search.js
+- Collectors: ✅ 7/7 rotating daily (Mon–Sun 07:00 UTC)
+- Weekly-research: ⏸ PAUSED (4 built, 3 not built)
+- Reasoner: ⏸ PAUSED (4 built, 3 not built)
+- Synthesiser: ❌ Not built — Peter drafting FCW
+- Analyst crons: ✅ 7/7 weekly, current architecture (pre-synthesiser)
+- Housekeeping: ✅ Weekly Monday
 
 ## Peter action required
+- ⚠️ FCW synthesiser files (drafting) — this unlocks the new architecture
 - ⚠️ Q4/Q6/Q7/Q8 in decisions.md (gates PED Sprint 2)
 - ⚠️ Branch protection on main (SEC-009)
-- ⚠️ GSC DNS TXT record verification
+- ⚠️ GSC property verification (DNS TXT)
