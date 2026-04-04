@@ -1,6 +1,7 @@
 # docs/crons/ — Computer Cron Registry
 
-All Computer cron task logic lives here. Cron tasks themselves are slim pointers:
+All Computer cron task logic lives here (except GMM and FCW which are in asym-intel-internal).
+Cron tasks themselves are slim pointers:
 
 ```
 Read full instructions from the repo:
@@ -13,28 +14,30 @@ or update a cron without needing the original session context.
 
 ---
 
-## Active Crons
+## Active Crons (recreated 4 April 2026 — all slim)
 
-| Cron ID | Name | Schedule | Prompt file | Notes |
-|---------|------|----------|-------------|-------|
-| 7e058f57 | Platform Housekeeping | Mon 08:00 UTC | `housekeeping.md` | Validation checks 1–21 + HANDOFF.md generation |
-| aec126c5 | Staging divergence guard | Daily ~18:00 UTC | `staging-guard.md` | Silent unless behind_by > 30 |
-| 631c0fa0 | Annual calibration reminder | 28 Mar annually | inline | Lists missing calibration files |
-| f78e0c2c | Quarterly GSC audit | 1 Jan/Apr/Jul/Oct 09:00 UTC | `gsc-quarterly-audit.md` | GSC search performance + reader profile validation — next run 1 Jul 2026 |
-| a67a9739 | SCEM Sunday verification | Sun 5 Apr 18:30 UTC | inline (one-shot) | Verifies Sprint 2 schema fields |
-| 10ddf5f0 | WDM Monday verification | Mon 6 Apr 06:30 UTC | inline (one-shot) | Verifies Category B sections |
+| Cron ID | Name | Schedule | Prompt file |
+|---------|------|----------|-------------|
+| adad85f6 | WDM Analyst | Mon 06:00 UTC | `wdm-slimmed-analyst-cron.md` |
+| 6efe51b0 | GMM Analyst | Tue 08:00 UTC | `asym-intel-internal/gmm-prompts/gmm-slimmed-analyst-cron.md` |
+| 72398be9 | ESA Analyst | Wed 19:00 UTC | `esa-slimmed-analyst-cron.md` |
+| 478f4080 | FCW Analyst | Thu 09:00 UTC | `asym-intel-internal/fcw-slimmed-analyst-cron.md` |
+| b53d2f93 | AGM Analyst | Fri 09:00 UTC | `agm-slimmed-analyst-cron.md` |
+| 0aaf2bd7 | ERM Analyst | Sat 05:00 UTC | `erm-slimmed-analyst-cron.md` |
+| 743bbe21 | SCEM Analyst | Sun 18:00 UTC | `scem-slimmed-analyst-cron.md` |
+| c725855f | Housekeeping | Mon 08:00 UTC | `housekeeping.md` |
 
-**Analyst crons** (WDM f7bd54e9, GMM c94c4134, ESA 0b39626e, FCW b17522c3,
-AGM 5ac62731, ERM ce367026, SCEM 8cdb83c8) use `cron-wrapper-instructions.md`
-as universal wrapper + their monitor-specific prompt files. See `COMPUTER.md`
-for the full cron table.
+**Retired crons (4 April 2026):** All previous cron IDs (f7bd54e9, c94c4134,
+0b39626e, b17522c3, 5ac62731, ce367026, 8cdb83c8, 7e058f57, aec126c5,
+f78e0c2c, a67a9739, 10ddf5f0, 631c0fa0) were deleted by Peter and replaced
+with slim versions above. Do not recreate old IDs.
 
 ---
 
 ## Pattern: how to update a cron prompt
 
-1. Edit the `.md` file in this folder
-2. Commit to main
+1. Edit the `.md` file in this folder (or in asym-intel-internal for GMM/FCW)
+2. Commit to the relevant repo
 3. The cron picks up the new instructions on its next run automatically
 
 No need to touch the cron task itself. This is the whole point of the repo-first pattern.
@@ -61,4 +64,4 @@ schedule_cron(
 )
 ```
 
-Then update the cron ID in COMPUTER.md and this README.
+Then update the cron ID in COMPUTER.md, HANDOFF.md, and this README.
