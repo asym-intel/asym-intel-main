@@ -16,6 +16,10 @@ The platform is built entirely on open-source intelligence. No classified materi
 
 ---
 
+*Companion documents: see `asym-intel-internal/editorial-strategy.md` for tier architecture and audience strategy, and `asym-intel-internal/development-plan.md` for build roadmap.*
+
+---
+
 ## Core Principles
 
 ### 1. No false signal, no matter the cost to coverage
