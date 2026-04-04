@@ -126,6 +126,7 @@ if "_meta" in synthesis:
     synthesis["_meta"]["research_model"] = MODEL
 
 SYNTH_DIR.mkdir(parents=True, exist_ok=True)
+(SYNTH_DIR / f"debug-{TODAY_STR}.json").write_text(json.dumps(synthesis, indent=2), encoding="utf-8")
 out = json.dumps(synthesis, indent=2, ensure_ascii=False)
 OUT_DATED.write_text(out, encoding="utf-8")
 (SYNTH_DIR / "synthesis-latest.json").write_text(out, encoding="utf-8")
