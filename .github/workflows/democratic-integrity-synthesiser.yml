@@ -12,12 +12,8 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout asym-intel-main
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          repository: asym-intel/asym-intel-main
-          token: ${{ secrets.ASYM_INTEL_PAT }}
-          path: repo
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -30,12 +26,11 @@ jobs:
       - name: Run WDM synthesiser
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          REPO_ROOT: ${{ github.workspace }}/repo
+          REPO_ROOT: ${{ github.workspace }}
         run: |
-          python repo/pipeline/synthesisers/wdm/democratic-integrity-synthesiser.py
+          python pipeline/synthesisers/wdm/democratic-integrity-synthesiser.py
 
       - name: Commit synthesis output
-        working-directory: repo
         run: |
           git config user.name  "monitor-bot"
           git config user.email "monitor-bot@asym-intel.info"
