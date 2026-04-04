@@ -111,9 +111,45 @@ brace_end   = raw.rfind("}")
 if brace_start != -1 and brace_end > brace_start:
     raw = raw[brace_start:brace_end + 1]
 
+
+def repair_json(raw):
+    """Attempt basic JSON repairs before parse."""
+    # Fix unescaped apostrophes in string values
+    # Strategy: find all string values and escape single quotes within them
+    # This is approximate — a full JSON repair library would be better
+    # but we avoid adding dependencies
+    repaired = []
+    i = 0
+    in_string = False
+    escape_next = False
+    while i < len(raw):
+        c = raw[i]
+        if escape_next:
+            repaired.append(c)
+            escape_next = False
+        elif c == '\\':
+            repaired.append(c)
+            escape_next = True
+        elif c == '"' and not escape_next:
+            in_string = not in_string
+            repaired.append(c)
+        elif c == "'" and in_string:
+            repaired.append("\\'")
+        else:
+            repaired.append(c)
+        i += 1
+    return ''.join(repaired)
+
 try:
     synthesis = json.loads(raw)
-except json.JSONDecodeError as e:
+except json.JSONDecodeError:
+    try:
+        synthesis = json.loads(repair_json(raw))
+        print(f"[SCEM] JSON repaired successfully")
+    except json.JSONDecodeError as e2:
+        e = e2
+        synthesis = None
+if synthesis is None:
     print(f"[SCEM] JSON parse error: {e}. Writing fallback stub.")
     synthesis = {
         "_meta": {
@@ -124,7 +160,7 @@ except json.JSONDecodeError as e:
             "null_signal_week": True,
             "null_signal_reason": f"JSON parse error: {e}",
         },
-        "_raw_fallback": raw[:2000],
+        "_raw_fallback": raw[:5000],
     }
 
 if "_meta" in synthesis:
