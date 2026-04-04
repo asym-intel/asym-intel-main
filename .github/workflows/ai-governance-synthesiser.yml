@@ -1,0 +1,45 @@
+name: "AI Governance Monitor Synthesiser"
+
+on:
+  # Uncomment after first manual test passes:
+  # schedule:
+  #   - cron: "0 22 * * 4"  # Thursday 22:00 UTC (before AI Governance Monitor Analyst Friday 09:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  synthesise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout asym-intel-main
+        uses: actions/checkout@v4
+        with:
+          repository: asym-intel/asym-intel-main
+          token: ${{ secrets.ASYM_INTEL_PAT }}
+          path: repo
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run AGM synthesiser
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          REPO_ROOT: ${{ github.workspace }}/repo
+        run: |
+          python repo/pipeline/synthesisers/agm/ai-governance-synthesiser.py
+
+      - name: Commit synthesis output
+        working-directory: repo
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/ai-governance/synthesised/
+          git diff --cached --quiet || git commit -m "chore(agm): synthesiser run $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push
