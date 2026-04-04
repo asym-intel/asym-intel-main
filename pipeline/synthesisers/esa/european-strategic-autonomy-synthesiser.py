@@ -8,6 +8,7 @@ Output      : pipeline/monitors/european-strategic-autonomy/synthesised/synthesi
 
 import json, os, sys, re, datetime, pathlib
 import requests
+import time
 
 REPO_ROOT   = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
 MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "european-strategic-autonomy"
@@ -87,11 +88,19 @@ resp = requests.post(
             {"role": "system", "content": system_msg},
             {"role": "user",   "content": user_msg},
         ],
-        "max_tokens": 4096,
+        "max_tokens": 8192,
         "temperature": 0.1,
     },
-    timeout=120,
+    timeout=180,
 )
+if resp.status_code == 429:
+    print(f"[ESA] 429 rate limit — waiting 60s")
+    time.sleep(60)
+    resp = requests.post(API_URL,
+        headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
+        json={"model": MODEL, "messages": [{"role": "system", "content": system_msg},
+              {"role": "user", "content": user_msg}], "max_tokens": 8192, "temperature": 0.1},
+        timeout=180)
 resp.raise_for_status()
 raw = resp.json()["choices"][0]["message"]["content"].strip()
 
