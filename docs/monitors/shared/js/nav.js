@@ -1,5 +1,5 @@
 /* ============================================================
-   Asymmetric Intelligence Monitor — nav.js  v1.3
+   Asymmetric Intelligence Monitor — nav.js  v1.4
    Intersection Observer scroll-spy for .module-section[id]
    Updates active state on .monitor-nav a, .monitor-sidebar a,
    and .module-nav-strip a matching href="#id".
@@ -61,7 +61,7 @@
       '<nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections">',
         '<a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a>',
         '<a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a>',
-        '<a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">The White Space</a>',
+        '<a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Network</a>',
       '</nav>'
     ].join('');
 
