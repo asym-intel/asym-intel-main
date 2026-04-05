@@ -414,6 +414,23 @@
       </ul>
     </section>
 
+    <!-- Domain Indicators -->
+    <section class="module-section" id="section-domain-indicators">
+      <div class="module-header">
+        <div class="module-title">Domain Indicators</div>
+        <div class="module-subtitle">40 granular indicators across 6 systemic risk domains</div>
+      </div>
+      <div id="domain-indicators-wrap"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <!-- Tail Risk Matrix -->
+    <section class="module-section" id="section-tail-risks">
+      <div class="module-header">
+        <div class="module-title">Tail Risk Matrix</div>
+      </div>
+      <div id="tail-risks-wrap"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
     <!-- Asset Class Bar Chart -->
     <section class="module-section" id="section-asset-chart">
       <div class="module-header">
@@ -483,6 +500,8 @@
       <li><a href="#section-signal">Weekly Signal</a></li>
       <li><a href="#section-regime-shift">Regime Shift</a></li>
       <li><a href="#section-delta">Delta Strip</a></li>
+      <li><a href="#section-domain-indicators">Domain Indicators</a></li>
+      <li><a href="#section-tail-risks">Tail Risk Matrix</a></li>
       <li><a href="#section-asset-chart">Asset Scores</a></li>
       <li><a href="#section-assets">Asset Outlook</a></li>
       <li><a href="#section-scenarios">Macro Scenarios</a></li>
@@ -821,6 +840,15 @@ document.addEventListener('DOMContentLoaded', function () {
         '<h2 class="signal-block__headline">' + esc(stressLabel || '') + '</h2>' +
         '<p class="signal-block__body">' + esc(eb.summary || signalBody || '') + '</p>' +
         (eb.one_number_to_watch ? '<p style="margin-top:var(--space-4);font-size:var(--text-sm);color:rgba(255,255,255,0.8)"><strong>One number to watch:</strong> ' + esc(eb.one_number_to_watch) + '</p>' : '') +
+        (eb.one_indicator_lying ? '<p style="margin-top:var(--space-3);font-size:var(--text-sm);color:rgba(255,255,255,0.8)"><strong>One indicator that may be lying:</strong> ' + esc(eb.one_indicator_lying) + '</p>' : '') +
+        (eb.hard_landing_risk && eb.hard_landing_risk.score != null
+          ? '<div style="margin-top:var(--space-3);display:flex;align-items:center;gap:var(--space-3)">' +
+            '<span style="font-size:var(--text-xs);color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.05em">Hard Landing Risk</span>' +
+            '<span style="font-size:var(--text-sm);font-weight:700;color:rgba(255,255,255,0.95)">' + esc(String(eb.hard_landing_risk.score)) + '/10</span>' +
+            (eb.hard_landing_risk.direction ? '<span style="font-size:var(--text-xs);color:rgba(255,255,255,0.7)">' + esc(eb.hard_landing_risk.direction) + '</span>' : '') +
+            '</div>' +
+            (eb.hard_landing_risk.note ? '<p style="font-size:var(--text-xs);color:rgba(255,255,255,0.75);margin-top:var(--space-2)">' + esc(eb.hard_landing_risk.note) + '</p>' : '')
+          : '') +
         '<div class="signal-block__meta">' +
           '<span class="regime-badge">' + esc(regime || '—') + ' · ' + esc(conviction || '—') + ' conviction</span>' +
           (eb.source_url ? '<a class="source-link" href="' + esc(eb.source_url) + '" target="_blank" rel="noopener">Read the top story ↓</a>' : '') +
@@ -854,7 +882,7 @@ document.addEventListener('DOMContentLoaded', function () {
       atWrap.innerHTML = '<p class="text-muted text-sm">No asset class data available.</p>';
     } else {
       var tHTML = '<table class="asset-table"><thead><tr>' +
-        '<th>Asset Class</th><th>Score</th><th>Flag</th><th>Direction</th><th>Key Driver</th>' +
+        '<th>Asset Class</th><th>Score</th><th>Flag</th><th>Conv.</th><th>Direction</th><th>Key Driver</th>' +
         '</tr></thead><tbody>';
       assets.forEach(function (a) {
         var scorePos = parseFloat(a.score || 0) >= 0;
@@ -862,6 +890,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '<td class="asset-table__name">' + esc(a.asset_class) + '</td>' +
           '<td><span class="score-chip score-chip--' + (scorePos ? 'pos' : 'neg') + '">' + (parseFloat(a.score||0) > 0 ? '+' : '') + esc(a.score) + '</span></td>' +
           '<td><span class="flag-badge flag-badge--' + flagClass(a.flag) + '">' + esc(a.flag) + '</span></td>' +
+          '<td style="font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(a.conviction || '—') + '</td>' +
           '<td>' + directionArrow(a.direction) + '</td>' +
           '<td><div class="asset-table__driver">' + esc(a.key_driver || '') + '</div></td>' +
           '</tr>';
@@ -915,6 +944,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Real M2 Waterfall
     renderRealM2(eb.real_m2 || {});
+
+    // Domain Indicators
+    renderDomainIndicators(d.domain_indicators || {});
+
+    // Tail Risk Matrix
+    renderTailRisks(d.tail_risks || []);
 
       // Cross-monitor flags
       renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
@@ -1021,6 +1056,124 @@ document.addEventListener('DOMContentLoaded', function () {
     if (so.matt_agreement_pct  != null) stats.push('MATT agreement: <strong>' + Math.round(so.matt_agreement_pct * 100) + '%</strong>');
     if (stats.length) html += '<p style="font-size:var(--text-sm);color:var(--color-text-secondary)">' + stats.join(' · ') + '</p>';
     if (so.source_url) html += '<p style="margin-top:var(--space-2)"><a class="source-link" href="' + esc(so.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs)">CME FedWatch →</a></p>';
+    wrap.innerHTML = html;
+  }
+
+  // ── Domain Indicators renderer ──────────────────────────────────────────
+  function renderDomainIndicators(di) {
+    var wrap = document.getElementById('domain-indicators-wrap');
+    if (!wrap) return;
+    var DOMAINS = [
+      { key: 'domain_1_debt_sovereign',   label: '01 Debt &amp; Sovereign' },
+      { key: 'domain_2_banking_credit',   label: '02 Banking &amp; Credit' },
+      { key: 'domain_3_market_structure', label: '03 Market Structure' },
+      { key: 'domain_4_real_economy',     label: '04 Real Economy' },
+      { key: 'domain_5_composite_indices',label: '05 Composite Indices' },
+      { key: 'domain_6_amplifiers',       label: '06 Amplifiers' }
+    ];
+    var flagEmoji = function(flag) {
+      if (!flag) return '';
+      var f = String(flag).toUpperCase();
+      if (f === 'WARNING')  return '\uD83D\uDD34'; // 🔴
+      if (f === 'ELEVATED') return '\uD83D\uDFE1'; // 🟡
+      if (f === 'GREEN')    return '\uD83D\uDFE2'; // 🟢
+      return '\u26AA'; // ⚪
+    };
+    var html = '';
+    DOMAINS.forEach(function(domain) {
+      var items = di[domain.key];
+      if (!items || !items.length) return;
+      html += '<details style="margin-bottom:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);overflow:hidden">';
+      html += '<summary style="padding:var(--space-3) var(--space-4);cursor:pointer;font-weight:700;font-size:var(--text-sm);background:var(--color-bg-alt);list-style:none;display:flex;align-items:center;gap:var(--space-2)">';
+      html += '<span style="flex:1">' + domain.label + '</span>';
+      html += '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-weight:400">' + items.length + ' indicators</span>';
+      html += '</summary>';
+      html += '<div style="overflow-x:auto">';
+      html += '<table class="asset-table" style="margin:0">';
+      html += '<thead><tr><th>Indicator</th><th>Score</th><th>Dir</th><th>Reading</th><th>Updated</th></tr></thead>';
+      html += '<tbody>';
+      items.forEach(function(item) {
+        var emoji = flagEmoji(item.flag);
+        var scoreStr = emoji + ' ' + (item.score != null ? item.score : '—');
+        var ctTitle = item.crisis_threshold ? ' title="Crisis threshold: ' + esc(item.crisis_threshold) + '"' : '';
+        var dir = item.direction || '';
+        var dirChar = (function(d) {
+          var dl = d.toLowerCase();
+          if (dl.indexOf('deteriorat') > -1 || dl.indexOf('escalat') > -1 || dl.indexOf('contract') > -1 || dl.indexOf('tighten') > -1) return '&#8595;';
+          if (dl.indexOf('improv') > -1 || dl.indexOf('recover') > -1) return '&#8593;';
+          return '&#8594;';
+        })(dir);
+        var reading = item.reading || '';
+        if (reading.length > 80) reading = reading.substring(0, 77) + '\u2026';
+        var updated = item.update_this_week ? '<span style="color:#16a34a;font-size:var(--text-base)" title="Updated this week">●</span>' : '';
+        html += '<tr>';
+        html += '<td style="font-size:var(--text-xs)">' + esc(item.indicator || '') + '</td>';
+        html += '<td style="white-space:nowrap;font-size:var(--text-xs);font-weight:600"' + ctTitle + '>' + esc(scoreStr) + '</td>';
+        html += '<td style="text-align:center;font-size:var(--text-sm)">' + dirChar + '</td>';
+        html += '<td style="font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(reading) + '</td>';
+        html += '<td style="text-align:center">' + updated + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      html += '</div>';
+      html += '</details>';
+    });
+    if (!html) {
+      wrap.innerHTML = '<p class="text-muted text-sm">No domain indicator data available.</p>';
+    } else {
+      wrap.innerHTML = html;
+    }
+  }
+
+  // ── Tail Risk Matrix renderer ──────────────────────────────────────────
+  function renderTailRisks(risks) {
+    var wrap = document.getElementById('tail-risks-wrap');
+    if (!wrap) return;
+    if (!risks || !risks.length) {
+      wrap.innerHTML = '<p class="text-muted text-sm">No tail risk data available.</p>';
+      return;
+    }
+    function cardBorder(r) {
+      var impact = (r.impact || 0);
+      var likelihood = (r.likelihood || 0);
+      var highImpact = impact >= 0.67;
+      var highLikelihood = likelihood >= 0.67;
+      var medImpact = impact >= 0.33;
+      var medLikelihood = likelihood >= 0.33;
+      if (highImpact && highLikelihood) return '4px solid #dc2626';
+      if (highImpact && medLikelihood)  return '4px solid #f97316';
+      if (medImpact  && highLikelihood) return '4px solid #f59e0b';
+      return '4px solid #94a3b8';
+    }
+    function pctBadge(val, label) {
+      if (val == null) return '';
+      return '<span style="font-size:var(--text-xs);font-weight:600;padding:2px 6px;border-radius:3px;background:var(--color-bg-alt);color:var(--color-text-secondary)">' +
+        esc(label) + ': ' + Math.round(val * 100) + '%</span>';
+    }
+    function dirArrow(dir) {
+      if (!dir) return '';
+      var d = dir.toLowerCase();
+      if (d === 'increasing') return '<span style="color:#dc2626">&#8593;</span>';
+      if (d === 'decreasing') return '<span style="color:#059669">&#8595;</span>';
+      return '<span style="color:var(--color-text-muted)">&#8594;</span>';
+    }
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-4)">';
+    risks.forEach(function(r) {
+      html += '<div style="border-left:' + cardBorder(r) + ';border-radius:var(--radius-md);padding:var(--space-4);background:var(--color-bg-alt);display:flex;flex-direction:column;gap:var(--space-2)">';
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)">';
+      html += '<span style="font-size:var(--text-sm);font-weight:700">' + esc(r.label || r.id || '') + '</span>';
+      html += dirArrow(r.direction);
+      html += '</div>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2)">';
+      html += pctBadge(r.likelihood, 'Likelihood');
+      html += pctBadge(r.impact, 'Impact');
+      html += '</div>';
+      if (r.note) {
+        html += '<p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:0">' + esc(r.note) + '</p>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
     wrap.innerHTML = html;
   }
 
