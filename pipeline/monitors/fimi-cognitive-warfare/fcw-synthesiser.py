@@ -29,6 +29,10 @@ import requests
 import sys
 import re
 
+# Shared repair utilities
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent / "pipeline" / "synthesisers"))
+from synth_utils import parse_llm_json
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
@@ -163,19 +167,12 @@ print(f"Response received. Tokens: {api_response.get('usage', {}).get('total_tok
 
 # ── Parse ──────────────────────────────────────────────────────────────────────
 
-clean = raw_content.strip()
-if clean.startswith("```"):
-    clean = re.sub(r'^```(?:json)?[ \t]*\n?', '', clean)
-    clean = re.sub(r'\n?```[ \t]*$', '', clean).strip()
-brace_start = clean.find('{')
-brace_end   = clean.rfind('}')
-if brace_start != -1 and brace_end != -1 and brace_end > brace_start:
-    clean = clean[brace_start:brace_end+1]
-
 try:
-    data = json.loads(clean)
+    data, was_repaired = parse_llm_json(raw_content, "FCW")
+    if was_repaired:
+        print("[FCW] JSON repaired successfully")
 except json.JSONDecodeError as e:
-    print(f"ERROR: Failed to parse JSON: {e}")
+    print(f"ERROR: Failed to parse JSON after all repair attempts: {e}")
     print("Raw output (first 500 chars):", raw_content[:500])
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / f"debug-{TODAY_STR}.txt").write_text(raw_content, encoding="utf-8")
