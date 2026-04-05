@@ -435,6 +435,7 @@
       <div class="wdm-map-wrap">
         <div id="wdm-map"></div>
       </div>
+      <div id="geo-table-view" style="display:none"></div>
     </section>
 
       <!-- Cross-Monitor Flags -->
@@ -968,22 +969,23 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('DOMContentLoaded', function () {
     var btn    = document.getElementById('map-toggle');
     var mapDiv = document.getElementById('wdm-map');
-    var heatmapSection = document.getElementById('heatmap-table');
+    var geoTable = document.getElementById('geo-table-view');
 
     if (!btn || !mapDiv) return;
 
     btn.addEventListener('click', function () {
       var isMap = btn.getAttribute('data-active') === 'map';
       if (isMap) {
-        // Switch to table view
+        // Switch to table view — clone heatmap table into geo section
         mapDiv.style.display = 'none';
-        if (heatmapSection) heatmapSection.style.display = '';
+        var src = document.getElementById('heatmap-table');
+        if (geoTable && src) { geoTable.innerHTML = src.innerHTML; geoTable.style.display = ''; }
         btn.setAttribute('data-active', 'table');
         btn.setAttribute('aria-pressed', 'false');
         btn.textContent = 'Map view';
       } else {
         // Switch to map view
-        if (heatmapSection) heatmapSection.style.display = 'none';
+        if (geoTable) geoTable.style.display = 'none';
         mapDiv.style.display = 'block';
         btn.setAttribute('data-active', 'map');
         btn.setAttribute('aria-pressed', 'true');
@@ -993,8 +995,7 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () { if (wdmMap) wdmMap.invalidateSize(); }, 120);
       }
     });
-    // Map is default — hide table section, init map immediately
-    if (heatmapSection) heatmapSection.style.display = 'none';
+    // Map is default — geo table hidden, map visible
     initMap();
     setTimeout(function () { if (wdmMap) wdmMap.invalidateSize(); }, 250);
   });
