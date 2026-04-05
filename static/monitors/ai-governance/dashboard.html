@@ -378,6 +378,207 @@
       border-color: #3a3835;
     }
   </style>
+  <style>
+    /* ── Delta Strip (Top Movers) ───────────────────────────────────── */
+    .ds-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .ds-card {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+    }
+    .ds-rank {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--color-text-muted);
+      line-height: 1;
+      min-width: 1.6rem;
+      flex-shrink: 0;
+    }
+    .ds-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .ds-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: 0.25rem;
+    }
+    .ds-module {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-family: var(--font-mono, monospace);
+    }
+    .ds-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .ds-badge--new        { background: rgba(5,150,105,0.15);  color: #059669; border: 1px solid rgba(5,150,105,0.3); }
+    .ds-badge--escalation { background: rgba(193,68,14,0.12);   color: #c1440e; border: 1px solid rgba(193,68,14,0.3); }
+    .ds-badge--shift      { background: rgba(217,119,6,0.12);   color: #d97706; border: 1px solid rgba(217,119,6,0.3); }
+    .ds-badge--update     { background: rgba(37,99,235,0.1);    color: #2563eb; border: 1px solid rgba(37,99,235,0.25); }
+    .ds-badge--default    { background: var(--color-surface);   color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .ds-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 0.2rem;
+    }
+    .ds-oneline {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.55;
+    }
+    [data-theme="dark"] .ds-card {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+
+    /* ── Energy Wall ────────────────────────────────────────────────── */
+    .ew-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .ew-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+    }
+    .ew-card__top {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-2);
+    }
+    .ew-deal {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .ew-amount {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--monitor-accent, #3a7d5a);
+    }
+    .ew-cat-badge {
+      font-size: var(--text-min);
+      font-weight: 600;
+      padding: 1px 8px;
+      border-radius: 20px;
+      background: rgba(37,99,235,0.1);
+      color: #2563eb;
+      border: 1px solid rgba(37,99,235,0.25);
+      white-space: nowrap;
+    }
+    .ew-date {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+    .ew-signal {
+      background: rgba(217,119,6,0.08);
+      border-left: 3px solid #d97706;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-xs);
+      font-style: italic;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-3);
+    }
+    .ew-analysis {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-2);
+    }
+    [data-theme="dark"] .ew-card {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    [data-theme="dark"] .ew-signal {
+      background: rgba(217,119,6,0.12);
+    }
+
+    /* ── arXiv Research Highlights ───────────────────────────────────── */
+    .arxiv-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .arxiv-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+    }
+    .arxiv-card__top {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+      margin-bottom: 0.2rem;
+    }
+    .arxiv-title {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--monitor-accent, #3a7d5a);
+      text-decoration: none;
+    }
+    .arxiv-title:hover { text-decoration: underline; }
+    .arxiv-tier {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .arxiv-tier--t1 { background: rgba(5,150,105,0.15);  color: #059669; border: 1px solid rgba(5,150,105,0.3); }
+    .arxiv-tier--t2 { background: rgba(217,119,6,0.12);  color: #d97706; border: 1px solid rgba(217,119,6,0.3); }
+    .arxiv-tier--t3 { background: var(--color-surface);  color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .arxiv-meta {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-2);
+    }
+    .arxiv-significance {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+    [data-theme="dark"] .arxiv-card {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    [data-theme="dark"] .arxiv-tier--t3 {
+      background: #1a1917;
+      border-color: #3a3835;
+    }
+  </style>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
 </head>
 
@@ -483,12 +684,21 @@
         </div>
       </section>
 
-      <!-- Delta Strip -->
+      <!-- Delta Strip (legacy) -->
       <section id="delta-strip-section" aria-labelledby="delta-heading">
         <h2 class="section-label" id="delta-heading">Top Items This Issue</h2>
         <div id="delta-strip-content">
           <p class="loading-state">Loading…</p>
         </div>
+      </section>
+
+      <!-- Top Movers (new module-section) -->
+      <section class="module-section" id="section-delta-strip">
+        <div class="module-header">
+          <div class="module-title">Top Movers This Issue</div>
+          <div class="module-subtitle">Highest-signal changes since last issue</div>
+        </div>
+        <div id="delta-strip-wrap"><div class="loading-state">Loading…</div></div>
       </section>
 
       <!-- Country Grid Summary -->
@@ -503,6 +713,24 @@
       <section id="model-frontier" aria-labelledby="model-frontier-heading">
         <h2 class="section-label" id="model-frontier-heading">Model Frontier</h2>
         <div id="model-frontier-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Energy & Infrastructure Wall -->
+      <section class="module-section" id="section-energy-wall">
+        <div class="module-header">
+          <div class="module-title">Energy &amp; Infrastructure Wall</div>
+          <div class="module-subtitle">Compute infrastructure and energy deals driving AI buildout</div>
+        </div>
+        <div id="energy-wall-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
+      <!-- arXiv Research Highlights -->
+      <section class="module-section" id="section-arxiv">
+        <div class="module-header">
+          <div class="module-title">Research Highlights</div>
+          <div class="module-subtitle">Key papers from arXiv and peer-reviewed venues</div>
+        </div>
+        <div id="arxiv-wrap"><div class="loading-state">Loading…</div></div>
       </section>
 
         <!-- Cross-Monitor Flags -->
@@ -526,6 +754,9 @@
           <li><a href="#country-grid-section">Country Grid</a></li>
           <li><a href="#model-frontier">Model Frontier</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+          <li><a href="#section-delta-strip">Top Movers</a></li>
+          <li><a href="#section-energy-wall">Energy Wall</a></li>
+          <li><a href="#section-arxiv">Research</a></li>
         </ul>
       </nav>
       <div class="sidebar-nav" style="margin-top:var(--space-6)">
@@ -858,6 +1089,11 @@
 
       // Cross-monitor flags
       renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
+
+      // New module sections
+      renderDeltaStrip(d.delta_strip || []);
+      renderEnergyWall((d.module_3 && d.module_3.energy_wall) ? d.module_3.energy_wall : []);
+      renderArxiv((d.module_6 && d.module_6.arxiv_highlights) ? d.module_6.arxiv_highlights : []);
     })
     .catch(function () {
       document.getElementById('signal-block').innerHTML = '<p class="error-state">Could not load data.</p>';
@@ -969,6 +1205,119 @@
 
   });
   
+  // ── Delta Strip (Top Movers) ─────────────────────────────────────
+  function renderDeltaStrip(items) {
+    var el = document.getElementById('delta-strip-wrap');
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<p class="empty-state">No delta items this issue.</p>';
+      return;
+    }
+    function deltaBadgeClass(type) {
+      if (!type) return 'ds-badge--default';
+      var t = type.toUpperCase();
+      if (t.indexOf('NEW') !== -1) return 'ds-badge--new';
+      if (t.indexOf('ESCALATION') !== -1) return 'ds-badge--escalation';
+      if (t.indexOf('SHIFT') !== -1) return 'ds-badge--shift';
+      if (t.indexOf('UPDATE') !== -1) return 'ds-badge--update';
+      return 'ds-badge--default';
+    }
+    var html = '<ol class="ds-list">';
+    items.forEach(function (item) {
+      var badgeClass = deltaBadgeClass(item.delta_type);
+      html +=
+        '<li class="ds-card">' +
+          '<div class="ds-rank">' + esc(String(item.rank || '')) + '</div>' +
+          '<div class="ds-body">' +
+            '<div class="ds-meta">' +
+              '<span class="ds-module">' + esc(item.module || '') + '</span>' +
+              '<span class="ds-badge ' + badgeClass + '">' + esc(item.delta_type || '') + '</span>' +
+            '</div>' +
+            '<div class="ds-title">' + esc(item.title || '') + '</div>' +
+            '<div class="ds-oneline">' + esc(item.one_line || '') + '</div>' +
+          '</div>' +
+        '</li>';
+    });
+    html += '</ol>';
+    el.innerHTML = html;
+  }
+
+  // ── Energy Wall ──────────────────────────────────────────────────
+  function renderEnergyWall(items) {
+    var el = document.getElementById('energy-wall-wrap');
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<p class="empty-state">No energy deals this issue.</p>';
+      return;
+    }
+    var html = '<div class="ew-grid">';
+    items.forEach(function (item) {
+      html +=
+        '<div class="ew-card">' +
+          '<div class="ew-card__top">' +
+            '<span class="ew-deal">' + esc(item.deal || '') + '</span>' +
+            '<span class="ew-amount">' + esc(item.amount || '') + '</span>' +
+            '<span class="ew-cat-badge">' + esc(item.category || '') + '</span>' +
+            '<span class="ew-date">' + esc(item.announced || '') + '</span>' +
+          '</div>' +
+          '<blockquote class="ew-signal">' + esc(item.signal || '') + '</blockquote>' +
+          '<p class="ew-analysis">' + esc(item.analysis || '') + '</p>' +
+          (item.source_url ? '<div class="source-link-wrap">' + AsymRenderer.sourceLink(item.source_url) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── arXiv Research Highlights ────────────────────────────────────
+  function renderArxiv(items) {
+    var el = document.getElementById('arxiv-wrap');
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<p class="empty-state">No research highlights this issue.</p>';
+      return;
+    }
+    function tierClass(tier) {
+      var t = String(tier || '');
+      if (t === '1' || t.toUpperCase() === 'T1') return 'arxiv-tier--t1';
+      if (t === '2' || t.toUpperCase() === 'T2') return 'arxiv-tier--t2';
+      return 'arxiv-tier--t3';
+    }
+    function tierLabel(tier) {
+      var t = String(tier || '');
+      if (t === '1') return 'T1';
+      if (t === '2') return 'T2';
+      if (t === '3') return 'T3';
+      return 'T' + t;
+    }
+    function formatAuthors(authorsRaw) {
+      if (!authorsRaw) return '';
+      var parts = String(authorsRaw).split(/[,;]/);
+      if (parts.length <= 3) return authorsRaw;
+      return parts.slice(0, 3).join(', ').trim() + ' et al.';
+    }
+    var html = '<div class="arxiv-list">';
+    items.forEach(function (item) {
+      var tc = tierClass(item.tier);
+      var tl = tierLabel(item.tier);
+      html +=
+        '<div class="arxiv-card">' +
+          '<div class="arxiv-card__top">' +
+            '<a class="arxiv-title" href="' + esc(item.url || '#') + '" target="_blank" rel="noopener">' + esc(item.title || '') + '</a>' +
+            '<span class="arxiv-tier ' + tc + '">' + tl + '</span>' +
+          '</div>' +
+          '<div class="arxiv-meta">' +
+            esc(formatAuthors(item.authors)) +
+            (item.venue ? ' &middot; ' + esc(item.venue) : '') +
+            (item.published ? ' &middot; ' + esc(item.published) : '') +
+          '</div>' +
+          '<p class="arxiv-significance">' + esc(item.significance || '') + '</p>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
   // ── Cross-Monitor Flags ───────────────────────────────────────────
   function renderCrossMonitor(cmf, targetId) {
     var flags = (cmf && cmf.flags) ? cmf.flags : [];

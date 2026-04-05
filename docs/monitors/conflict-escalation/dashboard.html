@@ -563,6 +563,15 @@
     </section>
 
 
+    <!-- ROSTER WATCH -->
+    <section class="module-section" id="section-roster-watch">
+      <div class="module-header">
+        <div class="module-title">Roster Watch</div>
+        <div class="module-subtitle">Conflicts approaching inclusion or retirement</div>
+      </div>
+      <div id="roster-watch-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <!-- INDICATOR BREAKDOWN -->
     <section class="module-section" id="indicator-breakdown">
       <div class="module-header">
@@ -598,6 +607,7 @@
       <li><a href="#section-conflict-overview">Conflict Overview</a></li>
       <li><a href="#section-conflict-cards">Active Conflicts</a></li>
       <li><a href="#section-roster">Conflict Roster</a></li>
+      <li><a href="#section-roster-watch">Roster Watch</a></li>
       <li><a href="#indicator-breakdown">Indicator Breakdown</a></li>
     </ul>
   </nav>
@@ -908,6 +918,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('data/persistent-state.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
   ]).then(function(results) {
     renderDashboard(results[0], results[1]);
+    renderRosterWatch(results[0].roster_watch || {});
   }).catch(function (e) {
     document.getElementById('kpi-strip').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
   });
@@ -1265,6 +1276,32 @@ document.addEventListener('DOMContentLoaded', function () {
       var traj  = c.trajectory || c.status || 'Active';
       var trajArrow = c.trajectory_arrow || (traj.toLowerCase().indexOf('escal') >= 0 ? '↑' : traj.toLowerCase().indexOf('de-escal') >= 0 ? '↓' : '→');
 
+      /* Build per-indicator score rows */
+      var indRows = '';
+      var CARD_IND_LABELS = {
+        'I1_rhetoric': 'I1 Rhetoric',
+        'I2_military_posture': 'I2 Military',
+        'I3_nuclear_strategic': 'I3 Nuclear',
+        'I4_economic_warfare': 'I4 Economic',
+        'I5_diplomatic': 'I5 Diplomatic',
+        'I6_displacement': 'I6 Displacement'
+      };
+      INDICATOR_KEYS.forEach(function(key) {
+        var ind = (c.indicators || {})[key] || {};
+        var devNum = ind.deviation != null ? ind.deviation : 0;
+        var devStr = devNum > 0 ? '+' + devNum : String(devNum);
+        var bandVal = ind.band || 'CONTESTED';
+        var bandCls = bandToRowClass(bandVal);
+        indRows +=
+          '<div style="display:flex;align-items:baseline;gap:var(--space-2);padding:2px 0;border-bottom:1px solid var(--color-border-subtle);font-size:var(--text-min)">' +
+            '<span style="flex:1;color:var(--color-text-secondary);font-weight:500">' + escHtml(CARD_IND_LABELS[key] || key) + '</span>' +
+            '<span style="color:var(--color-text-muted)">' + escHtml(String(ind.level != null ? ind.level : '—')) + '</span>' +
+            '<span style="min-width:28px;text-align:right;font-weight:600;color:' + (devNum > 0 ? '#dc2626' : devNum < 0 ? '#059669' : 'var(--color-text-muted)') + '">' + devStr + '</span>' +
+            '<span class="conflict-card__band conflict-card__band--' + bandCls + '" style="padding:1px 5px;font-size:10px">' + escHtml(bandVal) + '</span>' +
+          '</div>' +
+          (ind.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px;font-style:italic">' + escHtml(ind.note) + '</div>' : '');
+      });
+
       cardsHtml +=
         '<div class="conflict-card">' +
           '<div class="conflict-card__accent-bar conflict-card__accent-bar--' + cls + '"></div>' +
@@ -1273,6 +1310,14 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="conflict-card__dot conflict-card__dot--' + cls + '" title="' + escHtml(worst.band || cls) + '"></div>' +
           '</div>' +
           '<div class="conflict-card__theatre">' + escHtml(c.theatre || '') + '</div>' +
+          (c.summary ? '<p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2);line-height:1.5">' + escHtml(c.summary) + '</p>' : '') +
+          (c.lead_development
+            ? '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);background:rgba(220,38,38,0.07);border-left:3px solid var(--monitor-accent);border-radius:0 4px 4px 0">' +
+                '<span style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--monitor-accent);font-weight:600">Lead Development</span>' +
+                '<p style="font-size:var(--text-sm);margin-top:var(--space-1)">' + escHtml(c.lead_development) + '</p>' +
+              '</div>'
+            : '') +
+          '<div style="margin-top:var(--space-3)">' + indRows + '</div>' +
           '<div class="conflict-card__footer">' +
             '<span class="conflict-card__trajectory">' + escHtml(trajArrow + ' ' + traj) + '</span>' +
             '<span class="conflict-card__band conflict-card__band--' + cls + '">' + escHtml(worst.band || cls.toUpperCase()) + '</span>' +
@@ -1351,6 +1396,72 @@ document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+  /* ── ROSTER WATCH ─────────────────────────────────────────────────── */
+  function renderRosterWatch(rw) {
+    var wrap = document.getElementById('roster-watch-wrap');
+    if (!wrap) return;
+
+    var approaching = rw.approaching_inclusion || [];
+    var retirement  = rw.approaching_retirement;
+
+    var hasInclusion   = approaching.length > 0;
+    var hasRetirement  = Array.isArray(retirement) ? retirement.length > 0 : (retirement && String(retirement).trim().length > 0);
+
+    if (!hasInclusion && !hasRetirement) {
+      wrap.innerHTML = '<p class="text-muted text-sm">No conflicts currently approaching inclusion or retirement.</p>';
+      return;
+    }
+
+    var html = '';
+
+    if (hasInclusion) {
+      html += '<div style="margin-bottom:var(--space-4)">' +
+        '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);font-weight:700;margin-bottom:var(--space-3)">Approaching Inclusion</div>';
+
+      approaching.forEach(function(item) {
+        var criteria = Array.isArray(item.criteria_met) ? item.criteria_met : [];
+        var tagsHtml = criteria.map(function(c) {
+          return '<span style="display:inline-block;background:rgba(220,38,38,0.1);color:#dc2626;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600;margin:2px 2px 2px 0">' + escHtml(c) + '</span>';
+        }).join('');
+
+        html +=
+          '<div style="background:var(--color-surface);border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);margin-bottom:var(--space-3);box-shadow:var(--shadow-sm)">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-2)">' +
+              '<div>' +
+                '<div style="font-size:var(--text-sm);font-weight:700;color:var(--color-text);line-height:1.2">' + escHtml(item.conflict || '') + '</div>' +
+                (item.theatre ? '<div style="font-size:var(--text-min);font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);margin-top:3px">' + escHtml(item.theatre) + '</div>' : '') +
+              '</div>' +
+              (item.status ? '<span style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:rgba(220,38,38,0.1);color:#dc2626;border-radius:3px;padding:2px 8px;white-space:nowrap;flex-shrink:0">' + escHtml(item.status) + '</span>' : '') +
+            '</div>' +
+            (item.note ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.6;margin-bottom:var(--space-2)">' + escHtml(item.note) + '</p>' : '') +
+            (tagsHtml ? '<div style="margin-top:var(--space-2)">' + tagsHtml + '</div>' : '') +
+          '</div>';
+      });
+
+      html += '</div>';
+    }
+
+    if (hasRetirement) {
+      html += '<div style="margin-top:var(--space-2)">' +
+        '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);font-weight:700;margin-bottom:var(--space-3)">Approaching Retirement</div>';
+
+      if (Array.isArray(retirement)) {
+        html += '<ul style="list-style:none;padding:0;margin:0">';
+        retirement.forEach(function(item) {
+          html += '<li style="font-size:var(--text-sm);color:var(--color-text-secondary);padding:var(--space-2) 0;border-bottom:1px solid var(--color-border-subtle)">' + escHtml(String(item)) + '</li>';
+        });
+        html += '</ul>';
+      } else {
+        html += '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);font-style:italic">' + escHtml(String(retirement)) + '</p>';
+      }
+
+      html += '</div>';
+    }
+
+    wrap.innerHTML = html;
+  }
+
 });
 </script>
 </body>
