@@ -488,6 +488,14 @@
       </div>
     </section>
 
+    <!-- TRAJECTORY STATUS GRID -->
+    <section class="module-section" id="section-trajectory-grid">
+      <div class="module-header">
+        <div class="module-title">Trajectory Status</div>
+      </div>
+      <div id="trajectory-grid-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <!-- GLOBAL ESCALATION GAUGE -->
     <section class="module-section" id="section-gauge">
       <div class="module-header">
@@ -498,10 +506,10 @@
       </div>
     </section>
 
-    <!-- F-FLAG MATRIX -->
+    <!-- F-FLAG INDICATOR MATRIX -->
     <section class="module-section" id="section-fflag-matrix">
       <div class="module-header">
-        <div class="module-title">Friction Flag Status Board</div>
+        <div class="module-title">Friction Flag Matrix</div>
       </div>
       <div id="fflag-matrix-wrap">
         <div class="loading-state">Loading F-flag matrix…</div>
@@ -582,6 +590,7 @@
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-trajectory-grid">Trajectory Status</a></li>
       <li><a href="#section-gauge">Escalation Index</a></li>
       <li><a href="#section-fflag-matrix">Friction Flags</a></li>
       <li><a href="#section-lead-signal">Lead Signal</a></li>
@@ -922,11 +931,14 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('kpi-lead-sub').textContent = ls.conflict || '';
     document.getElementById('kpi-week').textContent   = meta.week_label || '—';
 
+    // Trajectory status grid
+    renderTrajectoryGrid(roster);
+
     // Render escalation gauge
     renderEscalationGauge(roster);
 
     // Render F-flag matrix
-    renderFFlagMatrix(fFlags);
+    renderFFlagMatrix(roster);
 
     // Lead signal block
     var lsBlock = document.getElementById('lead-signal-block');
@@ -996,6 +1008,52 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ── ESCALATION GAUGE ─────────────────────────────────────────────── */
   // ── 10-Conflict Comparison Bar ─────────────────────────────────────────────────────
+  function renderTrajectoryGrid(roster) {
+    var wrap = document.getElementById('trajectory-grid-content');
+    if (!wrap || !roster.length) return;
+
+    function trajectoryColour(t) {
+      if (!t) return 'var(--color-text-muted)';
+      if (t.indexOf('Escalating') >= 0) return '#dc2626';
+      if (t.indexOf('De-escalat') >= 0) return '#2D6A4F';
+      return 'var(--color-text-muted)';
+    }
+
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-4)">';
+
+    roster.forEach(function (c) {
+      var netDev = 0;
+      var inds = c.indicators || {};
+      Object.keys(inds).forEach(function (k) {
+        netDev += (inds[k].deviation || 0);
+      });
+
+      var devBadge;
+      if (netDev > 0) {
+        devBadge = '<span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600">+' + netDev + ' dev</span>';
+      } else if (netDev < 0) {
+        devBadge = '<span style="background:#f0fdf4;color:#2D6A4F;border:1px solid #bbf7d0;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600">' + netDev + ' dev</span>';
+      } else {
+        devBadge = '<span style="background:var(--color-surface-offset,#f5f5f0);color:var(--color-text-muted);border-radius:3px;padding:1px 6px;font-size:11px">0 dev</span>';
+      }
+
+      var col = trajectoryColour(c.trajectory);
+      html +=
+        '<div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;padding:var(--space-4)">' +
+          '<div style="font-size:11px;color:var(--color-text-muted);margin-bottom:var(--space-1);text-transform:uppercase;letter-spacing:.05em">' + escHtml(c.theatre || '') + '</div>' +
+          '<div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-2);line-height:1.3">' + escHtml(c.conflict) + '</div>' +
+          '<div style="display:flex;align-items:center;justify-content:space-between">' +
+            '<span style="font-size:1.6rem;color:' + col + ';line-height:1">' + escHtml(c.trajectory_arrow || '') + '</span>' +
+            devBadge +
+          '</div>' +
+          '<div style="font-size:11px;color:' + col + ';margin-top:var(--space-1);font-weight:500">' + escHtml(c.trajectory || 'Assessing') + '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+    wrap.innerHTML = html;
+  }
+
   function renderConflictOverview(roster) {
     var wrap = document.getElementById('conflict-overview-wrap');
     if (!wrap || !roster.length) return;
@@ -1123,57 +1181,74 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ── F-FLAG MATRIX ────────────────────────────────────────────────── */
-  function renderFFlagMatrix(fFlags) {
-    // Build map of which flag IDs are active
-    var flagMap = {}; // flagId (e.g. 'F3') → array of {conflict, detail, indicator}
-    fFlags.forEach(function(f) {
-      // Normalise flag ID — extract base flag (F1–F7)
-      var rawFlag = (f.flag || '').trim();
-      var baseFlag = rawFlag.match(/^(F[1-7])/i);
-      var key = baseFlag ? baseFlag[1].toUpperCase() : rawFlag;
-      if (!flagMap[key]) flagMap[key] = [];
-      flagMap[key].push(f);
-    });
+  function renderFFlagMatrix(roster) {
+    var wrap = document.getElementById('fflag-matrix-wrap');
+    if (!wrap) return;
 
-    var F_DEFINITIONS = {
-      F1: 'Single-source signal',
-      F2: 'Adjacent escalation / false-flag risk',
-      F3: 'Unverified capability claim',
-      F4: 'Premature de-escalation signal',
-      F5: 'Attribution gap',
-      F6: 'Data denial / access denied',
-      F7: 'Spoofed indicator'
+    var indicators = ['I1','I2','I3','I4','I5','I6'];
+    var indLabels  = {
+      I1:'I1 Rhetoric', I2:'I2 Military', I3:'I3 Nuclear',
+      I4:'I4 Economic', I5:'I5 Diplomatic', I6:'I6 Displacement'
+    };
+    var flagColours = {
+      'F1':'#dc2626','F2':'#dc2626','F3':'#dc2626','F4':'#dc2626',
+      'F5':'#dc2626','F6':'#dc2626','F7':'#dc2626','F2-adjacent':'#b45309'
     };
 
-    var matrixHtml = '<div class="fflag-matrix">';
-    ['F1','F2','F3','F4','F5','F6','F7'].forEach(function(fid) {
-      var entries = flagMap[fid] || [];
-      var isActive = entries.length > 0;
-      var firstConflict = isActive ? (entries[0].conflict || '') : '';
-      // Build tooltip
-      var tooltipParts = entries.map(function(e) {
-        return e.conflict + (e.indicator ? ' [' + e.indicator + ']' : '') + ': ' + (e.detail || '');
+    // Build lookup: conflict_name → { I1: flagType, I2: flagType, ... }
+    var lookup = {};
+    var activeFlagTypes = {};
+    var conflictsWithFlags = {};
+    roster.forEach(function (c) {
+      lookup[c.conflict] = {};
+      (c.f_flags || []).forEach(function (flag) {
+        // flag.indicator may be 'I5' or 'I1/I2' — handle both
+        var parts = (flag.indicator || '').split('/');
+        parts.forEach(function (ind) {
+          var key = ind.trim().substring(0, 2);
+          if (indicators.indexOf(key) >= 0) {
+            lookup[c.conflict][key] = flag.flag;
+          }
+        });
+        activeFlagTypes[flag.flag] = true;
+        conflictsWithFlags[c.conflict] = true;
       });
-      var tooltip = tooltipParts.join(' | ') || F_DEFINITIONS[fid];
-
-      matrixHtml +=
-        '<div class="fflag-cell' + (isActive ? ' fflag-cell--active' : '') + '" title="' + escHtml(tooltip) + '">' +
-          (entries.length > 1 ? '<span class="fflag-cell__count">' + entries.length + '</span>' : '') +
-          '<div class="fflag-cell__id">' + fid + '</div>' +
-          '<div class="fflag-cell__status">' + (isActive ? 'Active' : 'Clear') + '</div>' +
-          (isActive && firstConflict ? '<div class="fflag-cell__conflict">' + escHtml(firstConflict.split(/[\s\/–]/)[0]) + '</div>' : '') +
-        '</div>';
     });
-    matrixHtml += '</div>';
 
-    // F-flag definitions legend
-    matrixHtml += '<div class="fflag-definitions">';
-    Object.keys(F_DEFINITIONS).forEach(function(fid) {
-      matrixHtml += '<div class="fflag-def"><strong>' + fid + ':</strong><span>' + escHtml(F_DEFINITIONS[fid]) + '</span></div>';
+    var flagTypeCount = Object.keys(activeFlagTypes).length;
+    var conflictCount = Object.keys(conflictsWithFlags).length;
+    var summary = flagTypeCount > 0
+      ? flagTypeCount + ' flag type' + (flagTypeCount > 1 ? 's' : '') + ' active across ' + conflictCount + ' conflict' + (conflictCount > 1 ? 's' : '') + ' this week (' + Object.keys(activeFlagTypes).join(', ') + ')'
+      : 'No friction flags active this week — all indicator scores fully sourced.';
+
+    var html = '<p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4)">' + escHtml(summary) + '</p>';
+    html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:var(--text-sm)">';
+    html += '<thead><tr><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:2px solid var(--color-border)">Conflict</th>';
+    indicators.forEach(function (ind) {
+      html += '<th style="text-align:center;padding:var(--space-2) var(--space-3);border-bottom:2px solid var(--color-border);font-size:11px">' + escHtml(indLabels[ind]) + '</th>';
     });
-    matrixHtml += '</div>';
+    html += '</tr></thead><tbody>';
 
-    document.getElementById('fflag-matrix-wrap').innerHTML = matrixHtml;
+    roster.forEach(function (c, i) {
+      var bg = i % 2 === 0 ? 'var(--color-surface)' : 'var(--color-bg,#faf9f6)';
+      html += '<tr style="background:' + bg + '">';
+      html += '<td style="padding:var(--space-2) var(--space-3);font-weight:500;white-space:nowrap">' + escHtml(c.conflict) + '</td>';
+      indicators.forEach(function (ind) {
+        var flagType = (lookup[c.conflict] || {})[ind];
+        if (flagType) {
+          var col = flagColours[flagType] || '#dc2626';
+          html += '<td style="text-align:center;padding:var(--space-2)"><span style="display:inline-block;background:' + col + ';color:#fff;border-radius:3px;padding:2px 6px;font-size:11px;font-weight:700">' + escHtml(flagType) + '</span></td>';
+        } else {
+          html += '<td style="text-align:center;padding:var(--space-2);color:var(--color-text-faint,#ccc)">' + String.fromCharCode(8212) + '</td>';
+        }
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    html += '<p style="font-size:var(--text-xs);color:var(--color-text-faint,#999);margin-top:var(--space-3)">F1 Single-source ' + String.fromCharCode(183) + ' F2 Adjacent escalation ' + String.fromCharCode(183) + ' F3 Unverified capability ' + String.fromCharCode(183) + ' F4 Premature de-escalation ' + String.fromCharCode(183) + ' F5 Attribution gap ' + String.fromCharCode(183) + ' F6 Data denial ' + String.fromCharCode(183) + ' F7 Spoofed indicator</p>';
+
+    wrap.innerHTML = html;
   }
 
   /* ── CONFLICT ESCALATION CARDS ────────────────────────────────────── */
