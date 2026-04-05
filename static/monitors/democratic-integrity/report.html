@@ -396,8 +396,7 @@ document.addEventListener('DOMContentLoaded', function () {
               (item.severity ? '<span class="severity-badge severity-badge--' + (item.severity === 'High' ? 'critical' : 'moderate') + '">' + esc(item.severity) + '</span>' : '') +
             '</div>' +
             '<div class="intel-item__summary">' + esc(item.summary || '') + '</div>' +
-            (item.source_url
-              ? (esc(item.source_url) ? AsymRenderer.sourceLink(esc(item.source_url)) : '')) +
+            (item.source_url ? AsymRenderer.sourceLink(item.source_url) : '') +
           '</div>';
       });
       document.getElementById('intel-items').innerHTML = intelHtml || '<p class="text-muted">No intelligence items.</p>';
@@ -578,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '</div>' +
             '<div class="card__title">' + esc(item.headline || item.title || '') + '</div>' +
             '<div class="card__body">' + esc(item.detail || item.assessment || item.summary || '') + '</div>' +
-            (item.source_url ? (esc(item.source_url) ? AsymRenderer.sourceLink(esc(item.source_url)) : '')) +
+            (item.source_url ? AsymRenderer.sourceLink(item.source_url) : '') +
           '</div>';
         });
       }
