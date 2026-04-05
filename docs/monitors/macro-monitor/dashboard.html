@@ -939,7 +939,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Macro Scenarios
     renderScenarios(eb.scenario_analysis || []);
 
-    // Fed Funds Path
+    // Fed Funds & Sentiment Overlay (chart)
+    renderSentimentOverlay(d.sentiment_overlay || {});
+
+    // Fed Funds Path (table)
     renderFedPath(d.sentiment_overlay || {});
 
     // Real M2 Waterfall
@@ -1025,6 +1028,79 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ── Fed Funds Path renderer ────────────────────────────────────────────
+  // ── Fed Funds & Sentiment Overlay chart ────────────────────────────────
+  var _sentimentChart = null;
+  function renderSentimentOverlay(so) {
+    var wrap = document.getElementById('sentiment-overlay-wrap');
+    if (!wrap) return;
+    var meetings = so.fed_funds_futures || [];
+    if (!meetings.length) {
+      wrap.innerHTML = '<p class="text-muted text-sm">Sentiment data will appear after the next publish cycle.</p>';
+      return;
+    }
+    var labels  = meetings.map(function(m){ return m.meeting || ''; });
+    var probs   = meetings.map(function(m){ return Math.round((m.cut_probability || 0) * 100); });
+    var ptColors = meetings.map(function(m){
+      return (m.our_view || '').toUpperCase() === 'AGREES'
+        ? 'rgba(5,150,105,0.9)' : 'rgba(193,68,14,0.9)';
+    });
+    // Set innerHTML first so canvas is in DOM before Chart() call
+    wrap.innerHTML =
+      '<div style="position:relative;height:200px;width:100%">' +
+        '<canvas id="sentiment-overlay-chart"></canvas>' +
+      '</div>' +
+      '<div style="display:flex;gap:var(--space-4);margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted)">' +
+        '<span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:rgba(5,150,105,0.9);margin-right:4px"></span>Analyst agrees</span>' +
+        '<span><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:rgba(193,68,14,0.9);margin-right:4px"></span>Analyst disagrees</span>' +
+      '</div>';
+    var canvas = document.getElementById('sentiment-overlay-chart');
+    if (!canvas) return;
+    if (_sentimentChart) { _sentimentChart.destroy(); _sentimentChart = null; }
+    var accent = '#22a0aa'; // GMM accent hardcoded — getComputedStyle unreliable at render time
+    _sentimentChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Market Cut Probability (%)',
+          data: probs,
+          borderColor: accent,
+          backgroundColor: 'rgba(34,160,170,0.08)',
+          borderWidth: 2,
+          pointRadius: 7,
+          pointHoverRadius: 9,
+          pointBackgroundColor: ptColors,
+          pointBorderColor: ptColors,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: function(ctx) {
+                var m = meetings[ctx.dataIndex];
+                return [(m.our_view ? 'Analyst: ' + m.our_view : ''), (m.note || '')].filter(Boolean).join(' — ');
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            min: 0, max: 100,
+            ticks: { callback: function(v){ return v + '%'; }, font: { size: 11 } },
+            grid: { color: 'rgba(100,116,139,0.1)' }
+          },
+          x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
   function renderFedPath(so) {
     var wrap = document.getElementById('fed-path-wrap');
     if (!wrap) return;
