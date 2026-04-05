@@ -10,6 +10,10 @@ import json, os, sys, re, datetime, pathlib
 import requests
 import time
 
+# Shared repair utilities
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+from synth_utils import parse_llm_json
+
 REPO_ROOT   = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
 MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "environmental-risks"
 SYNTH_DIR   = MONITOR_DIR / "synthesised"
@@ -104,15 +108,10 @@ if resp.status_code == 429:
 resp.raise_for_status()
 raw = resp.json()["choices"][0]["message"]["content"].strip()
 
-raw = re.sub(r"^```(?:json)?\n?", "", raw)
-raw = re.sub(r"\n?```$",           "", raw)
-brace_start = raw.find("{")
-brace_end   = raw.rfind("}")
-if brace_start != -1 and brace_end > brace_start:
-    raw = raw[brace_start:brace_end + 1]
-
 try:
-    synthesis = json.loads(raw)
+    synthesis, was_repaired = parse_llm_json(raw, "ERM")
+    if was_repaired:
+        print("[ERM] JSON repaired successfully")
 except json.JSONDecodeError as e:
     print(f"[ERM] JSON parse error: {e}. Writing fallback stub.")
     synthesis = {
@@ -124,7 +123,7 @@ except json.JSONDecodeError as e:
             "null_signal_week": True,
             "null_signal_reason": f"JSON parse error: {e}",
         },
-        "_raw_fallback": raw[:2000],
+        "_raw_fallback": raw,
     }
 
 if "_meta" in synthesis:
