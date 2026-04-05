@@ -577,6 +577,157 @@
       background: #1a1917;
       border-color: #3a3835;
     }
+
+    /* ── Country Grid Watch ─────────────────────────────────────────── */
+    .cgw-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .cgw-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid #f59e0b;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+    }
+    .cgw-country {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: 0.3rem;
+    }
+    .cgw-signal {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+    [data-theme="dark"] .cgw-card {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+      border-left-color: #f59e0b;
+    }
+
+    /* ── Market Concentration Index ─────────────────────────────────── */
+    .ci-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .ci-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+    }
+    .ci-card__top {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-2);
+    }
+    .ci-domain {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .ci-trend {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .ci-trend--concentrating { background: rgba(193,68,14,0.12);  color: #c1440e; border: 1px solid rgba(193,68,14,0.3); }
+    .ci-trend--fragmenting   { background: rgba(5,150,105,0.12);  color: #059669; border: 1px solid rgba(5,150,105,0.3); }
+    .ci-trend--stable        { background: var(--color-surface);  color: var(--color-text-muted); border: 1px solid var(--color-border); }
+    .ci-actors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      margin-bottom: var(--space-2);
+    }
+    .ci-actor-tag {
+      font-size: var(--text-min);
+      background: rgba(37,99,235,0.08);
+      color: #2563eb;
+      border: 1px solid rgba(37,99,235,0.2);
+      border-radius: 4px;
+      padding: 1px 6px;
+      white-space: nowrap;
+    }
+    .ci-note {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-1);
+    }
+    .ci-since {
+      font-size: var(--text-min);
+      color: var(--color-text-muted);
+    }
+    [data-theme="dark"] .ci-card {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    [data-theme="dark"] .ci-trend--stable {
+      background: #1a1917;
+      border-color: #3a3835;
+    }
+
+    /* ── Revolving Door Watch ───────────────────────────────────────── */
+    .rd-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .rd-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+    }
+    .rd-observation {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+    .rd-detail {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-3);
+    }
+    .rd-implication {
+      background: rgba(245,158,11,0.08);
+      border-left: 3px solid #f59e0b;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: var(--space-3) var(--space-4);
+    }
+    .rd-implication__label {
+      font-size: var(--text-min);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #d97706;
+      margin-bottom: 0.3rem;
+    }
+    .rd-implication__text {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+    [data-theme="dark"] .rd-card {
+      background: #1e1d1b;
+      border-color: #2d2c2a;
+    }
+    [data-theme="dark"] .rd-implication {
+      background: rgba(245,158,11,0.10);
+    }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
@@ -709,6 +860,15 @@
         </div>
       </section>
 
+      <!-- Country Grid Watch -->
+      <section class="module-section" id="section-country-grid-watch">
+        <div class="module-header">
+          <div class="module-title">Country Watch List</div>
+          <div class="module-subtitle">Countries flagged for elevated AI governance risk</div>
+        </div>
+        <div id="country-grid-watch-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
       <!-- Model Frontier -->
       <section id="model-frontier" aria-labelledby="model-frontier-heading">
         <h2 class="section-label" id="model-frontier-heading">Model Frontier</h2>
@@ -722,6 +882,24 @@
           <div class="module-subtitle">Compute infrastructure and energy deals driving AI buildout</div>
         </div>
         <div id="energy-wall-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
+      <!-- Market Concentration Index -->
+      <section class="module-section" id="section-concentration">
+        <div class="module-header">
+          <div class="module-title">Market Concentration Index</div>
+          <div class="module-subtitle">Power concentration by AI domain</div>
+        </div>
+        <div id="concentration-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
+      <!-- Revolving Door Watch -->
+      <section class="module-section" id="section-revolving-door">
+        <div class="module-header">
+          <div class="module-title">Revolving Door Watch</div>
+          <div class="module-subtitle">Industry-government personnel movements and implications</div>
+        </div>
+        <div id="revolving-door-wrap"><div class="loading-state">Loading…</div></div>
       </section>
 
       <!-- arXiv Research Highlights -->
@@ -757,6 +935,9 @@
           <li><a href="#section-delta-strip">Top Movers</a></li>
           <li><a href="#section-energy-wall">Energy Wall</a></li>
           <li><a href="#section-arxiv">Research</a></li>
+          <li><a href="#section-country-grid-watch">Country Watch</a></li>
+          <li><a href="#section-concentration">Concentration Index</a></li>
+          <li><a href="#section-revolving-door">Revolving Door</a></li>
         </ul>
       </nav>
       <div class="sidebar-nav" style="margin-top:var(--space-6)">
@@ -1094,6 +1275,9 @@
       renderDeltaStrip(d.delta_strip || []);
       renderEnergyWall((d.module_3 && d.module_3.energy_wall) ? d.module_3.energy_wall : []);
       renderArxiv((d.module_6 && d.module_6.arxiv_highlights) ? d.module_6.arxiv_highlights : []);
+      renderCountryGridWatch(d.country_grid_watch || []);
+      renderConcentration((d.module_14 && d.module_14.concentration_index) ? d.module_14.concentration_index : []);
+      renderRevolvingDoor((d.module_15 && d.module_15.revolving_door) ? d.module_15.revolving_door : []);
     })
     .catch(function () {
       document.getElementById('signal-block').innerHTML = '<p class="error-state">Could not load data.</p>';
@@ -1312,6 +1496,92 @@
             (item.published ? ' &middot; ' + esc(item.published) : '') +
           '</div>' +
           '<p class="arxiv-significance">' + esc(item.significance || '') + '</p>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── Country Grid Watch ────────────────────────────────────────────
+  function renderCountryGridWatch(items) {
+    var el = document.getElementById('country-grid-watch-wrap');
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<p class="empty-state">No countries flagged this issue.</p>';
+      return;
+    }
+    var html = '<div class="cgw-list">';
+    items.forEach(function (item) {
+      html +=
+        '<div class="cgw-card">' +
+          '<div class="cgw-country">' + esc(item.country || '') + '</div>' +
+          '<div class="cgw-signal">' + esc(item.signal || '') + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── Market Concentration Index ────────────────────────────────────
+  function renderConcentration(items) {
+    var el = document.getElementById('concentration-wrap');
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<p class="empty-state">No concentration data this issue.</p>';
+      return;
+    }
+    function trendClass(trend) {
+      if (!trend) return 'ci-trend--stable';
+      var t = trend.toLowerCase();
+      if (t === 'concentrating') return 'ci-trend--concentrating';
+      if (t === 'fragmenting') return 'ci-trend--fragmenting';
+      return 'ci-trend--stable';
+    }
+    var html = '<div class="ci-list">';
+    items.forEach(function (item) {
+      var actors = Array.isArray(item.top_actors) ? item.top_actors : [];
+      var actorTags = actors.map(function (a) {
+        return '<span class="ci-actor-tag">' + esc(a) + '</span>';
+      }).join('');
+      var sinceStr = item.unchanged_since
+        ? '<div class="ci-since">Unchanged since ' + esc(item.unchanged_since) + '</div>'
+        : '';
+      html +=
+        '<div class="ci-card">' +
+          '<div class="ci-card__top">' +
+            '<span class="ci-domain">' + esc(item.domain || '') + '</span>' +
+            '<span class="ci-trend ' + trendClass(item.trend) + '">' + esc(item.trend || 'Stable') + '</span>' +
+          '</div>' +
+          (actorTags ? '<div class="ci-actors">' + actorTags + '</div>' : '') +
+          '<p class="ci-note">' + esc(item.note || '') + '</p>' +
+          sinceStr +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── Revolving Door Watch ──────────────────────────────────────────
+  function renderRevolvingDoor(items) {
+    var el = document.getElementById('revolving-door-wrap');
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = '<p class="empty-state">No revolving door movements this issue.</p>';
+      return;
+    }
+    var html = '<div class="rd-list">';
+    items.forEach(function (item) {
+      var implication = item['12_month_implication'] || '';
+      html +=
+        '<div class="rd-card">' +
+          '<div class="rd-observation">' + esc(item.observation || '') + '</div>' +
+          '<div class="rd-detail">' + esc(item.detail || '') + '</div>' +
+          (implication
+            ? '<div class="rd-implication">' +
+                '<div class="rd-implication__label">12-Month Implication</div>' +
+                '<div class="rd-implication__text">' + esc(implication) + '</div>' +
+              '</div>'
+            : '') +
         '</div>';
     });
     html += '</div>';
