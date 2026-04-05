@@ -20,15 +20,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch GMM prompt from internal repo
+      - name: Fetch GMM private files from internal repo
         env:
           INTERNAL_REPO_PAT: ${{ secrets.INTERNAL_REPO_PAT }}
         run: |
+          # Prompt
           curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/gmm-prompts/macro-monitor-synthesiser-api-prompt.txt" \
             -o pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt
           echo "GMM prompt fetched ($(wc -c < pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt) bytes)"
+
+          # Methodology
+          mkdir -p docs/methodology
+          curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/macro-monitor-full.md" \
+            -o docs/methodology/macro-monitor-full.md
+          echo "GMM methodology fetched ($(wc -c < docs/methodology/macro-monitor-full.md) bytes)"
+
+          # Addendum (optional — don't fail if absent)
+          curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/macro-monitor-imf-2026.md" \
+            -o docs/methodology/macro-monitor-addendum.md \
+            && echo "GMM addendum fetched ($(wc -c < docs/methodology/macro-monitor-addendum.md) bytes)" \
+            || echo "No addendum found — continuing without it"
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
