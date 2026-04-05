@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (item.status) footer.push('<span>' + escHtml(item.status) + '</span>');
       if (item.actor) footer.push('<span><strong>Actor:</strong> ' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.actor)||'') + (AsymRenderer.flag(item.actor) ? '\u00a0' : '') : '') + escHtml(item.actor) + '</span>');
       if (footer.length) html += '<div class="card__footer">' + footer.join('') + '</div>';
-      if (item.source_url) html += (item.source_url ? ' ' + AsymRenderer.sourceLink(item.source_url) : '');
+      if (item.source_url) html += AsymRenderer.sourceLink(item.source_url);
       html += '</div>';
     });
     el.innerHTML = html;
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
             (statusDetail ? '<div style="font-size:var(--text-xs);color:var(--monitor-accent);font-weight:600;margin-top:var(--space-1)">' + escHtml(statusDetail) + '</div>' : '') +
             (ms.headline ? '<div class="card__body" style="margin-top:var(--space-2)">' + escHtml(ms.headline) + '</div>' : '') +
             (ms.change_from_last_week ? '<div class="card__footer" style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted);border-top:1px solid var(--color-border-subtle);padding-top:var(--space-2)"><strong style="color:var(--color-text-secondary)">Change this week:</strong> ' + escHtml(ms.change_from_last_week) + '</div>' : '') +
-            (ms.source_url ? (ms.source_url ? ' ' + AsymRenderer.sourceLink(ms.source_url) : '') : '') +
+            AsymRenderer.sourceLink(ms.source_url) +
             '</div>';
         });
         msEl.innerHTML = msHtml;
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (ft) html += '<div class="card__label">' + escHtml(ft) + '</div>';
           var fb = flag.summary || flag.body || flag.note || '';
           if (fb) html += '<div class="card__body">' + escHtml(fb) + '</div>';
-          if (flag.source_url) html += (flag.source_url ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '');
+          if (flag.source_url) html += AsymRenderer.sourceLink(flag.source_url);
           html += '</div>';
         });
         cmEl.innerHTML = html;

@@ -507,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
             (c.platform ? '<span>Platform: ' + escHtml(c.platform) + '</span>' : '') +
             (c.last_activity ? '<span>Last activity: ' + escHtml(c.last_activity) + '</span>' : '') +
             (stale ? '<span style="font-style:italic;color:var(--color-text-muted,#6b6660)">' + escHtml(stale) + '</span>' : '') +
-            (c.source_url ? (c.source_url ? ' ' + AsymRenderer.sourceLink(c.source_url) : '') : '') +
+            AsymRenderer.sourceLink(c.source_url) +
           '</div>' +
         '</div>';
       }
@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="card__label">' + actorTag(a.actor || a.id || '') + escHtml(a.name || '') + '</div>' +
               '<div class="card__title">' + escHtml(a.headline || '') + '</div>' +
               '<div class="card__body">' + escHtml(a.summary || a.doctrine || '') + '</div>' +
-              (a.source_url ? (escHtml(a.source_url) ? AsymRenderer.sourceLink(escHtml(a.source_url)) : '')) +
+              AsymRenderer.sourceLink(a.source_url) +
             '</div>';
         });
       } else {
@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function () {
               (p.assets_removed != null ? '<span>' + escHtml(String(p.assets_removed)) + ' assets removed</span>' : '') +
               (p.date ? '<span>' + escHtml(p.date) + '</span>' : '') +
               (p.attribution_confidence ? confidenceBadge(p.attribution_confidence) : '') +
-              (p.source_url ? (p.source_url ? ' ' + AsymRenderer.sourceLink(p.source_url) : '') : '') +
+              AsymRenderer.sourceLink(p.source_url) +
             '</div>' +
           '</div>';
       });
@@ -566,7 +566,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<div class="card__title">' + escHtml(entry.headline || '') + '</div>' +
             '<div class="card__body">' + escHtml(entry.summary || '') + '</div>' +
             (entry.date ? '<div class="card__footer"><span>' + escHtml(entry.date) + '</span>' +
-              (entry.source_url ? (entry.source_url ? ' ' + AsymRenderer.sourceLink(entry.source_url) : '') : '') + '</div>' : '') +
+              AsymRenderer.sourceLink(entry.source_url) + '</div>' : '') +
           '</div>';
       });
       document.getElementById('attribution-block').innerHTML = attrHtml || '<p class="text-muted">No attribution log entries this issue.</p>';
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function () {
               '<div class="card__label">' + escHtml(item.id || '') + (item.classification ? ' · ' + escHtml(item.classification) : '') + '</div>' +
               '<div class="card__title">' + escHtml(item.headline || '') + '</div>' +
               '<div class="card__body">' + escHtml(item.detail || item.summary || '') + '</div>' +
-              (item.source_url ? (escHtml(item.source_url) ? AsymRenderer.sourceLink(escHtml(item.source_url)) : '')) +
+              AsymRenderer.sourceLink(item.source_url) +
             '</div>';
         });
       } else {

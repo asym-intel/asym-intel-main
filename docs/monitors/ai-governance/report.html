@@ -606,7 +606,7 @@
             m7html += '</div>';
             if (Array.isArray(v.sources) && v.sources.length) {
               m7html += '<div style="margin-top:var(--space-2)">' + v.sources.map(function(s){
-                return (esc(s) ? AsymRenderer.sourceLink(esc(s)) : '');
+                return AsymRenderer.sourceLink(s);
               }).join(' ') + '</div>';
             }
             m7html += '</div>';
@@ -796,7 +796,7 @@
             }
             return '';
           }).join('') +
-          ((item.source_url || item.url) ? (esc(item.source_url || item.url) ? AsymRenderer.sourceLink(esc(item.source_url || item.url)) : '') : '') +
+          ((item.source_url || item.url) ? AsymRenderer.sourceLink(item.source_url || item.url) : '') +
           '</div>';
       }).join('') + '</div>';
     }
