@@ -79,19 +79,52 @@
     Object.keys(obj).forEach(function(k){if(typeof obj[k]==='object')flatten(obj[k],meta,items);});
   }
   var statusEl=document.getElementById('search-status'),done=0;
-  Promise.all(MONITORS.map(function(mon){
+
+  // Build list of dates to probe for chatter (last 26 weeks)
+  function chatterDates(){
+    var dates=[],d=new Date();
+    for(var i=0;i<182;i++){dates.push(d.toISOString().slice(0,10));d.setDate(d.getDate()-1);}
+    return dates;
+  }
+
+  // Load reports from each monitor's archive.json
+  var reportPromise=Promise.all(MONITORS.map(function(mon){
     return fetch(BASE+mon.slug+'/data/archive.json').then(function(r){return r.ok?r.json():[];})
     .then(function(issues){
       issues=Array.isArray(issues)?issues:[];
       return Promise.all(issues.map(function(issue){
         var sl=issue.slug||issue.published||'';
+        var meta={monitorSlug:mon.slug,monitorAbbr:mon.abbr,monitorLabel:mon.label,monitorAccent:mon.accent,
+                  type:'report',issue:sl,published:issue.published||'',
+                  url:BASE+mon.slug+'/'+sl+'-weekly-brief/'};
         return fetch(BASE+mon.slug+'/data/report-'+sl+'.json').then(function(r){return r.ok?r.json():null;})
-        .then(function(d){if(!d)return;flatten(d,{monitorSlug:mon.slug,monitorAbbr:mon.abbr,monitorLabel:mon.label,monitorAccent:mon.accent,issue:sl,published:issue.published||'',url:BASE+mon.slug+'/'+sl+'-weekly-brief/'},corpus);}).catch(function(){});
+        .then(function(d){if(d)flatten(d,meta,corpus);}).catch(function(){});
       }));
     }).then(function(){done++;if(statusEl)statusEl.textContent='Loading '+done+'/'+MONITORS.length+' monitors…';}).catch(function(){done++;});
-  })).then(function(){
+  }));
+
+  // Load chatter for each monitor — try chatter-index.json, fall back to date probing
+  var chatterPromise=Promise.all(MONITORS.map(function(mon){
+    return fetch(BASE+mon.slug+'/data/chatter-index.json').then(function(r){return r.ok?r.json():null;})
+    .then(function(idx){
+      var dates=idx?idx.dates:chatterDates();
+      var seen={};
+      return Promise.all(dates.map(function(date){
+        var url=BASE+mon.slug+'/data/chatter-'+date+'.json';
+        if(seen[url])return Promise.resolve();
+        seen[url]=true;
+        var meta={monitorSlug:mon.slug,monitorAbbr:mon.abbr,monitorLabel:mon.label,monitorAccent:mon.accent,
+                  type:'chatter',issue:date,published:date,
+                  url:BASE+mon.slug+'/chatter.html'};
+        return fetch(url).then(function(r){return r.ok?r.json():null;})
+        .then(function(d){if(d)flatten(d,meta,corpus);}).catch(function(){});
+      }));
+    }).catch(function(){});
+  }));
+
+  Promise.all([reportPromise,chatterPromise]).then(function(){
     loaded=true;
-    if(statusEl)statusEl.textContent=corpus.length+' searchable items loaded across all monitors.';
+    if(statusEl)statusEl.textContent=corpus.length+' searchable items loaded across all monitors and chatter.';
     var q=document.getElementById('search-input').value;
     if(q.trim())doSearch(q);
   });
@@ -111,7 +144,9 @@
     if(!deduped.length){el.innerHTML='<div class="search-empty">No results found.</div>';return;}
     el.innerHTML=deduped.slice(0,50).map(function(item){
       var m=item.meta,preview=item.text.length>220?item.text.slice(0,220)+'…':item.text;
-      return '<div class="search-result"><div class="search-result__header"><span class="search-result__monitor-dot" style="background:'+esc(m.monitorAccent)+'"></span><span class="search-result__monitor-label" style="color:'+esc(m.monitorAccent)+'">'+esc(m.monitorAbbr)+'</span><span class="search-result__issue">'+esc(m.monitorLabel)+(m.published?' · '+esc(m.published):'')+'</span></div><div class="search-result__body">'+highlight(preview,q)+'</div><a class="search-result__link" href="'+esc(m.url)+'">View brief →</a></div>';
+      var typeTag=m.type==='chatter'?'<span style="font-size:.7rem;background:var(--color-surface-raised,#f3f4f6);color:var(--color-text-muted,#6b7280);padding:1px 5px;border-radius:3px;margin-left:4px">Chatter</span>':'';
+      var linkLabel=m.type==='chatter'?'View chatter →':'View brief →';
+      return '<div class="search-result"><div class="search-result__header"><span class="search-result__monitor-dot" style="background:'+esc(m.monitorAccent)+'"></span><span class="search-result__monitor-label" style="color:'+esc(m.monitorAccent)+'">'+esc(m.monitorAbbr)+'</span><span class="search-result__issue">'+esc(m.monitorLabel)+(m.published?' · '+esc(m.published):'')+typeTag+'</span></div><div class="search-result__body">'+highlight(preview,q)+'</div><a class="search-result__link" href="'+esc(m.url)+'">'+linkLabel+'</a></div>';
     }).join('');
   }
   document.getElementById('filter-bar').addEventListener('click',function(e){
