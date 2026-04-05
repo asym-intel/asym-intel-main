@@ -567,15 +567,24 @@ document.addEventListener('DOMContentLoaded', function () {
           var statusLabel = getStatusLabel(ms.status);
           var headline = ms.headline || ms.key_development || '';
           var dev = ms.change_from_last_week || ms.summary || ms.note || '';
+          var statusBadgeStyle = (function(st) {
+            if (!st) return 'background:var(--color-surface-raised);color:var(--color-text-muted)';
+            var su = st.toUpperCase();
+            if (su.indexOf('CRITICAL') !== -1) return 'background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.2)';
+            if (su.indexOf('SUPPORT') !== -1) return 'background:rgba(5,150,105,0.1);color:#059669;border:1px solid rgba(5,150,105,0.2)';
+            return 'background:var(--color-surface-raised);color:var(--color-text-muted)';
+          })(ms.status);
           gridHtml +=
             '<div class="ms-card ms-card--' + statusClass + '">' +
               '<div class="ms-card__header">' +
                 '<span class="ms-card__flag">' + flag + '</span>' +
                 '<span class="ms-card__country">' + escHtml(code) + '</span>' +
+                '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:3px;font-weight:500;' + statusBadgeStyle + '">' + escHtml(ms.status || '') + '</span>' +
               '</div>' +
-              '<span class="ms-card__status ms-card__status--' + statusClass + '">' + escHtml(statusLabel) + '</span>' +
               (headline ? '<div class="ms-card__headline">' + escHtml(headline) + '</div>' : '') +
-              (dev ? '<div class="ms-card__dev">' + escHtml(dev) + '</div>' : '') +
+              (ms.change_from_last_week
+                ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1);font-style:italic">Δ ' + escHtml(ms.change_from_last_week) + '</div>'
+                : '') +
             '</div>';
         });
         gridHtml += '</div>';

@@ -333,6 +333,15 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-exec-insight">
+      <div class="module-header">
+        <div class="module-title">M01 — Executive Insight</div>
+      </div>
+      <div id="exec-insight-block">
+        <div class="loading-state">Loading executive insight…</div>
+      </div>
+    </section>
+
     <section class="module-section" id="section-delta">
       <div class="module-header">
         <div class="module-title">Top Items This Issue</div>
@@ -413,6 +422,7 @@
     <ul>
       <li><a href="#section-kpi">Overview</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
+      <li><a href="#section-exec-insight">Executive Insight</a></li>
       <li><a href="#section-delta">Delta Strip</a></li>
       <li><a href="#section-pb-chart">Boundary Chart</a></li>
       <li><a href="#section-tipping">Tipping Flags</a></li>
@@ -616,22 +626,31 @@ document.addEventListener('DOMContentLoaded', function () {
             '<th>Trend</th>' +
             '<th>Tier</th>' +
             '<th>Headline</th>' +
+            '<th>Updated</th>' +
           '</tr></thead>' +
           '<tbody>';
       boundaries.forEach(function (b) {
+        var tierBadgeHtml = '';
+        if (b.tier) {
+          var tierBadgeStyle = b.tier === 'Tier 1'
+            ? 'background:var(--color-accent,#5b8db0);color:#fff'
+            : 'background:var(--color-surface-raised);color:var(--color-text-muted)';
+          tierBadgeHtml = ' <span style="font-size:var(--text-xs);padding:1px 5px;border-radius:2px;' + tierBadgeStyle + '">' + escHtml(b.tier) + '</span>';
+        }
         tableHtml +=
           '<tr>' +
-            '<td><strong>' + escHtml(b.boundary) + '</strong></td>' +
+            '<td><strong>' + escHtml(b.boundary) + '</strong>' + tierBadgeHtml + '</td>' +
             '<td><span class="severity-badge ' + statusBadgeClass(b.status) + '">' + escHtml(b.status) + '</span></td>' +
             '<td><span class="severity-badge ' + trendBadgeClass(b.trend) + '">' + escHtml(b.trend) + '</span></td>' +
             '<td>' + escHtml(b.tier || '') + '</td>' +
             '<td style="font-size:var(--text-xs)">' + escHtml(b.headline || '') + '</td>' +
+            '<td>' + (b.last_updated ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Updated ' + escHtml(b.last_updated) + '</span>' : '') + '</td>' +
           '</tr>';
         // Summary expansion row — show analytical summary beneath each boundary
         if (b.summary) {
           tableHtml +=
             '<tr class="boundary-summary-row">' +
-              '<td colspan="5" style="padding-top:0;padding-bottom:var(--space-3);font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55;border-bottom:1px solid var(--color-border-subtle)">' +
+              '<td colspan="6" style="padding-top:0;padding-bottom:var(--space-3);font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55;border-bottom:1px solid var(--color-border-subtle)">' +
                 '<em>' + escHtml(b.summary) + '</em>' +
                 (b.source_url ? ' <a href="' + escHtml(b.source_url) + '" target="_blank" rel="noopener" class="source-link" style="font-size:var(--text-min)">Source →</a>' : '') +
               '</td>' +
@@ -640,6 +659,37 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       tableHtml += '</tbody></table></div>';
       document.getElementById('boundary-table-wrap').innerHTML = tableHtml;
+
+      // Executive insight items
+      var m01 = d.m01_executive_insight || {};
+      var insightItems = m01.items || [];
+      var eiEl = document.getElementById('exec-insight-block');
+      if (eiEl) {
+        if (!insightItems.length) {
+          eiEl.innerHTML = '<p class="text-muted text-sm">No executive insight items this issue.</p>';
+        } else {
+          var eiHtml = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+          insightItems.forEach(function(item) {
+            var tierBadge = '';
+            if (item.tier) {
+              var tierStyle = item.tier === 'Tier 1'
+                ? 'background:var(--color-accent,#5b8db0);color:#fff'
+                : 'background:var(--color-surface-raised);color:var(--color-text-muted)';
+              tierBadge = '<span style="font-size:var(--text-xs);padding:1px 5px;border-radius:2px;' + tierStyle + ';margin-left:var(--space-2);vertical-align:middle">' + escHtml(item.tier) + '</span>';
+            }
+            eiHtml +=
+              '<div style="padding:var(--space-3) var(--space-4);background:var(--color-surface);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md)">' +
+                '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-2)">' +
+                  escHtml(item.headline || '') + tierBadge +
+                '</div>' +
+                (item.summary ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55">' + escHtml(item.summary) + '</div>' : '') +
+                (item.source_url ? '<div style="margin-top:var(--space-2)"><a class="source-link" style="font-size:var(--text-min)" href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
+              '</div>';
+          });
+          eiHtml += '</div>';
+          eiEl.innerHTML = eiHtml;
+        }
+      }
 
       // Cross-monitor flags
       renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');

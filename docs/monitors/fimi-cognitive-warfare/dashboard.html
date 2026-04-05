@@ -600,7 +600,8 @@ document.addEventListener('DOMContentLoaded', function () {
       var signal = signalObj.headline || '';
       var signalBody = signalObj.note || signalObj.actor || '';
       var signalConf = signalObj.confidence || '';
-      var signalFlags = signalObj.mf_flags || signalObj.f_flags || [];
+      var signalFlags = signalObj.mf_flags || [];
+      var signalFFlags = Array.isArray(signalObj.f_flags) ? signalObj.f_flags : [];
 
       // KPI: count campaigns
       var campaigns = d.campaigns || d.active_campaigns || {};
@@ -663,6 +664,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '<div class="signal-block__label">Lead Signal — Issue ' + escHtml(meta.issue || '') + '</div>' +
           '<p>' + escHtml(signal) + '</p>' +
           (signalBody ? '<p style="margin-top:var(--space-3);color:rgba(255,255,255,0.82)">' + escHtml(signalBody) + '</p>' : '') +
+          (signalFFlags.length ? '<div style="margin-top:var(--space-2);display:flex;gap:var(--space-2);flex-wrap:wrap">' + signalFFlags.map(function(f){ return '<span style="font-size:var(--text-xs);background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:1px 6px;border-radius:3px;font-weight:600">' + escHtml(f) + '</span>'; }).join('') + '</div>' : '') +
           flagsHtml +
           (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
         '</div>';
@@ -703,7 +705,9 @@ document.addEventListener('DOMContentLoaded', function () {
             one_line: c.summary || '',
             status: c.status || '',
             attribution_confidence: c.attribution_confidence || '',
-            last_activity: c.last_activity || ''
+            last_activity: c.last_activity || '',
+            f_flags: Array.isArray(c.f_flags) ? c.f_flags : [],
+            changelog: c.changelog || ''
           });
         });
       } else if (typeof campaigns === 'object' && !Array.isArray(campaigns)) {
@@ -746,6 +750,15 @@ document.addEventListener('DOMContentLoaded', function () {
               (item.attribution_confidence ? confidenceBadge(item.attribution_confidence) : '') +
               (stale ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic">' + escHtml(stale) + '</span>' : '') +
             '</div>' +
+            (item.f_flags && item.f_flags.length
+              ? '<div style="margin-top:var(--space-2);display:flex;gap:var(--space-2);flex-wrap:wrap">' +
+                item.f_flags.map(function(f){ return '<span style="font-size:var(--text-xs);background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:1px 6px;border-radius:3px;font-weight:600">' + escHtml(f) + '</span>'; }).join('') +
+                '</div>'
+              : '') +
+            (item.changelog
+              ? '<details style="margin-top:var(--space-2)"><summary style="font-size:var(--text-xs);color:var(--color-text-muted);cursor:pointer">Change log</summary>' +
+                '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1);white-space:pre-line;padding:var(--space-2);background:var(--color-surface-raised);border-radius:4px">' + escHtml(item.changelog) + '</div></details>'
+              : '') +
           '</div>';
       });
       document.getElementById('delta-strip').innerHTML = deltaHtml || '<p class="text-muted">No campaign data available.</p>';
@@ -788,7 +801,14 @@ document.addEventListener('DOMContentLoaded', function () {
           attrLogHtml += '<tr>';
           attrLogHtml += '<td class="fcw-log-id">' + escHtml(entry.date || '') + '</td>';
           attrLogHtml += '<td class="fcw-log-id">' + escHtml(entry.campaign_id || '') + '</td>';
-          attrLogHtml += '<td>' + confidenceBadge(entry.confidence || '') + '</td>';
+          attrLogHtml += '<td>' + confidenceBadge(entry.confidence || '') +
+            (entry.instrument ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)"> · ' + escHtml(entry.instrument) + '</span>' : '') +
+            ((Array.isArray(entry.mf_flags) && entry.mf_flags.length)
+              ? '<div style="margin-top:var(--space-2);display:flex;gap:var(--space-2);flex-wrap:wrap">' +
+                entry.mf_flags.map(function(f){ return '<span style="font-size:var(--text-xs);background:rgba(56,189,248,0.1);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:1px 6px;border-radius:3px;font-weight:600">' + escHtml(f) + '</span>'; }).join('') +
+                '</div>'
+              : '') +
+            '</td>';
           attrLogHtml += '<td class="fcw-log-headline">' + escHtml(entry.headline || entry.note || '') + '</td>';
           attrLogHtml += '<td><span style="font-family:var(--font-mono);font-size:var(--text-xs);background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:1px 5px;border-radius:3px">' + escHtml(entry.actor || '') + '</span></td>';
           attrLogHtml += '<td class="fcw-log-id" style="font-size:var(--text-xs);color:var(--text-muted)">' + escHtml(entry.instrument || '—') + '</td>';
