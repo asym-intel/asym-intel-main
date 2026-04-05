@@ -682,3 +682,105 @@ echo "$(printf '%02d' $EXPECTED_HOUR):00 UTC"  # prints 09:00 UTC
 **Discovered:** 3 April 2026 — AGM Analyst cron escalated with this error on first live run.
 **Fixed:** All 5 affected prompts patched in static/monitors/{slug}/{abbr}-cron-prompt.md
 **Added:** 3 April 2026
+
+---
+
+## FE-027 — sourceLink copy-paste variants causing silent JS crashes
+
+**Discovered:** 2026-04-05 — WDM report.html all sections stuck on "Loading…"
+
+**Root cause:** `AsymRenderer.sourceLink()` was copy-pasted inline across all 7 report pages in 6 different broken variants:
+- `AsymRenderer.sourceLink(esc(url))` — double-escaping; extra `)` = **syntax error** crashing entire `.then()` block
+- `(esc(url) ? AsymRenderer.sourceLink(esc(url)) : ''))` — broken ternary (extra `)`)
+- `(x ? (x ? AsymRenderer.sourceLink(x) : '') : '')` — double guard, redundant
+- `(x ? ' ' + AsymRenderer.sourceLink(x) : '')` — unnecessary prefix
+- `(escHtml(url) ? AsymRenderer.sourceLink(escHtml(url)) : '')` — escHtml wrapping
+
+The WDM syntax error meant the entire fetch `.then()` block threw before any DOM updates — every section showed "Loading…" indefinitely with no console error (swallowed by `.catch()`).
+
+**Fix (2026-04-05, PR #38):**
+1. `renderer.js`: `sourceLink(url)` now returns `''` when url is falsy — no guard needed at call sites
+2. All 7 report pages: 20 expressions replaced with the single canonical form
+
+**Canonical call — one form only:**
+```js
+AsymRenderer.sourceLink(item.source_url)
+```
+- No `esc()` or `escHtml()` wrapping — `sourceLink` handles its own output
+- No guard ternary needed — returns `''` on falsy input
+- No `' ' +` prefix — spacing handled by CSS
+
+**Anti-pattern — never use:**
+```js
+// WRONG — any of these
+(item.source_url ? AsymRenderer.sourceLink(esc(item.source_url)) : ''))  // syntax error
+(esc(url) ? AsymRenderer.sourceLink(esc(url)) : '')                       // double-escape
+(x ? (x ? AsymRenderer.sourceLink(x) : '') : '')                          // double guard
+```
+
+**Pre-staging check:** After adding any source link to a report page, run:
+```bash
+node --check /tmp/{monitor}-report.js
+```
+A syntax error here means the entire data render will silently fail.
+
+**Added:** 5 April 2026
+
+---
+
+## FE-027 — sourceLink copy-paste variants causing silent JS crashes
+
+**Discovered:** 2026-04-05 — WDM report.html all sections stuck on "Loading…"
+
+**Root cause:** `AsymRenderer.sourceLink()` was copy-pasted inline across all 7 report pages
+in 6 different broken variants. The worst — `AsymRenderer.sourceLink(esc(url)))` with an
+extra closing `)` — is a **JS syntax error that crashes the entire `.then()` block silently**.
+Every section shows "Loading…" indefinitely with no visible console error.
+
+**Broken variants found across 7 monitors:**
+- `(esc(url) ? AsymRenderer.sourceLink(esc(url)) : ''))` — extra `)`, syntax error
+- `(escHtml(url) ? AsymRenderer.sourceLink(escHtml(url)) : '')` — double-escaping
+- `(x ? (x ? AsymRenderer.sourceLink(x) : '') : '')` — double guard
+- `(x ? ' ' + AsymRenderer.sourceLink(x) : '')` — unnecessary prefix
+- Raw `<a href="' + esc(url) + '">Source →</a>` — bypassing shared function entirely
+
+**Fix (PR #38, 2026-04-05):**
+1. `renderer.js`: `sourceLink(url)` returns `''` on falsy URL — no guard needed at call sites
+2. All 7 report pages: 20 expressions replaced with canonical form
+
+**Canonical call — one form only:**
+```js
+AsymRenderer.sourceLink(item.source_url)
+```
+- No `esc()` or `escHtml()` wrapping — sourceLink handles output safely
+- No guard ternary — returns `''` on falsy input
+- No `' ' +` prefix — spacing is CSS's job
+
+**Pre-staging check (mandatory):** After any source link change, run:
+```bash
+node --check /tmp/{slug}-report.js
+```
+A silent syntax error here means the entire data fetch renders nothing.
+
+**Added:** 5 April 2026
+
+---
+
+## Contrast — signal block body text (2026-04-05)
+
+**Pattern:** Inline `color:var(--color-text-muted)` or `color:var(--color-text-secondary)`
+overrides the signal block's white text rules when applied inside `.signal-block` (dark background).
+
+**Affected pages found and fixed:**
+- WDM `report.html` — `color:var(--color-text-muted)` → `class="signal-block__body"`
+- FCW `report.html` — `color:var(--color-text-secondary)` → `class="signal-block__body"`
+- WDM `dashboard.html` — `opacity:0.85` → `class="signal-block__body"`
+- GMM `dashboard.html` — `color:var(--color-text-secondary)` on `one_number_to_watch` → `rgba(255,255,255,0.8)`
+
+**Canonical rule:**
+- Signal body text: always use `class="signal-block__body"` — inherits white from base.css
+- Signal sub-fields (one_number_to_watch etc.): `color:rgba(255,255,255,0.8)`
+- Never use `--color-text-muted`, `--color-text-secondary`, or `opacity` on text inside `.signal-block`
+
+**Added:** 5 April 2026
+
