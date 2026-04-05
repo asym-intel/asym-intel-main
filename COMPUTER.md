@@ -54,15 +54,52 @@ Use `api_credentials=["github"]` for all GitHub operations.
 - Hugo rebuilds on every push and overwrites `docs/` — source of truth is `layouts/` and `assets/`
 - New Hugo page: create `content/{name}.md` + `layouts/{type}/single.html` — never a raw file in `docs/`
 
-## Deployment Rules
+## Deployment Rules — Tiered by Risk (updated 5 Apr 2026)
 
-| Change type | Branch | Approval needed |
-|---|---|---|
-| Monitor HTML/CSS/JS pages | staging → PR → main | Yes — user visual sign-off |
-| Hugo layouts/main.css | main directly | No — validator catches regressions |
-| JSON data files (cron output) | main directly | No — autonomous |
-| Hugo brief markdown | main directly | No — autonomous |
-| COMPUTER.md / HANDOFF.md / ARCHITECTURE.md | main directly | No — documentation |
+Now that the site architecture is stable and the CI validator catches structural
+regressions, most monitor HTML changes go direct to main. Staging is reserved
+for changes that modify existing rendered behaviour or shared infrastructure.
+
+### LOW RISK → main directly (validator sufficient)
+| Change type | Example |
+|---|---|
+| New additive JS-AUTO section | Adding a new `<section>` + render function that reads existing JSON |
+| New sidebar nav link | Adding `<li><a href="#section-new">` to sidebar |
+| New render function (additive) | `renderTrajectoryGrid()` — doesn't replace anything |
+| Hugo layouts/main.css | Hugo rebuilds on push, validator catches regressions |
+| JSON data files (cron output) | Autonomous — no approval |
+| Hugo brief markdown | Autonomous — no approval |
+| COMPUTER.md / HANDOFF.md / docs | Documentation — no approval |
+| Pipeline scripts (synthesisers, collectors) | Infrastructure — no approval |
+
+### MEDIUM RISK → staging, Computer screenshots, then merge (no Peter sign-off needed)
+| Change type | Example |
+|---|---|
+| Replacing an existing section | Swapping F-Flag tile board for indicator matrix |
+| Modifying an existing render function | Changing how `renderConflictCards()` displays data |
+| Per-monitor CSS changes | `monitor.css` accent changes |
+
+### HIGH RISK → staging, Peter visual sign-off required
+| Change type | Example |
+|---|---|
+| Shared CSS (`base.css`) changes | Layout, typography, spacing changes hitting all 7 monitors |
+| `nav.js` structural changes | Navigation rewrite, hamburger logic, scroll-spy |
+| Network bar changes | Brand, links, mobile behaviour |
+| Shared library files | `renderer.js`, `charts.js`, `theme.js` |
+
+**Rule of thumb:** if the change is additive (new section, new function) and reads
+existing JSON fields, it is LOW risk. If it replaces or modifies existing rendered
+output, it is MEDIUM. If it touches shared infrastructure used by all 7 monitors,
+it is HIGH.
+
+For LOW risk: commit to main (static/ + docs/ mirror), take a screenshot to verify,
+log to notes-for-computer.md. No staging round-trip needed.
+
+For MEDIUM risk: push to staging, Computer takes a screenshot to verify, then
+immediately opens PR and merges. No need to wait for Peter unless something
+looks wrong.
+
+For HIGH risk: push to staging, screenshot, share with Peter, wait for sign-off.
 
 ## Architecture (Blueprint v2.1)
 
