@@ -1,5 +1,5 @@
 # Next Computer Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-04 evening wrap (~22:40 BST)
+**Updated:** 2026-04-05 morning wrap (~07:45 BST)
 
 > **Bootloader:** "Computer: asym-intel.info"
 
@@ -12,57 +12,42 @@ Load asym-intel skill. Read COMPUTER.md, HANDOFF.md, notes-for-computer.md,
 docs/ARCHITECTURE.md, and docs/ROADMAP.md before starting.
 
 --- VERIFY LIVE FIRST ---
-curl -s -H "Cache-Control: no-store" https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
-→ Must show v1.3
-Screenshot https://asym-intel.info/monitors/democratic-integrity/dashboard.html
-→ Must NOT show "Failed to load data."
+curl -s https://asym-intel.info/monitors/shared/js/nav.js | grep "nav.js  v"
+→ Must show v1.4
+Screenshot any dashboard → must render, no "Failed to load data"
 
---- GMM RULE (read before touching anything GMM) ---
-GMM methodology and prompts are PRIVATE. They live in asym-intel-internal/gmm-prompts/ only.
-Never commit GMM IP to asym-intel-main or any public repo.
+--- TASK 1: ENABLE SYNTHESISER SCHEDULES ---
+All 7 synthesisers pass. Uncomment the schedule: lines in each .yml workflow:
+  FCW: Wed 22:00 UTC | GMM: Mon 20:00 UTC | WDM: Sun 21:00 UTC
+  SCEM: Sat 10:00 UTC | ESA: Wed 09:00 UTC | AGM: Thu 22:00 UTC | ERM: Fri 20:00 UTC
+Commit all 7 in a single commit.
 
---- SYNTHESISER RE-RUNS (do first) ---
+--- TASK 2: MONITOR FIRST SLIM ANALYST RUNS ---
+SCEM fires Sun 5 Apr 18:00 UTC. WDM fires Mon 6 Apr 06:00 UTC.
+Housekeeping Mon 6 Apr 08:00 UTC. GMM Tue 7 Apr 08:00 UTC.
+Check that each loads its prompt from repo and publishes successfully.
+If SCEM has already fired, verify its output.
 
-TASK 1: Trigger GMM/WDM/SCEM/AGM synthesisers via workflow_dispatch.
-  Stagger 45s apart. Guard should have cleared (last runs were 4 Apr).
-  Verify synthesis-latest.json output_type is NOT null_signal_week.
-  If any still fail: check debug-{date}.json for error details.
+--- TASK 3: SCEM VISUAL SPRINT 2 ---
+Read asym-intel-internal/visuals/scem-visual-recommendations-2026-04-05.md
+Next components: NEW-02 (Confidence Quality Summary Bar), NEW-03 (Deviation Heatmap PNG).
+Use tiered deployment — NEW-02 is LOW risk (additive JS-AUTO), deploy direct to main.
 
-TASK 2: Once all 7 pass (FCW/ESA/ERM already pass) → enable scheduled triggers:
-  FCW: Wed 22:00 UTC | GMM: Mon 20:00 UTC | WDM: Sun 21:00 UTC | SCEM: Sat 10:00 UTC
-  ESA: Wed 09:00 UTC | AGM: Thu 22:00 UTC | ERM: Fri 20:00 UTC
-
-TASK 3: Monitor first slim Analyst cron runs (all new IDs — see HANDOFF.md):
-  SCEM: Sun 5 Apr 18:00 UTC (first to fire)
-  WDM: Mon 6 Apr 06:00 UTC
-  Check that each loads its prompt from repo and publishes successfully.
+--- TASK 4: HOMEPAGE NETWORK GRAPH ---
+Priority 2 from network integration plan.
+Add a section in layouts/index.html embedding whitespace.asym-intel.info via iframe.
+Hugo layout change → goes to main directly.
 
 --- THEN ---
-- PED Sprint 2: surface Q4/Q6/Q7/Q8 first
-- Analytics: decide Plausible vs Fathom
+- PED Sprint 2: Q4/Q6/Q7/Q8
+- Analytics: Plausible vs Fathom
 ```
 
-## Session summary (4 Apr 2026 — evening)
-
-### Crons
-- All 8 slim crons created (old crons deleted by Peter from UI)
-- COMPUTER.md, HANDOFF.md, docs/crons/README.md all updated with new IDs
-- First runs: SCEM Sun 5 Apr, WDM/Housekeeping Mon 6 Apr
-
-### FCW Schema Migration
-- PR #35 merged — dual-schema fallbacks on dashboard, report, overview
-- Works with both old (signal/f_flags/cognitive_warfare) and new (lead_signal/mf_flags/intelligence_highlights) schemas
-
-### Governance
-- Staging-reset protection rule added (COMPUTER.md pitfall #17, wrap Steps 5-6)
-- Prevents reset of staging while files await visual sign-off
-
-### Commercial / ERG
-- Commercial development note committed to asym-intel-internal/commercial/
-- ERG methodology skeleton committed to asym-intel-internal/methodology/
-- ERG confirmed as abbreviation (not EGM — avoids ERM collision)
-- No build work — future threads only
-
-### Platform
-- Staging: clean (0/0)
-- Site: healthy, nav.js v1.3, dashboards rendering
+## Key facts for this session
+- All 8 slim crons live (see HANDOFF.md for IDs)
+- Tiered deployment rules: LOW risk → main directly (see COMPUTER.md)
+- synth_utils.py shared JSON repair module at pipeline/synthesisers/synth_utils.py
+- SYNTH_MODEL env var override available on all 7 scripts
+- GMM workflow fetches prompt + methodology + addendum from internal repo
+- Leverage Signal skill: "Computer: Signal" for commercial GMM thread
+- ERG (Energy & Resource Geopolitics) confirmed as abbreviation for new monitor
