@@ -10,6 +10,10 @@ import json, os, sys, re, datetime, pathlib
 import requests
 import time
 
+# Shared repair utilities
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+from synth_utils import parse_llm_json
+
 REPO_ROOT   = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
 MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "conflict-escalation"
 SYNTH_DIR   = MONITOR_DIR / "synthesised"
@@ -104,49 +108,11 @@ if resp.status_code == 429:
 resp.raise_for_status()
 raw = resp.json()["choices"][0]["message"]["content"].strip()
 
-raw = re.sub(r"^```(?:json)?\n?", "", raw)
-raw = re.sub(r"\n?```$",           "", raw)
-brace_start = raw.find("{")
-brace_end   = raw.rfind("}")
-if brace_start != -1 and brace_end > brace_start:
-    raw = raw[brace_start:brace_end + 1]
-
-
-def repair_json(raw):
-    """Replace unescaped apostrophes inside JSON string values with \\u0027.
-    Walks char-by-char tracking string state and proper backslash escaping.
-    Does NOT produce \\' (invalid JSON escape). Handles escaped quotes correctly."""
-    repaired = []
-    in_string = False
-    i = 0
-    while i < len(raw):
-        c = raw[i]
-        if c == '\\' and in_string:
-            # escape sequence — pass both chars through unchanged
-            repaired.append(c)
-            i += 1
-            if i < len(raw):
-                repaired.append(raw[i])
-        elif c == '"':
-            in_string = not in_string
-            repaired.append(c)
-        elif c == "'" and in_string:
-            repaired.append('\\u0027')
-        else:
-            repaired.append(c)
-        i += 1
-    return ''.join(repaired)
-
 try:
-    synthesis = json.loads(raw)
-except json.JSONDecodeError:
-    try:
-        synthesis = json.loads(repair_json(raw))
-        print(f"[SCEM] JSON repaired successfully")
-    except json.JSONDecodeError as e2:
-        e = e2
-        synthesis = None
-if synthesis is None:
+    synthesis, was_repaired = parse_llm_json(raw, "SCEM")
+    if was_repaired:
+        print("[SCEM] JSON repaired successfully")
+except json.JSONDecodeError as e:
     print(f"[SCEM] JSON parse error: {e}. Writing fallback stub.")
     synthesis = {
         "_meta": {
@@ -157,7 +123,7 @@ if synthesis is None:
             "null_signal_week": True,
             "null_signal_reason": f"JSON parse error: {e}",
         },
-        "_raw_fallback": raw[:5000],
+        "_raw_fallback": raw,
     }
 
 if "_meta" in synthesis:
