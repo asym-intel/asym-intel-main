@@ -798,13 +798,17 @@ window.AsymPersistent = (function () {
     }
   }
 
-  /* Returns a complete inline <a> tag: "Reuters →" */
+  /* Returns a complete inline <a> tag: "Reuters →"
+   * Returns '' (empty string) when url is falsy — callers need no guard logic.
+   * Canonical call: AsymRenderer.sourceLink(item.source_url)
+   * Never wrap url in esc() — sourceLink handles its own output safely. */
   function sourceLink(url, opts) {
+    if (!url) return '';
     opts = opts || {};
     var label = sourceLabel(url);
     var color = opts.color || 'var(--monitor-accent)';
     var size  = opts.size  || 'var(--text-xs)';
-    return '<a href="' + (url || '#') + '" target="_blank" rel="noopener" ' +
+    return '<a href="' + url + '" target="_blank" rel="noopener" ' +
       'style="color:' + color + ';font-size:' + size + ';text-decoration:none;white-space:nowrap" ' +
       'onmouseover="this.style.textDecoration=\'underline\'" ' +
       'onmouseout="this.style.textDecoration=\'none\'">' +
