@@ -26,7 +26,7 @@ OUT_DATED = SYNTH_DIR / f"synthesis-{TODAY_STR}.json"
 
 API_KEY = os.environ["PPLX_API_KEY"]
 API_URL = "https://api.perplexity.ai/chat/completions"
-MODEL   = "sonar-deep-research"
+MODEL   = os.environ.get("SYNTH_MODEL", "sonar-deep-research")
 
 if OUT_DATED.exists():
     print(f"[ESA] GUARD: synthesiser already ran today ({TODAY_STR}). Exiting.")
