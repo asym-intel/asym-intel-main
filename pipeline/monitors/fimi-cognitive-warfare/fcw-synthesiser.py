@@ -36,7 +36,7 @@ from synth_utils import parse_llm_json
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
-MODEL   = os.environ.get("SYNTH_MODEL", "sonar-deep-research")
+MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-deep-research"
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DIR   = pathlib.Path("pipeline/monitors/fimi-cognitive-warfare/synthesised")
 OUT_LATEST = OUT_DIR / "synthesis-latest.json"
