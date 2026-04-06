@@ -1,8 +1,9 @@
 name: FCW Weekly Deep Research
 
 on:
-  workflow_dispatch:  # PAUSED — scheduled trigger disabled pending architecture decision
-         # allow manual trigger for testing
+  schedule:
+    - cron: "0 18 * * 3"  # Wednesday 18:00 UTC (synthesiser fires Wed 22:00)
+  workflow_dispatch:        # allow manual trigger from Actions tab
 
 jobs:
   research:
