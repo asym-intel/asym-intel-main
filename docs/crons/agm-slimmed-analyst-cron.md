@@ -175,6 +175,23 @@ Then write:
 Commit: `data(agm): weekly pipeline — Issue [N] W/E YYYY-MM-DD`
 `git pull --rebase origin main && git push origin main`
 
+
+---
+
+**Step 7 — Ramparts publication (ramparts.gi)**
+
+After asym-intel.info publication is confirmed (Step 6 commit verified), run the Ramparts pipeline.
+
+Read the full publisher instructions from the internal repo:
+```bash
+gh api /repos/asym-intel/asym-intel-internal/contents/ramparts-prompts/ramparts-publisher-cron.md \
+  --jq '.content' | base64 -d
+```
+
+Then follow those instructions exactly. The publisher reads `static/monitors/ai-governance/data/report-latest.json` as its input — the file you just committed in Step 6.
+
+**If Ramparts publication fails:** log the failure to notes-for-computer.md, send_notification() with the error, but do NOT roll back the asym-intel.info publication. The two publications are independent — a Ramparts failure does not invalidate the asym-intel issue.
+
 ---
 
 ## Standing Rules
