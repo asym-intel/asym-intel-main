@@ -80,6 +80,31 @@ Assemble report-latest.json. Required top-level fields:
 **Step 5 — Persistent-state update and notifications**
 Update `static/monitors/democratic-integrity/data/persistent-state.json`.
 
+Carry forward all existing fields. Update or populate the following fields every run:
+
+**Core (already present):**
+- `heatmap_countries` — update rapid_decay, recovery, watchlist from Step 2
+- `mimicry_chains` — update from synthesiser or weekly-research output
+- `institutional_integrity_active_flags` — update from Step 2
+- `calibration_log` — append any new calibration applied
+
+**Living Knowledge sections (populate from weekly synthesis — these drive persistent.html):**
+- `electoral_watch` — object with:
+  - `timeline`: array of `{date, country, election_type, risk_level, note}` — all elections in next 90 days
+  - `environment`: array of `{country, assessment}` — HIGH_RISK countries with active electoral concerns
+  - `positive_transitions`: array of `{country, summary}` — Recovery-classified countries with upcoming votes
+- `digital_civil` — keyed object or array of `{country, headline, detail}` — internet shutdowns, civil society restrictions, press freedom events this week
+- `autocratic_export` — keyed object or array of `{exporter, recipient, headline, detail}` — documented playbook transfers, legislative mimicry, advisor deployments
+- `state_capture` — keyed object or array of `{country, institution, headline, detail}` — judiciary packing, media capture, civil service politicisation
+- `institutional_pulse` — array of `{country, institution, resilience_flag, headline, detail, source_url}` — institutional resilience signals (high/medium/low); include both deterioration and resistance cases
+- `legislative_watch` — array of `{country, bill, stage, significance}` — legislation in progress that threatens democratic norms; include bills tabled, passed, blocked
+- `research_360.friction_notes` — array of `{id, country, headline, detail, status}` — contested findings, disputed attribution, data gaps requiring human review
+- `networks` — keyed object of tracked autocratic/interference networks `{name, summary}` — CPAC Hungary, Wagner successor networks, RT affiliate networks etc
+
+**Schema rule:** If no data is available for a section this week, set it to an empty array `[]` or empty object `{}` — never omit the key entirely. The page renders gracefully on empty arrays; missing keys trigger the "Build 2" placeholder message.
+
+**monthly_trend** — DO NOT populate until Issue 8 (4 weeks of data). Leave absent until then.
+
 For any newly critical finding or highest-severity status change:
 - Call `send_notification()` immediately for real-time alerting
 - Append a durable log entry to `asym-intel-internal/notes-for-computer.md` (optional — skip if inaccessible)
