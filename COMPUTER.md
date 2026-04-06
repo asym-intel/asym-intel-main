@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 3.6 — 6 April 2026
+## Version 3.7 — 6 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -198,6 +198,17 @@ AsymRenderer.flagLabel('Serbia') // → '🇷🇸 Serbia'
 **When adding a new country display:** always check whether `AsymRenderer.flag()` is
 being called. Omitting it is a persistent bug pattern — search for `escHtml(c.country)`
 or `esc(country)` and verify the flag call precedes it.
+
+## Credit-Saving Workflows
+
+Four decision rules. Apply before starting any task.
+
+| Trigger | Correct action |
+|---|---|
+| New idea, visual, workflow, methodology, or prompt draft | **Peter creates externally first.** Bring the file back to Computer for implementation only. Computer's job is execution, not ideation. Examples: visual mockups in external AI tools, prompt drafts in a text editor, methodology docs written offline, UX review outputs. Do not ask Computer to design something it will then immediately build — that doubles the cost. |
+| Multi-file sprint (3+ files changing) | **Spec first, implement second.** Computer produces a spec doc listing every file that will change, every schema field being added, and what the rendered output will look like. Peter reviews and approves before any commit. Catches missing files, wrong paths, and schema gaps before subagents run. |
+| A page section shows a placeholder ("Build 2", "schema-gated", "coming soon") | **Classify before acting.** Schema-gated = cron prompt fix, no HTML needed, do it now. Design-gated = needs a PED or methodology decision first, park it. Confusing these wastes credits on implementation work that then has to be redone after the design decision. Check ROADMAP.md — if it's in the parking lot, it's design-gated. |
+| A visual element appears on 2+ monitor pages | **Fix in shared library, not per page.** CSS changes go to `static/monitors/shared/css/base.css` (all 7 monitors) or per-monitor `assets/monitor.css` (≤40 lines, accent tokens only). JS changes go to `static/monitors/shared/js/`. Never fix the same thing 7 times. If a fix is right for one monitor it is almost certainly right for all — check base.css first. |
 
 ## Common Pitfalls — Do Not Repeat
 
