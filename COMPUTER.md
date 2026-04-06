@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 3.4 — 3 April 2026
+## Version 3.5 — 6 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -310,20 +310,47 @@ To recreate a lost cron: see `docs/crons/README.md` for the pattern.
 
 ## Active GitHub Actions (external pipeline — NOT Computer crons)
 
+**All collectors run daily. Weekly-research and Reasoner fire in sequence before Synthesiser.**
+Schedules are live in the workflow files — this table is the canonical record.
+
+### Chatter (daily — one monitor per day, rotating)
 | Monitor | Workflow | Schedule | Model |
 |---|---|---|---|
-| WDM | wdm-collector.yml | Mon/Wed/Fri 07:00 UTC | sonar |
-| WDM | wdm-weekly-research.yml | PAUSED | sonar-pro |
-| WDM | wdm-reasoner.yml | PAUSED | sonar-deep-research |
-| FCW | fcw-collector.yml | Mon/Wed/Fri 07:00 UTC | sonar |
-| FCW | fcw-weekly-research.yml | PAUSED | sonar-pro |
-| FCW | fcw-reasoner.yml | PAUSED | sonar-deep-research |
-| GMM | gmm-collector.yml | Mon/Wed/Fri 06:00 UTC | sonar |
-| GMM | gmm-weekly-research.yml | PAUSED | sonar-pro |
-| GMM | gmm-reasoner.yml | PAUSED | sonar-deep-research |
-| SCEM | scem-collector.yml | Mon/Wed/Fri 06:00 UTC | sonar |
-| SCEM | scem-weekly-research.yml | PAUSED | sonar-pro |
-| SCEM | scem-reasoner.yml | PAUSED | sonar-deep-research |
+| FCW | fcw-chatter.yml | Mon 06:00 UTC | sonar |
+| GMM | gmm-chatter.yml | Tue 06:00 UTC | sonar |
+| WDM | wdm-chatter.yml | Wed 06:00 UTC | sonar |
+| SCEM | scem-chatter.yml | Thu 06:00 UTC | sonar |
+| ESA | esa-chatter.yml | Fri 06:00 UTC | sonar |
+| AGM | agm-chatter.yml | Sat 06:00 UTC | sonar |
+| ERM | erm-chatter.yml | Sun 06:00 UTC | sonar |
+
+### Collector (daily — all monitors, 07:00 UTC)
+| Monitor | Workflow | Schedule | Model |
+|---|---|---|---|
+| FCW | fcw-collector.yml | Daily 07:00 UTC | sonar |
+| GMM | gmm-collector.yml | Daily 07:00 UTC | sonar |
+| WDM | wdm-collector.yml | Daily 07:00 UTC | sonar |
+| SCEM | scem-collector.yml | Daily 07:00 UTC | sonar |
+| ESA | esa-collector.yml | Daily 07:00 UTC | sonar |
+| AGM | agm-collector.yml | Daily 07:00 UTC | sonar |
+| ERM | erm-collector.yml | Daily 07:00 UTC | sonar |
+
+### Weekly Research → Reasoner → Synthesiser (per-monitor cascade)
+| Monitor | Weekly Research | Reasoner | Synthesiser | Model chain |
+|---|---|---|---|---|
+| FCW | Wed 18:00 UTC | Wed 20:00 UTC | Wed 22:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
+| GMM | Mon 16:00 UTC | Mon 18:00 UTC | Mon 20:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
+| WDM | Sun 18:00 UTC | PAUSED (stub) | Sun 21:00 UTC | sonar-pro → — → sonar-deep-research |
+| SCEM | Sat 06:00 UTC | Sat 08:00 UTC | Sat 10:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
+| ESA | Tue 18:00 UTC | Tue 20:00 UTC | Wed 09:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
+| AGM | Thu 18:00 UTC | Thu 20:00 UTC | Thu 22:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
+| ERM | Fri 16:00 UTC | Fri 18:00 UTC | Fri 20:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
+
+**IP-protected prompts (asym-intel-internal):**
+GMM prompts live in `asym-intel-internal/gmm-prompts/` — NOT the public repo.
+FCW analyst cron lives in `asym-intel-internal/fcw-slimmed-analyst-cron.md`.
+Scripts for these monitors must fetch prompts via `gh api` from internal, not local filesystem.
+ESA/AGM/ERM/WDM/SCEM/FCW pipeline prompts are public (pipeline/monitors/{slug}/).
 
 ## pipeline/ Directory
 pipeline/monitors/{slug}/ — GitHub Actions Collector outputs. Internal only.
@@ -491,50 +518,6 @@ notification system instead — silence means all-OK.
 Housekeeping cron sends a notification on any WARN or FAIL. Absence of notification
 means the platform is healthy. Do not open a session to verify health — trust the silence.
 
-## Subagent Usage — Known Limits and Patterns
-
-### Why subagents get cancelled
-
-Two distinct failure modes observed in practice (3 April 2026):
-
-**1. Step-count exhaustion** — a subagent that must do many sequential things
-(browse 5 live pages + read 7 files + write 2 large docs + update 3 governance files)
-will approach or exceed the 200-step limit. Signs: subagent is on the right track
-but never returns. Fix: **split the task**. Observation pass first (read + browse),
-write pass second (commit docs from findings).
-
-**2. Session-level timeout** — after ~90 minutes of intensive work in one session,
-launching additional subagents increases cancellation risk. Signs: subagent cancelled
-immediately with no partial output. Outputs may still exist in repo if the subagent
-completed just before the cancellation signal. Always verify repo state after any
-cancellation — do not assume nothing happened.
-
-### Subagent sizing rules
-
-| Task complexity | Approach |
-|---|---|
-| Single file change, <5 tool calls | Do it directly (no subagent) |
-| Multi-file change, same domain, <15 tool calls | Single subagent |
-| Observe 5+ live pages AND write docs | Two subagents: observe → write |
-| 3+ parallel subagents after 90min session | Defer to next session instead |
-
-### After a cancellation — always verify
-
-```bash
-# Check if subagent outputs exist despite cancellation
-gh api /repos/asym-intel/asym-intel-main/commits?per_page=5 --jq '[.[] | {sha:.sha[:8], msg:.commit.message[:80]}]'
-ls /home/user/workspace/*.md 2>/dev/null
-gh api /repos/asym-intel/asym-intel-main/compare/main...staging --jq '.ahead_by'
-```
-
-A cancelled subagent ≠ no work done. Verify before re-running — you may be about
-to duplicate work that already succeeded.
-
-### Session length awareness
-
-When a session has been running for >90 minutes, note it in wrap:
-"Session is >90min — recommend deferring remaining subagent work to a fresh session."
-Do not launch complex multi-step subagents as the last act of a long session.
 
 ## ARCHITECTURE.md (MANDATORY for HTML/CSS/JS work)
 
@@ -543,35 +526,14 @@ Read before any build work:
 
 Update it when new patterns or fixes are discovered. Never end a build session without checking if ARCHITECTURE.md should be updated.
 
-## Efficiency Configuration (2026-04-03)
+## Efficiency Configuration
 **Target: ≤6,000 Computer credits/month, ≤$25 API/month**
 
-### GitHub Actions pipeline schedules
-| Workflow | New schedule | Old schedule |
-|---|---|---|
-| FCW chatter | Mon 06:00 UTC | daily |
-| GMM chatter | Tue 06:00 UTC | daily |
-| WDM chatter | Wed 06:00 UTC | daily |
-| SCEM chatter | Thu 06:00 UTC | daily |
-| ESA chatter | Fri 06:00 UTC | daily |
-| AGM chatter | Sat 06:00 UTC | daily |
-| ERM chatter | Sun 06:00 UTC | daily |
-| FCW collector | Mon 07:00 UTC | daily |
-| GMM collector | Tue 07:00 UTC | daily |
-| WDM collector | Wed 07:00 UTC | daily |
-| SCEM collector | Thu 07:00 UTC | daily |
-| ESA collector | Fri 07:00 UTC | daily |
-| AGM collector | Sat 07:00 UTC | daily |
-| ERM collector | Sun 07:00 UTC | daily |
-| Test workflows | DISABLED | scheduled |
+Chatter workflows rotate one monitor per day (not all daily) to reduce API cost.
+Collectors are daily for all 7 monitors (required for pipeline freshness).
+Weekly research and Reasoner fire once per week per monitor (see GA table above).
+Computer Analyst crons: 7 monitors × ~100 credits/run = ~700 credits/week.
 
-**Pattern: 1 monitor/day rotating. Chatter at 06:00, Collector at 07:00 same day.**
-Total GitHub Actions API calls: 14/week (was 42/week). Saves ~$1.20/month.
-
-### Analyst cron cadence
-All 7 monitors remain weekly. Under the synthesiser architecture the Analyst
-cron is lightweight (~100 credits/run) so weekly is affordable for all.
-Quarterly cadence idea superseded — see COLLECTOR-ANALYST-ARCHITECTURE.md v2.1.
 
 ## Efficiency Configuration (2026-04-03)
 **Target: ≤6,000 Computer credits/month, ≤$25 API/month**
