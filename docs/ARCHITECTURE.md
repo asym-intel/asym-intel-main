@@ -284,6 +284,19 @@ NEVER EDIT docs/ DIRECTLY.
 If docs/ is wrong, find the source file in the table above and fix that.
 ```
 
+### CSS change decision rule
+
+Before any CSS change, ask: does this fix apply to all 7 monitors or just one?
+
+| Scope | File | Notes |
+|---|---|---|
+| All 7 monitors | `static/monitors/shared/css/base.css` | Layout, spacing, typography, cards, components — default choice |
+| Single monitor accent/colour | `static/monitors/{slug}/assets/monitor.css` | ≤40 lines enforced by CI. Accent tokens only. Nothing structural. |
+| Hugo pages (homepage, briefs) | `assets/css/main.css` | Hugo source — commit to main directly, no staging needed |
+
+**Rule:** if the same CSS property needs changing on 2+ monitor pages, it belongs in `base.css` — not fixed per page.
+The ≤40 line limit on `monitor.css` is CI-enforced and exists to prevent per-monitor drift.
+
 ---
 
 ## Why docs/ Exists in the Repo at All
