@@ -1,0 +1,39 @@
+name: ESA Reasoner — ESA Domain Autonomy Reasoning
+
+on:
+  schedule:
+    - cron: "0 20 * * 2"  # Tuesday 20:00 UTC (weekly-research Tue 18:00, synthesiser Wed 09:00)
+  workflow_dispatch:        # allow manual trigger from Actions tab
+
+jobs:
+  reason:
+    name: ESA Domain Autonomy Reasoning (sonar-deep-research)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run reasoner
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/european-strategic-autonomy/esa-reasoner.py
+
+      - name: Commit reasoner output
+        run: |
+          git config user.name  "ESA Reasoner Bot"
+          git config user.email "european-strategic-autonomy-reasoner@asym-intel.info"
+          git add pipeline/monitors/european-strategic-autonomy/reasoner/
+          git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
+          git commit -m "data(european-strategic-autonomy-reasoner): pattern reasoning — $(date -u +%Y-%m-%d)"
+          git push
