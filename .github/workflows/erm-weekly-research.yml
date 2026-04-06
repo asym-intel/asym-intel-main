@@ -1,0 +1,39 @@
+name: ERM Weekly Deep Research
+
+on:
+  schedule:
+    - cron: "0 16 * * 5"  # Friday 16:00 UTC (synthesiser fires Fri 20:00 UTC)
+  workflow_dispatch:        # allow manual trigger from Actions tab
+
+jobs:
+  research:
+    name: ERM Weekly Deep Research (sonar-pro)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run weekly deep research
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/environmental-risks/weekly-research.py
+
+      - name: Commit weekly research output
+        run: |
+          git config user.name  "ERM Weekly Research Bot"
+          git config user.email "environmental-risks-weekly@asym-intel.info"
+          git add pipeline/monitors/environmental-risks/weekly/
+          git diff --staged --quiet && echo "No new research to commit" && exit 0
+          git commit -m "data(environmental-risks-weekly): weekly deep research — $(date -u +%Y-%m-%d)"
+          git push
