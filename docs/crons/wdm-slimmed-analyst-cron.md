@@ -74,8 +74,38 @@ Assemble report-latest.json. Required top-level fields:
 - key_judgments (3–5, final confidence tags — no _preliminary markers)
 - global_health_snapshot, country_heatmap (final), backsliding_alerts, electoral_calendar_watch
 - cross_monitor_flags (confirmed flags only, full slugs above)
-- signal_panel (headline + body for dashboard display)
+- signal_panel (headline + body + history array for dashboard display)
 - weekly_brief (final edited version of synthesiser draft, 400–600 words)
+
+**severity_sub on every heatmap entry (required from this issue forward):**
+Each entry in country_heatmap.rapid_decay, .recovery, and .watchlist must include:
+```json
+"severity_sub": {
+  "institutional": 0.0,
+  "electoral": 0.0,
+  "civil_society": 0.0,
+  "media": 0.0
+}
+```
+Values are 0.0–10.0 sub-scores contributing to the overall severity_score.
+Derive from methodology module scores. If a dimension is not relevant for that country,
+set to 0.0 — never omit the key. The report.html renders these inline under each score.
+
+**signal_panel.history array (required from this issue forward):**
+```json
+"signal_panel": {
+  "headline": "...",
+  "body": "...",
+  "history": [
+    {"issue": 1, "date": "2026-03-24", "rapid_decay": 13, "recovery": 3, "watchlist": 11},
+    {"issue": 2, "date": "2026-03-30", "rapid_decay": 14, "recovery": 4, "watchlist": 12},
+    {"issue": 3, "date": "2026-04-01", "rapid_decay": 15, "recovery": 5, "watchlist": 13},
+    {"issue": 4, "date": "2026-04-06", "rapid_decay": 15, "recovery": 5, "watchlist": 13}
+  ]
+}
+```
+Carry forward all prior history entries from the previous report-latest.json signal_panel.history.
+Append this week's entry. Maximum 52 entries (rolling year). Never truncate below 4.
 
 **Step 5 — Persistent-state update and notifications**
 Update `static/monitors/democratic-integrity/data/persistent-state.json`.
