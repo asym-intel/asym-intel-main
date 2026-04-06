@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 3.5 — 6 April 2026
+## Version 3.6 — 6 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -527,12 +527,50 @@ Read before any build work:
 Update it when new patterns or fixes are discovered. Never end a build session without checking if ARCHITECTURE.md should be updated.
 
 ## Efficiency Configuration
-**Target: ≤6,000 Computer credits/month, ≤$25 API/month**
+**Target: ≤6,000 Computer credits/week normal · ≤$25 PPLX API/month**
 
 Chatter workflows rotate one monitor per day (not all daily) to reduce API cost.
 Collectors are daily for all 7 monitors (required for pipeline freshness).
 Weekly research and Reasoner fire once per week per monitor (see GA table above).
 Computer Analyst crons: 7 monitors × ~100 credits/run = ~700 credits/week.
+
+### Session Gate — read before opening any Computer session
+
+**Before opening a session, answer these three questions:**
+
+1. **Is there a housekeeping notification?** No notification = platform healthy = no session needed.
+   Trust the silence. Do not open a diagnostic session to verify health.
+
+2. **Is the work urgent or can it batch?** Rendering work, schema additions, and prompt
+   improvements can wait for the next scheduled session. Only pipeline failures, live bugs,
+   and missed publishes justify an unscheduled session.
+
+3. **Can this be done in one session?** If yes, do it all in one session. Never open a
+   second session the same day unless the first session produced an incident requiring
+   immediate follow-up.
+
+**Target:** ≤2 Computer sessions per week. One Monday session (if housekeeping flags issues),
+one mid-week sprint session. Infrastructure rebuilds (like pipeline builds, governance rewrites)
+are quarterly events — not weekly.
+
+### Subagent Rule — sequential first
+
+**Default: sequential.** Run subagents one at a time unless tasks are genuinely independent
+AND time is the binding constraint (e.g. a publish deadline).
+
+Parallel subagents are 3× faster but 3× the credit cost. For most work — schema additions,
+prompt updates, rendering fixes — sequential is identical in outcome at 1/3 the cost.
+
+| Scenario | Approach |
+|---|---|
+| 3 independent file builds, no deadline | Sequential — one subagent, then next |
+| 3 independent file builds, publish in 1hr | Parallel — time is binding |
+| Research + write (dependent) | Sequential — always (second depends on first) |
+| Diagnostic + fix (dependent) | Sequential — always |
+
+**Manual publish fallback:** if a publish is missed, give the subagent the synthesiser
+output directly rather than asking it to do its own research. Full synthesis is 3–5× more
+expensive than methodology-only publication.
 
 
 ## Efficiency Configuration (2026-04-03)
