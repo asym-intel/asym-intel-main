@@ -1,8 +1,9 @@
 name: SCEM Reasoner — Conflict Trajectory Analysis
 
 on:
-  workflow_dispatch:  # PAUSED — scheduled trigger disabled pending architecture decision
-
+  schedule:
+    - cron: "0 8 * * 6"  # Saturday 08:00 UTC (weekly-research Sat 06:00, synthesiser Sat 10:00)
+  workflow_dispatch:        # allow manual trigger from Actions tab
 
 jobs:
   reason:
