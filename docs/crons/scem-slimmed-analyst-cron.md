@@ -56,6 +56,35 @@ Apply methodology to confirm, refine, or reject synthesiser judgments.
 - Confirm/add/resolve escalation indicators
 - Flag nuclear threshold crossings immediately to send_notification()
 
+**Deviation calculation (mandatory — do not skip):**
+For every indicator on every conflict in conflict_roster, calculate and set:
+```
+deviation = level - baseline
+```
+- `level`: the current assessed value (1–5 scale, assigned by you this week)
+- `baseline`: the established pre-conflict or pre-crisis normal (carry from persistent-state; set once and hold unless a structural shift warrants a reset)
+- `deviation`: positive = above baseline (escalation), negative = below (de-escalation), 0 = at baseline
+- `band`: assign based on deviation magnitude:
+  - deviation ≥ +2 → `RED`
+  - deviation = +1 → `AMBER`
+  - deviation = 0 → `GREEN`
+  - deviation ≤ -1 → `GREEN` (with note)
+  - `CONTESTED`: only use when the indicator genuinely cannot be assessed due to information access — not as a default. Requires an explicit note explaining why.
+
+**Critical:** deviation = 0 with band = CONTESTED is a contradiction. If level equals baseline and you have sufficient information to confirm that, band = GREEN. CONTESTED means you cannot assess the level at all.
+
+Example:
+```json
+"I1_rhetoric": {
+  "level": 4,
+  "baseline": 3,
+  "deviation": 1,
+  "band": "AMBER",
+  "confidence": "High",
+  "note": "Sustained escalatory rhetoric from Kremlin, above pre-invasion baseline of 3."
+}
+```
+
 **Step 3 — Cross-monitor flags**
 Review synthesiser cross_monitor_candidates.
 Confirm, reject, or add flags. Write final cross_monitor_flags for the report.
