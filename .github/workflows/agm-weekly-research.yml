@@ -1,0 +1,39 @@
+name: AGM Weekly Deep Research
+
+on:
+  schedule:
+    - cron: "0 18 * * 4"  # Thursday 18:00 UTC (synthesiser fires Thu 22:00 UTC)
+  workflow_dispatch:        # allow manual trigger from Actions tab
+
+jobs:
+  research:
+    name: AGM Weekly Deep Research (sonar-pro)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run weekly deep research
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/ai-governance/weekly-research.py
+
+      - name: Commit weekly research output
+        run: |
+          git config user.name  "AGM Weekly Research Bot"
+          git config user.email "ai-governance-weekly@asym-intel.info"
+          git add pipeline/monitors/ai-governance/weekly/
+          git diff --staged --quiet && echo "No new research to commit" && exit 0
+          git commit -m "data(ai-governance-weekly): weekly deep research — $(date -u +%Y-%m-%d)"
+          git push
