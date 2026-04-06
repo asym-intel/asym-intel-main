@@ -1,8 +1,9 @@
 name: WDM Weekly Deep Research
 
 on:
-  workflow_dispatch:  # PAUSED — scheduled trigger disabled pending architecture decision
-         # allow manual trigger for testing
+  schedule:
+    - cron: "0 18 * * 0"  # Sunday 18:00 UTC (synthesiser fires 21:00 UTC)
+  workflow_dispatch:        # allow manual trigger from Actions tab
 
 jobs:
   research:
