@@ -168,11 +168,11 @@ Cross-monitor flags widget on all 6 dashboards (GMM/ESA/AGM/ERM/WDM/FCW), AGM na
 
 | Monitor | Item | Blocker |
 |---------|------|---------|
-| WDM | silent_erosion section | 🔒 Field not yet in cron output |
-| WDM | signal.history trend indicator | 🔒 history array not yet in cron output |
-| WDM | severity_sub field render | 🔒 Field not yet in cron output |
-| SCEM | GEI CONTESTED disclaimer | 🔒 CONTESTED flag not yet in cron output |
-| SCEM | Indicator deviation chart fix | 🔒 Depends on deviation field |
+| WDM | silent_erosion section | 🔒 Field not yet in cron output — parked for design session |
+| WDM | signal.history trend indicator | ✅ Added to cron Step 4 — 6 Apr 2026 |
+| WDM | severity_sub field render | ✅ Added to cron Step 4 — 6 Apr 2026 |
+| SCEM | GEI CONTESTED disclaimer | 🔒 Parked for design session — band graduation threshold needs decision |
+| SCEM | Indicator deviation chart fix | ✅ Deviation calculation added to SCEM cron Step 2 — 6 Apr 2026 |
 
 ---
 
@@ -324,6 +324,10 @@ with the correct stub files.
 ## PARKING LOT
 
 Genuinely deferred — needs a design session before scheduling.
+
+| Item | Blocker |
+|------|---------| 
+| COMPUTER.md slim (566 → ~350 lines) | Subagent section duplicates skill; efficiency table removed; consolidation pass needed. Target: reduce per-session Step 0 token cost by ~30%. |
 
 | Item | Blocker |
 |------|---------|
