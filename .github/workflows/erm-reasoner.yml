@@ -1,0 +1,39 @@
+name: ERM Reasoner — ERM Earth System Reasoning
+
+on:
+  schedule:
+    - cron: "0 18 * * 5"  # Friday 18:00 UTC (weekly-research Fri 16:00, synthesiser Fri 20:00)
+  workflow_dispatch:        # allow manual trigger from Actions tab
+
+jobs:
+  reason:
+    name: ERM Earth System Reasoning (sonar-deep-research)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run reasoner
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/environmental-risks/erm-reasoner.py
+
+      - name: Commit reasoner output
+        run: |
+          git config user.name  "ERM Reasoner Bot"
+          git config user.email "environmental-risks-reasoner@asym-intel.info"
+          git add pipeline/monitors/environmental-risks/reasoner/
+          git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
+          git commit -m "data(environmental-risks-reasoner): pattern reasoning — $(date -u +%Y-%m-%d)"
+          git push
