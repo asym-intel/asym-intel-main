@@ -347,10 +347,10 @@ Schedules are live in the workflow files — this table is the canonical record.
 | ERM | Fri 16:00 UTC | Fri 18:00 UTC | Fri 20:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
 
 **IP-protected prompts (asym-intel-internal):**
-GMM prompts live in `asym-intel-internal/gmm-prompts/` — NOT the public repo.
-FCW analyst cron lives in `asym-intel-internal/fcw-slimmed-analyst-cron.md`.
-Scripts for these monitors must fetch prompts via `gh api` from internal, not local filesystem.
-ESA/AGM/ERM/WDM/SCEM/FCW pipeline prompts are public (pipeline/monitors/{slug}/).
+GMM: all prompts in `asym-intel-internal/gmm-prompts/` (commercial IP — Leverage Signal).
+FCW: analyst cron at `asym-intel-internal/fcw-slimmed-analyst-cron.md` (FIMI methodology sensitivity).
+Scripts for GMM and FCW must fetch prompts via `gh api` from internal, not local filesystem.
+All other monitors (WDM/ESA/AGM/ERM/SCEM): prompts public in `docs/crons/` and `pipeline/monitors/{slug}/`.
 
 ## pipeline/ Directory
 pipeline/monitors/{slug}/ — GitHub Actions Collector outputs. Internal only.
