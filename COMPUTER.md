@@ -228,7 +228,7 @@ or `esc(country)` and verify the flag call precedes it.
 ## Three-Layer Intelligence Architecture (v2.3)
 
 Canonical strategy document (read before building any Collector or Analyst):
-  gh api /repos/asym-intel/asym-intel-internal/contents/COLLECTOR-ANALYST-ARCHITECTURE.md \
+  gh api /repos/asym-intel/asym-intel-main/contents/docs/COLLECTOR-ANALYST-ARCHITECTURE.md \
     --jq '.content' | base64 -d
 
 Pipeline build guide (step-by-step for adding any monitor):
