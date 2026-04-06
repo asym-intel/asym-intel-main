@@ -127,148 +127,23 @@ if len(context_json) > MAX_CONTEXT:
         "daily_collector_findings": daily_findings[:10]
     }, indent=2)[:MAX_CONTEXT]
 
-prompt = f"""You are an expert AI governance and capability analyst performing deep reasoning over
-structured intelligence data from the AI Governance Monitor at asym-intel.info.
-
-You have been provided with:
-1. Capability registry (from persistent-state.json — tracked frontier labs and systems)
-2. Regulatory milestones (from persistent-state.json — EU AI Act, US EO, UK, China timeline)
-3. Risk vectors (from persistent-state.json — known safety and misuse risk patterns)
-4. Weekly research findings (this week's developments, capability tracker, regulatory tracker)
-5. Daily Collector findings (most recent pre-verified candidates)
-
-Your task is to reason deeply over this structured data and return analytical
-conclusions as JSON. You are NOT searching the web — reason only over the
-data provided below.
-
-ANALYTICAL TASKS:
-
-A. CAPABILITY TIER REVIEW
-For each tracked frontier lab or system in the capability registry, review this
-week's evidence (weekly_capability_tier_tracker + weekly_developments) and recommend:
-- tier_upgrade: evidence supports a meaningful capability advance — justify with specific findings
-- tier_downgrade: evidence suggests retreat, capability gap, or safety limitation
-- hold: insufficient new evidence to change tier
-Apply conservative evidentiary threshold:
-  Confirmed = 2+ independent sources corroborating the capability claim
-  Assessed = single lab announcement or single source — label as lab-reported, not independently verified
-Do NOT upgrade on single-lab benchmark announcements alone.
-
-B. REGULATORY MILESTONE TRACKING
-For each regulatory framework in regulatory_milestones, assess this week's evidence:
-- milestone_crossed: a compliance deadline, enforcement action, or legislative step completed
-- slippage: a previously expected milestone appears delayed or has been missed
-- acceleration: a framework is moving faster than anticipated
-- on_track: no material change
-Flag which framework and jurisdiction is affected. Note durability: distinguish
-executive orders (revocable) from legislation (durable).
-
-C. RISK VECTOR PATTERN DETECTION
-For each risk vector in persistent-state, assess whether this week's safety incidents,
-misuse cases, or agentic failure reports show patterns consistent with that vector:
-- match: new finding is consistent with a known risk vector — cite the specific finding
-- escalation: pattern frequency or severity has increased this week
-- no_match: no new corroborating evidence
-New risk vectors not previously registered should be flagged as emerging_vector.
-
-D. CROSS-MONITOR ESCALATION FLAGS
-Identify findings that should be flagged to adjacent monitors. Target monitors:
-- fcw (fimi-cognitive-warfare): AI-enabled FIMI operations with documented operational AI use
-- scem (conflict-escalation): AI applications in active conflict theatres
-- wdm (democratic-integrity): AI tools in electoral manipulation or democratic interference
-- esa (european-strategic-autonomy): AI chip supply chain, tech sovereignty, EU AI dependency
-- erm (environmental-risks): AI energy consumption, data centre environmental footprint
-
-D. CROSS-MONITOR ESCALATION FLAGS
-Only flag if evidence is direct and specific — do not flag speculative or theoretical risks.
-Include urgency: HIGH for imminent or active events, MEDIUM for developing trends,
-LOW for background signals.
-
-E. CONTESTED FINDINGS
-Flag any capability claim or governance development where:
-- Lab announcement conflicts with independent benchmark assessment
-- Two credible sources support different conclusions about the same development
-- A regulatory claim cannot be verified against official sources
-These require human review before the AGM Analyst applies methodology.
-
-STRUCTURED DATA:
-{context_json}
-
-Return ONLY valid JSON — no markdown, no prose, no code fences:
-
-{{
-  "_meta": {{
-    "schema_version": "reasoner-v1.0",
-    "monitor_slug": "ai-governance",
-    "job_type": "capability-governance-reasoning",
-    "generated_at": "{datetime.datetime.now(datetime.timezone.utc).isoformat()}",
-    "data_date": "{TODAY_STR}",
-    "labs_reviewed": <integer — count of labs reviewed in capability tier review>,
-    "frameworks_reviewed": <integer — count of regulatory frameworks reviewed>
-  }},
-  "capability_tier_reviews": [
-    {{
-      "lab_or_system": "<Anthropic|OpenAI|Google_DeepMind|Meta|xAI|Chinese_labs|other>",
-      "current_tier": "<existing tier or posture from registry>",
-      "recommended_tier": "<upgraded|downgraded|hold — or specific tier label if applicable>",
-      "recommendation": "<upgrade|downgrade|hold>",
-      "reasoning": "<2-3 sentences explaining the evidence basis for this recommendation>",
-      "key_evidence": ["<evidence item 1>", "<evidence item 2>"],
-      "evidentiary_note": "<Confirmed|Assessed — note if single-lab benchmark de-weighting applied>",
-      "contradictory_evidence": "<any evidence pointing the other way, or null>",
-      "needs_human_review": <true|false>
-    }}
-  ],
-  "regulatory_milestone_updates": [
-    {{
-      "framework": "<EU_AI_Act|US_EO|UK|China>",
-      "jurisdiction": "<EU|US|UK|China>",
-      "status": "<milestone_crossed|slippage|acceleration|on_track>",
-      "milestone_description": "<what milestone is affected>",
-      "evidence": "<what this week's data shows>",
-      "durability_note": "<executive_order|legislation|regulatory_instrument — flag if revocable>",
-      "source_reference": "<relevant finding id or development title from weekly data>"
-    }}
-  ],
-  "risk_pattern_detections": [
-    {{
-      "risk_vector": "<risk vector id or label from persistent-state>",
-      "detection_type": "<match|escalation|no_match|emerging_vector>",
-      "observation": "<what was observed in this week's data>",
-      "supporting_findings": ["<finding title or id>"],
-      "significance": "<why this pattern matters analytically>",
-      "confidence": "<High|Medium|Low>"
-    }}
-  ],
-  "lab_posture_changes": [
-    {{
-      "lab": "<Anthropic|OpenAI|Google_DeepMind|Meta|xAI|Chinese_labs>",
-      "change_type": "<increased_capability_tempo|decreased_capability_tempo|new_safety_stance|new_deployment_policy|notable_absence>",
-      "observation": "<what was observed>",
-      "significance": "<why this matters analytically>",
-      "confidence": "<High|Medium|Low>"
-    }}
-  ],
-  "cross_monitor_escalation_flags": [
-    {{
-      "target_monitor": "<fcw|scem|wdm|esa|erm>",
-      "flag_type": "<ai_fimi_operational|ai_in_conflict|electoral_ai|tech_sovereignty|ai_energy_footprint>",
-      "summary": "<what should be flagged and why — specific, not speculative>",
-      "source_finding": "<development title or daily finding id>",
-      "urgency": "<HIGH|MEDIUM|LOW>"
-    }}
-  ],
-  "contested_findings": [
-    {{
-      "finding_id": "<development title or candidate id>",
-      "contradiction": "<what is contradictory>",
-      "source_a": "<one view + source>",
-      "source_b": "<conflicting view + source>",
-      "recommended_action": "<hold|escalate|downgrade>"
-    }}
-  ],
-  "analyst_briefing": "<200-300 word summary for the AGM Analyst. Cover: key capability tier changes recommended and their evidentiary basis, regulatory milestone developments, notable risk vector patterns, cross-monitor escalation flags, and any contested findings requiring human review. Written in cold analytical register.>"
-}}"""
+# ── Load reasoning prompt from repo (repo-first pattern) ─────────────────────
+import subprocess
+import base64
+_PROMPT_PATH = "docs/crons/reasoner-prompts/agm-reasoner-prompt.md"
+_pr = subprocess.run(
+    ['gh', 'api',
+     '/repos/asym-intel/asym-intel-main/contents/' + _PROMPT_PATH,
+     '--jq', '.content'],
+    capture_output=True, text=True
+)
+if _pr.returncode != 0 or not _pr.stdout.strip():
+    print('ERROR: Could not fetch prompt from ' + _PROMPT_PATH)
+    sys.exit(1)
+_raw_prompt = base64.b64decode(_pr.stdout.strip()).decode('utf-8')
+# Inject context_json into prompt (replaces {context_json} placeholder in .md)
+prompt = _raw_prompt.replace('{context_json}', context_json)
+print('Prompt loaded from repo (' + str(len(_raw_prompt)) + ' chars)')
 
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
