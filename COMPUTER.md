@@ -340,7 +340,7 @@ Schedules are live in the workflow files — this table is the canonical record.
 |---|---|---|---|---|
 | FCW | Wed 18:00 UTC | Wed 20:00 UTC | Wed 22:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
 | GMM | Mon 16:00 UTC | Mon 18:00 UTC | Mon 20:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
-| WDM | Sun 18:00 UTC | PAUSED (stub) | Sun 21:00 UTC | sonar-pro → — → sonar-deep-research |
+| WDM | Sun 18:00 UTC | Sun 20:00 UTC | Sun 21:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
 | SCEM | Sat 06:00 UTC | Sat 08:00 UTC | Sat 10:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
 | ESA | Tue 18:00 UTC | Tue 20:00 UTC | Wed 09:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
 | AGM | Thu 18:00 UTC | Thu 20:00 UTC | Thu 22:00 UTC | sonar-pro → sonar-deep-research → sonar-deep-research |
