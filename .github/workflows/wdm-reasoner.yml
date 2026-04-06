@@ -1,8 +1,9 @@
 name: WDM Reasoner — Deterioration Pattern Analysis
 
 on:
-  workflow_dispatch:  # PAUSED — scheduled trigger disabled pending architecture decision
-
+  schedule:
+    - cron: "0 20 * * 0"  # Sunday 20:00 UTC (weekly-research Sun 18:00, synthesiser Sun 21:00)
+  workflow_dispatch:        # allow manual trigger from Actions tab
 
 jobs:
   reason:
