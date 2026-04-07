@@ -1,52 +1,25 @@
 # Next Computer Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-07 final wrap (~15:00 BST)
+**Updated:** 2026-04-07 wrap (~15:35 BST)
 
 > **Bootloader:** "Computer: asym-intel.info"
 
 ---
 
-## Session gate check (COMPUTER.md v3.9)
-No notification = no session needed. Only open for: pipeline failure, missed publish, Sprint 1 review.
+## Session gate check (COMPUTER.md v3.11)
+No notification = no session needed. Only open for: pipeline failure, missed publish, Sprint 1 build, or homepage design discussion.
 
 ---
 
-## TASK 1 — Sprint 1 components — build directly in-session
+## TASK 1 — Validate pipeline runs this week
 
-**Policy change (7 Apr 2026):** sonar-pro component generation is retired for UI work.
-Components are built directly in-session with Playwright screenshots for visual confirmation.
-See COMPUTER.md API Offload Rule for rationale.
+Check as each fires (some may already have output):
+- ESA weekly-research: Tue 18:00 UTC (today — check pipeline/monitors/european-strategic-autonomy/weekly/)
+- WDM/FCW/SCEM/ESA/AGM/ERM collectors: Wed 07:00 UTC (first run with search_recency_filter)
+- AGM weekly-research: Thu 18:00 UTC (first ever)
+- ERM weekly-research: Fri 16:00 UTC (first ever)
+- AGM Analyst + Ramparts Step 7: Fri 09:00 UTC (first Ramparts integrated run)
 
-`docs/generated/sprint1-components-draft.html` (sonar-pro output, 7 Apr) is the reference for:
-- Token system (:root variables — these are good, use as-is)
-- Class naming conventions (triage-strip, badge-confidence, monitor-strip, signal-panel, overview-*)
-- Component structure (not the visual output — variants were near-identical)
-
-Build order (one session per group, LOW risk — new additive sections, direct to main):
-
-### Group 1 — base.css token promotion + Confidence Badge (30 min)
-1. Promote :root token system from draft into `static/monitors/shared/css/base.css`
-2. Add `.badge-confidence` + `.severity-badge` CSS classes to base.css
-3. Screenshot one monitor dashboard to confirm no regressions
-4. Apply confidence badges wherever `confidence` fields exist in rendered monitor HTML
-
-### Group 2 — Triage Strip (45 min)
-1. Write `.triage-strip` CSS directly in base.css — build Variant B (standard 4-zone) as the single canonical variant
-2. Screenshot with WDM mock data using Playwright
-3. Apply to all 7 dashboards (shared section, data-driven from report-latest.json)
-4. Triage strip is LOW risk (new additive section) — direct to main
-
-### Group 3 — Monitor Strip + Signal Panel (45 min)
-1. `.monitor-strip` — pill row variant using data-monitor CSS attribute selectors
-2. `.signal-panel` — compact variant (left-border accent, --color-surface bg)
-3. Apply monitor strip to homepage + all 7 monitor overview pages
-4. Apply signal panel to all 7 dashboards
-
-### Group 4 — Overview Page Template (1 hr)
-1. Build `.overview-layout` template with right-rail sticky nav — Variant B (rich) as canonical
-2. ERM as reference implementation (accent #4caf7d)
-3. Apply to all 7 overview pages once ERM is confirmed
-
-Reference: `docs/ux/site-rebuild-sprints.md` for sprint IDs. `docs/ux/colour-registry.md` for accents.
+For each: `_meta.status=complete`, `finding_count > 0`, no `null_signal_week=true`
 
 ---
 
@@ -60,31 +33,48 @@ GMM is already conformant. Do ALL 6 in one pass — Platform-First Fix Rule.
 
 ---
 
-## TASK 3 — Validate pipeline runs this week
+## TASK 3 — Sprint 1 components — build directly in-session
 
-Check as each fires:
-- ESA weekly-research: Tue 18:00 UTC (today — may have already fired)
-- WDM/FCW/SCEM collectors: Wed 07:00 UTC (first run with search_recency_filter)
-- AGM weekly-research: Thu 18:00 UTC (first ever)
-- ERM weekly-research: Fri 16:00 UTC (first ever)
-- AGM Analyst + Ramparts Step 7: Fri 09:00 UTC (first Ramparts integrated run)
+**Policy:** sonar-pro component generation retired for UI work. Build with Playwright screenshots.
+Token system and class names from `docs/generated/sprint1-components-draft.html` are the starting point.
 
-For each: `_meta.status=complete`, `finding_count > 0`, no `null_signal_week=true`
+Build order:
+1. **Group 1** — base.css token promotion + Confidence Badge (30 min)
+2. **Group 2** — Triage Strip, Variant B canonical (45 min)
+3. **Group 3** — Monitor Strip + Signal Panel (45 min)
+4. **Group 4** — Overview Page Template, Variant B rich (1 hr)
+
+Reference: `docs/ux/colour-registry.md`, `docs/ux/site-rebuild-sprints.md` for sprint IDs.
 
 ---
 
-## New this session (7 Apr 2026)
-- GH_TOKEN: all 14 workflow files fixed
-- search_recency_filter: all 14 scripts (collectors=week, weekly-research=month)
-- GMM Issue 3 published (Liberation Day tariff shock, CRITICAL -0.664, STAGFLATION)
-- GMM synthesiser prompt v1.1: regime/conviction/system_average/lead_signal
-- COMPUTER.md v3.9: Platform-First Fix Rule + pipeline specs in Step 0
-- docs/pipeline/ANALYST-CRON-SPEC.md + SYNTHESISER-SPEC.md: v1.0
-- docs/ux/monitor-overview-brief.md: signed off, repo paths, canonical nav order
-- ERM overview mockup: accent corrected to #4caf7d, committed to internal
-- section-naming-registry.md: canonical nav tab order added and signed off
-- tools/generate-sprint1-batch.py: batched sonar-pro generation script
-- Sprint 1 components draft: docs/generated/sprint1-components-draft.html
+## TASK 4 — Homepage design discussion (before any HP-01/HP-02 implementation)
+
+Peter supplied exploratory mockups and IA note about the space **below the cross-monitor nav**.
+Before implementing HP-01/HP-02, run a short design discussion to decide which below-the-nav
+elements are ready to be promoted from idea to sprint item.
+
+Key questions:
+- Does "Shape of the Week" move to HP-03 (Sprint 1) or stay in Sprint 5?
+- Does "Explore by Mode" routing become HP-04?
+- Do the left-rail visual tiles (Network/Map/Timeline/Signals/Connections) enter the sprint plan and at which sprint?
+
+Reference material (ideas only — not locked spec):
+- `docs/ux/homepage-ia-v4.md` — Peter's IA thinking
+- `docs/ux/mockups/homepage-map-prototype-v2-3.html` — layout ideas (hero text too large)
+- `docs/ux/mockups/world-map-page-mockup-v2-2.html` — /map/ page concept (Leaflet, filter sidebar)
+- `docs/ux/decisions.md` Section 6 — observations from review
+
+Agreed direction unchanged: HP-01 + HP-02 from `site-rebuild-sprints.md` Sprint 1.
+
+---
+
+## What happened this session (7 Apr 2026)
+- API Offload Rule revised: sonar-pro component generation retired for HTML/CSS (COMPUTER.md v3.11)
+- ROADMAP.md + notes-for-computer.md updated to reflect policy change
+- Homepage mockups + IA note filed to `docs/ux/mockups/` and `docs/ux/homepage-ia-v4.md`
+- decisions.md Section 6 added (reference/ideas, not locked)
+- Staging reset to main HEAD (was behind_by:155, ahead_by:0 → now clean)
 
 ## Open — Peter Action Required
 - ⚠️ Rotate WP app password + Buttondown API key (were briefly public)
@@ -92,22 +82,4 @@ For each: `_meta.status=complete`, `finding_count > 0`, no `null_signal_week=tru
 - ⚠️ Analytics: Plausible vs Fathom
 - ⚠️ Branch protection on main
 - ⚠️ Other 6 monitor Overview mockups → asym-intel-internal/visuals/overview-mockups/
-
----
-
-## TASK 4 — Homepage HP-01 + HP-02 (Sprint 1, after shared components)
-
-Agreed direction: `docs/ux/site-rebuild-sprints.md` Sprint 1, HP-01 + HP-02.
-The cross-monitor nav (monitor strip) is the agreed next evolution.
-
-**HP-01:** Homepage monitor strip, three-zone surface split, featured-article stripe, report-card grid per visual spec.
-**HP-02:** Platform value statement + routing cues (signed-off copy in `docs/ux/homepage-copy.md`).
-
-Homepage mockups filed in `docs/ux/mockups/` are **reference ideas only** — specifically about
-what might go in the space below the cross-monitor nav. Not implementation spec.
-Design discussion for that space should happen before any implementation beyond HP-01/HP-02.
-
-Useful reference when that discussion happens:
-- `docs/ux/homepage-ia-v4.md` — Peter's IA thinking
-- `docs/ux/mockups/homepage-map-prototype-v2-3.html` — layout ideas (note: hero text too large)
-- `docs/ux/mockups/world-map-page-mockup-v2-2.html` — /map/ page concept (Leaflet, filter sidebar)
+- ⚠️ Homepage design discussion (Task 4 above) before HP-01/HP-02 build
