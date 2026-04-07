@@ -27,6 +27,7 @@ jobs:
       - name: Run FCW Collector
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python pipeline/monitors/environmental-risks/collect.py
 
       - name: Commit Collector output
