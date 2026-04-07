@@ -110,6 +110,8 @@ response = requests.post(
         "model":       MODEL,
         "messages":    [{"role": "user", "content": prompt}],
         "temperature": 0.1,
+        "search_recency_filter": "month",  # weekly research — broader window than daily
+        "return_citations": True,
     },
     timeout=120,
 )
