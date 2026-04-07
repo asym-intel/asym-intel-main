@@ -30,7 +30,28 @@ Credentials need adding to platform-config.md before this fires — read:
   asym-intel-internal/ramparts-prompts/platform-config-additions.md
 Then add to asym-intel-internal/platform-config.md before Thu 18:00 UTC.
 
-### TASK 3 — WDM persistent.html validation
+### TASK 3 — Sprint 1: Shared foundations
+
+**Homepage mockup approved** (Peter, 7 Apr 2026): `asym-intel-internal/visuals/asym-intel-homepage-improved-mockup-v3.html`
+**Section naming registry signed off** (Peter, 7 Apr 2026): `docs/ux/section-naming-registry.md`
+
+**Dependency order for Sprint 1 — START HERE:**
+1. **SL-09 first** — accent colour tokens (`--fcw`, `--scem`, `--wdm` etc.) at CSS root. Gates everything else.
+2. **Monitor strip partial** — `layouts/partials/monitor-strip.html` + CSS. Add to homepage AND all 7 monitor base HTML. This is the "new monitor nav across all monitors" Peter approved.
+3. **SL-04** — signal panel white-text (quick, low-risk)
+4. **SL-08** — validator extensions (nav/heading match, severity misuse, font-size)
+5. **SL-03** — confidence badge system distinct from severity
+6. **SL-02** — triage strip shared layout/classes
+7. **SL-01** — cross-monitor flags shared component
+8. **HP-01** — homepage visual spec implementation (mockup approved — mechanical)
+9. **HP-02** — homepage value statement + routing cues (Peter to draft copy offline first)
+
+**What Peter provides before session opens (saves ~2,300 credits):**
+- Homepage copy: one-sentence value statement + 4 routing cues
+- Triage strip HTML sketch (optional but helpful)
+- Confidence badge visual reference (outline vs filled, size)
+
+### TASK 4 — WDM persistent.html validation
 After next Monday WDM Analyst run, check persistent.html sections populate (no "Build 2" placeholders).
 
 ### TASK 4 — SCEM Visual Sprint 2
