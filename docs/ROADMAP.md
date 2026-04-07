@@ -347,3 +347,22 @@ Genuinely deferred — needs a design session before scheduling.
 **To update this file:** Edit `docs/ROADMAP.md` directly on main at every wrap.  
 Mark items ✅ when merged. Move to COMPLETED section. Add new items as they arise.  
 Do not delete items — mark them ✅ or move to Parking Lot with a reason.
+
+---
+
+## Site Rebuild Sprint Plan (April 2026)
+
+Full specification and sprint plan in `docs/ux/`:
+
+| File | Contents |
+|---|---|
+| `docs/ux/site-rebuild-spec.md` | Cross-monitor standards, per-monitor requirements, shared library, GMM commercial note, sprint IDs (SL-*, WDM-*, GMM-*, FCW-*, ESA-*, AGM-*, ERM-*, SCEM-*, HP-*, PL-*) |
+| `docs/ux/site-rebuild-sprints.md` | 5-sprint implementation plan |
+| `docs/ux/section-naming-registry.md` | Canonical section names, Tier 1/2/3 classification, layout templates, anti-patterns |
+| `docs/ux/visuals-handover-all-monitors.md` | Chart types, monitor colour assignments, visual requirements per monitor |
+
+**Completed from sprint plan:**
+- ✅ PL-05: Credit-saving workflow — added to COMPUTER.md v3.7 (6 Apr 2026)
+- ✅ PL-01: section-naming-registry.md committed to docs/ux/ (7 Apr 2026)
+
+**Sprint 1 is next** — shared foundations (SL-01 to SL-09) + homepage (HP-01, HP-02).
