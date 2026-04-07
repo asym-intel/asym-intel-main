@@ -27,6 +27,7 @@ jobs:
       - name: Run weekly deep research
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python pipeline/monitors/fimi-cognitive-warfare/weekly-research.py
 
       - name: Commit research output
