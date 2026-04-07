@@ -1,11 +1,11 @@
-name: Generate Triage Strip (sonar-pro)
+name: Generate Sprint 1 Components (sonar-pro batched)
 
 on:
   workflow_dispatch:    # triggered manually — Computer calls this via API
 
 jobs:
   generate:
-    name: Generate triage strip HTML draft
+    name: Generate all Sprint 1 shared components
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -22,8 +22,8 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run generation script
+      - name: Run batched generation
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python tools/generate-triage-strip.py
+        run: python tools/generate-sprint1-batch.py
