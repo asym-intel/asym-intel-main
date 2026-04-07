@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 3.7 — 6 April 2026
+## Version 3.8 — 7 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
@@ -198,6 +198,34 @@ AsymRenderer.flagLabel('Serbia') // → '🇷🇸 Serbia'
 **When adding a new country display:** always check whether `AsymRenderer.flag()` is
 being called. Omitting it is a persistent bug pattern — search for `escHtml(c.country)`
 or `esc(country)` and verify the flag call precedes it.
+
+## Platform-First Fix Rule
+
+Before fixing any bug, gap, or prompt issue — always ask:
+
+> "Is this specific to one monitor/file, or is it likely present across multiple monitors, workflows, scripts, or pages?"
+
+If the answer is "likely platform-wide" or "I'm not sure":
+
+1. **Audit first** — check all affected monitors/files before touching anything
+2. **Fix the spec** — update `docs/pipeline/ANALYST-CRON-SPEC.md` or `SYNTHESISER-SPEC.md`
+3. **Apply platform-wide** — fix all affected files in one pass
+
+**Examples of platform-wide fixes (always audit before patching):**
+- Workflow env variables (`GH_TOKEN`, `PPLX_API_KEY`)
+- API call parameters (`search_recency_filter`, `return_citations`)
+- Required JSON fields (`meta.pipeline_inputs`, `weekly_brief`)
+- Publish guard checks
+- Two-Pass Commit Rule compliance
+
+**Examples of monitor-specific fixes (document why before fixing):**
+- SCEM deviation calculation — only SCEM has indicator bands
+- WDM living knowledge fields — only WDM has persistent.html sections
+- AGM Ramparts publication — only AGM has Step 7
+
+**The cost of reactive patching:** each gap found in one monitor that affects all 7 means 6 additional session tool calls, 6 additional commits, 6 opportunities for inconsistency. One properly scoped fix costs less than two reactive ones.
+
+**Pipeline specs are the canonical source:** `docs/pipeline/ANALYST-CRON-SPEC.md` and `docs/pipeline/SYNTHESISER-SPEC.md` define what every prompt must contain. When a gap is found — fix the spec first, then make every monitor conform.
 
 ## Credit-Saving Workflows
 
