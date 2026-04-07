@@ -4,6 +4,7 @@
 **Owner:** Platform Experience Designer  
 **Created:** 6 April 2026  
 **Status:** ✅ Signed off by Peter — 7 April 2026. Active for Sprint 1 implementation.  
+**Nav label amendment:** "Top Items This Issue" nav label shortened to "Top Items" across all monitors. FCW exception: "Top Campaigns". Section headings unchanged.  
 **Applies to:** All 7 monitors (dashboard.html + persistent.html)
 
 ---
@@ -26,7 +27,7 @@ These sections must appear with exactly these names everywhere they occur. Nav l
 |---|---|---|---|---|
 | **Lead Signal** | Dashboard | `section-signal` | Single top-line finding this issue. Headline + body. Monitor-accent panel. | GMM uses "Weekly Signal"; FCW may differ |
 | **Weekly Brief** | Dashboard + Living Knowledge | `section-weekly-brief` | Narrative paragraph(s) synthesising the issue. Rendered from `weekly_brief` field. | Present on both pages — must have same name |
-| **Top Items This Issue** | Dashboard | `section-delta` | Ranked list of 5 intelligence items. Severity-badged. | GMM uses "Delta Strip — Top Moves This Week"; ESA differs |
+| **Top Items This Issue** | Dashboard | `section-delta` | Ranked list of 5 intelligence items. Severity-badged. Nav label: "Top Items" (short form). FCW nav: "Top Campaigns". | GMM/ERM/SCEM nav currently shows "Delta Strip" — update in Sprint 1 |
 | **Cross-Monitor Flags** | Dashboard + Living Knowledge | `section-cross-monitor` / `section-cross` | Platform-wide compound signals touching this monitor. Rendered from `cross_monitor_flags`. | Nav label confirms as "Cross-Monitor" on WDM; mismatches on GMM/FCW confirmed |
 | **Chatter** | Nav tab (own page) | n/a (separate page) | Daily rolling pre-synthesis signals. Must carry persistent "pre-synthesis / unverified" label. Nav tab must say "Chatter" — no substitutes. | Some monitors use "Digest" |
 
@@ -72,15 +73,17 @@ Layout template: table with Tier header rows (e.g. "Rapid Decay", "Watchlist", "
 
 Pattern: **`Top [N] Most [Tier Label]`** — where Tier Label is the monitor's highest-risk tier name.
 
-| Monitor | Tier label | Canonical section name |
-|---|---|---|
-| WDM | Rapid Decay | Top 5 Most Severe: Rapid Decay |
-| SCEM | Active Escalation | Top 5 Most Severe: Active Escalation |
-| FCW | Active Operations | Top 5 Most Active Operations |
-| ESA | At Risk | Top 5 At Risk: Member States |
-| AGM | Regulatory Crisis | Top 5 Most Severe: Regulatory Crisis |
-| GMM | Tail Risk | Top 5 Tail Risk Assets |
-| ERM | Critical | Top 5 Most Critical Regions |
+| Monitor | Tier label | Section heading | Nav label |
+|---|---|---|---|
+| WDM | Rapid Decay | Top 5 Most Severe: Rapid Decay | Top Items |
+| SCEM | Active Escalation | Top 5 Most Severe: Active Escalation | Top Items |
+| FCW | Active Operations | Top 5 Most Active Operations | Top Campaigns |
+| ESA | At Risk | Top 5 At Risk: Member States | Top Items |
+| AGM | Regulatory Crisis | Top 5 Most Severe: Regulatory Crisis | Top Items |
+| GMM | Tail Risk | Top 5 Tail Risk Assets | Top Items |
+| ERM | Critical | Top 5 Most Critical Regions | Top Items |
+
+**Nav label rule:** Use "Top Items" in all right-hand nav entries. Exception: FCW uses "Top Campaigns" (domain noun). Section headings are unabbreviated.
 
 Layout template: horizontal scrollable card strip, flag/icon + entity name + score + arrow + 2-line signal text.
 
@@ -191,7 +194,7 @@ These names have been used on some monitors and must be retired:
 | Retire | Replace with |
 |---|---|
 | "Weekly Signal" | "Lead Signal" |
-| "Delta Strip" / "Delta Strip — Top Moves This Week" | "Top Items This Issue" |
+| "Delta Strip" / "Delta Strip — Top Moves This Week" | Section heading: "Top Items This Issue" · Nav label: "Top Items" |
 | "Digest" (for daily chatter page) | "Chatter" |
 | "KPIs" (as a section heading) | No standalone heading — KPI strip has no visible heading; sidebar nav entry reads "Overview" |
 | "Tail Risk Heatmap" (GMM nav, no own heading) | Give section its own heading: "Tail Risk Heatmap" and add nav entry |
