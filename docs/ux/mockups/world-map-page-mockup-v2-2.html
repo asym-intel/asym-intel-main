@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>asym-intel-world-map-page-mockup-v2</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&f[]=boska@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{--bg:#f7f6f2;--surface:#f2f0eb;--surface-2:#edeae5;--divider:#d8d5ce;--text:#1c1915;--muted:#5a554d;--faint:#8f8a82;--inverse:#fbfaf7;--fcw:#01696f;--scem:#a13544;--wdm:#7a39bb;--esa:#006494;--agm:#437a22;--erm:#3f8a57;--gmm:#d19900;--font-body:'Satoshi',Inter,ui-sans-serif,system-ui,sans-serif;--font-display:'Boska',Georgia,serif}
+    [data-theme="dark"]{--bg:#11110f;--surface:#171715;--surface-2:#1d1d1a;--divider:#2a2927;--text:#d7d4ce;--muted:#9a958c;--faint:#68645d;--inverse:#121110;--fcw:#f09a2d;--scem:#b74c33;--wdm:#7a48a4;--esa:#2e6ca0;--agm:#5b9768;--erm:#4f8b5f;--gmm:#9b6b2f}
+    *{box-sizing:border-box;margin:0;padding:0} html,body{min-height:100%} body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.5} a{text-decoration:none;color:inherit} button{font:inherit;border:none}
+    .topbar{position:sticky;top:0;z-index:50;background:rgba(17,17,15,.94);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06)} .topbar-inner,.page{max-width:1600px;margin:0 auto}.topbar-inner{height:56px;padding:0 18px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:700}.brand-mark{width:16px;height:16px;color:#4a90a4}.nav{display:flex;align-items:center;gap:18px;color:var(--muted);font-size:13px}.theme-toggle{min-width:40px;min-height:40px;border-radius:999px;border:1px solid var(--divider);background:var(--surface);color:var(--text);display:grid;place-items:center;cursor:pointer}
+    .page{display:grid;grid-template-columns:288px minmax(0,1fr);min-height:calc(100vh - 56px)} .sidebar{background:var(--surface);border-right:1px solid var(--divider);padding:16px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto} .main{min-width:0}
+    .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)} .sidebar-section{margin-bottom:20px} .sidebar h2{font-size:15px;margin:8px 0 10px}.sidebar p{font-size:13px;color:var(--muted)}
+    .filter-stack{display:grid;gap:7px;margin-top:10px}.filter{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:var(--surface-2);color:var(--text);cursor:pointer}.filter.active{outline:1px solid currentColor;outline-offset:-1px}.filter-left{display:flex;align-items:center;gap:10px}.dot{width:8px;height:8px;border-radius:50%}.count{font-size:12px;color:var(--muted)}
+    .country-list{display:grid;gap:8px;margin-top:10px}.country{padding:10px 11px;border-radius:12px;background:var(--surface-2);border:1px solid rgba(255,255,255,.05)}.country strong{display:block;font-size:14px;margin-bottom:3px}.country span{font-size:12px;color:var(--muted)}
+    .main-top{padding:16px 20px 14px;border-bottom:1px solid var(--divider)} .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-bottom:10px} h1{font-family:var(--font-display);font-size:clamp(2.2rem,3.3vw,3.8rem);line-height:.95;font-weight:500;max-width:10ch;margin-bottom:8px}.lede{font-size:15px;color:var(--muted);max-width:76ch}
+    .toolbar{padding:12px 20px;border-bottom:1px solid var(--divider);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;background:var(--surface);border:1px solid rgba(255,255,255,.06);font-size:12px;color:var(--muted)} .btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 13px;border-radius:999px;border:1px solid var(--divider);background:var(--surface);color:var(--text);cursor:pointer}
+    .map-wrap{padding:14px 20px 20px}.map-shell{background:var(--surface);border:1px solid rgba(255,255,255,.06);border-radius:24px;overflow:hidden}.map-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--divider);border-bottom:1px solid var(--divider)} .meta-card{background:var(--surface);padding:14px 16px}.meta-card .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:8px}.meta-card strong{font-size:22px;line-height:1}.meta-card span{display:block;font-size:12px;color:var(--muted);margin-top:7px}
+    .map-stage{position:relative;min-height:720px;background:radial-gradient(circle at 50% 42%, rgba(48,84,124,.12), transparent 30%), #0c0f13;overflow:hidden}.gr{position:absolute;background:rgba(255,255,255,.05)}.gr.h{left:0;right:0;height:1px}.gr.v{top:0;bottom:0;width:1px}
+    svg.world{position:absolute;inset:0;width:100%;height:100%}
+    .land{fill:rgba(255,255,255,.055);stroke:rgba(255,255,255,.07);stroke-width:1.1}
+    .node{position:absolute;width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.78);box-shadow:0 0 0 10px rgba(255,255,255,.03);cursor:pointer;transition:transform .16s ease,opacity .16s ease}.node:hover{transform:scale(1.08)} .node::after{content:'';position:absolute;left:50%;top:50%;width:120px;height:1px;background:linear-gradient(90deg,currentColor,transparent);transform:translate(0,-50%)} .node-label{position:absolute;left:18px;top:-6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;color:currentColor;font-weight:800}
+    .panel-strip{display:grid;grid-template-columns:320px 1fr;border-top:1px solid var(--divider)} .panel-left{padding:16px;border-right:1px solid var(--divider);background:var(--surface-2)} .panel-right{padding:16px}.panel-left h3,.panel-right h3{font-size:18px;margin-bottom:8px}.panel-left p,.panel-right p{font-size:14px;color:var(--muted)} .mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--divider);margin-top:12px}.mini-card{background:var(--surface);padding:13px}.mini-card strong{display:block;font-size:13px;margin-bottom:6px}.mini-card span{font-size:12px;color:var(--muted)}
+    .hidden-monitor{opacity:.14;pointer-events:none}
+    @media (max-width:1180px){.page{grid-template-columns:1fr}.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--divider)}.map-meta,.panel-strip,.mini-grid{grid-template-columns:1fr}.map-stage{min-height:580px}}
+    @media (max-width:760px){.main-top,.toolbar,.map-wrap{padding-left:16px;padding-right:16px}.topbar-inner{padding:0 12px}.nav{gap:12px;font-size:12px}.lede{font-size:14px}.map-stage{min-height:420px}.node::after,.node-label{display:none}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner"><div class="brand"><svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h9"></path><path d="M4 12h15"></path><path d="M4 17h11"></path><circle cx="18" cy="7" r="2"></circle><circle cx="12" cy="17" r="2"></circle></svg><span>Asymmetric Intelligence</span></div><nav class="nav"><a href="#">Homepage</a><a href="#">Monitors</a><a href="#">Network</a><button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch theme"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></button></nav></div></header>
+  <div class="page">
+    <aside class="sidebar">
+      <div class="sidebar-section"><div class="label">Map lens</div><h2>Filter by monitor</h2><p>Switch the coverage view from platform-wide to a single monitor lens.</p><div class="filter-stack" id="filters"><button class="filter active" data-monitor="all" style="color:var(--text)"><span class="filter-left"><span class="dot" style="background:#c9c4bc"></span>All monitors</span><span class="count">68</span></button><button class="filter" data-monitor="wdm" style="color:var(--wdm)"><span class="filter-left"><span class="dot" style="background:var(--wdm)"></span>Democracy</span><span class="count">21</span></button><button class="filter" data-monitor="fcw" style="color:var(--fcw)"><span class="filter-left"><span class="dot" style="background:var(--fcw)"></span>FIMI</span><span class="count">18</span></button><button class="filter" data-monitor="scem" style="color:var(--scem)"><span class="filter-left"><span class="dot" style="background:var(--scem)"></span>Conflict</span><span class="count">17</span></button><button class="filter" data-monitor="esa" style="color:var(--esa)"><span class="filter-left"><span class="dot" style="background:var(--esa)"></span>Europe</span><span class="count">26</span></button><button class="filter" data-monitor="agm" style="color:var(--agm)"><span class="filter-left"><span class="dot" style="background:var(--agm)"></span>AI Governance</span><span class="count">12</span></button><button class="filter" data-monitor="erm" style="color:var(--erm)"><span class="filter-left"><span class="dot" style="background:var(--erm)"></span>Environment</span><span class="count">23</span></button><button class="filter" data-monitor="gmm" style="color:var(--gmm)"><span class="filter-left"><span class="dot" style="background:var(--gmm)"></span>Macro</span><span class="count">31</span></button></div></div>
+      <div class="sidebar-section"><div class="label">Coverage sample</div><h2>Countries in view</h2><div class="country-list" id="country-list"><div class="country"><strong>Ukraine</strong><span>Conflict, Europe, FIMI</span></div><div class="country"><strong>Brazil</strong><span>Democracy, Macro, Environment</span></div><div class="country"><strong>Türkiye</strong><span>Europe, Conflict, FIMI</span></div><div class="country"><strong>Kenya</strong><span>Environment, Democracy</span></div><div class="country"><strong>Taiwan</strong><span>AI Governance, Conflict, Macro</span></div></div></div>
+    </aside>
+    <main class="main">
+      <section class="main-top"><div class="eyebrow">World map · platform coverage · filterable by monitor</div><h1>See where the platform is looking.</h1><p class="lede">A compact header, then straight into the map: platform-wide country coverage by default, with single-monitor filters to show how different analytical lenses reorganise the world.[file:11][file:2]</p></section>
+      <section class="toolbar"><div class="toolbar-left"><span class="chip">Current view: <strong id="current-view">All monitors</strong></span><span class="chip">Covered countries: <strong id="current-count">68</strong></span><span class="chip">Mode: Coverage by country and region</span></div><div class="toolbar-right"><button class="btn">Open network view</button><button class="btn">Open latest issue</button></div></section>
+      <section class="map-wrap"><div class="map-shell"><div class="map-meta"><div class="meta-card"><div class="k">Coverage mode</div><strong id="meta-mode">Platform-wide</strong><span>Aggregated view across active monitors.</span></div><div class="meta-card"><div class="k">Countries</div><strong id="meta-countries">68</strong><span>Country-level entries represented in the platform.</span></div><div class="meta-card"><div class="k">Dense regions</div><strong id="meta-regions">Europe · Indo-Pacific</strong><span>Areas with the strongest monitor overlap.</span></div><div class="meta-card"><div class="k">Use</div><strong>Discovery</strong><span>Start geographically, then move to issue, monitor, or network.</span></div></div>
+      <div class="map-stage" role="img" aria-label="Full world map showing platform country coverage with monitor filters">
+        <span class="gr h" style="top:20%"></span><span class="gr h" style="top:40%"></span><span class="gr h" style="top:60%"></span><span class="gr h" style="top:80%"></span>
+        <span class="gr v" style="left:16.6%"></span><span class="gr v" style="left:33.3%"></span><span class="gr v" style="left:50%"></span><span class="gr v" style="left:66.6%"></span><span class="gr v" style="left:83.3%"></span>
+        <svg class="world" viewBox="0 0 1440 720" preserveAspectRatio="none" aria-hidden="true">
+          <path class="land" d="M70,205 L120,165 L210,150 L290,180 L315,225 L298,275 L252,315 L182,304 L110,280 L70,238 Z"></path>
+          <path class="land" d="M285,390 L334,425 L352,500 L338,575 L300,655 L252,620 L238,545 L250,470 Z"></path>
+          <path class="land" d="M635,170 L676,148 L732,155 L772,186 L762,225 L718,242 L662,232 L628,204 Z"></path>
+          <path class="land" d="M690,250 L736,272 L768,330 L778,422 L742,520 L695,500 L672,420 L664,332 Z"></path>
+          <path class="land" d="M792,165 L854,128 L946,130 L1038,162 L1148,155 L1248,198 L1280,266 L1246,338 L1168,350 L1110,324 L1030,350 L928,336 L830,300 L780,238 Z"></path>
+          <path class="land" d="M1140,470 L1190,454 L1248,466 L1290,506 L1268,552 L1215,574 L1164,554 L1128,512 Z"></path>
+          <path class="land" d="M1020,610 L1080,602 L1128,620 L1148,652 L1126,682 L1066,688 L1018,668 L996,638 Z"></path>
+          <path class="land" d="M604,602 L636,592 L658,604 L648,626 L620,632 L596,620 Z"></path>
+        </svg>
+        <span class="node" data-monitors="esa,fcw,scem" style="left:49%;top:24%;color:var(--esa)"><span class="node-label">Ukraine</span></span>
+        <span class="node" data-monitors="esa,fcw" style="left:46%;top:21%;color:var(--fcw)"><span class="node-label">Baltics</span></span>
+        <span class="node" data-monitors="wdm,gmm,erm" style="left:30%;top:64%;color:var(--wdm)"><span class="node-label">Brazil</span></span>
+        <span class="node" data-monitors="erm,wdm" style="left:51%;top:47%;color:var(--erm)"><span class="node-label">Kenya</span></span>
+        <span class="node" data-monitors="erm,scem" style="left:55%;top:41%;color:var(--scem)"><span class="node-label">Sahel</span></span>
+        <span class="node" data-monitors="agm,scem,gmm" style="left:78%;top:38%;color:var(--agm)"><span class="node-label">Taiwan</span></span>
+        <span class="node" data-monitors="agm,gmm,fcw" style="left:74%;top:35%;color:var(--gmm)"><span class="node-label">China</span></span>
+        <span class="node" data-monitors="esa,scem,fcw" style="left:54%;top:31%;color:var(--esa)"><span class="node-label">Türkiye</span></span>
+        <span class="node" data-monitors="gmm,wdm" style="left:18%;top:28%;color:var(--gmm)"><span class="node-label">United States</span></span>
+        <span class="node" data-monitors="erm,gmm" style="left:83%;top:67%;color:var(--erm)"><span class="node-label">Australia</span></span>
+        <span class="node" data-monitors="fcw,wdm" style="left:58%;top:28%;color:var(--wdm)"><span class="node-label">Georgia</span></span>
+        <span class="node" data-monitors="scem,gmm" style="left:67%;top:32%;color:var(--scem)"><span class="node-label">Gulf</span></span>
+      </div>
+      <div class="panel-strip"><div class="panel-left"><div class="label">Interaction cue</div><h3>Closer to the Advennt-style full map.</h3><p>This version uses a true full-width world surface as interaction inspiration, while keeping asym-intel’s own editorial framing and avoiding inherited wording from the example.[file:16][file:2]</p></div><div class="panel-right"><div class="label">Suggested routes</div><h3>Map to issue, map to monitor, map to network</h3><p>The map remains a discovery layer rather than a dashboard, which aligns with the agreed role for the world-map idea in the wider asym-intel IA.[file:11][file:2]</p><div class="mini-grid"><div class="mini-card"><strong>Ukraine</strong><span>Conflict, Europe, and FIMI overlap with alliance and pressure-system implications.</span></div><div class="mini-card"><strong>Brazil</strong><span>Macro, democracy, and environmental pressure intersect in one jurisdictional frame.</span></div><div class="mini-card"><strong>Taiwan</strong><span>AI governance, conflict posture, and industrial-strategic competition converge.</span></div></div></div></div>
+      </div></section>
+    </main>
+  </div>
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const toggle = document.querySelector('[data-theme-toggle]');
+      let theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const paint = () => {
+        root.setAttribute('data-theme', theme);
+        toggle.innerHTML = theme === 'dark'
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>'
+          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+      };
+      paint();
+      toggle.addEventListener('click',()=>{theme = theme === 'dark' ? 'light' : 'dark'; paint();});
+
+      const filters = document.querySelectorAll('.filter');
+      const nodes = document.querySelectorAll('.node');
+      const view = document.getElementById('current-view');
+      const count = document.getElementById('current-count');
+      const metaMode = document.getElementById('meta-mode');
+      const metaCountries = document.getElementById('meta-countries');
+      const metaRegions = document.getElementById('meta-regions');
+      const list = document.getElementById('country-list');
+      const data = {
+        all:{label:'All monitors',count:'68',mode:'Platform-wide',regions:'Europe · Indo-Pacific',countries:[['Ukraine','Conflict, Europe, FIMI'],['Brazil','Democracy, Macro, Environment'],['Türkiye','Europe, Conflict, FIMI'],['Kenya','Environment, Democracy'],['Taiwan','AI Governance, Conflict, Macro']]},
+        wdm:{label:'Democracy',count:'21',mode:'Democracy monitor',regions:'Latin America · Eastern Europe',countries:[['Brazil','Electoral integrity, institutional resilience'],['Georgia','Democratic pressure, procedural legitimacy'],['Kenya','Political accountability, governance strain'],['United States','Institutional confidence, electoral system'],['Ukraine','Democratic resilience under pressure']]},
+        fcw:{label:'FIMI',count:'18',mode:'FIMI monitor',regions:'Eastern Europe · Caucasus',countries:[['Ukraine','Narrative pressure, influence operations'],['Baltics','Platform manipulation, pressure testing'],['Georgia','Narrative contestation'],['Türkiye','Information spillover routes'],['China','Cognitive and influence context']]},
+        scem:{label:'Conflict',count:'17',mode:'Conflict monitor',regions:'Eastern Europe · Middle East',countries:[['Ukraine','Escalation and alliance risk'],['Sahel','Instability and theatre spillover'],['Türkiye','Regional posture and adjacency'],['Taiwan','Strategic confrontation risk'],['Gulf','Theatre linkage and maritime pressure']]},
+        esa:{label:'Europe',count:'26',mode:'Europe monitor',regions:'EU frontier · Black Sea',countries:[['Ukraine','European security exposure'],['Baltics','Deterrence and resilience'],['Türkiye','European strategic adjacency'],['Georgia','Black Sea and neighbourhood stress'],['United States','Transatlantic dimension']]},
+        agm:{label:'AI Governance',count:'12',mode:'AI Governance monitor',regions:'East Asia · North Atlantic',countries:[['Taiwan','Industrial and governance implications'],['China','Compute, standards, strategic capacity'],['United States','Regulation and industrial policy'],['EU institutions','Governance density and implementation'],['United Kingdom','Regulatory and strategic positioning']]},
+        erm:{label:'Environment',count:'23',mode:'Environment monitor',regions:'Africa · Latin America',countries:[['Brazil','Forest, land-use, governance interaction'],['Kenya','Climate pressure and resilience'],['Sahel','Environmental degradation and fragility'],['Australia','Climate risk and resource pressure'],['United States','Extreme events and adaptation capacity']]},
+        gmm:{label:'Macro',count:'31',mode:'Global Macro monitor',regions:'North Atlantic · Asia',countries:[['United States','Rates, debt, transmission'],['Brazil','Macro stress and regime exposure'],['China','Industrial overcapacity and global spillover'],['Taiwan','Semiconductors and strategic supply'],['Australia','Commodity channel and Asia linkage']]}
+      };
+      function renderCountries(key){ list.innerHTML = data[key].countries.map(([name,desc]) => `<div class="country"><strong>${name}</strong><span>${desc}</span></div>`).join(''); }
+      filters.forEach(btn => btn.addEventListener('click', () => {
+        filters.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        const key = btn.dataset.monitor, d = data[key];
+        view.textContent = d.label; count.textContent = d.count; metaMode.textContent = d.mode; metaCountries.textContent = d.count; metaRegions.textContent = d.regions; renderCountries(key);
+        nodes.forEach(node => { const monitors = node.dataset.monitors.split(','); node.classList.toggle('hidden-monitor', key !== 'all' && !monitors.includes(key)); });
+      }));
+    })();
+  </script>
+</body>
+</html>
