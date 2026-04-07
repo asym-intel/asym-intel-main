@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Working Agreement (COMPUTER.md)
-## Version 3.8 — 7 April 2026
+## Version 3.9 — 7 April 2026
 ## Read this at the start of every session touching asym-intel.info
 
 ---
