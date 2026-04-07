@@ -39,3 +39,25 @@ Scan the Chatter feeds for pre-synthesis, high-volume signal — clearly labelle
 - "Chatter" capitalised when referring to the named page/section; lowercase in prose ("chatter feeds").
 - "Living Knowledge" capitalised — it's a named section type.
 - "Dashboard" lowercase in prose ("monitor dashboards") per section-naming-registry.md.
+---
+
+## Monitor ordering rule
+
+On the homepage monitor strip and any homepage monitor-card surfaces, monitors are ordered
+by expected broad user interest and triage urgency — **not alphabetically**.
+
+**Canonical order:** GMM · SCEM · FCW · AGM · WDM · ESA · ERM
+
+This order applies to:
+- The monitor strip (`layouts/partials/monitor-strip.html`)
+- Report-card grid on homepage
+- Any cross-monitor summary surfaces (e.g. platform status panel)
+- Small multiples / confidence distribution row
+
+It does **not** apply to per-monitor pages (each monitor stands alone there).
+
+**Rationale:** GMM and SCEM attract the broadest immediate-triage interest;
+FCW and AGM are high-frequency; WDM, ESA, ERM are slower-moving structural monitors.
+Order may be revisited as audience data accumulates.
+
+**Signed off:** Peter, 7 April 2026
