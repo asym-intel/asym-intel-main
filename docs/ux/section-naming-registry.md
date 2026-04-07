@@ -218,4 +218,24 @@ For each monitor, check every visible section against this registry:
 ---
 
 *This document is a companion to `docs/ux/decisions.md`. It defines naming conventions; `decisions.md` defines design principles. Both documents must be read by the Platform Experience Designer at the start of each session.*
+---
+
+## Monitor Nav Tab Order (canonical)
+
+**Signed off:** Peter, 7 April 2026
+
+```
+Overview  |  Dashboard  |  Latest Issue  |  Living Knowledge  |  Chatter  |  Methodology  |  Archive / Search
+```
+
+Rules:
+- This order applies to ALL 7 monitors — do not infer from existing HTML
+- Archive / Search shown only where the monitor has those pages
+- Overview is the default front door (homepage monitor strip links → Overview)
+- No additional tabs may be added without updating this registry
+
+**Do not use:**
+- Putting Dashboard first (old pattern)
+- Using "About" instead of "Overview"
+- Splitting Archive and Search into separate tabs without a design decision
 
