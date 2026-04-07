@@ -3,7 +3,7 @@
 
 **Owner:** Platform Experience Designer  
 **Created:** 6 April 2026  
-**Status:** Proposed — requires Peter sign-off before implementation  
+**Status:** ✅ Signed off by Peter — 7 April 2026. Active for Sprint 1 implementation.  
 **Applies to:** All 7 monitors (dashboard.html + persistent.html)
 
 ---
