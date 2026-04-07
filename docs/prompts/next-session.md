@@ -92,3 +92,28 @@ For each: `_meta.status=complete`, `finding_count > 0`, no `null_signal_week=tru
 - ⚠️ Analytics: Plausible vs Fathom
 - ⚠️ Branch protection on main
 - ⚠️ Other 6 monitor Overview mockups → asym-intel-internal/visuals/overview-mockups/
+
+---
+
+## TASK 4 — Homepage v4 implementation (after Sprint 1 components)
+
+**IA note:** `docs/ux/homepage-ia-v4.md`
+**Locked decisions:** `docs/ux/decisions.md` Section 6 (HP-D01 to HP-D09)
+**Mockup references:** `docs/ux/mockups/homepage-map-prototype-v2-3.html` + `world-map-page-mockup-v2-2.html`
+
+### Key constraints before touching layouts/index.html
+1. Hero headline ≤ `clamp(1.75rem, 2.5vw, 2.5rem)` — current mockup hero is far too large (HP-D04)
+2. Hero: left accent stripe only. No tint, no gradient (HP-D03)
+3. Three-zone layout: left sidebar + main + right rail (HP-D08)
+4. Left-rail tiles route to cross-monitor pages only — never to individual monitor pages (HP-D05)
+
+### Build order (one session, ~4 hrs total)
+Start with HP-01 (hero) + HP-02 (monitor strip) from Sprint 1 components.
+Then HP-03 through HP-08 in sequence. HP-09 (/map/ page) is a separate session.
+
+### /map/ page (HP-09 — separate session)
+- Leaflet + Natural Earth GeoJSON (same source as WDM dashboard: nvkelso/natural-earth-vector ne_110m)
+- Map min-height 620px (larger than WDM's 420px)
+- Sidebar: filter by monitor (7 filters + All), country list panel
+- Route: `/map/` (Hugo content page + layout)
+- Reference: `docs/ux/mockups/world-map-page-mockup-v2-2.html`
