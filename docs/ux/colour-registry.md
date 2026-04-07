@@ -43,7 +43,7 @@ Accent colours carry monitor identity meaning — NOT severity, NOT confidence, 
 | GMM | macro-monitor | #22a0aa | (inherits) |
 | FCW | fimi-cognitive-warfare | #38bdf8 | (inherits) |
 | ESA | european-strategic-autonomy | #5b8db0 | (inherits) |
-| AGM | ai-governance | #3a7d5a | (inherits) |
+| AGM | ai-governance | #7a39bb | Purple (Kuja) |
 | ERM | environmental-risks | #4caf7d | (inherits) |
 | SCEM | conflict-escalation | #dc2626 | (inherits) |
 
@@ -72,11 +72,14 @@ a red element is ambiguous: SCEM monitor identity, or platform-level CRITICAL se
 ("Strategic Conflict & Escalation") — never rely on colour alone to identify the monitor.
 Never use SCEM accent to communicate severity level independently of the monitor label.
 
-### ⚠️ AGM (#3a7d5a) and ERM (#4caf7d) — green family collision risk
+### ✅ AGM colour updated: #7a39bb (Purple/Kuja) — green family collision resolved
+
+AGM accent updated from #3a7d5a (green) to #7a39bb (Purple/Kuja) in April 2026 to distinguish
+AI Governance from WDM/ERM green family. AGM/ERM collision risk is now resolved.
 Both monitors use green-family accents. In side-by-side cross-monitor contexts they may
 be visually indistinguishable, especially in peripheral vision or for colour-blind readers.
 
-**Interim rule:** In any layout where AGM and ERM appear side by side (cross-monitor
+**Note:** AGM is now purple (#7a39bb). Previous interim rule for AGM/ERM green collision
 landing page, compound signal indicator), always pair accent colour with monitor label.
 Never rely on the two greens being distinguishable by colour alone.
 
