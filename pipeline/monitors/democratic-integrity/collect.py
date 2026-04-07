@@ -92,7 +92,9 @@ response = requests.post(
     json={
         "model":    MODEL,
         "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.1,   # low temp for structured output consistency
+        "temperature": 0.1,        # low temp for structured output consistency
+        "search_recency_filter": "week",  # force live web search — recent content only
+        "return_citations": True,         # return source URLs for verification
     },
     timeout=120,
 )
