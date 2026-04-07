@@ -1,90 +1,70 @@
 # Next Computer Session — Ready-to-Paste Prompt
-**Updated:** 2026-04-06 final wrap (~10:00 BST)
+**Updated:** 2026-04-07 wrap (~10:45 BST)
 
 > **Bootloader:** "Computer: asym-intel.info"
 
 ---
 
-## Session gate check (COMPUTER.md v3.6 rule)
-Before doing anything: did housekeeping send a notification? If no notification and no
-live incident, apply the session gate — batch work for next scheduled session.
+## Session gate check (COMPUTER.md v3.9 rule)
+No notification from housekeeping = platform healthy = no session needed.
+Only open if: pipeline failure notification, missed publish, or Sprint 1 work scheduled.
+
+---
+
+## HIGHEST PRIORITY — Pipeline conformance pass
+
+**Before any other pipeline work:** audit all 6 remaining analyst crons and synthesiser
+prompts against the new specs. Do this as one focused session.
+
+Read both specs first:
+```bash
+gh api /repos/asym-intel/asym-intel-main/contents/docs/pipeline/ANALYST-CRON-SPEC.md --jq '.content' | base64 -d
+gh api /repos/asym-intel/asym-intel-main/contents/docs/pipeline/SYNTHESISER-SPEC.md --jq '.content' | base64 -d
+```
+
+Monitors needing conformance pass: **WDM, ESA, AGM, ERM, FCW, SCEM**
+(GMM is already conformant — updated 7 Apr 2026)
+
+For each: run the conformance checklist in ANALYST-CRON-SPEC.md. Fix all gaps in one pass.
+Then run SYNTHESISER-SPEC.md checklist against each synthesiser prompt.
 
 ---
 
 ## Priority queue
 
-### TASK 1 — Validate first pipeline runs
-Check these in order — most are first-ever runs:
-- GMM weekly-research: Mon 16:00 UTC today → `pipeline/monitors/macro-monitor/weekly/weekly-latest.json`
-- WDM collector: Tue 07:00 UTC → `pipeline/monitors/democratic-integrity/daily/daily-latest.json`
-- ESA weekly-research: Tue 18:00 UTC → first ever run
-- AGM weekly-research: Thu 18:00 UTC → first ever run (also first Ramparts-methodology-informed run)
-- ERM weekly-research: Fri 16:00 UTC → first ever run
-- AGM Analyst: Fri 09:00 UTC → first run with Step 7 Ramparts publication
-For each: check _meta.status != stub, finding_count > 0, no debug-*.json
+### TASK 1 — Validate pipeline runs (this week)
+- ESA weekly-research: Tue 18:00 UTC today (first ever run — check output)
+- WDM/FCW/SCEM collectors: Wed 07:00 UTC (first run with search_recency_filter)
+- GMM weekly-research: Mon 16:00 UTC next week (first run with GH_TOKEN + search_recency)
+- AGM weekly-research: Thu 18:00 UTC (first ever run)
+- ERM weekly-research: Fri 16:00 UTC (first ever run)
+For each: check _meta.status=complete, finding_count > 0, no null_signal_week=true
 
-### TASK 2 — Ramparts first integrated publish (Fri 09:00 UTC)
-AGM Analyst Step 7 will attempt the first Ramparts publication from the integrated pipeline.
-Monitor for: WordPress update success, PDF generation, Buttondown digest sent.
-Credentials need adding to platform-config.md before this fires — read:
-  asym-intel-internal/ramparts-prompts/platform-config-additions.md
-Then add to asym-intel-internal/platform-config.md before Thu 18:00 UTC.
+### TASK 2 — Conformance pass (6 monitors)
+See above. Do not defer — every week without this risks another manual publish.
 
 ### TASK 3 — Sprint 1: Shared foundations
-
-**Homepage mockup approved** (Peter, 7 Apr 2026): `asym-intel-internal/visuals/asym-intel-homepage-improved-mockup-v3.html`
-**Section naming registry signed off** (Peter, 7 Apr 2026): `docs/ux/section-naming-registry.md`
-
-**Dependency order for Sprint 1 — START HERE:**
-1. **SL-09 first** — accent colour tokens (`--fcw`, `--scem`, `--wdm` etc.) at CSS root. Gates everything else.
-2. **Monitor strip partial** — `layouts/partials/monitor-strip.html` + CSS. Add to homepage AND all 7 monitor base HTML. This is the "new monitor nav across all monitors" Peter approved.
-3. **SL-04** — signal panel white-text (quick, low-risk)
-4. **SL-08** — validator extensions (nav/heading match, severity misuse, font-size)
-5. **SL-03** — confidence badge system distinct from severity
-6. **SL-02** — triage strip shared layout/classes
-7. **SL-01** — cross-monitor flags shared component
-8. **HP-01** — homepage visual spec implementation (mockup approved — mechanical)
-9. **HP-02** — homepage value statement + routing cues (Peter to draft copy offline first)
-
-**What Peter provides before session opens (saves ~2,300 credits):**
-- Homepage copy: one-sentence value statement + 4 routing cues
-- Triage strip HTML sketch (optional but helpful)
-- Confidence badge visual reference (outline vs filled, size)
+SL-09 first (accent tokens) → monitor strip → SL-04 → SL-08 → SL-03 → SL-02 → SL-01 → HP-01 → HP-02
+All specs signed off. Homepage copy, badge spec, mockup all approved.
 
 ### TASK 4 — WDM persistent.html validation
-After next Monday WDM Analyst run, check persistent.html sections populate (no "Build 2" placeholders).
+After Mon 13 Apr WDM Analyst run — check living knowledge sections populated.
 
-### TASK 4 — SCEM Visual Sprint 2
-NEW-02: Confidence Quality Summary Bar, NEW-03: Deviation Heatmap
-Read: asym-intel-internal/visuals/scem-visual-recommendations-2026-04-05.md
-
-### TASK 5 — Homepage network graph
-layouts/index.html Hugo layout → main directly.
+### TASK 5 — SCEM Visual Sprint 2
+NEW-02 + NEW-03 — wait for first corrected SCEM deviation output (Sun 18 Apr).
 
 ---
 
-## Ramparts/AGM integration status (completed 6 Apr 2026)
-- AGM display name: Artificial Intelligence Monitor (AIM) — slug ai-governance unchanged
-- AGM Analyst cron (b53d2f93): Step 7 added — publishes to ramparts.gi after asym-intel.info
-- Publisher instructions: asym-intel-internal/ramparts-prompts/ramparts-publisher-cron.md
-- Methodology digest: asym-intel-internal/ramparts-prompts/ramparts-methodology-digest.md
-- asym-intel/Ramparts repo: marked as archive — no longer operational
-- ⚠️ BEFORE FIRST RUN: add Ramparts credentials to platform-config.md (see platform-config-additions.md)
-- ⚠️ ROTATE credentials: WP app password + Buttondown API key were previously in public repo
-
-## Critical rules added this session
-- **Session gate:** 3-question check before opening any session (COMPUTER.md v3.6)
-- **Sequential-first subagents:** parallel only when time is the binding constraint
-- **GMM/FCW prompts in internal:** scripts fetch via gh api — never local path
-- **ESA/AGM/ERM reasoner prompts:** now external at docs/crons/reasoner-prompts/
-- **WDM persistent.html living knowledge:** 8 fields now in cron Step 5 spec
-- **SCEM deviation:** deviation = level - baseline; CONTESTED only when cannot assess
-- **Ramparts architecture:** one cron, two publication targets — uniform slim-pointer pattern
+## Pipeline fixes applied 7 Apr 2026
+- GH_TOKEN: all 14 workflow files fixed
+- search_recency_filter: all 7 collectors (week) + all 7 weekly-research (month)
+- GMM synthesiser prompt v1.1: regime/conviction/system_average/lead_signal added
+- GMM analyst cron: pipeline_inputs + weekly_brief JSON requirement added
+- COMPUTER.md v3.9: Platform-First Fix Rule + pipeline specs in Step 0
+- docs/pipeline/ANALYST-CRON-SPEC.md + SYNTHESISER-SPEC.md: v1.0 committed
 
 ## Open — Peter Action Required
-- ⚠️ Add Ramparts credentials to platform-config.md BEFORE Thu 18:00 UTC (AGM weekly fires)
-- ⚠️ Rotate WP app password + Buttondown API key (were briefly in public repo)
-- ⚠️ GSC sitemap: delete and resubmit in Search Console
-- ⚠️ PED Sprint 2 decisions: parked until June
-- ⚠️ Analytics provider: Plausible vs Fathom (parked)
-- ⚠️ Branch protection on main (GitHub repo settings)
+- ⚠️ Rotate WP app password + Buttondown API key (were briefly public)
+- ⚠️ GSC sitemap: delete and resubmit
+- ⚠️ Analytics: Plausible vs Fathom
+- ⚠️ Branch protection on main
