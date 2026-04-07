@@ -339,6 +339,7 @@ Genuinely deferred — needs a design session before scheduling.
 | Automated QA / validation pipeline | What "valid" means per monitor — spec needed before building |
 | Monitor comparison view | Which fields are comparable; layout design |
 | eghtm-full.md filename rename | Low priority — content updated; filename still eghtm-full.md in internal repo |
+| tools/generate-sprint1-batch.py | Retired 7 Apr 2026 — sonar-pro component generation produces near-identical variants with no visual feedback loop. Sprint 1 components built directly in-session instead. File can be deleted once Sprint 1 is complete. |
 
 ---
 
@@ -364,5 +365,11 @@ Full specification and sprint plan in `docs/ux/`:
 **Completed from sprint plan:**
 - ✅ PL-05: Credit-saving workflow — added to COMPUTER.md v3.7 (6 Apr 2026)
 - ✅ PL-01: section-naming-registry.md committed to docs/ux/ (7 Apr 2026)
+- ✅ API Offload Rule revised (7 Apr 2026) — sonar-pro component generation retired. HTML/CSS components built directly in-session with Playwright visual feedback. Rationale in COMPUTER.md.
 
 **Sprint 1 is next** — shared foundations (SL-01 to SL-09) + homepage (HP-01, HP-02).
+
+Sprint 1 approach: `docs/generated/sprint1-components-draft.html` (36KB, sonar-pro, 7 Apr) provides
+the token system and class names as a starting point. Components will be built and iterated directly
+in-session using Playwright screenshots for visual confirmation — not re-generated via API.
+`tools/generate-sprint1-batch.py` is retired (see Parking Lot).
