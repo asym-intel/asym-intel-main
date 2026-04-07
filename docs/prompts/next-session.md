@@ -95,25 +95,19 @@ For each: `_meta.status=complete`, `finding_count > 0`, no `null_signal_week=tru
 
 ---
 
-## TASK 4 — Homepage v4 implementation (after Sprint 1 components)
+## TASK 4 — Homepage HP-01 + HP-02 (Sprint 1, after shared components)
 
-**IA note:** `docs/ux/homepage-ia-v4.md`
-**Locked decisions:** `docs/ux/decisions.md` Section 6 (HP-D01 to HP-D09)
-**Mockup references:** `docs/ux/mockups/homepage-map-prototype-v2-3.html` + `world-map-page-mockup-v2-2.html`
+Agreed direction: `docs/ux/site-rebuild-sprints.md` Sprint 1, HP-01 + HP-02.
+The cross-monitor nav (monitor strip) is the agreed next evolution.
 
-### Key constraints before touching layouts/index.html
-1. Hero headline ≤ `clamp(1.75rem, 2.5vw, 2.5rem)` — current mockup hero is far too large (HP-D04)
-2. Hero: left accent stripe only. No tint, no gradient (HP-D03)
-3. Three-zone layout: left sidebar + main + right rail (HP-D08)
-4. Left-rail tiles route to cross-monitor pages only — never to individual monitor pages (HP-D05)
+**HP-01:** Homepage monitor strip, three-zone surface split, featured-article stripe, report-card grid per visual spec.
+**HP-02:** Platform value statement + routing cues (signed-off copy in `docs/ux/homepage-copy.md`).
 
-### Build order (one session, ~4 hrs total)
-Start with HP-01 (hero) + HP-02 (monitor strip) from Sprint 1 components.
-Then HP-03 through HP-08 in sequence. HP-09 (/map/ page) is a separate session.
+Homepage mockups filed in `docs/ux/mockups/` are **reference ideas only** — specifically about
+what might go in the space below the cross-monitor nav. Not implementation spec.
+Design discussion for that space should happen before any implementation beyond HP-01/HP-02.
 
-### /map/ page (HP-09 — separate session)
-- Leaflet + Natural Earth GeoJSON (same source as WDM dashboard: nvkelso/natural-earth-vector ne_110m)
-- Map min-height 620px (larger than WDM's 420px)
-- Sidebar: filter by monitor (7 filters + All), country list panel
-- Route: `/map/` (Hugo content page + layout)
-- Reference: `docs/ux/mockups/world-map-page-mockup-v2-2.html`
+Useful reference when that discussion happens:
+- `docs/ux/homepage-ia-v4.md` — Peter's IA thinking
+- `docs/ux/mockups/homepage-map-prototype-v2-3.html` — layout ideas (note: hero text too large)
+- `docs/ux/mockups/world-map-page-mockup-v2-2.html` — /map/ page concept (Leaflet, filter sidebar)
