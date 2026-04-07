@@ -373,3 +373,33 @@ Sprint 1 approach: `docs/generated/sprint1-components-draft.html` (36KB, sonar-p
 the token system and class names as a starting point. Components will be built and iterated directly
 in-session using Playwright screenshots for visual confirmation — not re-generated via API.
 `tools/generate-sprint1-batch.py` is retired (see Parking Lot).
+
+### Homepage v4 IA — Locked direction (7 April 2026)
+
+**Reference docs:**
+- `docs/ux/homepage-ia-v4.md` — full IA note (page order, section purposes, copy rules)
+- `docs/ux/decisions.md` Section 6 — locked decisions HP-D01 through HP-D09
+- `docs/ux/mockups/homepage-map-prototype-v2-3.html` — structural reference (hero text too large — HP-D04)
+- `docs/ux/mockups/world-map-page-mockup-v2-2.html` — /map/ page architecture reference
+
+**Locked decisions:**
+- Editorial front page, not dashboard (HP-D01)
+- Page order: nav → monitor strip → hero → Shape of Week → Explore by mode → Latest → Collisions → Raw Signal (HP-D02)
+- Hero: left accent stripe only, no tint/gradient. Compact headline — not `clamp(3rem,5.2vw,5.8rem)` (HP-D03, HP-D04)
+- Left rail: 5 cross-monitor tiles (Network, Map, Timeline, Signals, Connections) routing to cross-monitor pages only (HP-D05)
+- World map: Map tile (thumbnail in left rail) + dedicated `/map/` page using Leaflet + Natural Earth GeoJSON, min-height 620px (HP-D06)
+- Three-zone surface split: sidebar + main + right rail (HP-D08)
+
+**Homepage sprint items (after Sprint 1 shared foundations):**
+
+| Item | ID | Est. | Notes |
+|------|-----|------|-------|
+| Hero section (compact copy, left stripe) | HP-01 | 30 min | Use signed-off copy from `homepage-copy.md` |
+| Monitor strip (coloured dots, page-bg) | HP-02 | 20 min | Part of Sprint 1 shared components |
+| Shape of the Week (system synthesis) | HP-03 | 45 min | Data-driven from GMM/WDM/SCEM/FCW synthesisers |
+| Explore by mode (4 routing cards) | HP-04 | 30 min | Static section; copy from `homepage-copy.md` |
+| Latest from the monitors (7 cards) | HP-05 | 45 min | Hugo-templated from latest brief per monitor |
+| Cross-monitor collisions widget | HP-06 | 30 min | Static initially; wire to cross_monitor_flags later |
+| Raw Signal / Chatter right rail | HP-07 | 30 min | Subordinate; from Chatter feeds |
+| Left-rail visual modules (5 tiles) | HP-08 | 45 min | Network, Map, Timeline, Signals, Connections |
+| /map/ coverage page (Leaflet, filter sidebar) | HP-09 | 90 min | Full page; Leaflet + Natural Earth GeoJSON; min-height 620px |
