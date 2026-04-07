@@ -443,3 +443,80 @@ Result: titles carry the link; cards recover vertical space for excerpt content.
 Commits: 48e64d4 (template), 9e9673a (CSS cleanup).
 
 *(No failed or reverted approaches yet — first session.)*
+
+---
+
+## Section 6 — Homepage v4 IA Decisions (7 April 2026)
+
+**Source:** `docs/ux/homepage-ia-v4.md` + mockups in `docs/ux/mockups/`
+**Status:** Signed off by Peter — 7 April 2026
+
+### HP-D01 — Homepage purpose: editorial front page, not dashboard
+The homepage is a **front page for a network of monitors** — not a dashboard, not a routing
+directory, not a live intelligence surface. The editorial frame is: *"Here is the shape of the
+week across the system."*
+
+### HP-D02 — Page order (locked)
+1. Top nav
+2. Monitor strip (coloured dots, restrained — same bg as page, not a contrasting container)
+3. Hero / featured editorial frame (left accent stripe only — no tint, no gradient)
+4. Shape of the Week (system-level synthesis, not a story list)
+5. Explore by mode (reading-intent routing, not topic routing)
+6. Latest from the monitors (distinct per monitor, shared card grammar)
+7. Cross-monitor collisions
+8. Today's Raw Signal / Chatter (subordinate, clearly labelled pre-synthesis)
+9. Footer
+
+### HP-D03 — Hero: left accent stripe only
+The hero must use a **left accent stripe only** — no background tint, no gradient wash.
+This is a hard constraint. Do not reintroduce tinted hero backgrounds at any point.
+
+### HP-D04 — Hero copy size: reduce
+Hero text in mockups is too large and consumes valuable above-the-fold space.
+Implementation rule: hero headline should be compact enough that the monitor strip
+and at least the opening of the Shape of the Week are visible above the fold at 1280px.
+Target: hero headline ≤ `clamp(1.75rem, 2.5vw, 2.5rem)` — not the `clamp(3rem,5.2vw,5.8rem)`
+used in the v2-3 prototype.
+
+### HP-D05 — Left-rail visual modules (locked order and routing)
+The left sidebar carries five cross-monitor discovery tiles, in this order:
+1. Network → cross-domain network view
+2. Map → `/map/` (Coverage Map page — dedicated, full-page, Leaflet-based)
+3. Timeline → `/timeline/` (cross-monitor chronology)
+4. Signals → `/signals/` (pre-synthesis analytical surface)
+5. Connections → `/connections/` (cross-monitor relationship view)
+
+**Critical rule:** these modules must route to **cross-monitor destinations**, not to
+individual monitor pages. The left rail is a parallel discovery system, not a monitor nav.
+
+### HP-D06 — World map: module within homepage or dedicated /map/ page
+The world map is NOT the homepage's organising principle. It has two valid placements:
+- As the **Map tile** in the left-rail visual modules (thumbnail + link to /map/)
+- As a **dedicated /map/ page** (`/map/` or `/coverage-map/`) with full Leaflet implementation
+
+The dedicated map page (mockup: `docs/ux/mockups/world-map-page-mockup-v2-2.html`) shows
+the right architecture: sidebar filter by monitor, Leaflet map stage, country panel below.
+**Map implementation must use Leaflet + Natural Earth GeoJSON** — same library as the WDM
+choropleth map already live on `static/monitors/democratic-integrity/dashboard.html`.
+The `/map/` map should be **larger** than the WDM dashboard map (min-height: 620px+, not 420px).
+
+### HP-D07 — GMM copy register (hard constraint)
+Any homepage reference to Global Macro must stay within the public GMM register:
+signals, contextual analysis, macro regime, liquidity, sovereign/credit stress, policy
+transmission, thresholds, blind spots.
+**Must not drift into:** investment advice, portfolio suggestions, imperative trading language,
+or gambling-monitor framing. This is an acceptance criterion for all homepage polish work.
+
+### HP-D08 — Three-zone surface split (locked)
+Homepage uses: left sidebar (`--color-surface`) + main content area (lightest bg) + right
+raw-signal sidebar (`--color-surface`). This is fixed — do not collapse to two zones.
+
+### HP-D09 — Working labels (open to refinement)
+"Shape of the Week", "Explore by mode", "Latest from the monitors", "Cross-monitor collisions",
+"Today's Raw Signal", "Platform Timeline", "Signals", "Cross-Monitor Connections" are all
+acceptable for implementation but not locked. Can be tightened in final copy polish.
+
+### Open questions resolved by this note
+- **Q6 (hero image):** No hero image. Left stripe + compact copy. Static.
+- **Q7 (chatter feed):** Chatter/Raw Signal belongs in the right rail — subordinate, pre-synthesis.
+  Not a dominant homepage section.
