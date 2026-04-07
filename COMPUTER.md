@@ -29,6 +29,13 @@ gh api /repos/asym-intel/asym-intel-main/contents/HANDOFF.md \
 
 gh api /repos/asym-intel/asym-intel-main/contents/docs/ROADMAP.md \
   --jq '.content' | base64 -d
+
+# Pipeline specs — canonical source for ALL prompt requirements
+# Read before ANY work on analyst crons, synthesisers, or collector scripts
+gh api /repos/asym-intel/asym-intel-main/contents/docs/pipeline/ANALYST-CRON-SPEC.md \
+  --jq '.content' | base64 -d
+gh api /repos/asym-intel/asym-intel-main/contents/docs/pipeline/SYNTHESISER-SPEC.md \
+  --jq '.content' | base64 -d
 ```
 
 **ROADMAP.md** is the single source of truth for all planned work — sprints, pipeline,
