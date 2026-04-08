@@ -37,4 +37,5 @@ jobs:
           git add pipeline/monitors/ai-governance/reasoner/
           git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
           git commit -m "data(ai-governance-reasoner): pattern reasoning — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
