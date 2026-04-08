@@ -36,4 +36,5 @@ jobs:
           git add pipeline/monitors/democratic-integrity/daily/
           git diff --staged --quiet && echo "No new findings to commit" && exit 0
           git commit -m "data(wdm-collector): Tier 0 daily pre-verification — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
