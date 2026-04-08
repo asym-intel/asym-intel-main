@@ -37,4 +37,5 @@ jobs:
           git add pipeline/monitors/environmental-risks/reasoner/
           git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
           git commit -m "data(environmental-risks-reasoner): pattern reasoning — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
