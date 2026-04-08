@@ -37,4 +37,5 @@ jobs:
           git add pipeline/monitors/ai-governance/weekly/
           git diff --staged --quiet && echo "No new research to commit" && exit 0
           git commit -m "data(ai-governance-weekly): weekly deep research — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
