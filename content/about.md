@@ -10,5 +10,5 @@ Asymmetric Intelligence is a free, public OSINT intelligence commons publishing 
 Each domain is tracked by a dedicated monitor publishing one briefing per week on a fixed schedule. All output is open, sourced, and permanent.
 
 Read the [Mission & Principles](/mission/) to understand what this platform does, what it will not do, and the analytical standards that govern every monitor.
+![AI humanoid](https://github.com/user-attachments/assets/efc74cc5-4b32-4269-9dd0-68e3d68c5b16)
 
-![Human AI collaboration](/images/uploads/human-ai.webp "Human AI collaboration")
