@@ -37,4 +37,5 @@ jobs:
           git add pipeline/monitors/democratic-integrity/reasoner/
           git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
           git commit -m "data(wdm-reasoner): deterioration pattern analysis — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
