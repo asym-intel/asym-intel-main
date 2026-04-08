@@ -147,7 +147,8 @@ except json.JSONDecodeError as e:
 # ── Validate schema ───────────────────────────────────────────────────────────
 
 REQUIRED_META = ["schema_version", "monitor_slug", "job_type", "week_ending", "status"]
-REQUIRED_LEAD = ["headline", "actor", "confidence_preliminary", "source_url"]
+REQUIRED_LEAD = ["headline", "confidence_preliminary", "source_url"]
+OPTIONAL_LEAD = ["actor"]  # SCEM leads with theatre, not actor — actor is useful but not required
 
 errors   = []
 warnings = []
@@ -167,6 +168,9 @@ for field in REQUIRED_LEAD:
             warnings.append(f"lead_signal.source_url missing — model did not return a primary URL")
         else:
             errors.append(f"lead_signal.{field} missing or empty")
+for field in OPTIONAL_LEAD:
+    if not lead.get(field):
+        warnings.append(f"lead_signal.{field} missing — not required for SCEM but useful if available")
 
 if not data.get("conflict_updates"):
     print("INFO: campaigns array is empty — no new campaigns this week (valid)")
