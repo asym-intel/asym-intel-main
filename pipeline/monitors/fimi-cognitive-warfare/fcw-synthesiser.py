@@ -30,7 +30,7 @@ import sys
 import re
 
 # Shared repair utilities
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent / "pipeline" / "synthesisers"))
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent / "synthesisers"))
 from synth_utils import parse_llm_json
 
 # ── Configuration ──────────────────────────────────────────────────────────────
