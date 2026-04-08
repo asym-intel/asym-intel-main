@@ -129,7 +129,7 @@ import base64
 _PROMPT_PATH = "docs/crons/reasoner-prompts/esa-reasoner-prompt.md"
 _pr = subprocess.run(
     ['gh', 'api',
-     '/repos/asym-intel/asym-intel-main/contents/' + _PROMPT_PATH,
+     '/repos/asym-intel/asym-intel-internal/contents/' + _PROMPT_PATH,
      '--jq', '.content'],
     capture_output=True, text=True
 )
