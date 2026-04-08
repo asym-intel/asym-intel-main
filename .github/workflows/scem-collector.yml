@@ -36,4 +36,5 @@ jobs:
           git add pipeline/monitors/conflict-escalation/daily/
           git diff --staged --quiet && echo "No new findings to commit" && exit 0
           git commit -m "data(scem-collector): Tier 0 daily pre-verification — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
