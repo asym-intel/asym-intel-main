@@ -179,15 +179,26 @@ if not data.get("weekly_brief_narrative"):
 elif len(data["weekly_brief_narrative"]) < 200:
     warnings.append(f"weekly_brief_narrative is very short ({len(data['weekly_brief_narrative'])} chars) — expected 400-600 words")
 
-# Validate campaign traceback for High/Confirmed
+# Source corroboration check for High/Confirmed campaigns
+# Rule: 0 sources + Confirmed/High → hard error (no evidence)
+#        1 source  + Confirmed/High → auto-downgrade to Moderate (API limitation)
+#        2+ sources                 → pass as-is
+# See methodology doc §Source Corroboration for the full rule.
 for i, campaign in enumerate(data.get("campaigns", [])):
     conf = campaign.get("attribution_confidence_preliminary", "")
     if conf in ("Confirmed", "High"):
         sources = campaign.get("research_traceback", {}).get("sources_cited", [])
-        if len(sources) < 2:
+        if len(sources) == 0:
             errors.append(
                 f"campaigns[{i}] ({campaign.get('operation_name','?')}) is {conf} "
-                f"but has {len(sources)} source(s) — need 2+"
+                f"but has 0 sources — cannot accept without any evidence"
+            )
+        elif len(sources) == 1:
+            campaign["confidence_original"] = conf
+            campaign["attribution_confidence_preliminary"] = "Moderate"
+            warnings.append(
+                f"campaigns[{i}] ({campaign.get('operation_name','?')}) downgraded "
+                f"{conf} → Moderate (single source — analyst may upgrade if authoritative)"
             )
 
 if errors:
