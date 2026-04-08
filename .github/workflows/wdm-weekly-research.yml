@@ -37,4 +37,5 @@ jobs:
           git add pipeline/monitors/democratic-integrity/weekly/
           git diff --staged --quiet && echo "No research output to commit" && exit 0
           git commit -m "data(wdm-research): weekly deep research — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
           git push
