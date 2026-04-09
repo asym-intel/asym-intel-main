@@ -19,18 +19,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch GMM private files from internal repo
+      - name: Fetch GMM methodology from internal repo
         env:
           INTERNAL_REPO_PAT: ${{ secrets.INTERNAL_REPO_PAT }}
         run: |
-          # Prompt
-          curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/gmm-prompts/macro-monitor-synthesiser-api-prompt.txt" \
-            -o pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt
-          echo "GMM prompt fetched ($(wc -c < pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt) bytes)"
+          # Prompt is now in main repo — no fetch needed
+          echo "GMM prompt in repo ($(wc -c < pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt) bytes)"
 
-          # Methodology
+          # Methodology (private IP — stays in internal repo)
           mkdir -p docs/methodology
           curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
             -H "Accept: application/vnd.github.v3.raw" \

@@ -34,23 +34,17 @@ if OUT_DATED.exists():
     sys.exit(0)
 
 # ── Load prompt from repo ─────────────────────────────────────────────────────
+import subprocess
 
-# ── Load prompt from internal repo (GMM prompts are IP-protected) ─────────────
-import subprocess as _sp, base64 as _b64
-
-_PROMPT_PATH = "gmm-prompts/gmm-collector-api-prompt.txt"
-_pr = _sp.run(
-    ['gh', 'api',
-     f'/repos/asym-intel/asym-intel-internal/contents/{_PROMPT_PATH}',
-     '--jq', '.content'],
-    capture_output=True, text=True
+PROMPT_FILE = pathlib.Path(
+    "pipeline/monitors/macro-monitor/gmm-collector-api-prompt.txt"
 )
-if _pr.returncode != 0 or not _pr.stdout.strip():
-    print(f"ERROR: Could not fetch prompt from asym-intel-internal/{_PROMPT_PATH}")
-    print(_pr.stderr.strip())
+if not PROMPT_FILE.exists():
+    print(f"ERROR: Prompt file not found at {PROMPT_FILE}")
     sys.exit(1)
-prompt = _b64.b64decode(_pr.stdout.strip()).decode('utf-8')
-print(f"Prompt loaded from internal repo ({len(prompt)} chars)")
+
+prompt = PROMPT_FILE.read_text(encoding="utf-8")
+print(f"Prompt loaded ({len(prompt)} chars)")
 
 
 # ── Inject annual calibration from internal repo ──────────────────────────────
