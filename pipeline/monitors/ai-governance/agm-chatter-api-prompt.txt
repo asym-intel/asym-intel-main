@@ -23,7 +23,19 @@ OpenAI: openai.com/news
 Anthropic: anthropic.com/news
 DeepMind: deepmind.google/discover/blog
 
-Find 10 distinct signal items from TODAY or the past 48 hours. Cast wide — include new reports, regulatory actions, incidents, research publications, and operational signals. Do not cluster around a single story.
+Find up to 10 distinct signal items published in the last 48 hours. Cast wide — include new reports, regulatory actions, incidents, research publications, and operational signals. Do not cluster around a single story.
+
+TODAY'S DATE: {today_date}
+RECENCY CUTOFF: {cutoff_date} (48 hours ago)
+
+ONLY return items published on or after {cutoff_date}. If an article has no
+visible publication date, skip it — undated content is almost always old.
+Do NOT extend the window beyond 48 hours. If fewer than 10 qualifying items
+exist, return fewer. A short list of genuinely recent items is better than
+a padded list with stale content.
+
+PREVIOUSLY COVERED (do NOT return any of these URLs):
+{exclude_urls}
 
 MANDATORY RULES:
 - Return up to 10 items. Do NOT pad with low-quality content to reach 10.
@@ -52,6 +64,7 @@ OUTPUT FORMAT: Return ONLY valid JSON — no markdown, no prose, no code fences.
       "summary": "<1-2 sentences: what happened and why relevant to AI governance, frontier AI safety, EU AI Act enforcement, AI regulatory developments, AI capability releases, AI-enabled influence operations>",
       "source_url": "<direct URL to the article or report>",
       "source_name": "<publication or organisation name>",
+      "published_date": "<YYYY-MM-DD — the article's actual publication date>",
       "source_tier": "<1|2|3|4>",
       "retrieved_at": "<ISO8601>",
       "domain_relevance": "<max 80 chars: why relevant to AGM>",

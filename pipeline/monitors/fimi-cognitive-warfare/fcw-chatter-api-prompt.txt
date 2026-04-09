@@ -17,49 +17,25 @@ SEARCH THESE SOURCES:
 - BBC Verify: bbc.com/news/reality-check
 - Wired security section: wired.com/category/security
 
-Find 10 distinct signal items from TODAY or the past 48 hours. Cast wide — include platform enforcement actions, new research publications, regulatory developments, and operational signals. Do not cluster around a single story.
+Find up to 10 distinct signal items published in the last 48 hours. Cast wide — include platform enforcement actions, new research publications, regulatory developments, and operational signals. Do not cluster around a single story.
+
+TODAY'S DATE: {today_date}
+RECENCY CUTOFF: {cutoff_date} (48 hours ago)
+
+ONLY return items published on or after {cutoff_date}. If an article has no
+visible publication date, skip it — undated content is almost always old.
+Do NOT extend the window beyond 48 hours. If fewer than 10 qualifying items
+exist, return fewer. A short list of genuinely recent items is better than
+a padded list with stale content.
+
+PREVIOUSLY COVERED (do NOT return any of these URLs):
+{exclude_urls}
 
 MANDATORY RULES:
-- Return exactly 10 items. If fewer than 10 items exist from today/48h, extend window to 7 days.
+- Return up to 10 items. Do NOT include items older than 48 hours. Fewer items is acceptable.
 - Every item MUST be a specific, dated news event, report release, regulatory action, or incident.
 - Do NOT include: listicles ("Top 5...", "10 Best..."), evergreen guides, undated reference articles, or SEO content without a specific publication event.
 - Each item MUST have a direct URL to the specific article or report — not a homepage or category page.
 - Prefer Tier 1 and Tier 2 sources. Only use Tier 3 sources if no Tier 1/2 coverage exists for that event.
-- If you genuinely cannot find 10 qualifying items after exhausting the 7-day window, return fewer — an empty or short list is better than padded evergreen content. A response with fewer than 10 items is an incomplete response.
+- If you genuinely cannot find 10 qualifying items within 48 hours, return fewer. A short honest list beats padded stale content.
 
-MANDATORY RULES:
-- Return exactly 10 items. If fewer than 10 items exist from today/48h, extend window to 7 days.
-- Every item MUST be a specific, dated news event, report release, regulatory action, or incident.
-- Do NOT include: listicles ("Top 5...", "10 Best..."), evergreen guides, undated reference articles, or SEO content without a specific publication event.
-- Each item MUST have a direct URL to the specific article or report — not a homepage or category page.
-- Prefer Tier 1 and Tier 2 sources. Only use Tier 3 sources if no Tier 1/2 coverage exists for that event.
-- If you genuinely cannot find 10 qualifying items after exhausting the 7-day window, return fewer — an empty or short list is better than padded evergreen content. A response with fewer than 10 items is an incomplete response.
-
-OUTPUT FORMAT: Return ONLY valid JSON — no markdown, no prose, no code fences.
-
-{
-  "_meta": {
-    "schema_version": "chatter-v1.0",
-    "monitor_slug": "fimi-cognitive-warfare",
-    "generated_at": "<ISO8601>",
-    "data_date": "<YYYY-MM-DD today>",
-    "item_count": 0,
-    "coverage_note": "Top 10 raw signals from FIMI sources — unanalysed"
-  },
-  "items": [
-    {
-      "item_id": "fcw-chatter-<YYYY-MM-DD>-<NNN>",
-      "title": "<headline — max 120 chars>",
-      "summary": "<1-2 sentences: what happened and why relevant to FIMI domain>",
-      "source_url": "<direct URL to the article or report>",
-      "source_name": "<publication or organisation name>",
-      "source_tier": <1|2|3|4>,
-      "retrieved_at": "<ISO8601>",
-      "domain_relevance": "<max 80 chars: why relevant to FIMI>",
-      "cross_monitor_tag": [],
-      "is_episodic": <true|false>
-    }
-  ]
-}
-
-# Version: v1.1 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter

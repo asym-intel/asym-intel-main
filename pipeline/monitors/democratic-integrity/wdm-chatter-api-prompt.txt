@@ -13,10 +13,22 @@ Transparency International: transparency.org
 EUvsDisinfo: euvsdisinfo.eu
 Politico Europe: politico.eu
 
-Find 10 distinct signal items from TODAY or the past 48 hours. Cast wide. Do not cluster around a single story.
+Find up to 10 distinct signal items published in the last 48 hours. Cast wide. Do not cluster around a single story.
+
+TODAY'S DATE: {today_date}
+RECENCY CUTOFF: {cutoff_date} (48 hours ago)
+
+ONLY return items published on or after {cutoff_date}. If an article has no
+visible publication date, skip it — undated content is almost always old.
+Do NOT extend the window beyond 48 hours. If fewer than 10 qualifying items
+exist, return fewer. A short list of genuinely recent items is better than
+a padded list with stale content.
+
+PREVIOUSLY COVERED (do NOT return any of these URLs):
+{exclude_urls}
 
 MANDATORY RULES:
-- Return exactly 10 items. If fewer than 10 exist from today/48h, extend window to 7 days.
+- Return up to 10 items. Do NOT include items older than 48 hours. Fewer items is acceptable.
 - Every item MUST be a specific, dated news event, report release, regulatory action, or incident.
 - Do NOT include: listicles ("Top 5...", "10 Best..."), evergreen guides, undated reference articles, or SEO content without a specific publication event.
 - Each item MUST have a direct URL to the specific article or report — not a homepage or category page.
@@ -41,6 +53,7 @@ OUTPUT FORMAT: Return ONLY valid JSON — no markdown, no prose, no code fences.
       "summary": "<1-2 sentences: what happened and why relevant>",
       "source_url": "<direct URL>",
       "source_name": "<publication or organisation>",
+      "published_date": "<YYYY-MM-DD — the article's actual publication date>",
       "source_tier": "<1|2|3|4>",
       "retrieved_at": "<ISO8601>",
       "domain_relevance": "<max 80 chars: why relevant to WDM>",
