@@ -1,0 +1,45 @@
+name: FCW Publisher — Weekly Report
+
+on:
+  # Schedule: Thursday 09:00 UTC (after synthesiser completes Wed 22:00)
+  # DISABLED until validated — enable by uncommenting the schedule line
+  # schedule:
+  #   - cron: "0 9 * * 4"    # Thursday 09:00 UTC
+  workflow_dispatch:          # manual trigger for testing
+
+jobs:
+  publish:
+    name: Publish FCW Weekly Report
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run FCW Publisher
+        env:
+          REPO_ROOT: ${{ github.workspace }}
+        run: python3 pipeline/publishers/fcw-publisher.py
+
+      - name: Commit published report
+        run: |
+          git config user.name "FCW Publisher Bot"
+          git config user.email "fcw-publisher@asym-intel.info"
+          git add static/monitors/fimi-cognitive-warfare/data/
+          git add docs/monitors/fimi-cognitive-warfare/data/
+          git add content/monitors/fimi-cognitive-warfare/
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "data(fcw): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/fimi-cognitive-warfare/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by FCW Publisher Bot [skip ci]"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
