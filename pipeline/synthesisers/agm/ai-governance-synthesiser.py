@@ -59,7 +59,7 @@ if not prompt_text:
     sys.exit(f"[AGM] ERROR: prompt file not found at {PROMPT_FILE}")
 
 system_msg = (
-    "You are a systematic intelligence synthesiser for the AI Governance Monitor "
+    "You are a systematic intelligence synthesiser for the Artificial Intelligence Monitor (AIM) "
     "at asym-intel.info. "
     "Reason over the provided documents only — do not search the web. "
     "Respond with a single valid JSON object matching the schema in the prompt. "
@@ -69,10 +69,10 @@ system_msg = (
 parts = [
     "## SYNTHESIS PROMPT\n\n" + prompt_text,
     "## IDENTITY CARD (analytical quality standard)\n\n" + identity[:6000],
-    "## METHODOLOGY\n\n" + methodology[:8000],
+    "## METHODOLOGY\n\n" + methodology[:12000],
 ]
 if addendum:
-    parts.append("## METHODOLOGY ADDENDUM\n\n" + addendum[:4000])
+    parts.append("## METHODOLOGY ADDENDUM\n\n" + addendum[:6000])
 parts.append("## DAILY COLLECTOR (daily-latest.json)\n\n"
              + json.dumps(daily_latest, indent=2)[:8000])
 if weekly_latest:

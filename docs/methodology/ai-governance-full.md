@@ -2,99 +2,111 @@
 ## Asymmetric Intelligence · asym-intel.info
 ## INTERNAL — Not for publication
 
-*Last updated: 2026-04-08*
+*Last updated: 9 April 2026*
 *Editor: Peter Howitt*
 
 ---
 
-# Artificial Intelligence Monitor (AIM) — Asymmetric Intelligence
-# Weekly Publication Cron Instructions
+## Source Tier Hierarchy
 
-**Site:** asym-intel.info (static, deployed via deploy_website)  
-**Project path:** `/home/user/workspace/asym-intel/`  
-**Cron:** Fires on **Friday at 18:00 CEST** (16:00 UTC).  
-**Ramparts cron ID:** `8a7e73c5` — **DO NOT TOUCH**
+| Tier | Sources | Rule |
+|------|---------|------|
+| **T1** | Lab research blogs · arXiv/bioRxiv preprints · official regulatory texts · court filings · government gazettes · official changelogs · release notes · database update logs | **Always use.** Link directly to primary. Never link to press coverage of a T1 source. |
+| **T2** | Reuters · Bloomberg · FT · The Information · Import AI (Jack Clark) · AI Snake Oil (Narayanan & Kapoor) · MLCommons · Lawfare · Politico Pro Tech · Nature News & Views · Brookings · RAND · Chatham House · IISS · RUSI · CSET · ARC Evals · METR · Apollo Research | Use only when no T1 exists |
+| **T3** | The Verge · Wired · TechCrunch · Ars Technica · general tech press | Last resort. **Must flag:** `⚠️ Tier 3 source — primary not found` |
 
----
+**Core rule: Never link to a press article when the primary source is publicly available.**
 
-## Critical Rules
+### T1 sources by module (priority check list)
 
-1. **NEVER modify `/home/user/workspace/ramparts-v2/`** or any file within it
-2. **NEVER modify Ramparts cron ID `8a7e73c5`**
-3. **NEVER reuse the Ramparts WordPress Application Password**
-4. This task publishes to **asym-intel.info only**
-5. Content source: **always independent research** — do not use Ramparts data
+**Modules 0–2 (Signal, Exec Insight, Model Frontier)**
+arXiv (cs.AI, cs.LG, cs.CL) · openai.com/research · anthropic.com/research · deepmind.google/research · ai.meta.com/research · mistral.ai/news · huggingface.co/papers · paperswithcode.com/sota · LMArena · ARC Prize leaderboard
 
----
+**Modules 3–4 (Investment, Sectors)**
+Crunchbase News · PitchBook · SEC EDGAR 8-K filings (efts.sec.gov) · SAM.gov (government contracts) · SemiAnalysis · Datacenter Dynamics · AIxEnergy · Canary Media
 
-## Content Source Strategy
+**Modules 5–6 (EU/China Watch, AI in Science)**
+EUR-Lex · EU AI Office (digital-strategy.ec.europa.eu) · State Council of PRC (english.www.gov.cn) · alphafold.ebi.ac.uk/download · deepmind.google/technologies/alphafold · anthropic.com/responsible-scaling-policy · USCC (uscc.gov) · CSET (cset.georgetown.edu) · DigiChina (digichina.stanford.edu) · arXiv q-bio.QM, physics.comp-ph · bioRxiv · medRxiv
 
-**Always: Option A — independent research.**  
-This monitor conducts its own research independently. Do not use Ramparts data as a content source.
+**Modules 7–10 (Risk, Law, Governance, Standards)**
+EUR-Lex · federalregister.gov · cisa.gov/news-events/alerts · nist.gov/artificial-intelligence · gov.uk/dsit · iso.org · standards.ieee.org · cencenelec.eu · etsi.org · oecd.ai · CourtListener · BAILII · CJEU · CanLII
 
-Run 4 parallel research agents as described below.
-
----
-
-## Pre-flight
-
-1. Check `/home/user/workspace/asym-intel/data/archive.json` — note the last published issue number
-2. Set reporting window: today (Friday) minus 7 days
-3. Launch 4 parallel research agents (see Research section below)
+**Modules 13–14 (Litigation, Personnel)**
+CourtListener · PACER · BAILII · CJEU · CanLII · aisi.gov.uk/about · LinkedIn · Pentagon CDAO (ai.mil)
 
 ---
 
-## Cross-Monitor Scan
+## Asymmetric Signal Rule
 
-**Before compiling the report JSON, scan the public dashboards of all other monitors on asym-intel.info.**
+Every major development must include one **Asymmetric Signal** — a non-obvious consequence found in technical appendices, regulatory filings, niche research blogs, or academic preprints the mainstream press missed or underweighted.
 
-### How to scan
+**The asymmetric signal answers:** *"What does this mean in 12 months that no one is talking about yet?"*
 
-1. Fetch the public dashboard and/or latest brief for each monitor at `https://asym-intel.info/monitors/[slug]/dashboard.html`
-2. Known slugs (treat as a starting point — new monitors may appear; check `https://asym-intel.info/monitors/` for the current list):
-   - `conflict-escalation` — Strategic Conflict & Escalation Monitor
-   - `democratic-integrity` — Democratic Integrity
-   - `environmental-risks` — Global Environmental Risks & Planetary Boundaries Monitor
-   - `european-strategic-autonomy` — European Strategic Autonomy
-   - `fimi-cognitive-warfare` — Global FIMI & Cognitive Warfare
-   - `macro-monitor` — Macro Monitor
-3. For each monitor, look for: shared actors, campaigns, narratives, theatres, platforms, or structural conditions where their domain materially affects, or is affected by, AI governance developments.
-4. Apply lifecycle rules: update a flag only if new data materially changes the linkage or its status. Do not re-describe unchanged structural connections under a new date.
+**Required properties:**
+- Specific and actionable for legal, governance, or investment professionals
+- Non-obvious — if it is in every headline, it is not asymmetric
+- Sourced — traceable to T1 or T2
 
-### What to include in `cross_monitor_flags`
+**JSON field:** `asymmetric` on each item; also used as standalone editorial block in Module 01 items 6–10.
 
-Each flag must:
-- Name the other monitor(s) by their self-described domain on asym-intel.info
-- Link to their public dashboard URL
-- Describe the overlap in 2–4 sentences: what links the domains, why it matters, whether it is transient or structural
-- State the Artificial Intelligence Monitor's specific perspective on the linkage
-- Carry an `id`, `status` (Active / Monitoring / Closed), `type`, `first_flagged`, and `version_history`
-
-### No-signal case
-
-If no material cross-monitor signals exist in a given period, include the section with a single note stating so. The section must be present in every issue — it may never be omitted.
-
-### Privacy rule
-
-Only reference public data, public dashboards, and public methodology pages. Never expose internal prompts, private workflows, or non-public operational details in cross-monitor flag descriptions.
+**Examples of good asymmetric signals:**
+- "EU AI Act GPAI compute threshold (10²⁵ FLOPs) was calibrated for dense transformers — NVIDIA Nemotron 3 Super's sparse MoE architecture creates a definitional arbitrage gap."
+- "AISI director moving to Anthropic signals the lab is prioritising regulatory pre-emption strategy — the person who assessed its safety posture is now internal."
+- "Ciyuan appearing in State Council document signals AI tokens may be regulated as commodities — implications for export control applicability to model weights within 12 months."
 
 ---
 
-## Research
+## Friction Analysis Format
 
-**Agent A:** Modules 0, 1, 2 — The Signal, Executive Insight, Model Frontier  
-**Agent B:** Modules 3, 4 — Investment (Energy Wall filter), Sector Penetration  
-**Agent C:** Modules 5, 6 — European & China Watch (Ciyuan/Standards Vacuum), AI in Science (Science Drill-Down)  
-**Agent D:** Modules 7, 8, 9–11, 12–15 — Risk, Military, Law & Litigation (full research: law + standards + litigation + EU AI Act 7-layer tracker), Governance, Ethics, Info Ops, AI & Society, Power Structures, Personnel (AISI Pipeline)
+Applies to every legal/regulatory development in **Modules 9, 10, 12** and any legal development referenced in other modules.
 
-Each agent saves to: `/home/user/workspace/asym-intel/research/week-[DATE]-mod-[X].md`
+**Format (exact):**
+> **⚙️ Technical Friction:** [Law/standard] directly [complicates/enables/outpaces] [specific technical capability]. [One sentence on the practical implication.]
 
-Apply all forensic filters:
-- Science Drill-Down (AlphaFold, OpenAI preparedness, Anthropic RSP, DeepMind)
-- Energy Wall (Physics-ML, Thermodynamic Computing, AI Energy Infrastructure)
-- Ciyuan / Standards Vacuum (China state commodity framing, EU compliance gap)
-- AISI-to-Lab Pipeline (AISI/CAISI/EU AI Office → frontier lab movements)
-- Friction Analysis (Technical Friction Point for every legal/standards item)
+**Examples:**
+- `⚙️ Technical Friction:` EU Omnibus watermarking deadline (November 2026) directly complicates Mistral Voxtral's real-time voice cloning at smartphone scale — hardware-level attestation that would be required does not yet exist.
+- `⚙️ Technical Friction:` White House copyright position directly enables frontier model training at scale — collides with EU/UK/Brazilian frameworks that would require licensing.
+- `⚙️ Technical Friction:` EU AI Act GPAI compute threshold (10²⁵ FLOPs) directly outpaces sparse MoE architecture — creates definitional arbitrage gap for Nemotron-class models.
+
+**JSON field:** `friction_analysis` on the relevant item. For Module 9 items, also use `ihl_friction` where International Humanitarian Law is engaged.
+
+---
+
+## Confidence Levels
+
+Use exactly these four values in the `confidence` field:
+
+| Value | Meaning |
+|-------|---------|
+| `"Confirmed"` | Corroborated by T1 source(s) |
+| `"Probable"` | Consistent with multiple T2 sources, no T1 contradiction |
+| `"Uncertain"` | Single source or conflicting signals |
+| `"Speculative"` | Analytical inference, no direct sourcing |
+
+---
+
+## Item Volume Rules — Signal over Noise
+
+**There are no fixed item maximums per module** (except Module 00 which is always one paragraph, maximum 120 words).
+
+Include an item if and only if it passes all four tests:
+1. New this week (within the 7-day reporting window)?
+2. Would a senior professional (FCA supervisor, fund manager, Anthropic researcher, FT journalist) want to know about it?
+3. Does it have a primary source link?
+4. Not already covered by another item in this report?
+
+If borderline: apply the asymmetric filter. Non-obvious implication missed by mainstream press → include. Otherwise → omit.
+
+**Module-specific guidance:**
+| Module | Structure |
+|--------|-----------|
+| 00 Signal | Always exactly 1 paragraph, max 120 words |
+| 01 Exec Insight | Always exactly 10 items (5 mainstream + 5 underweighted/asymmetric) |
+| 02 Model Frontier | All confirmed lab releases, no maximum |
+| 03 Investment | All rounds >$50M, no maximum — in active VC weeks may be 10+ |
+| 06 AI in Science | All peer-reviewed threshold events + significant preprints, no cap |
+| 13 Litigation | All cases with material activity this week |
+| 14 Personnel | All confirmed movements at covered organisations |
 
 ---
 
@@ -142,7 +154,7 @@ Never silently overwrite a past assessment. Always create a new version entry.
 
 ### Persistent State File
 
-The file `/home/user/workspace/asym-intel/data/persistent-state.json` is the **living knowledge base** for this monitor. It tracks all persistent entries across modules.
+The persistent-state.json file is the **living knowledge base** for this monitor. It tracks all persistent entries across modules.
 
 **On each weekly run:**
 1. Read `persistent-state.json` before running research agents
@@ -174,62 +186,49 @@ If Week 2 brings no new data on governance fragmentation, the agent does not re-
 
 ---
 
-## Compile Report JSON
+## Specialist Filters
 
-Generate `/home/user/workspace/asym-intel/data/report-[YYYY-MM-DD].json` following the schema of `report-latest.json`.
+| Filter | Module | Trigger |
+|--------|--------|---------|
+| Science Drill-Down | 6 | Apply every week: AlphaFold, OpenAI Preparedness, Anthropic RSP, DeepMind programmes |
+| Energy Wall | 3 | Apply every week: Physics-ML, Thermodynamic Computing, AI Energy Infrastructure rounds |
+| Ciyuan Signal | 5 | Scan Chinese state documents for 词元 in regulatory context |
+| Standards Vacuum | 5, 9 | Flag any EU amendment widening gap between obligation date and harmonised standard availability |
+| Friction Analysis | 9, 10, 12 | Every legal/technical item — identify specific technical capability affected |
+| AISI Pipeline | 14 | Weekly scan: senior departures UK AISI / US AISI / CAISI / EU AI Office → frontier labs |
 
-**Branding:**
-- `meta.editor`: `"Peter Howitt, asym-intel.info"`
-- No cross-links to Ramparts or external sites in meta or module_0
-- No Gibraltar Observatory section (asym-intel does not have gibraltar.html)
+### AISI Pipeline detail (Module 14)
+Scan every week for senior departures from UK AISI, US AISI (NIST), Canadian CAISI, or EU AI Office moving to frontier labs (OpenAI, Anthropic, Google DeepMind, xAI, Meta AI, Mistral, Cohere).
+Flag with `🔄 AISI Pipeline` callout.
+Also flag reverse direction (lab → government) as regulatory capture risk or expertise transfer signal.
 
----
-
-## Update report-latest.json
-
-```bash
-cp /home/user/workspace/asym-intel/data/report-[YYYY-MM-DD].json \
-   /home/user/workspace/asym-intel/data/report-latest.json
-```
-
----
-
-## Update Archive
-
-Prepend to `/home/user/workspace/asym-intel/data/archive.json`:
-
-```json
-{
-  "slug": "YYYY-MM-DD",
-  "week_label": "DD–DD Month YYYY",
-  "published": "YYYY-MM-DD",
-  "volume": 1,
-  "issue": [increment from last],
-  "editors_signal_preview": "[first 2 sentences of The Signal]",
-  "top_signals": ["signal 1", "signal 2", "signal 3", "signal 4", "signal 5"]
-}
-```
+### Module 01 Executive Insight structure (fixed)
+- Items 1–5: high-impact, broadly covered developments
+- Items 6–10: CRITICAL — must come from technical appendices, regulatory filings, niche research blogs, or preprints the mainstream press missed. These are the Monitor's differentiating value.
+Always exactly 10 items.
 
 ---
 
-## Deploy
+## Cross-Monitor Scan
 
-```python
-deploy_website(
-  project_path="/home/user/workspace/asym-intel/",
-  site_name="Artificial Intelligence Monitor — Asymmetric Intelligence",
-  entry_point="index.html",
-  should_validate=False
-)
-```
+**Before compiling the report JSON, scan the public dashboards of all other monitors on asym-intel.info.**
 
----
+### What to include in `cross_monitor_flags`
 
-## Notify
+Each flag must:
+- Name the other monitor(s) by their self-described domain on asym-intel.info
+- Link to their public dashboard URL
+- Describe the overlap in 2–4 sentences: what links the domains, why it matters, whether it is transient or structural
+- State the Artificial Intelligence Monitor's specific perspective on the linkage
+- Carry an `id`, `status` (Active / Monitoring / Closed), `type`, `first_flagged`, and `version_history`
 
-Send notification with:
-- Title: `Artificial Intelligence Monitor — Issue [N] · [Week Label]`
-- Body: The Signal text + top 5 delta items + deployed URL
+### No-signal case
+
+If no material cross-monitor signals exist in a given period, include the section with a single note stating so. The section must be present in every issue — it may never be omitted.
+
+### Privacy rule
+
+Only reference public data, public dashboards, and public methodology pages. Never expose internal prompts, private workflows, or non-public operational details in cross-monitor flag descriptions.
 
 ---
 
@@ -443,276 +442,9 @@ These are standing instructions for each research agent. Each module must be res
 - DSIT (UK), BEIS AI team, EU AI Office senior appointments
 **Required per person:** role_from, role_to, type (departure/appointment/internal), significance, asymmetric signal. Flag all Tier 3 sources.
 
-## Quality Checklist
-
-- [ ] Module count correct (16)
-- [ ] All page navs consistent
-- [ ] `report-latest.json` updated
-- [ ] `archive.json` prepended
-- [ ] All source links `target="_blank" rel="noopener"`
-- [ ] Primary source links verified (not press articles)
-- [ ] Tier 3 sources flagged `⚠️ Tier 3 source — primary not found`
-- [ ] All 4 forensic filters applied
-- [ ] No arbitrary item caps
-- [ ] No Ramparts cross-links present — verify grep result: `grep -i ramparts` returns nothing
-- [ ] Dark mode functional
-- [ ] Mobile layout intact
-- [ ] GitHub publish step completed (dashboard.html + weekly digest pushed to asym-intel/asym-intel-main)
-
 ---
 
-## FINAL STEP — Publish dashboard, Hugo digest, and JSON pipeline
-
-After completing all updates, run the following using the bash tool with `api_credentials=["github"]`:
-
-```bash
-PUBLISH_DATE=$(date +%Y-%m-%d)
-WEEK_ENDING=$(date +"%d %B %Y")
-MONITOR_SLUG="ai-governance"
-REPO_DIR=/tmp/asym-intel-main
-DATA_DIR=$REPO_DIR/static/monitors/$MONITOR_SLUG/data
-
-# ── Step 0: Load persistent state BEFORE researching ─────────────────────────
-# (Do this before running research agents, not here — included for completeness)
-# cat $DATA_DIR/persistent-state.json
-
-# ── Clone repo ────────────────────────────────────────────────────────────────
-cd /tmp && rm -rf asym-intel-main
-gh repo clone asym-intel/asym-intel-main asym-intel-main -- --depth=1 --quiet
-cd asym-intel-main
-git config user.email "monitor-bot@asym-intel.info"
-git config user.name "Monitor Bot"
-
-mkdir -p $DATA_DIR
-mkdir -p static/monitors/$MONITOR_SLUG/assets
-mkdir -p content/monitors/$MONITOR_SLUG
-
-# ── Step 1: Copy dashboard files ─────────────────────────────────────────────
-cp /home/user/workspace/asym-intel/report.html       static/monitors/$MONITOR_SLUG/dashboard.html
-cp /home/user/workspace/asym-intel/archive.html      static/monitors/$MONITOR_SLUG/archive.html
-cp /home/user/workspace/asym-intel/about.html        static/monitors/$MONITOR_SLUG/about.html
-cp /home/user/workspace/asym-intel/digest.html       static/monitors/$MONITOR_SLUG/digest.html
-cp /home/user/workspace/asym-intel/search.html       static/monitors/$MONITOR_SLUG/search.html
-cp /home/user/workspace/asym-intel/methodology.html  static/monitors/$MONITOR_SLUG/methodology.html
-cp -r /home/user/workspace/asym-intel/assets/.       static/monitors/$MONITOR_SLUG/assets/
-
-# ── Step 2: Write Hugo digest ─────────────────────────────────────────────────
-cat > content/monitors/$MONITOR_SLUG/${PUBLISH_DATE}-weekly-digest.md << MDEOF
----
-title: "Artificial Intelligence Monitor — Week of ${WEEK_ENDING}"
-date: ${PUBLISH_DATE}T18:00:00Z
-summary: "[One sentence: the single most strategically significant AI development this week]"
-draft: false
-monitor: "ai-governance"
----
-
-## The Signal
-
-[Single editorial paragraph from module_0.body — the week's most strategically important development]
-
-## Top 5 underweighted signals
-
-### [Signal title]
-[Paragraph with source link]
-
-### [Signal title]
-[Paragraph with source link]
-
-### [Signal title]
-[Paragraph with source link]
-
-### [Signal title]
-[Paragraph with source link]
-
-### [Signal title]
-[Paragraph with source link]
-
-## Module highlights
-
-[Key developments from all 16 modules — bold module name, one sentence each]
-
-## Asymmetric flags
-
-[Top asymmetric signals — non-obvious implications for next 12 months]
-
----
-
-*Full issue: [Artificial Intelligence Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html)*
-MDEOF
-
-# ── Step 3: Write Hugo methodology page ──────────────────────────────────────
-cp /home/user/workspace/asym-intel/content-methodology.md    content/monitors/$MONITOR_SLUG/methodology.md
-
-# ── Step 4: Write JSON pipeline files ────────────────────────────────────────
-# 4a. Write report-latest.json (full structured content — built from compiled report JSON)
-cp /home/user/workspace/asym-intel/data/report-latest.json $DATA_DIR/report-latest.json
-
-# 4b. Write dated archive copy (never modified after creation)
-cp /home/user/workspace/asym-intel/data/report-latest.json $DATA_DIR/report-${PUBLISH_DATE}.json
-
-# 4c. Prepend to archive.json (append-only — do NOT replace existing entries)
-# Read existing archive, prepend new entry, write back
-python3 << PYEOF
-import json, os
-data_dir = os.environ.get('DATA_DIR', '$DATA_DIR')
-archive_path = f"{data_dir}/archive.json"
-report_path = f"{data_dir}/report-latest.json"
-
-with open(archive_path) as f:
-    archive = json.load(f)
-with open(report_path) as f:
-    report = json.load(f)
-
-meta = report.get("meta", {})
-new_entry = {
-    "issue": meta.get("issue"),
-    "volume": meta.get("volume"),
-    "week_label": meta.get("week_label"),
-    "published": meta.get("published"),
-    "slug": meta.get("published"),
-    "signal": report.get("module_0", {}).get("body", ""),
-    "source_url": report.get("source_url", ""),
-    "delta_strip": report.get("delta_strip", [])[:5]
-}
-
-# Only prepend if not already present (idempotency)
-if not archive or archive[0].get("published") != new_entry["published"]:
-    archive.insert(0, new_entry)
-    with open(archive_path, "w") as f:
-        json.dump(archive, f, indent=2, ensure_ascii=False)
-    print(f"archive.json updated: {len(archive)} entries")
-else:
-    print(f"archive.json already has entry for {new_entry['published']}")
-PYEOF
-
-# 4d. Update persistent-state.json (carry forward unchanged; update what changed)
-cp /home/user/workspace/asym-intel/data/persistent-state.json $DATA_DIR/persistent-state.json
-
-# ── Step 5: Commit and push everything ───────────────────────────────────────
-git add static/monitors/$MONITOR_SLUG/
-git add content/monitors/$MONITOR_SLUG/
-git commit -m "content: Artificial Intelligence Monitor week of ${PUBLISH_DATE}"
-git pull --rebase origin main
-git push origin main
-
-echo "✓ Dashboard: https://asym-intel.info/monitors/$MONITOR_SLUG/dashboard.html"
-echo "✓ Digest: https://asym-intel.info/monitors/$MONITOR_SLUG/${PUBLISH_DATE}-weekly-digest/"
-echo "✓ Methodology: https://asym-intel.info/monitors/$MONITOR_SLUG/methodology/"
-echo "✓ JSON: https://asym-intel.info/monitors/$MONITOR_SLUG/data/report-latest.json"
-echo "✓ Archive: https://asym-intel.info/monitors/$MONITOR_SLUG/data/archive.json"
-```
-
-**Rules:**
-- Do NOT copy `index.html` — Hugo serves its own section page
-- Never link to perplexity.ai URLs in the digest body
-- The network bar is injected automatically — do NOT add it manually
-- The `summary` field is what appears on the homepage feed card — make it specific
-- Populate the digest body with real content, not placeholder text
-- `report-{date}.json` is never modified after creation
-- `archive.json` is append-only — never replace existing entries
-- `cross_monitor_flags`: carry all forward; add new; never delete (use `status: "Resolved"`)
-- Every change to `persistent-state.json` requires a `version_history` entry
-- Add to notification body: "JSON pipeline: report-latest.json, report-{date}.json, archive.json ({N} issues), persistent-state.json — all updated"
----
-
-*This document is the single source of truth for the asym-intel.info cron publication workflow.*
-
----
-
-## CURRENT ARCHITECTURE — Artificial Intelligence Monitor (updated 2026-04-01)
-
-> This section was added 2026-04-01 to reflect the current production architecture.
-> The publication workflow described in earlier sections references the legacy Perplexity
-> deploy_website() pipeline. The current pipeline is GitHub/Hugo via asym-intel/asym-intel-main.
-
-### Two-Pass Commit Rule (MANDATORY — all 7 monitors)
-
-All cron outputs are written in two separate git commits to prevent silent truncation of
-large JSON payloads. Never combine into one commit.
-
-**PASS 1** — Core/fast sections: committed immediately after research completes.
-**PASS 2** — Deep/slow sections: patched onto the Pass 1 JSON via:
-  `gh api /repos/asym-intel/asym-intel-main/contents/[path] --jq '.content' | base64 -d`
-  → modify in Python → PUT back
-
-After Pass 2, verify ALL required top-level keys are present before proceeding to Step 3.
-If any key is missing, re-run Pass 2 — do not proceed to notify.
-
-### Publish Guard (MANDATORY — all 7 monitors)
-
-Before writing any JSON, verify:
-1. Today is the correct publish day (day-of-week check)
-2. Current UTC hour is within ±3 of the scheduled publish hour
-3. The existing report-latest.json does NOT already contain today's date in meta.published
-
-If any check fails: EXIT. Do not publish. Log the reason.
-"A prompt reload is NOT a reason to publish."
-
-### Shared Intelligence Layer — Step 0B (MANDATORY — all 7 monitors)
-
-After loading own persistent-state, BEFORE starting research:
-
-```bash
-gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/intelligence-digest.json \
-  --jq '.content' | base64 -d
-gh api /repos/asym-intel/asym-intel-main/contents/static/monitors/shared/schema-changelog.json \
-  --jq '.content' | base64 -d
-```
-
-Filter intelligence-digest.json for flags relevant to this monitor's domain.
-Check schema-changelog.json for any new required fields added since last run.
-
-### Current Pipeline (GitHub/Hugo — replaces legacy deploy_website)
-
-```bash
-PUBLISH_DATE=$(date +%Y-%m-%d)
-# ⚠️ Filename MUST equal PUBLISH_DATE — see anti-pattern FE-019
-MONITOR_SLUG="ai-governance"
-REPO=/tmp/asym-intel-main
-
-cd /tmp && rm -rf asym-intel-main
-gh repo clone asym-intel/asym-intel-main asym-intel-main -- --depth=1 --quiet
-cd $REPO
-git config user.email "monitor-bot@asym-intel.info"
-git config user.name "Monitor Bot"
-
-# Data files (Pass 1 then Pass 2 — see Two-Pass Rule above)
-# PASS 1: write core JSON
-# PASS 2: patch deep sections
-
-# Hugo brief (⚠️ filename = PUBLISH_DATE — not tomorrow or yesterday)
-cat > content/monitors/ai-governance/${PUBLISH_DATE}-weekly-brief.md << MDEOF
----
-title: "Artificial Intelligence Monitor — W/E {DATE}"
-date: ${PUBLISH_DATE}T09:00:00Z
-summary: "[lead signal summary]"
-draft: false
-monitor: "ai-governance"
----
-MDEOF
-
-git add static/monitors/ai-governance/data/
-git add content/monitors/ai-governance/
-git commit -m "data(AGM): weekly pipeline — Issue [N] W/E ${PUBLISH_DATE}"
-git pull --rebase origin main
-git push origin main
-```
-
-### Schema Version
-
-All JSON files must contain `"schema_version": "2.0"` at top level.
-No future dates. No direct HTML/CSS/JS writes from cron tasks — data only.
-
-### Monitor Accent & URLs
-
-- Accent: #3a7d5a
-- Dashboard: https://asym-intel.info/monitors/ai-governance/dashboard.html
-- Data: https://asym-intel.info/monitors/ai-governance/data/report-latest.json
-- Internal spec: asym-intel/asym-intel-internal/methodology/ai-governance-full.md
-
----
-
-## ANALYTICAL UPGRADES — EU AI Act 2026 + GPAI Code of Practice (added 2 April 2026)
+## Analytical Upgrades — EU AI Act 2026
 
 ### FM-AGM-01: Benchmark Saturation — Capability Signal Hierarchy
 
@@ -730,3 +462,89 @@ Every issue, check whether any lab has quietly revised its safety commitment doc
 
 The EU AI Act Standards Vacuum is currently ACTIVE (no harmonised standards in OJ as of Q1 2026; compliance deadline August 2026). Include in M09 every issue with: current status + days remaining until compliance deadline. Do not let it become invisible through repetition. Downgrade to MONITORING only when at least one harmonised standard is published in the Official Journal.
 
+---
+
+## Country Grid Rules
+
+### Inclusion threshold
+Promote a country from Watch to the full Country Grid when **any one** of these thresholds is met:
+- Draft AI-specific law published
+- Public consultation on AI regulation opened
+- Binding guidance issued
+
+### Persistence in the grid
+Country Grid entries are **persistent**. Once included, they remain until the status materially changes. Do not remove an entry because a week has passed without developments.
+
+### Change flags (weekly)
+Every country in the grid must carry a weekly change flag:
+- `🆕` — new entry this week (threshold just met)
+- `⚠️` — material status change this week
+- `—` — no change this week
+
+### Country Grid Watch
+Maintain a separate `country_grid_watch` section for countries approaching but not yet meeting the threshold. Promote from Watch when the threshold is met. Add new countries when a credible signal of approaching regulatory action is detected.
+
+---
+
+## Persistence Rules
+
+### Classification
+
+**Persistent** — carry forward until material change:
+- Policy, law, regulatory postures, doctrine
+- Active litigation cases
+- Country Grid entries
+- Lab safety policies, RSP/Preparedness Framework commitments
+- Treaty negotiations and ongoing enforcement sequences
+- Baseline deviations with Confirmed/Probable status
+
+**Transient** — include when fresh, archive once implications captured:
+- Single announcements, one-off events, tactical incidents, dated statements
+- Archive after 3 weeks if implications rolled into a persistent entry
+
+**Archived** — excluded from rendered report but retained in JSON:
+- Transient items >3 weeks old whose context is captured in a persistent entry
+
+### Update rules
+
+**Update an entry when:**
+- New data materially changes the assessment (substance, direction, or concern level)
+- Confidence improves or degrades
+- Source quality improves (key claims now corroborated by T1)
+- Status changes (litigation advances, law enacted, standard published)
+
+**Do NOT update when:**
+- A week has passed with no meaningful new data
+- Re-research finds the same findings
+- The only change is the date — identical findings must not be republished under a new date
+
+### version_history requirement
+
+Every persistent item must carry a `version_history` array. Minimum fields per entry:
+
+```json
+{
+  "version": 1,
+  "date": "YYYY-MM-DD",
+  "change": "Description of what changed",
+  "reason": "Why this counts as a material change",
+  "prior_value": null
+}
+```
+
+**Never silently overwrite** a past assessment. Always create a new version entry.
+
+### Required lifecycle fields (every item in every module)
+
+```json
+{
+  "persistence": "persistent | transient | archived",
+  "confidence": "Confirmed | Probable | Uncertain | Speculative",
+  "episode_status": "active | closed | new | ongoing | updated",
+  "first_seen": "YYYY-MM-DD",
+  "last_material_change": "YYYY-MM-DD",
+  "version_history": [
+    { "version": 1, "date": "YYYY-MM-DD", "change": "...", "reason": "...", "prior_value": null }
+  ]
+}
+```
