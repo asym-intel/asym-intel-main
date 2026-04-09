@@ -22,6 +22,19 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
+
+      - name: Fetch identity card from internal repo
+        env:
+          INTERNAL_REPO_PAT: ${{ secrets.INTERNAL_REPO_PAT }}
+        run: |
+          mkdir -p docs/identity
+          curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-ESA.md" \
+            -o docs/identity/esa-identity.md \
+            && echo "Identity card fetched ($(wc -c < docs/identity/esa-identity.md) bytes)" \
+            || echo "WARNING: Identity card not found — continuing without it"
+
       - name: Run ESA synthesiser
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}

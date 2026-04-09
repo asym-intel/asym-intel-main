@@ -23,11 +23,19 @@ jobs:
         env:
           INTERNAL_REPO_PAT: ${{ secrets.INTERNAL_REPO_PAT }}
         run: |
+          # Identity card (analytical quality standard)
+          curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-GMM.md" \
+            -o docs/identity/gmm-identity.md \
+            && echo "Identity card fetched ($(wc -c < docs/identity/gmm-identity.md) bytes)" \
+            || echo "WARNING: Identity card not found — continuing without it"
+
           # Prompt is now in main repo — no fetch needed
           echo "GMM prompt in repo ($(wc -c < pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt) bytes)"
 
           # Methodology (private IP — stays in internal repo)
-          mkdir -p docs/methodology
+          mkdir -p docs/methodology docs/identity
           curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/macro-monitor-full.md" \

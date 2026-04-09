@@ -57,6 +57,16 @@ if not PROMPT_PATH.exists():
 
 PROMPT_TEMPLATE = PROMPT_PATH.read_text(encoding="utf-8")
 
+# ── Load identity card (analytical quality standard) ──────────────────────────
+
+IDENTITY_FILE = pathlib.Path("docs/identity/fcw-identity.md")
+identity_content = ""
+if IDENTITY_FILE.exists():
+    identity_content = IDENTITY_FILE.read_text(encoding="utf-8")
+    print(f"Identity card loaded ({len(identity_content)} chars)")
+else:
+    print("NOTE: Identity card not available — synthesising without identity context")
+
 # ── Load input documents ───────────────────────────────────────────────────────
 
 def load_json_file(path, label):
@@ -136,7 +146,13 @@ if len(context_json) > MAX_CONTEXT:
 
 # ── Build prompt ───────────────────────────────────────────────────────────────
 
-prompt = PROMPT_TEMPLATE.replace("{PIPELINE_JSON}", context_json)
+# Inject identity card before pipeline data if available
+if identity_content:
+    prompt = PROMPT_TEMPLATE.replace("{PIPELINE_JSON}", 
+        "## IDENTITY CARD (analytical quality standard)\n\n" + identity_content[:6000] + 
+        "\n\n---\n\n## PIPELINE DATA\n\n" + context_json)
+else:
+    prompt = PROMPT_TEMPLATE.replace("{PIPELINE_JSON}", context_json)
 
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 

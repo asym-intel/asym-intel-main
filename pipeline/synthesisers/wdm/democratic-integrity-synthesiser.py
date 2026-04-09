@@ -19,6 +19,7 @@ MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "democratic-integrity"
 SYNTH_DIR   = MONITOR_DIR / "synthesised"
 PROMPT_FILE = pathlib.Path(__file__).with_name("democratic-integrity-synthesiser-api-prompt.txt")
 METHODOLOGY = REPO_ROOT / "docs" / "methodology" / "democratic-integrity-full.md"
+IDENTITY    = REPO_ROOT / "docs" / "identity" / "wdm-identity.md"
 ADDENDUM    = REPO_ROOT / "docs" / "methodology" / "democratic-integrity-addendum.md"
 
 TODAY_STR = datetime.date.today().isoformat()
@@ -51,6 +52,7 @@ daily_latest  = load_json(MONITOR_DIR / "daily"  / "daily-latest.json")
 weekly_latest = load_json(MONITOR_DIR / "weekly" / "weekly-latest.json")
 prompt_text   = load_text(PROMPT_FILE)
 methodology   = load_text(METHODOLOGY)
+identity      = load_text(IDENTITY)
 addendum      = load_text(ADDENDUM)
 
 if not prompt_text:
@@ -66,6 +68,7 @@ system_msg = (
 
 parts = [
     "## SYNTHESIS PROMPT\n\n" + prompt_text,
+    "## IDENTITY CARD (analytical quality standard)\n\n" + identity[:6000],
     "## METHODOLOGY\n\n" + methodology[:8000],
 ]
 if addendum:
