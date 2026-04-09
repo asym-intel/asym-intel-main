@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read     # read own workflow runs
-      contents: read    # read own repo
+      contents: write   # write to static/ops/pipeline.html
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}    # PAT for cross-repo write to asym-intel-internal
 
@@ -29,6 +29,18 @@ jobs:
 
       - name: Run status updater
         run: python3 ops/update-pipeline-status.py
+
+      - name: Deploy dashboard to public site
+        run: |
+          if [ -f pipeline-dashboard.html ]; then
+            cp pipeline-dashboard.html static/ops/pipeline.html
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add static/ops/pipeline.html
+            git diff --cached --quiet || git commit -m "ops: auto-update pipeline dashboard ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git pull --rebase
+            git push
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
