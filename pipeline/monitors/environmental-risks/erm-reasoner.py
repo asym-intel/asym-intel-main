@@ -129,6 +129,17 @@ if len(context_json) > MAX_CONTEXT:
         "daily_collector_findings": daily_findings[:10]
     }, indent=2)[:MAX_CONTEXT]
 
+
+# ── Load identity card (analytical quality standard) ──────────────────────────
+
+IDENTITY_FILE = pathlib.Path("docs/identity/erm-identity.md")
+identity_content = ""
+if IDENTITY_FILE.exists():
+    identity_content = IDENTITY_FILE.read_text(encoding="utf-8")
+    print(f"Identity card loaded ({len(identity_content)} chars)")
+else:
+    print("NOTE: Identity card not available — reasoning without identity context")
+
 # ── Load reasoning prompt ──────────────────────────────────────────────────────
 
 PROMPT_FILE = pathlib.Path("pipeline/monitors/environmental-risks/erm-reasoner-api-prompt.txt")
@@ -137,7 +148,13 @@ if not PROMPT_FILE.exists():
     sys.exit(1)
 
 _raw_prompt = PROMPT_FILE.read_text(encoding="utf-8")
-prompt = _raw_prompt.replace('{context_json}', context_json)
+# Inject identity card before pipeline data if available
+if identity_content:
+    prompt = _raw_prompt.replace('{context_json}',
+        "## IDENTITY CARD (analytical quality standard)\n\n" + identity_content[:6000] +
+        "\n\n---\n\n## PIPELINE DATA\n\n" + context_json)
+else:
+    prompt = _raw_prompt.replace('{context_json}', context_json)
 print(f"Prompt loaded ({len(_raw_prompt)} chars)")
 
 # ── Call Perplexity API ────────────────────────────────────────────────────────

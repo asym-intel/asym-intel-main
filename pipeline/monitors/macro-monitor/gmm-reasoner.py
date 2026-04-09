@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-GMM Reasoner — Attribution Chain Analysis
-GitHub Actions script. Runs Wednesday 20:00 UTC.
+GMM Reasoner — Macro Regime & Stress Pattern Analysis
+GitHub Actions script. Runs Monday 18:00 UTC.
 
 Loads:
-  - persistent-state.json (active campaign registry + attribution log)
+  - persistent-state.json (conviction history, asset class baselines,
+    tactical alerts, blind spot overrides, tariff escalation protocol)
   - pipeline/weekly/weekly-latest.json (this week's deep research)
-  - pipeline/daily/daily-latest.json (most recent Collector candidates)
+  - pipeline/daily/daily-latest.json (most recent Collector findings)
 
-Feeds all three as context to sonar-deep-research for attribution chain
+Feeds all three as context to sonar-deep-research for macro regime
 reasoning. Outputs structured analytical recommendations to:
   pipeline/monitors/macro-monitor/reasoner/reasoner-latest.json
   pipeline/monitors/macro-monitor/reasoner/reasoner-YYYY-MM-DD.json
 
-The GMM Analyst reads this at Step 0E before applying methodology.
+The GMM Synthesiser reads this at Step 0E before applying methodology.
 
 sonar-deep-research is correct here: it reasons over documents YOU provide.
 It does NOT search the web. The structured JSON is the document.
@@ -22,6 +23,7 @@ It does NOT search the web. The structured JSON is the document.
 import os
 import json
 import datetime
+import datetime as _dt
 import pathlib
 import requests
 import sys
@@ -69,59 +71,94 @@ daily       = load_json_file(
 )
 
 if not persistent:
-    print("ERROR: persistent-state.json is required for attribution reasoning. Cannot continue.")
+    print("ERROR: persistent-state.json is required for macro regime reasoning. Cannot continue.")
     sys.exit(1)
 
 # ── Extract relevant sections ──────────────────────────────────────────────────
 
-# From persistent-state: active campaigns + attribution log (last 8 weeks)
-active_campaigns = persistent.get("campaigns", [])
-attribution_log  = persistent.get("attribution_log", [])[-20:]  # last 20 entries
+# From persistent-state: conviction history, asset baselines, structural indicators
+conviction_history    = persistent.get("conviction_history", [])
+asset_class_baseline  = persistent.get("asset_class_baseline", [])
+tactical_alerts       = persistent.get("active_tactical_alerts", [])
+blind_spot_overrides  = persistent.get("blind_spot_overrides", [])
+tariff_protocol       = persistent.get("tariff_escalation_protocol", {})
+oil_shock_driver      = persistent.get("oil_supply_shock_driver", {})
+calibration_log       = persistent.get("calibration_log", [])
+us_decoupling         = persistent.get("us_decoupling_index", {})
+ai_capex_watch        = persistent.get("ai_capex_watch", {})
 
-# From weekly research: new campaign candidates + actor tracker
-weekly_campaigns = weekly.get("campaigns", []) if weekly else []
-weekly_actors    = weekly.get("actor_tracker", []) if weekly else []
-weekly_attr_log  = weekly.get("attribution_log", []) if weekly else []
+# From weekly research: lead signal, regime assessment, asset class summary
+weekly_lead_signal    = weekly.get("lead_signal", {}) if weekly else {}
+weekly_developments   = weekly.get("top_developments", []) if weekly else []
+weekly_tariff         = weekly.get("tariff_escalation", {}) if weekly else {}
+weekly_asset_summary  = weekly.get("asset_class_summary", {}) if weekly else {}
+weekly_regime         = weekly.get("regime_assessment", {}) if weekly else {}
+weekly_cross_signals  = weekly.get("cross_monitor_signals", {}) if weekly else {}
 
-# From daily Collector: Tier 0 candidate findings
-daily_findings   = daily.get("findings", []) if daily else []
-daily_below      = daily.get("below_threshold", []) if daily else []
+# From daily Collector: latest indicator findings
+daily_findings        = daily.get("findings", []) if daily else []
+daily_below           = daily.get("below_threshold", []) if daily else []
+daily_tariff_status   = daily.get("tariff_escalation_status", {}) if daily else {}
 
-print(f"Loaded: {len(active_campaigns)} active campaigns, "
-      f"{len(attribution_log)} attribution log entries")
-print(f"Weekly research: {len(weekly_campaigns)} campaign candidates, "
-      f"{len(weekly_actors)} actor entries")
-print(f"Daily Collector: {len(daily_findings)} candidates, "
+print(f"Loaded: {len(conviction_history)} conviction history entries, "
+      f"{len(asset_class_baseline)} asset class baselines")
+print(f"Weekly research: {len(weekly_developments)} top developments, "
+      f"regime={weekly_regime.get('current_regime', 'N/A')}")
+print(f"Daily Collector: {len(daily_findings)} findings, "
       f"{len(daily_below)} below threshold")
 
 # ── Build the reasoning prompt ────────────────────────────────────────────────
 
 context_json = json.dumps({
-    "active_campaigns": active_campaigns,
-    "attribution_log_recent": attribution_log,
-    "weekly_new_campaigns": weekly_campaigns,
-    "weekly_actor_tracker": weekly_actors,
-    "weekly_attribution_log": weekly_attr_log,
+    "conviction_history": conviction_history,
+    "asset_class_baseline": asset_class_baseline,
+    "active_tactical_alerts": tactical_alerts,
+    "blind_spot_overrides": blind_spot_overrides,
+    "tariff_escalation_protocol": tariff_protocol,
+    "oil_supply_shock_driver": oil_shock_driver,
+    "us_decoupling_index": us_decoupling,
+    "ai_capex_watch": ai_capex_watch,
+    "calibration_log": calibration_log,
+    "weekly_lead_signal": weekly_lead_signal,
+    "weekly_top_developments": weekly_developments,
+    "weekly_tariff_escalation": weekly_tariff,
+    "weekly_asset_class_summary": weekly_asset_summary,
+    "weekly_regime_assessment": weekly_regime,
+    "weekly_cross_monitor_signals": weekly_cross_signals,
     "daily_collector_findings": daily_findings,
-    "daily_below_threshold": daily_below
+    "daily_below_threshold": daily_below,
+    "daily_tariff_status": daily_tariff_status
 }, indent=2)
 
 # Truncate if too large (sonar-deep-research has context limits)
 MAX_CONTEXT = 40000
 if len(context_json) > MAX_CONTEXT:
     print(f"Context truncated: {len(context_json)} → {MAX_CONTEXT} chars")
-    # Prioritise: active campaigns > attribution log > weekly > daily
+    # Prioritise: conviction + baselines > weekly > daily
     context_json = json.dumps({
-        "active_campaigns": active_campaigns[:15],
-        "attribution_log_recent": attribution_log[-10:],
-        "weekly_new_campaigns": weekly_campaigns[:10],
-        "weekly_actor_tracker": weekly_actors,
-        "daily_collector_findings": daily_findings[:10]
+        "conviction_history": conviction_history[-5:],
+        "asset_class_baseline": asset_class_baseline,
+        "active_tactical_alerts": tactical_alerts,
+        "blind_spot_overrides": blind_spot_overrides,
+        "tariff_escalation_protocol": tariff_protocol,
+        "weekly_lead_signal": weekly_lead_signal,
+        "weekly_top_developments": weekly_developments[:3],
+        "weekly_regime_assessment": weekly_regime,
+        "daily_collector_findings": daily_findings[:5]
     }, indent=2)[:MAX_CONTEXT]
 
-# ── Load reasoning prompt ──────────────────────────────────────────────────────
 
-import datetime as _dt
+# ── Load identity card (analytical quality standard) ──────────────────────────
+
+IDENTITY_FILE = pathlib.Path("docs/identity/gmm-identity.md")
+identity_content = ""
+if IDENTITY_FILE.exists():
+    identity_content = IDENTITY_FILE.read_text(encoding="utf-8")
+    print(f"Identity card loaded ({len(identity_content)} chars)")
+else:
+    print("NOTE: Identity card not available — reasoning without identity context")
+
+# ── Load reasoning prompt ──────────────────────────────────────────────────────
 
 PROMPT_FILE = pathlib.Path("pipeline/monitors/macro-monitor/gmm-reasoner-api-prompt.txt")
 if not PROMPT_FILE.exists():
@@ -129,15 +166,20 @@ if not PROMPT_FILE.exists():
     sys.exit(1)
 
 _raw_prompt = PROMPT_FILE.read_text(encoding="utf-8")
-# Inject runtime values
-prompt = _raw_prompt.replace('{context_json}', context_json)
+# Inject identity card before pipeline data if available
+if identity_content:
+    prompt = _raw_prompt.replace('{context_json}',
+        "## IDENTITY CARD (analytical quality standard)\n\n" + identity_content[:6000] +
+        "\n\n---\n\n## PIPELINE DATA\n\n" + context_json)
+else:
+    prompt = _raw_prompt.replace('{context_json}', context_json)
 prompt = prompt.replace('{generated_at}', _dt.datetime.now(_dt.timezone.utc).isoformat())
 prompt = prompt.replace('{data_date}', TODAY_STR)
 print(f"Prompt loaded ({len(_raw_prompt)} chars)")
 
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
-print(f"Calling {MODEL} for attribution chain reasoning...")
+print(f"Calling {MODEL} for macro regime reasoning...")
 print(f"Context size: {len(context_json)} chars")
 
 response = requests.post(
@@ -206,17 +248,17 @@ output = json.dumps(data, indent=2, ensure_ascii=False)
 OUT_DATED.write_text(output, encoding="utf-8")
 OUT_LATEST.write_text(output, encoding="utf-8")
 
-reviews   = data.get("attribution_reviews", [])
-linkages  = data.get("linkage_detections", [])
-flags     = data.get("cross_monitor_escalation_flags", [])
-contested = data.get("contested_findings", [])
-posture   = data.get("actor_posture_changes", [])
+regime_reviews     = data.get("regime_assessment_review", {})
+asset_reviews      = data.get("asset_class_reviews", [])
+indicator_reviews  = data.get("indicator_pattern_analysis", [])
+tail_risk_reviews  = data.get("tail_risk_assessment", [])
+cross_flags        = data.get("cross_monitor_flags", [])
+blind_spot_checks  = data.get("blind_spot_audit", [])
 
 print(f"✅ Written: {OUT_DATED}")
-print(f"   Attribution reviews: {len(reviews)} "
-      f"({sum(1 for r in reviews if r.get('recommendation') != 'unchanged')} changes recommended)")
-print(f"   Linkages detected: {len(linkages)}")
-print(f"   Actor posture changes: {len(posture)}")
-print(f"   Cross-monitor flags: {len(flags)}")
-print(f"   Contested findings: {len(contested)}")
+print(f"   Asset class reviews: {len(asset_reviews)}")
+print(f"   Indicator pattern analyses: {len(indicator_reviews)}")
+print(f"   Tail risks assessed: {len(tail_risk_reviews)}")
+print(f"   Cross-monitor flags: {len(cross_flags)}")
+print(f"   Blind spot checks: {len(blind_spot_checks)}")
 print(f"   Briefing: {len(data.get('analyst_briefing',''))} chars")

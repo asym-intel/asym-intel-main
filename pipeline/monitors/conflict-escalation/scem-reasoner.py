@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-SCEM Reasoner — Attribution Chain Analysis
-GitHub Actions script. Runs Wednesday 20:00 UTC.
+SCEM Reasoner — Conflict Trajectory & Escalation Pattern Analysis
+GitHub Actions script. Runs Saturday 08:00 UTC.
 
 Loads:
-  - persistent-state.json (active campaign registry + attribution log)
+  - persistent-state.json (conflict baselines, roster status, F-flag history,
+    roster watch, cross-monitor flags, I1-I6 indicators per conflict)
   - pipeline/weekly/weekly-latest.json (this week's deep research)
-  - pipeline/daily/daily-latest.json (most recent Collector candidates)
+  - pipeline/daily/daily-latest.json (most recent Collector findings)
 
-Feeds all three as context to sonar-deep-research for attribution chain
+Feeds all three as context to sonar-deep-research for conflict trajectory
 reasoning. Outputs structured analytical recommendations to:
   pipeline/monitors/conflict-escalation/reasoner/reasoner-latest.json
   pipeline/monitors/conflict-escalation/reasoner/reasoner-YYYY-MM-DD.json
 
-The SCEM Analyst reads this at Step 0E before applying methodology.
+The SCEM Synthesiser reads this at Step 0E before applying methodology.
 
 sonar-deep-research is correct here: it reasons over documents YOU provide.
 It does NOT search the web. The structured JSON is the document.
@@ -22,6 +23,7 @@ It does NOT search the web. The structured JSON is the document.
 import os
 import json
 import datetime
+import datetime as _dt
 import pathlib
 import requests
 import sys
@@ -69,59 +71,88 @@ daily       = load_json_file(
 )
 
 if not persistent:
-    print("ERROR: persistent-state.json is required for attribution reasoning. Cannot continue.")
+    print("ERROR: persistent-state.json is required for conflict trajectory reasoning. Cannot continue.")
     sys.exit(1)
 
 # ── Extract relevant sections ──────────────────────────────────────────────────
 
-# From persistent-state: active campaigns + attribution log (last 8 weeks)
-active_campaigns = persistent.get("campaigns", [])
-attribution_log  = persistent.get("attribution_log", [])[-20:]  # last 20 entries
+# From persistent-state: conflict baselines, roster, F-flags, cross-monitor flags
+conflict_baselines   = persistent.get("conflict_baselines", [])
+roster_status        = persistent.get("roster_status", [])
+f_flag_history       = persistent.get("f_flag_history", [])
+roster_watch         = persistent.get("roster_watch", {})
+cross_monitor_flags  = persistent.get("cross_monitor_flags", {})
+calibration_log      = persistent.get("calibration_log", [])
+i5_calibration       = persistent.get("i5_calibration_2026", {})
+source_hierarchy     = persistent.get("source_hierarchy_2026", {})
 
-# From weekly research: new campaign candidates + actor tracker
-weekly_campaigns = weekly.get("campaigns", []) if weekly else []
-weekly_actors    = weekly.get("actor_tracker", []) if weekly else []
-weekly_attr_log  = weekly.get("attribution_log", []) if weekly else []
+# From weekly research: lead signal, conflict updates, theatre status, displacement
+weekly_lead_signal      = weekly.get("lead_signal", {}) if weekly else {}
+weekly_conflict_updates = weekly.get("conflict_updates", []) if weekly else []
+weekly_theatre_status   = weekly.get("theatre_status", []) if weekly else []
+weekly_displacement     = weekly.get("displacement_watch", {}) if weekly else {}
+weekly_cross_signals    = weekly.get("cross_monitor_signals", {}) if weekly else {}
 
-# From daily Collector: Tier 0 candidate findings
-daily_findings   = daily.get("findings", []) if daily else []
-daily_below      = daily.get("below_threshold", []) if daily else []
+# From daily Collector: latest conflict findings
+daily_findings          = daily.get("findings", []) if daily else []
+daily_below             = daily.get("below_threshold", []) if daily else []
+daily_theatre_summary   = daily.get("theatre_summary", {}) if daily else {}
 
-print(f"Loaded: {len(active_campaigns)} active campaigns, "
-      f"{len(attribution_log)} attribution log entries")
-print(f"Weekly research: {len(weekly_campaigns)} campaign candidates, "
-      f"{len(weekly_actors)} actor entries")
-print(f"Daily Collector: {len(daily_findings)} candidates, "
+print(f"Loaded: {len(conflict_baselines)} conflict baselines, "
+      f"{len(roster_status)} roster entries")
+print(f"Weekly research: {len(weekly_conflict_updates)} conflict updates, "
+      f"{len(weekly_theatre_status)} theatre statuses")
+print(f"Daily Collector: {len(daily_findings)} findings, "
       f"{len(daily_below)} below threshold")
 
 # ── Build the reasoning prompt ────────────────────────────────────────────────
 
 context_json = json.dumps({
-    "active_campaigns": active_campaigns,
-    "attribution_log_recent": attribution_log,
-    "weekly_new_campaigns": weekly_campaigns,
-    "weekly_actor_tracker": weekly_actors,
-    "weekly_attribution_log": weekly_attr_log,
+    "conflict_baselines": conflict_baselines,
+    "roster_status": roster_status,
+    "f_flag_history": f_flag_history,
+    "roster_watch": roster_watch,
+    "cross_monitor_flags": cross_monitor_flags,
+    "i5_calibration": i5_calibration,
+    "calibration_log": calibration_log,
+    "weekly_lead_signal": weekly_lead_signal,
+    "weekly_conflict_updates": weekly_conflict_updates,
+    "weekly_theatre_status": weekly_theatre_status,
+    "weekly_displacement_watch": weekly_displacement,
+    "weekly_cross_monitor_signals": weekly_cross_signals,
     "daily_collector_findings": daily_findings,
-    "daily_below_threshold": daily_below
+    "daily_below_threshold": daily_below,
+    "daily_theatre_summary": daily_theatre_summary
 }, indent=2)
 
 # Truncate if too large (sonar-deep-research has context limits)
 MAX_CONTEXT = 40000
 if len(context_json) > MAX_CONTEXT:
     print(f"Context truncated: {len(context_json)} → {MAX_CONTEXT} chars")
-    # Prioritise: active campaigns > attribution log > weekly > daily
+    # Prioritise: baselines + roster > weekly > daily
     context_json = json.dumps({
-        "active_campaigns": active_campaigns[:15],
-        "attribution_log_recent": attribution_log[-10:],
-        "weekly_new_campaigns": weekly_campaigns[:10],
-        "weekly_actor_tracker": weekly_actors,
-        "daily_collector_findings": daily_findings[:10]
+        "conflict_baselines": conflict_baselines,
+        "roster_status": roster_status,
+        "f_flag_history": f_flag_history[-10:],
+        "roster_watch": roster_watch,
+        "weekly_lead_signal": weekly_lead_signal,
+        "weekly_conflict_updates": weekly_conflict_updates[:5],
+        "weekly_theatre_status": weekly_theatre_status,
+        "daily_collector_findings": daily_findings[:5]
     }, indent=2)[:MAX_CONTEXT]
 
-# ── Load reasoning prompt ──────────────────────────────────────────────────────
 
-import datetime as _dt
+# ── Load identity card (analytical quality standard) ──────────────────────────
+
+IDENTITY_FILE = pathlib.Path("docs/identity/scem-identity.md")
+identity_content = ""
+if IDENTITY_FILE.exists():
+    identity_content = IDENTITY_FILE.read_text(encoding="utf-8")
+    print(f"Identity card loaded ({len(identity_content)} chars)")
+else:
+    print("NOTE: Identity card not available — reasoning without identity context")
+
+# ── Load reasoning prompt ──────────────────────────────────────────────────────
 
 PROMPT_FILE = pathlib.Path("pipeline/monitors/conflict-escalation/scem-reasoner-api-prompt.txt")
 if not PROMPT_FILE.exists():
@@ -129,15 +160,20 @@ if not PROMPT_FILE.exists():
     sys.exit(1)
 
 _raw_prompt = PROMPT_FILE.read_text(encoding="utf-8")
-# Inject runtime values
-prompt = _raw_prompt.replace('{context_json}', context_json)
+# Inject identity card before pipeline data if available
+if identity_content:
+    prompt = _raw_prompt.replace('{context_json}',
+        "## IDENTITY CARD (analytical quality standard)\n\n" + identity_content[:6000] +
+        "\n\n---\n\n## PIPELINE DATA\n\n" + context_json)
+else:
+    prompt = _raw_prompt.replace('{context_json}', context_json)
 prompt = prompt.replace('{generated_at}', _dt.datetime.now(_dt.timezone.utc).isoformat())
 prompt = prompt.replace('{data_date}', TODAY_STR)
 print(f"Prompt loaded ({len(_raw_prompt)} chars)")
 
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
-print(f"Calling {MODEL} for attribution chain reasoning...")
+print(f"Calling {MODEL} for conflict trajectory reasoning...")
 print(f"Context size: {len(context_json)} chars")
 
 response = requests.post(
@@ -206,17 +242,18 @@ output = json.dumps(data, indent=2, ensure_ascii=False)
 OUT_DATED.write_text(output, encoding="utf-8")
 OUT_LATEST.write_text(output, encoding="utf-8")
 
-reviews   = data.get("attribution_reviews", [])
-linkages  = data.get("linkage_detections", [])
-flags     = data.get("cross_monitor_escalation_flags", [])
-contested = data.get("contested_findings", [])
-posture   = data.get("actor_posture_changes", [])
+trajectory_reviews  = data.get("trajectory_reviews", [])
+deviation_alerts    = data.get("deviation_alerts", [])
+baseline_reviews    = data.get("baseline_reviews", [])
+cross_flags         = data.get("cross_monitor_flags", [])
+roster_changes      = data.get("roster_change_recommendations", [])
+f_flag_reviews      = data.get("f_flag_reviews", [])
 
 print(f"✅ Written: {OUT_DATED}")
-print(f"   Attribution reviews: {len(reviews)} "
-      f"({sum(1 for r in reviews if r.get('recommendation') != 'unchanged')} changes recommended)")
-print(f"   Linkages detected: {len(linkages)}")
-print(f"   Actor posture changes: {len(posture)}")
-print(f"   Cross-monitor flags: {len(flags)}")
-print(f"   Contested findings: {len(contested)}")
+print(f"   Trajectory reviews: {len(trajectory_reviews)}")
+print(f"   Deviation alerts: {len(deviation_alerts)}")
+print(f"   Baseline reviews: {len(baseline_reviews)}")
+print(f"   Cross-monitor flags: {len(cross_flags)}")
+print(f"   Roster change recommendations: {len(roster_changes)}")
+print(f"   F-flag reviews: {len(f_flag_reviews)}")
 print(f"   Briefing: {len(data.get('analyst_briefing',''))} chars")
