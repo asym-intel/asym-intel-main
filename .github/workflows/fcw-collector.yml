@@ -36,5 +36,9 @@ jobs:
           git add pipeline/monitors/fimi-cognitive-warfare/daily/
           git diff --staged --quiet && echo "No new findings to commit" && exit 0
           git commit -m "data(fcw-collector): Tier 0 daily pre-verification — $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
-          git push
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done

@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
-      - name: Run FCW Chatter
+      - name: Run SCEM Chatter
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
         run: python pipeline/monitors/conflict-escalation/scem-chatter.py
@@ -28,5 +28,9 @@ jobs:
           git add static/monitors/conflict-escalation/data/chatter*.json
           git diff --staged --quiet && echo "No chatter output to commit" && exit 0
           git commit -m "data(scem-chatter): daily signal — $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
-          git push
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
