@@ -1,0 +1,96 @@
+name: "Pipeline Failure Alert"
+
+on:
+  workflow_run:
+    workflows:
+      - "FCW Collector — Tier 0 daily pre-verification"
+      - "GMM Collector — Tier 0 daily macro pre-verification"
+      - "WDM Collector — Tier 0 daily pre-verification"
+      - "SCEM Collector — Tier 0 daily conflict pre-verification"
+      - "ESA Collector — Tier 0 daily pre-verification"
+      - "AGM Collector — Tier 0 daily pre-verification"
+      - "ERM Collector — Tier 0 daily pre-verification"
+      - "FCW Chatter — Daily Signal"
+      - "GMM Chatter — Daily Signal"
+      - "WDM Chatter — Daily Signal"
+      - "SCEM Chatter — Daily Signal"
+      - "ESA Chatter — Daily Signal"
+      - "AGM Chatter — Daily Signal"
+      - "ERM Chatter — Daily Signal"
+      - "FCW Weekly Research"
+      - "GMM Weekly Research"
+      - "WDM Weekly Deep Research"
+      - "SCEM Weekly Research"
+      - "ESA Weekly Research"
+      - "AGM Weekly Research"
+      - "ERM Weekly Research"
+      - "FCW Reasoner"
+      - "GMM Reasoner"
+      - "WDM Reasoner — Deterioration Pattern Analysis"
+      - "SCEM Reasoner"
+      - "ESA Reasoner — ESA Domain Autonomy Reasoning"
+      - "AGM Reasoner — AGM Capability Governance Reasoning"
+      - "ERM Reasoner — ERM Earth System Reasoning"
+      - "FCW Synthesiser"
+      - "GMM Synthesiser"
+      - "WDM Synthesiser"
+      - "SCEM Synthesiser"
+      - "ESA Synthesiser"
+      - "AGM Synthesiser"
+      - "ERM Synthesiser"
+    types: [completed]
+
+jobs:
+  alert:
+    name: Create issue on pipeline failure
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    permissions:
+      issues: write
+    steps:
+      - name: Create failure issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const title = `🔴 Pipeline failure: ${run.name}`;
+            const body = [
+              `**Workflow:** ${run.name}`,
+              `**Branch:** ${run.head_branch}`,
+              `**Run:** ${run.html_url}`,
+              `**Failed at:** ${run.updated_at}`,
+              `**Trigger:** ${run.event}`,
+              ``,
+              `This issue was auto-created by the pipeline failure alert.`,
+              `Close when resolved.`,
+            ].join('\n');
+
+            // Check for existing open issue with same title (avoid duplicates)
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'pipeline-failure',
+              per_page: 50,
+            });
+
+            const dupe = existing.data.find(i => i.title === title);
+            if (dupe) {
+              // Add comment to existing issue instead
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: dupe.number,
+                body: `**Repeated failure** at ${run.updated_at}\nRun: ${run.html_url}`,
+              });
+              console.log(`Updated existing issue #${dupe.number}`);
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['pipeline-failure'],
+              });
+              console.log('Created new failure issue');
+            }
