@@ -1,0 +1,41 @@
+name: Update Pipeline Status
+
+on:
+  schedule:
+    # Run 3 times daily: after morning pipeline (08:00), after evening cascades (23:00), and midday (14:00)
+    - cron: "0 8 * * *"
+    - cron: "0 14 * * *"
+    - cron: "0 23 * * *"
+  workflow_dispatch:    # allow manual trigger from Actions tab
+
+jobs:
+  update-status:
+    name: Refresh pipeline-status.json + dashboard
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read     # read own workflow runs
+      contents: read    # read own repo
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}    # PAT for cross-repo write to asym-intel-internal
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run status updater
+        run: python3 ops/update-pipeline-status.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pipeline-status
+          path: |
+            pipeline-status.json
+            pipeline-dashboard.html
+          retention-days: 7
