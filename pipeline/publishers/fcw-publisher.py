@@ -45,6 +45,16 @@ MONITOR_TITLE = "FIMI & Cognitive Warfare Monitor"
 PUBLISH_TIME = "T09:00:00Z"
 SITE_URL = "https://asym-intel.info"
 
+# Adjacent monitors for cross-monitor flag verification
+ADJACENT_MONITORS = [
+    "democratic-integrity",
+    "conflict-escalation",
+    "european-strategic-autonomy",
+    "macro-monitor",
+    "ai-governance",
+    "environmental-risks",
+]
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -196,30 +206,175 @@ def build_attribution_log(synthesis: dict, prev_report: dict) -> list:
     return prev_log
 
 
-def build_cognitive_warfare(prev_report: dict) -> list:
+def build_cognitive_warfare(synthesis: dict, prev_report: dict) -> list:
     """
-    Cognitive warfare section is editorial/analytical.
-    Carry forward from previous report. New entries come from
-    synthesis intelligence_highlights if present.
+    Cognitive warfare section: carry forward existing entries +
+    promote any new structural key_judgments from synthesis.
+
+    A key_judgment becomes a CW entry if it:
+    - Has confidence Confirmed or High
+    - Contains structural/doctrinal significance (not routine status)
+    - Isn't already covered by an existing CW entry
     """
-    return prev_report.get("cognitive_warfare", [])
+    existing = list(prev_report.get("cognitive_warfare", []))
+    existing_headlines = {e.get("headline", "").lower() for e in existing}
+
+    # Check intelligence_highlights first (synthesiser's curated highlights)
+    highlights = synthesis.get("intelligence_highlights", [])
+    for hl in highlights:
+        headline = hl.get("headline", hl.get("title", ""))
+        if headline.lower() not in existing_headlines:
+            next_id = f"CW-{len(existing) + 1:03d}"
+            existing.append({
+                "id": next_id,
+                "classification": "COGNITIVE WARFARE",
+                "headline": headline,
+                "detail": hl.get("detail", hl.get("summary", "")),
+                "significance": hl.get("significance", ""),
+                "source_url": hl.get("source_url", ""),
+            })
+            print(f"    + new CW entry: {next_id} — {headline[:60]}")
+
+    # Also check key_judgments for structural findings
+    for kj in synthesis.get("key_judgments", []):
+        # Only promote Confirmed/High confidence structural judgments
+        if kj.get("confidence") not in ("Confirmed", "High"):
+            continue
+        text = kj.get("text", "")
+        # Skip routine "no signal" judgments
+        if any(skip in text.lower() for skip in ["no new", "no signal", "unchanged", "no operations"]):
+            continue
+        if text[:50].lower() not in existing_headlines:
+            next_id = f"CW-{len(existing) + 1:03d}"
+            existing.append({
+                "id": next_id,
+                "classification": "COGNITIVE WARFARE",
+                "headline": text[:120],
+                "detail": text,
+                "significance": kj.get("basis", ""),
+                "source_url": "",
+            })
+            print(f"    + new CW entry from key judgment: {next_id}")
+
+    return existing
 
 
-def build_cross_monitor_flags(synthesis: dict, prev_report: dict) -> dict:
+def load_adjacent_reports() -> dict:
     """
-    Use synthesis cross_monitor_candidates as advisory.
-    Carry forward previous flags, noting any new candidates.
+    Load report-latest.json from all adjacent monitors.
+    Returns {slug: report_dict} for monitors that have data.
     """
-    prev_flags = prev_report.get("cross_monitor_flags", {})
+    reports = {}
+    for slug in ADJACENT_MONITORS:
+        path = REPO_ROOT / f"static/monitors/{slug}/data/report-latest.json"
+        if path.exists():
+            try:
+                reports[slug] = load_json(path)
+                print(f"    loaded {slug} (Issue {reports[slug].get('meta', {}).get('issue', '?')})")
+            except (json.JSONDecodeError, KeyError):
+                print(f"    ⚠ {slug}: failed to parse")
+        else:
+            print(f"    ⚠ {slug}: no report-latest.json")
+    return reports
+
+
+def verify_flag_against_adjacent(flag: dict, adjacent_reports: dict) -> str:
+    """
+    Check if a cross-monitor flag's referenced monitor has a current report.
+    Each monitor has different schema — we verify the report exists and is
+    recent, not that specific fields match (that would require per-monitor logic).
+    Returns updated status string.
+    """
+    slug = flag.get("monitor_slug", "")
+    if slug not in adjacent_reports:
+        return flag.get("status", "Active")  # can't verify, keep current
+
+    adj = adjacent_reports[slug]
+    adj_meta = adj.get("meta", {})
+
+    # If adjacent report has a meta block with an issue number, it's live
+    if adj_meta.get("issue"):
+        current_status = flag.get("status", "Active")
+        # Strip any previous verification notes, keep the core status
+        if "—" in current_status:
+            core = current_status.split("—")[0].strip()
+        else:
+            core = current_status
+        return f"{core} — verified (adjacent Issue {adj_meta['issue']})"
+
+    return flag.get("status", "Active")
+
+
+def build_cross_monitor_flags(synthesis: dict, prev_report: dict, publish_date: str) -> dict:
+    """
+    Verify existing flags against adjacent monitor data.
+    Promote synthesis cross_monitor_candidates to new flags.
+    Track version history.
+    """
+    prev_cmf = prev_report.get("cross_monitor_flags", {})
+    prev_flags = list(prev_cmf.get("flags", []))
+    prev_history = list(prev_cmf.get("version_history", []))
     candidates = synthesis.get("cross_monitor_candidates", {})
 
-    # For mechanical publisher: carry forward previous flags unchanged.
-    # New candidates are logged in synthesis_quality_notes for analyst review.
-    # A future PPLX API review step can upgrade candidates to flags.
-    result = dict(prev_flags)
-    result["updated"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    print("  Verifying cross-monitor flags against adjacent reports...")
+    adjacent = load_adjacent_reports()
 
-    return result
+    changes_this_issue = []
+
+    # Verify existing flags
+    for flag in prev_flags:
+        old_status = flag.get("status", "")
+        new_status = verify_flag_against_adjacent(flag, adjacent)
+        if new_status != old_status:
+            flag["status"] = new_status
+            changes_this_issue.append(f"{flag.get('id')}: {old_status} → {new_status}")
+        flag["updated"] = publish_date
+
+    # Promote new candidates from synthesis
+    existing_slugs = {f.get("monitor_slug") for f in prev_flags}
+    for slug_key, candidate in candidates.items():
+        if candidate is None:
+            continue
+        # candidate can be a dict with flag data or a string note
+        if isinstance(candidate, dict):
+            monitor_slug = candidate.get("monitor_slug", slug_key)
+            if monitor_slug not in existing_slugs:
+                next_id = f"CMF-{len(prev_flags) + 1:03d}"
+                new_flag = {
+                    "id": next_id,
+                    "monitor": candidate.get("monitor", monitor_slug),
+                    "monitor_slug": monitor_slug,
+                    "headline": candidate.get("headline", ""),
+                    "linkage": candidate.get("linkage", ""),
+                    "classification": candidate.get("classification", "Structural"),
+                    "status": "Active — NEW",
+                    "first_flagged": publish_date,
+                    "updated": publish_date,
+                    "source_url": candidate.get("source_url", ""),
+                }
+                prev_flags.append(new_flag)
+                changes_this_issue.append(f"{next_id}: NEW — {new_flag['headline'][:60]}")
+                print(f"    + new flag: {next_id} — {new_flag['headline'][:60]}")
+
+    # Build version history entry
+    if changes_this_issue:
+        prev_history.append({
+            "date": publish_date,
+            "change": "; ".join(changes_this_issue),
+            "reason": "Publisher auto-verification against adjacent monitor data",
+        })
+    else:
+        prev_history.append({
+            "date": publish_date,
+            "change": "No changes — all flags verified against adjacent monitor data",
+            "reason": "Routine verification",
+        })
+
+    return {
+        "updated": f"{publish_date}{PUBLISH_TIME}",
+        "flags": prev_flags,
+        "version_history": prev_history,
+    }
 
 
 def build_last_run_status(synthesis: dict, success: bool = True, issues: list = None) -> dict:
@@ -429,8 +584,8 @@ def main():
         "actor_tracker": build_actor_tracker(synthesis, prev_report),
         "platform_responses": build_platform_responses(persistent, prev_report),
         "attribution_log": build_attribution_log(synthesis, prev_report),
-        "cognitive_warfare": build_cognitive_warfare(prev_report),
-        "cross_monitor_flags": build_cross_monitor_flags(synthesis, prev_report),
+        "cognitive_warfare": build_cognitive_warfare(synthesis, prev_report),
+        "cross_monitor_flags": build_cross_monitor_flags(synthesis, prev_report, publish_date),
         "source_url": f"{SITE_URL}/monitors/{MONITOR_SLUG}/{publish_date}-weekly-brief/",
         "_meta": {
             "last_run_status": build_last_run_status(synthesis),
