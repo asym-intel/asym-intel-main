@@ -1,0 +1,111 @@
+name: "Staging Divergence Guard"
+
+on:
+  schedule:
+    - cron: "0 18 * * *"    # Daily 18:00 UTC
+  workflow_dispatch:
+
+jobs:
+  check-staging:
+    name: Check staging divergence from main
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Check divergence
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Compare staging vs main
+            let comparison;
+            try {
+              comparison = await github.rest.repos.compareCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                base: 'main',
+                head: 'staging',
+              });
+            } catch (e) {
+              console.log('staging branch may not exist — skipping');
+              return;
+            }
+
+            const ahead = comparison.data.ahead_by;
+            const behind = comparison.data.behind_by;
+
+            console.log(`Staging: ${ahead} ahead, ${behind} behind main`);
+
+            // Thresholds
+            if (ahead <= 30) {
+              console.log('Within threshold (≤30) — no action needed');
+
+              // Close any existing staging-divergence issue if present
+              const existing = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'staging-divergence',
+                per_page: 5,
+              });
+              for (const issue of existing.data) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed',
+                  state_reason: 'completed',
+                });
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `Auto-closed: staging is now ${ahead} ahead (within threshold).`,
+                });
+              }
+              return;
+            }
+
+            // Over threshold — create or update issue
+            const severity = ahead > 100 ? '🔴 URGENT' : '🟡 WARNING';
+            const title = `${severity}: Staging is ${ahead} commits ahead of main`;
+            const body = [
+              `**Ahead by:** ${ahead} commits`,
+              `**Behind by:** ${behind} commits`,
+              `**Checked:** ${new Date().toUTCString()}`,
+              ``,
+              ahead > 100
+                ? `Staging has diverged significantly. Direct file-apply merge recommended over PR.`
+                : `Consider reviewing and merging staged changes.`,
+              ``,
+              `This issue is auto-managed by the staging guard. It will auto-close when staging is ≤30 ahead.`,
+            ].join('\n');
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'staging-divergence',
+              per_page: 5,
+            });
+
+            if (existing.data.length > 0) {
+              const issue = existing.data[0];
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                title,
+                body,
+              });
+              console.log(`Updated issue #${issue.number}`);
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['staging-divergence'],
+              });
+              console.log('Created staging divergence issue');
+            }
