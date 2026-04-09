@@ -1,3 +1,8 @@
+> **RETIRED — 9 April 2026.** Analyst Computer crons no longer exist.
+> Publication is now handled by `pipeline/publishers/publisher.py` via GitHub Actions.
+> Do NOT use this wrapper to create or recreate Computer crons.
+> See `ops/cron-schedule.md` in asym-intel-internal for the canonical schedule.
+
 # ══════════════════════════════════════════════════════════════
 # IDENTITY — READ BEFORE ANYTHING ELSE (2 minutes)
 # ══════════════════════════════════════════════════════════════

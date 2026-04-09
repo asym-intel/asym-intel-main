@@ -1,3 +1,9 @@
+> **Partially superseded — 9 April 2026.** The "Computer Analyst cron" references
+> in this document are now historical. Publication is handled by
+> `pipeline/publishers/publisher.py` (zero credits, GitHub Actions).
+> The Collector and Weekly Research build patterns are still current.
+> See `ops/cron-schedule.md` in asym-intel-internal for the canonical schedule.
+
 # GitHub Actions Pipeline Build Pattern
 ## Reusable guide for adding Collector + Weekly Research to any monitor
 ### Version 1.0 — 2 April 2026 | asym-intel.info
