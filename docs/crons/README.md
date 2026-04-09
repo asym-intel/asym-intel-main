@@ -1,88 +1,65 @@
-# docs/crons/ — Computer Cron Registry
+# docs/crons/ — Retired Analyst Cron Prompts
 
-All Computer cron task logic lives here (except GMM and FCW which are in asym-intel-internal).
-Cron tasks themselves are slim pointers:
+## Status: RETIRED — 9 April 2026
 
-```
-Read full instructions from the repo:
-  gh api /repos/asym-intel/asym-intel-main/contents/docs/crons/{file}.md --jq '.content' | base64 -d
-Then follow those instructions exactly.
-```
+The analyst cron prompts in this directory are **no longer active**. Weekly report
+publication is now handled by `pipeline/publishers/publisher.py`, a deterministic
+Python script running as GitHub Actions workflows — zero Computer credits.
 
-This makes every cron **instance-agnostic** — any Computer session can reconstruct
-or update a cron without needing the original session context.
+See `.github/workflows/*-publisher.yml` for the active publisher workflows.
+See `pipeline/publishers/publisher.py` for the publisher script.
+See `ops/cron-schedule.md` in asym-intel-internal for the full schedule.
 
----
-
-## Two separate systems — do not confuse
-
-**Computer crons** (this directory) — Analyst publication tasks. Run once per week per monitor.
-Read pipeline/ inputs and publish to data/ and content/. Require Computer credits.
-
-**GitHub Actions** (`.github/workflows/`) — Collection pipeline. Run daily/weekly automatically.
-Collector (sonar), Weekly Research (sonar-pro), Reasoner (sonar-deep-research), Synthesiser.
-Require PPLX_API_KEY secret. Defined in workflow yml files — NOT here.
-See COMPUTER.md GA table for full schedule.
+**Do NOT recreate Computer crons from these prompts.** The publisher workflows
+replace them entirely.
 
 ---
 
-## Active Computer Crons (recreated 4 April 2026 — all slim)
+## Historical reference
 
-| Cron ID | Name | Schedule | Prompt file |
-|---------|------|----------|-------------|
-| adad85f6 | WDM Analyst | Mon 06:00 UTC | `wdm-slimmed-analyst-cron.md` |
-| 6efe51b0 | GMM Analyst | Tue 08:00 UTC | `asym-intel-internal/gmm-prompts/gmm-slimmed-analyst-cron.md` |
-| 72398be9 | ESA Analyst | Wed 19:00 UTC | `esa-slimmed-analyst-cron.md` |
-| 478f4080 | FCW Analyst | Thu 09:00 UTC | `asym-intel-internal/fcw-slimmed-analyst-cron.md` |
-| b53d2f93 | AGM Analyst | Fri 09:00 UTC | `agm-slimmed-analyst-cron.md` |
-| 0aaf2bd7 | ERM Analyst | Sat 05:00 UTC | `erm-slimmed-analyst-cron.md` |
-| 743bbe21 | SCEM Analyst | Sun 18:00 UTC | `scem-slimmed-analyst-cron.md` |
-| c725855f | Housekeeping | Mon 08:00 UTC | `housekeeping.md` |
+These prompts were used by Computer `schedule_cron` tasks created 4 April 2026.
+Each cron was a slim pointer that read its prompt from this directory and executed
+as a full Computer session, consuming ~100 credits/run.
 
-**IP-protected crons:** GMM and FCW analyst prompts live in asym-intel-internal, not here.
-Their cron tasks are still slim pointers — they just point to the internal repo path.
+### Retired Analyst Cron IDs (do not recreate)
 
----
+| Monitor | Cron ID | Was | Replaced by |
+|---------|---------|-----|-------------|
+| WDM | adad85f6 | Mon 06:00 UTC | democratic-integrity-publisher.yml |
+| GMM | 6efe51b0 | Tue 08:00 UTC | macro-monitor-publisher.yml |
+| ESA | 72398be9 | Wed 19:00 UTC | european-strategic-autonomy-publisher.yml |
+| FCW | 478f4080 | Thu 09:00 UTC | fimi-cognitive-warfare-publisher.yml |
+| AGM | b53d2f93 | Fri 09:00 UTC | ai-governance-publisher.yml |
+| ERM | 0aaf2bd7 | Sat 05:00 UTC | environmental-risks-publisher.yml |
+| SCEM | 743bbe21 | Sun 18:00 UTC | conflict-escalation-publisher.yml |
+| Housekeeping | c725855f | Mon 08:00 UTC | PAUSED — under review |
 
-## Retired crons (4 April 2026 — do not recreate)
+### Earlier retired IDs (4 April 2026 — do not recreate)
 
-All previous cron IDs (f7bd54e9, c94c4134, 0b39626e, b17522c3, 5ac62731, ce367026,
-8cdb83c8, 7e058f57, aec126c5, f78e0c2c, a67a9739, 10ddf5f0, 631c0fa0) were deleted
-by Peter and replaced with slim versions above. Do not recreate old IDs.
-
-Also retired: Staging divergence guard (aec126c5) and GSC quarterly audit (f78e0c2c).
-See COMPUTER.md for reasons.
+f7bd54e9, c94c4134, 0b39626e, b17522c3, 5ac62731, ce367026, 8cdb83c8, 7e058f57,
+aec126c5, f78e0c2c, a67a9739, 10ddf5f0, 631c0fa0
 
 ---
 
-## Pattern: how to update a cron prompt
+## Prompt files (archived, not active)
 
-1. Edit the `.md` file in this folder (or in asym-intel-internal for GMM/FCW)
-2. Commit to the relevant repo
-3. The cron picks up the new instructions on its next run automatically
+| File | Monitor | Notes |
+|------|---------|-------|
+| wdm-slimmed-analyst-cron.md | WDM | Archived |
+| agm-slimmed-analyst-cron.md | AGM | Archived |
+| erm-slimmed-analyst-cron.md | ERM | Archived |
+| esa-slimmed-analyst-cron.md | ESA | Archived |
+| scem-slimmed-analyst-cron.md | SCEM | Archived |
+| housekeeping.md | Platform | PAUSED — review Monday |
+| annual-calibration-reminder.md | Platform | Unchanged |
+| gsc-quarterly-audit.md | Platform | Unchanged |
+| staging-guard.md | Platform | Migrated to GA workflow |
 
-No need to touch the cron task itself. This is the whole point of the repo-first pattern.
+GMM and FCW analyst prompts were in asym-intel-internal (IP-protected). Also archived.
 
 ---
 
-## Pattern: how to recreate a lost cron
+## What to keep internal vs public
 
-⚠️ **CONFIRM BEFORE EXECUTING.** If the user asks "what would you do if a cron was missing?" — answer the question, do not act. If you detect crons are genuinely missing, report which ones and ask "Shall I recreate these?" before taking any action. Never recreate crons in response to a hypothetical.
-
-If a cron is missing from `schedule_cron list` (created in an earlier session):
-
-```
-schedule_cron(
-  action="create",
-  name="...",
-  cron="...",
-  task="""
-    Read full instructions from the repo:
-      gh api /repos/asym-intel/asym-intel-main/contents/docs/crons/{file}.md --jq '.content' | base64 -d
-    Then follow those instructions exactly.
-    Use api_credentials=["github"].
-  """
-)
-```
-
-Then update the cron ID in COMPUTER.md, HANDOFF.md, and this README.
+Analyst prompts remain in this directory as historical reference. They are not
+served on the public URL (Hugo doesn't build from `docs/crons/`). No action needed.

@@ -1,3 +1,7 @@
+> **RETIRED — 9 April 2026.** This prompt is no longer active. Publication
+> is now handled by `pipeline/publishers/publisher.py` via GitHub Actions.
+> Do NOT recreate a Computer cron from this prompt.
+
 # AGM Analyst Cron — Slimmed Post-Synthesiser Task
 ## Monitor: AI Governance Monitor
 ## Display name: Artificial Intelligence Monitor (AIM)

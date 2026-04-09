@@ -53,8 +53,8 @@ feeds the next.
 - **Layer 1B — Weekly Research** (weekly, GitHub Actions) ← PAUSED pending synthesiser architecture decision
 - **Layer 1C — Synthesiser** (weekly, GitHub Actions) ← NOT YET BUILT
 - **Layer 1D — State / Delta Engine** (weekly, GitHub Actions, deterministic) ← NOT YET BUILT
-- **Layer 2 — Analyst** (weekly, Computer cron — all 7 monitors)
-- **Layer 3 — Platform Validator** (weekly, Computer cron — Housekeeping)
+- **Layer 2 — Publisher** (weekly, GitHub Actions — deterministic Python, zero credits)
+- **Layer 3 — Platform Validator** (PAUSED — under review)
 
 Layers 1A–1D run on GitHub Actions. They consume Perplexity API credits only
 where they call the API; the State / Delta Engine is pure Python and consumes
@@ -231,63 +231,51 @@ consistently according to code-level rules — not model judgment.
 
 ---
 
-## Layer 2 — Analyst (Computer cron)
+## Layer 2 — Publisher (GitHub Actions, deterministic Python)
 
-**What:** The primary weekly publishing cron. After Synthesiser and State Engine
-exist, the Analyst becomes a **methodology + state + publication engine**,
-not a full research engine.
+**What:** A config-driven Python script (`pipeline/publishers/publisher.py`) that
+reads the Synthesiser output and mechanically produces the published report.
+Runs as a GitHub Actions workflow — **zero Computer credits, zero LLM calls**.
 
-**Estimated credit cost:**
+**Replaces:** The former Analyst Computer cron, which consumed ~100–275 credits/run.
+Retired 9 April 2026. See `docs/crons/README.md` for historical reference.
 
-- Current (no synthesiser): ~275 credits/run
-- After synthesiser: ~100 credits/run
+**Credit cost:** Zero.
 
-**Cadence:**
-
-All 7 monitors run weekly. Under the synthesiser architecture the Analyst cron
-is lightweight (~100 credits/run) so weekly is affordable for all monitors.
-The quarterly cadence idea is superseded — it was only relevant when the Analyst
-was doing full synthesis itself.
+**Cadence:** Weekly per monitor, matching the old Analyst schedule.
 
 **Inputs:**
 
-- `pipeline/monitors/{slug}/daily/daily-latest.json` (Step 0C)
-- `pipeline/monitors/{slug}/weekly/weekly-latest.json` (Step 0D, when available)
-- `pipeline/monitors/{slug}/synthesised/synthesis-latest.json` (Step 0S, when built)
-- `pipeline/monitors/{slug}/state/state-checked-*.json` and `delta-*.json` (Step 0Δ, when built)
+- `pipeline/monitors/{slug}/synthesised/synthesis-latest.json` (primary)
+- `static/monitors/{slug}/data/report-latest.json` (previous issue, for state continuity)
 - `static/monitors/{slug}/data/persistent-state.json`
-- Prior reports and archive
-- Methodology and calibration files
+- `static/monitors/{slug}/data/archive.json`
+- Adjacent monitors' `report-latest.json` (for cross-monitor flag verification)
 
 **Produces:**
 
-- `static/monitors/{slug}/data/report-latest.json`
 - `static/monitors/{slug}/data/report-YYYY-MM-DD.json`
-- `static/monitors/{slug}/data/persistent-state.json`
-- `static/monitors/{slug}/data/archive.json`
-- Weekly brief markdown / Hugo content
+- `static/monitors/{slug}/data/report-latest.json`
+- `static/monitors/{slug}/data/persistent-state.json` (updated)
+- `static/monitors/{slug}/data/archive.json` (appended)
+- `content/monitors/{slug}/YYYY-MM-DD-weekly-brief.md` (Hugo brief)
+- `docs/monitors/{slug}/data/` mirrors
 
-**Step 0S — Synthesiser ingest (when available):**
+**Safety guards:**
 
-1. Load `pipeline/monitors/{slug}/synthesised/synthesis-latest.json`.
-2. Treat as primary draft for lead signal, key judgments, entity summaries, weekly brief.
-3. Confirm, refine, merge, or reject any Synthesiser judgment using the monitor's methodology.
-4. If missing, synthesise directly from daily + weekly inputs (current fallback).
+- Staleness: skips publish if synthesis is >8 days old.
+- Validity: skips if synthesis is stub or raw_fallback only.
+- Schema validation: warns on missing required fields but still publishes.
+- Cross-monitor flags: verified against 6 adjacent monitor reports each run.
 
-**What the Analyst always owns regardless of synthesiser:**
+**What the Publisher does NOT do (deferred to future State Engine):**
 
-- Final methodological judgment.
-- Final public confidence assignment.
-- Cross-monitor flags and links.
-- Updates to `persistent-state.json`.
-- Schema-compliant final output JSON.
-- Publication commits and notifications.
+- Contested finding resolution (analytical judgment calls).
+- Final confidence upgrade/downgrade (carries forward from synthesis).
+- These can be added later as an optional sonar-deep-research step in GA.
 
-**Prompt location:**
-`docs/crons/{abbr}-analyst-prompt.md` in `asym-intel-main`
-
-Note: Analyst prompts are kept in `docs/crons/` (not in `static/`) to prevent
-public exposure of methodology detail and prompt engineering decisions.
+**Workflow location:** `.github/workflows/{slug}-publisher.yml`
+**Script location:** `pipeline/publishers/publisher.py`
 
 ---
 
@@ -317,8 +305,8 @@ Trimming to 5 essential steps is a planned efficiency measure (~800 credits/mont
 
 ## Core Rules (apply to all Collectors, Synthesisers, and State Engines)
 
-1. **Collector, Synthesiser, and State Engine never publish.** Only the Analyst
-   publishes to public `data/` paths.
+1. **Collector, Synthesiser, and State Engine never publish.** Only the Publisher
+   (Layer 2) writes to public `data/` paths.
 2. **`pipeline/` is internal.** Hugo never builds from `pipeline/` files.
 3. **Collector assigns `confidence_preliminary` only.** The Analyst upgrades,
    downgrades, or rejects.
@@ -330,8 +318,9 @@ Trimming to 5 essential steps is a planned efficiency measure (~800 credits/mont
    `verified-{TODAY}.json` already exists.
 7. **Urgent findings** go to `asym-intel-internal/notes-for-computer.md`, not
    directly into Analyst output.
-8. **Synthesiser is advisory.** The Analyst remains responsible for final
-   methodology, state, and publication.
+8. **Synthesiser feeds the Publisher.** The Publisher mechanically converts
+   synthesis output to published reports. Analytical judgment is deferred to
+   the future State Engine or manual Computer sessions.
 9. **State / Delta Engine is deterministic.** It must rely only on code and
    structured JSON, not on model calls.
 10. **Analyst prompts stay in `docs/crons/`**, not in `static/`. Methodology
@@ -433,20 +422,20 @@ The Collector never sets final publication status; only the Analyst does.
 | AGM | — | — | Not built |
 | ERM | — | — | Not built |
 
-## Active Analyst Crons (Computer)
+## Active Publisher Workflows (GitHub Actions — zero credits)
 
-All 7 monitors run weekly. No monitor is on quarterly cadence.
+Enabled 9 April 2026. Replaced Computer Analyst crons.
 
-| Monitor | Cron ID | Schedule | Status |
-|---------|---------|----------|--------|
-| WDM | f7bd54e9 | Mon 06:00 UTC | Weekly |
-| GMM | c94c4134 | Tue 08:00 UTC | Weekly |
-| ESA | 0b39626e | Wed 19:00 UTC | Weekly |
-| FCW | b17522c3 | Thu 09:00 UTC | Weekly — recreate after synthesiser validated |
-| AGM | 5ac62731 | Fri 09:00 UTC | Weekly |
-| ERM | ce367026 | Sat 05:00 UTC | Weekly |
-| SCEM | 8cdb83c8 | Sun 18:00 UTC | Weekly |
-| Housekeeping | 7e058f57 | Mon 08:00 UTC | Weekly |
+| Monitor | Workflow | Schedule | Status |
+|---------|----------|----------|--------|
+| WDM | democratic-integrity-publisher.yml | Mon 06:00 UTC | ENABLED |
+| GMM | macro-monitor-publisher.yml | Tue 08:00 UTC | ENABLED |
+| ESA | european-strategic-autonomy-publisher.yml | Wed 19:00 UTC | ENABLED |
+| FCW | fimi-cognitive-warfare-publisher.yml | Thu 09:00 UTC | ENABLED |
+| AIM | ai-governance-publisher.yml | Fri 09:00 UTC | ENABLED |
+| ERM | environmental-risks-publisher.yml | Sat 05:00 UTC | ENABLED |
+| SCEM | conflict-escalation-publisher.yml | Sun 18:00 UTC | ENABLED |
+| Housekeeping | — | Mon 08:00 UTC | PAUSED — under review |
 
 ---
 
@@ -495,12 +484,12 @@ All 7 monitors run weekly. No monitor is on quarterly cadence.
 
 (Build after Phase 2 validated.)
 
-### Phase 4 — Analyst update
+### Phase 4 — Publisher workflow
 
-1. Write/update Analyst prompt: `docs/crons/{abbr}-analyst-prompt.md`
-2. Update Computer cron task to add Step 0S (Synthesiser ingest).
-3. Delete old cron and recreate with slimmed 6-step post-synthesiser task.
-   Template: `docs/crons/fcw-slimmed-analyst-cron.md` (to be created when FCW synthesiser is validated — adapt for each monitor).
+1. Add monitor config to `pipeline/publishers/publisher.py` `MONITOR_CONFIGS` dict.
+2. Create `.github/workflows/{slug}-publisher.yml` (copy from any existing publisher workflow).
+3. Set `MONITOR_SLUG` env var and schedule to match the monitor's publish day/time.
+4. Test via `workflow_dispatch`, then enable schedule.
 
 ---
 
