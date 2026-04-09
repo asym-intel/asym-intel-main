@@ -1,7 +1,7 @@
 name: FCW Publisher — Weekly Report
 
 on:
-  # Schedule: Thursday 09:00 UTC (after synthesiser completes Wed 22:00)
+  # Schedule: Thursday 09:00 UTC (after synthesiser completes)
   # DISABLED until validated — enable by uncommenting the schedule line
   # schedule:
   #   - cron: "0 9 * * 4"    # Thursday 09:00 UTC
@@ -26,7 +26,8 @@ jobs:
       - name: Run FCW Publisher
         env:
           REPO_ROOT: ${{ github.workspace }}
-        run: python3 pipeline/publishers/fcw-publisher.py
+          MONITOR_SLUG: fimi-cognitive-warfare
+        run: python3 pipeline/publishers/publisher.py
 
       - name: Commit published report
         run: |
@@ -40,6 +41,6 @@ jobs:
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            echo "Push attempt $attempt/3 failed — retrying in ${{attempt}}0s..."
             sleep $((attempt * 10))
           done

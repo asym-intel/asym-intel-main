@@ -1,0 +1,46 @@
+name: GMM Publisher — Weekly Report
+
+on:
+  # Schedule: Tuesday 08:00 UTC (after synthesiser completes)
+  # DISABLED until validated — enable by uncommenting the schedule line
+  # schedule:
+  #   - cron: "0 8 * * 2"    # Tuesday 08:00 UTC
+  workflow_dispatch:          # manual trigger for testing
+
+jobs:
+  publish:
+    name: Publish GMM Weekly Report
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run GMM Publisher
+        env:
+          REPO_ROOT: ${{ github.workspace }}
+          MONITOR_SLUG: macro-monitor
+        run: python3 pipeline/publishers/publisher.py
+
+      - name: Commit published report
+        run: |
+          git config user.name "GMM Publisher Bot"
+          git config user.email "gmm-publisher@asym-intel.info"
+          git add static/monitors/macro-monitor/data/
+          git add docs/monitors/macro-monitor/data/
+          git add content/monitors/macro-monitor/
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "data(gmm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/macro-monitor/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by GMM Publisher Bot [skip ci]"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${{attempt}}0s..."
+            sleep $((attempt * 10))
+          done
