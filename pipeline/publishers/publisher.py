@@ -81,6 +81,7 @@ MONITOR_CONFIGS = {
         "abbr": "GMM",
         "publish_time": "T08:00:00Z",
         "signal_key": None,
+        "signal_builder": "gmm",
         "has_campaigns": False,
         "has_actor_tracker": False,
         "has_cognitive_warfare": False,
@@ -236,6 +237,11 @@ def build_meta(prev_report: dict, synthesis: dict, publish_date: str, config: di
 def build_signal(synthesis: dict, prev_report: dict, config: dict) -> dict | None:
     """Build signal from synthesis lead_signal, or carry forward."""
     signal_key = config.get("signal_key")
+
+    # GMM: signal is a composite of lead_signal + stress_regime_preliminary
+    if config.get("signal_builder") == "gmm":
+        return build_gmm_signal(synthesis, prev_report)
+
     if signal_key and signal_key in synthesis:
         ls = synthesis[signal_key]
         return {
@@ -247,6 +253,74 @@ def build_signal(synthesis: dict, prev_report: dict, config: dict) -> dict | Non
         }
     # Carry forward from previous report
     return prev_report.get("signal", prev_report.get("lead_signal"))
+
+
+def build_gmm_signal(synthesis: dict, prev_report: dict) -> dict:
+    """GMM signal: built from lead_signal + stress_regime_preliminary.
+    Dashboard reads: headline, system_stress_label, system_stress_direction,
+    system_average_score, regime, regime_conviction, regime_shift_probabilities, source_url.
+    """
+    ls = synthesis.get("lead_signal", {})
+    srp = synthesis.get("stress_regime_preliminary", {})
+    prev_signal = prev_report.get("signal", {})
+
+    # Regime label: synthesis regime field, or derive from regional consensus
+    regime = srp.get("regime", "")
+    if not regime:
+        # Derive from regional statuses — take the highest stress level
+        levels = {"Green": 0, "Amber": 1, "Red": 2, "Crisis": 3, "Critical": 3}
+        max_level = 0
+        for region in ["global", "us", "eu", "china", "em_basket"]:
+            val = srp.get(region, "")
+            max_level = max(max_level, levels.get(val, 0))
+        regime = [k for k, v in levels.items() if v == max_level][0] if max_level > 0 else "Green"
+
+    # System average: synthesis value or compute from regions
+    system_avg = srp.get("system_average")
+    if system_avg is None:
+        score_map = {"Green": 0, "Amber": -0.33, "Red": -0.66, "Crisis": -1.0, "Critical": -1.0}
+        region_scores = []
+        for region in ["global", "us", "eu", "china", "em_basket"]:
+            val = srp.get(region, "")
+            if val in score_map:
+                region_scores.append(score_map[val])
+        system_avg = round(sum(region_scores) / max(len(region_scores), 1), 3) if region_scores else None
+
+    # Stress label: map regime to display label
+    label_map = {"Green": "GREEN — No systemic stress", "Amber": "AMBER — Elevated stress",
+                 "Red": "RED — Systemic stress", "Crisis": "CRISIS — Active crisis",
+                 "Critical": "CRITICAL — Pre-crisis"}
+    stress_label = label_map.get(regime, regime.upper() if regime else prev_signal.get("system_stress_label", ""))
+
+    # Direction: from regime_delta
+    delta = srp.get("regime_delta", "Stable")
+    direction_map = {"Stable": "Stable", "Downgrade": "Deteriorating", "Upgrade": "Improving"}
+    stress_dir = direction_map.get(delta, delta)
+
+    # Conviction: synthesis value or derive
+    conviction = srp.get("conviction", "")
+    if not conviction:
+        # Count non-Green regions as corroborating
+        n = sum(1 for r in ["global", "us", "eu", "china", "em_basket"] if srp.get(r, "Green") != "Green")
+        conviction = {0: "LOW", 1: "LOW", 2: "MEDIUM", 3: "MEDIUM", 4: "HIGH", 5: "VERY HIGH"}.get(n, "LOW")
+
+    signal = {
+        "headline": ls.get("headline", prev_signal.get("headline", "")),
+        "system_stress_label": stress_label,
+        "system_stress_direction": stress_dir,
+        "system_average_score": system_avg,
+        "regime": regime.upper(),
+        "regime_conviction": conviction,
+        "regime_shift_probabilities": prev_signal.get("regime_shift_probabilities", {}),
+        "source_url": ls.get("source_url", ls.get("regime_relevance", "")),
+    }
+
+    # Carry forward regime_shift_probabilities from executive_briefing if available
+    eb = prev_report.get("executive_briefing", {})
+    if eb.get("regime_shift_probabilities") and not signal["regime_shift_probabilities"]:
+        signal["regime_shift_probabilities"] = eb["regime_shift_probabilities"]
+
+    return signal
 
 
 # ── Campaigns (FCW-specific but handled generically) ─────────────────────
@@ -490,6 +564,16 @@ def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict
         # Overlay: synthesis value replaces previous report value
         if synth_value:  # only overlay non-empty values
             report[report_key] = synth_value
+
+    # Map weekly_brief_draft → weekly_brief in report JSON
+    brief = synthesis.get("weekly_brief_draft")
+    if brief:
+        report["weekly_brief"] = brief
+
+    # Strip _preliminary suffix from confidence fields in key_judgments
+    for kj in report.get("key_judgments", []):
+        if isinstance(kj, dict) and "confidence_preliminary" in kj:
+            kj["confidence"] = kj.pop("confidence_preliminary")
 
     return report
 
