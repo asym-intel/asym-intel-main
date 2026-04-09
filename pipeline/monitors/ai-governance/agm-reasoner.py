@@ -127,23 +127,16 @@ if len(context_json) > MAX_CONTEXT:
         "daily_collector_findings": daily_findings[:10]
     }, indent=2)[:MAX_CONTEXT]
 
-# ── Load reasoning prompt from repo (repo-first pattern) ─────────────────────
-import subprocess
-import base64
-_PROMPT_PATH = "docs/crons/reasoner-prompts/agm-reasoner-prompt.md"
-_pr = subprocess.run(
-    ['gh', 'api',
-     '/repos/asym-intel/asym-intel-internal/contents/' + _PROMPT_PATH,
-     '--jq', '.content'],
-    capture_output=True, text=True
-)
-if _pr.returncode != 0 or not _pr.stdout.strip():
-    print('ERROR: Could not fetch prompt from ' + _PROMPT_PATH)
+# ── Load reasoning prompt ──────────────────────────────────────────────────────
+
+PROMPT_FILE = pathlib.Path("pipeline/monitors/ai-governance/agm-reasoner-api-prompt.txt")
+if not PROMPT_FILE.exists():
+    print(f"ERROR: Prompt file not found at {PROMPT_FILE}")
     sys.exit(1)
-_raw_prompt = base64.b64decode(_pr.stdout.strip()).decode('utf-8')
-# Inject context_json into prompt (replaces {context_json} placeholder in .md)
+
+_raw_prompt = PROMPT_FILE.read_text(encoding="utf-8")
 prompt = _raw_prompt.replace('{context_json}', context_json)
-print('Prompt loaded from repo (' + str(len(_raw_prompt)) + ' chars)')
+print(f"Prompt loaded ({len(_raw_prompt)} chars)")
 
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 

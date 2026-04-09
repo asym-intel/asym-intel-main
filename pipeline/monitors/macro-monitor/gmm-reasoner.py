@@ -119,125 +119,21 @@ if len(context_json) > MAX_CONTEXT:
         "daily_collector_findings": daily_findings[:10]
     }, indent=2)[:MAX_CONTEXT]
 
-prompt = f"""You are an expert FIMI attribution analyst performing deep reasoning over
-structured intelligence data from the Global FIMI & Cognitive Warfare Monitor.
+# ── Load reasoning prompt ──────────────────────────────────────────────────────
 
-You have been provided with:
-1. Active campaign registry (from persistent-state.json)
-2. Recent attribution log entries
-3. New campaign candidates from this week's research
-4. Daily Collector pre-verified candidates
-5. Current actor posture data
+import datetime as _dt
 
-Your task is to reason deeply over this structured data and return analytical
-conclusions as JSON. You are NOT searching the web — reason only over the
-data provided below.
+PROMPT_FILE = pathlib.Path("pipeline/monitors/macro-monitor/gmm-reasoner-api-prompt.txt")
+if not PROMPT_FILE.exists():
+    print(f"ERROR: Prompt file not found at {PROMPT_FILE}")
+    sys.exit(1)
 
-ANALYTICAL TASKS:
-
-A. ATTRIBUTION CONFIDENCE REVIEW
-For each active campaign AND each new candidate, assess whether the accumulated
-evidence supports upgrading or downgrading confidence_preliminary:
-- Review all attribution_log entries related to the campaign
-- Check for corroboration across multiple source tiers
-- Check for contradictory evidence
-- Apply GMM evidentiary thresholds:
-  Confirmed = Tier 1 platform disclosure + independent government attribution
-  High      = Tier 1 platform disclosure + Tier 2/3 corroboration
-  Assessed  = Tier 2/3 sources, credible, not platform-confirmed
-  Possible  = Single Tier 3/4 source
-
-B. CAMPAIGN LINKAGE DETECTION
-Identify whether any new candidates (weekly or daily) show patterns
-consistent with existing registered campaigns:
-- Same actor + same TTP fingerprint
-- Same infrastructure or targeting pattern
-- Same narrative across different platforms
-- Mark as "continuation" or "possible_linkage" if strong match
-
-C. ACTOR POSTURE CHANGE DETECTION
-Based on the combined data, identify:
-- Any actor showing increased operational tempo this week
-- Any actor showing doctrine evolution (new TTPs or targeting)
-- Any actor with notable absence (expected activity not seen)
-
-D. CROSS-MONITOR ESCALATION FLAGS
-Identify findings that should be flagged to adjacent monitors:
-- WDM: FIMI targeting electoral processes in monitored countries
-- SCEM: FIMI operations alongside conflict escalation (hybrid warfare)
-- ESA: FIMI targeting European integration or EU institutions
-- AGM: AI capabilities newly observed in FIMI operations
-
-E. CONTESTED FINDINGS
-Flag any finding where the evidence is contradictory or where two sources
-support different attribution conclusions. These need human review.
-
-STRUCTURED DATA:
-{context_json}
-
-Return ONLY valid JSON — no markdown, no prose, no code fences:
-
-{{
-  "_meta": {{
-    "schema_version": "reasoner-v1.0",
-    "monitor_slug": "macro-monitor",
-    "job_type": "attribution-chain-reasoning",
-    "generated_at": "{datetime.datetime.now(datetime.timezone.utc).isoformat()}",
-    "data_date": "{TODAY_STR}",
-    "campaigns_reviewed": <integer>,
-    "candidates_reviewed": <integer>
-  }},
-  "attribution_reviews": [
-    {{
-      "campaign_id_or_candidate": "<id or dedupe_key>",
-      "current_confidence": "<existing confidence level>",
-      "recommended_confidence": "<Confirmed|High|Assessed|Possible — or UNCHANGED>",
-      "recommendation": "<upgrade|downgrade|unchanged>",
-      "reasoning": "<2-3 sentences explaining the evidence basis for this recommendation>",
-      "key_evidence": ["<evidence item 1>", "<evidence item 2>"],
-      "contradictory_evidence": "<any evidence pointing the other way, or null>",
-      "needs_human_review": <true|false>
-    }}
-  ],
-  "linkage_detections": [
-    {{
-      "candidate_id": "<daily or weekly candidate id/dedupe_key>",
-      "matches_campaign": "<existing campaign id or null>",
-      "match_type": "<continuation|possible_linkage|new_campaign>",
-      "match_basis": "<TTPs|infrastructure|narrative|actor|null>",
-      "confidence": "<High|Medium|Low>",
-      "reasoning": "<why these appear linked>"
-    }}
-  ],
-  "actor_posture_changes": [
-    {{
-      "actor": "<RU|CN|IR|Gulf|US|IL>",
-      "change_type": "<increased_tempo|decreased_tempo|new_ttp|new_targeting|notable_absence>",
-      "observation": "<what was observed>",
-      "significance": "<why this matters analytically>",
-      "confidence": "<High|Medium|Low>"
-    }}
-  ],
-  "cross_monitor_escalation_flags": [
-    {{
-      "target_monitor": "<wdm|scem|esa|agm>",
-      "flag_type": "<electoral_fimi|hybrid_warfare|eu_targeting|ai_fimi>",
-      "summary": "<what should be flagged and why>",
-      "source_campaign_or_finding": "<campaign id or candidate dedupe_key>",
-      "urgency": "<HIGH|MEDIUM|LOW>"
-    }}
-  ],
-  "contested_findings": [
-    {{
-      "finding_id": "<campaign or candidate id>",
-      "contradiction": "<what is contradictory>",
-      "source_a": "<one view + source>",
-      "source_b": "<conflicting view + source>",
-      "recommended_action": "<hold|escalate|downgrade>"
-    }}
-  ],
-  "analyst_briefing": "<200-300 word summary for the GMM Analyst. Cover: key attribution changes recommended, important linkages detected, actor posture changes, cross-monitor flags. Written in cold analytical register.>"
-}}"""
+_raw_prompt = PROMPT_FILE.read_text(encoding="utf-8")
+# Inject runtime values
+prompt = _raw_prompt.replace('{context_json}', context_json)
+prompt = prompt.replace('{generated_at}', _dt.datetime.now(_dt.timezone.utc).isoformat())
+prompt = prompt.replace('{data_date}', TODAY_STR)
+print(f"Prompt loaded ({len(_raw_prompt)} chars)")
 
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
