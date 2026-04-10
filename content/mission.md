@@ -8,7 +8,7 @@ date: 2026-04-01
 
 asym-intel.info is a free, public OSINT intelligence commons that surfaces structural risk signals before they reach mainstream analytical consensus.
 
-Seven autonomous monitors track seven domains where institutional analysis systematically lags the underlying conditions: democratic backsliding, macrofinancial stress, foreign information manipulation, European strategic autonomy, AI governance, environmental risk, and conflict escalation. Each publishes weekly. All output is open, sourced, and permanent. No paywalls. No paid tiers. Ever.
+Seven autonomous monitors track seven domains where institutional analysis systematically lags the underlying conditions: democratic backsliding, macrofinancial stress, foreign information manipulation, European strategic autonomy, AI governance, environmental risk, and conflict escalation. Each publishes weekly. All output is open, sourced, and permanent. No paywalls.
 
 The platform exists because the gap between signal and consensus is where decisions are made well or badly. A senior analyst reading a WDM brief on a country in early-stage institutional capture — six months before the annual democracy indices register the deterioration — has time to act. A policymaker seeing the GMM's narrative vs. data divergence before the FT frames it has an analytical edge. That gap is what this platform manufactures.
 
@@ -32,15 +32,15 @@ The 4-actor FIMI framework (RU/CN/US/IL) exists because applying different evide
 
 ### 4. Structural over episodic; deviation over level
 
-The platform's analytical value is in identifying structural conditions, not reporting events. A presidential statement is a signal, not a fact. An electoral outcome is not a democracy score. A VIX spike is not a regime change. Every monitor is designed to distinguish structural deterioration from episodic noise — and to say explicitly when a finding is episodic rather than structural. In conflict analysis, the principle is formalised as deviation-over-level: an anomalous spike in a low-intensity theatre matters more than a sustained high level in a familiar one.
+The platform's analytical value is in identifying structural conditions, not reporting events. A presidential statement is a signal, not a fact. An electoral outcome is not a democracy score. Every monitor is designed to distinguish structural deterioration from episodic noise — and to say explicitly when a finding is episodic rather than structural. In conflict analysis, the principle is formalised as deviation-over-level: an anomalous spike in a low-intensity theatre matters more than a sustained high level in a familiar one.
 
 ### 5. Documented uncertainty is a deliverable, not a weakness
 
-Confidence levels are explicit. Blind spots are published. The GMM's 12.5% false-positive rate across four known indicator patterns is documented — because an analyst reading the output needs to know both the score and whether it sits in a known over-sensitivity zone. SCEM's CONTESTED band is carried on early-watch entries until week 13 because it tells the reader something true about epistemic status. The platform's credibility is built on this honesty, not despite it.
+Confidence levels are explicit. Blind spots are published. The GMM's 12.5% false-positive rate across four known indicator patterns is documented — because an analyst reading the output needs to know both the score and whether it sits in a known over-sensitivity zone. SCEM's CONTESTED band is carried on early-watch entries until week 13 because it tells the reader something about the reliability of the data. The platform's credibility is built on this approach.
 
 ### 6. Public good, permanent commons
 
-All output is free. All methodology is published. The platform does not offer paid access, professional tiers, API monetisation, or data sales. This constraint is not a business decision — it is a founding principle. The moment access is conditioned on payment, the platform stops being a public commons and starts being a product. The platform will not become a product.
+All output is free. Methodologie are available for review to public institutions on demand. The platform will always offer free access to core data that is in the public commons interest (any paid access, professional tiers, API monetisation, or data sales will only be used for bespoke commercial information and products to help fund the commons).
 
 ---
 
@@ -48,11 +48,11 @@ All output is free. All methodology is published. The platform does not offer pa
 
 **Not journalism.** The platform does not break stories, conduct investigations, or interview sources. It analyses public data using structured methodology. The distinction matters: journalism tells you what happened; this platform tells you what the structured signal picture looks like and what the trajectory implies.
 
-**Not advocacy.** The platform does not have a preferred outcome for any domain it monitors. It does not want democracy to win, specific actors to lose, or particular policy positions to prevail. The analytical register is cold because warm analysis rationalises uncomfortable signals. Where findings have implications that benefit one political coalition, they are published anyway.
+**Not advocacy.** The platform does not have a preferred outcome for any domain it monitors. The analytical register is cold because warm analysis rationalises uncomfortable signals. Where findings have implications that benefit one political coalition, they are published anyway.
 
 **Not a news aggregator.** Seven monitors publish weekly whether or not there is major news that week. A stable or improving signal is as important to report as a deteriorating one. The platform tracks conditions, not events.
 
-**Not comprehensive.** The platform tracks seven domains because those are the seven domains where asymmetric risk concentrates and where systematic analytical lag is most consequential. It does not track every important domain. Parsimony is the design, not the limitation.
+**Not comprehensive.** The platform tracks domains where asymmetric risk concentrates and where systematic analytical lag is most consequential.
 
 **Not dependent on classified material.** Every finding is reproducible from public sources. The methodology pages show the work. The source hierarchy is explicit. Any analyst with access to the same sources should be able to approximate the same output. That reproducibility is the platform's integrity guarantee.
 
@@ -60,13 +60,13 @@ All output is free. All methodology is published. The platform does not offer pa
 
 ## Success Criteria
 
-Success is not traffic. It is not subscriber count. It is not publication frequency.
+Success is surfacing reliable data in a way that makes it easier to see the signal within the noise.
 
 **Lead time**: The platform surfaces a risk before it enters mainstream analytical consensus. The 6–18 month gap between WDM's institutional-deterioration flags and the annual democracy indices is the operational definition of success in that domain.
 
-**Analytical citation**: A senior analyst, policymaker, or researcher cites the platform's output before a comparable conclusion appears in a major institutional report — because the output was earlier and better grounded.
+**Analytical citation**: A senior analyst, policymaker, or researcher cites the platform's output before a comparable conclusion appears in a major institutional report — because the output was published earlier, was methodologically grounded and verified.
 
-**Source discipline under pressure**: When a major geopolitical event produces temptation to overclaim, the platform holds the line. A downgraded finding with an explicit uncertainty flag is success. A confident claim that turns out to be wrong is not.
+**Source discipline under pressure**: When a major geopolitical event produces temptation to overclaim, the platform holds the line. A downgraded finding with an explicit uncertainty flag is successful surfacing of potentially contested data. A confident claim that turns out to be wrong is not.
 
 ---
 
@@ -74,4 +74,4 @@ Success is not traffic. It is not subscriber count. It is not publication freque
 
 Published by [Peter Howitt](https://ramparts.gi/people/peter-howitt/), Gibraltar. Independent — no government, institutional, or commercial affiliation.
 
-Each monitor's full methodology is published at its methodology page. The analytical framework, source hierarchies, and scoring rubrics are open. Nothing about how this platform reaches its conclusions is hidden.
+Each monitor's high level methodology is published at its methodology page. The analytical framework, source hierarchies, and scoring rubrics are open. The exact way in which the more detailed methodologies are used to filter data are available on demand to public interest organisations in the relevent sectors. 
