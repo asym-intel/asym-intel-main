@@ -4,16 +4,16 @@ on:
   schedule:
     # Daily jobs: fire at 05:50 UTC (10 min before first chatter at 06:00)
     - cron: "50 5 * * *"
-    # Weekly cascade: fire at 07:50 UTC (10 min before research at 08:00)
+    # Weekly cascade: fire 10 min before each stage
     - cron: "50 7 * * *"
-    # Weekly cascade: fire at 09:50 UTC (10 min before reasoner at 10:00)
-    - cron: "50 9 * * *"
-    # Weekly cascade: fire at 11:50 UTC (10 min before synthesiser at 12:00)
-    - cron: "50 11 * * *"
-    # Weekly cascade: fire at 13:50 UTC (10 min before publisher at 14:00)
-    - cron: "50 13 * * *"
-    # Ramparts publisher: fire at 15:50 UTC (Fri only, 10 min before 16:00)
-    - cron: "50 15 * * 5"
+    # Reasoner at 08:30 — watchdog at 08:20
+    - cron: "20 8 * * *"
+    # Synthesiser at 09:00 — watchdog at 08:50
+    - cron: "50 8 * * *"
+    # Publisher at 09:30 — watchdog at 09:20
+    - cron: "20 9 * * *"
+    # Ramparts publisher at 10:00 Fri — watchdog at 09:50
+    - cron: "50 9 * * 5"
   workflow_dispatch:
 
 jobs:
@@ -26,6 +26,7 @@ jobs:
       - name: Dispatch workflows due now
         run: |
           HOUR=$(date -u +%H)
+          MIN=$(date -u +%M)
           DOW=$(date -u +%u)  # 1=Mon ... 7=Sun
           REPO="asym-intel/asym-intel-main"
 
@@ -55,6 +56,10 @@ jobs:
           PUBLISHER_WF[erm]="environmental-risks-publisher.yml"
           PUBLISHER_WF[scem]="conflict-escalation-publisher.yml"
 
+          # Use HOUR:MIN window to determine which stage to dispatch
+          SLOT="${HOUR}:${MIN}"
+          echo "Watchdog firing at ${SLOT} UTC (DOW=$DOW, monitor=$MON)"
+
           case "$HOUR" in
             05)
               echo "=== Daily chatter + collector dispatch ==="
@@ -69,24 +74,26 @@ jobs:
               echo "=== Weekly research: $MON ==="
               dispatch "${MON}-weekly-research.yml"
               ;;
+            08)
+              if [ "$MIN" -lt 30 ]; then
+                echo "=== Weekly reasoner: $MON ==="
+                dispatch "${MON}-reasoner.yml"
+              else
+                echo "=== Weekly synthesiser: $MON ==="
+                dispatch "${MON}-synthesiser.yml"
+              fi
+              ;;
             09)
-              echo "=== Weekly reasoner: $MON ==="
-              dispatch "${MON}-reasoner.yml"
-              ;;
-            11)
-              echo "=== Weekly synthesiser: $MON ==="
-              dispatch "${MON}-synthesiser.yml"
-              ;;
-            13)
-              echo "=== Weekly publisher: $MON ==="
-              dispatch "${PUBLISHER_WF[$MON]}"
-              ;;
-            15)
-              echo "=== Ramparts publisher (Friday only) ==="
-              dispatch "ramparts-publisher.yml"
+              if [ "$MIN" -lt 30 ]; then
+                echo "=== Weekly publisher: $MON ==="
+                dispatch "${PUBLISHER_WF[$MON]}"
+              else
+                echo "=== Ramparts publisher (Friday only) ==="
+                dispatch "ramparts-publisher.yml"
+              fi
               ;;
             *)
-              echo "No workflows due at hour $HOUR"
+              echo "No workflows due at $SLOT"
               ;;
           esac
 
