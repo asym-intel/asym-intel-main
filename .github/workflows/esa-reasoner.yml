@@ -26,10 +26,10 @@ jobs:
 
       - name: Fetch identity card from internal repo
         env:
-          INTERNAL_REPO_PAT: ${{ secrets.INTERNAL_REPO_PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           mkdir -p docs/identity
-          curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-ESA.md" \
             -o docs/identity/esa-identity.md \
