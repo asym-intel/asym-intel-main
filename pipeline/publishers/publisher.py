@@ -213,12 +213,13 @@ def check_synthesis_valid(synthesis: dict) -> bool:
 def build_meta(prev_report: dict, synthesis: dict, publish_date: str, config: dict) -> dict:
     prev_meta = prev_report.get("meta", {})
     prev_issue = prev_meta.get("issue", 0)
-    week_ending = synthesis.get("_meta", {}).get("week_ending", publish_date)
+    # Use publish date for the week label (not forward-looking week_ending from synthesis)
+    week_date = publish_date
 
     try:
-        week_label = f"W/E {datetime.strptime(week_ending, '%Y-%m-%d').strftime('%-d %B %Y')}"
+        week_label = f"W/E {datetime.strptime(week_date, '%Y-%m-%d').strftime('%-d %B %Y')}"
     except ValueError:
-        week_label = f"W/E {week_ending}"
+        week_label = f"W/E {week_date}"
 
     return {
         "issue": prev_issue + 1,
@@ -629,7 +630,7 @@ def build_archive_entry(meta: dict, signal: dict | None, synthesis: dict) -> dic
         if signal:
             headline = signal.get("headline", "")
         if not headline:
-            headline = synthesis.get("key_judgments", [{}])[0].get("text", "No signal this week.")[:200] if synthesis.get("key_judgments") else "No signal this week."
+            headline = (synthesis.get("key_judgments", [{}])[0].get("judgment", "") or synthesis.get("key_judgments", [{}])[0].get("text", "No signal this week."))[:200] if synthesis.get("key_judgments") else "No signal this week."
         strips.append({"rank": 1, "title": "No material developments", "module_tag": "ALL",
                         "delta_type": "Quiet Week", "one_line": headline})
 
@@ -652,7 +653,7 @@ def build_hugo_brief(meta: dict, synthesis: dict, config: dict) -> str:
     if signal_key and signal_key in synthesis:
         signal_headline = synthesis[signal_key].get("headline", "")
     if not signal_headline and synthesis.get("key_judgments"):
-        signal_headline = synthesis["key_judgments"][0].get("text", "")[:200]
+        signal_headline = (synthesis["key_judgments"][0].get("judgment", "") or synthesis["key_judgments"][0].get("text", ""))[:200]
 
     # Escape quotes in summary
     summary = signal_headline.replace('"', '\\"')[:200]
