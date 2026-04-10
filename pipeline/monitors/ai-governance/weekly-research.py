@@ -17,6 +17,8 @@ import datetime
 import pathlib
 import requests
 import sys
+import subprocess
+import base64
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
@@ -117,8 +119,6 @@ print(f"API response received. Tokens: {api_response.get('usage', {}).get('total
 
 # Robust JSON extraction
 import re as _re
-import subprocess
-import base64
 clean = raw_content.strip()
 fence_match = _re.search(r'''```(?:json)?\s*(\{.*?\})\s*```''', clean, _re.DOTALL)
 if fence_match:
