@@ -11,7 +11,7 @@ Loads:
   - pipeline/monitors/european-strategic-autonomy/daily/daily-latest.json
       (most recent Collector findings array)
 
-Feeds all three as context to sonar-deep-research for domain autonomy
+Feeds all three as context to sonar-pro for domain autonomy
 reasoning and hybrid threat pattern analysis. Outputs structured analytical
 recommendations to:
   pipeline/monitors/european-strategic-autonomy/reasoner/reasoner-latest.json
@@ -19,7 +19,7 @@ recommendations to:
 
 The ESA Analyst reads this at Step 0E before applying methodology.
 
-sonar-deep-research is correct here: it reasons over documents YOU provide.
+sonar-pro is correct here: it reasons over documents YOU provide.
 It does NOT search the web. The structured JSON is the document.
 """
 
@@ -34,7 +34,7 @@ import re
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
-MODEL     = "sonar-deep-research"
+MODEL     = "sonar-pro"
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DIR   = pathlib.Path("pipeline/monitors/european-strategic-autonomy/reasoner")
 OUT_LATEST = OUT_DIR / "reasoner-latest.json"
@@ -109,7 +109,7 @@ context_json = json.dumps({
     "daily_collector_findings": daily_findings,
 }, indent=2)
 
-# Truncate if too large (sonar-deep-research has context limits)
+# Truncate if too large (sonar-pro has context limits)
 MAX_CONTEXT = 40000
 if len(context_json) > MAX_CONTEXT:
     print(f"Context truncated: {len(context_json)} → {MAX_CONTEXT} chars")
