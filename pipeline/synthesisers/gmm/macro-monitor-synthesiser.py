@@ -2,7 +2,7 @@
 """
 Global Macro Monitor Synthesiser
 Monitor slug : macro-monitor
-Model       : sonar-deep-research (no web search — reasons over supplied docs)
+Model       : sonar-pro (no web search — reasons over supplied docs)
 Output      : pipeline/monitors/macro-monitor/synthesised/synthesis-latest.json
 """
 
@@ -27,7 +27,7 @@ OUT_DATED = SYNTH_DIR / f"synthesis-{TODAY_STR}.json"
 
 API_KEY = os.environ["PPLX_API_KEY"]
 API_URL = "https://api.perplexity.ai/chat/completions"
-MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-deep-research"
+MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-pro"
 
 if OUT_DATED.exists():
     print(f"[GMM] GUARD: synthesiser already ran today ({TODAY_STR}). Exiting.")
