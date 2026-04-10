@@ -1,0 +1,93 @@
+name: Pipeline Watchdog — Dispatch All Workflows
+
+on:
+  schedule:
+    # Daily jobs: fire at 05:50 UTC (10 min before first chatter at 06:00)
+    - cron: "50 5 * * *"
+    # Weekly cascade: fire at 07:50 UTC (10 min before research at 08:00)
+    - cron: "50 7 * * *"
+    # Weekly cascade: fire at 09:50 UTC (10 min before reasoner at 10:00)
+    - cron: "50 9 * * *"
+    # Weekly cascade: fire at 11:50 UTC (10 min before synthesiser at 12:00)
+    - cron: "50 11 * * *"
+    # Weekly cascade: fire at 13:50 UTC (10 min before publisher at 14:00)
+    - cron: "50 13 * * *"
+    # Ramparts publisher: fire at 15:50 UTC (Fri only, 10 min before 16:00)
+    - cron: "50 15 * * 5"
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    name: Dispatch due workflows
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Dispatch workflows due now
+        run: |
+          HOUR=$(date -u +%H)
+          DOW=$(date -u +%u)  # 1=Mon ... 7=Sun
+          REPO="asym-intel/asym-intel-main"
+
+          dispatch() {
+            echo "Dispatching $1..."
+            gh workflow run "$1" --repo "$REPO" 2>&1 || echo "  ⚠ Failed to dispatch $1"
+          }
+
+          # Map day-of-week to monitor for weekly cascade
+          declare -A DAY_MONITOR
+          DAY_MONITOR[1]="wdm"   # Monday
+          DAY_MONITOR[2]="gmm"   # Tuesday
+          DAY_MONITOR[3]="esa"   # Wednesday
+          DAY_MONITOR[4]="fcw"   # Thursday
+          DAY_MONITOR[5]="agm"   # Friday
+          DAY_MONITOR[6]="erm"   # Saturday
+          DAY_MONITOR[7]="scem"  # Sunday
+          MON="${DAY_MONITOR[$DOW]}"
+
+          # Publisher workflow names differ from the pattern
+          declare -A PUBLISHER_WF
+          PUBLISHER_WF[wdm]="democratic-integrity-publisher.yml"
+          PUBLISHER_WF[gmm]="macro-monitor-publisher.yml"
+          PUBLISHER_WF[esa]="european-strategic-autonomy-publisher.yml"
+          PUBLISHER_WF[fcw]="fimi-cognitive-warfare-publisher.yml"
+          PUBLISHER_WF[agm]="ai-governance-publisher.yml"
+          PUBLISHER_WF[erm]="environmental-risks-publisher.yml"
+          PUBLISHER_WF[scem]="conflict-escalation-publisher.yml"
+
+          case "$HOUR" in
+            05)
+              echo "=== Daily chatter + collector dispatch ==="
+              for m in fcw gmm wdm scem esa agm erm; do
+                dispatch "${m}-chatter.yml"
+              done
+              for m in wdm gmm esa fcw agm erm scem; do
+                dispatch "${m}-collector.yml"
+              done
+              ;;
+            07)
+              echo "=== Weekly research: $MON ==="
+              dispatch "${MON}-weekly-research.yml"
+              ;;
+            09)
+              echo "=== Weekly reasoner: $MON ==="
+              dispatch "${MON}-reasoner.yml"
+              ;;
+            11)
+              echo "=== Weekly synthesiser: $MON ==="
+              dispatch "${MON}-synthesiser.yml"
+              ;;
+            13)
+              echo "=== Weekly publisher: $MON ==="
+              dispatch "${PUBLISHER_WF[$MON]}"
+              ;;
+            15)
+              echo "=== Ramparts publisher (Friday only) ==="
+              dispatch "ramparts-publisher.yml"
+              ;;
+            *)
+              echo "No workflows due at hour $HOUR"
+              ;;
+          esac
+
+          echo "Done."
