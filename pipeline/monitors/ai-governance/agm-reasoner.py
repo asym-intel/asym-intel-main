@@ -33,7 +33,7 @@ import re
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
-MODEL     = "sonar-deep-research"
+MODEL     = "sonar-pro"
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DIR   = pathlib.Path("pipeline/monitors/ai-governance/reasoner")
 OUT_LATEST = OUT_DIR / "reasoner-latest.json"
