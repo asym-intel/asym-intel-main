@@ -8,7 +8,7 @@ Loads:
 - pipeline/monitors/fimi-cognitive-warfare/weekly/weekly-latest.json
 - pipeline/monitors/fimi-cognitive-warfare/reasoner/reasoner-latest.json
 
-Feeds all three as context to sonar-deep-research for structured synthesis.
+Feeds all three as context to sonar-pro for structured synthesis.
 Outputs a complete draft report (minus cross_monitor_flags and
 persistent_state_delta) to:
   pipeline/monitors/fimi-cognitive-warfare/synthesised/synthesis-latest.json
@@ -17,7 +17,7 @@ persistent_state_delta) to:
 The FCW Analyst reads synthesis-latest.json at Step 0S as the primary
 draft input for weekly publication.
 
-sonar-deep-research reasons over the documents YOU provide.
+sonar-pro reasons over the documents YOU provide.
 It does NOT search the web. The structured JSON is the document.
 """
 
@@ -36,7 +36,7 @@ from synth_utils import parse_llm_json
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
-MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-deep-research"
+MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-pro"
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DIR   = pathlib.Path("pipeline/monitors/fimi-cognitive-warfare/synthesised")
 OUT_LATEST = OUT_DIR / "synthesis-latest.json"
