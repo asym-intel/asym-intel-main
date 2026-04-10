@@ -26,9 +26,9 @@ jobs:
 
       - name: Fetch credentials from internal repo
         env:
-          INTERNAL_REPO_PAT: ${{ secrets.INTERNAL_REPO_PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          curl -sf -H "Authorization: token ${INTERNAL_REPO_PAT}" \
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/platform-config.md" \
             -o /tmp/platform-config.md
@@ -52,7 +52,7 @@ jobs:
           REPO_ROOT: ${{ github.workspace }}
           WP_APP_PASS: ${{ env.WP_APP_PASS }}
 
-          GH_TOKEN: ${{ secrets.INTERNAL_REPO_PAT }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: python3 pipeline/publishers/ramparts-publisher.py
 
       - name: Commit data updates
