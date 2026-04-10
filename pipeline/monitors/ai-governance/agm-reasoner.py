@@ -160,25 +160,50 @@ print(f"Prompt loaded ({len(_raw_prompt)} chars)")
 print(f"Calling {MODEL} for capability-governance reasoning...")
 print(f"Context size: {len(context_json)} chars")
 
-response = requests.post(
-    "https://api.perplexity.ai/chat/completions",
-    headers={
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type":  "application/json",
-    },
-    json={
-        "model":       MODEL,
-        "messages":    [{"role": "user", "content": prompt}],
-        "temperature": 0.1,
-    },
-    timeout=300,
-)
-response.raise_for_status()
+# ── API call with retry ────────────────────────────────────────────────────────
 
-api_response = response.json()
-raw_content  = api_response["choices"][0]["message"]["content"]
+MAX_RETRIES = 3
+raw_content = None
 
-print(f"Response received. Tokens: {api_response.get('usage', {}).get('total_tokens', 'unknown')}")
+for attempt in range(1, MAX_RETRIES + 1):
+    try:
+        response = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers={
+                "Authorization": f"Bearer {API_KEY}",
+                "Content-Type":  "application/json",
+            },
+            json={
+                "model":       MODEL,
+                "messages":    [{"role": "user", "content": prompt}],
+                "temperature": 0.1,
+            },
+            timeout=300,
+        )
+        response.raise_for_status()
+        api_response = response.json()
+        raw_content  = api_response["choices"][0]["message"]["content"]
+        print(f"Response received (attempt {attempt}). Tokens: {api_response.get('usage', {}).get('total_tokens', 'unknown')}")
+
+        if not raw_content or not raw_content.strip():
+            print(f"WARNING: Empty response on attempt {attempt}")
+            raw_content = None
+            continue
+        if raw_content.strip()[0] not in ('{', '[', '`'):
+            print(f"WARNING: Response doesn't look like JSON (attempt {attempt}): {raw_content[:100]}")
+            raw_content = None
+            continue
+        break
+
+    except (requests.RequestException, KeyError) as e:
+        print(f"WARNING: API call failed on attempt {attempt}/{MAX_RETRIES}: {e}")
+        if attempt < MAX_RETRIES:
+            import time; time.sleep(attempt * 10)
+        continue
+
+if raw_content is None:
+    print("ERROR: All API attempts failed or returned empty/invalid response.")
+    sys.exit(1)
 
 # ── Parse ──────────────────────────────────────────────────────────────────────
 
