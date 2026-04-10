@@ -110,12 +110,7 @@ MONITOR_CONFIGS = {
         "has_actor_tracker": False,
         "has_cognitive_warfare": False,
         "has_platform_responses": False,
-        "field_map": {
-            "governance_snapshot": "module_0",
-            "capability_tier_tracker": "module_1",
-            "regulatory_framework_tracker": "module_2",
-            "ai_fimi_layer": "module_3",
-        },
+        "field_map": {},  # v2.0 synthesis outputs module_0–module_15 directly
     },
     "environmental-risks": {
         "title": "Global Environmental Risks Monitor",
