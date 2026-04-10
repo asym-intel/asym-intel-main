@@ -68,18 +68,18 @@ system_msg = (
 
 parts = [
     "## SYNTHESIS PROMPT\n\n" + prompt_text,
-    "## IDENTITY CARD (analytical quality standard)\n\n" + identity[:6000],
-    "## METHODOLOGY\n\n" + methodology[:12000],
+    "## IDENTITY CARD (analytical quality standard)\n\n" + identity[:6000],  # 6KB cap
+    "## METHODOLOGY\n\n" + methodology[:12000],  # 12KB cap
 ]
 if addendum:
     parts.append("## METHODOLOGY ADDENDUM\n\n" + addendum[:6000])
 parts.append("## DAILY COLLECTOR (daily-latest.json)\n\n"
-             + json.dumps(daily_latest, indent=2)[:8000])
+             + json.dumps(daily_latest, indent=2)[:12000])
 if weekly_latest:
     parts.append("## WEEKLY RESEARCH (weekly-latest.json)\n\n"
-                 + json.dumps(weekly_latest, indent=2)[:8000])
+                 + json.dumps(weekly_latest, indent=2)[:20000])
 
-MAX_CONTEXT = 40000
+MAX_CONTEXT = 80000
 user_msg = "\n\n---\n\n".join(parts)
 if len(user_msg) > MAX_CONTEXT:
     print(f"[AGM] Context truncated: {len(user_msg)} → {MAX_CONTEXT} chars")
@@ -95,10 +95,10 @@ resp = requests.post(
             {"role": "system", "content": system_msg},
             {"role": "user",   "content": user_msg},
         ],
-        "max_tokens": 8192,
+        "max_tokens": 16384,
         "temperature": 0.1,
     },
-    timeout=180,
+    timeout=300,
 )
 if resp.status_code == 429:
     print(f"[AGM] 429 rate limit — waiting 60s")
@@ -106,7 +106,7 @@ if resp.status_code == 429:
     resp = requests.post(API_URL,
         headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
         json={"model": MODEL, "messages": [{"role": "system", "content": system_msg},
-              {"role": "user", "content": user_msg}], "max_tokens": 8192, "temperature": 0.1},
+              {"role": "user", "content": user_msg}], "max_tokens": 16384, "temperature": 0.1},
         timeout=180)
 resp.raise_for_status()
 raw = resp.json()["choices"][0]["message"]["content"].strip()
