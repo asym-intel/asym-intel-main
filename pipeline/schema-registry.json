@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "description": "Consolidated schema registry for all 7 monitors. Defines every report field, its source (synthesis / persistent-state / publisher / carry-forward), the dashboard section that renders it, and the synthesis-to-report field mapping. The publisher and preflight checks validate against this file.",
-  "last_updated": "2026-04-09",
+  "last_updated": "2026-04-10",
   "field_sources": {
     "synthesis": "Produced by the synthesiser each week",
     "persistent-state": "Read from persistent-state.json (longitudinal memory)",
@@ -569,110 +569,104 @@
         "module_0": {
           "required": true,
           "source": "synthesis",
-          "synthesis_key": "governance_snapshot",
+          "synthesis_key": "module_0",
           "dashboard_section": "module-0"
         },
         "module_1": {
           "required": true,
           "source": "synthesis",
-          "synthesis_key": "capability_tier_tracker",
+          "synthesis_key": "module_1",
           "dashboard_section": "module-1"
         },
         "module_2": {
           "required": true,
           "source": "synthesis",
-          "synthesis_key": "regulatory_framework_tracker",
+          "synthesis_key": "module_2",
           "dashboard_section": "module-2"
         },
         "module_3": {
           "required": true,
           "source": "synthesis",
-          "synthesis_key": "ai_fimi_layer",
+          "synthesis_key": "module_3",
           "dashboard_section": "module-3"
         },
         "module_4": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_4",
           "dashboard_section": "module-4"
         },
         "module_5": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_5",
           "dashboard_section": "module-5"
         },
         "module_6": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_6",
           "dashboard_section": "module-6"
         },
         "module_7": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_7",
           "dashboard_section": "module-7"
         },
         "module_8": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_8",
           "dashboard_section": "module-8"
         },
         "module_9": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_9",
           "dashboard_section": "module-9"
         },
         "module_10": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_10",
           "dashboard_section": "module-10"
         },
         "module_11": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_11",
           "dashboard_section": "module-11"
         },
         "module_12": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_12",
           "dashboard_section": "module-12"
         },
         "module_13": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_13",
           "dashboard_section": "module-13"
         },
         "module_14": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_14",
           "dashboard_section": "module-14"
         },
         "module_15": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "module_15",
           "dashboard_section": "module-15"
         },
         "delta_strip": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "delta_strip",
           "dashboard_section": "delta-strip"
-        },
-        "country_grid": {
-          "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
-          "dashboard_section": "country-grid"
         },
         "cross_monitor_flags": {
           "required": true,
@@ -688,18 +682,32 @@
         "source_url": {
           "required": true,
           "source": "publisher-build"
+        },
+        "jurisdiction_risk_matrix": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "jurisdiction_risk_matrix",
+          "dashboard_section": "jurisdiction-risk-matrix",
+          "note": "Sprint 4 — dashboard render pending"
+        },
+        "lab_posture_scorecard": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lab_posture_scorecard",
+          "dashboard_section": "lab-posture-scorecard",
+          "note": "Sprint 4 — dashboard render pending"
+        },
+        "governance_health_composite": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "governance_health_composite",
+          "dashboard_section": "governance-health-composite",
+          "note": "Sprint 4 — dashboard render pending"
         }
       },
-      "publisher_field_map": {
-        "governance_snapshot": "module_0",
-        "capability_tier_tracker": "module_1",
-        "regulatory_framework_tracker": "module_2",
-        "ai_fimi_layer": "module_3"
-      },
+      "publisher_field_map": {},
       "synthesis_gaps": [
-        "Modules 4-15 not produced by synthesis — carries forward (12 of 16 modules)",
-        "delta_strip not produced by synthesis — carries forward",
-        "country_grid not produced by synthesis — carries forward"
+        "Dashboard HTML for Sprint 4 fields (jurisdiction_risk_matrix, lab_posture_scorecard, governance_health_composite) not yet built"
       ]
     },
     "environmental-risks": {
@@ -949,10 +957,10 @@
       "synthesis_coverage_pct": 86
     },
     "ai-governance": {
-      "total_content_fields": 19,
-      "from_synthesis": 5,
-      "carry_forward_or_legacy": 14,
-      "synthesis_coverage_pct": 26
+      "total_content_fields": 22,
+      "from_synthesis": 21,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 95
     },
     "environmental-risks": {
       "total_content_fields": 10,
