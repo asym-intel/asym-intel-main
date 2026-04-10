@@ -11,14 +11,14 @@ Loads:
   - pipeline/monitors/environmental-risks/daily/daily-latest.json
       (findings array)
 
-Feeds all three as context to sonar-deep-research for Earth system reasoning.
+Feeds all three as context to sonar-pro for Earth system reasoning.
 Outputs structured analytical recommendations to:
   pipeline/monitors/environmental-risks/reasoner/reasoner-latest.json
   pipeline/monitors/environmental-risks/reasoner/reasoner-YYYY-MM-DD.json
 
 The ERM Analyst reads this at Step 0E before applying methodology.
 
-sonar-deep-research is correct here: it reasons over documents YOU provide.
+sonar-pro is correct here: it reasons over documents YOU provide.
 It does NOT search the web. The structured JSON is the document.
 """
 
@@ -33,7 +33,7 @@ import re
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
-MODEL     = "sonar-deep-research"
+MODEL     = "sonar-pro"
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DIR   = pathlib.Path("pipeline/monitors/environmental-risks/reasoner")
 OUT_LATEST = OUT_DIR / "reasoner-latest.json"
@@ -114,7 +114,7 @@ context_json = json.dumps({
     "daily_collector_findings": daily_findings
 }, indent=2)
 
-# Truncate if too large (sonar-deep-research has context limits)
+# Truncate if too large (sonar-pro has context limits)
 MAX_CONTEXT = 40000
 if len(context_json) > MAX_CONTEXT:
     print(f"Context truncated: {len(context_json)} → {MAX_CONTEXT} chars")
