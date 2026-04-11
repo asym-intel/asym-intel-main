@@ -37,7 +37,7 @@ jobs:
           git add docs/monitors/macro-monitor/data/
           git add content/monitors/macro-monitor/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(gmm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/macro-monitor/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by GMM Publisher Bot [skip ci]"
+          git commit -m "data(gmm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/macro-monitor/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by GMM Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
