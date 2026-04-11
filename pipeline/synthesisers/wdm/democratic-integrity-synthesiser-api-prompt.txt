@@ -16,6 +16,10 @@ Apply the V-Dem conceptual framework: electoral democracy, liberal democracy,
 participatory democracy, deliberative democracy, and egalitarian democracy.
 All country health assessments use the heatmap schema below.
 
+This monitor is a real-time institutional radar sitting on top of annual democracy
+indices. It detects leading indicators of democratic backsliding 6-18 months before
+V-Dem, Freedom House, and IDEA register them.
+
 ---
 
 ## TASK
@@ -24,9 +28,13 @@ Read all documents. Produce a synthesis JSON tracking country-level democratic
 health across monitored countries, with particular focus on:
 - Electoral calendar events (elections within 90-day window)
 - Rule of law backsliding (executive overreach, judicial capture, press freedom)
-- Authoritarian acceleration (V-Dem LDI decline ≥0.05 in 12 months)
+- Authoritarian acceleration (V-Dem LDI decline >= 0.05 in 12 months)
 - Democratic resilience indicators (civil society, opposition viability)
 - FIMI/external interference in democratic processes (link to FCW)
+- Institutional integrity signals (judicial independence, electoral admin, civil service, intel misuse)
+- Autocratic mimicry chains (legislative model export across countries)
+- Legislative watch entries (bills, EOs, regulatory actions eroding democracy)
+- Critical friction notes (official vs. ground-truth divergences)
 
 ---
 
@@ -34,7 +42,7 @@ health across monitored countries, with particular focus on:
 
 {
   "_meta": {
-    "schema_version": "wdm-synthesis-v1.0",
+    "schema_version": "wdm-synthesis-v2.0",
     "research_model": "sonar-deep-research",
     "monitor_slug": "democratic-integrity",
     "synthesised_at": "YYYY-MM-DDTHH:MM:SSZ",
@@ -44,9 +52,16 @@ health across monitored countries, with particular focus on:
   },
   "global_health_snapshot": {
     "overall_trend": "Improving | Stable | Declining | Accelerating decline",
-    "countries_under_watch": 0,
+    "rapid_decay_count": 0,
+    "recovery_count": 0,
+    "watchlist_count": 0,
     "new_alerts_this_week": 0,
     "lead_concern": "string"
+  },
+  "signal": {
+    "headline": "string — REQUIRED. Single most significant democratic development. Max 120 chars.",
+    "body": "string — 2-3 sentence analytical summary",
+    "source_url": "string"
   },
   "country_heatmap": [
     {
@@ -54,12 +69,32 @@ health across monitored countries, with particular focus on:
       "country_name": "string",
       "health_status": "Consolidated | Constrained | Backsliding | Crisis | Closed",
       "health_delta": "Improving | Stable | Declining",
+      "severity_score": 0.0,
+      "severity_dimensions": {
+        "a_ldi_trajectory": 0.0,
+        "b_institutional_breadth": 0.0,
+        "c_repression_severity": 0.0,
+        "d_resilience": 0.0
+      },
+      "direction": "Worsening | Stable | Improving",
       "vdem_ldi_preliminary": 0.0,
       "vdem_ldi_delta_12m": 0.0,
       "electoral_calendar": "string | null",
       "key_development": "string",
       "fimi_exposure": "None | Low | Medium | High",
-      "resilience_indicators": ["string"]
+      "resilience_indicators": ["string"],
+      "confidence": "Confirmed | Probable | Reported",
+      "entry_type": "Persistent | Episode | Transient",
+      "first_seen": "YYYY-MM-DD",
+      "last_material_change": "YYYY-MM-DD",
+      "changelog": [
+        {
+          "date": "YYYY-MM-DD",
+          "change": "string",
+          "reason": "string",
+          "source": "string"
+        }
+      ]
     }
   ],
   "backsliding_alerts": [
@@ -82,6 +117,85 @@ health across monitored countries, with particular focus on:
       "integrity_concern": "string | null"
     }
   ],
+  "institutional_integrity_flags": [
+    {
+      "country": "string",
+      "signal_type": "Judicial independence | Electoral administration integrity | Civil service politicisation | Intelligence community misuse",
+      "severity": "Watch | Alert | Critical",
+      "development": "string",
+      "pillars_under_attack": ["judiciary | legislature | civil_service | press | civil_society | elections"],
+      "confidence": "Confirmed | Probable | Reported",
+      "week": "YYYY-MM-DD",
+      "source": "string"
+    }
+  ],
+  "mimicry_chain_update": {
+    "active_chains": [
+      {
+        "chain_name": "string — e.g. Foreign Agent Law chain",
+        "origin_country": "string",
+        "adopting_countries": ["string"],
+        "current_front": "string — which country is currently advancing the model",
+        "legislative_status": "string",
+        "notes": "string"
+      }
+    ],
+    "new_mimicry_detected": false,
+    "note": "string"
+  },
+  "legislative_watch_entries": [
+    {
+      "id": "string — country-shortname-year",
+      "country": "string",
+      "week": "YYYY-MM-DD",
+      "name": "string — bill/EO/regulation name",
+      "status": "Proposed | In Committee | Signed into Law | In Force",
+      "status_code": "proposed | committee | signed | in_force | archived",
+      "tags": ["election_adjacent | civil_society | media_regulation | constitutional_change | anti_ngo | lawfare"],
+      "official_justification": "string",
+      "analytic_concern": "string",
+      "democratic_impact": "string",
+      "lawfare_angle": "string | null",
+      "election_adjacent": false,
+      "fimi_link": false,
+      "regional_mimicry": "string | null",
+      "source": "string",
+      "overlap": ["string — other legislative_watch IDs"],
+      "first_seen": "YYYY-MM-DD",
+      "last_material_change": "YYYY-MM-DD",
+      "changelog": [
+        {
+          "date": "YYYY-MM-DD",
+          "change": "string",
+          "reason": "string",
+          "source": "string"
+        }
+      ]
+    }
+  ],
+  "friction_notes": [
+    {
+      "country": "string",
+      "week": "YYYY-MM-DD",
+      "tier1_source": "string — official/institutional source",
+      "tier1_claim": "string — what the official source states",
+      "ground_truth": "string — what ground-truth reporting reveals",
+      "ground_truth_tiers": ["3 | 4"],
+      "ground_truth_sources": "string",
+      "status": "Active | Resolved",
+      "resolution_note": "string | null",
+      "overlap": ["string"],
+      "first_seen": "YYYY-MM-DD",
+      "changelog": [
+        {
+          "date": "YYYY-MM-DD",
+          "change": "string",
+          "reason": "string",
+          "source": "string"
+        }
+      ]
+    }
+  ],
   "key_judgments": [
     {
       "id": "kj-001",
@@ -91,7 +205,7 @@ health across monitored countries, with particular focus on:
       "trajectory": "Improving | Stable | Declining"
     }
   ],
-  "weekly_brief_draft": "string — 400-600 words. Opens with global democratic health trend. Covers backsliding alerts, electoral calendar developments, FIMI exposure. Analytical register.",
+  "weekly_brief_draft": "string — 600-1200 words. Must cover all 10 dimensions: V-Dem scores, network coordination, legislative watch, media capture, watch list, critical friction, electoral watch, severity gradient, autocratic export, recovery. Numbered items with ALL-CAPS bold lead sentence.",
   "cross_monitor_candidates": [
     {
       "target_monitor": "fimi-cognitive-warfare | conflict-escalation | european-strategic-autonomy | macro-monitor | ai-governance | environmental-risks",
@@ -104,15 +218,68 @@ health across monitored countries, with particular focus on:
 
 ---
 
+## SEVERITY SCORING RUBRIC
+
+Formula: Score = A + B + C + (2.5 - D)
+Final score rounded to nearest 0.5, capped 1-10.
+
+Dimension A — LDI Trajectory: 0 (stable) | 1.0 (gradual decline) | 2.0 (steep) | 2.5 (collapse)
+Dimension B — Institutional Breadth (pillars under attack): 0 (0-1) | 1.0 (2-3) | 2.0 (4-5) | 2.5 (all 6)
+Dimension C — Repression Severity: 0 (none) | 0.5 (harassment) | 1.0 (arrests) | 2.0 (killings) | 2.5 (mass killings)
+Dimension D — Resilience (INVERTED): 0 (none) | 0.5 (weak) | 1.0 (moderate) | 1.5 (significant) | 2.0 (strong) | 2.5 (robust)
+
+Six pillars: judiciary, legislature, civil service, press, civil society, elections.
+
+Status thresholds:
+- Rapid Decay: score by rubric; requires 2+ pillars under attack
+- Recovery: Rapid Decay country with net positive trajectory
+- Watch List: 2+ leading indicators; promoted to Rapid Decay when score > 5.0 on two consecutive weeks
+
+---
+
+## DATA LIFECYCLE MANAGEMENT
+
+Entry Types:
+- Persistent: Structural data (legal frameworks, doctrine shifts) — stays until material change
+- Episode: Bounded event sequence — stays until resolution, then archived
+- Transient: Single announcement — rolled up once implications captured, never deleted
+
+Confidence Levels:
+- Confirmed: 2+ independent T2-T4 sources
+- Probable: Single strong T2-T4 source
+- Reported: Single T3-T4 source, not corroborated
+
+Pipeline Validation Rule:
+- 0 sources + Confirmed/High confidence: Hard reject
+- 1 source + Confirmed/High: Auto-downgrade to Moderate; preserve original in confidence_original
+- 2+ sources + Confirmed/High: Pass
+- Any count + Moderate or below: Pass
+
+---
+
+## GEOGRAPHIC SCOUTING REQUIREMENTS
+
+Sub-Saharan Africa: Check weekly — Benin, Tanzania, Uganda, Cote d Ivoire, Nigeria, South Africa, DRC, Sahel juntas (Mali, Burkina Faso, Niger)
+Latin America: Check weekly — Colombia, Venezuela, Brazil, Argentina, El Salvador
+Institutional Integrity: Track judicial independence, electoral admin integrity, civil service politicisation, intelligence community misuse
+
+---
+
 ## RULES
 
 1. V-Dem LDI is primary health metric. Use score_preliminary only.
-2. Backsliding severity: Watch = trend concern, Alert = active erosion,
-   Critical = democratic functionality at risk.
+2. Backsliding severity: Watch = trend concern, Alert = active erosion, Critical = democratic functionality at risk.
 3. Electoral calendar: flag all elections within 90 days; note FIMI risk.
 4. Link to fimi-cognitive-warfare where FIMI targeting of elections is documented.
 5. Cross-monitor slugs: use full slugs as shown in schema above.
 6. Do not search the web. Reason only over provided documents.
-7. JSON string values must never contain apostrophes or contractions. Use full words only (e.g. "this weeks" not "this week's", "does not" not "doesn't"). Apostrophes break JSON parsing.
+7. JSON string values must never contain apostrophes or contractions. Use full words only.
+8. institutional_integrity_flags must track all four signal types (judicial, electoral admin, civil service, intel).
+9. mimicry_chain_update must document active chains with origin/adopting countries and legislative status.
+10. legislative_watch_entries must follow the full schema with lifecycle fields (first_seen, changelog).
+11. friction_notes must compare official (T1) claims against ground truth (T3-T4) findings.
+12. weekly_brief_draft must cover all 10 dimensions per methodology section 9.
+13. heatmap entries must include severity_dimensions breakdown (A, B, C, D scores).
+14. Data lifecycle: never silently overwrite past assessments. Log all material changes in changelog.
 
-# Version: v1.0 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter
+# Version: schema-sprint-v2 | Updated: 2026-04-11 | Added: institutional_integrity_flags (4 signal types), mimicry_chain_update (chain tracking), legislative_watch_entries (full schema with lifecycle), friction_notes (official vs ground truth), severity_dimensions breakdown in heatmap, signal section, data lifecycle changelog fields, pipeline validation rule, geographic scouting requirements

@@ -25,6 +25,9 @@ Read all documents. Produce a synthesis JSON covering active conflict theatres:
 - Hybrid warfare dimensions (FIMI + cyber + proxy + economic coercion)
 - Ceasefire/negotiation status
 - Cross-theatre linkages (multi-front coordination)
+- Per-indicator scoring (I1-I6) with deviation from baseline
+- F-flag disinformation matrix per theatre
+- ACLED Conflict Index reference layer alignment
 
 ---
 
@@ -32,7 +35,7 @@ Read all documents. Produce a synthesis JSON covering active conflict theatres:
 
 {
   "_meta": {
-    "schema_version": "scem-synthesis-v1.0",
+    "schema_version": "scem-synthesis-v2.0",
     "research_model": "sonar-deep-research",
     "monitor_slug": "conflict-escalation",
     "synthesised_at": "YYYY-MM-DDTHH:MM:SSZ",
@@ -46,6 +49,13 @@ Read all documents. Produce a synthesis JSON covering active conflict theatres:
     "de_escalations_this_week": 0,
     "highest_intensity_theatre": "string",
     "lead_signal": "string"
+  },
+  "lead_signal": {
+    "conflict": "string — theatre name",
+    "headline": "string — REQUIRED. Single most significant escalation development. Max 120 chars.",
+    "indicator": "I1 | I2 | I3 | I4 | I5 | I6",
+    "deviation": "string — deviation from baseline",
+    "summary": "string — 2-3 sentence analytical summary"
   },
   "theatre_tracker": [
     {
@@ -62,6 +72,43 @@ Read all documents. Produce a synthesis JSON covering active conflict theatres:
       "hybrid_dimensions": ["FIMI | Cyber | Proxy | Economic | Sanctions"],
       "ceasefire_status": "None | Negotiating | In force | Collapsed",
       "source": "ACLED | ICG | SIPRI | Other"
+    }
+  ],
+  "indicator_scoring": [
+    {
+      "theatre_id": "string",
+      "indicators": [
+        {
+          "indicator": "I1 | I2 | I3 | I4 | I5 | I6",
+          "indicator_name": "Rhetoric Intensity | Military Posture | Nuclear & Strategic | Economic Warfare | Diplomatic Channel Status | Displacement Velocity",
+          "level": 0,
+          "level_label": "Green | Amber | Red | Crisis",
+          "baseline": 0,
+          "deviation": 0.0,
+          "deviation_band": "Green (within baseline) | Amber (elevated) | Red (critical deviation)",
+          "confidence_preliminary": "Confirmed | High | Assessed | Possible",
+          "ai_generation_check": false,
+          "key_evidence": "string",
+          "source_tier": "T1 | T2 | T3",
+          "source": "string",
+          "note": "string | null"
+        }
+      ]
+    }
+  ],
+  "f_flag_matrix": [
+    {
+      "theatre_id": "string",
+      "f_flags": [
+        {
+          "flag": "F1 | F2 | F3 | F4",
+          "flag_name": "Fabricated content | Manipulated context | Impersonation | Coordinated inauthentic behaviour",
+          "detected": false,
+          "indicator_affected": "I1 | I2 | I3 | I4 | I5 | I6 | null",
+          "description": "string | null",
+          "fcw_link": "string | null — reference to FCW monitor if FIMI actor overlap"
+        }
+      ]
     }
   ],
   "escalation_indicators": [
@@ -82,6 +129,70 @@ Read all documents. Produce a synthesis JSON covering active conflict theatres:
       "fcw_link": "string | null"
     }
   ],
+  "conflict_roster": [
+    {
+      "theatre_id": "string",
+      "theatre_name": "string",
+      "entry_date": "YYYY-MM-DD",
+      "entry_trigger": "string",
+      "status": "Active | Dormant Watch",
+      "overall_band": "Green | Amber | Red | Crisis",
+      "overall_band_delta": "Escalating | Stable | De-escalating",
+      "structural_break_dates": ["YYYY-MM-DD"],
+      "baseline_recalc_due": "YYYY-MM-DD | null"
+    }
+  ],
+  "roster_watch": {
+    "approaching_inclusion": [
+      {
+        "theatre_name": "string",
+        "reason": "string",
+        "criteria_met": ["string"]
+      }
+    ],
+    "approaching_retirement": [
+      {
+        "theatre_id": "string",
+        "theatre_name": "string",
+        "reason": "string"
+      }
+    ]
+  },
+  "acled_reference": {
+    "index_version": "string — e.g. 2026-Q1",
+    "last_updated": "YYYY-MM-DD",
+    "next_update_expected": "YYYY-MM-DD",
+    "source_url": "https://acleddata.com/series/acled-conflict-index",
+    "theatre_alignment": [
+      {
+        "scem_theatre_id": "string",
+        "acled_rank": 0,
+        "acled_category": "Extreme | High | Medium",
+        "acled_scores": {
+          "deadliness": 0,
+          "danger_to_civilians": 0,
+          "geographic_diffusion": 0,
+          "armed_group_fragmentation": 0
+        },
+        "scem_overall_band": "Green | Amber | Red | Crisis",
+        "alignment_status": "Consistent | Divergent — SCEM higher | Divergent — SCEM lower",
+        "divergence_note": "string — analyst explanation when not Consistent"
+      }
+    ],
+    "global_top_20": [
+      {
+        "rank": 0,
+        "country": "string",
+        "category": "Extreme | High | Medium",
+        "deadliness": 0,
+        "danger_to_civilians": 0,
+        "geographic_diffusion": 0,
+        "armed_group_fragmentation": 0,
+        "scem_tracked": false,
+        "scem_theatre_id": "string | null"
+      }
+    ]
+  },
   "key_judgments": [
     {
       "id": "kj-001",
@@ -104,15 +215,109 @@ Read all documents. Produce a synthesis JSON covering active conflict theatres:
 
 ---
 
+## I1-I6 INDICATOR RUBRICS
+
+### I1 Rhetoric Intensity
+Measures escalatory language from official and semi-official sources.
+Levels: 0 (baseline diplomatic) → 1 (heightened) → 2 (threatening) → 3 (war footing rhetoric)
+- Distinguish state-media amplification (may be F1/F3 tactic) from official government-to-government statements.
+- For authoritarian states (RU, CN, DPRK, Iran, Myanmar junta) where state media and government voice are indistinct: treat both as T3 requiring T1/T2 corroboration.
+- AI generation check: before scoring any I1 item sourced from social media or unofficial channels, note whether source has verifiable institutional origin.
+- Any I1 spike of >= 2 levels in a single week requires dual-source confirmation.
+
+### I2 Military Posture
+Measures force disposition, deployments, and kinetic operations.
+Levels: 0 (peacetime baseline) → 1 (enhanced readiness) → 2 (active deployment) → 3 (offensive operations)
+- Primary secondary sources: Middlebury Institute CNS, CSIS iDeas Lab, UNOSAT, Planet Labs, Bellingcat.
+- Distinguish exercise (routine baseline) from deployment (anomalous) using historical exercise calendars.
+- FM-SCEM-01 (Drone Normalisation): FPV drone and Shahed-136 ops are BASELINE in Ukraine/Russia and Gaza. Do not score above I2 Level 2 for routine drone exchange. Score escalation only for: range extension to new urban centres, swarm doctrine, or cross-border incursion into third-party state.
+
+### I3 Nuclear & Strategic
+Measures nuclear signalling, doctrine shifts, and strategic weapons posture.
+Levels: 0 (no signalling) → 1 (doctrinal discussion) → 2 (active signalling) → 3 (alert status change)
+- Doctrine Shift flag is separate from Level scoring. Code as doctrineshiftconfirmed: true.
+- FM-SCEM-03: Russia November 2024 doctrine shift is CONFIRMED and PERSISTENT. Do not re-code weekly. Subsequent Medvedev/MFA rhetoric is EPISODIC — flag with episodic: true.
+- DPRK: nearly all satellite analysis is T2; Confirmed confidence rarely achievable.
+- Israel: ambiguity doctrine means I3 baseline is near zero; any public signalling is highly anomalous.
+
+### I4 Economic Warfare
+Measures sanctions, trade restrictions, energy cutoffs, and asset freezes.
+Levels: 0 (normal trade) → 1 (targeted sanctions) → 2 (broad sanctions) → 3 (total economic warfare)
+- OFAC, HM Treasury, EU Official Journal = T1 for sanctions.
+- IEA, ACER = T1 for energy cutoffs.
+- SWIFT notifications, correspondent banking via FT/Bloomberg = T2.
+- WTO dispute filings = T1; secondary reporting = T2.
+
+### I5 Diplomatic Channel Status
+Measures availability and functionality of diplomatic channels.
+Levels: 0 (full engagement) → 1 (reduced) → 2 (minimal/back-channel only) → 3 (severed)
+- Back-channel activity is rarely verifiable; treat as Unverified unless 2+ independent T2 sources confirm.
+- Ambassador recall (actor-initiated, signalling) vs. expulsion (host-initiated, higher escalation) — code differently.
+- FM-SCEM-04: US withdrawal from 66+ multilateral institutions means US participation is no longer reliable I5 positive in 2026. Weight European, Gulf, AU mediation channels more heavily.
+
+### I6 Displacement Velocity
+Measures conflict-driven population displacement speed and scale.
+Levels: 0 (stable) → 1 (localised displacement) → 2 (mass displacement) → 3 (exodus/humanitarian catastrophe)
+- UNHCR Operational Data Portal = T1 for refugees/asylum.
+- OCHA ReliefWeb / Humanitarian Data Exchange = T1 for IDPs.
+- IOM Displacement Tracking Matrix = T1 for crisis zones.
+- Always record data as-of date (not report publication date).
+- When data > 3 weeks old, note explicitly in scoring table.
+- Distinguish rapid-onset (conflict) from slow-onset (climate/economic) displacement.
+
+---
+
+## F-FLAG MATRIX
+
+For each theatre, assess presence of disinformation patterns:
+- F1 — Fabricated content: Synthetic media, deepfakes, fabricated documents
+- F2 — Manipulated context: Authentic content used out of context, misleading framing
+- F3 — Impersonation: Fake official accounts, spoofed institutional communications
+- F4 — Coordinated inauthentic behaviour: Bot networks, troll farms, amplification campaigns
+
+When an F-flag is detected on any indicator, note which indicator it affects and whether there is an FCW monitor overlap for cross-referencing.
+
+---
+
+## CROSS-MONITOR SIGNAL ROUTING
+
+| Signal | Route to | How |
+|---|---|---|
+| F1-F4 flag on any indicator | fimi-cognitive-warfare | Include in cross_monitor_candidates |
+| Red-band I1/I2 for Russia, China, Iran, Gulf, US, Israel | fimi-cognitive-warfare | Flag actor + conflict context |
+| Red-band any indicator for European theatre | european-strategic-autonomy | Flag in cross_monitor_candidates |
+| I6 spike with climate/water driver | environmental-risks | Cross-tag |
+| I4 Red-band (economic warfare) | macro-monitor | Note in cross_monitor_candidates |
+| Any Red-band within 90 days of election in affected state | democratic-integrity | Flag |
+
+---
+
+## ACLED REFERENCE LAYER
+
+The ACLED Conflict Index is a Tier 1 calibration source. It scores countries on four dimensions: deadliness, danger to civilians, geographic diffusion, armed group fragmentation. Published biannually (January and July).
+
+The acled_reference section is:
+- Read-only external reference — NOT fed into the I1-I6 scoring engine
+- Updated biannually, not weekly
+- Preserved unchanged during normal weekly cron runs
+- Used for roster calibration, baseline recalculation, and divergence documentation
+
+When generating theatre_alignment, compare SCEM overall band with ACLED category. If divergent, explain the methodological reason (observation window, indicator weighting, data lag).
+
+---
+
 ## RULES
 
-1. Intensity: I1=Green (armed vigilance), I2=Amber (active hostilities),
-   I3=Red (major offensive ops), I4=Crisis (interstate war/mass atrocity risk).
+1. Intensity: I1=Green (armed vigilance), I2=Amber (active hostilities), I3=Red (major offensive ops), I4=Crisis (interstate war/mass atrocity risk).
 2. ACLED is primary for event counts; note data lag when present.
 3. Hybrid warfare: always check FCW synthesiser output for FIMI-conflict overlaps.
 4. Nuclear threshold: flag immediately if any indicator crosses nuclear signalling.
 5. Cross-monitor slugs: use full slugs as shown in schema above.
 6. Do not search the web. Reason only over provided documents.
 7. JSON string values must never contain apostrophes or contractions. Use full words only (e.g. "this weeks" not "this week's", "does not" not "doesn't"). Apostrophes break JSON parsing.
+8. indicator_scoring must include all six indicators (I1-I6) for each active theatre with deviation from baseline.
+9. f_flag_matrix must include all four F-flags for each active theatre, even if not detected (detected: false).
+10. acled_reference section is preserved from prior week during normal runs. Only update biannually.
+11. conflict_roster must reflect current Active/Dormant Watch status with entry dates and structural break history.
 
-# Version: v1.0 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter
+# Version: schema-sprint-v2 | Updated: 2026-04-11 | Added: indicator_scoring (I1-I6 per-theatre), f_flag_matrix (F1-F4), acled_reference with theatre_alignment and global_top_20, conflict_roster with entry/break metadata, ai_generation_check on I1, drone normalisation baseline, Russia I3 persistent doctrine, US I5 de-weighting

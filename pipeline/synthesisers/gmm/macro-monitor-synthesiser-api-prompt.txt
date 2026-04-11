@@ -19,11 +19,19 @@ Apply the IMF/BIS/WB indicator framework mechanically from the provided data.
 
 ## TASK
 
-Read all documents. Produce a synthesis JSON covering the six macro indicator
-domains: (1) growth & recession risk, (2) inflation & central bank posture,
-(3) financial stability & credit, (4) trade & tariff disruption,
-(5) currency & fx stress, (6) sovereign debt & fiscal sustainability.
-Apply the stress regime framework: Green → Amber → Red → Crisis.
+Read all documents. Produce a synthesis JSON covering:
+- The six macro indicator domains: (1) growth & recession risk, (2) inflation &
+  central bank posture, (3) financial stability & credit, (4) trade & tariff
+  disruption, (5) currency & fx stress, (6) sovereign debt & fiscal sustainability
+- Stress regime framework: Green → Amber → Red → Crisis
+- 24-indicator scoring engine output across 8 asset classes
+- Scenario framework with probability weights
+- Positioning overlay (MATT framework)
+- Blind spot flags (earnings suppression, nominal M2 mirage)
+- Conviction per asset class
+- Indicator type classification (SA/CC/TS)
+- Debt dynamics, credit stress, and systemic risk structured outputs
+
 A regime change requires evidence across at least two indicator domains.
 
 ---
@@ -35,7 +43,7 @@ The lead_signal field is REQUIRED — never skip it.
 
 {
   "_meta": {
-    "schema_version": "gmm-synthesis-v1.0",
+    "schema_version": "gmm-synthesis-v2.0",
     "research_model": "sonar-deep-research",
     "monitor_slug": "macro-monitor",
     "synthesised_at": "YYYY-MM-DDTHH:MM:SSZ",
@@ -71,6 +79,133 @@ The lead_signal field is REQUIRED — never skip it.
       "source": "string — IMF/BIS/WB/Fed/ECB etc."
     }
   ],
+  "domain_indicators": {
+    "domain_1_debt_sovereign": [
+      {
+        "indicator": "us_debt_deficit | japan_jgb_yields | em_sovereign_distress | custody_migration | gold_reserve_ratio_em",
+        "flag": "WARNING | ELEVATED | GREEN",
+        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "indicator_type": "SA | CC | TS",
+        "value": "string — current reading",
+        "source": "string — primary source",
+        "note": "string | null"
+      }
+    ],
+    "domain_2_banking_credit": [
+      {
+        "indicator": "fed_sloos | cre_delinquency | gsib_capital | private_credit_nbfi",
+        "flag": "WARNING | ELEVATED | GREEN",
+        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "indicator_type": "SA | CC | TS",
+        "value": "string",
+        "source": "string",
+        "note": "string | null"
+      }
+    ],
+    "domain_3_market_structure": [
+      {
+        "indicator": "vix_term_structure | treasury_market_liquidity | margin_debt | fx_swap_basis | m2_money_supply",
+        "flag": "WARNING | ELEVATED | GREEN",
+        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "indicator_type": "SA | CC | TS",
+        "value": "string",
+        "source": "string",
+        "note": "string | null"
+      }
+    ],
+    "domain_4_real_economy": [
+      {
+        "indicator": "ism_pmi | jobless_claims | cass_freight | consumer_confidence | earnings_revisions",
+        "flag": "WARNING | ELEVATED | GREEN",
+        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "indicator_type": "SA | CC | TS",
+        "value": "string",
+        "source": "string",
+        "note": "string | null"
+      }
+    ],
+    "domain_5_composite_indices": [
+      {
+        "indicator": "stlfsi | nfci | iif_global_debt | zero_dte_volume",
+        "flag": "WARNING | ELEVATED | GREEN",
+        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "indicator_type": "SA | CC | TS",
+        "value": "string",
+        "source": "string",
+        "note": "string | null"
+      }
+    ],
+    "domain_6_amplifiers": [
+      {
+        "indicator": "trump_tariffs | oil_supply_shock | dollar_weaponization | ai_infra_debt",
+        "flag": "WARNING | ELEVATED | GREEN",
+        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "indicator_type": "SA | CC | TS",
+        "value": "string",
+        "source": "string",
+        "current_driver": "string — for oil_supply_shock: what is causing the shock this week (Iran/Hormuz, OPEC+, etc.)",
+        "note": "string | null"
+      }
+    ]
+  },
+  "asset_outlook": [
+    {
+      "asset_class": "Metals | Energy | Bonds | Crypto | Tech | Consumer Staples | EM Equities | Real Estate",
+      "score": 0.00,
+      "score_prior_week": 0.00,
+      "score_delta": 0.00,
+      "outlook_label": "BULLISH | MILD POSITIVE | NEUTRAL | MILD NEGATIVE | BEARISH",
+      "conviction": "HIGH | MEDIUM | LOW — BIFURCATED",
+      "conviction_detail": "string — which flags agree/disagree and why",
+      "alert_tier": "NONE | WATCH | CRITICAL",
+      "alert_detail": "string | null — triggered when |delta| >= 0.45 (WATCH) or >= 0.60 (CRITICAL)",
+      "blind_spot_warning": "string | null — automated blind spot rule output if triggered",
+      "scoring_breakdown": [
+        {
+          "indicator": "string — indicator slug",
+          "flag": "WARNING | ELEVATED | GREEN",
+          "base_score": -1.0,
+          "weight": 0.00,
+          "direction": "DETERIORATING | STABLE | IMPROVING",
+          "direction_multiplier": 1.0,
+          "weighted_contribution": 0.00
+        }
+      ]
+    }
+  ],
+  "scenario_framework": [
+    {
+      "scenario": "Base Case — Slow Burn | De-escalation | Fast Cascade",
+      "probability_pct": 0,
+      "description": "string",
+      "probability_delta": "string | null — what changed this week and by how much",
+      "key_trigger": "string — event that would confirm this scenario",
+      "affected_asset_classes": ["string"]
+    }
+  ],
+  "positioning_overlay": {
+    "fed_funds_futures": {
+      "implied_cuts_2026": 0,
+      "prob_zero_cuts_2026": 0.00,
+      "source": "CME FedWatch | Bloomberg"
+    },
+    "matt_framework": [
+      {
+        "theme": "string — tracked warning theme",
+        "matt_score": 0,
+        "market_pricing": "string — how the market is currently pricing this theme",
+        "our_assessment": "string — our view on the theme",
+        "alpha_signal": "string | null — where the gap creates opportunity"
+      }
+    ],
+    "contrarian_corner": [
+      {
+        "source": "string — IB or research house",
+        "view": "string — their contrarian position",
+        "scenario_under_which_correct": "string — when would they be right"
+      }
+    ]
+  },
   "central_bank_tracker": [
     {
       "institution": "Fed | ECB | PBOC | BoE | BoJ | Other",
@@ -101,6 +236,48 @@ The lead_signal field is REQUIRED — never skip it.
       "affected_domains": ["string — domain slugs from indicator_domains"]
     }
   ],
+  "debt_dynamics": [
+    {
+      "entity": "US | Japan | EU | China | EM aggregate",
+      "debt_to_gdp": 0.0,
+      "deficit_to_gdp": 0.0,
+      "trajectory": "Deteriorating | Stable | Improving",
+      "key_risk": "string",
+      "source": "string"
+    }
+  ],
+  "credit_stress": [
+    {
+      "segment": "CRE | Private Credit | Consumer | Corporate",
+      "stress_level": "Green | Amber | Red",
+      "key_metric": "string — delinquency rate, spread, etc.",
+      "direction": "Deteriorating | Stable | Improving",
+      "contagion_risk": "string | null",
+      "source": "string"
+    }
+  ],
+  "systemic_risk": [
+    {
+      "risk_id": "sr-001",
+      "label": "string — short name",
+      "type": "Structural | Cyclical | Trigger-dependent",
+      "probability_preliminary": "Low | Medium | High | Critical",
+      "transmission_channel": "string — how it propagates",
+      "affected_asset_classes": ["string"],
+      "monitoring_indicator": "string — what to watch for early warning"
+    }
+  ],
+  "safe_haven": {
+    "gold_thesis": "string — current bull/bear case for gold as safe haven",
+    "bonds_note": "string — are bonds functioning as safe haven or correlated risk",
+    "cash_note": "string — USD cash and money market positioning"
+  },
+  "sentiment_overlay": {
+    "fed_funds_futures": "string — implied path",
+    "prob_zero_cuts_2026": 0.00,
+    "matt_agreement_pct": 0.00,
+    "source_url": "string"
+  },
   "key_judgments": [
     {
       "id": "kj-001",
@@ -123,14 +300,137 @@ The lead_signal field is REQUIRED — never skip it.
 
 ---
 
+## SCORING ENGINE REFERENCE
+
+### Flag Scores
+| Flag | Base Score |
+|---|---|
+| WARNING (Red) | -1.0 |
+| ELEVATED (Amber) | -0.3 |
+| GREEN | +1.0 |
+
+### Direction Multipliers
+| Direction | Multiplier |
+|---|---|
+| DETERIORATING | x 1.1 |
+| IMPROVING | x 0.9 |
+| STABLE or BIFURCATED | x 1.0 |
+
+Scores capped -1.0 to +1.0 after multiplier application.
+
+### Asset Class Weights (FIXED — do not adjust)
+
+METALS: gold_reserve_ratio_em 0.40, us_debt_deficit 0.25, oil_supply_shock 0.15, dollar_weaponization 0.20
+ENERGY: oil_supply_shock 0.50, trump_tariffs 0.20, ism_pmi 0.15, cass_freight 0.15
+BONDS: us_debt_deficit 0.30, japan_jgb_yields 0.25, treasury_market_liquidity 0.20, ism_pmi 0.10, stlfsi 0.15
+CRYPTO: m2_money_supply 0.40, us_debt_deficit 0.20, margin_debt 0.15, dollar_weaponization 0.15, zero_dte_volume 0.10
+TECH: ai_infra_debt 0.30, earnings_revisions 0.25, trump_tariffs 0.20, margin_debt 0.10, private_credit_nbfi 0.15
+CONSUMER STAPLES: consumer_confidence 0.40, jobless_claims 0.25, trump_tariffs 0.20, cass_freight 0.15
+EM EQUITIES: em_sovereign_distress 0.30, trump_tariffs 0.30, fx_swap_basis 0.20, oil_supply_shock 0.20
+REAL ESTATE: cre_delinquency 0.40, private_credit_nbfi 0.30, fed_sloos 0.15, gsib_capital 0.15
+
+### Outlook Bands
+| Score | Label |
+|---|---|
+| >= +0.50 | BULLISH |
+| +0.10 to +0.49 | MILD POSITIVE |
+| -0.09 to +0.09 | NEUTRAL |
+| -0.50 to -0.10 | MILD NEGATIVE |
+| <= -0.51 | BEARISH |
+
+### Tactical Alert Thresholds
+| Tier | Condition |
+|---|---|
+| WATCH | |delta| >= 0.45 |
+| CRITICAL | |delta| >= 0.60 |
+
+### Conviction Calculation
+Count flags in the asset class formula. Find % in single largest group (all-red, all-amber, all-green).
+- > 80% dominant group = HIGH CONVICTION
+- 50-80% = MEDIUM CONVICTION
+- No group reaches 50% = LOW — BIFURCATED
+
+### Indicator Type Classification
+| Type | Label | Examples |
+|---|---|---|
+| Strategic Anchor (SA) | Structural, slow-moving | US Debt/GDP, Japan JGB, G-SIB Capital, Private Credit/NBFI, Gold Reserve Ratio, IIF Global Debt, AI Infra Debt |
+| Cycle Coincident (CC) | Cyclical, moves with credit cycle | M2, ISM PMI, Jobless Claims, Cass Freight, Consumer Confidence, Earnings Revisions, STLFSI, NFCI, Trump Tariffs, Dollar Weaponisation |
+| Tactical Signal (TS) | High-frequency, fast-moving | VIX, Treasury Liquidity, Margin Debt, FX Swap Basis, Oil Supply Shock, 0DTE Volume |
+
+When SA indicators deteriorate = secular regime shift (years). CC+TS with SA = compounded severity. CC/TS without SA = likely cyclical drawdown.
+
+---
+
+## BLIND SPOT RULES (AUTOMATED — apply every week)
+
+Rule 1 — Earnings Suppression:
+If earnings_revisions flag = GREEN, append to Tech asset class blind_spot_warning:
+"Score may be suppressed by buyback distortion ($1.1T+ annually in share repurchases) and GAAP-to-non-GAAP adjustments (stock-based compensation excluded). Watch Q2 guidance season as potential detonation point."
+
+Rule 2 — Nominal M2 Mirage:
+If m2_money_supply flag = ELEVATED AND direction = DETERIORATING, append to Crypto asset class blind_spot_warning:
+"Nominal M2 expansion is thinning in real terms. Forward Real M2 may turn negative on current inflation pipeline (PPI + tariff pass-through). Nominal M2 narrative support for Crypto is deteriorating."
+
+Blind spot warnings affect commentary only. Scores use mechanical flag values unchanged.
+
+---
+
+## SCENARIO FRAMEWORK
+
+Maintain three scenarios weekly with explicit probability weights:
+- Base Case — Slow Burn: Grinding deterioration, no clean cascade trigger. Most dangerous for risk management.
+- De-escalation: Hormuz de-escalation + tariff retreat + AI productivity materialising. Bull case.
+- Fast Cascade: Hormuz closure 30+ days OR private credit redemption gate triggers NBFI cascade.
+
+Update probabilities when a specific event materially changes relative likelihood. Document: which scenario changed, why, and by how much.
+
+---
+
+## MATT FRAMEWORK (Positioning Overlay)
+
+MATT = Market Agreement to Our Themes. For each tracked warning theme:
+- 0-2 (Very Low): Theme not discussed in mainstream IB research
+- 3-4 (Low): Acknowledged but consensus treats as low probability
+- 5-6 (Medium): Consensus acknowledges; partial pricing
+- 7-8 (High): Theme is consensus view; majority IB coverage
+- 9-10 (Fully priced): Mainstream narrative; limited alpha
+
+High MATT = less actionable alpha. Low MATT + strong evidence = most actionable.
+
+---
+
+## KNOWN FAILURE MODES
+
+Apply these corrections automatically:
+1. Government bonds in systemic crisis (System Average < -0.70): Override Bonds outlook to UNCERTAIN, note flight-to-quality.
+2. Tech in fiscal/monetary expansion: Flag government intervention as potential false positive generator.
+3. Crypto in banking distrust (banking score < -0.50): Note BTC may rally as banking alternative.
+4. Energy commodity vs. equity divergence: Note energy score reflects commodity stress, not producer equity.
+
+---
+
+## SYSTEM AVERAGE
+
+System Average = arithmetic mean of all 8 asset class scores.
+| System Average | Overall Stress Level |
+|---|---|
+| > 0 | LOW STRESS |
+| -0.10 to 0 | NORMAL |
+| -0.20 to -0.10 | ELEVATED |
+| -0.35 to -0.20 | ELEVATED to HIGH |
+| -0.50 to -0.35 | HIGH |
+| < -0.50 | CRITICAL |
+
+---
+
 ## RULES
 
 1. Stress regime is conjunctive — requires evidence across two+ indicator domains.
-2. `system_average` is the arithmetic mean of all indicator domain stress scores: Green=0, Amber=-0.33, Red=-0.66, Crisis=-1.0. Range: 0.0 (all green) to -1.0 (all crisis). Negative = stress. CRITICAL threshold: below -0.50.
-3. `conviction` reflects how many domains corroborate the regime: 1 domain = LOW, 2-3 = MEDIUM, 4-5 = HIGH, 6 = VERY HIGH.
-4. `lead_signal` is REQUIRED. The headline must be factual and specific — not a regime label. "Liberation Day tariff package activates 10-point baseline surcharge" not "Macro stress elevated".
-5. `tail_risks`: produce 5-8 risks. `likelihood` and `impact` are numeric 0.0-1.0. Likelihood sourced from Horizon Matrix probabilities. Impact = (affected asset classes / 8) × avg score change × 1.5. `label` is a short name. `note` describes the risk including trigger condition.
-6. `confidence_preliminary` is advisory only — Publisher strips the _preliminary suffix for the final report.
+2. system_average is the arithmetic mean of all indicator domain stress scores: Green=0, Amber=-0.33, Red=-0.66, Crisis=-1.0. Range: 0.0 (all green) to -1.0 (all crisis). Negative = stress. CRITICAL threshold: below -0.50.
+3. conviction reflects how many domains corroborate the regime: 1 domain = LOW, 2-3 = MEDIUM, 4-5 = HIGH, 6 = VERY HIGH.
+4. lead_signal is REQUIRED. The headline must be factual and specific — not a regime label.
+5. tail_risks: produce 5-8 risks. likelihood and impact are numeric 0.0-1.0. Impact = (affected asset classes / 8) x avg score change x 1.5. label is a short name. note describes the risk including trigger condition.
+6. confidence_preliminary is advisory only — Publisher strips the _preliminary suffix for the final report.
 7. Tariff tracker: document all new measures and retaliation chains this week.
 8. Central bank tracker: note divergence between major institutions.
 9. Null signal: set true only if all six domains Green/stable, no regime delta.
@@ -138,5 +438,9 @@ The lead_signal field is REQUIRED — never skip it.
 11. Do not search the web. Reason only over provided documents.
 12. JSON string values must never contain apostrophes or contractions. Use full words only (e.g. "this weeks" not "this week's", "does not" not "doesn't"). Apostrophes break JSON parsing.
 13. All fields in the schema are REQUIRED. Do not omit stress_regime_preliminary.regime, stress_regime_preliminary.conviction, stress_regime_preliminary.system_average, or lead_signal.
+14. asset_outlook must include scoring_breakdown for each asset class showing the full weighted calculation.
+15. domain_indicators must include all 24 indicators with their current flag, direction, type classification, and value.
+16. scenario_framework must include all three scenarios with current probability weights.
+17. For oil_supply_shock, always update the current_driver field in domain_6_amplifiers.
 
-# Version: schema-sprint-v1 | Updated: 2026-04-09 | Aligned tail_risks to dashboard schema, strengthened lead_signal + stress_regime_preliminary requirements
+# Version: schema-sprint-v2 | Updated: 2026-04-11 | Added: scenario_framework, positioning_overlay (MATT), blind_spot_flags, conviction_detail, indicator_type_classification, asset_outlook scoring_breakdown, debt_dynamics, credit_stress, systemic_risk, safe_haven, sentiment_overlay, domain_indicators with all 24 indicators

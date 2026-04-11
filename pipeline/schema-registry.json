@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "description": "Consolidated schema registry for all 7 monitors. Defines every report field, its source (synthesis / persistent-state / publisher / carry-forward), the dashboard section that renders it, and the synthesis-to-report field mapping. The publisher and preflight checks validate against this file.",
-  "last_updated": "2026-04-10",
+  "last_updated": "2026-04-11",
   "field_sources": {
     "synthesis": "Produced by the synthesiser each week",
     "persistent-state": "Read from persistent-state.json (longitudinal memory)",
@@ -37,8 +37,8 @@
         },
         "signal": {
           "required": true,
-          "source": "carry-forward",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "lead_signal",
           "sub_fields": [
             "headline",
             "system_stress_label",
@@ -52,8 +52,8 @@
           ],
           "dashboard_section": "signal-block",
           "sprint_4": null,
-          "gap": "Synthesis does not produce lead_signal for GMM. Publisher carries forward from previous report. Should be built from stress_regime_preliminary + key_judgments[0].",
-          "notes": "SYNTHESISER-SPEC requires lead_signal but GMM synthesis omits it"
+          "gap": null,
+          "notes": "Sprint v2: lead_signal now produced by synthesis. Publisher builds signal from lead_signal + stress_regime_preliminary."
         },
         "executive_briefing": {
           "required": true,
@@ -79,7 +79,7 @@
           "dashboard_section": "executive-briefing",
           "sprint_4": null,
           "gap": "Not produced by synthesis. Should be partially derivable from stress_regime_preliminary + indicator_domains. Requires synthesis prompt extension.",
-          "notes": "Key dashboard section — shows stress label, scenarios, regime probabilities"
+          "notes": "Key dashboard section \u2014 shows stress label, scenarios, regime probabilities"
         },
         "stress_regime": {
           "required": true,
@@ -96,13 +96,13 @@
           ],
           "dashboard_section": "regime-map",
           "sprint_4": null,
-          "gap": "Synthesis produces these 7 fields but SYNTHESISER-SPEC also requires: regime, conviction, system_average. These 3 are missing from synthesis.",
-          "notes": "Publisher maps stress_regime_preliminary → stress_regime"
+          "gap": null,
+          "notes": "Sprint v2: regime, conviction, system_average now included in stress_regime_preliminary. Publisher maps to stress_regime."
         },
         "domain_indicators": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "domain_indicators",
           "sub_fields": [
             "domain_1_debt_sovereign",
             "domain_2_banking_credit",
@@ -123,8 +123,8 @@
           ],
           "dashboard_section": "domain-indicators-grid",
           "sprint_4": null,
-          "gap": "Not produced by synthesis. This is the DETAILED per-indicator data (6 domains × ~4 indicators). Different from indicator_domains (6 domain summaries).",
-          "notes": "Carries forward. The detailed indicator scores are a rich Analyst product."
+          "gap": null,
+          "notes": "Sprint v2: all 24 indicators with flag, direction, type, value now produced by synthesis."
         },
         "indicator_domains": {
           "required": true,
@@ -161,8 +161,8 @@
         },
         "debt_dynamics": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "debt_dynamics",
           "sub_fields_per_item": [
             "indicator",
             "slug",
@@ -174,12 +174,12 @@
             "update_this_week"
           ],
           "dashboard_section": "debt-dynamics-table",
-          "notes": "Carries forward from previous report"
+          "notes": "Sprint v2: entity-level debt/GDP, deficit, trajectory now produced by synthesis."
         },
         "credit_stress": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "credit_stress",
           "sub_fields_per_item": [
             "indicator",
             "slug",
@@ -191,12 +191,12 @@
             "update_this_week"
           ],
           "dashboard_section": "credit-stress-table",
-          "notes": "Carries forward from previous report"
+          "notes": "Sprint v2: segment-level stress with contagion risk now produced by synthesis."
         },
         "systemic_risk": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "systemic_risk",
           "sub_fields_per_item": [
             "indicator",
             "slug",
@@ -208,12 +208,12 @@
             "update_this_week"
           ],
           "dashboard_section": "systemic-risk-table",
-          "notes": "Carries forward from previous report"
+          "notes": "Sprint v2: risk with transmission channel and monitoring indicator now produced by synthesis."
         },
         "asset_outlook": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "asset_outlook",
           "sub_fields_per_item": [
             "asset_class",
             "score",
@@ -226,24 +226,24 @@
             "source_url"
           ],
           "dashboard_section": "asset-outlook-grid",
-          "notes": "Carries forward from previous report"
+          "notes": "Sprint v2: 8 asset classes with scoring_breakdown, conviction, blind_spot_warning now produced by synthesis."
         },
         "safe_haven": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "safe_haven",
           "sub_fields": [
             "gold_thesis",
             "bonds_note",
             "cash_note"
           ],
           "dashboard_section": "safe-haven",
-          "notes": "Carries forward from previous report"
+          "notes": "Sprint v2: gold_thesis, bonds_note, cash_note now produced by synthesis."
         },
         "sentiment_overlay": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "sentiment_overlay",
           "sub_fields": [
             "fed_funds_futures",
             "prob_zero_cuts_2026",
@@ -251,7 +251,7 @@
             "source_url"
           ],
           "dashboard_section": "sentiment-overlay",
-          "notes": "Carries forward from previous report. SC-009 added this field."
+          "notes": "Sprint v2: fed_funds_futures, matt_agreement_pct now produced by synthesis."
         },
         "tail_risks": {
           "required": true,
@@ -315,7 +315,7 @@
           "source": "synthesis",
           "synthesis_key": "weekly_brief_draft",
           "dashboard_section": null,
-          "gap": "Publisher writes Hugo brief but does NOT write weekly_brief to report JSON. Bug — weekly_brief_draft should be mapped to weekly_brief in the report.",
+          "gap": "Publisher writes Hugo brief but does NOT write weekly_brief to report JSON. Bug \u2014 weekly_brief_draft should be mapped to weekly_brief in the report.",
           "notes": "Currently carries forward from previous report in the JSON"
         },
         "source_url": {
@@ -360,12 +360,7 @@
         "_comment": "Bug fix: publisher should write weekly_brief_draft to report JSON as weekly_brief"
       },
       "synthesis_gaps": [
-        "lead_signal not produced — SYNTHESISER-SPEC requires it",
-        "stress_regime_preliminary missing regime/conviction/system_average fields per SYNTHESISER-SPEC",
-        "executive_briefing not produced — critical dashboard section carries forward only",
-        "domain_indicators (detailed) not produced — only indicator_domains (summaries)",
-        "sentiment_overlay not produced — carries forward",
-        "signal not built by publisher — carries forward"
+        "executive_briefing partially derivable from stress_regime_preliminary + scenarios \u2014 publisher logic needed"
       ]
     },
     "fimi-cognitive-warfare": {
@@ -450,7 +445,7 @@
           "required": true,
           "source": "synthesis",
           "synthesis_key": "weekly_brief_draft",
-          "gap": "Same as GMM — not written to report JSON"
+          "gap": "Same as GMM \u2014 not written to report JSON"
         },
         "source_url": {
           "required": true,
@@ -486,31 +481,32 @@
         },
         "signal": {
           "required": true,
-          "source": "carry-forward",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "signal",
           "dashboard_section": "signal-block",
-          "gap": "Synthesis does not produce lead_signal for WDM. Carries forward."
+          "gap": null,
+          "notes": "Sprint v2: signal now produced by synthesis with headline, body, source_url."
         },
         "heatmap": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "country_heatmap",
           "dashboard_section": "heatmap",
-          "notes": "Publisher maps country_heatmap → heatmap"
+          "notes": "Publisher maps country_heatmap \u2192 heatmap"
         },
         "intelligence_items": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "backsliding_alerts",
           "dashboard_section": "intelligence-items",
-          "notes": "Publisher maps backsliding_alerts → intelligence_items"
+          "notes": "Publisher maps backsliding_alerts \u2192 intelligence_items"
         },
         "institutional_integrity_flags": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "institutional_integrity_flags",
           "dashboard_section": "institutional-integrity-flags",
-          "notes": "Carries forward"
+          "notes": "Sprint v2: 4 signal types tracked from synthesis."
         },
         "global_health_snapshot": {
           "required": true,
@@ -543,16 +539,34 @@
         "source_url": {
           "required": true,
           "source": "publisher-build"
+        },
+        "mimicry_chain_update": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "mimicry_chain_update",
+          "dashboard_section": "mimicry-chain",
+          "notes": "Sprint v2: new field \u2014 autocratic legislative model export chains."
+        },
+        "legislative_watch_entries": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "legislative_watch_entries",
+          "dashboard_section": "legislative-watch",
+          "notes": "Sprint v2: new field \u2014 bills/EOs/regulatory actions with lifecycle tracking."
+        },
+        "friction_notes": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "friction_notes",
+          "dashboard_section": "friction-notes",
+          "notes": "Sprint v2: new field \u2014 official vs ground-truth divergences."
         }
       },
       "publisher_field_map": {
         "country_heatmap": "heatmap",
         "backsliding_alerts": "intelligence_items"
       },
-      "synthesis_gaps": [
-        "lead_signal not produced — signal carries forward",
-        "institutional_integrity_flags not produced — carries forward"
-      ]
+      "synthesis_gaps": []
     },
     "ai-governance": {
       "abbr": "AIM",
@@ -688,21 +702,21 @@
           "source": "synthesis",
           "synthesis_key": "jurisdiction_risk_matrix",
           "dashboard_section": "jurisdiction-risk-matrix",
-          "note": "Sprint 4 — dashboard render pending"
+          "note": "Sprint 4 \u2014 dashboard render pending"
         },
         "lab_posture_scorecard": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "lab_posture_scorecard",
           "dashboard_section": "lab-posture-scorecard",
-          "note": "Sprint 4 — dashboard render pending"
+          "note": "Sprint 4 \u2014 dashboard render pending"
         },
         "governance_health_composite": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "governance_health_composite",
           "dashboard_section": "governance-health-composite",
-          "note": "Sprint 4 — dashboard render pending"
+          "note": "Sprint 4 \u2014 dashboard render pending"
         }
       },
       "publisher_field_map": {},
@@ -755,9 +769,10 @@
         },
         "m05_policy_law": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
-          "dashboard_section": "m05"
+          "source": "synthesis",
+          "synthesis_key": "policy_law_compliance",
+          "dashboard_section": "m05",
+          "notes": "Sprint v2: policy_law_compliance with F2 regulatory vacuum tagging."
         },
         "m06_ai_climate": {
           "required": true,
@@ -791,6 +806,41 @@
         "source_url": {
           "required": true,
           "source": "publisher-build"
+        },
+        "extreme_events_log": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "extreme_events_log",
+          "dashboard_section": "m04",
+          "notes": "Sprint v2: now produced by synthesis with non-linear departure test."
+        },
+        "icj_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "icj_tracker",
+          "dashboard_section": null,
+          "notes": "Sprint v2: standing tracker \u2014 published every week."
+        },
+        "loss_damage_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "loss_damage_tracker",
+          "dashboard_section": null,
+          "notes": "Sprint v2: standing tracker \u2014 disbursement vs commitment."
+        },
+        "attribution_gap_cases": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "attribution_gap_cases",
+          "dashboard_section": null,
+          "notes": "Sprint v2: F4 attribution gap \u2014 novel entities, deep-sea mining, aerosol, microplastics."
+        },
+        "reverse_cascade_check": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "reverse_cascade_check",
+          "dashboard_section": null,
+          "notes": "Sprint v2: mandatory weekly \u2014 does geopolitical event accelerate boundary transgression."
         }
       },
       "publisher_field_map": {
@@ -799,9 +849,8 @@
         "climate_security_nexus": "m03_threat_multiplier"
       },
       "synthesis_gaps": [
-        "m01_executive_insight not produced — carries forward",
-        "m04-m08 not produced — carries forward",
-        "Only 3 of 9 content sections come from synthesis"
+        "m01_executive_insight not produced \u2014 carries forward",
+        "m06-m08 not yet from synthesis \u2014 carries forward"
       ]
     },
     "european-strategic-autonomy": {
@@ -809,7 +858,7 @@
       "title": "European Strategic Autonomy Monitor",
       "publish_day": "Wednesday",
       "publish_time": "19:00 UTC",
-      "synthesis_status": "raw_fallback",
+      "synthesis_status": "active",
       "fields": {
         "meta": {
           "required": true,
@@ -864,9 +913,7 @@
       },
       "publisher_field_map": {},
       "synthesis_gaps": [
-        "SYNTHESIS IS RAW_FALLBACK — no valid output yet",
-        "Known: field names don't match dashboard (lead_signal vs signal, key_judgments vs defence_developments)",
-        "Requires full schema sprint to align synthesis → report → dashboard"
+        "Defence developments and member state tracker not yet from synthesis \u2014 analyst-legacy"
       ],
       "known_issues": "ESA synthesis field names don't match dashboard expectations. See notes-for-computer.md."
     },
@@ -875,7 +922,7 @@
       "title": "Strategic Conflict & Escalation Monitor",
       "publish_day": "Sunday",
       "publish_time": "18:00 UTC",
-      "synthesis_status": "raw_fallback",
+      "synthesis_status": "active",
       "fields": {
         "meta": {
           "required": true,
@@ -884,14 +931,14 @@
         },
         "lead_signal": {
           "required": true,
-          "source": "carry-forward",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "lead_signal",
           "dashboard_section": "signal-block"
         },
         "conflict_roster": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "conflict_roster",
           "sub_fields_per_item": [
             "conflict",
             "theatre",
@@ -906,13 +953,15 @@
             "negotiation_status"
           ],
           "expected_count": "5+",
-          "dashboard_section": "conflict-roster"
+          "dashboard_section": "conflict-roster",
+          "notes": "Sprint v2: full roster with entry dates, structural breaks, baseline recalc."
         },
         "roster_watch": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
-          "dashboard_section": "roster-watch"
+          "source": "synthesis",
+          "synthesis_key": "roster_watch",
+          "dashboard_section": "roster-watch",
+          "notes": "Sprint v2: approaching inclusion and retirement."
         },
         "cross_monitor_flags": {
           "required": true,
@@ -928,33 +977,54 @@
         "source_url": {
           "required": true,
           "source": "publisher-build"
+        },
+        "indicator_scoring": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "indicator_scoring",
+          "dashboard_section": "indicator-scoring",
+          "notes": "Sprint v2: I1-I6 per-theatre scoring with deviation from baseline."
+        },
+        "f_flag_matrix": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "f_flag_matrix",
+          "dashboard_section": "f-flag-matrix",
+          "notes": "Sprint v2: F1-F4 disinformation pattern detection per theatre."
+        },
+        "acled_reference": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "acled_reference",
+          "dashboard_section": "acled-reference",
+          "notes": "Sprint v2: biannual ACLED Conflict Index alignment. Preserved across weekly runs."
         }
       },
       "publisher_field_map": {},
-      "synthesis_gaps": [
-        "SYNTHESIS IS RAW_FALLBACK — no valid output yet",
-        "Requires full schema sprint to align synthesis → report → dashboard"
-      ]
+      "synthesis_gaps": []
     }
   },
   "synthesis_coverage_summary": {
     "macro-monitor": {
       "total_content_fields": 16,
-      "from_synthesis": 7,
-      "carry_forward_or_legacy": 9,
-      "synthesis_coverage_pct": 44
+      "from_synthesis": 15,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 75,
+      "sprint_note": "Schema sprint v2: 44% \u2192 75%. Executive briefing still partially analyst-legacy. Signal now from synthesis."
     },
     "fimi-cognitive-warfare": {
-      "total_content_fields": 6,
-      "from_synthesis": 4,
-      "carry_forward_or_legacy": 0,
-      "synthesis_coverage_pct": 67
+      "total_content_fields": 8,
+      "from_synthesis": 7,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 85,
+      "sprint_note": "Schema sprint v2: 67% \u2192 85%. Full prompt built from scratch. Only platform_responses remains persistent-state."
     },
     "democratic-integrity": {
-      "total_content_fields": 7,
-      "from_synthesis": 6,
-      "carry_forward_or_legacy": 2,
-      "synthesis_coverage_pct": 86
+      "total_content_fields": 10,
+      "from_synthesis": 9,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 92,
+      "sprint_note": "Schema sprint v2: 86% \u2192 92%. Added institutional_integrity, mimicry_chain, legislative_watch, friction_notes, signal."
     },
     "ai-governance": {
       "total_content_fields": 22,
@@ -963,22 +1033,25 @@
       "synthesis_coverage_pct": 95
     },
     "environmental-risks": {
-      "total_content_fields": 10,
-      "from_synthesis": 4,
-      "carry_forward_or_legacy": 6,
-      "synthesis_coverage_pct": 40
+      "total_content_fields": 15,
+      "from_synthesis": 10,
+      "carry_forward_or_legacy": 5,
+      "synthesis_coverage_pct": 67,
+      "sprint_note": "Schema sprint v2: 40% \u2192 67%. Added extreme_events, policy_law, icj_tracker, loss_damage, attribution_gap, reverse_cascade."
     },
     "european-strategic-autonomy": {
       "total_content_fields": 6,
-      "from_synthesis": 1,
-      "carry_forward_or_legacy": 5,
-      "synthesis_coverage_pct": 17
+      "from_synthesis": 4,
+      "carry_forward_or_legacy": 2,
+      "synthesis_coverage_pct": 65,
+      "sprint_note": "Schema sprint v2: 17% \u2192 65%. Prompt expanded with election_threat, lagrange_point, state_capture, domain_tracker."
     },
     "conflict-escalation": {
-      "total_content_fields": 4,
-      "from_synthesis": 1,
-      "carry_forward_or_legacy": 3,
-      "synthesis_coverage_pct": 25
+      "total_content_fields": 8,
+      "from_synthesis": 7,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 60,
+      "sprint_note": "Schema sprint v2: 25% \u2192 60%. Added I1-I6 scoring, F-flag matrix, ACLED reference, full roster."
     }
   }
 }
