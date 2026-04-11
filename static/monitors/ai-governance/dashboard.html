@@ -5,12 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — AI Governance Monitor · Asymmetric Intelligence</title>
   <meta name="description" content="AI Governance Monitor dashboard — delta strip, country grid, lead signal, and KPIs from the latest issue.">
-  <link rel="preconnect" href="https://api.fontshare.com">
-  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
   <style>
     /* ── EU AI Act Compact Tracker (Dashboard) ─────────────────────── */
     .euact-dash-wrap {
@@ -729,49 +728,20 @@
       background: rgba(245,158,11,0.10);
     }
   </style>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
 </head>
 
 <body>
 
   <nav class="monitor-nav" aria-label="Monitor navigation">
-    <a class="monitor-nav__brand" href="overview.html">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 36 36" fill="none" aria-hidden="true" style="flex-shrink:0">
-        <rect x="3" y="3" width="30" height="30" rx="3" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/>
-        <rect x="8" y="8" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.9"/>
-        <rect x="20" y="8" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.6"/>
-        <rect x="8" y="20" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.6"/>
-        <rect x="20" y="20" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.3"/>
-        <line x1="12" y1="16" x2="12" y2="20" stroke="var(--monitor-accent)" stroke-width="1.5"/>
-        <line x1="24" y1="16" x2="24" y2="20" stroke="var(--monitor-accent)" stroke-width="1.5"/>
-        <line x1="16" y1="12" x2="20" y2="12" stroke="var(--monitor-accent)" stroke-width="1.5"/>
-      </svg>
-      <span>AI Governance</span>
-    </a>
-    <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
-      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-        <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
-      </svg>
-    </button>
-    <ul class="monitor-nav__links" role="list">
-      <li><a href="overview.html">Overview</a></li>
-      <li><a href="chatter.html">Chatter</a></li>
-      <li><a href="dashboard.html" class="active">Dashboard</a></li>
-      <li><a href="report.html">Latest Issue</a></li>
-      <li><a href="archive.html">Archive</a></li>
-      <li><a href="persistent.html">Living Knowledge</a></li>
-      <li><a href="search.html">Search</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="methodology.html">Methodology</a></li>
-  </ul>
-    <div class="monitor-nav__actions">
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-        <svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="7.5" cy="7.5" r="3"/><line x1="7.5" y1="1" x2="7.5" y2="2.5"/><line x1="7.5" y1="12.5" x2="7.5" y2="14"/><line x1="1" y1="7.5" x2="2.5" y2="7.5"/><line x1="12.5" y1="7.5" x2="14" y2="7.5"/></svg>
-        <svg class="icon-moon" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true"><path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 12A5.5 5.5 0 1 1 11.7 3.8 6.5 6.5 0 0 0 7.5 13z"/></svg>
-      </button>
-    </div>
-  </nav>
+  <a class="monitor-nav__brand" href="dashboard.html"></a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list"></ul>
+  <div class="monitor-nav__actions"></div>
+</nav>
 
   <div class="monitor-layout">
     <main class="monitor-main" id="main-content">
@@ -954,10 +924,7 @@
 
   
 
-<footer class="monitor-footer">
-    <span>AI Governance Monitor · <a href="https://asym-intel.info">asym-intel.info</a></span>
-    <span class="monitor-footer__credit"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Produced with Perplexity Computer</a></span>
-  </footer>
+<footer class="monitor-footer"></footer>
   <script src="../shared/js/renderer.js"></script>
   <script>
   function escHtml(str) {

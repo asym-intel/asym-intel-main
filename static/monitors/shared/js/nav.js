@@ -215,15 +215,15 @@
   }
 
   var MONITOR_NAV_LINKS = [
-    { href: 'overview.html',    label: 'Overview'        },
-    { href: 'chatter.html',     label: 'Chatter'         },
-    { href: 'dashboard.html',   label: 'Dashboard'       },
-    { href: 'report.html',      label: 'Latest Issue'    },
-    { href: 'archive.html',     label: 'Archive'         },
-    { href: 'persistent.html',  label: 'Living Knowledge'},
-    { href: 'search.html',      label: 'Search'          },
-    { href: 'about.html',       label: 'About'           },
-    { href: 'methodology.html', label: 'Methodology'     },
+    { href: 'overview.html',       label: 'Overview'         },
+    { href: 'dashboard.html',      label: 'Dashboard'        },
+    { href: 'report.html',         label: 'Latest Issue'     },
+    { href: 'persistent.html',     label: 'Living Knowledge' },
+    { href: 'chatter.html',        label: 'Chatter'          },
+    { href: 'cross-monitor.html',  label: 'Cross-Monitor'    },
+    { href: 'archive.html',        label: 'Archive'          },
+    { href: 'search.html',         label: 'Search'           },
+    { href: 'about.html',          label: 'About'            },
   ];
 
   function injectMonitorNav() {
