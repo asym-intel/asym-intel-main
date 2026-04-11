@@ -37,7 +37,7 @@ jobs:
           git add docs/monitors/ai-governance/data/
           git add content/monitors/ai-governance/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(aim): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/ai-governance/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by AIM Publisher Bot [skip ci]"
+          git commit -m "data(aim): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/ai-governance/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by AIM Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
