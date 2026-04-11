@@ -662,8 +662,7 @@ def build_overview(slug, m):
     <section class="module-section" id="section-hero">
       <div class="page-header" style="border-bottom:none;margin-bottom:var(--space-4);padding-top:var(--space-4)">
         <div class="page-header__eyebrow">{esc(m["abbr"])} &middot; Asymmetric Intelligence</div>
-        <h1 class="page-header__title" style="font-size:var(--text-3xl)">{esc(m["name"])}</h1>
-        <p class="page-header__sub">{esc(m["mission"])}</p>
+        <p class="page-header__sub" style="margin-top:var(--space-2)">{esc(m["mission"])}</p>
         <div class="page-header__meta">
           <span>Published {esc(m["publish"])}</span>
         </div>
