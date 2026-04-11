@@ -252,175 +252,154 @@ def esc(s):
     return html_mod.escape(str(s)) if s else ""
 
 
-def load_report(slug):
-    """Load report-latest.json for a monitor, return dict or {}."""
-    path = os.path.join(STATIC, slug, "data", "report-latest.json")
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except Exception:
-        return {}
+# Note: load_report, get_signal_title, get_signal_body, get_issue_meta, get_pill_data
+# have been removed. Latest Issue + pills + glance are now JS-fetch-driven.
+# The per-monitor DATA_CONFIG (below) maps real JSON shapes to a unified JS config.
 
 
-def get_signal_title(report):
-    """Extract lead signal title from report."""
-    sig = report.get("signal", report.get("lead_signal", {}))
-    if isinstance(sig, dict):
-        return sig.get("title", sig.get("headline", ""))
-    return str(sig) if sig else ""
+# ── Per-monitor data config ──────────────────────────────────────────
+# Maps real report-latest.json shapes to a unified JS config.
+# When schema sprints normalise fields, update HERE — JS + template untouched.
+#
+# signal_path: dotted path to headline string
+# signal_body_path: dotted path to body/summary string (may be null)
+# meta_issue_path / meta_week_path: dotted paths for issue metadata
+# pills: list of {label_tpl, path, type} where type is:
+#   "value" = resolve path to string
+#   "count" = len(resolve path to array)
+#   "count_dict" = len(resolve path, expect dict with .flags or similar)
+#   "count_prefix" = count keys starting with prefix
+# glance_slots: list of {label, path, type} same semantics
+#
+# cross_monitor_flags shape:
+#   WDM = raw list; all others = dict with .flags array
+#   We handle this with "count_dict_key" type: count items at path.key
 
-
-def get_signal_body(report):
-    """Extract lead signal body/summary from report."""
-    sig = report.get("signal", report.get("lead_signal", {}))
-    if isinstance(sig, dict):
-        return sig.get("body", sig.get("summary", ""))
-    return ""
-
-
-def get_issue_meta(report):
-    """Get issue number and week label."""
-    meta = report.get("meta", {})
-    return meta.get("issue", "—"), meta.get("week_label", "")
-
-
-def get_pill_data(slug, report):
-    """Generate issue pills based on monitor type and available data."""
-    pills = []
-    if slug == "democratic-integrity":
-        hm = report.get("heatmap", [])
-        flags = report.get("institutional_integrity_flags", [])
-        items = report.get("intelligence_items", [])
-        if hm: pills.append(f"{len(hm)} countries tracked")
-        if flags: pills.append(f"{len(flags)} integrity flags")
-        if items: pills.append(f"{len(items)} intelligence items")
-    elif slug == "macro-monitor":
-        domains = report.get("indicator_domains", [])
-        tails = report.get("tail_risks", [])
-        if domains: pills.append(f"{len(domains)} indicator domains")
-        if tails: pills.append(f"{len(tails)} tail risks")
-        regime = report.get("stress_regime", {})
-        if isinstance(regime, dict) and regime.get("level"):
-            pills.append(f"Regime: {regime['level']}")
-    elif slug == "european-strategic-autonomy":
-        dd = report.get("defence_developments", [])
-        ht = report.get("hybrid_threats", [])
-        if dd: pills.append(f"{len(dd)} defence developments")
-        if ht: pills.append(f"{len(ht)} hybrid threats")
-    elif slug == "fimi-cognitive-warfare":
-        camps = report.get("campaigns", [])
-        actors = report.get("actor_tracker", [])
-        if camps: pills.append(f"{len(camps)} campaigns tracked")
-        if actors: pills.append(f"{len(actors)} actors tracked")
-    elif slug == "ai-governance":
-        modules = [k for k in report.keys() if k.startswith("module_")]
-        if modules: pills.append(f"{len(modules)} modules covered")
-    elif slug == "environmental-risks":
-        events = report.get("extreme_events_log", [])
-        tips = report.get("tipping_point_tracker", [])
-        if events: pills.append(f"{len(events)} events logged")
-        if tips: pills.append(f"{len(tips)} tipping points")
-    elif slug == "conflict-escalation":
-        roster = report.get("conflict_roster", [])
-        watch = report.get("roster_watch", [])
-        if roster: pills.append(f"{len(roster)} active conflicts")
-        if watch: pills.append(f"{len(watch)} on watch")
-    return pills[:3]
-
-
-# Canonical glance slot definitions per monitor.
-# These map to fields that will exist after schema sprints.
-# Each slot: (label, json_path_or_extractor, fallback_label)
-# The template renders graceful empty states when data is absent.
-GLANCE_SLOTS = {
-    "democratic-integrity": [
-        ("Lead signal", "signal.title", None),
-        ("Countries tracked", "_count:heatmap", None),
-        ("Integrity flags", "_count:institutional_integrity_flags", None),
-        ("Watch items", "_count:intelligence_items", None),
-    ],
-    "macro-monitor": [
-        ("Lead signal", "signal.title", None),
-        ("Stress regime", "stress_regime.level", None),
-        ("Domains scored", "_count:indicator_domains", None),
-        ("Tail risks", "_count:tail_risks", None),
-    ],
-    "european-strategic-autonomy": [
-        ("Lead signal", "signal.title", None),
-        ("Defence items", "_count:defence_developments", None),
-        ("Hybrid threats", "_count:hybrid_threats", None),
-        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
-    ],
-    "fimi-cognitive-warfare": [
-        ("Lead signal", "signal.title", None),
-        ("Active campaigns", "_count:campaigns", None),
-        ("Actors tracked", "_count:actor_tracker", None),
-        ("Platform responses", "_count:platform_responses", None),
-    ],
-    "ai-governance": [
-        ("Lead signal", "signal.title", None),
-        ("Modules covered", "_count_prefix:module_", None),
-        ("Governance items", "_count:key_judgments", None),
-        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
-    ],
-    "environmental-risks": [
-        ("Lead signal", "signal.title", None),
-        ("Events logged", "_count:extreme_events_log", None),
-        ("Tipping points", "_count:tipping_point_tracker", None),
-        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
-    ],
-    "conflict-escalation": [
-        ("Lead signal", "signal.title", None),
-        ("Active conflicts", "_count:conflict_roster", None),
-        ("Roster watch", "_count:roster_watch", None),
-        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
-    ],
+DATA_CONFIG = {
+    "democratic-integrity": {
+        "signal_path": "signal.headline",
+        "signal_body_path": "signal.body",
+        "meta_issue_path": "meta.issue",
+        "meta_week_path": "meta.week_label",
+        "pills": [
+            {"label_tpl": "{n} countries tracked", "path": "heatmap", "type": "count"},
+            {"label_tpl": "{n} integrity flags", "path": "institutional_integrity_flags", "type": "count"},
+            {"label_tpl": "{n} intelligence items", "path": "intelligence_items", "type": "count"},
+        ],
+        "glance_slots": [
+            {"label": "Lead signal", "path": "signal.headline", "type": "value"},
+            {"label": "Countries tracked", "path": "heatmap", "type": "count"},
+            {"label": "Integrity flags", "path": "institutional_integrity_flags", "type": "count"},
+            {"label": "Watch items", "path": "intelligence_items", "type": "count"},
+        ],
+    },
+    "macro-monitor": {
+        "signal_path": "signal.headline",
+        "signal_body_path": None,
+        "meta_issue_path": "meta.issue",
+        "meta_week_path": "meta.week_label",
+        "pills": [
+            {"label_tpl": "{n} indicator domains", "path": "indicator_domains", "type": "count"},
+            {"label_tpl": "{n} tail risks", "path": "tail_risks", "type": "count"},
+            {"label_tpl": "Regime: {v}", "path": "stress_regime.regime", "type": "value"},
+        ],
+        "glance_slots": [
+            {"label": "Lead signal", "path": "signal.headline", "type": "value"},
+            {"label": "Stress regime", "path": "signal.regime", "type": "value"},
+            {"label": "Domains scored", "path": "indicator_domains", "type": "count"},
+            {"label": "Tail risks", "path": "tail_risks", "type": "count"},
+        ],
+    },
+    "european-strategic-autonomy": {
+        "signal_path": "signal.title",
+        "signal_body_path": "signal.body",
+        "meta_issue_path": "meta.issue",
+        "meta_week_path": "meta.week_label",
+        "pills": [
+            {"label_tpl": "{n} defence developments", "path": "defence_developments", "type": "count"},
+            {"label_tpl": "{n} hybrid threats", "path": "hybrid_threats", "type": "count"},
+        ],
+        "glance_slots": [
+            {"label": "Lead signal", "path": "signal.title", "type": "value"},
+            {"label": "Defence items", "path": "defence_developments", "type": "count"},
+            {"label": "Hybrid threats", "path": "hybrid_threats", "type": "count"},
+            {"label": "Cross-monitor flags", "path": "cross_monitor_flags.flags", "type": "count"},
+        ],
+    },
+    "fimi-cognitive-warfare": {
+        "signal_path": "signal.headline",
+        "signal_body_path": "signal.note",
+        "meta_issue_path": "meta.issue",
+        "meta_week_path": "meta.week_label",
+        "pills": [
+            {"label_tpl": "{n} campaigns tracked", "path": "campaigns", "type": "count"},
+            {"label_tpl": "{n} actors tracked", "path": "actor_tracker", "type": "count"},
+        ],
+        "glance_slots": [
+            {"label": "Lead signal", "path": "signal.headline", "type": "value"},
+            {"label": "Active campaigns", "path": "campaigns", "type": "count"},
+            {"label": "Actors tracked", "path": "actor_tracker", "type": "count"},
+            {"label": "Cross-monitor flags", "path": "cross_monitor_flags.flags", "type": "count"},
+        ],
+    },
+    "ai-governance": {
+        # AGM has no top-level signal; key_judgments[0].judgment is closest
+        "signal_path": "key_judgments.0.judgment",
+        "signal_body_path": None,
+        "meta_issue_path": "meta.issue",
+        "meta_week_path": "meta.week_label",
+        "pills": [
+            {"label_tpl": "{n} modules covered", "path": "_prefix:module_", "type": "count_prefix"},
+            {"label_tpl": "{n} key judgments", "path": "key_judgments", "type": "count"},
+        ],
+        "glance_slots": [
+            {"label": "Lead signal", "path": "key_judgments.0.judgment", "type": "value"},
+            {"label": "Modules covered", "path": "_prefix:module_", "type": "count_prefix"},
+            {"label": "Key judgments", "path": "key_judgments", "type": "count"},
+            {"label": "Cross-monitor flags", "path": "cross_monitor_flags.flags", "type": "count"},
+        ],
+    },
+    "environmental-risks": {
+        # ERM uses m00_the_signal.lead_signal (plain string)
+        "signal_path": "m00_the_signal.lead_signal",
+        "signal_body_path": None,
+        "meta_issue_path": "meta.issue",
+        "meta_week_path": "meta.week_label",
+        "pills": [
+            {"label_tpl": "{n} events logged", "path": "extreme_events_log", "type": "count"},
+            {"label_tpl": "{n} tipping points", "path": "tipping_point_tracker", "type": "count"},
+            {"label_tpl": "{n} boundaries exceeded", "path": "m00_the_signal.boundaries_exceeded", "type": "value"},
+        ],
+        "glance_slots": [
+            {"label": "Lead signal", "path": "m00_the_signal.lead_signal", "type": "value"},
+            {"label": "Events logged", "path": "extreme_events_log", "type": "count"},
+            {"label": "Tipping points", "path": "tipping_point_tracker", "type": "count"},
+            {"label": "Cross-monitor flags", "path": "cross_monitor_flags.flags", "type": "count"},
+        ],
+    },
+    "conflict-escalation": {
+        "signal_path": "lead_signal.headline",
+        "signal_body_path": "lead_signal.summary",
+        "meta_issue_path": "meta.issue",
+        "meta_week_path": "meta.week_label",
+        "pills": [
+            {"label_tpl": "{n} active conflicts", "path": "conflict_roster", "type": "count"},
+            {"label_tpl": "{n} on watch", "path": "roster_watch", "type": "count"},
+        ],
+        "glance_slots": [
+            {"label": "Lead signal", "path": "lead_signal.headline", "type": "value"},
+            {"label": "Active conflicts", "path": "conflict_roster", "type": "count"},
+            {"label": "Roster watch", "path": "roster_watch", "type": "count"},
+            {"label": "Cross-monitor flags", "path": "cross_monitor_flags.flags", "type": "count"},
+        ],
+    },
 }
 
 
-def _resolve_glance_value(report, path):
-    """Extract a value from report using a dotted path or special prefix."""
-    if path.startswith("_count:"):
-        key = path[7:]
-        val = report.get(key, [])
-        return str(len(val)) if isinstance(val, list) and val else None
-    if path.startswith("_count_prefix:"):
-        prefix = path[14:]
-        matches = [k for k in report.keys() if k.startswith(prefix)]
-        return str(len(matches)) if matches else None
-    # Dotted path: "signal.title" -> report["signal"]["title"]
-    obj = report
-    for part in path.split("."):
-        if isinstance(obj, dict):
-            obj = obj.get(part)
-        else:
-            return None
-    if isinstance(obj, str) and obj.strip():
-        return obj.strip()[:80]
-    if isinstance(obj, (int, float)):
-        return str(obj)
-    return None
-
-
-def get_glance_data(slug, report):
-    """Generate 'this week at a glance' items from report data.
-    
-    Returns items with real data where available, None value where not.
-    The template renders a graceful empty state for None values.
-    """
-    slots = GLANCE_SLOTS.get(slug, [
-        ("Lead signal", "signal.title", None),
-        ("Current issue", "meta.week_label", None),
-        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
-    ])
-    items = []
-    for label, path, fallback in slots:
-        value = _resolve_glance_value(report, path)
-        items.append({
-            "label": label,
-            "value": value,  # None = no data yet
-        })
-    return items[:4]
+# Note: _resolve_glance_value and get_glance_data removed.
+# Glance + Latest Issue are now populated client-side via JS fetch from report-latest.json.
+# The DATA_CONFIG above provides the per-monitor path mapping.
+# When Sprint 4 normalises signal fields, update DATA_CONFIG — JS stays untouched.
 
 
 def build_sidebar(m, slug):
@@ -444,33 +423,190 @@ def build_sidebar(m, slug):
   </nav>'''
 
 
+# ── Shared JS for client-side data fetch ──────────────────────────────
+# This JS block is embedded in every overview page.
+# It reads DATA_CONFIG (per-monitor, embedded as JSON) and fetches report-latest.json.
+# Handles: dotted paths ("signal.headline"), array indices ("key_judgments.0.judgment"),
+# count of arrays, count_prefix (keys matching prefix), and graceful null fallback.
+#
+# ARCHITECTURE NOTE:
+# - Hero, route cards, tracks, analytical approach = STATIC (editorial copy, baked by generator)
+# - Latest Issue card + Glance section = DYNAMIC (JS fetch from report-latest.json)
+# - When schema Sprint 4 normalises signal fields, update DATA_CONFIG in Python — JS untouched.
+
+OVERVIEW_JS = r'''
+<script>
+(function() {
+  var CFG = window.__OV_CONFIG;
+  if (!CFG) return;
+
+  /**
+   * Resolve a dotted path against a JSON object.
+   * Supports: "signal.headline", "key_judgments.0.judgment" (array index),
+   * and returns null on any miss.
+   */
+  function resolvePath(obj, path) {
+    if (!obj || !path) return null;
+    var parts = path.split('.');
+    var cur = obj;
+    for (var i = 0; i < parts.length; i++) {
+      if (cur == null) return null;
+      var p = parts[i];
+      // Array index: "0", "1", etc.
+      if (Array.isArray(cur) && /^\d+$/.test(p)) {
+        cur = cur[parseInt(p, 10)];
+      } else if (typeof cur === 'object') {
+        cur = cur[p];
+      } else {
+        return null;
+      }
+    }
+    return cur;
+  }
+
+  /**
+   * Extract a display value from report data using a slot config.
+   * type: "value" = resolve path to string (truncate to 120 chars)
+   *       "count" = len(resolved array)
+   *       "count_prefix" = count top-level keys matching prefix
+   */
+  function extractSlotValue(data, slot) {
+    var path = slot.path;
+    var type = slot.type;
+    if (type === 'count_prefix') {
+      // path = "_prefix:module_" -> count keys starting with "module_"
+      var prefix = path.replace('_prefix:', '');
+      var n = 0;
+      for (var k in data) { if (k.indexOf(prefix) === 0) n++; }
+      return n > 0 ? String(n) : null;
+    }
+    var val = resolvePath(data, path);
+    if (val == null) return null;
+    if (type === 'count') {
+      if (Array.isArray(val)) return val.length > 0 ? String(val.length) : null;
+      return null;
+    }
+    // type === 'value'
+    if (typeof val === 'string') return val.length > 120 ? val.slice(0, 117) + '...' : val;
+    if (typeof val === 'number') return String(val);
+    return null;
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function populateLatestIssue(data) {
+    var card = document.getElementById('latest-card');
+    if (!card) return;
+
+    // Issue metadata
+    var issue = resolvePath(data, CFG.meta_issue_path);
+    var week = resolvePath(data, CFG.meta_week_path);
+    var label = card.querySelector('.card__label');
+    if (label) {
+      var parts = [];
+      if (issue != null) parts.push('Issue ' + issue);
+      if (week) parts.push(week);
+      label.textContent = parts.length > 0 ? parts.join(' · ') : '';
+    }
+
+    // Signal headline
+    var headline = resolvePath(data, CFG.signal_path);
+    var titleEl = card.querySelector('.card__title');
+    if (titleEl) {
+      if (headline) {
+        titleEl.textContent = headline.length > 160 ? headline.slice(0, 157) + '...' : headline;
+      } else {
+        titleEl.textContent = 'No signal data available';
+        titleEl.style.color = 'var(--color-text-tertiary)';
+      }
+    }
+
+    // Signal body (optional)
+    var bodyEl = card.querySelector('.card__body');
+    if (CFG.signal_body_path) {
+      var body = resolvePath(data, CFG.signal_body_path);
+      if (body && bodyEl) {
+        bodyEl.textContent = body;
+        bodyEl.style.display = '';
+      } else if (!body && !bodyEl) {
+        // No body path and no element — fine
+      }
+    }
+
+    // Pills
+    var pillBox = document.getElementById('latest-pills');
+    if (pillBox && CFG.pills) {
+      var html = '';
+      for (var i = 0; i < CFG.pills.length; i++) {
+        var pill = CFG.pills[i];
+        var pv = extractSlotValue(data, pill);
+        if (pv != null) {
+          var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
+          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+        }
+      }
+      pillBox.innerHTML = html;
+    }
+
+    // Remove loading state
+    card.classList.remove('ov-loading');
+  }
+
+  function populateGlance(data) {
+    var row = document.getElementById('glance-row');
+    if (!row || !CFG.glance_slots) return;
+
+    var html = '';
+    for (var i = 0; i < CFG.glance_slots.length; i++) {
+      var slot = CFG.glance_slots[i];
+      var val = extractSlotValue(data, slot);
+      html += '<div class="ov-glance-box">';
+      html += '<div class="ov-glance-box__label">' + esc(slot.label) + '</div>';
+      if (val != null) {
+        html += '<div class="ov-glance-box__value">' + esc(val) + '</div>';
+      } else {
+        html += '<div class="ov-glance-box__value ov-glance-box__empty">Awaiting data</div>';
+      }
+      html += '</div>';
+    }
+    row.innerHTML = html;
+  }
+
+  // Fetch and populate
+  var url = 'data/report-latest.json';
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      populateLatestIssue(data);
+      populateGlance(data);
+    })
+    .catch(function(err) {
+      console.warn('[Overview] Could not load ' + url + ':', err.message);
+      // Leave graceful empty states in place
+      var card = document.getElementById('latest-card');
+      if (card) card.classList.remove('ov-loading');
+    });
+})();
+</script>
+'''
+
+
 def build_overview(slug, m):
-    """Build the full overview HTML for a monitor."""
-    report = load_report(slug)
-    issue_num, week_label = get_issue_meta(report)
-    signal_title = get_signal_title(report)
-    signal_body = get_signal_body(report)
-    pills = get_pill_data(slug, report)
-    glance = get_glance_data(slug, report)
-
-    pills_html = ""
-    for p in pills:
-        pills_html += f'          <span class="ov-pill">{esc(p)}</span>\n'
-
-    glance_html = ""
-    for g in glance:
-        if g["value"] is not None:
-            glance_html += f'''        <div class="ov-glance-box">
-          <div class="ov-glance-label">{esc(g["label"])}</div>
-          <strong>{esc(g["value"])}</strong>
-        </div>
-'''
-        else:
-            glance_html += f'''        <div class="ov-glance-box ov-glance-box--empty">
-          <div class="ov-glance-label">{esc(g["label"])}</div>
-          <span class="ov-glance-pending">&mdash;</span>
-        </div>
-'''
+    """Build the full overview HTML for a monitor.
+    
+    Static sections: hero, route cards, tracks, analytical approach, cross-monitor.
+    Dynamic sections (JS fetch): Latest Issue card, This Week at a Glance.
+    """
+    config = DATA_CONFIG.get(slug, {})
+    config_json = json.dumps(config)
 
     tracks_html = ""
     for t in m["tracks"]:
@@ -522,7 +658,7 @@ def build_overview(slug, m):
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <!-- ── Hero ── -->
+    <!-- ── Hero (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-hero">
       <div class="page-header" style="border-bottom:none;margin-bottom:var(--space-4);padding-top:var(--space-4)">
         <div class="page-header__eyebrow">{esc(m["abbr"])} &middot; Asymmetric Intelligence</div>
@@ -559,17 +695,16 @@ def build_overview(slug, m):
       </div>
     </section>
 
-    <!-- ── Latest Issue ── -->
+    <!-- ── Latest Issue (DYNAMIC — JS fetch from report-latest.json) ── -->
     <section class="module-section" id="section-latest">
       <div class="module-header">
         <div class="module-title">Latest Issue</div>
       </div>
-      <article class="card" id="latest-card" style="border-left:4px solid var(--monitor-accent)">
-        <div class="card__label">Issue {esc(str(issue_num))} &middot; {esc(week_label)}</div>
-        <div class="card__title" style="font-size:var(--text-lg);line-height:1.35">{esc(signal_title) if signal_title else "Loading&hellip;"}</div>
-        {"<div class='card__body'>" + esc(signal_body) + "</div>" if signal_body else ""}
-        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin:var(--space-3) 0">
-{pills_html}        </div>
+      <article class="card ov-loading" id="latest-card" style="border-left:4px solid var(--monitor-accent)">
+        <div class="card__label">Loading&hellip;</div>
+        <div class="card__title" style="font-size:var(--text-lg);line-height:1.35">Loading latest issue&hellip;</div>
+        <div class="card__body" style="display:none"></div>
+        <div id="latest-pills" style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin:var(--space-3) 0"></div>
         <div class="card__footer">
           <a class="btn btn--primary" href="dashboard.html">Dashboard &rarr;</a>
           <a class="btn btn--outline" href="report.html">Full Report &rarr;</a>
@@ -577,7 +712,7 @@ def build_overview(slug, m):
       </article>
     </section>
 
-    <!-- ── How to use this monitor ── -->
+    <!-- ── How to use this monitor (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-how">
       <div class="module-header">
         <div class="module-title">How to use this monitor</div>
@@ -607,7 +742,7 @@ def build_overview(slug, m):
       </div>
     </section>
 
-    <!-- ── What this monitor tracks ── -->
+    <!-- ── What this monitor tracks (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-tracks">
       <div class="module-header">
         <div class="module-title">What {esc(m["abbr"])} tracks</div>
@@ -617,16 +752,17 @@ def build_overview(slug, m):
 {tracks_html}      </div>
     </section>
 
-    <!-- ── This week at a glance ── -->
+    <!-- ── This week at a glance (DYNAMIC — JS fetch from report-latest.json) ── -->
     <section class="module-section" id="section-glance">
       <div class="module-header">
         <div class="module-title">This week at a glance</div>
       </div>
-      <div class="ov-glance-row">
-{glance_html}      </div>
+      <div class="ov-glance-row" id="glance-row">
+        <div class="ov-glance-box"><div class="ov-glance-box__label">Loading&hellip;</div><div class="ov-glance-box__value ov-glance-box__empty">&nbsp;</div></div>
+      </div>
     </section>
 
-    <!-- ── Why different + Cross-monitor ── -->
+    <!-- ── Analytical approach + Cross-monitor (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-different">
       <div class="ov-split-grid">
         <div class="card" style="border-left:3px solid var(--monitor-accent)">
@@ -654,6 +790,10 @@ def build_overview(slug, m):
 </div>
 
 <footer class="monitor-footer"></footer>
+
+<!-- Per-monitor data config (embedded by generator — update DATA_CONFIG in Python, not here) -->
+<script>window.__OV_CONFIG = {config_json};</script>
+{OVERVIEW_JS}
 </body>
 </html>'''
 
