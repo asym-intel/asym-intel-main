@@ -20,5 +20,10 @@ jobs:
           GITLAB_PAT: ${{ secrets.GITLAB_PAT }}
         run: |
           git remote add gitlab "https://oauth2:${GITLAB_PAT}@gitlab.com/asym-intel/asym-intel-main.git"
-          git push gitlab --all --force
+          # Non-force push for main (GitLab branch protection)
+          git push gitlab main
+          # Force push non-main branches and tags
           git push gitlab --tags --force
+          for branch in $(git branch -r --list 'origin/*' | grep -v '/main$' | grep -v '/HEAD' | sed 's|origin/||'); do
+            git push gitlab "refs/heads/$branch" --force 2>/dev/null || true
+          done
