@@ -37,7 +37,7 @@ jobs:
           git add docs/monitors/environmental-risks/data/
           git add content/monitors/environmental-risks/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(erm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/environmental-risks/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by ERM Publisher Bot [skip ci]"
+          git commit -m "data(erm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/environmental-risks/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by ERM Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
