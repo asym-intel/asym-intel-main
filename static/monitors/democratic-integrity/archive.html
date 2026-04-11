@@ -55,47 +55,67 @@
 <script src="../shared/js/renderer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  function escHtml(str) {
-    return String(str == null ? '' : str)
+  function esc(s) {
+    return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+    function renderEntry(issue) {
+      var pub = issue.published
+        ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})
+        : '';
+      var anchor = 'issue-' + (issue.issue || issue.slug || '');
+      var allDeltas = issue.delta_strip || [];
+      var deltaHtml = allDeltas.slice(0, 3).map(function (d) {
+        return '<span class="badge badge--accent" style="margin-right:4px">' + esc(d.module_tag || d.module || '') + '</span>' +
+          '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-right:var(--space-3)">' + esc(d.title || '') + '</span>';
+      }).join('');
+      if (allDeltas.length > 3) {
+        deltaHtml += '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">\u2026 and ' + (allDeltas.length - 3) + ' more</span>';
+      }
+
+        var badgeHtml = '';
+
+      return '<div class="archive-entry" id="' + esc(anchor) + '" style="scroll-margin-top:calc(var(--network-bar-height,40px) + var(--nav-height,52px) + var(--space-4,16px))">' +
+        '<div class="archive-entry__date">' + pub + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="archive-entry__issue">Issue ' + esc(issue.issue || '\u2014') + ' \u00b7 ' + esc(issue.week_label || '') + '</div>' +
+          '<div class="archive-entry__signal">' + esc(issue.signal || '') + '</div>' +
+          badgeHtml +
+          (deltaHtml ? '<div class="archive-entry__delta" style="margin-top:var(--space-2);line-height:1.8">' + deltaHtml + '</div>' : '') +
+          (issue.source_url ? '<div style="margin-top:var(--space-3)"><a class="archive-entry__link" href="' + esc(issue.source_url) + '" target="_blank" rel="noopener">Full brief \u2192</a></div>' : '') +
+        '</div>' +
+      '</div>';
+    }
 
   fetch('data/archive.json')
     .then(function (r) { return r.json(); })
     .then(function (issues) {
-      var list = document.getElementById('archive-list');
+      var listEl  = document.getElementById('archive-list');
       var countEl = document.getElementById('archive-count');
+      var sidebar = document.getElementById('sidebar-links');
+
       if (!issues || !issues.length) {
         if (countEl) countEl.textContent = '0 issues';
-        list.innerHTML = '<p class="text-muted">No issues archived yet.</p>';
+        listEl.innerHTML = '<p class="text-muted">No archived issues yet.</p>';
         return;
       }
 
-      var sorted = issues.slice().reverse();
+      var sorted = issues.slice().sort(function (a, b) {
+        return new Date(b.published || 0) - new Date(a.published || 0);
+      });
+
       if (countEl) countEl.textContent = sorted.length + ' issue' + (sorted.length !== 1 ? 's' : '');
+
+      var sidebarHtml = '<li><a href="#section-archive">All Issues</a></li>';
 
       var html = '';
       sorted.forEach(function (issue) {
-        var pub = issue.published
-          ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
-          : '';
-        var deltaItems = (issue.delta_strip || []).slice(0, 3).map(function (d) {
-          return '<span class="severity-badge severity-badge--high" style="margin-right:4px">' + escHtml(d.module || d.title || '') + '</span>';
-        }).join('');
-        html +=
-          '<div class="archive-entry">' +
-            '<div class="archive-entry__date">' + escHtml(pub) + '</div>' +
-            '<div>' +
-              '<div class="archive-entry__issue">Issue ' + escHtml(issue.issue || '—') + ' · ' + escHtml(issue.week_label || '') + '</div>' +
-              '<div class="archive-entry__signal">' + escHtml(issue.signal || '') + '</div>' +
-              (deltaItems ? '<div class="archive-entry__delta">' + deltaItems + '</div>' : '') +
-              (issue.source_url
-                ? '<a class="archive-entry__link" href="' + escHtml(issue.source_url) + '" target="_blank" rel="noopener">Full brief →</a>'
-                : '') +
-            '</div>' +
-          '</div>';
+        sidebarHtml += '<li><a href="#issue-' + (issue.issue||'') + '">Issue ' + esc(issue.issue||'\u2014') + ' \u00b7 ' + esc(issue.week_label||'') + '</a></li>';
+        html += renderEntry(issue);
       });
-      list.innerHTML = html;
+      listEl.innerHTML = html;
+      if (sidebar) sidebar.innerHTML = sidebarHtml;
     })
     .catch(function () {
       document.getElementById('archive-list').innerHTML = '<div class="error-state">Failed to load archive data.</div>';

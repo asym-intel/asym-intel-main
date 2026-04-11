@@ -30,7 +30,7 @@
     <div class="page-header">
       <div class="page-header__eyebrow">FCW · Asymmetric Intelligence</div>
       <h1 class="page-header__title">Archive</h1>
-      <p class="page-header__sub">All published issues. Links to full briefs on the Asymmetric Intelligence platform.</p>
+      <p class="page-header__sub">All published issues, most recent first.</p>
     </div>
 
     <section class="module-section" id="section-archive">
@@ -55,69 +55,67 @@
 <script src="../shared/js/renderer.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  function escHtml(str) {
-    return String(str == null ? '' : str)
+  function esc(s) {
+    return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+
+    function renderEntry(issue) {
+      var pub = issue.published
+        ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})
+        : '';
+      var anchor = 'issue-' + (issue.issue || issue.slug || '');
+      var allDeltas = issue.delta_strip || [];
+      var deltaHtml = allDeltas.slice(0, 3).map(function (d) {
+        return '<span class="badge badge--accent" style="margin-right:4px">' + esc(d.module_tag || d.module || '') + '</span>' +
+          '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-right:var(--space-3)">' + esc(d.title || '') + '</span>';
+      }).join('');
+      if (allDeltas.length > 3) {
+        deltaHtml += '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">\u2026 and ' + (allDeltas.length - 3) + ' more</span>';
+      }
+
+        var badgeHtml = '';
+
+      return '<div class="archive-entry" id="' + esc(anchor) + '" style="scroll-margin-top:calc(var(--network-bar-height,40px) + var(--nav-height,52px) + var(--space-4,16px))">' +
+        '<div class="archive-entry__date">' + pub + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="archive-entry__issue">Issue ' + esc(issue.issue || '\u2014') + ' \u00b7 ' + esc(issue.week_label || '') + '</div>' +
+          '<div class="archive-entry__signal">' + esc(issue.signal || '') + '</div>' +
+          badgeHtml +
+          (deltaHtml ? '<div class="archive-entry__delta" style="margin-top:var(--space-2);line-height:1.8">' + deltaHtml + '</div>' : '') +
+          (issue.source_url ? '<div style="margin-top:var(--space-3)"><a class="archive-entry__link" href="' + esc(issue.source_url) + '" target="_blank" rel="noopener">Full brief \u2192</a></div>' : '') +
+        '</div>' +
+      '</div>';
+    }
 
   fetch('data/archive.json')
     .then(function (r) { return r.json(); })
     .then(function (issues) {
-      var list = document.getElementById('archive-list');
+      var listEl  = document.getElementById('archive-list');
       var countEl = document.getElementById('archive-count');
+      var sidebar = document.getElementById('sidebar-links');
+
       if (!issues || !issues.length) {
         if (countEl) countEl.textContent = '0 issues';
-        list.innerHTML = '<p class="text-muted">No archived issues yet.</p>';
+        listEl.innerHTML = '<p class="text-muted">No archived issues yet.</p>';
         return;
       }
 
-      var sorted = issues.slice().reverse();
+      var sorted = issues.slice().sort(function (a, b) {
+        return new Date(b.published || 0) - new Date(a.published || 0);
+      });
+
       if (countEl) countEl.textContent = sorted.length + ' issue' + (sorted.length !== 1 ? 's' : '');
+
+      var sidebarHtml = '<li><a href="#section-archive">All Issues</a></li>';
 
       var html = '';
       sorted.forEach(function (issue) {
-        var pub = issue.published
-          ? new Date(issue.published).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})
-          : '';
-
-        // Delta strip entries
-        var deltaHtml = '';
-        if (Array.isArray(issue.delta_strip) && issue.delta_strip.length) {
-          deltaHtml = '<div style="margin-top:var(--space-4)">' +
-            '<div style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--space-2)">Intelligence Highlights</div>';
-          issue.delta_strip.forEach(function(item) {
-            deltaHtml +=
-              '<div style="display:flex;gap:var(--space-3);padding:var(--space-2) 0;border-bottom:1px solid var(--color-border-subtle)">' +
-                '<div style="flex-shrink:0;font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-text-muted);min-width:1.5rem">' + escHtml(String(item.rank || '')) + '</div>' +
-                '<div>' +
-                  '<div style="display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-1)">' +
-                    (item.module_tag ? '<span style="font-family:var(--font-mono);font-size: var(--text-min);background:var(--monitor-accent-bg);color:var(--monitor-accent);padding:1px 5px;border-radius:3px">' + escHtml(item.module_tag) + '</span>' : '') +
-                    (item.delta_type ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(item.delta_type) + '</span>' : '') +
-                  '</div>' +
-                  '<div style="font-size:var(--text-sm);font-weight:500;color:var(--color-text-primary)">' + escHtml(item.title || '') + '</div>' +
-                  '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-1)">' + escHtml(item.one_line || '') + '</div>' +
-                '</div>' +
-              '</div>';
-          });
-          deltaHtml += '</div>';
-        }
-
-        html +=
-          '<div class="card" style="margin-bottom:var(--space-6)">' +
-            '<div class="card__label">' +
-              'Issue ' + escHtml(issue.issue || '—') + ' · ' + escHtml(issue.week_label || '') +
-              (pub ? ' <span style="color:var(--color-text-muted);font-weight:400">· ' + pub + '</span>' : '') +
-            '</div>' +
-            '<div class="card__title">' + escHtml(issue.signal || '') + '</div>' +
-            deltaHtml +
-            '<div class="card__footer">' +
-              (issue.source_url
-                ? '<a class="btn btn--outline" href="' + escHtml(issue.source_url) + '" target="_blank" rel="noopener">Full brief →</a>'
-                : '') +
-            '</div>' +
-          '</div>';
+        sidebarHtml += '<li><a href="#issue-' + (issue.issue||'') + '">Issue ' + esc(issue.issue||'\u2014') + ' \u00b7 ' + esc(issue.week_label||'') + '</a></li>';
+        html += renderEntry(issue);
       });
-      list.innerHTML = html;
+      listEl.innerHTML = html;
+      if (sidebar) sidebar.innerHTML = sidebarHtml;
     })
     .catch(function () {
       document.getElementById('archive-list').innerHTML = '<div class="error-state">Failed to load archive data.</div>';

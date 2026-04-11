@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """Generate Archive pages for all 7 monitors.
 
-Structure: shared shell (head, nav, layout, sidebar, footer) + per-monitor JS render fragment.
+All JS rendering is generated inline from per-monitor ARCHIVE_CONFIG.
+No external JS fragment files needed — edit the config or templates here.
 
-Per-monitor JS render logic lives in fragment files:
-  static/monitors/shared/fragments/archive-render-{slug}.js
+Config dimensions per monitor:
+  - group_by_year: bool — wrap entries in year sections (SCEM only)
+  - extra_badges: list — additional badge fields to render (e.g. GMM stress/regime)
+  - sidebar_dynamic: bool — populate sidebar from issue list at runtime
 
-To edit a monitor's archive render logic, edit the fragment file and re-run this generator.
-The shell (head, nav, page-header, sidebar, footer) is shared — edit it here.
+Everything else is shared: fetch, sort newest-first, escape, date format,
+cap-at-3 delta items with "… and N more", error/empty states.
 """
 import os
 import html as html_mod
 
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC = os.path.join(BASE, "static", "monitors")
-FRAGMENTS = os.path.join(STATIC, "shared", "fragments")
 
 MONITORS = {
     "democratic-integrity":        ("WDM",  "World Democracy Monitor"),
@@ -38,12 +40,23 @@ META_DESC = {
 
 SUB_DESC = {
     "democratic-integrity": "All weekly issues, most recent first.",
-    "macro-monitor": "All published issues. Each includes the system stress label, regime, delta strip, and full brief link.",
-    "european-strategic-autonomy": "All published issues of the European Strategic Autonomy Monitor.",
-    "fimi-cognitive-warfare": "All published issues. Links to full briefs on the Asymmetric Intelligence platform.",
-    "ai-governance": "All published issues of the AI Governance Monitor.",
+    "macro-monitor": "All published issues, most recent first.",
+    "european-strategic-autonomy": "All published issues, most recent first.",
+    "fimi-cognitive-warfare": "All published issues, most recent first.",
+    "ai-governance": "All published issues, most recent first.",
     "environmental-risks": "All weekly issues, most recent first.",
-    "conflict-escalation": "Every weekly issue, most recent first. Each entry shows the lead signal and top delta items.",
+    "conflict-escalation": "Every weekly issue, grouped by year, most recent first.",
+}
+
+# ── Per-monitor config ────────────────────────────────────────────────
+ARCHIVE_CONFIG = {
+    "democratic-integrity":       {"group_by_year": False, "extra_badges": [],                       "sidebar_dynamic": True},
+    "macro-monitor":              {"group_by_year": False, "extra_badges": ["system_stress_label", "regime"], "sidebar_dynamic": True},
+    "european-strategic-autonomy": {"group_by_year": False, "extra_badges": [],                       "sidebar_dynamic": True},
+    "fimi-cognitive-warfare":     {"group_by_year": False, "extra_badges": [],                       "sidebar_dynamic": True},
+    "ai-governance":              {"group_by_year": False, "extra_badges": [],                       "sidebar_dynamic": True},
+    "environmental-risks":        {"group_by_year": False, "extra_badges": [],                       "sidebar_dynamic": True},
+    "conflict-escalation":        {"group_by_year": True,  "extra_badges": [],                       "sidebar_dynamic": True},
 }
 
 
@@ -51,19 +64,128 @@ def esc(s):
     return html_mod.escape(str(s)) if s else ""
 
 
-def load_fragment(slug):
-    """Load a per-monitor JS render fragment."""
-    path = os.path.join(FRAGMENTS, f"archive-render-{slug}.js")
-    try:
-        with open(path) as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        print(f"  WARNING: missing fragment {path}")
-        return f'// MISSING FRAGMENT: archive-render-{slug}.js'
+# ── JS Template ───────────────────────────────────────────────────────
+def build_js(slug, conf):
+    """Generate the inline JS for an archive page."""
+
+    # Badge rendering for GMM-style extra fields
+    badge_js = ""
+    if conf["extra_badges"]:
+        badge_parts = []
+        for field in conf["extra_badges"]:
+            css_class = "flag-badge flag-badge--elevated" if field == "system_stress_label" else "regime-badge"
+            badge_parts.append(
+                f"(issue.{field} ? '<span class=\"{css_class}\" style=\"margin-right:var(--space-2)\">' + esc(issue.{field}) + '</span>' : '')"
+            )
+        badge_js = f"""
+        var badgeHtml = {' + '.join(badge_parts)};
+        if (badgeHtml) {{
+          badgeHtml = '<div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-2)">' + badgeHtml + '</div>';
+        }}"""
+    else:
+        badge_js = "\n        var badgeHtml = '';"
+
+    # Entry renderer (shared across grouped and flat)
+    entry_fn = f"""
+    function renderEntry(issue) {{
+      var pub = issue.published
+        ? new Date(issue.published).toLocaleDateString('en-GB', {{day:'numeric', month:'long', year:'numeric'}})
+        : '';
+      var anchor = 'issue-' + (issue.issue || issue.slug || '');
+      var allDeltas = issue.delta_strip || [];
+      var deltaHtml = allDeltas.slice(0, 3).map(function (d) {{
+        return '<span class="badge badge--accent" style="margin-right:4px">' + esc(d.module_tag || d.module || '') + '</span>' +
+          '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-right:var(--space-3)">' + esc(d.title || '') + '</span>';
+      }}).join('');
+      if (allDeltas.length > 3) {{
+        deltaHtml += '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">\\u2026 and ' + (allDeltas.length - 3) + ' more</span>';
+      }}
+{badge_js}
+
+      return '<div class="archive-entry" id="' + esc(anchor) + '" style="scroll-margin-top:calc(var(--network-bar-height,40px) + var(--nav-height,52px) + var(--space-4,16px))">' +
+        '<div class="archive-entry__date">' + pub + '</div>' +
+        '<div style="flex:1;min-width:0">' +
+          '<div class="archive-entry__issue">Issue ' + esc(issue.issue || '\\u2014') + ' \\u00b7 ' + esc(issue.week_label || '') + '</div>' +
+          '<div class="archive-entry__signal">' + esc(issue.signal || '') + '</div>' +
+          badgeHtml +
+          (deltaHtml ? '<div class="archive-entry__delta" style="margin-top:var(--space-2);line-height:1.8">' + deltaHtml + '</div>' : '') +
+          (issue.source_url ? '<div style="margin-top:var(--space-3)"><a class="archive-entry__link" href="' + esc(issue.source_url) + '" target="_blank" rel="noopener">Full brief \\u2192</a></div>' : '') +
+        '</div>' +
+      '</div>';
+    }}"""
+
+    # Flat vs year-grouped rendering
+    if conf["group_by_year"]:
+        render_body = """
+      // Group by year
+      var byYear = {};
+      sorted.forEach(function (issue) {
+        var year = (issue.published || '').split('-')[0] || 'Unknown';
+        if (!byYear[year]) byYear[year] = [];
+        byYear[year].push(issue);
+      });
+
+      var allHtml = '';
+      Object.keys(byYear).sort().reverse().forEach(function (year) {
+        sidebarHtml += '<li><a href="#section-archive-' + year + '">' + year + '</a></li>';
+        var yearHtml = byYear[year].map(function (issue) {
+          sidebarHtml += '<li style="padding-left:var(--space-2)"><a href="#issue-' + (issue.issue||'') + '" style="font-size:var(--text-sm)">Issue ' + (issue.issue||'\\u2014') + '</a></li>';
+          return renderEntry(issue);
+        }).join('');
+        allHtml += '<div class="module-section" id="section-archive-' + year + '">' +
+          '<div class="module-header"><div class="module-title">' + year + '</div></div>' +
+          '<div>' + yearHtml + '</div>' +
+        '</div>';
+      });
+      listEl.innerHTML = allHtml;"""
+    else:
+        render_body = """
+      var html = '';
+      sorted.forEach(function (issue) {
+        sidebarHtml += '<li><a href="#issue-' + (issue.issue||'') + '">Issue ' + esc(issue.issue||'\\u2014') + ' \\u00b7 ' + esc(issue.week_label||'') + '</a></li>';
+        html += renderEntry(issue);
+      });
+      listEl.innerHTML = html;"""
+
+    return f"""document.addEventListener('DOMContentLoaded', function () {{
+  function esc(s) {{
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }}
+{entry_fn}
+
+  fetch('data/archive.json')
+    .then(function (r) {{ return r.json(); }})
+    .then(function (issues) {{
+      var listEl  = document.getElementById('archive-list');
+      var countEl = document.getElementById('archive-count');
+      var sidebar = document.getElementById('sidebar-links');
+
+      if (!issues || !issues.length) {{
+        if (countEl) countEl.textContent = '0 issues';
+        listEl.innerHTML = '<p class="text-muted">No archived issues yet.</p>';
+        return;
+      }}
+
+      var sorted = issues.slice().sort(function (a, b) {{
+        return new Date(b.published || 0) - new Date(a.published || 0);
+      }});
+
+      if (countEl) countEl.textContent = sorted.length + ' issue' + (sorted.length !== 1 ? 's' : '');
+
+      var sidebarHtml = '<li><a href="#section-archive">All Issues</a></li>';
+{render_body}
+      if (sidebar) sidebar.innerHTML = sidebarHtml;
+    }})
+    .catch(function () {{
+      document.getElementById('archive-list').innerHTML = '<div class="error-state">Failed to load archive data.</div>';
+    }});
+}});"""
 
 
-def build_archive(slug, abbr, name):
-    render_js = load_fragment(slug)
+# ── HTML Shell ────────────────────────────────────────────────────────
+def build_archive(slug, abbr, name, conf):
+    js = build_js(slug, conf)
     meta_desc = META_DESC.get(slug, f"Archive of all {esc(name)} weekly issues.")
     sub_desc = SUB_DESC.get(slug, f"All published issues of the {esc(name)}.")
 
@@ -123,7 +245,7 @@ def build_archive(slug, abbr, name):
 <footer class="monitor-footer"></footer>
 <script src="../shared/js/renderer.js"></script>
 <script>
-{render_js}
+{js}
 </script>
 </body>
 </html>'''
@@ -131,13 +253,14 @@ def build_archive(slug, abbr, name):
 
 # ── Generate ──────────────────────────────────────────────────────────
 for slug, (abbr, name) in MONITORS.items():
+    conf = ARCHIVE_CONFIG[slug]
     out_path = os.path.join(STATIC, slug, "archive.html")
-    html = build_archive(slug, abbr, name)
+    page_html = build_archive(slug, abbr, name, conf)
     with open(out_path, "w") as f:
-        f.write(html)
-    lines = html.count("\n") + 1
+        f.write(page_html)
+    lines = page_html.count("\n") + 1
     print(f"  {slug}/archive.html — {lines} lines ✓")
 
-print(f"\nDone: 7 archive pages generated")
-print(f"Fragment files in: static/monitors/shared/fragments/")
-print(f"  archive-render-{{slug}}.js  — per-monitor JS render logic")
+print(f"\nDone: 7 archive pages generated from ARCHIVE_CONFIG")
+print(f"Config dimensions: group_by_year, extra_badges, sidebar_dynamic")
+print(f"To customise a monitor, edit ARCHIVE_CONFIG in this file — no fragment files needed.")
