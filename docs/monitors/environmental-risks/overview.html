@@ -26,12 +26,11 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <!-- ── Hero ── -->
+    <!-- ── Hero (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-hero">
-      <div class="page-header" style="border-bottom:none;margin-bottom:var(--space-4)">
+      <div class="page-header" style="border-bottom:none;margin-bottom:var(--space-4);padding-top:var(--space-4)">
         <div class="page-header__eyebrow">ERM &middot; Asymmetric Intelligence</div>
-        <h1 class="page-header__title" style="font-size:var(--text-3xl)">Environmental Risks Monitor</h1>
-        <p class="page-header__sub">The Environmental Risks Monitor tracks climate-security pressure, resource stress, extreme events, and environmental statecraft as strategic risk.</p>
+        <p class="page-header__sub" style="margin-top:var(--space-2)">The Environmental Risks Monitor tracks climate-security pressure, resource stress, extreme events, and environmental statecraft as strategic risk.</p>
         <div class="page-header__meta">
           <span>Published Saturdays at 05:00 UTC</span>
         </div>
@@ -66,19 +65,16 @@
       </div>
     </section>
 
-    <!-- ── Latest Issue ── -->
+    <!-- ── Latest Issue (DYNAMIC — JS fetch from report-latest.json) ── -->
     <section class="module-section" id="section-latest">
       <div class="module-header">
         <div class="module-title">Latest Issue</div>
       </div>
-      <article class="card" id="latest-card" style="border-left:4px solid var(--monitor-accent)">
-        <div class="card__label">Issue 5 &middot; W/E 11 April 2026</div>
-        <div class="card__title" style="font-size:var(--text-lg);line-height:1.35">Loading&hellip;</div>
-        
-        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin:var(--space-3) 0">
-          <span class="ov-pill">1 events logged</span>
-          <span class="ov-pill">6 tipping points</span>
-        </div>
+      <article class="card ov-loading" id="latest-card" style="border-left:4px solid var(--monitor-accent)">
+        <div class="card__label">Loading&hellip;</div>
+        <div class="card__title" style="font-size:var(--text-lg);line-height:1.35">Loading latest issue&hellip;</div>
+        <div class="card__body" style="display:none"></div>
+        <div id="latest-pills" style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin:var(--space-3) 0"></div>
         <div class="card__footer">
           <a class="btn btn--primary" href="dashboard.html">Dashboard &rarr;</a>
           <a class="btn btn--outline" href="report.html">Full Report &rarr;</a>
@@ -86,7 +82,7 @@
       </article>
     </section>
 
-    <!-- ── How to use this monitor ── -->
+    <!-- ── How to use this monitor (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-how">
       <div class="module-header">
         <div class="module-title">How to use this monitor</div>
@@ -116,7 +112,7 @@
       </div>
     </section>
 
-    <!-- ── What this monitor tracks ── -->
+    <!-- ── What this monitor tracks (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-tracks">
       <div class="module-header">
         <div class="module-title">What ERM tracks</div>
@@ -142,35 +138,21 @@
       </div>
     </section>
 
-    <!-- ── This week at a glance ── -->
+    <!-- ── This week at a glance (DYNAMIC — JS fetch from report-latest.json) ── -->
     <section class="module-section" id="section-glance">
       <div class="module-header">
         <div class="module-title">This week at a glance</div>
       </div>
-      <div class="ov-glance-row">
-        <div class="ov-glance-box">
-          <div class="ov-glance-label">Lead signal</div>
-          <strong>See latest issue</strong>
-          
-        </div>
-        <div class="ov-glance-box">
-          <div class="ov-glance-label">Current cadence</div>
-          <strong>Weekly</strong>
-          
-        </div>
-        <div class="ov-glance-box">
-          <div class="ov-glance-label">Current cadence</div>
-          <strong>Weekly</strong>
-          
-        </div>
+      <div class="ov-glance-row" id="glance-row">
+        <div class="ov-glance-box"><div class="ov-glance-box__label">Loading&hellip;</div><div class="ov-glance-box__value ov-glance-box__empty">&nbsp;</div></div>
       </div>
     </section>
 
-    <!-- ── Why different + Cross-monitor ── -->
+    <!-- ── Analytical approach + Cross-monitor (STATIC — editorial copy) ── -->
     <section class="module-section" id="section-different">
       <div class="ov-split-grid">
         <div class="card" style="border-left:3px solid var(--monitor-accent)">
-          <div class="card__title" style="font-size:var(--text-lg)">Why this monitor is different</div>
+          <div class="card__title" style="font-size:var(--text-lg)">Analytical approach</div>
           <div class="card__body">
             <p>ERM shows how environmental pressure moves through political, economic, and security systems rather than staying inside a policy silo.</p>
             <ul style="margin-top:var(--space-3);padding-left:var(--space-5)">
@@ -203,16 +185,12 @@
       <li><a href="#section-how">How to Use</a></li>
       <li><a href="#section-tracks">What ERM Tracks</a></li>
       <li><a href="#section-glance">This Week</a></li>
-      <li><a href="#section-different">Why Different</a></li>
+      <li><a href="#section-different">Analytical Approach</a></li>
     </ul>
 
     <div style="padding:var(--space-6) var(--space-4) var(--space-4);border-top:1px solid var(--color-border-subtle);margin-top:var(--space-4)">
-      <div class="ov-sidebar-icon" aria-hidden="true">&#9678;</div>
-      <div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5">The Environmental Risks Monitor tracks climate-security pressure, resource stress, extreme events, and environmental sta</div>
-      <div style="display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4)">
+      <div style="display:flex;flex-direction:column;gap:var(--space-2)">
         <a href="dashboard.html" class="btn btn--primary" style="justify-content:center;font-size:var(--text-xs)">Dashboard &rarr;</a>
-        <a href="report.html" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Latest Issue &rarr;</a>
-        <a href="living-knowledge.html" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Living Knowledge &rarr;</a>
       </div>
     </div>
   </nav>
@@ -220,5 +198,171 @@
 </div>
 
 <footer class="monitor-footer"></footer>
+
+<!-- Per-monitor data config (embedded by generator — update DATA_CONFIG in Python, not here) -->
+<script>window.__OV_CONFIG = {"signal_path": "m00_the_signal.lead_signal", "signal_body_path": null, "meta_issue_path": "meta.issue", "meta_week_path": "meta.week_label", "pills": [{"label_tpl": "{n} events logged", "path": "extreme_events_log", "type": "count"}, {"label_tpl": "{n} tipping points", "path": "tipping_point_tracker", "type": "count"}, {"label_tpl": "{n} boundaries exceeded", "path": "m00_the_signal.boundaries_exceeded", "type": "value"}], "glance_slots": [{"label": "Lead signal", "path": "m00_the_signal.lead_signal", "type": "value"}, {"label": "Events logged", "path": "extreme_events_log", "type": "count"}, {"label": "Tipping points", "path": "tipping_point_tracker", "type": "count"}, {"label": "Cross-monitor flags", "path": "cross_monitor_flags.flags", "type": "count"}]};</script>
+
+<script>
+(function() {
+  var CFG = window.__OV_CONFIG;
+  if (!CFG) return;
+
+  /**
+   * Resolve a dotted path against a JSON object.
+   * Supports: "signal.headline", "key_judgments.0.judgment" (array index),
+   * and returns null on any miss.
+   */
+  function resolvePath(obj, path) {
+    if (!obj || !path) return null;
+    var parts = path.split('.');
+    var cur = obj;
+    for (var i = 0; i < parts.length; i++) {
+      if (cur == null) return null;
+      var p = parts[i];
+      // Array index: "0", "1", etc.
+      if (Array.isArray(cur) && /^\d+$/.test(p)) {
+        cur = cur[parseInt(p, 10)];
+      } else if (typeof cur === 'object') {
+        cur = cur[p];
+      } else {
+        return null;
+      }
+    }
+    return cur;
+  }
+
+  /**
+   * Extract a display value from report data using a slot config.
+   * type: "value" = resolve path to string (truncate to 120 chars)
+   *       "count" = len(resolved array)
+   *       "count_prefix" = count top-level keys matching prefix
+   */
+  function extractSlotValue(data, slot) {
+    var path = slot.path;
+    var type = slot.type;
+    if (type === 'count_prefix') {
+      // path = "_prefix:module_" -> count keys starting with "module_"
+      var prefix = path.replace('_prefix:', '');
+      var n = 0;
+      for (var k in data) { if (k.indexOf(prefix) === 0) n++; }
+      return n > 0 ? String(n) : null;
+    }
+    var val = resolvePath(data, path);
+    if (val == null) return null;
+    if (type === 'count') {
+      if (Array.isArray(val)) return val.length > 0 ? String(val.length) : null;
+      return null;
+    }
+    // type === 'value'
+    if (typeof val === 'string') return val.length > 120 ? val.slice(0, 117) + '...' : val;
+    if (typeof val === 'number') return String(val);
+    return null;
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function populateLatestIssue(data) {
+    var card = document.getElementById('latest-card');
+    if (!card) return;
+
+    // Issue metadata
+    var issue = resolvePath(data, CFG.meta_issue_path);
+    var week = resolvePath(data, CFG.meta_week_path);
+    var label = card.querySelector('.card__label');
+    if (label) {
+      var parts = [];
+      if (issue != null) parts.push('Issue ' + issue);
+      if (week) parts.push(week);
+      label.textContent = parts.length > 0 ? parts.join(' · ') : '';
+    }
+
+    // Signal headline
+    var headline = resolvePath(data, CFG.signal_path);
+    var titleEl = card.querySelector('.card__title');
+    if (titleEl) {
+      if (headline) {
+        titleEl.textContent = headline.length > 160 ? headline.slice(0, 157) + '...' : headline;
+      } else {
+        titleEl.textContent = 'No signal data available';
+        titleEl.style.color = 'var(--color-text-tertiary)';
+      }
+    }
+
+    // Signal body (optional)
+    var bodyEl = card.querySelector('.card__body');
+    if (CFG.signal_body_path) {
+      var body = resolvePath(data, CFG.signal_body_path);
+      if (body && bodyEl) {
+        bodyEl.textContent = body;
+        bodyEl.style.display = '';
+      } else if (!body && !bodyEl) {
+        // No body path and no element — fine
+      }
+    }
+
+    // Pills
+    var pillBox = document.getElementById('latest-pills');
+    if (pillBox && CFG.pills) {
+      var html = '';
+      for (var i = 0; i < CFG.pills.length; i++) {
+        var pill = CFG.pills[i];
+        var pv = extractSlotValue(data, pill);
+        if (pv != null) {
+          var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
+          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+        }
+      }
+      pillBox.innerHTML = html;
+    }
+
+    // Remove loading state
+    card.classList.remove('ov-loading');
+  }
+
+  function populateGlance(data) {
+    var row = document.getElementById('glance-row');
+    if (!row || !CFG.glance_slots) return;
+
+    var html = '';
+    for (var i = 0; i < CFG.glance_slots.length; i++) {
+      var slot = CFG.glance_slots[i];
+      var val = extractSlotValue(data, slot);
+      html += '<div class="ov-glance-box">';
+      html += '<div class="ov-glance-box__label">' + esc(slot.label) + '</div>';
+      if (val != null) {
+        html += '<div class="ov-glance-box__value">' + esc(val) + '</div>';
+      } else {
+        html += '<div class="ov-glance-box__value ov-glance-box__empty">Awaiting data</div>';
+      }
+      html += '</div>';
+    }
+    row.innerHTML = html;
+  }
+
+  // Fetch and populate
+  var url = 'data/report-latest.json';
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      populateLatestIssue(data);
+      populateGlance(data);
+    })
+    .catch(function(err) {
+      console.warn('[Overview] Could not load ' + url + ':', err.message);
+      // Leave graceful empty states in place
+      var card = document.getElementById('latest-card');
+      if (card) card.classList.remove('ov-loading');
+    });
+})();
+</script>
+
 </body>
 </html>
