@@ -37,7 +37,7 @@ jobs:
           git add docs/monitors/european-strategic-autonomy/data/
           git add content/monitors/european-strategic-autonomy/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(esa): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/european-strategic-autonomy/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by ESA Publisher Bot [skip ci]"
+          git commit -m "data(esa): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/european-strategic-autonomy/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by ESA Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
