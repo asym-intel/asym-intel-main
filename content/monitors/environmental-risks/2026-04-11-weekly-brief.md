@@ -16,6 +16,6 @@ The climate-security nexus shows severe stress: approximately 40 percent of intr
 
 ---
 
-The [live dashboard](https://asym-intel.info/monitors/environmental-risks/dashboard.html) and [JSON data feed](https://asym-intel.info/monitors/environmental-risks/data/report-latest.json) have been updated to Issue 3 (W/E 11 April 2026).
+The [live dashboard](https://asym-intel.info/monitors/environmental-risks/dashboard.html) and [JSON data feed](https://asym-intel.info/monitors/environmental-risks/data/report-latest.json) have been updated to Issue 4 (W/E 11 April 2026).
 
 *Published by ERM Publisher Bot.*
