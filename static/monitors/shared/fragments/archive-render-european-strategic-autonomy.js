@@ -1,59 +1,3 @@
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Archive — European Strategic Autonomy Monitor · Asymmetric Intelligence</title>
-  <meta name="description" content="Archive of all published issues of the European Strategic Autonomy Monitor.">
-  <link rel="stylesheet" href="../shared/css/base.css">
-  <link rel="stylesheet" href="assets/monitor.css">
-  <script src="../shared/js/theme.js"></script>
-  <script src="../shared/js/nav.js"></script>
-</head>
-
-<body>
-
-<nav class="monitor-nav" aria-label="Monitor navigation">
-  <a class="monitor-nav__brand" href="dashboard.html"></a>
-  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
-    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-      <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
-    </svg>
-  </button>
-  <ul class="monitor-nav__links" role="list"></ul>
-  <div class="monitor-nav__actions"></div>
-</nav>
-
-<div class="monitor-layout">
-  <main class="monitor-main" id="main-content">
-
-    <div class="page-header">
-      <div class="page-header__eyebrow">ESA · Asymmetric Intelligence</div>
-      <h1 class="page-header__title">Archive</h1>
-      <p class="page-header__sub">All published issues of the European Strategic Autonomy Monitor.</p>
-    </div>
-
-    <section class="module-section" id="section-archive">
-      <div id="archive-count" class="section-label" style="margin-bottom:var(--space-4)"></div>
-      <div id="archive-list">
-        <div class="loading-state">Loading archive…</div>
-      </div>
-    </section>
-
-  </main>
-
-  <nav class="monitor-sidebar" aria-label="Page sections">
-    <div class="sidebar-nav__title">Archive</div>
-    <ul id="sidebar-links">
-      <li><a href="#section-archive">All Issues</a></li>
-    </ul>
-  </nav>
-
-</div>
-
-<footer class="monitor-footer"></footer>
-<script src="../shared/js/renderer.js"></script>
-<script>
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
     return String(str == null ? '' : str)
@@ -108,6 +52,3 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('archive-list').innerHTML = '<div class="error-state">Failed to load archive.</div>';
     });
 });
-</script>
-</body>
-</html>
