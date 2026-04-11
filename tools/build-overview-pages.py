@@ -328,38 +328,98 @@ def get_pill_data(slug, report):
     return pills[:3]
 
 
+# Canonical glance slot definitions per monitor.
+# These map to fields that will exist after schema sprints.
+# Each slot: (label, json_path_or_extractor, fallback_label)
+# The template renders graceful empty states when data is absent.
+GLANCE_SLOTS = {
+    "democratic-integrity": [
+        ("Lead signal", "signal.title", None),
+        ("Countries tracked", "_count:heatmap", None),
+        ("Integrity flags", "_count:institutional_integrity_flags", None),
+        ("Watch items", "_count:intelligence_items", None),
+    ],
+    "macro-monitor": [
+        ("Lead signal", "signal.title", None),
+        ("Stress regime", "stress_regime.level", None),
+        ("Domains scored", "_count:indicator_domains", None),
+        ("Tail risks", "_count:tail_risks", None),
+    ],
+    "european-strategic-autonomy": [
+        ("Lead signal", "signal.title", None),
+        ("Defence items", "_count:defence_developments", None),
+        ("Hybrid threats", "_count:hybrid_threats", None),
+        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
+    ],
+    "fimi-cognitive-warfare": [
+        ("Lead signal", "signal.title", None),
+        ("Active campaigns", "_count:campaigns", None),
+        ("Actors tracked", "_count:actor_tracker", None),
+        ("Platform responses", "_count:platform_responses", None),
+    ],
+    "ai-governance": [
+        ("Lead signal", "signal.title", None),
+        ("Modules covered", "_count_prefix:module_", None),
+        ("Governance items", "_count:key_judgments", None),
+        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
+    ],
+    "environmental-risks": [
+        ("Lead signal", "signal.title", None),
+        ("Events logged", "_count:extreme_events_log", None),
+        ("Tipping points", "_count:tipping_point_tracker", None),
+        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
+    ],
+    "conflict-escalation": [
+        ("Lead signal", "signal.title", None),
+        ("Active conflicts", "_count:conflict_roster", None),
+        ("Roster watch", "_count:roster_watch", None),
+        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
+    ],
+}
+
+
+def _resolve_glance_value(report, path):
+    """Extract a value from report using a dotted path or special prefix."""
+    if path.startswith("_count:"):
+        key = path[7:]
+        val = report.get(key, [])
+        return str(len(val)) if isinstance(val, list) and val else None
+    if path.startswith("_count_prefix:"):
+        prefix = path[14:]
+        matches = [k for k in report.keys() if k.startswith(prefix)]
+        return str(len(matches)) if matches else None
+    # Dotted path: "signal.title" -> report["signal"]["title"]
+    obj = report
+    for part in path.split("."):
+        if isinstance(obj, dict):
+            obj = obj.get(part)
+        else:
+            return None
+    if isinstance(obj, str) and obj.strip():
+        return obj.strip()[:80]
+    if isinstance(obj, (int, float)):
+        return str(obj)
+    return None
+
+
 def get_glance_data(slug, report):
-    """Generate 'this week at a glance' items from report data."""
-    signal_title = get_signal_title(report)
+    """Generate 'this week at a glance' items from report data.
+    
+    Returns items with real data where available, None value where not.
+    The template renders a graceful empty state for None values.
+    """
+    slots = GLANCE_SLOTS.get(slug, [
+        ("Lead signal", "signal.title", None),
+        ("Current issue", "meta.week_label", None),
+        ("Cross-monitor flags", "_count:cross_monitor_flags", None),
+    ])
     items = []
-
-    items.append({
-        "label": "Lead signal",
-        "value": signal_title[:60] + ("…" if len(signal_title) > 60 else "") if signal_title else "See latest issue",
-        "mini": "",
-    })
-
-    if slug == "macro-monitor":
-        regime = report.get("stress_regime", {})
-        if isinstance(regime, dict):
-            items.append({"label": "Stress regime", "value": regime.get("level", "—"), "mini": regime.get("summary", "")[:80]})
-        outlook = report.get("asset_outlook", {})
-        if isinstance(outlook, dict) and outlook.get("summary"):
-            items.append({"label": "Asset outlook", "value": "See report", "mini": str(outlook["summary"])[:80]})
-    elif slug == "conflict-escalation":
-        roster = report.get("conflict_roster", [])
-        if roster:
-            items.append({"label": "Active roster", "value": f"{len(roster)} conflicts", "mini": ""})
-    elif slug == "democratic-integrity":
-        hm = report.get("heatmap", [])
-        if hm:
-            critical = [h for h in hm if isinstance(h, dict) and h.get("tier") in ("critical", "rapid-decay", "Critical")]
-            items.append({"label": "Countries tracked", "value": str(len(hm)), "mini": f"{len(critical)} at critical tier" if critical else ""})
-
-    # Pad to at least 3
-    while len(items) < 3:
-        items.append({"label": "Current cadence", "value": "Weekly", "mini": ""})
-
+    for label, path, fallback in slots:
+        value = _resolve_glance_value(report, path)
+        items.append({
+            "label": label,
+            "value": value,  # None = no data yet
+        })
     return items[:4]
 
 
@@ -373,16 +433,12 @@ def build_sidebar(m, slug):
       <li><a href="#section-how">How to Use</a></li>
       <li><a href="#section-tracks">What {m["abbr"]} Tracks</a></li>
       <li><a href="#section-glance">This Week</a></li>
-      <li><a href="#section-different">Why Different</a></li>
+      <li><a href="#section-different">Analytical Approach</a></li>
     </ul>
 
     <div style="padding:var(--space-6) var(--space-4) var(--space-4);border-top:1px solid var(--color-border-subtle);margin-top:var(--space-4)">
-      <div class="ov-sidebar-icon" aria-hidden="true">&#9678;</div>
-      <div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5">{esc(m["mission"][:120])}</div>
-      <div style="display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4)">
+      <div style="display:flex;flex-direction:column;gap:var(--space-2)">
         <a href="dashboard.html" class="btn btn--primary" style="justify-content:center;font-size:var(--text-xs)">Dashboard &rarr;</a>
-        <a href="report.html" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Latest Issue &rarr;</a>
-        <a href="living-knowledge.html" class="btn btn--outline" style="justify-content:center;font-size:var(--text-xs)">Living Knowledge &rarr;</a>
       </div>
     </div>
   </nav>'''
@@ -403,10 +459,16 @@ def build_overview(slug, m):
 
     glance_html = ""
     for g in glance:
-        glance_html += f'''        <div class="ov-glance-box">
+        if g["value"] is not None:
+            glance_html += f'''        <div class="ov-glance-box">
           <div class="ov-glance-label">{esc(g["label"])}</div>
           <strong>{esc(g["value"])}</strong>
-          {"<div class='ov-glance-mini'>" + esc(g["mini"]) + "</div>" if g["mini"] else ""}
+        </div>
+'''
+        else:
+            glance_html += f'''        <div class="ov-glance-box ov-glance-box--empty">
+          <div class="ov-glance-label">{esc(g["label"])}</div>
+          <span class="ov-glance-pending">&mdash;</span>
         </div>
 '''
 
@@ -462,7 +524,7 @@ def build_overview(slug, m):
 
     <!-- ── Hero ── -->
     <section class="module-section" id="section-hero">
-      <div class="page-header" style="border-bottom:none;margin-bottom:var(--space-4)">
+      <div class="page-header" style="border-bottom:none;margin-bottom:var(--space-4);padding-top:var(--space-4)">
         <div class="page-header__eyebrow">{esc(m["abbr"])} &middot; Asymmetric Intelligence</div>
         <h1 class="page-header__title" style="font-size:var(--text-3xl)">{esc(m["name"])}</h1>
         <p class="page-header__sub">{esc(m["mission"])}</p>
@@ -568,7 +630,7 @@ def build_overview(slug, m):
     <section class="module-section" id="section-different">
       <div class="ov-split-grid">
         <div class="card" style="border-left:3px solid var(--monitor-accent)">
-          <div class="card__title" style="font-size:var(--text-lg)">Why this monitor is different</div>
+          <div class="card__title" style="font-size:var(--text-lg)">Analytical approach</div>
           <div class="card__body">
             <p>{esc(m["why_different"])}</p>
             <ul style="margin-top:var(--space-3);padding-left:var(--space-5)">
