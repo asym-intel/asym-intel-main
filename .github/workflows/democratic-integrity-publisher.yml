@@ -37,7 +37,7 @@ jobs:
           git add docs/monitors/democratic-integrity/data/
           git add content/monitors/democratic-integrity/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(wdm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/democratic-integrity/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by WDM Publisher Bot [skip ci]"
+          git commit -m "data(wdm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/democratic-integrity/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by WDM Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
