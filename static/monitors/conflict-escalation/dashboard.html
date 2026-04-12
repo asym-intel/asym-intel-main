@@ -112,101 +112,6 @@
     .fflag-def { display: flex; gap: 4px; align-items: baseline; }
     .fflag-def strong { color: var(--color-text-secondary); font-weight: 700; }
 
-    /* ── CONFLICT ESCALATION CARDS ───────────────────────────────────── */
-    .conflict-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: var(--space-4);
-      margin: var(--space-4) 0;
-    }
-    .conflict-card {
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4) var(--space-5);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow 0.15s, border-color 0.15s;
-      position: relative;
-      overflow: hidden;
-    }
-    .conflict-card:hover { box-shadow: var(--shadow-md); }
-    .conflict-card__accent-bar {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--color-border);
-    }
-    .conflict-card__accent-bar--critical { background: #dc2626; }
-    .conflict-card__accent-bar--high     { background: #d97706; }
-    .conflict-card__accent-bar--moderate { background: #2563eb; }
-    .conflict-card__accent-bar--positive { background: #059669; }
-    .conflict-card__header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--space-2);
-      padding-top: var(--space-2);
-    }
-    .conflict-card__name {
-      font-size: var(--text-sm);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--color-text);
-      line-height: 1.2;
-      flex: 1;
-    }
-    .conflict-card__dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 3px;
-    }
-    .conflict-card__dot--critical { background: #dc2626; box-shadow: 0 0 6px rgba(220,38,38,0.5); }
-    .conflict-card__dot--high     { background: #d97706; box-shadow: 0 0 6px rgba(217,119,6,0.4); }
-    .conflict-card__dot--moderate { background: #2563eb; }
-    .conflict-card__dot--positive { background: #059669; }
-    .conflict-card__theatre {
-      font-size: var(--text-min);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--color-text-muted);
-    }
-    .conflict-card__footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-2);
-      margin-top: var(--space-1);
-      border-top: 1px solid var(--color-border-subtle);
-      padding-top: var(--space-2);
-    }
-    .conflict-card__trajectory {
-      font-size: var(--text-min);
-      color: var(--color-text-secondary);
-      font-weight: 600;
-    }
-    .conflict-card__band {
-      font-size: var(--text-min);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 2px 7px;
-      border-radius: 3px;
-    }
-    .conflict-card__band--critical { background: rgba(220,38,38,0.12); color: #dc2626; }
-    .conflict-card__band--high     { background: rgba(217,119,6,0.12); color: #d97706; }
-    .conflict-card__band--moderate { background: rgba(37,99,235,0.1); color: #2563eb; }
-    .conflict-card__band--positive { background: rgba(5,150,105,0.1); color: #059669; }
-    [data-theme="dark"] .conflict-card__band--critical { background: rgba(220,38,38,0.2); color: #f87171; }
-    [data-theme="dark"] .conflict-card__band--high     { background: rgba(217,119,6,0.2); color: #fbbf24; }
-    [data-theme="dark"] .conflict-card__band--moderate { background: rgba(37,99,235,0.15); color: #60a5fa; }
-    [data-theme="dark"] .conflict-card__band--positive { background: rgba(5,150,105,0.15); color: #34d399; }
-
     /* ── ESCALATION GAUGE ───────────────────────────────────────────── */
     .escalation-gauge-wrap {
       background: var(--color-surface);
@@ -464,219 +369,6 @@
       background: var(--color-surface);
     }
 
-    /* ── GLOBAL ESCALATION SNAPSHOT (KPI strip) ─────────────────────── */
-    .snapshot-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-3);
-      margin: var(--space-4) 0;
-    }
-    .snapshot-kpi {
-      flex: 1 1 140px;
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4) var(--space-4);
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-      min-width: 120px;
-    }
-    .snapshot-kpi--accent {
-      border-color: rgba(220, 38, 38, 0.35);
-      background: rgba(220, 38, 38, 0.04);
-    }
-    [data-theme="dark"] .snapshot-kpi--accent {
-      background: rgba(220, 38, 38, 0.08);
-    }
-    .snapshot-kpi__value {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1;
-      color: var(--color-text);
-    }
-    .snapshot-kpi--accent .snapshot-kpi__value {
-      color: #dc2626;
-    }
-    [data-theme="dark"] .snapshot-kpi--accent .snapshot-kpi__value {
-      color: #f87171;
-    }
-    .snapshot-kpi__label {
-      font-size: var(--text-xs);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--color-text-muted);
-    }
-    .snapshot-kpi__sub {
-      font-size: var(--text-min);
-      color: var(--color-text-muted);
-      line-height: 1.4;
-      margin-top: 2px;
-    }
-    .snapshot-kpi__sub--text {
-      font-size: var(--text-xs);
-      color: var(--color-text-secondary);
-      line-height: 1.5;
-      font-weight: 500;
-    }
-
-    /* ── WEEKLY BRIEF ────────────────────────────────────────────────── */
-    .weekly-brief-card {
-      background: var(--color-bg-alt);
-      border: 1px solid var(--color-border-subtle);
-      border-radius: var(--radius-lg);
-      padding: var(--space-5) var(--space-6);
-      margin: var(--space-4) 0;
-    }
-    .weekly-brief-card p {
-      font-size: var(--text-sm);
-      color: var(--color-text-secondary);
-      line-height: 1.75;
-      margin: 0;
-    }
-    .weekly-brief-card p + p {
-      margin-top: var(--space-4);
-    }
-
-    /* ── THEATRE TRACKER ─────────────────────────────────────────────── */
-    .theatre-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: var(--space-4);
-      margin: var(--space-4) 0;
-    }
-    .theatre-card {
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4) var(--space-5);
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      position: relative;
-      overflow: clip;
-      transition: box-shadow 0.15s;
-    }
-    .theatre-card:hover { box-shadow: var(--shadow-md); }
-    .theatre-card__accent {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-    }
-    .theatre-card__accent--high    { background: #dc2626; }
-    .theatre-card__accent--medium  { background: #d97706; }
-    .theatre-card__accent--low     { background: #2563eb; }
-    .theatre-card__header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--space-2);
-      padding-top: var(--space-2);
-    }
-    .theatre-card__name {
-      font-size: var(--text-sm);
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--color-text);
-      line-height: 1.2;
-    }
-    .theatre-card__intensity {
-      font-size: var(--text-min);
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 3px;
-      background: var(--color-bg-alt);
-      color: var(--color-text-muted);
-      border: 1px solid var(--color-border);
-      white-space: nowrap;
-    }
-    .theatre-card__actors {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: var(--space-1);
-    }
-    .theatre-card__actor-tag {
-      font-size: var(--text-min);
-      font-weight: 600;
-      padding: 1px 7px;
-      border-radius: 10px;
-      background: var(--color-bg-alt);
-      border: 1px solid var(--color-border);
-      color: var(--color-text-secondary);
-    }
-    .theatre-card__dev {
-      font-size: var(--text-xs);
-      color: var(--color-text-secondary);
-      line-height: 1.5;
-      border-left: 2px solid var(--color-border);
-      padding-left: var(--space-2);
-      margin-top: var(--space-1);
-    }
-    .theatre-card__hybrid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: var(--space-1);
-    }
-    .theatre-card__hybrid-tag {
-      font-size: var(--text-min);
-      padding: 1px 6px;
-      border-radius: 3px;
-      background: rgba(79, 152, 163, 0.1);
-      border: 1px solid rgba(79, 152, 163, 0.25);
-      color: var(--monitor-accent, #4f98a3);
-      font-weight: 600;
-    }
-    .theatre-card__footer {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      flex-wrap: wrap;
-      margin-top: var(--space-1);
-      padding-top: var(--space-2);
-      border-top: 1px solid var(--color-border-subtle);
-    }
-    .theatre-card__risk-badge {
-      font-size: var(--text-min);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      padding: 2px 8px;
-      border-radius: 3px;
-    }
-    .theatre-card__risk-badge--high   { background: rgba(220,38,38,0.1); color: #dc2626; }
-    .theatre-card__risk-badge--medium { background: rgba(217,119,6,0.1); color: #d97706; }
-    .theatre-card__risk-badge--low    { background: rgba(5,150,105,0.1); color: #059669; }
-    [data-theme="dark"] .theatre-card__risk-badge--high   { background: rgba(220,38,38,0.2); color: #f87171; }
-    [data-theme="dark"] .theatre-card__risk-badge--medium { background: rgba(217,119,6,0.2); color: #fbbf24; }
-    [data-theme="dark"] .theatre-card__risk-badge--low    { background: rgba(5,150,105,0.2); color: #34d399; }
-    .theatre-card__ceasefire {
-      font-size: var(--text-min);
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 3px;
-      background: rgba(5, 150, 105, 0.1);
-      border: 1px solid rgba(5, 150, 105, 0.25);
-      color: #059669;
-    }
-    [data-theme="dark"] .theatre-card__ceasefire {
-      background: rgba(5, 150, 105, 0.15);
-      color: #34d399;
-    }
-    .theatre-card__delta {
-      font-size: var(--text-min);
-      font-weight: 700;
-      margin-left: auto;
-    }
-    .theatre-card__delta--escalating { color: #dc2626; }
-    .theatre-card__delta--stable     { color: var(--color-text-muted); }
-    .theatre-card__delta--deescalating { color: #059669; }
-
     /* ── F-FLAG MATRIX PER-THEATRE ────────────────────────────────────── */
     .fflag-theatre-block {
       margin-bottom: var(--space-5);
@@ -691,70 +383,6 @@
       margin-bottom: var(--space-2);
     }
 
-    /* ── KEY JUDGMENTS ────────────────────────────────────────────────── */
-    .key-judgment-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: var(--space-4);
-      margin: var(--space-4) 0;
-    }
-    .key-judgment-card {
-      background: var(--color-surface);
-      border: 1.5px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-4) var(--space-5);
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-      transition: box-shadow 0.15s;
-    }
-    .key-judgment-card:hover { box-shadow: var(--shadow-md); }
-    .key-judgment-card__id {
-      font-size: var(--text-min);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: var(--color-text-muted);
-    }
-    .key-judgment-card__text {
-      font-size: var(--text-sm);
-      font-weight: 600;
-      color: var(--color-text);
-      line-height: 1.5;
-      flex: 1;
-    }
-    .key-judgment-card__footer {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      flex-wrap: wrap;
-      padding-top: var(--space-2);
-      border-top: 1px solid var(--color-border-subtle);
-    }
-    .key-judgment-card__theatre {
-      font-size: var(--text-min);
-      font-weight: 600;
-      color: var(--color-text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .kj-confidence-badge {
-      font-size: var(--text-min);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      padding: 1px 7px;
-      border-radius: 3px;
-    }
-    .kj-confidence-badge--confirmed  { background: rgba(5,150,105,0.1);  color: #059669; }
-    .kj-confidence-badge--high       { background: rgba(37,99,235,0.1);   color: #2563eb; }
-    .kj-confidence-badge--assessed   { background: rgba(217,119,6,0.1);  color: #d97706; }
-    .kj-confidence-badge--low        { background: rgba(220,38,38,0.1);  color: #dc2626; }
-    [data-theme="dark"] .kj-confidence-badge--confirmed  { background: rgba(5,150,105,0.2);  color: #34d399; }
-    [data-theme="dark"] .kj-confidence-badge--high       { background: rgba(37,99,235,0.18); color: #60a5fa; }
-    [data-theme="dark"] .kj-confidence-badge--assessed   { background: rgba(217,119,6,0.2);  color: #fbbf24; }
-    [data-theme="dark"] .kj-confidence-badge--low        { background: rgba(220,38,38,0.2);  color: #f87171; }
   </style>
 </head>
 
@@ -1653,7 +1281,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return getSeverityScore(b.indicators || {}) - getSeverityScore(a.indicators || {});
     });
 
-    var cardsHtml = '<div class="conflict-cards">';
+    var cardsHtml = '<div class="entity-card-grid">';
     sorted.slice(0, 10).forEach(function(c) {
       var worst = getWorstBand(c.indicators || {});
       var cls   = bandToRowClass(worst.band);
@@ -1681,19 +1309,18 @@ document.addEventListener('DOMContentLoaded', function () {
             '<span style="flex:1;color:var(--color-text-secondary);font-weight:500">' + escHtml(CARD_IND_LABELS[key] || key) + '</span>' +
             '<span style="color:var(--color-text-muted)">' + escHtml(String(ind.level != null ? ind.level : '—')) + '</span>' +
             '<span style="min-width:28px;text-align:right;font-weight:600;color:' + (devNum > 0 ? '#dc2626' : devNum < 0 ? '#059669' : 'var(--color-text-muted)') + '">' + devStr + '</span>' +
-            '<span class="conflict-card__band conflict-card__band--' + bandCls + '" style="padding:1px 5px;font-size:10px">' + escHtml(bandVal) + '</span>' +
+            '<span class="entity-card__tag" style="padding:1px 5px;font-size:10px">' + escHtml(bandVal) + '</span>' +
           '</div>' +
           (ind.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px;font-style:italic">' + escHtml(ind.note) + '</div>' : '');
       });
 
       cardsHtml +=
-        '<div class="conflict-card">' +
-          '<div class="conflict-card__accent-bar conflict-card__accent-bar--' + cls + '"></div>' +
-          '<div class="conflict-card__header">' +
-            '<div class="conflict-card__name">' + escHtml(c.conflict) + '</div>' +
-            '<div class="conflict-card__dot conflict-card__dot--' + cls + '" title="' + escHtml(worst.band || cls) + '"></div>' +
+        '<div class="entity-card entity-card--' + cls + '">' +
+          '<div class="entity-card__header">' +
+            '<div class="entity-card__name">' + escHtml(c.conflict) + '</div>' +
+            '<div class="entity-card__dot entity-card__dot--' + cls + '" title="' + escHtml(worst.band || cls) + '"></div>' +
           '</div>' +
-          '<div class="conflict-card__theatre">' + escHtml(c.theatre || '') + '</div>' +
+          '<div class="entity-card__meta">' + escHtml(c.theatre || '') + '</div>' +
           (c.summary ? '<p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2);line-height:1.5">' + escHtml(c.summary) + '</p>' : '') +
           (c.lead_development
             ? '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);background:rgba(220,38,38,0.07);border-left:3px solid var(--monitor-accent);border-radius:0 4px 4px 0">' +
@@ -1702,9 +1329,9 @@ document.addEventListener('DOMContentLoaded', function () {
               '</div>'
             : '') +
           '<div style="margin-top:var(--space-3)">' + indRows + '</div>' +
-          '<div class="conflict-card__footer">' +
-            '<span class="conflict-card__trajectory">' + escHtml(trajArrow + ' ' + traj) + '</span>' +
-            '<span class="conflict-card__band conflict-card__band--' + cls + '">' + escHtml(worst.band || cls.toUpperCase()) + '</span>' +
+          '<div class="entity-card__footer">' +
+            '<span class="entity-card__tag">' + escHtml(trajArrow + ' ' + traj) + '</span>' +
+            '<span class="entity-card__tag">' + escHtml(worst.band || cls.toUpperCase()) + '</span>' +
           '</div>' +
         '</div>';
     });
