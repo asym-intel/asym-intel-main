@@ -1,5 +1,5 @@
 # Asymmetric Intelligence — Platform Roadmap
-**Last updated:** 2026-04-12 (Sprint 3 page-by-page audit + fixes)  
+**Last updated:** 2026-04-12 (Sprint 3 complete + dead-code audit)  
 **Maintained by:** Computer sessions — update this file at every wrap.  
 **Canonical location:** `docs/ROADMAP.md` (asym-intel-main)
 
@@ -201,24 +201,25 @@ Canonical spec: `docs/ux/ASYM-INTEL-SITE-REBUILD-SPEC-JOURNEY-FIRST.md`
 - GMM exception: kept `section-signal` (relabelled "Signal Detail") for rich extra fields per D9 efficiency decision
 - All 7 monitors published fresh baseline 12 Apr 07:45 UTC
 
-## 🔄 Site Rebuild Sprint 3: Homepage + Page-by-Page Monitor Check
+## ✅ Site Rebuild Sprint 3 COMPLETE (2026-04-12)
 
-**Status:** In progress (12 April 2026)
+**What shipped:**
+- Page-by-page audit: 6/7 dashboards broken (stuck "Loading..."), 2/7 reports broken
+- Root cause: Sprint 2 triage migration removed HTML elements but left JS writes referencing them — first crash aborted entire render chain
+- Dashboard class fix: removed dead JS from 6 dashboards (ESA, GMM, FCW, AGM, ERM, SCEM), updated .catch() handlers. WDM was clean (thin orchestrator pattern).
+- SCEM report: field name normalisation layer (v2 schema → render code). ERM report: lead_signal fallback.
+- WDM report: mimicry active_chains integer guard + heatmap flat-array binning (commit `a4a38dd5`)
+- Cross-monitor.html: built data-driven template for all 7 monitors (commit `328c8683`)
+- renderer.js stubs: AsymRenderer.sourceLink/sourceLabel/flag (commit `683a638a`)
+- JS health audit: 98 HTML files, 0 crash-causing dead refs
+- Prevention rule logged in notes-for-computer.md: always audit JS for orphaned getElementById when removing HTML elements
 
-### Completed
-- ✅ Homepage audit — screenshot + issue identification
-- ✅ All 7 monitor pages audited (overview, dashboard, report) — class-level issues catalogued
-- ✅ 404 check — cross-monitor.html was 404 on all 7 monitors (only 404s found site-wide)
-- ✅ cross-monitor.html built and deployed to all 7 monitors (14 files, commit `328c8683`)
-- ✅ AGM date format fix — was only monitor using raw ISO date (commit `1e231a02`)
-- ✅ WDM report.html crash fixed — root cause: `mimicry_chain_update.active_chains` is integer, not array; also fixed flat-array heatmap binning + field name mismatches (commit `a4a38dd5`)
-- ✅ renderer.js stubs — AsymRenderer.sourceLink/sourceLabel/flag stubs prevent TypeError class-wide (commit `683a638a`)
-- ✅ Site subagent rule written to COMPUTER-core.md (commit `b5854eda`)
+## NEXT — Site Rebuild Sprint 4 / PED Sprint 2
 
-### Remaining known issues
-- Homepage chatter widget shows only SCEM items (not aggregating across monitors)
-- WDM CMF linkbacks show slugs instead of display names
-- WDM heatmap Recovery tab shows (0) — data has no `health_status: "Recovery"` countries
+- PED Sprint 2 items (AGM + ERM dashboard audit, signal panel contrast, severity badge floor)
+- Homepage: audit current state, identify template/layout issues
+- Sprint 3 remainder items (sourceLabel migration, GMM scenario cards, etc.)
+- Goal: finalise and optimise shared templates — fix the class not the instance
 
 ---
 
