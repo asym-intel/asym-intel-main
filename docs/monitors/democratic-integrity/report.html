@@ -255,12 +255,12 @@ document.addEventListener('DOMContentLoaded', function () {
       var heatmap = d.heatmap || {};
       /* Handle flat-array heatmap: bin countries by health_status */
       if (Array.isArray(heatmap)) {
-        var _hm = {rapid_decay:[], recovery:[], watchlist:[]};
+        var _hm = {deteriorating:[], constrained:[], stable:[]};
         heatmap.forEach(function(c) {
           var st = (c.health_status || '').toLowerCase().replace(/[\s-]+/g, '_');
-          if (st === 'backsliding' || st === 'rapid_decay' || st === 'crisis') _hm.rapid_decay.push(c);
-          else if (st === 'recovery' || st === 'improving') _hm.recovery.push(c);
-          else _hm.watchlist.push(c);
+          if (st === 'backsliding' || st === 'rapid_decay' || st === 'crisis') _hm.deteriorating.push(c);
+          else if (st === 'constrained') _hm.constrained.push(c);
+          else _hm.stable.push(c); /* consolidated, recovery, improving, etc. */
         });
         heatmap = _hm;
       }
@@ -362,19 +362,19 @@ document.addEventListener('DOMContentLoaded', function () {
         wbEl.innerHTML = '<p class="text-muted">Weekly brief not available for this issue.</p>';
       }
 
-      /* Heatmap — tabbed */
-      var rd = heatmap.rapid_decay || [];
-      var rc = heatmap.recovery    || [];
-      var wl = heatmap.watchlist   || [];
+      /* Heatmap — tabbed by health status */
+      var det = heatmap.deteriorating || [];
+      var con = heatmap.constrained   || [];
+      var stb = heatmap.stable        || [];
       document.getElementById('heatmap-tabs').innerHTML =
         '<div class="tabs">' +
-          '<button class="tab-btn active" data-tab="rapid-decay">Rapid Decay (' + rd.length + ')</button>' +
-          '<button class="tab-btn" data-tab="recovery">Recovery (' + rc.length + ')</button>' +
-          '<button class="tab-btn" data-tab="watchlist">Watchlist (' + wl.length + ')</button>' +
+          '<button class="tab-btn active" data-tab="deteriorating">Deteriorating (' + det.length + ')</button>' +
+          '<button class="tab-btn" data-tab="constrained">Constrained (' + con.length + ')</button>' +
+          '<button class="tab-btn" data-tab="stable">Stable (' + stb.length + ')</button>' +
         '</div>' +
-        '<div class="tab-panel active" id="tab-rapid-decay">' + renderHeatmapTable(rd, 'critical') + '</div>' +
-        '<div class="tab-panel" id="tab-recovery">'         + renderHeatmapTable(rc, 'positive') + '</div>' +
-        '<div class="tab-panel" id="tab-watchlist">'        + renderHeatmapTable(wl, 'high')     + '</div>';
+        '<div class="tab-panel active" id="tab-deteriorating">' + renderHeatmapTable(det, 'critical') + '</div>' +
+        '<div class="tab-panel" id="tab-constrained">'         + renderHeatmapTable(con, 'high')     + '</div>' +
+        '<div class="tab-panel" id="tab-stable">'              + renderHeatmapTable(stb, 'positive') + '</div>';
 
       document.querySelectorAll('.tab-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -671,26 +671,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       document.getElementById('friction-notes').innerHTML = fnHtml || '<p class="text-muted">No friction notes this issue.</p>';
 
-      /* Cross-monitor flags */
-      var cmFlags = cross.flags || [];
-      var cmHtml = '';
-      if (cross.updated) {
-        cmHtml += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">Updated: ' + esc(cross.updated) + '</p>';
-      }
-      cmHtml += '<div class="cross-monitor-panel"><div class="cross-monitor-panel__title">Cross-Monitor Flags</div>';
-      cmFlags.forEach(function (f) {
-        cmHtml +=
-          '<div class="cms-flag">' +
-            '<div class="cms-flag__header">' +
-              '<div class="cms-flag__id">' + esc(f.id || '') + '</div>' +
-              (f.monitors ? '<div class="cms-flag__monitors">' + esc(Array.isArray(f.monitors) ? f.monitors.join(' · ') : f.monitors) + '</div>' : '') +
-            '</div>' +
-            '<div class="cms-flag__title">' + esc(f.headline || f.title || '') + '</div>' +
-            '<div class="cms-flag__body">' + esc(f.detail || f.body || '') + '</div>' +
-          '</div>';
-      });
-      cmHtml += '</div>';
-      document.getElementById('cross-monitor').innerHTML = cmHtml;
+      /* Cross-monitor flags — shared renderer */
+      AsymSections.renderCrossMonitorFlags(cross, 'cross-monitor');
     })
     .catch(function (err) {
       console.error(err);
