@@ -1217,6 +1217,11 @@ document.addEventListener('DOMContentLoaded', function () {
       'F1':'#dc2626','F2':'#dc2626','F3':'#dc2626','F4':'#dc2626',
       'F5':'#dc2626','F6':'#dc2626','F7':'#dc2626','F2-adjacent':'#b45309'
     };
+    var flagShort = {
+      'F1':'Single-source','F2':'Adjacent esc.','F3':'Unverified cap.',
+      'F4':'Premature d-esc.','F5':'Attribution gap','F6':'Data denial',
+      'F7':'Spoofed ind.','F2-adjacent':'Adjacent (adj.)'
+    };
 
     // Build lookup: conflict_name → { I1: flagType, I2: flagType, ... }
     var lookup = {};
@@ -1260,7 +1265,14 @@ document.addEventListener('DOMContentLoaded', function () {
         var flagType = (lookup[c.conflict] || {})[ind];
         if (flagType) {
           var col = flagColours[flagType] || '#dc2626';
-          html += '<td style="text-align:center;padding:var(--space-2)"><span style="display:inline-block;background:' + col + ';color:#fff;border-radius:3px;padding:2px 6px;font-size:11px;font-weight:700">' + escHtml(flagType) + '</span></td>';
+          var fShort = flagShort[flagType] || '';
+          html += '<td style="text-align:center;padding:var(--space-2)">' +
+            '<span title="' + escHtml(F_FLAG_DEFS[flagType] || flagType) + '" ' +
+              'style="display:inline-block;background:' + col + ';color:#fff;border-radius:3px;' +
+              'padding:3px 6px;font-size:11px;font-weight:700;line-height:1.3;cursor:default">' +
+              escHtml(flagType) +
+              (fShort ? '<br><span style="font-size:9px;font-weight:400;opacity:0.9">' + escHtml(fShort) + '</span>' : '') +
+            '</span></td>';
         } else {
           html += '<td style="text-align:center;padding:var(--space-2);color:var(--color-text-faint,#ccc)">' + String.fromCharCode(8212) + '</td>';
         }
