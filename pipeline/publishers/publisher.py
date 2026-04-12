@@ -606,17 +606,22 @@ def build_archive_entry(meta: dict, signal: dict | None, synthesis: dict) -> dic
     strips = []
     rank = 1
 
-    for camp in delta.get("new_campaigns", []):
-        strips.append({"rank": rank, "title": camp.get("operation_name", camp.get("summary", ""))[:80],
-                        "module_tag": camp.get("actor", ""), "delta_type": "New Campaign",
-                        "one_line": camp.get("summary", "")[:200]})
-        rank += 1
+    # Handle both shapes: list (AIM, GMM, WDM, ESA, ERM) or dict (FCW, SCEM)
+    if isinstance(delta, list):
+        # Pre-built ranked list — pass through directly
+        strips = delta[:5]  # Top 5
+    elif isinstance(delta, dict):
+        for camp in delta.get("new_campaigns", []):
+            strips.append({"rank": rank, "title": camp.get("operation_name", camp.get("summary", ""))[:80],
+                            "module_tag": camp.get("actor", ""), "delta_type": "New Campaign",
+                            "one_line": camp.get("summary", "")[:200]})
+            rank += 1
 
-    for change in delta.get("status_changes", []):
-        strips.append({"rank": rank, "title": f"{change.get('campaign_id', '')} status change",
-                        "module_tag": change.get("actor", ""), "delta_type": "Status Change",
-                        "one_line": f"{change.get('old_status', '')} → {change.get('new_status', '')}"})
-        rank += 1
+        for change in delta.get("status_changes", []):
+            strips.append({"rank": rank, "title": f"{change.get('campaign_id', '')} status change",
+                            "module_tag": change.get("actor", ""), "delta_type": "Status Change",
+                            "one_line": f"{change.get('old_status', '')} → {change.get('new_status', '')}"})
+            rank += 1
 
     if not strips:
         headline = ""
