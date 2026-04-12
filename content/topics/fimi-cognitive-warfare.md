@@ -37,7 +37,7 @@ This monitor is the hub of a hub-and-spoke architecture. Other monitors in the a
 
 - The [World Democracy Monitor](/monitors/democratic-integrity/) tracks elections under FIMI interference and the democratic erosion those operations amplify
 - The [European Strategic Autonomy Monitor](/monitors/european-strategic-autonomy/) tracks EU and Member State FIMI response posture — RAS activations, StratCom operations, DSA enforcement
-- The [AI Governance Monitor](/monitors/ai-governance/) tracks AI-generated synthetic media and LLM-powered influence operations
+- The [Artificial Intelligence Monitor](/monitors/ai-governance/) tracks AI-generated synthetic media and LLM-powered influence operations
 
 When a spoke monitor flags a FIMI-related event, the attribution detail and actor context live here.
 
