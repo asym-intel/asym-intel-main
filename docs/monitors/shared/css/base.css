@@ -2699,3 +2699,124 @@ body { padding-top: 40px; }
 [data-theme="dark"] .kj-confidence-badge--high      { background: rgba(37,99,235,0.18);  color: #60a5fa; }
 [data-theme="dark"] .kj-confidence-badge--assessed  { background: rgba(217,119,6,0.2);   color: #fbbf24; }
 [data-theme="dark"] .kj-confidence-badge--low       { background: rgba(220,38,38,0.2);   color: #f87171; }
+
+
+/* ─── Risk Rating Badge (cross-monitor: solid-fill severity pill) ────────
+   Promoted from AGM dashboard.html — Sprint 6
+   Solid-colour fill variant (white text) — contrasts with .severity-badge
+   which uses translucent backgrounds. Use for primary risk classifications
+   where solid fill communicates high-confidence categorical assignment.
+
+   .risk-rating-badge                     — base
+   .risk-rating-badge--HIGH               — solid orange-red
+   .risk-rating-badge--ELEVATED           — solid amber
+   .risk-rating-badge--MODERATE           — solid blue
+   .risk-rating-badge--LOW                — solid grey                     */
+
+.risk-rating-badge {
+  display: inline-block;
+  font-size: var(--text-min);
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.risk-rating-badge--HIGH     { background: #c1440e; color: #fff; }
+.risk-rating-badge--ELEVATED { background: #d97706; color: #fff; }
+.risk-rating-badge--MODERATE { background: #2563eb; color: #fff; }
+.risk-rating-badge--LOW      { background: #6b6660; color: #fff; }
+
+/* ─── Delta Card (cross-monitor: ranked movers list with badge) ─────────
+   Promoted from AGM dashboard.html — Sprint 6
+   Card-based ranked list — complements the existing flat .delta-strip/.delta-item
+   pattern. Use when items need card treatment (surface + border) rather than
+   a borderless list row.
+
+   .ds-list                — <ol> container (flex column)
+   .ds-card                — individual ranked card (<li>)
+   .ds-rank                — large rank numeral
+   .ds-body                — flex-grow content area
+   .ds-meta                — meta row (module label + badge)
+   .ds-module              — module/source label (monospace)
+   .ds-badge               — change-type badge
+   .ds-badge--new          — new entry (green)
+   .ds-badge--escalation   — escalation (orange-red)
+   .ds-badge--shift        — shift/change (amber)
+   .ds-badge--update       — update (blue)
+   .ds-badge--default      — neutral
+   .ds-title               — item headline
+   .ds-oneline             — single-line summary text                      */
+
+.ds-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.ds-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+[data-theme="dark"] .ds-card {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+.ds-rank {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  line-height: 1;
+  min-width: 1.6rem;
+  flex-shrink: 0;
+}
+.ds-body {
+  flex: 1;
+  min-width: 0;
+}
+.ds-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+}
+.ds-module {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono, monospace);
+}
+.ds-badge {
+  font-size: var(--text-min);
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ds-badge--new        { background: rgba(5,150,105,0.15);  color: #059669; border: 1px solid rgba(5,150,105,0.3); }
+.ds-badge--escalation { background: rgba(193,68,14,0.12);  color: #c1440e; border: 1px solid rgba(193,68,14,0.3); }
+.ds-badge--shift      { background: rgba(217,119,6,0.12);  color: #d97706; border: 1px solid rgba(217,119,6,0.3); }
+.ds-badge--update     { background: rgba(37,99,235,0.1);   color: #2563eb; border: 1px solid rgba(37,99,235,0.25); }
+.ds-badge--default    { background: var(--color-surface);  color: var(--color-text-muted); border: 1px solid var(--color-border); }
+.ds-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+}
+.ds-oneline {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+}
