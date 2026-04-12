@@ -81,29 +81,56 @@
   injectNetworkBar();
 
 
-  /* ── Monitor Strip Offset Adjustment ─────────────────────────
-     The cross-monitor strip (.monitor-strip) is injected into
-     static monitor HTML by the inject-monitor-strip.yml workflow.
-     When present, adjust sticky offsets so the hierarchy stacks:
-       network bar (40px) → strip (50px) → monitor nav (52px)
+  /* ── Cross-Monitor Strip Injection ──────────────────────────
+     Single source of truth for the cross-monitor navigation strip.
+     Generated at runtime by nav.js — same pattern as the network bar.
+     Edit monitor names/order here; changes propagate to all pages.
+     Hierarchy: network bar (40px) → strip (50px) → monitor nav (52px)
      ──────────────────────────────────────────────────────────── */
-  function adjustForMonitorStrip() {
-    var strip = document.querySelector('.monitor-strip');
-    if (!strip) return;
+  var MONITOR_STRIP_ORDER = [
+    { slug: 'macro-monitor',              name: 'Global Macro',              accent: '#22a0aa', icon: 'gmm'  },
+    { slug: 'conflict-escalation',        name: 'Strategic Conflict',        accent: '#dc2626', icon: 'scem' },
+    { slug: 'fimi-cognitive-warfare',     name: 'FIMI \x26 Cognitive Warfare', accent: '#38bdf8', icon: 'fcw'  },
+    { slug: 'ai-governance',              name: 'Artificial Intelligence',   accent: '#3a7d5a', icon: 'agm'  },
+    { slug: 'democratic-integrity',       name: 'World Democracy',           accent: '#61a5d2', icon: 'wdm'  },
+    { slug: 'european-strategic-autonomy', name: 'Strategic Autonomy',        accent: '#5b8db0', icon: 'esa'  },
+    { slug: 'environmental-risks',        name: 'Environmental Risks',       accent: '#4caf7d', icon: 'erm'  },
+  ];
 
-    // Highlight current monitor pill
+  function injectMonitorStrip() {
+    // Only on monitor pages
+    if (window.location.pathname.indexOf('/monitors/') === -1) return;
+    // Skip if already present
+    if (document.querySelector('.monitor-strip')) return;
+
     var currentSlug = getMonitorSlug();
-    if (currentSlug) {
-      strip.querySelectorAll('.monitor-strip__pill').forEach(function (pill) {
-        var href = pill.getAttribute('href') || '';
-        if (href.indexOf('/' + currentSlug + '/') !== -1) {
-          pill.classList.add('monitor-strip__pill--active');
-        }
-      });
+
+    var pills = '';
+    MONITOR_STRIP_ORDER.forEach(function (m) {
+      var active = (m.slug === currentSlug) ? ' monitor-strip__pill--active' : '';
+      pills +=
+        '<a class="monitor-strip__pill' + active + '"' +
+        ' href="/monitors/' + m.slug + '/overview.html"' +
+        ' style="--pill-accent:' + m.accent + '">' +
+          '<img class="monitor-strip__icon" src="/images/monitors/' + m.icon + '.svg"' +
+          ' alt="" width="24" height="24" aria-hidden="true">' +
+          '<span>' + m.name + '</span>' +
+        '</a>';
+    });
+
+    var strip = document.createElement('nav');
+    strip.className = 'monitor-strip';
+    strip.setAttribute('role', 'navigation');
+    strip.setAttribute('aria-label', 'Monitor navigation');
+    strip.innerHTML = '<span class="monitor-strip__label">Monitors</span>' + pills;
+
+    // Insert before .monitor-nav (hierarchy: network bar → strip → monitor nav)
+    var monitorNav = document.querySelector('.monitor-nav');
+    if (monitorNav && monitorNav.parentNode) {
+      monitorNav.parentNode.insertBefore(strip, monitorNav);
     }
 
     // Adjust monitor-nav sticky top: 40 (nb) + 50 (strip) = 90px
-    var monitorNav = document.querySelector('.monitor-nav');
     if (monitorNav) {
       monitorNav.style.setProperty('top', '90px', 'important');
     }
@@ -113,6 +140,13 @@
       sidebar.style.setProperty('top', 'calc(90px + 52px)', 'important');
       sidebar.style.setProperty('height', 'calc(100vh - 90px - 52px)', 'important');
     }
+  }
+
+  // Inject strip at parse time for immediate render (same as network bar)
+  if (document.body) {
+    injectMonitorStrip();
+  } else {
+    document.addEventListener('DOMContentLoaded', injectMonitorStrip);
   }
 
 
@@ -295,7 +329,6 @@
   }
 
   function init() {
-    adjustForMonitorStrip();
     injectMonitorBrand();
     injectMonitorNav();
     injectThemeToggle();
