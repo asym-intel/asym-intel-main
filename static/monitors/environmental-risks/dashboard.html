@@ -262,46 +262,12 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <section class="module-section" id="section-kpi">
-      <div class="page-header">
-        <div class="page-header__eyebrow">ERM Dashboard</div>
-        <h1 class="page-header__title" id="page-title">Environmental Risks Monitor</h1>
-        <div class="page-header__meta" id="page-meta">Loading…</div>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-transgressed">—</div>
-          <div class="kpi-card__label">Boundaries Transgressed</div>
-          <div class="kpi-card__sub">Of 9 planetary boundaries</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-tipping">—</div>
-          <div class="kpi-card__label">Tipping Flags</div>
-          <div class="kpi-card__sub" id="kpi-tipping-sub">Active tipping systems</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-lead">—</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub" id="kpi-lead-sub">Primary signal this week</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-week">—</div>
-          <div class="kpi-card__label">Week</div>
-          <div class="kpi-card__sub" id="kpi-week-sub">Issue week</div>
-        </div>
+    
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
       </div>
     </section>
-
-    <section class="module-section" id="section-signal">
-      <div class="module-header">
-        <div class="module-title">M00 — The Signal</div>
-      </div>
-      <div id="signal-block">
-        <div class="loading-state">Loading lead signal…</div>
-      </div>
-    </section>
-
     <section class="module-section" id="section-exec-insight">
       <div class="module-header">
         <div class="module-title">M01 — Executive Insight</div>
@@ -309,15 +275,6 @@
       <div id="exec-insight-block">
         <div class="loading-state">Loading executive insight…</div>
       </div>
-    </section>
-
-    <section class="module-section" id="section-delta">
-      <div class="module-header">
-        <div class="module-title">Top Items This Issue</div>
-      </div>
-      <ul class="delta-strip" id="delta-strip">
-        <li class="loading-state">Loading delta strip…</li>
-      </ul>
     </section>
 
     <!-- ── PLANETARY BOUNDARY STATUS CHART ── -->
@@ -490,10 +447,8 @@
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-kpi">Overview</a></li>
-      <li><a href="#section-signal">Lead Signal</a></li>
+      <li><a href="#section-triage">Triage Strip</a></li>
       <li><a href="#section-exec-insight">Executive Insight</a></li>
-      <li><a href="#section-delta">Delta Strip</a></li>
       <li><a href="#section-pb-chart">Boundary Chart</a></li>
       <li><a href="#section-tipping-proximity">Tipping Proximity</a></li>
       <li><a href="#section-tipping">Tipping Flags</a></li>
@@ -690,6 +645,33 @@ document.addEventListener('DOMContentLoaded', function () {
               '</li>';
           });
           document.getElementById('delta-strip').innerHTML = html || '<li class="text-muted text-sm">No delta data available.</li>';
+
+          /* ── Triage Strip ── */
+          if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+            AsymSections.renderTriageStrip({
+              kpis: [
+                { label: 'Boundaries Transgressed', value: transgressed || '—', sub: 'Of 9 planetary boundaries', accent: transgressed >= 6 },
+                { label: 'Tipping Flags',           value: tipping.length || '—', sub: 'Active tipping systems' },
+                { label: 'Lead Signal',             value: signalShort || '—', sub: signalTitle || '' },
+                { label: 'Issue',                   value: meta.week_label || '—', sub: 'Issue ' + (meta.issue || '—') }
+              ],
+              signal: {
+                label:      'Lead Signal · ERM',
+                title:      signal.title || '',
+                body:       signal.body  || '',
+                source_url: signal.source_url || d.source_url || ''
+              },
+              structural: {
+                label:    'Planetary Status Snapshot',
+                targetId: 'triage-planetary',
+                renderFn: function(id) {
+                  AsymSections.renderPlanetaryStatusSnapshot(
+                    d.planetary_status_snapshot || d.m00_the_signal, id);
+                }
+              },
+              delta: { label: 'Delta Strip', items: deltas }
+            }, 'triage-container');
+          }
         })
         .catch(function () {
           document.getElementById('delta-strip').innerHTML = '<li class="error-state">Failed to load delta strip.</li>';
