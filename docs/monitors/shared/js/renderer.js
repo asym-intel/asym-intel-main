@@ -2095,28 +2095,7 @@ window.AsymSections = (function () {
     var canvasId = 'radar-canvas-' + targetId;
     var dimListId = 'radar-dim-list-' + targetId;
 
-    // Inject CSS once
-    if (!document.getElementById('asym-radar-css')) {
-      var style = document.createElement('style');
-      style.id = 'asym-radar-css';
-      style.textContent =
-        '.asym-radar-wrap{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6,1.5rem);align-items:center;overflow:visible}' +
-        '@media(max-width:768px){.asym-radar-wrap{grid-template-columns:1fr}}' +
-        '.asym-radar-canvas-wrap{width:100%;aspect-ratio:1/1;overflow:visible;position:relative}' +
-        '.asym-radar-canvas-wrap canvas{overflow:visible}' +
-        '.asym-radar-badge{text-align:center;margin-bottom:var(--space-6,1.5rem)}' +
-        '.asym-radar-badge__value{font-size:2.5rem;font-weight:800;line-height:1}' +
-        '.asym-radar-badge__label{font-size:var(--text-xs,.75rem);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted,#888);margin-top:var(--space-1,.25rem)}' +
-        '.asym-radar-dim-list{display:flex;flex-direction:column;gap:var(--space-4,1rem);padding-top:var(--space-2,.5rem)}' +
-        '.asym-radar-dim-row{display:grid;grid-template-columns:1fr auto;gap:var(--space-2,.5rem) var(--space-4,1rem);align-items:center}' +
-        '.asym-radar-dim-row__label{font-size:var(--text-sm,.875rem);font-weight:600;color:var(--color-text)}' +
-        '.asym-radar-dim-row__note{font-size:var(--text-xs,.75rem);color:var(--color-text-muted,#888);line-height:1.3;margin-top:2px}' +
-        '.asym-radar-dim-row__score{font-size:var(--text-lg,1.125rem);font-weight:800;font-variant-numeric:tabular-nums;text-align:right;min-width:2.5rem}' +
-        '.asym-radar-dim-row__bar-wrap{grid-column:1/-1;height:8px;background:var(--color-bg-alt,rgba(0,0,0,.05));border-radius:4px;overflow:hidden}' +
-        '[data-theme=dark] .asym-radar-dim-row__bar-wrap{background:rgba(255,255,255,.06)}' +
-        '.asym-radar-dim-row__bar{height:100%;border-radius:4px;transition:width .6s ease;min-width:2px}';
-      document.head.appendChild(style);
-    }
+    // Radar CSS is now in base.css (Sprint 1 D1 migration) — no inline injection needed.
 
     // Build HTML
     var html = '';
@@ -2130,7 +2109,7 @@ window.AsymSections = (function () {
 
     html +=
       '<div class="asym-radar-wrap">' +
-        '<div class="asym-radar-canvas-wrap">' +
+        '<div class="asym-chart-wrap asym-chart-wrap--square">' +
           '<canvas id="' + canvasId + '" aria-label="' + escHtml(config.title || 'Radar Chart') + '" role="img"></canvas>' +
         '</div>' +
         '<div class="asym-radar-dim-list" id="' + dimListId + '"></div>' +
@@ -2930,6 +2909,156 @@ window.AsymSections = (function () {
   }
 
 
+
+  /* ── Triage Strip (SL-02 / D2) ──────────────────────────────────────────
+   *
+   * renderTriageStrip(config, targetId)
+   *
+   * Renders the canonical five-zone above-the-fold triage sequence into
+   * the element with id=targetId. Zone order is enforced by this function —
+   * the caller cannot reorder zones.
+   *
+   * config shape:
+   * {
+   *   kpis: [{ label, value, sub?, trend?, accent? }],   // required
+   *   signal: { label?, title, body, source_url? },       // required
+   *   structural: {                                        // required
+   *     label: string,          // section heading e.g. "Risk Vector Heat"
+   *     targetId: string,       // id of the container to render into
+   *     renderFn: function(targetId)  // caller provides their own renderer
+   *   },
+   *   delta: {                                            // required
+   *     label: string,          // e.g. "Top Moves This Issue"
+   *     items: array            // array passed to renderDeltaStrip() or equivalent
+   *   },
+   *   threshold: {              // optional — omit if no threshold this issue
+   *     label: string,
+   *     html: string            // pre-rendered HTML string (caller owns content)
+   *   }
+   * }
+   *
+   * Usage:
+   *   AsymSections.renderTriageStrip(config, 'triage-container');
+   *
+   * The structural slot uses caller-supplied renderFn to remain monitor-agnostic.
+   * The triage strip owns layout + order. The monitor owns the structural visual.
+   * ─────────────────────────────────────────────────────────────────────────── */
+
+  function renderTriageStrip(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!config) {
+      el.innerHTML = '<p class="text-muted text-sm">Triage data unavailable.</p>';
+      return;
+    }
+
+    var html = '<div class="triage-strip">';
+
+    /* ── Zone 1: KPI Strip ── */
+    if (config.kpis && config.kpis.length) {
+      html += '<div class="triage-section" data-triage-zone="kpis">';
+      html += '<div class="triage-section__label">At a Glance</div>';
+      html += '<div class="kpi-strip">';
+      config.kpis.forEach(function (kpi) {
+        var valClass = 'kpi-card__value' + (kpi.accent ? ' kpi-card__value--accent' : '');
+        html +=
+          '<div class="kpi-card">' +
+            '<div class="kpi-card__label">' + escHtml(kpi.label) + '</div>' +
+            (kpi.sub ? '<div class="kpi-card__sub">' + escHtml(kpi.sub) + '</div>' : '') +
+            '<div class="' + valClass + '">' + escHtml(String(kpi.value != null ? kpi.value : '—')) + '</div>' +
+            (kpi.trend ? '<div class="kpi-card__trend">' + escHtml(kpi.trend) + '</div>' : '') +
+          '</div>';
+      });
+      html += '</div>';
+      html += '</div>';
+    }
+
+    /* ── Zone 2: Lead Signal ── */
+    if (config.signal) {
+      var sig = config.signal;
+      html += '<div class="triage-section" data-triage-zone="signal">';
+      html += '<div class="triage-section__label">Lead Signal</div>';
+      html += '<div class="signal-block">';
+      if (sig.label) {
+        html += '<div class="signal-block__label">' + escHtml(sig.label) + '</div>';
+      }
+      if (sig.title) {
+        html += '<div class="signal-block__title">' + escHtml(sig.title) + '</div>';
+      }
+      if (sig.body) {
+        html += '<p class="signal-block__body">' + escHtml(sig.body) + '</p>';
+      }
+      if (sig.source_url && typeof window.AsymRenderer !== 'undefined' && window.AsymRenderer.sourceLink) {
+        html += '<div style="margin-top:var(--space-3)">' + window.AsymRenderer.sourceLink(sig.source_url) + '</div>';
+      }
+      if (sig.confidence) {
+        var confClass = 'badge-confidence badge-confidence--' + escHtml(sig.confidence.toLowerCase());
+        html += '<div style="margin-top:var(--space-3)"><span class="' + confClass + '">' + escHtml(sig.confidence) + '</span></div>';
+      }
+      html += '</div>';
+      html += '</div>';
+    }
+
+    /* ── Zone 3: Structural Snapshot (caller's renderFn) ── */
+    if (config.structural) {
+      var st = config.structural;
+      var stId = st.targetId || (targetId + '-structural');
+      html += '<div class="triage-section" data-triage-zone="structural">';
+      html += '<div class="triage-section__label">' + escHtml(st.label || 'Structural Snapshot') + '</div>';
+      html += '<div id="' + escHtml(stId) + '"></div>';
+      html += '</div>';
+    }
+
+    /* ── Zone 4: Primary Delta ── */
+    if (config.delta && config.delta.items && config.delta.items.length) {
+      var dl = config.delta;
+      html += '<div class="triage-section" data-triage-zone="delta">';
+      html += '<div class="triage-section__label">' + escHtml(dl.label || 'Top Moves This Issue') + '</div>';
+      html += '<ul class="delta-strip">';
+      dl.items.forEach(function (item, i) {
+        html +=
+          '<li class="delta-item">' +
+            '<span class="delta-item__rank">' + (i + 1) + '</span>' +
+            '<div class="delta-item__body">' +
+              (item.module ? '<div class="delta-item__module">' + escHtml(item.module) + '</div>' : '') +
+              '<div class="delta-item__title">' + escHtml(item.title || item.headline || '') + '</div>' +
+              (item.one_line || item.summary ? '<div class="delta-item__one-line">' + escHtml(item.one_line || item.summary) + '</div>' : '') +
+              (item.source_url && typeof window.AsymRenderer !== 'undefined' && window.AsymRenderer.sourceLink
+                ? '<div style="margin-top:var(--space-1)">' + window.AsymRenderer.sourceLink(item.source_url) + '</div>'
+                : '') +
+            '</div>' +
+            (item.type ? '<span class="delta-item__type">' + escHtml(item.type) + '</span>' : '') +
+          '</li>';
+      });
+      html += '</ul>';
+      html += '</div>';
+    }
+
+    /* ── Zone 5: Threshold (optional) ── */
+    if (config.threshold) {
+      var th = config.threshold;
+      html += '<div class="triage-section triage-section--threshold" data-triage-zone="threshold">';
+      html += '<div class="triage-section__label">' + escHtml(th.label || 'Threshold Watch') + '</div>';
+      html += th.html || '';
+      html += '</div>';
+    }
+
+    html += '</div>'; /* end .triage-strip */
+    el.innerHTML = html;
+
+    /* ── Fire structural renderFn after DOM is written ── */
+    if (config.structural && typeof config.structural.renderFn === 'function') {
+      var stTargetId = config.structural.targetId || (targetId + '-structural');
+      try {
+        config.structural.renderFn(stTargetId);
+      } catch (e) {
+        var stEl = document.getElementById(stTargetId);
+        if (stEl) stEl.innerHTML = '<p class="text-muted text-sm">Structural snapshot unavailable.</p>';
+      }
+    }
+  }
+
+
   return {
     // Helpers (exposed for inline orchestrators)
     escHtml: escHtml,
@@ -2983,7 +3112,9 @@ window.AsymSections = (function () {
     renderDebtDynamics: renderDebtDynamics,
     renderCreditStress: renderCreditStress,
     renderSystemicRisk: renderSystemicRisk,
-    renderSafeHavenV2: renderSafeHavenV2
+    renderSafeHavenV2: renderSafeHavenV2,
+    // Sprint 1 SL-02: Shared triage strip
+    renderTriageStrip: renderTriageStrip
   };
 }());
 
