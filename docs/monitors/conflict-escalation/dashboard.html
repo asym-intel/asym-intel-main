@@ -402,6 +402,12 @@
   <main class="monitor-main" id="main-content">
 
     <!-- ESCALATION INDICATORS — alert banner (rendered only when entries exist) -->
+    
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
+      </div>
+    </section>
     <section class="module-section" id="section-escalation-indicators" style="display:none">
       <div id="escalation-indicators-wrap"></div>
     </section>
@@ -420,32 +426,6 @@
         <div class="module-title">Weekly Brief</div>
       </div>
       <div id="weekly-brief-wrap"><div class="loading-state">Loading…</div></div>
-    </section>
-
-    <section class="module-section" id="section-kpi">
-      <div class="page-header">
-        <div class="page-header__eyebrow">SCEM Dashboard</div>
-        <h1 class="page-header__title" id="page-title">Strategic Conflict &amp; Escalation Monitor</h1>
-        <div class="page-header__meta" id="page-meta">Loading…</div>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-active">—</div>
-          <div class="kpi-card__label">Active Conflicts</div>
-          <div class="kpi-card__sub">On roster this issue</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-lead">—</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub" id="kpi-lead-sub">Highest deviation conflict</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-week">—</div>
-          <div class="kpi-card__label">Week</div>
-          <div class="kpi-card__sub" id="kpi-week-sub">Issue week</div>
-        </div>
-      </div>
     </section>
 
     <!-- TRAJECTORY STATUS GRID -->
@@ -491,15 +471,6 @@
         <div class="module-title">Theatre Tracker</div>
       </div>
       <div id="theatre-tracker-wrap"><div class="loading-state">Loading…</div></div>
-    </section>
-
-    <section class="module-section" id="section-delta">
-      <div class="module-header">
-        <div class="module-title">Top Items This Issue</div>
-      </div>
-      <ul class="delta-strip" id="delta-strip">
-        <li class="loading-state">Loading delta strip…</li>
-      </ul>
     </section>
 
     <!-- 10-Conflict Comparison Bar -->
@@ -585,13 +556,12 @@
       <li><a href="#section-escalation-indicators">Alert Strip</a></li>
       <li><a href="#section-global-snapshot">Snapshot</a></li>
       <li><a href="#section-weekly-brief">Weekly Brief</a></li>
-      <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-triage">Triage Strip</a></li>
       <li><a href="#section-trajectory-grid">Trajectory Status</a></li>
       <li><a href="#section-gauge">Global Escalation Index</a></li>
       <li><a href="#section-fflag-matrix">Friction Flag Status Board</a></li>
       <li><a href="#section-lead-signal">Lead Signal</a></li>
       <li><a href="#section-theatre-tracker">Theatre Tracker</a></li>
-      <li><a href="#section-delta">Delta Strip</a></li>
       <li><a href="#section-conflict-overview">Conflict Overview</a></li>
       <li><a href="#section-conflict-cards">Active Conflicts</a></li>
       <li><a href="#section-roster">Conflict Roster</a></li>
@@ -989,6 +959,36 @@ document.addEventListener('DOMContentLoaded', function () {
         '</li>';
     });
     document.getElementById('delta-strip').innerHTML = deltaHtml || '<li class="text-muted text-sm">No deviation data available.</li>';
+
+    /* ── Triage Strip ── */
+    if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+      AsymSections.renderTriageStrip({
+        kpis: [
+          { label: 'Active Conflicts', value: roster.length || '—', sub: 'On roster this issue' },
+          { label: 'Lead Conflict',    value: (ls.conflict || '—').split(/[\s\/\u2013]/)[0], sub: ls.conflict || '', accent: true },
+          { label: 'Issue',            value: meta.week_label || '—', sub: 'Issue ' + (meta.issue || '—') }
+        ],
+        signal: {
+          label:      'Lead Signal · SCEM',
+          title:      ls.headline || '',
+          body:       ls.summary  || '',
+          source_url: ls.source_url || d.source_url || ''
+        },
+        structural: {
+          label:    'Global Escalation Snapshot',
+          targetId: 'triage-escalation',
+          renderFn: function(id) {
+            AsymSections.renderGlobalSnapshot(d.global_escalation_snapshot, id);
+          }
+        },
+        delta: {
+          label: 'Delta Strip',
+          items: deltaItems.slice(0, 5).map(function(item) {
+            return { title: item.conflict || item.title || '', one_line: item.note || item.summary || '', source_url: item.source_url || '' };
+          })
+        }
+      }, 'triage-container');
+    }
 
     // Conflict escalation cards
     renderConflictOverview(roster);
