@@ -27,8 +27,9 @@
 (function () {
   'use strict';
 
-  /* ── Country name → ISO 3166-1 alpha-2 ──────────────────── */
+  /* ── Country name / ISO-A3 → ISO 3166-1 alpha-2 ────────── */
   var ISO_MAP = {
+    /* Full names */
     'United States': 'US', 'Hungary': 'HU', 'Serbia': 'RS',
     'India': 'IN', 'Philippines': 'PH', 'Georgia': 'GE',
     'Tunisia': 'TN', 'Nicaragua': 'NI', 'El Salvador': 'SV',
@@ -38,7 +39,23 @@
     'Bangladesh': 'BD', 'Slovakia': 'SK', 'Poland': 'PL',
     'Italy': 'IT', 'Romania': 'RO', 'South Korea': 'KR',
     'Israel': 'IL', 'Iraq': 'IQ', "Côte d'Ivoire": 'CI',
-    'Benin': 'BJ', 'United Kingdom': 'GB', 'Turkey': 'TR'
+    'Benin': 'BJ', 'United Kingdom': 'GB', 'Turkey': 'TR',
+    'Canada': 'CA', 'France': 'FR', 'Nepal': 'NP',
+    'Pakistan': 'PK', 'Guinea-Bissau': 'GW', 'Malawi': 'MW',
+    'Senegal': 'SN', 'Paraguay': 'PY', 'Moldova': 'MD',
+    'Angola': 'AO', 'Gabon': 'GA',
+    /* ISO-A3 codes (schema v2 uses these in country field) */
+    'USA': 'US', 'CAN': 'CA', 'IND': 'IN', 'PHL': 'PH',
+    'GEO': 'GE', 'PAK': 'PK', 'NPL': 'NP', 'GNB': 'GW',
+    'FRA': 'FR', 'ROU': 'RO', 'MWI': 'MW', 'SEN': 'SN',
+    'PRY': 'PY', 'MDA': 'MD', 'AGO': 'AO', 'GAB': 'GA',
+    'HUN': 'HU', 'SRB': 'RS', 'TUN': 'TN', 'NIC': 'NI',
+    'SLV': 'SV', 'VEN': 'VE', 'BOL': 'BO', 'MEX': 'MX',
+    'COL': 'CO', 'IRN': 'IR', 'TZA': 'TZ', 'UGA': 'UG',
+    'COD': 'CD', 'KAZ': 'KZ', 'BGD': 'BD', 'SVK': 'SK',
+    'POL': 'PL', 'ITA': 'IT', 'KOR': 'KR', 'ISR': 'IL',
+    'IRQ': 'IQ', 'CIV': 'CI', 'BEN': 'BJ', 'GBR': 'GB',
+    'TUR': 'TR'
   };
 
   /* ── Tier display config ─────────────────────────────────── */
@@ -114,7 +131,7 @@
     /* Flat array (schema v2) */
     if (Array.isArray(heatmap)) {
       heatmap.forEach(function (c) {
-        var iso = ISO_MAP[c.country];
+        var iso = ISO_MAP[c.country] || ISO_MAP[c.country_name];
         if (!iso) return;
         countryData[iso] = {
           country:        c.country,
