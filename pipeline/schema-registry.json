@@ -1068,59 +1068,117 @@
         "meta": {
           "required": true,
           "source": "publisher-build",
-          "synthesis_key": null
+          "synthesis_key": "_meta"
         },
         "signal": {
           "required": true,
-          "source": "carry-forward",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "lead_signal",
           "dashboard_section": "signal-block"
+        },
+        "autonomy_snapshot": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "autonomy_snapshot",
+          "dashboard_section": "autonomy-snapshot"
+        },
+        "domain_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "domain_tracker",
+          "dashboard_section": "domain-tracker"
         },
         "defence_developments": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "defence_developments",
           "dashboard_section": "defence-developments"
         },
         "hybrid_threats": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "hybrid_threats",
           "dashboard_section": "hybrid-threats"
         },
         "institutional_developments": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "institutional_developments",
           "dashboard_section": "institutional-developments"
         },
         "member_state_tracker": {
           "required": true,
-          "source": "analyst-legacy",
-          "synthesis_key": null,
+          "source": "synthesis",
+          "synthesis_key": "member_state_tracker",
           "dashboard_section": "member-state-tracker"
+        },
+        "us_eu_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "us_eu_tracker",
+          "dashboard_section": "us-eu-tracker"
+        },
+        "election_threat_assessment": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "election_threat_assessment",
+          "dashboard_section": "election-threats"
+        },
+        "lagrange_point_scores": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lagrange_point_scores",
+          "dashboard_section": "lagrange-scores"
+        },
+        "defence_spending": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "defence_spending",
+          "dashboard_section": "defence-spending"
+        },
+        "autonomy_scorecard": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "autonomy_scorecard",
+          "dashboard_section": "autonomy-scorecard"
+        },
+        "defence_programmes": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "defence_programmes",
+          "dashboard_section": "defence-programmes"
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments",
+          "dashboard_section": "key-judgments"
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft"
+        },
+        "cross_monitor_candidates": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "cross_monitor_candidates"
         },
         "cross_monitor_flags": {
           "required": true,
           "source": "publisher-build",
           "synthesis_key": null
         },
-        "weekly_brief": {
-          "required": true,
-          "source": "synthesis",
-          "synthesis_key": "weekly_brief_draft",
-          "gap": "No valid synthesis yet"
-        },
         "source_url": {
           "required": true,
           "source": "publisher-build"
         }
       },
-      "publisher_field_map": {},
-      "synthesis_gaps": [
-        "Defence developments and member state tracker not yet from synthesis — analyst-legacy"
-      ],
-      "known_issues": "ESA synthesis field names don't match dashboard expectations. See notes-for-computer.md.",
+      "publisher_field_map": {
+        "lead_signal": "signal"
+      },
+      "synthesis_gaps": [],
+      "known_issues": "Publisher now extracts lead_signal to signal. Synthesis v2.1 covers all target fields.",
       "file_paths": {
         "_note": "Canonical file locations for schema sprint and pipeline work",
         "pipeline": {
