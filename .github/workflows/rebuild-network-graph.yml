@@ -1,0 +1,55 @@
+name: Rebuild Network Graph
+
+on:
+  # Run daily at 20:00 UTC — after all publishers have completed for the day
+  schedule:
+    - cron: "0 20 * * *"
+  # Also trigger after any publisher completes
+  workflow_run:
+    workflows:
+      - "AIM Publisher — Weekly Report"
+      - "SCEM Publisher — Weekly Report"
+      - "WDM Publisher — Weekly Report"
+      - "GMM Publisher — Weekly Report"
+      - "ESA Publisher — Weekly Report"
+      - "FCW Publisher — Weekly Report"
+      - "ERM Publisher — Weekly Report"
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: rebuild-network-graph
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    name: Rebuild graph.json from live data
+    runs-on: ubuntu-latest
+    # Only run on workflow_run if the publisher succeeded
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run build_graph.py
+        run: python3 pipeline/tools/build_graph.py
+
+      - name: Commit updated graph.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add static/network/data/graph.json docs/network/data/graph.json
+          if git diff --cached --quiet; then
+            echo "No changes to graph.json"
+          else
+            git commit -m "Auto-update network graph [skip ci]"
+            git push
+          fi
