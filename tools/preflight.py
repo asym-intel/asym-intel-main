@@ -374,6 +374,78 @@ def check_monitor_completeness(r: Results):
                 r.warn(f"COMPLETENESS:{abbr}/{prompt}", "Missing")
 
 
+
+def check_frontend_patterns(r: Results):
+    """SL-08 - Validate Sprint 1 shared library usage patterns in monitor HTML."""
+    import re
+
+    monitors_html_dir = REPO_ROOT / "static" / "monitors"
+    if not monitors_html_dir.exists():
+        r.warn("FE-SL08:frontend-patterns", "static/monitors dir not found - skipping")
+        return
+
+    SEVERITY_VARS = ["--critical", "--high", "--moderate", "--positive", "--contested"]
+    html_files = list(monitors_html_dir.rglob("*.html"))
+    r.ok("FE-SL08:html-files-found", f"{len(html_files)} HTML files scanned")
+
+    badge_violations = []
+    triage_incomplete = []
+    radar_inline_css = []
+
+    for html_path in html_files:
+        try:
+            text = html_path.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            continue
+
+        rel = html_path.relative_to(REPO_ROOT)
+
+        # Rule 1: badge-confidence elements must not reference severity colour vars
+        for m in re.finditer("badge-confidence", text):
+            ctx_start = max(0, m.start() - 200)
+            ctx_end = min(len(text), m.end() + 200)
+            ctx = text[ctx_start:ctx_end]
+            for svar in SEVERITY_VARS:
+                if svar in ctx:
+                    badge_violations.append(
+                        f"{rel}: severity token {svar!r} found near badge-confidence"
+                    )
+                    break
+
+        # Rule 2: triage-strip completeness
+        if "triage-strip" in text:
+            zone_pattern = 'data-triage-zone='
+            zones = []
+            for zm in re.finditer(zone_pattern, text):
+                after = text[zm.end():zm.end() + 20].strip('"').strip("'").split('"')[0].split("'")[0]
+                zones.append(after)
+            required = {"kpis", "signal", "structural", "delta"}
+            missing = required - set(zones)
+            if missing:
+                triage_incomplete.append(f"{rel}: missing triage zones {missing}")
+
+        # Rule 3: inline radar CSS injection should be removed
+        if "asym-radar-css" in text and "createElement" in text:
+            radar_inline_css.append(str(rel))
+
+    if badge_violations:
+        for v in badge_violations:
+            r.fail("FE-SL08:badge-confidence-severity", v)
+    else:
+        r.ok("FE-SL08:badge-confidence-no-severity", "No severity vars on badge-confidence elements")
+
+    if triage_incomplete:
+        for v in triage_incomplete:
+            r.warn("FE-SL08:triage-strip-incomplete", v)
+    else:
+        r.ok("FE-SL08:triage-strip-zones", "All triage-strip elements have required zones (or none present)")
+
+    if radar_inline_css:
+        for v in radar_inline_css:
+            r.warn("FE-SL08:radar-inline-css", f"{v}: inline asym-radar-css injection found - remove (CSS in base.css)")
+    else:
+        r.ok("FE-SL08:radar-inline-css-clean", "No inline radar CSS injection found")
+
 # ─── Main ───────────────────────────────────────────────────────
 
 CHECK_GROUPS = {
@@ -386,6 +458,7 @@ CHECK_GROUPS = {
     "json": check_json_data,
     "crons": check_cron_prompts,
     "completeness": check_monitor_completeness,
+    "frontend": check_frontend_patterns,
 }
 
 
