@@ -10,8 +10,9 @@
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
   <style>
+    /* ── Existing component styles ─────────────────────────────────── */
     .indicator-table { width:100%; border-collapse:collapse; font-size:var(--text-xs); margin:var(--space-4) 0; }
-    .indicator-table th { font-size: var(--text-min); text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted); background:var(--color-bg-alt); padding:var(--space-2) var(--space-3); text-align:left; border-bottom:1px solid var(--color-border); white-space:nowrap; }
+    .indicator-table th { font-size:var(--text-min); text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted); background:var(--color-bg-alt); padding:var(--space-2) var(--space-3); text-align:left; border-bottom:1px solid var(--color-border); white-space:nowrap; }
     .indicator-table td { padding:var(--space-2) var(--space-3); border-bottom:1px solid var(--color-border-subtle); vertical-align:middle; }
     .indicator-table tr:last-child td { border-bottom:none; }
     .indicator-table tr:hover td { background:var(--color-bg-alt); }
@@ -23,7 +24,7 @@
     .level-bar__pip--positive { background:var(--positive); }
     .level-bar__pip--contested { background:var(--contested); }
     .f-flags-list { display:flex; gap:var(--space-2); flex-wrap:wrap; margin-top:var(--space-2); }
-    .f-flag-tag { display:inline-flex; align-items:center; gap:4px; background:var(--high-bg); color:var(--high); font-size: var(--text-min); font-weight:700; padding:2px 6px; border-radius:var(--radius-sm); letter-spacing:0.06em; }
+    .f-flag-tag { display:inline-flex; align-items:center; gap:4px; background:var(--high-bg); color:var(--high); font-size:var(--text-min); font-weight:700; padding:2px 6px; border-radius:var(--radius-sm); letter-spacing:0.06em; }
     .conflict-section { margin-bottom:var(--space-12); padding:var(--space-6); background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); box-shadow:var(--shadow-sm); }
     .conflict-section__header { margin-bottom:var(--space-4); padding-bottom:var(--space-4); border-bottom:1px solid var(--color-border-subtle); }
     .conflict-section__name { font-size:var(--text-xl); font-weight:700; color:var(--color-text); letter-spacing:-0.02em; margin-bottom:var(--space-1); }
@@ -33,96 +34,141 @@
     .roster-watch-list li:last-child { border-bottom:none; }
     .lead-dev-box { background:var(--monitor-accent-bg); border-left:3px solid var(--monitor-accent); padding:var(--space-3) var(--space-4); border-radius:0 var(--radius) var(--radius) 0; font-size:var(--text-sm); color:var(--color-text); margin:var(--space-3) 0; }
 
-    /* ── ROSTER WATCH STATUS BADGES ──────────────────────────────────── */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: var(--text-min);
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 3px 8px 3px 6px;
-      border-radius: 20px;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    .status-badge__icon {
-      font-size: var(--text-min);
-      line-height: 1;
-    }
-    /* Active — red */
-    .status-badge--active {
-      background: rgba(220, 38, 38, 0.1);
-      color: #dc2626;
-      border: 1px solid rgba(220, 38, 38, 0.25);
-    }
-    [data-theme="dark"] .status-badge--active {
-      background: rgba(220, 38, 38, 0.18);
-      color: #f87171;
-      border-color: rgba(220, 38, 38, 0.4);
-    }
-    /* Ceasefire — amber */
-    .status-badge--ceasefire {
-      background: rgba(217, 119, 6, 0.1);
-      color: #d97706;
-      border: 1px solid rgba(217, 119, 6, 0.25);
-    }
-    [data-theme="dark"] .status-badge--ceasefire {
-      background: rgba(217, 119, 6, 0.18);
-      color: #fbbf24;
-      border-color: rgba(217, 119, 6, 0.4);
-    }
-    /* De-escalating — green */
-    .status-badge--deescalating {
-      background: rgba(5, 150, 105, 0.1);
-      color: #059669;
-      border: 1px solid rgba(5, 150, 105, 0.25);
-    }
-    [data-theme="dark"] .status-badge--deescalating {
-      background: rgba(5, 150, 105, 0.18);
-      color: #34d399;
-      border-color: rgba(5, 150, 105, 0.4);
-    }
-    /* Monitoring / Watch — grey */
-    .status-badge--monitoring {
-      background: rgba(107, 102, 96, 0.08);
-      color: var(--color-text-muted);
-      border: 1px solid var(--color-border);
-    }
-    [data-theme="dark"] .status-badge--monitoring {
-      background: rgba(107, 102, 96, 0.15);
-      color: var(--color-text-muted);
-    }
-    /* Escalating — dark red / urgent */
-    .status-badge--escalating {
-      background: rgba(193, 68, 14, 0.1);
-      color: #c1440e;
-      border: 1px solid rgba(193, 68, 14, 0.25);
-    }
-    [data-theme="dark"] .status-badge--escalating {
-      background: rgba(193, 68, 14, 0.2);
-      color: #fb923c;
-      border-color: rgba(193, 68, 14, 0.4);
-    }
-    /* Stable */
-    .status-badge--stable {
-      background: rgba(37, 99, 235, 0.08);
-      color: #2563eb;
-      border: 1px solid rgba(37, 99, 235, 0.2);
-    }
-    [data-theme="dark"] .status-badge--stable {
-      background: rgba(37, 99, 235, 0.15);
-      color: #60a5fa;
-      border-color: rgba(37, 99, 235, 0.35);
-    }
+    /* ── Status badge ──────────────────────────────────────────────── */
+    .status-badge { display:inline-flex; align-items:center; gap:5px; font-size:var(--text-min); font-weight:700; letter-spacing:0.05em; padding:3px 8px 3px 6px; border-radius:20px; line-height:1; white-space:nowrap; }
+    .status-badge__icon { font-size:var(--text-min); line-height:1; }
+    .status-badge--active    { background:rgba(220,38,38,.1);  color:#dc2626; border:1px solid rgba(220,38,38,.25); }
+    .status-badge--ceasefire { background:rgba(217,119,6,.1);  color:#d97706; border:1px solid rgba(217,119,6,.25); }
+    .status-badge--deescalating { background:rgba(5,150,105,.1); color:#059669; border:1px solid rgba(5,150,105,.25); }
+    .status-badge--monitoring   { background:rgba(107,102,96,.08); color:var(--color-text-muted); border:1px solid var(--color-border); }
+    .status-badge--escalating   { background:rgba(193,68,14,.1);  color:#c1440e; border:1px solid rgba(193,68,14,.25); }
+    .status-badge--stable       { background:rgba(37,99,235,.08); color:#2563eb; border:1px solid rgba(37,99,235,.2); }
+    [data-theme="dark"] .status-badge--active      { background:rgba(220,38,38,.18);  color:#f87171; border-color:rgba(220,38,38,.4); }
+    [data-theme="dark"] .status-badge--ceasefire   { background:rgba(217,119,6,.18);  color:#fbbf24; border-color:rgba(217,119,6,.4); }
+    [data-theme="dark"] .status-badge--deescalating{ background:rgba(5,150,105,.18);  color:#34d399; border-color:rgba(5,150,105,.4); }
+    [data-theme="dark"] .status-badge--monitoring  { background:rgba(107,102,96,.15); color:var(--color-text-muted); }
+    [data-theme="dark"] .status-badge--escalating  { background:rgba(193,68,14,.2);   color:#fb923c; border-color:rgba(193,68,14,.4); }
+    [data-theme="dark"] .status-badge--stable      { background:rgba(37,99,235,.15);  color:#60a5fa; border-color:rgba(37,99,235,.35); }
 
-    /* Conflict section header — accent bar from trajectory */
-    .conflict-section--active { border-left: 3px solid #dc2626; }
-    .conflict-section--ceasefire { border-left: 3px solid #d97706; }
-    .conflict-section--deescalating { border-left: 3px solid #059669; }
-    .conflict-section--monitoring { border-left: 3px solid var(--color-border); }
-    .conflict-section--stable { border-left: 3px solid #2563eb; }
-    .conflict-section--escalating { border-left: 3px solid #c1440e; }
+    /* Conflict section border-left accent */
+    .conflict-section--active      { border-left:3px solid #dc2626; }
+    .conflict-section--ceasefire   { border-left:3px solid #d97706; }
+    .conflict-section--deescalating{ border-left:3px solid #059669; }
+    .conflict-section--monitoring  { border-left:3px solid var(--color-border); }
+    .conflict-section--stable      { border-left:3px solid #2563eb; }
+    .conflict-section--escalating  { border-left:3px solid #c1440e; }
+
+    /* ── NEW: Escalation alert banner ──────────────────────────────── */
+    .alert-banner { background:rgba(var(--monitor-accent-rgb,220,38,38),.07); border:1px solid rgba(var(--monitor-accent-rgb,220,38,38),.28); border-left:4px solid var(--monitor-accent); border-radius:var(--radius-md); padding:var(--space-4) var(--space-5); }
+    .alert-banner__heading { display:flex; align-items:center; gap:var(--space-2); font-size:var(--text-xs); font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--monitor-accent); margin-bottom:var(--space-3); }
+    .alert-banner__row { display:grid; grid-template-columns:minmax(120px,auto) 1fr auto auto; gap:var(--space-3); align-items:center; padding:var(--space-2) 0; border-bottom:1px solid rgba(var(--monitor-accent-rgb,220,38,38),.1); font-size:var(--text-sm); }
+    .alert-banner__row:last-child { border-bottom:none; }
+    .alert-banner__entity { font-weight:700; color:var(--color-text); }
+    .alert-banner__indicator { color:var(--color-text-secondary); }
+    .alert-banner__type { font-size:var(--text-min); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); white-space:nowrap; }
+    .alert-banner__threshold { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+    .alert-banner__threshold-label { font-size:var(--text-xs); font-weight:600; color:var(--monitor-accent); white-space:nowrap; }
+    .alert-banner__conf { font-size:var(--text-min); color:var(--color-text-muted); }
+
+    /* ── NEW: KPI snapshot row ─────────────────────────────────────── */
+    .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:var(--space-4); }
+    .kpi-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4) var(--space-5); text-align:center; }
+    .kpi-card__value { font-size:1.75rem; font-weight:800; color:var(--color-text); letter-spacing:-0.03em; line-height:1; margin-bottom:var(--space-1); }
+    .kpi-card__value--accent { color:var(--monitor-accent); }
+    .kpi-card__label { font-size:var(--text-min); font-weight:600; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-muted); }
+    .kpi-card__sub { font-size:var(--text-xs); color:var(--color-text-secondary); margin-top:var(--space-1); }
+    .snapshot-note { margin-top:var(--space-4); font-size:var(--text-sm); color:var(--color-text-secondary); line-height:1.6; padding:var(--space-3) var(--space-4); background:var(--color-bg-alt); border-radius:var(--radius); border-left:3px solid var(--color-border); }
+
+    /* ── NEW: Weekly brief card ─────────────────────────────────────── */
+    .brief-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-6); }
+    .brief-card p { font-size:var(--text-sm); color:var(--color-text-secondary); line-height:1.7; margin:0 0 var(--space-4); }
+    .brief-card p:last-child { margin-bottom:0; }
+
+    /* ── NEW: Theatre tracker cards ────────────────────────────────── */
+    .theatre-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:var(--space-5); }
+    .theatre-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-3); }
+    .theatre-card--escalating  { border-top:3px solid #c1440e; }
+    .theatre-card--active      { border-top:3px solid #dc2626; }
+    .theatre-card--stable      { border-top:3px solid #2563eb; }
+    .theatre-card--ceasefire   { border-top:3px solid #d97706; }
+    .theatre-card--deescalating{ border-top:3px solid #059669; }
+    .theatre-card--monitoring  { border-top:3px solid var(--color-border); }
+    .theatre-card__header { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-2); }
+    .theatre-card__name { font-size:var(--text-base); font-weight:700; color:var(--color-text); }
+    .theatre-card__intensity { font-size:var(--text-xs); font-weight:700; padding:2px 7px; border-radius:var(--radius-sm); background:var(--color-bg-alt); color:var(--color-text-muted); border:1px solid var(--color-border); white-space:nowrap; }
+    .theatre-card__key-dev { font-size:var(--text-sm); color:var(--color-text-secondary); line-height:1.55; }
+    .theatre-card__row { display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap; }
+    .theatre-card__delta { font-size:var(--text-min); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; }
+    .theatre-card__delta--escalating  { color:#c1440e; }
+    .theatre-card__delta--stable      { color:#2563eb; }
+    .theatre-card__delta--deescalating{ color:#059669; }
+    .theatre-card__delta--monitoring  { color:var(--color-text-muted); }
+    .theatre-card__tags { display:flex; gap:4px; flex-wrap:wrap; }
+    .theatre-card__stats { display:flex; gap:var(--space-4); font-size:var(--text-xs); color:var(--color-text-muted); }
+    .theatre-card__stats strong { color:var(--color-text); }
+    .theatre-card__footer { display:flex; justify-content:space-between; align-items:center; font-size:var(--text-xs); color:var(--color-text-muted); padding-top:var(--space-2); border-top:1px solid var(--color-border-subtle); }
+    .tag { font-size:var(--text-min); font-weight:600; padding:1px 6px; border-radius:var(--radius-sm); background:var(--color-bg-alt); color:var(--color-text-muted); border:1px solid var(--color-border); letter-spacing:0.04em; }
+    .tag--actor  { background:rgba(37,99,235,.07); color:#2563eb; border-color:rgba(37,99,235,.2); }
+    .tag--hybrid { background:rgba(107,102,96,.08); color:var(--color-text-muted); border-color:var(--color-border); }
+    .tag--warn   { background:rgba(220,38,38,.08); color:var(--monitor-accent); border-color:rgba(var(--monitor-accent-rgb,220,38,38),.25); }
+    [data-theme="dark"] .tag--actor { background:rgba(37,99,235,.15); color:#60a5fa; border-color:rgba(37,99,235,.3); }
+    [data-theme="dark"] .tag--warn  { background:rgba(220,38,38,.15); }
+
+    /* ── NEW: Indicator scoring (per-entity tables) ─────────────────── */
+    .scoring-block { margin-bottom:var(--space-8); }
+    .scoring-block__title { font-size:var(--text-sm); font-weight:700; color:var(--color-text); margin-bottom:var(--space-2); padding-bottom:var(--space-2); border-bottom:1px solid var(--color-border-subtle); }
+
+    /* ── NEW: Flag matrix (per-entity grid) ────────────────────────── */
+    .flag-matrix-entity { margin-bottom:var(--space-6); }
+    .flag-matrix-entity__title { font-size:var(--text-xs); font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-muted); margin-bottom:var(--space-3); }
+    .flag-matrix-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:var(--space-3); }
+    .flag-matrix-item { border:1px solid var(--color-border); border-radius:var(--radius); padding:var(--space-3); background:var(--color-surface); display:flex; flex-direction:column; gap:var(--space-1); }
+    .flag-matrix-item--detected { border-color:rgba(var(--monitor-accent-rgb,220,38,38),.35); background:rgba(var(--monitor-accent-rgb,220,38,38),.04); }
+    [data-theme="dark"] .flag-matrix-item--detected { background:rgba(var(--monitor-accent-rgb,220,38,38),.08); }
+    .flag-matrix-item__header { display:flex; justify-content:space-between; align-items:center; }
+    .flag-matrix-item__status { font-size:var(--text-min); font-weight:700; letter-spacing:0.06em; }
+    .flag-matrix-item__status--detected { color:var(--monitor-accent); }
+    .flag-matrix-item__status--clear    { color:var(--color-text-muted); }
+    .flag-matrix-item__name { font-size:var(--text-xs); color:var(--color-text-secondary); }
+    .flag-matrix-item__desc { font-size:var(--text-min); color:var(--color-text-muted); line-height:1.5; }
+    .flag-matrix-item__link { font-size:var(--text-min); color:var(--monitor-accent); text-decoration:none; }
+    .flag-matrix-item__link:hover { text-decoration:underline; }
+
+    /* ── NEW: Reference comparison table ───────────────────────────── */
+    .ref-meta { font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-4); display:flex; gap:var(--space-4); flex-wrap:wrap; }
+    .ref-meta a { color:var(--color-text-muted); }
+    .ref-meta a:hover { color:var(--color-text); }
+    .ref-table-label { font-size:var(--text-xs); font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-muted); margin:var(--space-5) 0 var(--space-3); }
+    .ref-table-label:first-of-type { margin-top:0; }
+    .ref-table { width:100%; border-collapse:collapse; font-size:var(--text-xs); }
+    .ref-table th { font-size:var(--text-min); text-transform:uppercase; letter-spacing:0.07em; color:var(--color-text-muted); background:var(--color-bg-alt); padding:var(--space-2) var(--space-3); text-align:left; border-bottom:1px solid var(--color-border); white-space:nowrap; }
+    .ref-table td { padding:var(--space-2) var(--space-3); border-bottom:1px solid var(--color-border-subtle); vertical-align:middle; }
+    .ref-table tr:last-child td { border-bottom:none; }
+    .ref-table tr:hover td { background:var(--color-bg-alt); }
+    .ref-table tr.ref-table__row--tracked td { background:rgba(var(--monitor-accent-rgb,220,38,38),.04); }
+    [data-theme="dark"] .ref-table tr.ref-table__row--tracked td { background:rgba(var(--monitor-accent-rgb,220,38,38),.08); }
+    .score-bar { display:flex; align-items:center; gap:6px; }
+    .score-bar__track { width:60px; height:6px; border-radius:3px; background:var(--color-border); flex-shrink:0; }
+    .score-bar__fill { height:100%; border-radius:3px; background:var(--monitor-accent); }
+    .score-bar__num { color:var(--color-text-muted); font-size:var(--text-min); }
+    .tracked-badge { font-size:var(--text-min); font-weight:700; letter-spacing:0.06em; padding:1px 6px; border-radius:var(--radius-sm); background:rgba(var(--monitor-accent-rgb,220,38,38),.1); color:var(--monitor-accent); border:1px solid rgba(var(--monitor-accent-rgb,220,38,38),.25); }
+
+    /* ── NEW: Key judgments cards ───────────────────────────────────── */
+    .kj-list { display:flex; flex-direction:column; gap:var(--space-4); }
+    .kj-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4) var(--space-5); display:grid; grid-template-columns:auto 1fr; gap:var(--space-3) var(--space-4); align-items:start; }
+    .kj-card__id { font-size:var(--text-min); font-weight:700; font-family:monospace; color:var(--color-text-muted); padding-top:2px; white-space:nowrap; }
+    .kj-card__body { display:flex; flex-direction:column; gap:var(--space-2); }
+    .kj-card__text { font-size:var(--text-sm); font-weight:600; color:var(--color-text); line-height:1.55; }
+    .kj-card__meta { display:flex; gap:var(--space-3); flex-wrap:wrap; align-items:center; }
+    .kj-card__context { font-size:var(--text-xs); color:var(--color-text-muted); }
+
+    /* ── NEW: Cross-monitor candidate cards ─────────────────────────── */
+    .cmc-list { display:flex; flex-direction:column; gap:var(--space-3); }
+    .cmc-item { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4) var(--space-5); display:flex; gap:var(--space-4); align-items:flex-start; }
+    .cmc-item__target { font-size:var(--text-min); font-weight:700; font-family:monospace; color:var(--color-text-muted); white-space:nowrap; padding-top:2px; min-width:130px; }
+    .cmc-item__body { flex:1; display:flex; flex-direction:column; gap:var(--space-1); }
+    .cmc-item__signal { font-size:var(--text-sm); color:var(--color-text); line-height:1.5; }
+    .cmc-item__meta { display:flex; gap:var(--space-3); font-size:var(--text-xs); color:var(--color-text-muted); flex-wrap:wrap; }
   </style>
 </head>
 
@@ -143,12 +189,42 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
+    <!-- 1. Header -->
     <section class="module-section" id="section-header">
       <div class="page-header" id="report-header">
         <div class="loading-state">Loading report…</div>
       </div>
     </section>
 
+    <!-- 2. Escalation Indicators alert banner (hidden until data confirms entries) -->
+    <section class="module-section" id="section-escalation-indicators" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Escalation Indicators</div>
+      </div>
+      <div id="escalation-indicators-content"></div>
+    </section>
+
+    <!-- 3. Global Escalation Snapshot -->
+    <section class="module-section" id="section-global-snapshot">
+      <div class="module-header">
+        <div class="module-title">Global Escalation Snapshot</div>
+      </div>
+      <div id="global-snapshot-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 4. Weekly Brief -->
+    <section class="module-section" id="section-weekly-brief">
+      <div class="module-header">
+        <div class="module-title">Weekly Brief</div>
+      </div>
+      <div id="weekly-brief-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 5. Lead Signal (existing) -->
     <section class="module-section" id="section-lead-signal">
       <div class="module-header">
         <div class="module-title">Lead Signal</div>
@@ -158,6 +234,27 @@
       </div>
     </section>
 
+    <!-- 6. Theatre Tracker -->
+    <section class="module-section" id="section-theatre-tracker">
+      <div class="module-header">
+        <div class="module-title">Theatre Tracker</div>
+      </div>
+      <div id="theatre-tracker-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 7. Indicator Scoring -->
+    <section class="module-section" id="section-indicator-scoring">
+      <div class="module-header">
+        <div class="module-title">Indicator Scoring</div>
+      </div>
+      <div id="indicator-scoring-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 8. Conflict Roster (existing) -->
     <section class="module-section" id="section-conflicts">
       <div class="module-header">
         <div class="module-title">Conflict Roster</div>
@@ -167,6 +264,47 @@
       </div>
     </section>
 
+    <!-- 9. F-Flag Matrix -->
+    <section class="module-section" id="section-fflag-matrix">
+      <div class="module-header">
+        <div class="module-title">F-Flag Matrix</div>
+      </div>
+      <div id="fflag-matrix-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 10. ACLED Reference -->
+    <section class="module-section" id="section-acled-reference">
+      <div class="module-header">
+        <div class="module-title">ACLED Reference</div>
+      </div>
+      <div id="acled-reference-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 11. Key Judgments -->
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-title">Key Judgments</div>
+      </div>
+      <div id="key-judgments-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 12. Cross-Monitor Candidates -->
+    <section class="module-section" id="section-cross-monitor-candidates">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Candidates</div>
+      </div>
+      <div id="cross-monitor-candidates-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- 13. Roster Watch (existing) -->
     <section class="module-section" id="section-roster-watch">
       <div class="module-header">
         <div class="module-title">Roster Watch</div>
@@ -176,6 +314,7 @@
       </div>
     </section>
 
+    <!-- 14. Cross-Monitor Flags (existing) -->
     <section class="module-section" id="section-cross-monitor">
       <div class="module-header">
         <div class="module-title">Cross-Monitor Flags</div>
@@ -190,11 +329,21 @@
   <nav class="monitor-sidebar" aria-label="Page sections" id="page-sidebar">
     <div class="sidebar-nav__title">Sections</div>
     <ul id="sidebar-links">
+      <!-- Populated by renderReport() -->
       <li><a href="#section-header">Issue Header</a></li>
+      <li><a href="#section-escalation-indicators">Escalation Indicators</a></li>
+      <li><a href="#section-global-snapshot">Global Snapshot</a></li>
+      <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-lead-signal">Lead Signal</a></li>
+      <li><a href="#section-theatre-tracker">Theatre Tracker</a></li>
+      <li><a href="#section-indicator-scoring">Indicator Scoring</a></li>
       <li><a href="#section-conflicts">Conflicts</a></li>
+      <li><a href="#section-fflag-matrix">F-Flag Matrix</a></li>
+      <li><a href="#section-acled-reference">ACLED Reference</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-cross-monitor-candidates">Cross-Monitor Candidates</a></li>
       <li><a href="#section-roster-watch">Roster Watch</a></li>
-      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
     </ul>
   </nav>
 </div>
@@ -207,8 +356,14 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(renderReport)
     .catch(function (e) {
-      document.getElementById('report-header').innerHTML = '<div class="error-state">Failed to load report: ' + e.message + '</div>';
+      document.getElementById('report-header').innerHTML =
+        '<div class="error-state">Failed to load report: ' + e.message + '</div>';
     });
+
+  /* ═══════════════════════════════════════════════════════════════════
+     SCEM ORCHESTRATOR — only SCEM-specific logic lives here.
+     All render functions below are monitor-agnostic.
+  ═══════════════════════════════════════════════════════════════════ */
 
   function renderReport(d) {
     var meta   = d.meta   || {};
@@ -217,9 +372,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var rw     = d.roster_watch || {};
     var cmf    = d.cross_monitor_flags || {};
 
-    // Header
+    // ── Header ───────────────────────────────────────────────────────
     document.getElementById('report-header').innerHTML =
-      '<div class="page-header__eyebrow">Issue ' + (meta.issue||'—') + ' · Vol ' + (meta.volume||'—') + ' · ' + (meta.week_label||'') + '</div>' +
+      '<div class="page-header__eyebrow">Issue ' + (meta.issue||'—') + ' · Vol ' +
+        (meta.volume||'—') + ' · ' + (meta.week_label||'') + '</div>' +
       '<h1 class="page-header__title">Strategic Conflict &amp; Escalation Monitor</h1>' +
       '<div class="page-header__meta">' +
         '<span>Published ' + formatDate(meta.published) + '</span>' +
@@ -227,41 +383,49 @@ document.addEventListener('DOMContentLoaded', function () {
         '<span>' + escHtml(meta.baseline_status_note||'') + '</span>' +
       '</div>';
 
-    // Lead signal
+    // ── Lead signal ──────────────────────────────────────────────────
     document.getElementById('lead-signal-full').innerHTML =
       '<div class="signal-block">' +
         '<div class="signal-block__label">Lead Signal — ' + escHtml(ls.conflict||'') + '</div>' +
-        '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' + escHtml(ls.headline||'') + '</h2>' +
-        '<p style="margin-bottom:var(--space-2)"><strong style="opacity:0.85">Indicator:</strong> ' + escHtml(ls.indicator||'') + ' · <strong style="opacity:0.85">Deviation:</strong> ' + escHtml(ls.deviation||'') + '</p>' +
+        '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' +
+          escHtml(ls.headline||'') + '</h2>' +
+        '<p style="margin-bottom:var(--space-2)"><strong style="opacity:0.85">Indicator:</strong> ' +
+          escHtml(ls.indicator||'') + ' · <strong style="opacity:0.85">Deviation:</strong> ' +
+          escHtml(ls.deviation||'') + '</p>' +
         '<p>' + escHtml(ls.summary||'') + '</p>' +
-        (ls.source_url ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' + escHtml(ls.source_url) + '" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dashed rgba(255,255,255,0.5)">Primary source →</a></p>' : '') +
+        (ls.source_url
+          ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' +
+              escHtml(ls.source_url) +
+              '" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dashed rgba(255,255,255,0.5)">Primary source →</a></p>'
+          : '') +
       '</div>';
 
-    // Module jump strip
-    var stripHtml = '';
+    // ── Sidebar: inject per-conflict sub-links after "Conflicts" ─────
+    var conflictSubLinks = '';
     roster.forEach(function (c) {
       var id = conflictId(c.conflict);
-      var short = c.conflict.split(/[\s\/–]/)[0];
-      stripHtml += '<a href="#conflict-' + id + '">' + escHtml(short) + '</a>';
+      conflictSubLinks +=
+        '<li style="padding-left:var(--space-2)"><a href="#conflict-' + id +
+        '" style="font-size:var(--text-xs)">' + escHtml(c.conflict) + '</a></li>';
     });
-
-    // Sidebar links — add individual conflict links
-    var sidebarLinks = document.getElementById('sidebar-links');
-    var extraLinks = '';
-    roster.forEach(function (c) {
-      var id = conflictId(c.conflict);
-      extraLinks += '<li style="padding-left:var(--space-2)"><a href="#conflict-' + id + '" style="font-size:var(--text-xs)">' + escHtml(c.conflict) + '</a></li>';
-    });
-    // Insert before roster-watch
-    sidebarLinks.innerHTML =
+    document.getElementById('sidebar-links').innerHTML =
       '<li><a href="#section-header">Issue Header</a></li>' +
+      '<li><a href="#section-escalation-indicators">Escalation Indicators</a></li>' +
+      '<li><a href="#section-global-snapshot">Global Snapshot</a></li>' +
+      '<li><a href="#section-weekly-brief">Weekly Brief</a></li>' +
       '<li><a href="#section-lead-signal">Lead Signal</a></li>' +
+      '<li><a href="#section-theatre-tracker">Theatre Tracker</a></li>' +
+      '<li><a href="#section-indicator-scoring">Indicator Scoring</a></li>' +
       '<li><a href="#section-conflicts">Conflicts</a></li>' +
-      extraLinks +
+      conflictSubLinks +
+      '<li><a href="#section-fflag-matrix">F-Flag Matrix</a></li>' +
+      '<li><a href="#section-acled-reference">ACLED Reference</a></li>' +
+      '<li><a href="#section-key-judgments">Key Judgments</a></li>' +
+      '<li><a href="#section-cross-monitor-candidates">Cross-Monitor Candidates</a></li>' +
       '<li><a href="#section-roster-watch">Roster Watch</a></li>' +
-      '<li><a href="#section-cross-monitor">Cross-Monitor</a></li>';
+      '<li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>';
 
-    // Conflict sections
+    // ── Conflict Roster ──────────────────────────────────────────────
     var conflictsHtml = '';
     roster.forEach(function (c) {
       var id = conflictId(c.conflict);
@@ -269,87 +433,81 @@ document.addEventListener('DOMContentLoaded', function () {
       var inds  = c.indicators || {};
       var worst = getWorstBand(inds);
       var rowClass = bandToRowClass(worst.band);
-
-      // Derive status class for section border and badge
-      var statusText = c.status || c.trajectory || 'Active';
+      var statusText  = c.status || c.trajectory || 'Active';
       var statusClass = deriveStatusClass(statusText);
       var statusBadge = buildStatusBadge(statusText, statusClass);
-      var trajectoryBadge = c.trajectory ? buildStatusBadge(c.trajectory, deriveStatusClass(c.trajectory)) : '';
+      var trajectoryBadge = c.trajectory
+        ? buildStatusBadge(c.trajectory, deriveStatusClass(c.trajectory))
+        : '';
 
       conflictsHtml +=
-        '<div class="conflict-section module-section conflict-section--' + statusClass + '" id="conflict-' + id + '">' +
+        '<div class="conflict-section module-section conflict-section--' + statusClass +
+          '" id="conflict-' + id + '">' +
           '<div class="conflict-section__header">' +
             '<div class="conflict-section__name">' + escHtml(c.conflict) + '</div>' +
             '<div class="conflict-section__meta">' +
               '<span>' + escHtml(c.theatre) + '</span>' +
               '<span>' + statusBadge + '</span>' +
-              (c.trajectory && c.trajectory !== statusText ? '<span>' + trajectoryBadge + '</span>' : '') +
-              '<span><span class="severity-badge severity-badge--' + rowClass + '">' + escHtml(worst.band||'') + '</span></span>' +
+              (c.trajectory && c.trajectory !== statusText
+                ? '<span>' + trajectoryBadge + '</span>' : '') +
+              '<span><span class="severity-badge severity-badge--' + rowClass + '">' +
+                escHtml(worst.band||'') + '</span></span>' +
               '<span>' + escHtml(c.baseline_status||'Contested') + '</span>' +
             '</div>' +
           '</div>' +
           '<table class="indicator-table">' +
-            '<thead><tr><th>Indicator</th><th>Level</th><th>Baseline</th><th>Deviation</th><th>Band</th><th>Confidence</th><th>Note</th></tr></thead>' +
+            '<thead><tr><th>Indicator</th><th>Level</th><th>Baseline</th>' +
+              '<th>Deviation</th><th>Band</th><th>Confidence</th><th>Note</th></tr></thead>' +
             '<tbody>' + renderIndicatorRows(inds) + '</tbody>' +
           '</table>' +
-          (flags.length ? '<div style="margin-top:var(--space-3)"><div class="section-label">F-Flags</div><div class="f-flags-list">' + renderFFlags(flags) + '</div></div>' : '') +
-          (c.lead_development ? '<div class="lead-dev-box"><strong>Lead Development:</strong> ' + escHtml(c.lead_development) + '</div>' : '') +
-          (c.summary ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.65;margin-top:var(--space-3)">' + escHtml(c.summary) + '</p>' : '') +
-          (c.source_url ? '<p style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Primary source →</a></p>' : '') +
+          (flags.length
+            ? '<div style="margin-top:var(--space-3)"><div class="section-label">F-Flags</div>' +
+                '<div class="f-flags-list">' + renderFFlags(flags) + '</div></div>'
+            : '') +
+          (c.lead_development
+            ? '<div class="lead-dev-box"><strong>Lead Development:</strong> ' +
+                escHtml(c.lead_development) + '</div>'
+            : '') +
+          (c.summary
+            ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.65;' +
+                'margin-top:var(--space-3)">' + escHtml(c.summary) + '</p>'
+            : '') +
+          (c.source_url
+            ? '<p style="margin-top:var(--space-3)"><a class="source-link" href="' +
+                escHtml(c.source_url) + '" target="_blank" rel="noopener">Primary source →</a></p>'
+            : '') +
         '</div>';
     });
     document.getElementById('conflict-sections').innerHTML = conflictsHtml;
 
-    // Roster Watch
-    var rwHtml = '';
-    var approaching = rw.approaching_inclusion || [];
-    var retiring    = rw.approaching_retirement || [];
-    if (approaching.length) {
-      rwHtml += '<div class="section-label">Approaching Inclusion</div>' +
-        approaching.map(function(r) {
-          if (typeof r === 'string') return '<div class="intel-item" style="margin-bottom:var(--space-3)"><div class="intel-item__summary">' + escHtml(r) + '</div></div>';
-          var criteria = (r.criteria_met||[]).map(function(c){ return '<span class="severity-badge severity-badge--moderate" style="margin-right:4px">'+escHtml(c)+'</span>'; }).join('');
-          var wStatus = buildStatusBadge(r.status||'Watch', 'monitoring');
-          return '<div class="intel-item" style="margin-bottom:var(--space-3)">' +
-            '<div class="intel-item__header">' +
-              '<div class="intel-item__meta">' +
-                '<div class="intel-item__country">' + escHtml(r.theatre||'') + '</div>' +
-                '<div class="intel-item__headline">' + escHtml(r.conflict||'') + '</div>' +
-              '</div>' +
-              wStatus +
-            '</div>' +
-            (r.note ? '<div class="intel-item__summary">' + escHtml(r.note) + '</div>' : '') +
-            (criteria ? '<div class="intel-item__footer">' + criteria + '</div>' : '') +
-          '</div>';
-        }).join('');
+    // ── Call all new generic render functions (via shared AsymSections library) ──
+    if (window.AsymSections) {
+      AsymSections.renderEscalationAlerts(d.escalation_indicators || [], 'escalation-indicators-content',
+        document.getElementById('section-escalation-indicators'));
+      AsymSections.renderGlobalSnapshot(d.global_escalation_snapshot || {}, 'global-snapshot-content');
+      AsymSections.renderWeeklyBrief(d.weekly_brief || '', 'weekly-brief-content');
+      AsymSections.renderTheatreTracker(d.theatre_tracker || [], 'theatre-tracker-content');
+      AsymSections.renderIndicatorScoring(d.indicator_scoring || [], 'indicator-scoring-content');
+      AsymSections.renderFlagMatrix(d.f_flag_matrix || [], 'fflag-matrix-content');
+      AsymSections.renderACLEDReference(d.acled_reference || {}, 'acled-reference-content');
+      AsymSections.renderKeyJudgments(d.key_judgments || [], 'key-judgments-content');
+      AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates || [],
+        'cross-monitor-candidates-content');
     }
-    if (retiring.length) {
-      rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div>' +
-        retiring.map(function(r) {
-          if (typeof r === 'string') return '<div class="intel-item" style="margin-bottom:var(--space-3)"><div class="intel-item__summary">' + escHtml(r) + '</div></div>';
-          return '<div class="intel-item" style="margin-bottom:var(--space-3)">' +
-            '<div class="intel-item__header"><div class="intel-item__meta">' +
-              '<div class="intel-item__country">' + escHtml(r.theatre||'') + '</div>' +
-              '<div class="intel-item__headline">' + escHtml(r.conflict||'') + '</div>' +
-            '</div></div>' +
-            (r.note ? '<div class="intel-item__summary">' + escHtml(r.note) + '</div>' : '') +
-          '</div>';
-        }).join('');
-    }
-    if (!approaching.length && !retiring.length) {
-      rwHtml = '<p class="text-muted text-sm">No roster changes signalled this week.</p>';
-    }
-    document.getElementById('roster-watch').innerHTML = rwHtml;
 
-    // Cross-monitor flags
+    // ── Existing render calls ────────────────────────────────────────
     renderCrossMonitor(cmf, 'cross-monitor');
-  renderRosterWatch(rw, 'roster-watch');
+    renderRosterWatch(rw, 'roster-watch');
   }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     EXISTING HELPERS — unchanged from original
+  ═══════════════════════════════════════════════════════════════════ */
 
   function renderRosterWatch(rw, targetId) {
     var el = document.getElementById(targetId);
     if (!el) return;
-    var inc = (rw && rw.approaching_inclusion) ? rw.approaching_inclusion : [];
+    var inc = (rw && rw.approaching_inclusion)  ? rw.approaching_inclusion  : [];
     var ret = (rw && rw.approaching_retirement) ? rw.approaching_retirement : [];
     if (!inc.length && !ret.length) {
       el.innerHTML = '<p class="text-muted text-sm">No roster changes pending this issue.</p>';
@@ -357,58 +515,63 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     var html = '';
     if (inc.length) {
-      html += '<p style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:color-mix(in srgb,var(--monitor-accent) 65%,#000);margin-bottom:var(--space-2)">Approaching Inclusion</p>';
-      html += '<ul class="roster-watch-list">';
-      inc.forEach(function(item) {
-        html += '<li style="padding:var(--space-3) 0;border-bottom:1px solid var(--border)">';
-        html += '<div style="font-weight:600;margin-bottom:2px">' + escHtml(item.conflict || '') + '</div>';
-        html += '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:4px">' + escHtml(item.theatre || '') + '</div>';
+      html += '<p style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;' +
+        'letter-spacing:.05em;color:color-mix(in srgb,var(--monitor-accent) 65%,#000);' +
+        'margin-bottom:var(--space-2)">Approaching Inclusion</p>' +
+        '<ul class="roster-watch-list">';
+      inc.forEach(function (item) {
+        html += '<li style="padding:var(--space-3) 0;border-bottom:1px solid var(--border)">' +
+          '<div style="font-weight:600;margin-bottom:2px">' + escHtml(item.conflict || '') + '</div>' +
+          '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:4px">' +
+            escHtml(item.theatre || '') + '</div>';
         if (item.criteria_met && item.criteria_met.length) {
           html += '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px">';
-          item.criteria_met.forEach(function(c) {
-            html += '<span style="font-size:var(--text-xs);background:var(--monitor-accent-bg);color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:1px 6px;border-radius:3px">' + escHtml(c) + '</span>';
+          item.criteria_met.forEach(function (c) {
+            html += '<span style="font-size:var(--text-xs);background:var(--monitor-accent-bg);' +
+              'color:color-mix(in srgb,var(--monitor-accent) 65%,#000);padding:1px 6px;' +
+              'border-radius:3px">' + escHtml(c) + '</span>';
           });
           html += '</div>';
         }
-        html += '<div style="font-size:var(--text-sm)">' + escHtml(item.note || '') + '</div>';
-        html += '</li>';
+        html += '<div style="font-size:var(--text-sm)">' + escHtml(item.note || '') + '</div></li>';
       });
       html += '</ul>';
     }
     if (ret.length) {
-      html += '<p style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:var(--space-4) 0 var(--space-2)">Approaching Retirement</p>';
-      html += '<ul class="roster-watch-list">';
-      ret.forEach(function(item) {
-        html += '<li style="padding:var(--space-3) 0;border-bottom:1px solid var(--border)">';
-        html += '<div style="font-weight:600;margin-bottom:2px">' + escHtml(item.conflict || '') + '</div>';
-        html += '<div style="font-size:var(--text-sm);color:var(--text-muted)">' + escHtml(item.note || '') + '</div>';
-        html += '</li>';
+      html += '<p style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;' +
+        'letter-spacing:.05em;color:var(--text-muted);margin:var(--space-4) 0 var(--space-2)">' +
+        'Approaching Retirement</p>' +
+        '<ul class="roster-watch-list">';
+      ret.forEach(function (item) {
+        html += '<li style="padding:var(--space-3) 0;border-bottom:1px solid var(--border)">' +
+          '<div style="font-weight:600;margin-bottom:2px">' + escHtml(item.conflict || '') + '</div>' +
+          '<div style="font-size:var(--text-sm);color:var(--text-muted)">' +
+            escHtml(item.note || '') + '</div></li>';
       });
       html += '</ul>';
     }
     el.innerHTML = html;
   }
 
-  /* ── STATUS BADGE HELPERS ─────────────────────────────────────────── */
   function deriveStatusClass(text) {
     var t = (text || '').toLowerCase();
-    if (t.indexOf('ceasefire') >= 0) return 'ceasefire';
-    if (t.indexOf('de-escal') >= 0 || t.indexOf('deescal') >= 0) return 'deescalating';
-    if (t.indexOf('watch') >= 0 || t.indexOf('monitor') >= 0) return 'monitoring';
-    if (t.indexOf('escal') >= 0) return 'escalating';
-    if (t.indexOf('stable') >= 0) return 'stable';
-    if (t.indexOf('active') >= 0) return 'active';
+    if (t.indexOf('ceasefire')  >= 0) return 'ceasefire';
+    if (t.indexOf('de-escal')   >= 0 || t.indexOf('deescal') >= 0) return 'deescalating';
+    if (t.indexOf('watch')      >= 0 || t.indexOf('monitor') >= 0) return 'monitoring';
+    if (t.indexOf('escal')      >= 0) return 'escalating';
+    if (t.indexOf('stable')     >= 0) return 'stable';
+    if (t.indexOf('active')     >= 0) return 'active';
     return 'monitoring';
   }
 
   function buildStatusBadge(text, cls) {
     var icons = {
-      active:       '●',
-      ceasefire:    '⏸',
-      deescalating: '↓',
-      monitoring:   '◎',
-      escalating:   '↑',
-      stable:       '→'
+      active:        '●',
+      ceasefire:     '⏸',
+      deescalating:  '↓',
+      monitoring:    '◎',
+      escalating:    '↑',
+      stable:        '→'
     };
     var icon = icons[cls] || '◎';
     return '<span class="status-badge status-badge--' + cls + '">' +
@@ -418,42 +581,47 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function renderIndicatorRows(inds) {
-    var INDICATOR_NAMES = {
-      I1_rhetoric: 'I1 · Rhetoric', I2_military_posture: 'I2 · Military Posture',
-      I3_nuclear_strategic: 'I3 · Nuclear/Strategic', I4_economic_warfare: 'I4 · Economic Warfare',
-      I5_diplomatic: 'I5 · Diplomatic', I6_displacement: 'I6 · Displacement'
-    };
     var html = '';
     Object.keys(inds).forEach(function (k) {
       var ind = inds[k];
-      var name = INDICATOR_NAMES[k] || k;
       var bandClass = bandToRowClass(ind.band);
       var pips = '';
       for (var i = 1; i <= 5; i++) {
-        var filled = i <= (ind.level||0);
-        pips += '<div class="level-bar__pip' + (filled ? ' level-bar__pip--' + bandClass : '') + '"></div>';
+        pips += '<div class="level-bar__pip' +
+          (i <= (ind.level || 0) ? ' level-bar__pip--' + bandClass : '') +
+        '"></div>';
       }
-      var dev = ind.deviation || 0;
+      var dev    = ind.deviation || 0;
       var devStr = dev > 0 ? '+' + dev : String(dev);
       html +=
         '<tr>' +
-          '<td><strong>' + escHtml(name) + '</strong></td>' +
-          '<td><div class="level-bar">' + pips + '</div><span style="font-size: var(--text-min);margin-left:4px;color:var(--color-text-muted)">' + (ind.level||0) + '/5</span></td>' +
-          '<td>' + (ind.baseline||'—') + '</td>' +
-          '<td><strong style="color:' + (dev > 0 ? 'var(--critical)' : dev < 0 ? 'var(--positive)' : 'var(--color-text-muted)') + '">' + devStr + '</strong></td>' +
-          '<td><span class="severity-badge severity-badge--' + bandClass + '">' + escHtml(ind.band||'') + '</span></td>' +
-          '<td>' + escHtml(ind.confidence||'') + '</td>' +
-          '<td style="max-width:260px;white-space:normal;font-size: var(--text-min);color:var(--color-text-secondary)">' + escHtml(ind.note||'') + '</td>' +
+          '<td><strong>' + escHtml(k) + '</strong></td>' +
+          '<td><div class="level-bar">' + pips + '</div>' +
+            '<span style="font-size:var(--text-min);margin-left:4px;color:var(--color-text-muted)">' +
+              (ind.level || 0) + '/5</span></td>' +
+          '<td>' + (ind.baseline || '—') + '</td>' +
+          '<td><strong style="color:' +
+            (dev > 0 ? 'var(--critical)' : dev < 0 ? 'var(--positive)' : 'var(--color-text-muted)') +
+            '">' + devStr + '</strong></td>' +
+          '<td><span class="severity-badge severity-badge--' + bandClass + '">' +
+            escHtml(ind.band || '') + '</span></td>' +
+          '<td>' + escHtml(ind.confidence || '') + '</td>' +
+          '<td style="max-width:260px;white-space:normal;font-size:var(--text-min);' +
+            'color:var(--color-text-secondary)">' + escHtml(ind.note || '') + '</td>' +
         '</tr>';
     });
     return html;
   }
 
   function renderFFlags(flags) {
-    var F_LABELS = { F1:'Single source', F2:'Adjacent escalation', F3:'Unverified', F4:'State media only' };
+    var F_LABELS = {
+      F1: 'Single source', F2: 'Adjacent escalation',
+      F3: 'Unverified',    F4: 'State media only'
+    };
     return flags.map(function (f) {
       var label = F_LABELS[f.flag] || f.flag;
-      return '<span class="f-flag-tag" title="' + escHtml(f.detail||'') + '">' + escHtml(f.flag) + ' · ' + escHtml(label) + '</span>';
+      return '<span class="f-flag-tag" title="' + escHtml(f.detail || '') + '">' +
+        escHtml(f.flag) + ' · ' + escHtml(label) + '</span>';
     }).join('');
   }
 
@@ -465,17 +633,24 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     var html = '<div class="cross-monitor-panel">' +
-      '<div class="cross-monitor-panel__title">Cross-Monitor Flags · Updated ' + escHtml(cmf.updated||'') + '</div>';
+      '<div class="cross-monitor-panel__title">Cross-Monitor Flags · Updated ' +
+        escHtml(cmf.updated || '') + '</div>';
     flags.forEach(function (flag) {
       html +=
         '<div class="cms-flag">' +
           '<div class="cms-flag__header">' +
-            '<div class="cms-flag__id">' + escHtml(flag.flag_id||'') + '</div>' +
-            '<span class="severity-badge severity-badge--' + bandToRowClass(flag.severity||'moderate') + '">' + escHtml(flag.severity||'') + '</span>' +
+            '<div class="cms-flag__id">' + escHtml(flag.flag_id || '') + '</div>' +
+            '<span class="severity-badge severity-badge--' +
+              bandToRowClass(flag.severity || 'moderate') + '">' +
+              escHtml(flag.severity || '') + '</span>' +
           '</div>' +
-          '<div class="cms-flag__title">' + escHtml(flag.title||flag.signal||'') + '</div>' +
-          '<div class="cms-flag__monitors">' + escHtml(flag.monitor || (flag.monitors||[]).join(', ') || '') + (flag.conflict ? ' · ' + escHtml(flag.conflict) : '') + '</div>' +
-          '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(flag.summary||flag.detail||'') + '</div>' +
+          '<div class="cms-flag__title">' + escHtml(flag.title || flag.signal || '') + '</div>' +
+          '<div class="cms-flag__monitors">' +
+            escHtml(flag.monitor || (flag.monitors || []).join(', ') || '') +
+            (flag.conflict ? ' · ' + escHtml(flag.conflict) : '') +
+          '</div>' +
+          '<div class="cms-flag__body cms-flag__body--collapsed">' +
+            escHtml(flag.summary || flag.detail || '') + '</div>' +
           '<span class="cms-read-more">Read more →</span>' +
         '</div>';
     });
@@ -487,19 +662,24 @@ document.addEventListener('DOMContentLoaded', function () {
   function getWorstBand(inds) {
     var worst = { band: 'CONTESTED' };
     Object.values(inds).forEach(function (ind) {
-      var b = (ind.band||'').toUpperCase();
-      if (b === 'RED' || b === 'ANOMALOUS') worst = { band: ind.band };
-      else if ((b === 'AMBER' || b === 'ELEVATED') && worst.band.toUpperCase() !== 'RED' && worst.band.toUpperCase() !== 'ANOMALOUS') worst = { band: ind.band };
+      var b = (ind.band || '').toUpperCase();
+      if (b === 'RED' || b === 'ANOMALOUS') {
+        worst = { band: ind.band };
+      } else if ((b === 'AMBER' || b === 'ELEVATED') &&
+                 worst.band.toUpperCase() !== 'RED' &&
+                 worst.band.toUpperCase() !== 'ANOMALOUS') {
+        worst = { band: ind.band };
+      }
     });
     return worst;
   }
 
   function bandToRowClass(band) {
-    var b = (band||'').toUpperCase();
-    if (b === 'RED' || b === 'ANOMALOUS') return 'critical';
-    if (b === 'AMBER' || b === 'ELEVATED') return 'high';
-    if (b === 'CONTESTED') return 'moderate';
-    if (b === 'GREEN' || b === 'NORMAL') return 'positive';
+    var b = (band || '').toUpperCase();
+    if (b === 'RED'       || b === 'ANOMALOUS') return 'critical';
+    if (b === 'AMBER'     || b === 'ELEVATED')  return 'high';
+    if (b === 'CONTESTED')                      return 'moderate';
+    if (b === 'GREEN'     || b === 'NORMAL')    return 'positive';
     return 'moderate';
   }
 
@@ -509,12 +689,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function formatDate(iso) {
     if (!iso) return '—';
-    try { return new Date(iso).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}); }
-    catch(e) { return iso; }
+    try {
+      return new Date(iso).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+    } catch (e) { return iso; }
   }
 
   function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
   }
 });
 </script>
