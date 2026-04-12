@@ -558,22 +558,10 @@ document.addEventListener('DOMContentLoaded', function () {
       var boundaries = m02.boundaries || [];
       var tipping    = m02.tipping_systems || [];
 
-      // Page header
-      document.getElementById('page-title').textContent = 'ERM — ' + (meta.week_label || '');
-      document.getElementById('page-meta').innerHTML =
-        '<span>Issue ' + (meta.issue || '—') + ' · Vol ' + (meta.volume || '—') + '</span>' +
-        '<span>Published ' + formatDate(meta.published) + '</span>';
-
-      // KPIs
+      /* Header + KPIs — fed via triage strip below */
       var transgressed = boundaries.filter(function (b) { return b.status === 'Transgressed'; }).length;
-      document.getElementById('kpi-transgressed').textContent = transgressed;
-      document.getElementById('kpi-tipping').textContent = tipping.length;
-      document.getElementById('kpi-tipping-sub').textContent = tipping.length + ' active tipping system' + (tipping.length === 1 ? '' : 's');
       var signalTitle = signal.title || '—';
       var signalShort = signalTitle.split(' ').slice(0, 4).join(' ') + (signalTitle.split(' ').length > 4 ? '…' : '');
-      document.getElementById('kpi-lead').textContent = signalShort;
-      document.getElementById('kpi-lead-sub').textContent = signalTitle;
-      document.getElementById('kpi-week').textContent = meta.week_label || '—';
 
       // Cascade Chain Heatmap — from M03 data
       var m03Chains = (d.climate_security_nexus && d.climate_security_nexus.chains) || d.m03_threat_multiplier || [];
@@ -617,14 +605,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('cascade-heatmap-loading').textContent = 'No cascade chain data available.';
       }
 
-      // Signal block
-      document.getElementById('signal-block').innerHTML =
-        '<div class="signal-block">' +
-          '<div class="signal-block__label">Lead Signal' + (signal.filter_tag ? ' · ' + escHtml(signal.filter_tag) : '') + '</div>' +
-          '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' + escHtml(signal.title || '') + '</h2>' +
-          '<p>' + escHtml(signal.body || '') + '</p>' +
-          (signal.source_url ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' + escHtml(signal.source_url) + '" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dashed rgba(255,255,255,0.5)">Read the top story ↓</a></p>' : '') +
-        '</div>';
+      /* Signal block + delta strip — fed via triage strip below */
 
       // Delta strip — from archive.json latest issue
       fetch('data/archive.json')
@@ -632,19 +613,6 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(function (issues) {
           var latest = issues[issues.length - 1] || {};
           var deltas = (latest.delta_strip || []).slice(0, 5);
-          var html = '';
-          deltas.forEach(function (item, i) {
-            html +=
-              '<li class="delta-item">' +
-                '<div class="delta-item__rank">' + (i + 1) + '</div>' +
-                '<div class="delta-item__body">' +
-                  '<div class="delta-item__module">' + escHtml(item.module_tag || '') + ' · ' + escHtml(item.delta_type || '') + '</div>' +
-                  '<div class="delta-item__title">' + escHtml(item.title || '') + '</div>' +
-                  '<div class="delta-item__one-line">' + escHtml(item.one_line || '') + '</div>' +
-                '</div>' +
-              '</li>';
-          });
-          document.getElementById('delta-strip').innerHTML = html || '<li class="text-muted text-sm">No delta data available.</li>';
 
           /* ── Triage Strip ── */
           if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
@@ -673,8 +641,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 'triage-container');
           }
         })
-        .catch(function () {
-          document.getElementById('delta-strip').innerHTML = '<li class="error-state">Failed to load delta strip.</li>';
+        .catch(function (err) {
+          console.error('Delta strip fetch failed:', err);
         });
 
       // Boundary detail table (with summary rows)
@@ -770,7 +738,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     })
     .catch(function (e) {
-      document.getElementById('kpi-strip').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
+      console.error('ERM dashboard data load failed:', e);
+      var tc = document.getElementById('triage-container');
+      if (tc) tc.innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
     });
 
   // ── Persistent state: boundary chart + tipping board ──

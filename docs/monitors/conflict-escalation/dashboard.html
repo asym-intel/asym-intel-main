@@ -878,7 +878,9 @@ document.addEventListener('DOMContentLoaded', function () {
     renderDashboard(results[0], results[1]);
     renderRosterWatch(results[0].roster_watch || {});
   }).catch(function (e) {
-    document.getElementById('kpi-strip').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
+    console.error('SCEM dashboard data load failed:', e);
+    var tc = document.getElementById('triage-container');
+    if (tc) tc.innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
   });
 
   function renderDashboard(d, ps) {
@@ -887,18 +889,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var roster = d.conflict_roster || [];
     var fFlags = ps.f_flag_history || [];
 
-    // Page header
-    document.getElementById('page-title').textContent = 'SCEM — ' + (meta.week_label || '');
-    document.getElementById('page-meta').innerHTML =
-      '<span>Issue ' + (meta.issue || '—') + ' · Vol ' + (meta.volume || '—') + '</span>' +
-      '<span>Published ' + formatDate(meta.published) + '</span>' +
-      '<span>Baseline status: ' + escHtml(meta.baseline_status_note || 'Baselines building') + '</span>';
-
-    // KPIs
-    document.getElementById('kpi-active').textContent = roster.length;
-    document.getElementById('kpi-lead').textContent   = (ls.conflict || '—').split(/[\s\/–]/)[0];
-    document.getElementById('kpi-lead-sub').textContent = ls.conflict || '';
-    document.getElementById('kpi-week').textContent   = meta.week_label || '—';
+    /* Header + KPIs — fed via triage strip below */
 
     // ── NEW SECTIONS: shared AsymSections render functions ─────────────────
     if (window.AsymSections) {
@@ -928,7 +919,7 @@ document.addEventListener('DOMContentLoaded', function () {
     renderTrajectoryGrid(roster);
 
     // Render escalation gauge
-    renderEscalationGauge(roster);
+    renderEscalationGauge(roster, meta);
 
     // Render F-flag matrix
     renderFFlagMatrix(roster);
@@ -958,7 +949,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '<div class="delta-item__type">' + escHtml(item.arrow) + ' ' + escHtml(item.trajectory) + '</div>' +
         '</li>';
     });
-    document.getElementById('delta-strip').innerHTML = deltaHtml || '<li class="text-muted text-sm">No deviation data available.</li>';
+    /* delta-strip — fed via triage strip below */
 
     /* ── Triage Strip ── */
     if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
@@ -1130,7 +1121,8 @@ document.addEventListener('DOMContentLoaded', function () {
     wrap.innerHTML = html;
   }
 
-  function renderEscalationGauge(roster) {
+  function renderEscalationGauge(roster, meta) {
+    meta = meta || {};
     // Count conflicts with high-severity DEVIATION indicators
     // Use deviation magnitude, not band (band is suppressed during CONTESTED period)
     var criticalCount  = 0; // conflicts with ≥1 indicator at deviation ≥ +2
@@ -1184,7 +1176,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var gaugeHtml =
       '<div class="escalation-gauge-header">' +
-        '<span class="escalation-gauge-title">Global Escalation Index — W/E ' + escHtml(document.getElementById('kpi-week') ? (document.getElementById('kpi-week').textContent || '') : '') + '</span>' +
+        '<span class="escalation-gauge-title">Global Escalation Index — W/E ' + escHtml(meta.week_label || '') + '</span>' +
         '<span class="escalation-gauge-level escalation-gauge-level--' + levelClass + '">' + levelName + '</span>' +
       '</div>' +
       '<div class="escalation-gauge-bar" id="gauge-bar">' +

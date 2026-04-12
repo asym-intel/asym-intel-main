@@ -368,9 +368,54 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderReport(d) {
     var meta   = d.meta   || {};
     var ls     = d.lead_signal || {};
-    var roster = d.conflict_roster || [];
+    var rawRoster = d.conflict_roster || [];
     var rw     = d.roster_watch || {};
     var cmf    = d.cross_monitor_flags || {};
+    var indScoring = d.indicator_scoring || [];
+    var fFlagMatrix = d.f_flag_matrix || [];
+    var theatreTracker = d.theatre_tracker || [];
+
+    /* Normalise roster: join indicator_scoring, f_flag_matrix, and theatre_tracker
+       by theatre_id. Map field names to what the render code expects. */
+    var roster = rawRoster.map(function (c) {
+      var tid = c.theatre_id || '';
+      var indEntry  = indScoring.filter(function(x){ return x.theatre_id === tid; })[0] || {};
+      var ffEntry   = fFlagMatrix.filter(function(x){ return x.theatre_id === tid; })[0] || {};
+      var ttEntry   = theatreTracker.filter(function(x){ return x.theatre_id === tid; })[0] || {};
+      return {
+        conflict: c.theatre_name || c.conflict || tid,
+        theatre:  c.theatre_name || c.theatre || tid,
+        status:   c.status || 'Active',
+        trajectory: c.overall_band_delta || c.trajectory || '',
+        baseline_status: c.overall_band || c.baseline_status || '',
+        indicators: (function() {
+          /* Normalise indicators: array → keyed object for renderIndicatorRows */
+          var raw = indEntry.indicators || c.indicators || [];
+          if (Array.isArray(raw)) {
+            var obj = {};
+            raw.forEach(function(ind) {
+              var key = ind.indicator_name || ind.indicator || ind.id || '';
+              obj[key] = {
+                level: ind.level || 0,
+                baseline: ind.baseline || '—',
+                deviation: ind.deviation || 0,
+                band: ind.level_label || ind.deviation_band || ind.band || '',
+                confidence: ind.confidence_preliminary || ind.confidence || '',
+                note: ind.key_evidence || ind.note || ''
+              };
+            });
+            return obj;
+          }
+          return raw;
+        })(),
+        f_flags: ffEntry.f_flags || c.f_flags || [],
+        lead_development: ttEntry.key_development || c.lead_development || '',
+        summary: ttEntry.escalation_risk ? ('Escalation risk: ' + ttEntry.escalation_risk) : (c.summary || ''),
+        source_url: ttEntry.source_url || c.source_url || '',
+        entry_date: c.entry_date || '',
+        entry_trigger: c.entry_trigger || ''
+      };
+    });
 
     // ── Header ───────────────────────────────────────────────────────
     document.getElementById('report-header').innerHTML =
@@ -614,14 +659,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function renderFFlags(flags) {
-    var F_LABELS = {
-      F1: 'Single source', F2: 'Adjacent escalation',
-      F3: 'Unverified',    F4: 'State media only'
-    };
     return flags.map(function (f) {
-      var label = F_LABELS[f.flag] || f.flag;
-      return '<span class="f-flag-tag" title="' + escHtml(f.detail || '') + '">' +
-        escHtml(f.flag) + ' · ' + escHtml(label) + '</span>';
+      var label = f.flag_name || f.flag || '';
+      var detected = f.detected !== false;
+      var cls = detected ? 'f-flag-tag--active' : 'f-flag-tag';
+      return '<span class="' + cls + '" title="' + escHtml(f.description || f.detail || '') + '">' +
+        escHtml(f.flag || '') + ' · ' + escHtml(label) +
+        (detected ? '' : ' <span style="opacity:0.5">(not detected)</span>') +
+      '</span>';
     }).join('');
   }
 
@@ -684,6 +729,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function conflictId(name) {
+    if (!name) return 'unknown';
     return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   }
 

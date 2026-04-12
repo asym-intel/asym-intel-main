@@ -570,8 +570,9 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('m00-content').innerHTML =
         '<div class="signal-block">' +
           (s.filter_tag ? '<div class="signal-block__label">Filter: ' + escHtml(s.filter_tag) + '</div>' : '') +
-          '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' + escHtml(s.title || '') + '</h2>' +
-          '<p>' + escHtml(s.body || '') + '</p>' +
+          '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' + escHtml(s.title || s.lead_signal || '') + '</h2>' +
+          '<p>' + escHtml(s.body || (s.lead_signal && !s.title ? '' : s.summary || '')) + '</p>' +
+          (s.boundaries_exceeded ? '<div style="margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text-muted)">Boundaries exceeded: ' + s.boundaries_exceeded + ' · High risk: ' + (s.boundaries_high_risk || 0) + ' · Status: ' + escHtml(s.status_delta_this_week || '') + '</div>' : '') +
           (s.source_url ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' + escHtml(s.source_url) + '" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dashed rgba(255,255,255,0.5)">Primary source →</a></p>' : '') +
         '</div>';
 

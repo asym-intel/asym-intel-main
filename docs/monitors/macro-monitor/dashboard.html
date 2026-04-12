@@ -360,94 +360,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ── SVG Gauge renderer ───────────────────────────────────────────────────
-  // ── Risk Heatmap renderer ────────────────────────────────────────────────
-  function renderRiskHeatmap(tailRisks) {
-    var grid = document.getElementById('risk-heatmap-grid');
-    if (!grid) return;
-    if (!tailRisks || !tailRisks.length) {
-      grid.innerHTML = '<p class="text-muted text-sm" style="grid-column:1/5;padding:var(--space-4)">No tail risk data available for this issue.</p>';
-      return;
-    }
-
-    // 3×3 grid: likelihood (x) LOW/MED/HIGH × impact (y) HIGH/MED/LOW (top-to-bottom = high impact first)
-    // Cells: [impact_band][likelihood_band]
-    var cells = [
-      [{items:[]},{items:[]},{items:[]}],  // impact HIGH   (0.67–1.0)
-      [{items:[]},{items:[]},{items:[]}],  // impact MEDIUM (0.33–0.67)
-      [{items:[]},{items:[]},{items:[]}]   // impact LOW    (0.0–0.33)
-    ];
-
-    tailRisks.forEach(function(r) {
-      var lBand = r.likelihood < 0.33 ? 0 : r.likelihood < 0.67 ? 1 : 2;
-      var iBand = r.impact    >= 0.67 ? 0 : r.impact    >= 0.33 ? 1 : 2;
-      cells[iBand][lBand].items.push(r);
-    });
-
-    // Zone colour: low/medium/high/critical based on combined risk
-    function cellClass(iRow, lCol) {
-      // iRow 0=high impact, 2=low impact; lCol 0=low likelihood, 2=high likelihood
-      var risk = (2 - iRow) + lCol; // 0..4
-      if (risk <= 1) return 'low';
-      if (risk <= 2) return 'medium';
-      if (risk <= 3) return 'high';
-      return 'critical';
-    }
-
-    function dirArrow(dir) {
-      if (!dir) return '';
-      var d = dir.toLowerCase();
-      if (d === 'increasing') return '↑';
-      if (d === 'decreasing') return '↓';
-      return '→';
-    }
-    function dirClass(dir) {
-      if (!dir) return 'stable';
-      var d = dir.toLowerCase();
-      if (d === 'increasing') return 'increasing';
-      if (d === 'decreasing') return 'decreasing';
-      return 'stable';
-    }
-
-    // Rows: impact HIGH (row 1) → MED (row 2) → LOW (row 3)
-    // Cols: likelihood LOW (col 2) → MED (col 3) → HIGH (col 4)
-    // Col 1 is the impact row label
-    var impactLabels = ['HIGH', 'MED', 'LOW'];
-    var html = '';
-
-    cells.forEach(function(row, iRow) {
-      var gridRow = iRow + 1;
-      // Impact band label in col 1
-      html += '<div class="risk-heatmap__y-label" style="grid-column:1;grid-row:' + gridRow + '">' + impactLabels[iRow] + '</div>';
-      // 3 likelihood cells in cols 2-4
-      row.forEach(function(cell, lCol) {
-        var zoneClass = 'risk-heatmap__cell risk-heatmap__cell--' + cellClass(iRow, lCol);
-        html += '<div class="' + zoneClass + '" style="grid-column:' + (lCol+2) + ';grid-row:' + gridRow + '">';
-        if (cell.items.length === 0) {
-          html += '<div style="color:var(--color-text-faint);font-size:var(--text-min);padding:2px 4px">—</div>';
-        }
-        cell.items.forEach(function(r) {
-          var dc = dirClass(r.direction);
-          var arrow = dirArrow(r.direction);
-          html += '<div class="risk-chip risk-chip--' + dc + '" title="' + esc(r.note || '') + '">' +
-            '<span class="risk-chip__arrow">' + arrow + '</span>' +
-            esc(r.label || r.id || '') +
-          '</div>';
-        });
-        html += '</div>';
-      });
-    });
-
-    // Row 4: empty label col + x-axis band labels
-    html += '<div style="grid-column:1;grid-row:4"></div>';
-    html += '<div style="grid-column:2;grid-row:4" class="risk-heatmap__x-label">Low &lt;33%</div>';
-    html += '<div style="grid-column:3;grid-row:4" class="risk-heatmap__x-label">Medium 33–66%</div>';
-    html += '<div style="grid-column:4;grid-row:4" class="risk-heatmap__x-label">High &gt;66%</div>';
-    // Row 5: x-axis title
-    html += '<div style="grid-column:1;grid-row:5"></div>';
-    html += '<div style="grid-column:2/5;grid-row:5" class="risk-heatmap__x-title">← Likelihood →</div>';
-
-    grid.innerHTML = html;
-  }
 
   // ── Asset Bar Chart renderer ─────────────────────────────────────────────
   var _assetChart = null;
@@ -570,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function () {
       renderDashboard(d);
     })
     .catch(function (e) {
-      document.getElementById('kpi-strip').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + esc(e.message) + '</div>';
+      document.getElementById('triage-container').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + esc(e.message) + '</div>';
     });
 
   function renderDashboard(d) {
@@ -597,27 +509,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var conviction = eb.regime_conviction || signalObj.regime_conviction || '';
     var stressLabel = eb.system_stress_label || signalObj.system_stress_label || '';
     var stressDir   = eb.system_stress_direction || signalObj.system_stress_direction || '';
-
-    // Page header
-    document.getElementById('page-title').textContent = 'GMM — ' + (meta.week_label || '');
-    document.getElementById('page-meta').innerHTML =
-      '<span>Issue ' + esc(meta.issue || '—') + ' · Vol ' + esc(meta.volume || '—') + '</span>' +
-      '<span>Published ' + fmtDate(meta.published) + '</span>';
-
-    // KPIs
-    document.getElementById('kpi-stress').textContent   = stressLabel || '—';
-    document.getElementById('kpi-stress-dir').textContent = stressDir || '—';
-    document.getElementById('kpi-regime').textContent   = regime || '—';
-    document.getElementById('kpi-regime-conv').textContent = (conviction || '—') + ' conviction';
-    document.getElementById('kpi-week').textContent     = meta.week_label || '—';
-    // Score + delta in KPI week card sub-label
-    var delta = signalObj.delta_vs_prior;
-    var scoreStr = avgScore != null ? 'Score: ' + (avgScore > 0 ? '+' : '') + parseFloat(avgScore).toFixed(3) : '';
-    var deltaStr = (delta != null) ? '  Δ' + (delta > 0 ? '+' : '') + parseFloat(delta).toFixed(3) : '';
-    document.getElementById('kpi-score').textContent = scoreStr + deltaStr || '—';
-
-    // Render heatmap
-    renderRiskHeatmap(d.tail_risks || []);
 
     // Signal block
     var sbWrap = document.getElementById('signal-block-wrap');
@@ -662,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
         structural: {
           label:    'Tail Risk Heat',
           targetId: 'triage-heatmap',
-          renderFn: function(id) { renderRiskHeatmap(d.tail_risks || []); }
+          renderFn: function(id) { }
         },
         delta: {
           label: 'Top Moves This Issue',
@@ -703,17 +594,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Safe Haven — now handled by AsymSections.renderSafeHavenV2 below
-
-    // Hard Landing Risk KPI card
-    var hl = eb.hard_landing_risk || {};
-    if (hl.score != null) {
-      var hlCard = document.getElementById('kpi-hard-landing-card');
-      var hlVal  = document.getElementById('kpi-hard-landing');
-      var hlDir  = document.getElementById('kpi-hard-landing-dir');
-      if (hlCard) hlCard.style.display = '';
-      if (hlVal)  hlVal.textContent  = Math.round(hl.score * 100) + '%';
-      if (hlDir)  hlDir.textContent  = hl.direction || '—';
-    }
 
     // Regime Shift Probabilities
     renderRegimeShift(signalObj.regime_shift_probabilities || eb.regime_shift_probabilities || {});

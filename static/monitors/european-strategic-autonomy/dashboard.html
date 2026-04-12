@@ -141,55 +141,20 @@ document.addEventListener('DOMContentLoaded', function () {
       var hybItems = d.hybrid_threats || [];
       var memberStates = d.member_state_tracker || [];
 
-      document.getElementById('page-meta').textContent =
-        'Issue ' + (meta.issue || '—') + ' · ' + (meta.week_label || '') +
-        (meta.published ? ' · Published ' + new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '');
-
-      document.getElementById('kpi-defence').textContent = defItems.length || '—';
-      document.getElementById('kpi-hybrid').textContent = hybItems.length || '—';
-      // Lead signal KPI: show a short punchy topic label, not the raw long title
-      var signalWords = signal.split(' ');
-      var signalKpi = signalWords.slice(0, 4).join(' ') + (signalWords.length > 4 ? '…' : '');
-      document.getElementById('kpi-lead-signal').textContent = signalKpi || '—';
-
-      var sb = document.getElementById('signal-block');
-      sb.innerHTML =
-        '<div class="signal-block">' +
-          '<div class="signal-block__label">Lead Signal</div>' +
-          '<div class="signal-block__title">' + escHtml(signal) + '</div>' +
-          (signalBody ? '<p class="signal-block__body">' + escHtml(signalBody) + '</p>' : '') +
-          (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
-        '</div>';
-
+      /* Build delta items list for triage strip */
       var instItems = d.institutional_developments || [];
       var allItems = [];
-      defItems.forEach(function (item, i) {
+      defItems.forEach(function (item) {
         allItems.push({module: 'Defence', title: item.headline || item.title || '', one_line: item.summary || '', source_url: item.source_url || ''});
       });
-      hybItems.forEach(function (item, i) {
+      hybItems.forEach(function (item) {
         allItems.push({module: 'Hybrid', title: item.headline || item.title || '', one_line: item.summary || '', source_url: item.source_url || ''});
       });
-      instItems.forEach(function (item, i) {
+      instItems.forEach(function (item) {
         allItems.push({module: 'Institutional', title: item.headline || item.title || '', one_line: item.summary || '', source_url: item.source_url || ''});
       });
-      // Re-rank after combining all three sources
       allItems = allItems.map(function(item, i) { item.rank = i + 1; return item; });
       var top5 = allItems.slice(0, 5);
-      var dsHtml = '<ul class="delta-strip">';
-      top5.forEach(function (item) {
-        dsHtml +=
-          '<li class="delta-item">' +
-            '<div class="delta-item__rank">' + escHtml(String(item.rank)) + '</div>' +
-            '<div class="delta-item__body">' +
-              '<div class="delta-item__module">' + escHtml(item.module) + '</div>' +
-              '<div class="delta-item__title">' + escHtml(item.title) + '</div>' +
-              (item.one_line ? '<div class="delta-item__one-line">' + escHtml(item.one_line) + '</div>' : '') +
-              (item.source_url ? ' ' + AsymRenderer.sourceLink(item.source_url) : '') +
-            '</div>' +
-          '</li>';
-      });
-      dsHtml += '</ul>';
-      document.getElementById('delta-strip').innerHTML = top5.length ? dsHtml : '<p class="text-muted">No items this issue.</p>';
 
       /* ── Triage Strip ── */
       if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
@@ -288,7 +253,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .catch(function (err) {
       console.error(err);
-      ['signal-block','delta-strip','member-state-table'].forEach(function (id) {
+      ['triage-container','member-state-table'].forEach(function (id) {
         var el = document.getElementById(id);
         if (el) el.innerHTML = '<div class="error-state">Failed to load data.</div>';
       });

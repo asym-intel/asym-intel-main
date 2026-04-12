@@ -540,57 +540,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       var actorCount = (d.actor_tracker || []).length || actorKeys.length || '—';
 
-      // Page meta
-      var pub = meta.published
-        ? new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
-        : '';
-      document.getElementById('page-meta').innerHTML =
-        (pub ? '<span>Published ' + escHtml(pub) + '</span>' : '') +
-        (meta.week_label ? '<span>' + escHtml(meta.week_label) + '</span>' : '') +
-        (meta.schema_version ? '<span>Schema v' + escHtml(meta.schema_version) + '</span>' : '');
-
-      // KPIs
-      document.getElementById('kpi-campaigns').textContent = activeCampaigns || '—';
-      document.getElementById('kpi-actors').textContent = actorCount;
-      document.getElementById('kpi-signal').textContent = signalConf || (signal ? signal.slice(0,30) + '\u2026' : '\u2014');
-      var kpiSignalSub = document.getElementById('kpi-signal-sub');
-      if (kpiSignalSub) {
-        kpiSignalSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
-      }
-
-      // Threat level badge
-      var threatLevel = 'ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS';
-      if (signalConf && signalConf.toLowerCase() === 'confirmed') {
-        threatLevel = 'ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS';
-      } else if (signalConf && signalConf.toLowerCase() === 'high') {
-        threatLevel = 'ELEVATED — HIGH CONFIDENCE OPERATIONS ACTIVE';
-      } else if (!signalConf || signalConf.toLowerCase() === 'assessed') {
-        threatLevel = 'GUARDED — ASSESSED THREAT ACTIVITY';
-      }
-      var threatEl = document.getElementById('threat-level-text');
-      if (threatEl) threatEl.textContent = threatLevel;
-      var threatSubEl = document.getElementById('threat-level-sub');
-      if (threatSubEl && signal) {
-        threatSubEl.textContent = signal.length > 140 ? signal.slice(0, 140) + '…' : signal;
-      }
-
-      // Signal block
-      var flagsHtml = '';
-      if (Array.isArray(signalFlags) && signalFlags.length) {
-        flagsHtml = '<div style="margin-top:var(--space-3);display:flex;flex-wrap:wrap;gap:var(--space-2)">' +
-          signalFlags.map(function(f){ return '<span class="severity-badge severity-badge--high">' + escHtml(f) + '</span>'; }).join('') +
-          '</div>';
-      }
       var sourceUrl = signalObj.source_url || d.source_url || '';
-      document.getElementById('signal-block').innerHTML =
-        '<div class="signal-block">' +
-          '<div class="signal-block__label">Lead Signal — Issue ' + escHtml(meta.issue || '') + '</div>' +
-          '<p>' + escHtml(signal) + '</p>' +
-          (signalBody ? '<p style="margin-top:var(--space-3);color:rgba(255,255,255,0.82)">' + escHtml(signalBody) + '</p>' : '') +
-          (signalFFlags.length ? '<div style="margin-top:var(--space-2);display:flex;gap:var(--space-2);flex-wrap:wrap">' + signalFFlags.map(function(f){ return '<span style="font-size:var(--text-xs);background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.92);border:1px solid rgba(255,255,255,0.25);padding:1px 6px;border-radius:3px;font-weight:600">' + escHtml(f) + '</span>'; }).join('') + '</div>' : '') +
-          flagsHtml +
-          (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
-        '</div>';
 
       // ── STALENESS HELPER ──
       function weeksAgo(dateStr) {
@@ -684,8 +634,6 @@ document.addEventListener('DOMContentLoaded', function () {
               : '') +
           '</div>';
       });
-      document.getElementById('delta-strip').innerHTML = deltaHtml || '<p class="text-muted">No campaign data available.</p>';
-
       /* ── Triage Strip ── */
       if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
         AsymSections.renderTriageStrip({
@@ -849,9 +797,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .catch(function (err) {
       console.error(err);
-      document.getElementById('page-meta').textContent = 'Failed to load data.';
-      document.getElementById('signal-block').innerHTML = '<div class="error-state">Failed to load signal data.</div>';
-      document.getElementById('delta-strip').innerHTML = '<div class="error-state">Failed to load campaign data.</div>';
+      document.getElementById('triage-container').innerHTML = '<div class="error-state">Failed to load data.</div>';
     });
 });
 

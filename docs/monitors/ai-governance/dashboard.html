@@ -914,11 +914,7 @@
         '<span>' + esc(meta.week_label) + '</span>' +
         '<span>Published ' + (meta.published ? new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '') + '</span>';
 
-      // KPIs
-      document.getElementById('kpi-delta').textContent = deltaStrip.length;
-      document.getElementById('kpi-grid').textContent = countryGrid.length;
-      var words = signal.split(/\s+/).slice(0, 6).join(' ');
-      document.getElementById('kpi-signal').textContent = words + (signal.split(/\s+/).length > 6 ? '…' : '');
+      /* KPIs — fed via triage strip below */
 
       // EU AI Act compact tracker from persistent state
       var euact = (persistent && persistent.module_9_eu_ai_act_tracker) ? persistent.module_9_eu_ai_act_tracker : {};
@@ -1010,13 +1006,7 @@
         document.getElementById('risk-heat-content').innerHTML = '<p class="empty-state">No risk vectors available.</p>';
       }
 
-      // Signal block
-      document.getElementById('signal-block').innerHTML =
-        '<h3 class="signal-block__title">' + esc(signal) + '</h3>' +
-        '<p class="signal-block__body">' + esc(signalBody) + '</p>' +
-        '<a class="signal-block__link" href="report.html#module-0">Read in full report →</a>' +
-        (d.source_url ? '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + esc(d.source_url) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
-        '';
+      /* Signal block — fed via triage strip below */
 
       // Delta strip — top 5
       var top5 = deltaStrip.slice(0, 5);
@@ -1200,7 +1190,6 @@
       renderGovernanceHealth(d.governance_health_composite || {});
     })
     .catch(function () {
-      document.getElementById('signal-block').innerHTML = '<p class="error-state">Could not load data.</p>';
       document.getElementById('euact-dash-content').innerHTML = '<p class="error-state">Could not load EU AI Act data.</p>';
       document.getElementById('risk-heat-content').innerHTML = '<p class="error-state">Could not load risk data.</p>';
       document.getElementById('model-frontier-content').innerHTML = '<p class="error-state">Could not load model data.</p>';
