@@ -2569,6 +2569,367 @@ window.AsymSections = (function () {
     el.innerHTML = html;
   }
 
+  // ── GMM / Cross-Monitor Reusable Sections ──────────────────────────────
+
+  function renderScenarioFramework(scenarios, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!Array.isArray(scenarios) || !scenarios.length) {
+      el.innerHTML = '<p class="text-muted text-sm">Scenario framework data will appear after the next publish cycle.</p>';
+      return;
+    }
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-4)">';
+    scenarios.forEach(function(s) {
+      var pct = s.probability_pct != null ? s.probability_pct : (s.probability != null ? Math.round(s.probability * 100) : '—');
+      var deltaHtml = '';
+      if (s.probability_delta) {
+        var isNeg = String(s.probability_delta).indexOf('-') === 0;
+        var deltaCls = isNeg ? 'color:var(--color-critical,#ef4444)' : 'color:var(--color-green,#22c55e)';
+        deltaHtml = '<span style="font-size:var(--text-xs);' + deltaCls + ';margin-left:var(--space-2)">' + escHtml(s.probability_delta) + '</span>';
+      }
+      var chipsHtml = '';
+      if (Array.isArray(s.affected_asset_classes) && s.affected_asset_classes.length) {
+        chipsHtml = '<div style="display:flex;flex-wrap:wrap;gap:var(--space-1);margin-top:var(--space-3)">' +
+          s.affected_asset_classes.map(function(ac) {
+            return '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:var(--surface-3,rgba(255,255,255,0.06));color:var(--color-text-secondary)">' + escHtml(ac) + '</span>';
+          }).join('') + '</div>';
+      }
+      html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4);border-left:3px solid var(--monitor-accent,#22a0aa)">' +
+        '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:var(--space-2)">' +
+          '<div style="font-weight:600;font-size:var(--text-sm)">' + escHtml(s.scenario || s.label || '') + '</div>' +
+          '<div style="font-size:var(--text-lg);font-weight:700;font-family:var(--font-mono);color:var(--monitor-accent,#22a0aa)">' + escHtml(String(pct)) + '%' + deltaHtml + '</div>' +
+        '</div>' +
+        '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.55;margin-bottom:var(--space-2)">' + escHtml(s.description || '') + '</div>' +
+        (s.key_trigger ? '<div style="font-size:var(--text-xs);font-style:italic;color:var(--color-text-muted)"><strong>Trigger:</strong> ' + escHtml(s.key_trigger) + '</div>' : '') +
+        chipsHtml +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  function renderPositioningOverlay(overlay, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!overlay || typeof overlay !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">Positioning overlay data will appear after the next publish cycle.</p>';
+      return;
+    }
+    var html = '';
+
+    // Fed Funds Futures sub-section
+    var fff = overlay.fed_funds_futures;
+    if (fff && typeof fff === 'object') {
+      var pzc = fff.prob_zero_cuts_2026 != null ? Math.round(fff.prob_zero_cuts_2026 * 100) : null;
+      html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4);margin-bottom:var(--space-4)">' +
+        '<div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-3)">Fed Funds Futures</div>' +
+        '<div style="display:flex;gap:var(--space-6);flex-wrap:wrap">' +
+          '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em">Implied Cuts 2026</div>' +
+            '<div style="font-size:var(--text-lg);font-weight:700;font-family:var(--font-mono)">' + escHtml(String(fff.implied_cuts_2026 != null ? fff.implied_cuts_2026 : '—')) + '</div></div>' +
+          (pzc != null ? '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em">P(Zero Cuts)</div>' +
+            '<div style="font-size:var(--text-lg);font-weight:700;font-family:var(--font-mono)">' + pzc + '%</div></div>' : '') +
+          (fff.source ? '<div style="align-self:flex-end;font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(fff.source) + '</div>' : '') +
+        '</div></div>';
+    }
+
+    // MATT Framework sub-section
+    var matt = overlay.matt_framework;
+    if (Array.isArray(matt) && matt.length) {
+      html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4);margin-bottom:var(--space-4)">' +
+        '<div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-3)">MATT Framework — Market Agreement to Themes</div>' +
+        '<div style="overflow-x:auto"><table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">' +
+        '<thead><tr style="border-bottom:1px solid var(--color-border)">' +
+          '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Theme</th>' +
+          '<th style="text-align:center;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Score</th>' +
+          '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Market Pricing</th>' +
+          '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Our View</th>' +
+          '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Alpha</th>' +
+        '</tr></thead><tbody>';
+      matt.forEach(function(m) {
+        var sc = m.matt_score || 0;
+        var barW = Math.min(Math.max(sc, 0), 10) * 10;
+        var barColor = sc <= 3 ? 'var(--color-green,#22c55e)' : sc <= 6 ? 'var(--color-amber,#f59e0b)' : 'var(--color-critical,#ef4444)';
+        html += '<tr style="border-bottom:1px solid var(--color-border)">' +
+          '<td style="padding:var(--space-2);font-weight:500">' + escHtml(m.theme || '') + '</td>' +
+          '<td style="padding:var(--space-2);text-align:center"><div style="display:flex;align-items:center;gap:var(--space-2);justify-content:center">' +
+            '<div style="width:60px;height:6px;border-radius:3px;background:var(--surface-3,rgba(255,255,255,0.08));overflow:hidden">' +
+              '<div style="width:' + barW + '%;height:100%;border-radius:3px;background:' + barColor + '"></div>' +
+            '</div>' +
+            '<span style="font-family:var(--font-mono);font-size:var(--text-xs)">' + escHtml(String(sc)) + '</span>' +
+          '</div></td>' +
+          '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-secondary)">' + escHtml(m.market_pricing || '') + '</td>' +
+          '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-secondary)">' + escHtml(m.our_assessment || '') + '</td>' +
+          '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--monitor-accent,#22a0aa);font-weight:500">' + escHtml(m.alpha_signal || '—') + '</td>' +
+        '</tr>';
+      });
+      html += '</tbody></table></div></div>';
+    }
+
+    // Contrarian Corner sub-section
+    var cc = overlay.contrarian_corner;
+    if (Array.isArray(cc) && cc.length) {
+      html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4)">' +
+        '<div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-3)">Contrarian Corner</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-3)">';
+      cc.forEach(function(c) {
+        html += '<div style="padding:var(--space-3);border-left:3px solid var(--color-amber,#f59e0b);background:var(--surface-3,rgba(255,255,255,0.04));border-radius:var(--radius-sm)">' +
+          '<div style="font-size:var(--text-xs);font-weight:600;color:var(--color-amber,#f59e0b);margin-bottom:var(--space-1)">' + escHtml(c.source || '') + '</div>' +
+          '<div style="font-size:var(--text-sm);font-weight:500;margin-bottom:var(--space-2)">' + escHtml(c.view || '') + '</div>' +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic">Correct if: ' + escHtml(c.scenario_under_which_correct || '') + '</div>' +
+        '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    if (!html) {
+      el.innerHTML = '<p class="text-muted text-sm">Positioning overlay data will appear after the next publish cycle.</p>';
+      return;
+    }
+    el.innerHTML = html;
+  }
+
+  function renderCentralBankTracker(banks, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!Array.isArray(banks) || !banks.length) {
+      el.innerHTML = '<p class="text-muted text-sm">Central bank tracker data will appear after the next publish cycle.</p>';
+      return;
+    }
+    var postureColor = function(p) {
+      if (!p) return '';
+      var lp = p.toLowerCase();
+      if (lp === 'easing' || lp === 'emergency') return 'var(--color-green,#22c55e)';
+      if (lp === 'tightening') return 'var(--color-critical,#ef4444)';
+      return 'var(--color-amber,#f59e0b)';
+    };
+    var html = '<div style="overflow-x:auto"><table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">' +
+      '<thead><tr style="border-bottom:1px solid var(--color-border)">' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Institution</th>' +
+        '<th style="text-align:center;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Posture</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Last Action</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Next Meeting</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Guidance</th>' +
+      '</tr></thead><tbody>';
+    banks.forEach(function(b) {
+      html += '<tr style="border-bottom:1px solid var(--color-border)">' +
+        '<td style="padding:var(--space-2);font-weight:600">' + escHtml(b.institution || '') + '</td>' +
+        '<td style="padding:var(--space-2);text-align:center"><span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:' + postureColor(b.posture) + '20;color:' + postureColor(b.posture) + ';font-weight:600">' + escHtml(b.posture || '—') + '</span></td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-secondary)">' + escHtml(b.last_action || '—') + '</td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);font-family:var(--font-mono)">' + escHtml(b.next_meeting ? b.next_meeting.slice(0,10) : '—') + '</td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-secondary);max-width:280px">' + escHtml(b.forward_guidance || '—') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  function renderTariffTracker(tariffs, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!Array.isArray(tariffs) || !tariffs.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No active tariff measures tracked this issue.</p>';
+      return;
+    }
+    var statusColor = function(s) {
+      if (!s) return '';
+      var ls = s.toLowerCase();
+      if (ls === 'in force') return 'var(--color-critical,#ef4444)';
+      if (ls === 'announced') return 'var(--color-amber,#f59e0b)';
+      if (ls === 'suspended') return 'var(--color-green,#22c55e)';
+      if (ls === 'retaliated') return 'var(--color-orange,#f97316)';
+      return 'var(--color-text-muted)';
+    };
+    var html = '<div style="overflow-x:auto"><table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">' +
+      '<thead><tr style="border-bottom:1px solid var(--color-border)">' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Actor</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Target</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Measure</th>' +
+        '<th style="text-align:center;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Status</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Eff. Date</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Impact</th>' +
+      '</tr></thead><tbody>';
+    tariffs.forEach(function(t) {
+      html += '<tr style="border-bottom:1px solid var(--color-border)">' +
+        '<td style="padding:var(--space-2);font-weight:500">' + escHtml(t.actor || '') + '</td>' +
+        '<td style="padding:var(--space-2)">' + escHtml(t.target || '') + '</td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs)">' + escHtml(t.measure || '') + '</td>' +
+        '<td style="padding:var(--space-2);text-align:center"><span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:' + statusColor(t.status) + '20;color:' + statusColor(t.status) + ';font-weight:600">' + escHtml(t.status || '—') + '</span></td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);font-family:var(--font-mono)">' + escHtml(t.effective_date ? t.effective_date.slice(0,10) : '—') + '</td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-secondary);max-width:240px">' + escHtml(t.macro_impact_assessment || '—') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  function renderDebtDynamics(items, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!Array.isArray(items) || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">Debt dynamics data will appear after the next publish cycle.</p>';
+      return;
+    }
+    var trajColor = function(t) {
+      if (!t) return '';
+      var lt = t.toLowerCase();
+      if (lt.indexOf('deteriorat') > -1) return 'var(--color-critical,#ef4444)';
+      if (lt.indexOf('improv') > -1) return 'var(--color-green,#22c55e)';
+      return 'var(--color-amber,#f59e0b)';
+    };
+    var html = '<div style="overflow-x:auto"><table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">' +
+      '<thead><tr style="border-bottom:1px solid var(--color-border)">' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Entity</th>' +
+        '<th style="text-align:right;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Debt/GDP</th>' +
+        '<th style="text-align:right;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Deficit/GDP</th>' +
+        '<th style="text-align:center;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Trajectory</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Key Risk</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Source</th>' +
+      '</tr></thead><tbody>';
+    items.forEach(function(d) {
+      var debtGdp = d.debt_to_gdp != null ? parseFloat(d.debt_to_gdp).toFixed(1) + '%' : (d.reading || '—');
+      var defGdp = d.deficit_to_gdp != null ? parseFloat(d.deficit_to_gdp).toFixed(1) + '%' : '—';
+      var traj = d.trajectory || d.direction || '';
+      html += '<tr style="border-bottom:1px solid var(--color-border)">' +
+        '<td style="padding:var(--space-2);font-weight:600">' + escHtml(d.entity || d.indicator || '') + '</td>' +
+        '<td style="padding:var(--space-2);text-align:right;font-family:var(--font-mono)">' + escHtml(debtGdp) + '</td>' +
+        '<td style="padding:var(--space-2);text-align:right;font-family:var(--font-mono)">' + escHtml(defGdp) + '</td>' +
+        '<td style="padding:var(--space-2);text-align:center"><span style="font-size:var(--text-xs);color:' + trajColor(traj) + ';font-weight:600">' + escHtml(traj || '—') + '</span></td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-secondary);max-width:240px">' + escHtml(d.key_risk || '') + '</td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(d.source || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  function renderCreditStress(items, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!Array.isArray(items) || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">Credit stress data will appear after the next publish cycle.</p>';
+      return;
+    }
+    var stressColor = function(s) {
+      if (!s) return '';
+      var ls = s.toLowerCase();
+      if (ls === 'red') return 'var(--color-critical,#ef4444)';
+      if (ls === 'amber') return 'var(--color-amber,#f59e0b)';
+      if (ls === 'green') return 'var(--color-green,#22c55e)';
+      return 'var(--color-text-muted)';
+    };
+    var html = '<div style="overflow-x:auto"><table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">' +
+      '<thead><tr style="border-bottom:1px solid var(--color-border)">' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Segment</th>' +
+        '<th style="text-align:center;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Stress</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Key Metric</th>' +
+        '<th style="text-align:center;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Direction</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Contagion Risk</th>' +
+        '<th style="text-align:left;padding:var(--space-2);font-size:var(--text-xs);text-transform:uppercase;color:var(--color-text-muted)">Source</th>' +
+      '</tr></thead><tbody>';
+    items.forEach(function(c) {
+      var stress = c.stress_level || c.flag || '';
+      var dir = c.direction || '';
+      html += '<tr style="border-bottom:1px solid var(--color-border)">' +
+        '<td style="padding:var(--space-2);font-weight:600">' + escHtml(c.segment || c.indicator || '') + '</td>' +
+        '<td style="padding:var(--space-2);text-align:center"><span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:' + stressColor(stress) + '20;color:' + stressColor(stress) + ';font-weight:600">' + escHtml(stress || '—') + '</span></td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);font-family:var(--font-mono)">' + escHtml(c.key_metric || c.reading || '') + '</td>' +
+        '<td style="padding:var(--space-2);text-align:center;font-size:var(--text-xs);color:' + stressColor(dir.indexOf('Deterior') > -1 ? 'Red' : dir.indexOf('Improv') > -1 ? 'Green' : 'Amber') + '">' + escHtml(dir || '—') + '</td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-secondary)">' + escHtml(c.contagion_risk || '—') + '</td>' +
+        '<td style="padding:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(c.source || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  function renderSystemicRisk(items, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!Array.isArray(items) || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">Systemic risk data will appear after the next publish cycle.</p>';
+      return;
+    }
+    var probColor = function(p) {
+      if (!p) return '';
+      var lp = String(p).toLowerCase();
+      if (lp === 'critical' || lp === 'high') return 'var(--color-critical,#ef4444)';
+      if (lp === 'medium') return 'var(--color-amber,#f59e0b)';
+      return 'var(--color-green,#22c55e)';
+    };
+    var typeColor = function(t) {
+      if (!t) return 'var(--color-text-muted)';
+      var lt = t.toLowerCase();
+      if (lt === 'structural') return 'var(--color-critical,#ef4444)';
+      if (lt === 'cyclical') return 'var(--color-amber,#f59e0b)';
+      return 'var(--color-text-secondary)';
+    };
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:var(--space-3)">';
+    items.forEach(function(r) {
+      var prob = r.probability_preliminary || r.probability || '';
+      var chipsHtml = '';
+      if (Array.isArray(r.affected_asset_classes) && r.affected_asset_classes.length) {
+        chipsHtml = '<div style="display:flex;flex-wrap:wrap;gap:var(--space-1);margin-top:var(--space-2)">' +
+          r.affected_asset_classes.map(function(ac) {
+            return '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);background:var(--surface-3,rgba(255,255,255,0.06));color:var(--color-text-secondary)">' + escHtml(ac) + '</span>';
+          }).join('') + '</div>';
+      }
+      html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4);border-left:3px solid ' + probColor(prob) + '">' +
+        '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">' +
+          '<span style="font-weight:600;font-size:var(--text-sm)">' + escHtml(r.label || r.indicator || '') + '</span>' +
+          '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);color:' + typeColor(r.type) + ';border:1px solid ' + typeColor(r.type) + '40">' + escHtml(r.type || '') + '</span>' +
+          '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);background:' + probColor(prob) + '20;color:' + probColor(prob) + ';font-weight:600">' + escHtml(String(prob)) + '</span>' +
+        '</div>' +
+        '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;margin-bottom:var(--space-2)">' +
+          '<strong>Channel:</strong> ' + escHtml(r.transmission_channel || '—') +
+        '</div>' +
+        (r.monitoring_indicator ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Watch:</strong> ' + escHtml(r.monitoring_indicator) + '</div>' : '') +
+        chipsHtml +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  function renderSafeHavenV2(data, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!data || typeof data !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">Safe haven data will appear after the next publish cycle.</p>';
+      return;
+    }
+    // Handle v2 format (gold_thesis, bonds_note, cash_note)
+    if (data.gold_thesis || data.bonds_note || data.cash_note) {
+      var items = [
+        { icon: '🥇', label: 'Gold', text: data.gold_thesis },
+        { icon: '📊', label: 'Bonds', text: data.bonds_note },
+        { icon: '💵', label: 'Cash', text: data.cash_note }
+      ];
+      var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-3)">';
+      items.forEach(function(item) {
+        if (!item.text) return;
+        html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4)">' +
+          '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-2)">' + item.icon + ' ' + escHtml(item.label) + '</div>' +
+          '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.55">' + escHtml(item.text) + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+      el.innerHTML = html;
+      return;
+    }
+    // Legacy format fallback (asset, regime, rationale)
+    if (data.asset) {
+      el.innerHTML = '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4)">' +
+        '<div style="font-size:var(--text-xs);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em">' + escHtml(data.regime || '') + ' · ' + escHtml(data.horizon || '') + '</div>' +
+        '<div style="font-size:var(--text-sm);font-weight:600;margin:var(--space-2) 0">' + escHtml(data.asset) + '</div>' +
+        '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.55">' + escHtml(data.rationale || '') + '</div>' +
+        (data.condition_for_reassessment ? '<div style="font-size:var(--text-xs);font-style:italic;color:var(--color-text-muted);margin-top:var(--space-3)"><strong>Reassess if:</strong> ' + escHtml(data.condition_for_reassessment) + '</div>' : '') +
+      '</div>';
+      return;
+    }
+    el.innerHTML = '<p class="text-muted text-sm">Safe haven data will appear after the next publish cycle.</p>';
+  }
+
+
   return {
     // Helpers (exposed for inline orchestrators)
     escHtml: escHtml,
@@ -2613,7 +2974,16 @@ window.AsymSections = (function () {
     renderRegionalCoverage: renderRegionalCoverage,
     renderExtremeEventsLog: renderExtremeEventsLog,
     renderClimateSecurityNexus: renderClimateSecurityNexus,
-    renderPlanetaryStatusSnapshot: renderPlanetaryStatusSnapshot
+    renderPlanetaryStatusSnapshot: renderPlanetaryStatusSnapshot,
+    // GMM / Cross-Monitor reusable sections
+    renderScenarioFramework: renderScenarioFramework,
+    renderPositioningOverlay: renderPositioningOverlay,
+    renderCentralBankTracker: renderCentralBankTracker,
+    renderTariffTracker: renderTariffTracker,
+    renderDebtDynamics: renderDebtDynamics,
+    renderCreditStress: renderCreditStress,
+    renderSystemicRisk: renderSystemicRisk,
+    renderSafeHavenV2: renderSafeHavenV2
   };
 }());
 
