@@ -3,26 +3,140 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Living Knowledge — Strategic Conflict & Escalation Monitor · Asymmetric Intelligence</title>
+  <title>Living Knowledge — Strategic Conflict &amp; Escalation Monitor · Asymmetric Intelligence</title>
   <meta name="description" content="Persistent living knowledge base for SCEM — conflict baselines, indicator medians, roster watch, and cross-monitor flags that accumulate across weekly issues.">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
   <style>
+    /* ── BASELINE CARDS ─────────────────────────────────────────────── */
     .baseline-card { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-5); margin-bottom:var(--space-4); box-shadow:var(--shadow-sm); }
     .baseline-card__header { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--space-3); margin-bottom:var(--space-3); flex-wrap:wrap; }
     .baseline-card__name { font-size:var(--text-md); font-weight:700; color:var(--color-text); }
     .baseline-card__meta { font-size:var(--text-xs); color:var(--color-text-muted); display:flex; gap:var(--space-4); flex-wrap:wrap; margin-bottom:var(--space-3); }
     .indicator-grid { display:grid; grid-template-columns:repeat(6, 1fr); gap:var(--space-3); margin:var(--space-3) 0; }
     @media(max-width:700px){ .indicator-grid { grid-template-columns:repeat(3, 1fr); } }
-    .indicator-cell { background:var(--color-bg-alt); border-radius:var(--radius); padding:var(--space-3); }
+    .indicator-cell { background:var(--color-bg-alt); border-radius:var(--radius); padding:var(--space-3); position:relative; }
+    .indicator-cell--elevated { border:1px solid rgba(var(--monitor-accent-rgb,220,38,38),0.35); }
     .indicator-cell__name { font-size:var(--text-xs); font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-text-muted); margin-bottom:var(--space-2); }
     .indicator-cell__values { display:flex; gap:var(--space-3); }
     .indicator-val { text-align:center; }
     .indicator-val__num { font-size:var(--text-lg); font-weight:700; color:var(--monitor-accent); line-height:1; }
     .indicator-val__label { font-size:var(--text-xs); color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
     .building-badge { display:inline-flex; align-items:center; gap:4px; font-size:var(--text-xs); font-weight:600; color:var(--color-text-muted); background:var(--color-bg-alt); border:1px solid var(--color-border); padding:2px 8px; border-radius:var(--radius-sm); }
+
+    /* ── BASELINE ENRICHMENT: THEATRE STRIP ─────────────────────────── */
+    /* enrichBaselineWithTheatre() — reusable across all monitor persistent pages */
+    .theatre-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-bg-alt);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-3);
+      align-items: center;
+    }
+    .theatre-strip__item {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .theatre-strip__label {
+      font-size: var(--text-min);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+      font-weight: 600;
+    }
+    .theatre-strip__value {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .theatre-strip__divider {
+      width: 1px;
+      height: 30px;
+      background: var(--color-border);
+      margin: 0 var(--space-1);
+      align-self: center;
+    }
+    /* Generic intensity-delta badge — modifier class derived from data value */
+    .delta-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+      background: var(--color-bg-alt);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .delta-badge--escalating    { background: rgba(220,38,38,0.12); color: #dc2626;  border-color: transparent; }
+    .delta-badge--stable        { background: rgba(37,99,235,0.10); color: #2563eb;  border-color: transparent; }
+    .delta-badge--de-escalating { background: rgba(58,125,90,0.15); color: #3a7d5a;  border-color: transparent; }
+    /* Ceasefire badge */
+    .ceasefire-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--color-bg-alt);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    .ceasefire-badge--active { background: rgba(58,125,90,0.15); color: #3a7d5a; border-color: transparent; }
+    /* Escalation risk — inline coloring, no badge (keeps it readable) */
+    .esc-risk-val { font-weight: 700; }
+    .esc-risk-val--high   { color: #dc2626; }
+    .esc-risk-val--medium { color: #d97706; }
+    .esc-risk-val--low    { color: #3a7d5a; }
+
+    /* ── BASELINE ENRICHMENT: INDICATOR SCORING ─────────────────────── */
+    /* enrichIndicatorCell() — reusable across all monitor persistent pages */
+    .ind-expand-btn {
+      display: block;
+      width: 100%;
+      margin-top: var(--space-2);
+      font-size: var(--text-min);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      background: none;
+      border: none;
+      padding: 0;
+      text-align: left;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .ind-expand-btn:hover { color: var(--monitor-accent); }
+    .ind-scoring-detail {
+      display: none;
+      margin-top: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-min);
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+    .ind-scoring-detail.open { display: block; }
+    .ind-scoring-detail__row { display: flex; gap: var(--space-2); margin-bottom: 2px; flex-wrap: wrap; }
+    .ind-scoring-detail__label { color: var(--color-text-muted); min-width: 80px; flex-shrink: 0; }
+    .ind-scoring-detail__val { font-weight: 600; color: var(--color-text); }
+    /* Generic deviation-band coloring — matches "green/amber/red" keywords in band strings */
+    .ind-band--green  { color: #3a7d5a; }
+    .ind-band--amber  { color: #d97706; }
+    .ind-band--red    { color: #dc2626; }
+    /* Generic level-label coloring — matched against level_label field value (case-insensitive) */
+    .ind-level--green  { color: #3a7d5a; font-weight: 700; }
+    .ind-level--amber  { color: #d97706; font-weight: 700; }
+    .ind-level--red    { color: #dc2626; font-weight: 700; }
+    .ind-level--crisis { color: #7c3aed; font-weight: 700; }
 
     /* ── F-FLAG MATRIX ─────────────────────────────────────────────── */
     .fflag-matrix {
@@ -49,13 +163,9 @@
       overflow: hidden;
     }
     .fflag-cell--active {
-      background: rgba(220, 38, 38, 0.12);
-      border-color: #dc2626;
-      box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.2);
-    }
-    [data-theme="dark"] .fflag-cell--active {
-      background: rgba(220, 38, 38, 0.15);
-      border-color: rgba(220, 38, 38, 0.7);
+      background: color-mix(in srgb, var(--monitor-accent) 12%, transparent);
+      border-color: var(--monitor-accent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--monitor-accent) 20%, transparent);
     }
     .fflag-cell:hover { box-shadow: var(--shadow-md); }
     .fflag-cell__id {
@@ -65,12 +175,7 @@
       line-height: 1;
       color: var(--color-text-muted);
     }
-    .fflag-cell--active .fflag-cell__id {
-      color: #dc2626;
-    }
-    [data-theme="dark"] .fflag-cell--active .fflag-cell__id {
-      color: #f87171;
-    }
+    .fflag-cell--active .fflag-cell__id { color: var(--monitor-accent); }
     .fflag-cell__status {
       font-size: var(--text-min);
       font-weight: 700;
@@ -78,12 +183,7 @@
       letter-spacing: 0.08em;
       color: var(--color-text-muted);
     }
-    .fflag-cell--active .fflag-cell__status {
-      color: #dc2626;
-    }
-    [data-theme="dark"] .fflag-cell--active .fflag-cell__status {
-      color: #f87171;
-    }
+    .fflag-cell--active .fflag-cell__status { color: var(--monitor-accent); }
     .fflag-cell__conflict {
       font-size: var(--text-min);
       font-weight: 600;
@@ -98,14 +198,10 @@
       right: 8px;
       font-size: var(--text-min);
       font-weight: 700;
-      color: #dc2626;
-      background: rgba(220, 38, 38, 0.1);
+      color: var(--monitor-accent);
+      background: color-mix(in srgb, var(--monitor-accent) 10%, transparent);
       border-radius: 10px;
       padding: 1px 5px;
-    }
-    [data-theme="dark"] .fflag-cell__count {
-      color: #f87171;
-      background: rgba(220, 38, 38, 0.2);
     }
     .fflag-definitions {
       display: flex;
@@ -152,12 +248,8 @@
       padding: 2px 8px;
       border-radius: 4px;
       letter-spacing: 0.04em;
-      background: rgba(220,38,38,0.12);
-      color: #dc2626;
-    }
-    [data-theme="dark"] .fflag-id-badge {
-      background: rgba(220,38,38,0.2);
-      color: #f87171;
+      background: color-mix(in srgb, var(--monitor-accent) 12%, transparent);
+      color: var(--monitor-accent);
     }
 
     /* ── Conflict Context ───────────────────────────────────────────── */
@@ -208,6 +300,304 @@
     .ctx-badge--default    { background: var(--color-bg-alt); color: var(--color-text-muted); }
     .ctx-panel { display: none; }
     .ctx-panel.open { display: block; }
+
+    /* ── SHARED CONFIDENCE BADGE (all new generic sections) ─────────── */
+    /* Used by: renderEscalationLog, renderKeyJudgments, renderCrossMonitorCandidates */
+    .conf-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--color-bg-alt);
+      color: var(--color-text-muted);
+    }
+    .conf-badge--high      { background: rgba(58,125,90,0.15); color: #3a7d5a; }
+    .conf-badge--confirmed { background: rgba(37,99,235,0.12); color: #2563eb; }
+    .conf-badge--assessed  { background: rgba(217,119,6,0.15); color: #d97706; }
+
+    /* ── SHARED TRAJECTORY BADGE ────────────────────────────────────── */
+    /* Used by: renderKeyJudgments */
+    .traj-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: var(--color-bg-alt);
+      color: var(--color-text-muted);
+    }
+    .traj-badge--escalating    { background: rgba(220,38,38,0.12); color: #dc2626; }
+    .traj-badge--stable        { background: rgba(37,99,235,0.10); color: #2563eb; }
+    .traj-badge--de-escalating { background: rgba(58,125,90,0.15); color: #3a7d5a; }
+
+    /* ── renderEscalationLog ────────────────────────────────────────── */
+    .esc-log {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    .esc-log__entry {
+      display: flex;
+      gap: var(--space-4);
+      align-items: flex-start;
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-left: 3px solid var(--monitor-accent);
+      border-radius: var(--radius-md);
+    }
+    .esc-log__entry-body { flex: 1; min-width: 0; }
+    .esc-log__theatre-id {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--monitor-accent);
+      margin-bottom: var(--space-1);
+    }
+    .esc-log__indicator-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+    }
+    .esc-log__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-3);
+      font-size: var(--text-min);
+      color: var(--color-text-muted);
+      align-items: center;
+    }
+    /* Type badge: uses monitor-accent, no SCEM-specific color */
+    .esc-type-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 20px;
+      background: color-mix(in srgb, var(--monitor-accent) 10%, transparent);
+      color: var(--monitor-accent);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .esc-threshold-val {
+      font-weight: 700;
+      color: var(--color-text-secondary);
+    }
+
+    /* ── renderACLEDReference ───────────────────────────────────────── */
+    .acled-meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-5);
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-bg-alt);
+      border-radius: var(--radius);
+      margin-bottom: var(--space-4);
+      align-items: center;
+    }
+    .acled-meta-bar a { color: var(--monitor-accent); text-decoration: none; }
+    .acled-meta-bar a:hover { text-decoration: underline; }
+    .acled-ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-xs);
+      margin-bottom: var(--space-5);
+    }
+    .acled-ref-table th {
+      font-size: var(--text-min);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+      background: var(--color-bg-alt);
+      padding: var(--space-2) var(--space-3);
+      text-align: left;
+      border-bottom: 1px solid var(--color-border);
+      white-space: nowrap;
+    }
+    .acled-ref-table td {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border-subtle);
+      vertical-align: middle;
+      color: var(--color-text-secondary);
+    }
+    .acled-ref-table tr:last-child td { border-bottom: none; }
+    .acled-ref-table tr:hover td { background: var(--color-bg-alt); }
+    /* Tracked rows: bold + full text color */
+    .acled-ref-table tr.acled-tracked td { color: var(--color-text); font-weight: 600; }
+    /* Inline score sparkbar — uses monitor-accent */
+    .acled-score-bar {
+      display: inline-block;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--monitor-accent);
+      opacity: 0.65;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+    .acled-score-num { font-variant-numeric: tabular-nums; }
+    .acled-rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      font-size: var(--text-min);
+      font-weight: 800;
+      background: var(--color-bg-alt);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border);
+    }
+    /* Tracked-rank badge uses monitor-accent */
+    .acled-rank-badge--tracked {
+      background: color-mix(in srgb, var(--monitor-accent) 15%, transparent);
+      color: var(--monitor-accent);
+      border-color: transparent;
+      font-weight: 900;
+    }
+    /* Category badge — generic, no color assumption */
+    .acled-cat-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: color-mix(in srgb, var(--monitor-accent) 10%, transparent);
+      color: var(--monitor-accent);
+    }
+    /* Alignment status coloring */
+    .acled-align--consistent { color: #3a7d5a; font-weight: 700; }
+    .acled-align--divergent  { color: #dc2626; font-weight: 700; }
+    /* Monitor band coloring — generic severity names */
+    .band--red   { color: #dc2626; font-weight: 700; }
+    .band--amber { color: #d97706; font-weight: 700; }
+    .band--green { color: #3a7d5a; font-weight: 700; }
+    /* Tracker-monitored indicator inside global top-20 */
+    .acled-tracked-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--text-min);
+      font-weight: 700;
+      color: var(--monitor-accent);
+      background: color-mix(in srgb, var(--monitor-accent) 8%, transparent);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+    .acled-ref-subtitle {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--color-text-muted);
+      margin: var(--space-4) 0 var(--space-3);
+    }
+
+    /* ── renderKeyJudgments ─────────────────────────────────────────── */
+    .kj-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    .kj-entry {
+      display: flex;
+      gap: var(--space-4);
+      align-items: flex-start;
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+    .kj-entry__badges {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      flex-shrink: 0;
+      min-width: 80px;
+      align-items: flex-start;
+    }
+    .kj-entry__body { flex: 1; min-width: 0; }
+    .kj-id {
+      font-size: var(--text-min);
+      font-weight: 700;
+      color: var(--color-text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-1);
+    }
+    .kj-judgment {
+      font-size: var(--text-sm);
+      color: var(--color-text);
+      font-weight: 500;
+      line-height: 1.5;
+      margin-bottom: var(--space-2);
+    }
+    .kj-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2) var(--space-3);
+      font-size: var(--text-min);
+      color: var(--color-text-muted);
+      align-items: center;
+    }
+
+    /* ── renderCrossMonitorCandidates ───────────────────────────────── */
+    .cmc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+    }
+    .cmc-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+    /* Target monitor label — uses monitor-accent of THIS page, not the target */
+    .cmc-card__target {
+      font-size: var(--text-min);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--monitor-accent);
+    }
+    .cmc-card__signal {
+      font-size: var(--text-sm);
+      color: var(--color-text);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .cmc-card__meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      align-items: center;
+      margin-top: var(--space-1);
+    }
+    /* Type badge — neutral blue, doesn't inherit monitor-accent */
+    .cmc-type-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(37,99,235,0.10);
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
   </style>
 </head>
 
@@ -251,12 +641,57 @@
       </div>
     </section>
 
+    <!-- ESCALATION INDICATORS — threshold crossing log -->
+    <section class="module-section" id="section-escalation-indicators">
+      <div class="module-header">
+        <div class="module-title">Escalation Indicators</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-2)">Accumulating log of indicator threshold crossings. Entries persist across weekly issues.</p>
+      <div id="escalation-indicators-list">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- CONFLICT BASELINES (enriched with theatre tracker + indicator scoring) -->
     <section class="module-section" id="section-baselines">
       <div class="module-header">
         <div class="module-title">Conflict Baselines</div>
       </div>
       <div id="baselines-list">
         <div class="loading-state">Loading baselines…</div>
+      </div>
+    </section>
+
+    <!-- ACLED REFERENCE — index alignment panel -->
+    <section class="module-section" id="section-acled-reference">
+      <div class="module-header">
+        <div class="module-title">ACLED Index Alignment</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-2)">Cross-reference between monitor severity bands and ACLED Conflict Index scores. Monitor-tracked entries highlighted.</p>
+      <div id="acled-reference-panel">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- KEY JUDGMENTS — accumulating analyst history -->
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-title">Key Judgments</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-2)">Analyst judgments accumulating across issues. Each entry carries a confidence rating and trajectory assessment.</p>
+      <div id="key-judgments-list">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- CROSS-MONITOR CANDIDATES — persistent signal candidates -->
+    <section class="module-section" id="section-cross-monitor-candidates">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Candidates</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-2)">Persistent signals flagged for other monitors. Accumulate across weekly analysis cycles.</p>
+      <div id="cross-monitor-candidates-list">
+        <div class="loading-state">Loading…</div>
       </div>
     </section>
 
@@ -285,7 +720,11 @@
     <ul>
       <li><a href="#section-header">Overview</a></li>
       <li><a href="#section-f-flags">F-Flag Matrix</a></li>
+      <li><a href="#section-escalation-indicators">Escalation Indicators</a></li>
       <li><a href="#section-baselines">Baselines</a></li>
+      <li><a href="#section-acled-reference">ACLED Alignment</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-cross-monitor-candidates">CMC Candidates</a></li>
       <li><a href="#section-roster-watch">Roster Watch</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
@@ -295,191 +734,191 @@
 <footer class="monitor-footer"></footer>
 <script src="../shared/js/renderer.js"></script>
 <script>
+/* ==========================================================================
+   LOCAL RENDERER HELPERS
+   SCEM-specific helpers retained here. Generic helpers (enrichBaselineWithTheatre,
+   enrichIndicatorCell, renderEscalationLog, renderACLEDReference, renderKeyJudgments,
+   renderCrossMonitorCandidates, confBadgeClass, deviationBandClass, levelLabelClass)
+   are provided by window.AsymSections via shared/js/renderer.js.
+   ========================================================================== */
+
+/* ── Shared utility: HTML escape ─────────────────────────────────────────── */
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ── Shared utility: trajectory key → CSS class suffix ──────────────────── */
+function trajBadgeClass(traj) {
+  var t = (traj || '').toLowerCase().replace(/[^a-z-]/g, '');
+  if (t === 'escalating')    return 'traj-badge--escalating';
+  if (t === 'stable')        return 'traj-badge--stable';
+  if (t === 'deescalating')  return 'traj-badge--de-escalating';
+  return '';
+}
+
+/* ── Shared utility: severity/band string → CSS class ───────────────────── */
+/* Used by bandToSeverityClass (cross-monitor flags) and ACLED band coloring. */
+function bandToSeverityClass(sev) {
+  var s = (sev || '').toLowerCase();
+  if (s === 'critical' || s === 'anomalous') return 'critical';
+  if (s === 'high' || s === 'amber' || s === 'elevated') return 'high';
+  if (s === 'positive' || s === 'green' || s === 'normal') return 'positive';
+  return 'moderate';
+}
+
+/* ── Shared utility: band string → generic CSS class (band--red/amber/green) */
+function bandColorClass(band) {
+  var b = (band || '').toLowerCase();
+  if (b === 'red'   || b === 'extreme' || b === 'critical') return 'band--red';
+  if (b === 'amber' || b === 'high'    || b === 'elevated') return 'band--amber';
+  if (b === 'green' || b === 'low'     || b === 'normal')   return 'band--green';
+  return '';
+}
+
+/* ==========================================================================
+   SCEM ORCHESTRATION
+   renderPersistent(d) — SCEM-specific. Calls generic render functions above.
+   Handles SCEM data shapes: conflict_baselines, f_flag_history, roster_watch,
+   cross_monitor_flags, and the report-latest enrichment sections.
+   ========================================================================== */
 document.addEventListener('DOMContentLoaded', function () {
+
   Promise.all([
-    fetch('data/persistent-state.json').then(function(r){return r.json();}),
-    fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
-  ]).then(function(results){
-    var ps = results[0];
+    fetch('data/persistent-state.json').then(function(r) { return r.json(); }),
+    fetch('data/report-latest.json').then(function(r) { return r.json(); }).catch(function() { return {}; })
+  ]).then(function (results) {
+    var ps     = results[0];
     var report = results[1];
-    // Merge CMF from report-latest into persistent state
-    if (report.cross_monitor_flags) {
-      ps._report_cmf = report.cross_monitor_flags;
-    }
+
+    /* Merge all report-latest sections into persistent state object */
+    if (report.cross_monitor_flags)      ps._report_cmf             = report.cross_monitor_flags;
+    if (report.theatre_tracker)          ps._report_theatre_tracker = report.theatre_tracker;
+    if (report.indicator_scoring)        ps._report_ind_scoring     = report.indicator_scoring;
+    if (report.escalation_indicators)    ps._report_esc_indicators  = report.escalation_indicators;
+    if (report.acled_reference)          ps._report_acled           = report.acled_reference;
+    if (report.key_judgments)            ps._report_key_judgments   = report.key_judgments;
+    if (report.cross_monitor_candidates) ps._report_cmc             = report.cross_monitor_candidates;
+
     renderPersistent(ps);
   }).catch(function (e) {
-    document.getElementById('baselines-list').innerHTML = '<div class="error-state">Failed to load persistent state: ' + e.message + '</div>';
+    document.getElementById('baselines-list').innerHTML =
+      '<div class="error-state">Failed to load persistent state: ' + escHtml(e.message) + '</div>';
   });
 
+  /* ── renderPersistent: SCEM-specific orchestration ─────────────────── */
   function renderPersistent(d) {
-    var meta      = d._meta || {};
-    var baselines = d.conflict_baselines || [];
-    var rosterStatus = d.roster_status || {};
+    var meta         = d._meta || {};
+    var baselines    = d.conflict_baselines || [];
     var rosterWatch  = d.roster_watch  || {};
-    var fFlags = d.f_flag_history || [];
+    var fFlags       = d.f_flag_history || [];
 
-    // Meta bar
+    /* Report-latest data */
+    var theatreTracker  = d._report_theatre_tracker || [];
+    var indScoringList  = d._report_ind_scoring     || [];
+    var escIndicators   = d._report_esc_indicators  || [];
+    var acledRef        = d._report_acled            || null;
+    var keyJudgments    = d._report_key_judgments   || [];
+    var cmcList         = d._report_cmc             || [];
+
+    /* Build theatre_tracker lookup: theatre_id → entry */
+    var theatreMap = {};
+    theatreTracker.forEach(function (t) { theatreMap[t.theatre_id] = t; });
+
+    /* Build indicator_scoring lookup: theatre_id → { indicatorKey → entry } */
+    var indScoringMap = {};
+    indScoringList.forEach(function (s) {
+      var indMap = {};
+      (s.indicators || []).forEach(function (ind) { indMap[ind.indicator] = ind; });
+      indScoringMap[s.theatre_id] = indMap;
+    });
+
+    /* ── Meta bar ── */
     document.getElementById('meta-bar').innerHTML =
-      '<span>Last updated: ' + escHtml(meta.last_updated||'—') + '</span>' +
-      '<span>Week ' + (meta.week_number||'—') + '</span>' +
-      '<span>Schema ' + escHtml(meta.schema_version||'2.0') + '</span>';
+      '<span>Last updated: ' + escHtml(meta.last_updated || '—') + '</span>' +
+      '<span>Week ' + escHtml(String(meta.week_number || '—')) + '</span>' +
+      '<span>Schema ' + escHtml(meta.schema_version || '2.0') + '</span>';
 
-    // F-Flag Matrix
+    /* ── F-Flag matrix ── */
     renderFFlagMatrix(fFlags);
 
-    // Baselines
-    function renderDataPoint(dp, label) {
-      if (!dp) return '';
-      var isContested = dp.data_confidence === 'Contested' || dp.range;
-      var html = '<div class="ctx-datapoint">';
-      html += '<span class="ctx-dp__label">' + escHtml(label) + '</span>';
-      if (isContested && dp.range) {
-        html += '<span class="ctx-dp__value ctx-dp__value--contested">' +
-          escHtml(String(dp.range.low||'?')) + ' – ' + escHtml(String(dp.range.high||'?')) +
-          '</span>';
-        var srcs = dp.sources || [];
-        if (srcs.length) {
-          html += '<div class="ctx-dp__sources">' + srcs.map(function(s) {
-            return '<span class="ctx-dp__src">' +
-              escHtml(s.source||'') + ' (' + escHtml(s.tier||'') + ')' +
-              (s.as_of ? ' · ' + escHtml(s.as_of) : '') +
-              (s.source_url ? ' <a href="' + escHtml(s.source_url) + '" target="_blank" rel="noopener" class="ctx-dp__link">↗</a>' : '') +
-            '</span>';
-          }).join('') + '</div>';
-        }
-        if (dp.confidence_note) {
-          html += '<div class="ctx-dp__note">' + escHtml(dp.confidence_note) + '</div>';
-        }
-      } else if (dp.value !== undefined && dp.value !== null) {
-        var conf = dp.data_confidence || '';
-        var confClass = conf === 'Confirmed' ? 'ctx-badge--confirmed'
-          : conf === 'Assessed' ? 'ctx-badge--assessed'
-          : conf === 'Unverified' ? 'ctx-badge--unverified' : 'ctx-badge--default';
-        html += '<span class="ctx-dp__value">' + escHtml(String(dp.value)) + '</span>';
-        html += '<span class="ctx-badge ' + confClass + '">' + escHtml(conf) + '</span>';
-        if (dp.source) html += '<span class="ctx-dp__src">' + escHtml(dp.source) +
-          (dp.tier ? ' (' + escHtml(dp.tier) + ')' : '') +
-          (dp.as_of ? ' · ' + escHtml(dp.as_of) : '') +
-          (dp.source_url ? ' <a href="' + escHtml(dp.source_url) + '" target="_blank" rel="noopener" class="ctx-dp__link">↗</a>' : '') +
-          '</span>';
-        if (dp.note) html += '<div class="ctx-dp__note">' + escHtml(dp.note) + '</div>';
-      } else {
-        html += '<span class="ctx-dp__value ctx-dp__value--null">—</span>';
-        if (dp.note) html += '<span class="ctx-dp__src">' + escHtml(dp.note) + '</span>';
-      }
-      html += '</div>';
-      return html;
-    }
+    /* ── Escalation indicators (generic) ── */
+    if (window.AsymSections) { AsymSections.renderEscalationLog(escIndicators, 'escalation-indicators-list'); }
 
-    function renderConflictContext(ctx) {
-      if (!ctx) return '';
-      var html = '<div class="conflict-context">';
-
-      // Casualties
-      var cas = ctx.casualties || {};
-      if (cas.killed || cas.wounded) {
-        html += '<div class="ctx-section"><div class="ctx-section__title">Casualties</div>';
-        html += renderDataPoint(cas.killed, 'Killed');
-        html += renderDataPoint(cas.wounded, 'Wounded');
-        html += '</div>';
-      }
-
-      // Displacement
-      var dis = ctx.displacement || {};
-      if (dis.total_displaced) {
-        html += '<div class="ctx-section"><div class="ctx-section__title">Displacement</div>';
-        html += renderDataPoint(dis.total_displaced, 'Total displaced');
-        html += '</div>';
-      }
-
-      // Equipment losses
-      var eq = ctx.equipment_losses || {};
-      var eqData = eq.data;
-      var eqNote = eq.note;
-      if (eqData || eqNote) {
-        html += '<div class="ctx-section"><div class="ctx-section__title">Equipment losses</div>';
-        if (eqNote && !eqData) {
-          html += '<div class="ctx-dp__note">' + escHtml(eqNote) + '</div>';
-        } else if (eqData) {
-          // Oryx: show running total + week_delta if present
-          var eqSrc = Array.isArray(eqData.sources) ? eqData.sources[0] : null;
-          var delta = eqSrc && eqSrc.week_delta !== undefined ? eqSrc.week_delta : null;
-          html += renderDataPoint(eqData, 'Running total');
-          if (delta !== null) {
-            html += '<div class="ctx-datapoint">' +
-              '<span class="ctx-dp__label">Week delta</span>' +
-              '<span class="ctx-dp__value">' + escHtml(String(delta)) + '</span>' +
-            '</div>';
-          }
-        }
-        html += '</div>';
-      }
-
-      // Territorial control
-      var tc = ctx.territorial_control || {};
-      if (tc.summary) {
-        html += '<div class="ctx-section"><div class="ctx-section__title">Territorial control</div>';
-        html += '<div class="ctx-datapoint">';
-        html += '<span class="ctx-dp__label" style="display:block;margin-bottom:var(--space-1)">' + escHtml(tc.summary) + '</span>';
-        if (tc.source) html += '<span class="ctx-dp__src">' + escHtml(tc.source) +
-          (tc.tier ? ' (' + escHtml(tc.tier) + ')' : '') +
-          (tc.as_of ? ' · ' + escHtml(tc.as_of) : '') +
-          (tc.source_url ? ' <a href="' + escHtml(tc.source_url) + '" target="_blank" rel="noopener" class="ctx-dp__link">↗</a>' : '') +
-          '</span>';
-        html += '</div>';
-        html += '</div>';
-      }
-
-      // Iran/C10 instruction note
-      if (ctx.cron_instruction_note) {
-        html += '<div class="ctx-section ctx-section--warn">' +
-          '<div class="ctx-dp__note" style="color:var(--color-text-secondary)">' +
-          '⚠ ' + escHtml(ctx.cron_instruction_note) + '</div></div>';
-      }
-
-      html += '</div>';
-      return html;
-    }
+    /* ── Conflict baselines ── */
+    var IND_NAMES = { I1:'Rhetoric', I2:'Military', I3:'Nuclear', I4:'Economic', I5:'Diplomatic', I6:'Displacement' };
 
     var html = '';
     baselines.forEach(function (b) {
-      var wc      = b.week_count || 0;
+      var wc       = b.week_count || 0;
       var building = wc < 13;
       var medians  = b.indicator_medians || {};
       var currents = b.current_levels    || {};
       var vh       = b.version_history   || [];
 
+      /* Match to theatre_tracker: prefer theatre_id field, then normalize theatre/conflict name */
+      var tId  = (b.theatre_id || b.theatre || '').toLowerCase().replace(/\s+/g, '-');
+      var tData = theatreMap[tId] || null;
+      if (!tData) {
+        /* Fuzzy fallback: first token of theatre name vs map keys */
+        var bName = (b.theatre || b.conflict || '').toLowerCase().split(/\s/)[0];
+        Object.keys(theatreMap).forEach(function (key) {
+          if (!tData && (key.indexOf(bName) !== -1 || bName.indexOf(key.split('-')[0]) !== -1)) {
+            tData = theatreMap[key];
+            tId   = key;
+          }
+        });
+      }
+
+      /* Indicator scoring for this theatre */
+      var indScoring = indScoringMap[tId] || null;
+
       var statusBadge = building
         ? '<span class="severity-badge severity-badge--moderate">CONTESTED — Week ' + wc + '/13</span>'
-        : '<span class="severity-badge severity-badge--positive">' + escHtml(b.baseline_status||'Active') + '</span>';
+        : '<span class="severity-badge severity-badge--positive">' + escHtml(b.baseline_status || 'Active') + '</span>';
 
+      /* Theatre tracker strip — generic helper */
+      var theatreStripHtml = window.AsymSections ? AsymSections.enrichBaselineWithTheatre(tData) : '';
+
+      /* Indicator grid — uses enrichIndicatorCell() for scoring detail */
       var indHtml = '';
-      var IND_NAMES = { I1:'Rhetoric', I2:'Military', I3:'Nuclear', I4:'Economic', I5:'Diplomatic', I6:'Displacement' };
-      ['I1','I2','I3','I4','I5','I6'].forEach(function (k) {
-        var med  = medians[k];
-        var curr = currents[k];
+      Object.keys(IND_NAMES).forEach(function (k) {
+        var med    = medians[k];
+        var curr   = currents[k];
+        var scoring = indScoring ? indScoring[k] : null;
+        var isElevated = scoring && scoring.deviation > 0;
+
         indHtml +=
-          '<div class="indicator-cell">' +
-            '<div class="indicator-cell__name">' + k + ' · ' + (IND_NAMES[k]||k) + '</div>' +
+          '<div class="indicator-cell' + (isElevated ? ' indicator-cell--elevated' : '') + '">' +
+            '<div class="indicator-cell__name">' + k + ' · ' + escHtml(IND_NAMES[k]) + '</div>' +
             '<div class="indicator-cell__values">' +
               '<div class="indicator-val">' +
-                '<div class="indicator-val__num" style="color:var(--color-text-muted)">' + (med !== null && med !== undefined ? med : '—') + '</div>' +
+                '<div class="indicator-val__num" style="color:var(--color-text-muted)">' +
+                  (med !== null && med !== undefined ? escHtml(String(med)) : '—') +
+                '</div>' +
                 '<div class="indicator-val__label">Median</div>' +
               '</div>' +
               '<div class="indicator-val">' +
-                '<div class="indicator-val__num">' + (curr !== null && curr !== undefined ? curr : '—') + '</div>' +
+                '<div class="indicator-val__num">' +
+                  (curr !== null && curr !== undefined ? escHtml(String(curr)) : '—') +
+                '</div>' +
                 '<div class="indicator-val__label">Current</div>' +
               '</div>' +
             '</div>' +
+            (window.AsymSections ? AsymSections.enrichIndicatorCell(scoring) : '') +
           '</div>';
       });
 
+      /* Version history toggle */
       var vhHtml = '';
       if (vh.length) {
         vhHtml = vh.slice().reverse().map(function (v) {
           return '<div class="version-entry">' +
-            '<div class="version-entry__date">' + escHtml(v.date||'') + '</div>' +
-            '<div class="version-entry__change">' + escHtml(v.change||'') + '</div>' +
+            '<div class="version-entry__date">'   + escHtml(v.date   || '') + '</div>' +
+            '<div class="version-entry__change">' + escHtml(v.change || '') + '</div>' +
             (v.reason ? '<div class="version-entry__reason">' + escHtml(v.reason) + '</div>' : '') +
           '</div>';
         }).join('');
@@ -488,76 +927,102 @@ document.addEventListener('DOMContentLoaded', function () {
       html +=
         '<div class="baseline-card">' +
           '<div class="baseline-card__header">' +
-            '<div class="baseline-card__name">' + escHtml(b.conflict||'') + '</div>' +
+            '<div class="baseline-card__name">' + escHtml(b.conflict || '') + '</div>' +
             '<div>' + statusBadge + '</div>' +
           '</div>' +
           '<div class="baseline-card__meta">' +
-            '<span>' + escHtml(b.theatre||'') + '</span>' +
-            '<span>First observed: ' + escHtml(b.first_observed||'—') + '</span>' +
+            '<span>' + escHtml(b.theatre || '') + '</span>' +
+            '<span>First observed: ' + escHtml(b.first_observed || '—') + '</span>' +
             '<span>Week ' + wc + ' of 13 (locks at W13)</span>' +
           '</div>' +
-          (building ? '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">Indicator medians build over 13 weekly observations. Medians shown as — until baseline locks.</p>' : '') +
-          (b.notes ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4)">' + escHtml(b.notes) + '</p>' : '') +
+          theatreStripHtml +
+          (building
+            ? '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">' +
+                'Indicator medians build over 13 weekly observations. Medians shown as — until baseline locks.' +
+              '</p>'
+            : '') +
+          (b.notes
+            ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-4)">' +
+                escHtml(b.notes) +
+              '</p>'
+            : '') +
           '<div class="indicator-grid">' + indHtml + '</div>' +
-          (vhHtml ?
-            '<button class="version-history__toggle" type="button">Version history →</button>' +
-            '<div class="version-history">' + vhHtml + '</div>'
-          : '') +
-          (b.conflict_context ?
-            '<button class="version-history__toggle ctx-toggle" type="button" style="margin-top:var(--space-3)">Conflict context ▸</button>' +
-            '<div class="version-history ctx-panel">' + renderConflictContext(b.conflict_context) + '</div>'
-          : '') +
+          (vhHtml
+            ? '<button class="version-history__toggle" type="button">Version history →</button>' +
+              '<div class="version-history">' + vhHtml + '</div>'
+            : '') +
+          (b.conflict_context
+            ? '<button class="version-history__toggle ctx-toggle" type="button" style="margin-top:var(--space-3)">Conflict context ▸</button>' +
+              '<div class="version-history ctx-panel">' + renderConflictContext(b.conflict_context) + '</div>'
+            : '') +
         '</div>';
     });
-    document.getElementById('baselines-list').innerHTML = html || '<p class="text-muted">No baseline data available.</p>';
+    document.getElementById('baselines-list').innerHTML =
+      html || '<p class="text-muted">No baseline data available.</p>';
 
-    // Roster Watch
-    var rw = rosterWatch;
-    var approaching = rw.approaching_inclusion || [];
+    /* ── ACLED reference (generic) ── */
+    if (window.AsymSections) { AsymSections.renderACLEDReference(acledRef, 'acled-reference-panel'); }
+
+    /* ── Key judgments (generic) ── */
+    if (window.AsymSections) { AsymSections.renderKeyJudgments(keyJudgments, 'key-judgments-list'); }
+
+    /* ── Cross-monitor candidates (generic) ── */
+    if (window.AsymSections) { AsymSections.renderCrossMonitorCandidates(cmcList, 'cross-monitor-candidates-list'); }
+
+    /* ── Roster Watch ── */
+    var rw          = rosterWatch;
+    var approaching = rw.approaching_inclusion  || [];
     var retiring    = rw.approaching_retirement || [];
     var rwHtml = '';
     if (approaching.length) {
-      rwHtml += '<div class="section-label">Approaching Inclusion</div><ul class="roster-watch-list">' +
-        approaching.map(function(r) {
+      rwHtml += '<div class="section-label">Approaching Inclusion</div>' +
+        '<ul class="roster-watch-list">' +
+        approaching.map(function (r) {
           if (typeof r === 'string') return '<li>' + escHtml(r) + '</li>';
-          return '<li><strong>' + escHtml(r.conflict||'') + '</strong>' +
+          return '<li><strong>' + escHtml(r.conflict || '') + '</strong>' +
             (r.theatre ? ' · ' + escHtml(r.theatre) : '') +
-            (r.status ? ' <span class="severity-badge severity-badge--moderate">' + escHtml(r.status) + '</span>' : '') +
-            (r.notes || r.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px">' + escHtml(r.notes||r.note) + '</div>' : '') +
-            (r.criteria_met && r.criteria_met.length ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Criteria met: ' + r.criteria_met.map(escHtml).join(', ') + '</div>' : '') +
+            (r.status  ? ' <span class="severity-badge severity-badge--moderate">' + escHtml(r.status) + '</span>' : '') +
+            (r.notes || r.note
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px">' + escHtml(r.notes || r.note) + '</div>'
+              : '') +
+            (r.criteria_met && r.criteria_met.length
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Criteria met: ' + r.criteria_met.map(escHtml).join(', ') + '</div>'
+              : '') +
           '</li>';
         }).join('') + '</ul>';
     }
     if (retiring.length) {
-      rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div><ul class="roster-watch-list">' +
-        retiring.map(function(r) { return '<li>' + escHtml(typeof r === 'string' ? r : (r.conflict||JSON.stringify(r))) + '</li>'; }).join('') + '</ul>';
+      rwHtml += '<div class="section-label" style="margin-top:var(--space-4)">Approaching Retirement</div>' +
+        '<ul class="roster-watch-list">' +
+        retiring.map(function (r) {
+          return '<li>' + escHtml(typeof r === 'string' ? r : (r.conflict || JSON.stringify(r))) + '</li>';
+        }).join('') + '</ul>';
     }
     if (!approaching.length && !retiring.length) {
       rwHtml = '<p class="text-muted text-sm">No roster changes currently flagged.</p>';
     }
     document.getElementById('roster-watch').innerHTML = rwHtml;
 
-    // Cross-monitor flags — from report-latest.json (merged in above)
-    var cmf = d._report_cmf || d.cross_monitor_flags || {};
+    /* ── Cross-monitor flags (from persistent-state or report-latest) ── */
+    var cmf   = d._report_cmf || d.cross_monitor_flags || {};
     var flags = cmf.flags || [];
-
-    var cmEl = document.getElementById('cross-monitor');
+    var cmEl  = document.getElementById('cross-monitor');
     if (!flags.length) {
       cmEl.innerHTML = '<p class="text-muted text-sm">Cross-monitor flags are written by the weekly cron task and accumulate here across issues. Flags will appear after the next publish cycle.</p>';
     } else {
       var cmHtml = '<div class="cross-monitor-panel">' +
-        '<div class="cross-monitor-panel__title">Accumulating Cross-Monitor Flags · Updated ' + escHtml(cmf.updated||'') + '</div>';
+        '<div class="cross-monitor-panel__title">Accumulating Cross-Monitor Flags · Updated ' + escHtml(cmf.updated || '') + '</div>';
       flags.forEach(function (flag) {
-        var sc = bandToSeverityClass(flag.severity||'');
+        var sc = bandToSeverityClass(flag.severity || '');
         cmHtml +=
           '<div class="cms-flag">' +
             '<div class="cms-flag__header">' +
-              '<div class="cms-flag__id">' + escHtml(flag.flag_id||'') + '</div>' +
-              '<span class="severity-badge severity-badge--' + sc + '">' + escHtml(flag.severity||'') + '</span>' +
+              '<div class="cms-flag__id">'   + escHtml(flag.flag_id || '') + '</div>' +
+              '<span class="severity-badge severity-badge--' + sc + '">' + escHtml(flag.severity || '') + '</span>' +
             '</div>' +
-            '<div class="cms-flag__title">' + escHtml(flag.title||'') + '</div>' +
-            '<div class="cms-flag__monitors">Monitors: ' + escHtml((flag.monitors||[]).join(', ')) + '</div>' +
-            '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(flag.summary||'') + '</div>' +
+            '<div class="cms-flag__title">'   + escHtml(flag.title   || '') + '</div>' +
+            '<div class="cms-flag__monitors">Monitors: ' + escHtml((flag.monitors || []).join(', ')) + '</div>' +
+            '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(flag.summary || '') + '</div>' +
             '<span class="cms-read-more">Read more →</span>' +
           '</div>';
       });
@@ -565,11 +1030,114 @@ document.addEventListener('DOMContentLoaded', function () {
       cmEl.innerHTML = cmHtml;
     }
 
-    // Re-init nav for toggling etc.
+    /* Re-init nav */
     if (window.AsymNav) AsymNav.init();
   }
 
-  /* ── F-FLAG MATRIX ────────────────────────────────────────────────── */
+  /* ── SCEM-specific: conflict context renderer ───────────────────────── */
+  function renderConflictContext(ctx) {
+    if (!ctx) return '';
+    var html = '<div class="conflict-context">';
+
+    function renderDataPoint(dp, label) {
+      if (!dp) return '';
+      var isContested = dp.data_confidence === 'Contested' || dp.range;
+      var out = '<div class="ctx-datapoint">';
+      out += '<span class="ctx-dp__label">' + escHtml(label) + '</span>';
+      if (isContested && dp.range) {
+        out += '<span class="ctx-dp__value ctx-dp__value--contested">' +
+          escHtml(String(dp.range.low || '?')) + ' – ' + escHtml(String(dp.range.high || '?')) +
+          '</span>';
+        var srcs = dp.sources || [];
+        if (srcs.length) {
+          out += '<div class="ctx-dp__sources">' + srcs.map(function (s) {
+            return '<span class="ctx-dp__src">' +
+              escHtml(s.source || '') + ' (' + escHtml(s.tier || '') + ')' +
+              (s.as_of ? ' · ' + escHtml(s.as_of) : '') +
+              (s.source_url ? ' <a href="' + escHtml(s.source_url) + '" target="_blank" rel="noopener" class="ctx-dp__link">↗</a>' : '') +
+            '</span>';
+          }).join('') + '</div>';
+        }
+        if (dp.confidence_note) out += '<div class="ctx-dp__note">' + escHtml(dp.confidence_note) + '</div>';
+      } else if (dp.value !== undefined && dp.value !== null) {
+        var conf = dp.data_confidence || '';
+        var cClass = conf === 'Confirmed' ? 'ctx-badge--confirmed'
+          : conf === 'Assessed'   ? 'ctx-badge--assessed'
+          : conf === 'Unverified' ? 'ctx-badge--unverified' : 'ctx-badge--default';
+        out += '<span class="ctx-dp__value">' + escHtml(String(dp.value)) + '</span>';
+        out += '<span class="ctx-badge ' + cClass + '">' + escHtml(conf) + '</span>';
+        if (dp.source) out += '<span class="ctx-dp__src">' + escHtml(dp.source) +
+          (dp.tier       ? ' (' + escHtml(dp.tier) + ')' : '') +
+          (dp.as_of      ? ' · ' + escHtml(dp.as_of) : '') +
+          (dp.source_url ? ' <a href="' + escHtml(dp.source_url) + '" target="_blank" rel="noopener" class="ctx-dp__link">↗</a>' : '') +
+          '</span>';
+        if (dp.note) out += '<div class="ctx-dp__note">' + escHtml(dp.note) + '</div>';
+      } else {
+        out += '<span class="ctx-dp__value ctx-dp__value--null">—</span>';
+        if (dp.note) out += '<span class="ctx-dp__src">' + escHtml(dp.note) + '</span>';
+      }
+      out += '</div>';
+      return out;
+    }
+
+    var cas = ctx.casualties || {};
+    if (cas.killed || cas.wounded) {
+      html += '<div class="ctx-section"><div class="ctx-section__title">Casualties</div>';
+      html += renderDataPoint(cas.killed,  'Killed');
+      html += renderDataPoint(cas.wounded, 'Wounded');
+      html += '</div>';
+    }
+
+    var dis = ctx.displacement || {};
+    if (dis.total_displaced) {
+      html += '<div class="ctx-section"><div class="ctx-section__title">Displacement</div>';
+      html += renderDataPoint(dis.total_displaced, 'Total displaced');
+      html += '</div>';
+    }
+
+    var eq     = ctx.equipment_losses || {};
+    var eqData = eq.data;
+    var eqNote = eq.note;
+    if (eqData || eqNote) {
+      html += '<div class="ctx-section"><div class="ctx-section__title">Equipment losses</div>';
+      if (eqNote && !eqData) {
+        html += '<div class="ctx-dp__note">' + escHtml(eqNote) + '</div>';
+      } else if (eqData) {
+        var eqSrc = Array.isArray(eqData.sources) ? eqData.sources[0] : null;
+        var delta = eqSrc && eqSrc.week_delta !== undefined ? eqSrc.week_delta : null;
+        html += renderDataPoint(eqData, 'Running total');
+        if (delta !== null) {
+          html += '<div class="ctx-datapoint"><span class="ctx-dp__label">Week delta</span>' +
+            '<span class="ctx-dp__value">' + escHtml(String(delta)) + '</span></div>';
+        }
+      }
+      html += '</div>';
+    }
+
+    var tc = ctx.territorial_control || {};
+    if (tc.summary) {
+      html += '<div class="ctx-section"><div class="ctx-section__title">Territorial control</div>';
+      html += '<div class="ctx-datapoint">';
+      html += '<span class="ctx-dp__label" style="display:block;margin-bottom:var(--space-1)">' + escHtml(tc.summary) + '</span>';
+      if (tc.source) html += '<span class="ctx-dp__src">' + escHtml(tc.source) +
+        (tc.tier       ? ' (' + escHtml(tc.tier) + ')' : '') +
+        (tc.as_of      ? ' · ' + escHtml(tc.as_of) : '') +
+        (tc.source_url ? ' <a href="' + escHtml(tc.source_url) + '" target="_blank" rel="noopener" class="ctx-dp__link">↗</a>' : '') +
+        '</span>';
+      html += '</div></div>';
+    }
+
+    if (ctx.cron_instruction_note) {
+      html += '<div class="ctx-section ctx-section--warn">' +
+        '<div class="ctx-dp__note" style="color:var(--color-text-secondary)">⚠ ' +
+        escHtml(ctx.cron_instruction_note) + '</div></div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  /* ── SCEM-specific: F-flag matrix ──────────────────────────────────── */
   function renderFFlagMatrix(fFlags) {
     var F_DEFINITIONS = {
       F1: 'Single-source signal',
@@ -581,47 +1149,44 @@ document.addEventListener('DOMContentLoaded', function () {
       F7: 'Spoofed indicator'
     };
 
-    // Build map of which flag IDs are active
     var flagMap = {};
-    fFlags.forEach(function(f) {
-      var rawFlag = (f.flag || '').trim();
-      var baseFlag = rawFlag.match(/^(F[1-7])/i);
-      var key = baseFlag ? baseFlag[1].toUpperCase() : rawFlag;
+    fFlags.forEach(function (f) {
+      var raw  = (f.flag || '').trim();
+      var base = raw.match(/^(F[1-7])/i);
+      var key  = base ? base[1].toUpperCase() : raw;
       if (!flagMap[key]) flagMap[key] = [];
       flagMap[key].push(f);
     });
 
-    // Matrix cells
     var matrixHtml = '<div class="fflag-matrix">';
-    ['F1','F2','F3','F4','F5','F6','F7'].forEach(function(fid) {
-      var entries = flagMap[fid] || [];
-      var isActive = entries.length > 0;
+    ['F1','F2','F3','F4','F5','F6','F7'].forEach(function (fid) {
+      var entries      = flagMap[fid] || [];
+      var isActive     = entries.length > 0;
       var firstConflict = isActive ? (entries[0].conflict || '') : '';
-      var tooltipParts = entries.map(function(e) {
+      var tooltip      = entries.map(function (e) {
         return e.conflict + (e.indicator ? ' [' + e.indicator + ']' : '') + ': ' + (e.detail || '');
-      });
-      var tooltip = tooltipParts.join(' | ') || F_DEFINITIONS[fid];
+      }).join(' | ') || F_DEFINITIONS[fid];
 
       matrixHtml +=
         '<div class="fflag-cell' + (isActive ? ' fflag-cell--active' : '') + '" title="' + escHtml(tooltip) + '">' +
           (entries.length > 1 ? '<span class="fflag-cell__count">' + entries.length + '</span>' : '') +
-          '<div class="fflag-cell__id">' + fid + '</div>' +
+          '<div class="fflag-cell__id">'     + fid + '</div>' +
           '<div class="fflag-cell__status">' + (isActive ? 'Active' : 'Clear') + '</div>' +
-          (isActive && firstConflict ? '<div class="fflag-cell__conflict">' + escHtml(firstConflict.split(/[\s\/–]/)[0]) + '</div>' : '') +
+          (isActive && firstConflict
+            ? '<div class="fflag-cell__conflict">' + escHtml(firstConflict.split(/[\s\/–]/)[0]) + '</div>'
+            : '') +
         '</div>';
     });
     matrixHtml += '</div>';
 
-    // Definitions
     matrixHtml += '<div class="fflag-definitions">';
-    Object.keys(F_DEFINITIONS).forEach(function(fid) {
+    Object.keys(F_DEFINITIONS).forEach(function (fid) {
       matrixHtml += '<div class="fflag-def"><strong>' + fid + ':</strong><span>' + escHtml(F_DEFINITIONS[fid]) + '</span></div>';
     });
     matrixHtml += '</div>';
 
     document.getElementById('fflag-matrix-wrap').innerHTML = matrixHtml;
 
-    // Detail table
     var ffEl = document.getElementById('f-flag-list');
     if (ffEl) {
       if (!fFlags.length) {
@@ -629,24 +1194,23 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         var tableHtml =
           '<table class="fflag-detail-table">' +
-            '<thead><tr>' +
-              '<th>Flag</th>' +
-              '<th>Conflict</th>' +
-              '<th>Indicator</th>' +
-              '<th>Detail</th>' +
-              '<th>Applied</th>' +
-              '<th>Status</th>' +
-            '</tr></thead>' +
-            '<tbody>';
-        fFlags.forEach(function(f) {
+          '<thead><tr>' +
+            '<th>Flag</th><th>Conflict</th><th>Indicator</th>' +
+            '<th>Detail</th><th>Applied</th><th>Status</th>' +
+          '</tr></thead><tbody>';
+        fFlags.forEach(function (f) {
           tableHtml +=
             '<tr>' +
-              '<td><span class="fflag-id-badge">' + escHtml(f.flag||'') + '</span></td>' +
-              '<td><strong>' + escHtml(f.conflict||'') + '</strong></td>' +
-              '<td>' + escHtml(f.indicator||'') + '</td>' +
-              '<td style="max-width:280px;white-space:normal;font-size: var(--text-min);color:var(--color-text-secondary)">' + escHtml(f.detail||'') + '</td>' +
-              '<td>' + escHtml(f.applied||'') + '</td>' +
-              '<td><span class="severity-badge ' + (f.status==='Active'?'severity-badge--high':'severity-badge--moderate') + '">' + escHtml(f.status||'') + '</span></td>' +
+              '<td><span class="fflag-id-badge">' + escHtml(f.flag || '') + '</span></td>' +
+              '<td><strong>' + escHtml(f.conflict || '') + '</strong></td>' +
+              '<td>' + escHtml(f.indicator || '') + '</td>' +
+              '<td style="max-width:280px;white-space:normal;font-size:var(--text-min);color:var(--color-text-secondary)">' +
+                escHtml(f.detail || '') +
+              '</td>' +
+              '<td>' + escHtml(f.applied || '') + '</td>' +
+              '<td><span class="severity-badge ' + (f.status === 'Active' ? 'severity-badge--high' : 'severity-badge--moderate') + '">' +
+                escHtml(f.status || '') +
+              '</span></td>' +
             '</tr>';
         });
         tableHtml += '</tbody></table>';
@@ -655,35 +1219,38 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function bandToSeverityClass(sev) {
-    var s = (sev||'').toLowerCase();
-    if (s === 'critical' || s === 'red' || s === 'anomalous') return 'critical';
-    if (s === 'high' || s === 'amber' || s === 'elevated') return 'high';
-    if (s === 'positive' || s === 'green' || s === 'normal') return 'positive';
-    return 'moderate';
-  }
+  /* ── Toggle handlers — version history, conflict context, ind scoring ── */
+  document.addEventListener('click', function (e) {
 
-  function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+    /* Version history / conflict context panels */
+    var toggleBtn = e.target.closest('.version-history__toggle');
+    if (toggleBtn) {
+      var panel = toggleBtn.nextElementSibling;
+      if (!panel) return;
+      var isOpen = panel.classList.contains('open') || panel.classList.contains('version-history--open');
+      if (panel.classList.contains('ctx-panel')) {
+        panel.classList.toggle('open');
+        toggleBtn.textContent = isOpen ? 'Conflict context ▸' : 'Conflict context ▾';
+      } else {
+        panel.classList.toggle('version-history--open');
+        toggleBtn.textContent = isOpen ? 'Version history →' : 'Version history ↑';
+      }
+      return;
+    }
 
-  // Toggle handlers — version history + conflict context panels
-  document.addEventListener('click', function(e) {
-    var btn = e.target.closest('.version-history__toggle');
-    if (!btn) return;
-    var panel = btn.nextElementSibling;
-    if (!panel) return;
-    var isOpen = panel.classList.contains('open') ||
-                 panel.classList.contains('version-history--open');
-    if (panel.classList.contains('ctx-panel')) {
-      panel.classList.toggle('open');
-      btn.textContent = isOpen ? 'Conflict context ▸' : 'Conflict context ▾';
-    } else {
-      panel.classList.toggle('version-history--open');
-      btn.textContent = isOpen ? 'Version history →' : 'Version history ↑';
+    /* Indicator scoring detail expand (from enrichIndicatorCell) */
+    var indBtn = e.target.closest('.ind-expand-btn');
+    if (indBtn) {
+      var detail  = indBtn.nextElementSibling;
+      if (!detail) return;
+      var wasOpen = detail.classList.contains('open');
+      detail.classList.toggle('open');
+      indBtn.setAttribute('aria-expanded', String(!wasOpen));
+      indBtn.textContent = wasOpen ? 'Details ▸' : 'Details ▾';
     }
   });
-});
+
+}); /* end DOMContentLoaded */
 </script>
 </body>
 </html>
