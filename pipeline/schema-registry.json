@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "description": "Consolidated schema registry for all 7 monitors. Defines every report field, its source (synthesis / persistent-state / publisher / carry-forward), the dashboard section that renders it, and the synthesis-to-report field mapping. The publisher and preflight checks validate against this file.",
-  "last_updated": "2026-04-11",
+  "last_updated": "2026-04-12",
   "field_sources": {
     "synthesis": "Produced by the synthesiser each week",
     "persistent-state": "Read from persistent-state.json (longitudinal memory)",
@@ -79,7 +79,7 @@
           "dashboard_section": "executive-briefing",
           "sprint_4": null,
           "gap": "Not produced by synthesis. Should be partially derivable from stress_regime_preliminary + indicator_domains. Requires synthesis prompt extension.",
-          "notes": "Key dashboard section — shows stress label, scenarios, regime probabilities"
+          "notes": "Key dashboard section \u2014 shows stress label, scenarios, regime probabilities"
         },
         "stress_regime": {
           "required": true,
@@ -315,7 +315,7 @@
           "source": "synthesis",
           "synthesis_key": "weekly_brief_draft",
           "dashboard_section": null,
-          "gap": "Publisher writes Hugo brief but does NOT write weekly_brief to report JSON. Bug — weekly_brief_draft should be mapped to weekly_brief in the report.",
+          "gap": "Publisher writes Hugo brief but does NOT write weekly_brief to report JSON. Bug \u2014 weekly_brief_draft should be mapped to weekly_brief in the report.",
           "notes": "Currently carries forward from previous report in the JSON"
         },
         "source_url": {
@@ -360,7 +360,7 @@
         "_comment": "Bug fix: publisher should write weekly_brief_draft to report JSON as weekly_brief"
       },
       "synthesis_gaps": [
-        "executive_briefing partially derivable from stress_regime_preliminary + scenarios — publisher logic needed"
+        "executive_briefing partially derivable from stress_regime_preliminary + scenarios \u2014 publisher logic needed"
       ],
       "file_paths": {
         "_note": "Canonical file locations for schema sprint and pipeline work",
@@ -486,7 +486,7 @@
           "required": true,
           "source": "synthesis",
           "synthesis_key": "weekly_brief_draft",
-          "gap": "Same as GMM — not written to report JSON"
+          "gap": "Same as GMM \u2014 not written to report JSON"
         },
         "source_url": {
           "required": true,
@@ -574,14 +574,14 @@
           "source": "synthesis",
           "synthesis_key": "country_heatmap",
           "dashboard_section": "heatmap",
-          "notes": "Publisher maps country_heatmap → heatmap"
+          "notes": "Publisher maps country_heatmap \u2192 heatmap"
         },
         "intelligence_items": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "backsliding_alerts",
           "dashboard_section": "intelligence-items",
-          "notes": "Publisher maps backsliding_alerts → intelligence_items"
+          "notes": "Publisher maps backsliding_alerts \u2192 intelligence_items"
         },
         "institutional_integrity_flags": {
           "required": true,
@@ -627,21 +627,21 @@
           "source": "synthesis",
           "synthesis_key": "mimicry_chain_update",
           "dashboard_section": "mimicry-chain",
-          "notes": "Sprint v2: new field — autocratic legislative model export chains."
+          "notes": "Sprint v2: new field \u2014 autocratic legislative model export chains."
         },
         "legislative_watch_entries": {
           "required": false,
           "source": "synthesis",
           "synthesis_key": "legislative_watch_entries",
           "dashboard_section": "legislative-watch",
-          "notes": "Sprint v2: new field — bills/EOs/regulatory actions with lifecycle tracking."
+          "notes": "Sprint v2: new field \u2014 bills/EOs/regulatory actions with lifecycle tracking."
         },
         "friction_notes": {
           "required": false,
           "source": "synthesis",
           "synthesis_key": "friction_notes",
           "dashboard_section": "friction-notes",
-          "notes": "Sprint v2: new field — official vs ground-truth divergences."
+          "notes": "Sprint v2: new field \u2014 official vs ground-truth divergences."
         }
       },
       "publisher_field_map": {
@@ -825,21 +825,21 @@
           "source": "synthesis",
           "synthesis_key": "jurisdiction_risk_matrix",
           "dashboard_section": "jurisdiction-risk-matrix",
-          "note": "Sprint 4 — dashboard render pending"
+          "note": "Sprint 4 \u2014 dashboard render pending"
         },
         "lab_posture_scorecard": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "lab_posture_scorecard",
           "dashboard_section": "lab-posture-scorecard",
-          "note": "Sprint 4 — dashboard render pending"
+          "note": "Sprint 4 \u2014 dashboard render pending"
         },
         "governance_health_composite": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "governance_health_composite",
           "dashboard_section": "governance-health-composite",
-          "note": "Sprint 4 — dashboard render pending"
+          "note": "Sprint 4 \u2014 dashboard render pending"
         }
       },
       "publisher_field_map": {},
@@ -904,32 +904,41 @@
           "required": true,
           "source": "synthesis",
           "synthesis_key": "planetary_status_snapshot",
-          "dashboard_section": "m00"
+          "dashboard_section": "m00",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
         },
         "m01_executive_insight": {
           "required": true,
           "source": "analyst-legacy",
           "synthesis_key": null,
-          "dashboard_section": "m01"
+          "dashboard_section": "m01",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
         },
         "m02_planetary_boundaries": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "planetary_boundary_tracker",
-          "dashboard_section": "m02"
+          "dashboard_section": "m02",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
         },
         "m03_threat_multiplier": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "climate_security_nexus",
-          "dashboard_section": "m03"
+          "dashboard_section": "m03",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
         },
         "m04_extreme_weather": {
           "required": true,
           "source": "analyst-legacy",
           "synthesis_key": null,
           "dashboard_section": "m04",
-          "notes": "Not yet in schema-requirements; expected from full analyst output"
+          "notes": "Not yet in schema-requirements; expected from full analyst output DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration.",
+          "deprecated": true
         },
         "m05_policy_law": {
           "required": true,
@@ -942,19 +951,25 @@
           "required": true,
           "source": "analyst-legacy",
           "synthesis_key": null,
-          "dashboard_section": "m06"
+          "dashboard_section": "m06",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
         },
         "m07_biosphere": {
           "required": true,
           "source": "analyst-legacy",
           "synthesis_key": null,
-          "dashboard_section": "m07"
+          "dashboard_section": "m07",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
         },
         "m08_geostrategic_resources": {
           "required": true,
           "source": "analyst-legacy",
           "synthesis_key": null,
-          "dashboard_section": "m08"
+          "dashboard_section": "m08",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
         },
         "cross_monitor_flags": {
           "required": true,
@@ -983,38 +998,83 @@
           "source": "synthesis",
           "synthesis_key": "icj_tracker",
           "dashboard_section": null,
-          "notes": "Sprint v2: standing tracker — published every week."
+          "notes": "Sprint v2: standing tracker \u2014 published every week."
         },
         "loss_damage_tracker": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "loss_damage_tracker",
           "dashboard_section": null,
-          "notes": "Sprint v2: standing tracker — disbursement vs commitment."
+          "notes": "Sprint v2: standing tracker \u2014 disbursement vs commitment."
         },
         "attribution_gap_cases": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "attribution_gap_cases",
           "dashboard_section": null,
-          "notes": "Sprint v2: F4 attribution gap — novel entities, deep-sea mining, aerosol, microplastics."
+          "notes": "Sprint v2: F4 attribution gap \u2014 novel entities, deep-sea mining, aerosol, microplastics."
         },
         "reverse_cascade_check": {
           "required": true,
           "source": "synthesis",
           "synthesis_key": "reverse_cascade_check",
           "dashboard_section": null,
-          "notes": "Sprint v2: mandatory weekly — does geopolitical event accelerate boundary transgression."
+          "notes": "Sprint v2: mandatory weekly \u2014 does geopolitical event accelerate boundary transgression."
+        },
+        "planetary_status_snapshot": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "planetary_status_snapshot",
+          "dashboard_section": "m00",
+          "notes": "v2.2: replaces legacy m00_the_signal. Contains boundaries_exceeded, high_risk, increasing_risk, safe counts, status_delta_this_week, lead_signal"
+        },
+        "planetary_boundary_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "planetary_boundary_tracker",
+          "dashboard_section": "m02",
+          "notes": "v2.2: replaces legacy m02_planetary_boundaries. 9 boundaries with status, delta, key_indicator, data_source, week_development, filter_tags"
+        },
+        "tipping_point_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "tipping_point_tracker",
+          "dashboard_section": null,
+          "notes": "v2.2: tipping elements with proximity, probability, cascade_risk, amoc_fovs_proxy"
+        },
+        "climate_security_nexus": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "climate_security_nexus",
+          "dashboard_section": "m03",
+          "notes": "v2.2: replaces legacy m03_threat_multiplier. Risk items with type, region, severity, conflict_link, scem_link, cascade_chain"
+        },
+        "regional_coverage": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "regional_coverage",
+          "dashboard_section": null,
+          "notes": "v2.2: FM-ERM-02 compliance \u2014 sub_saharan_africa, mena, south_asia, ocean_systems item counts"
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments",
+          "dashboard_section": null,
+          "notes": "v2.2: analyst judgments with id, judgment, confidence_preliminary, boundary_or_element, trajectory"
+        },
+        "cross_monitor_candidates": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "cross_monitor_candidates",
+          "dashboard_section": null,
+          "notes": "v2.2: signals for routing to other monitors. target_monitor, signal, type, confidence"
         }
       },
-      "publisher_field_map": {
-        "planetary_status_snapshot": "m00_the_signal",
-        "planetary_boundary_tracker": "m02_planetary_boundaries",
-        "climate_security_nexus": "m03_threat_multiplier"
-      },
+      "publisher_field_map": {},
       "synthesis_gaps": [
-        "m01_executive_insight not produced — carries forward",
-        "m06-m08 not yet from synthesis — carries forward"
+        "m01_executive_insight deprecated \u2014 no synthesis equivalent, carried forward only",
+        "m06-m08 deprecated \u2014 AI/biosphere/geostrategic not yet from synthesis"
       ],
       "file_paths": {
         "_note": "Canonical file locations for schema sprint and pipeline work",
@@ -1056,7 +1116,8 @@
           "weekly_research": ".github/workflows/erm-weekly-research.yml",
           "reasoner": ".github/workflows/erm-reasoner.yml"
         }
-      }
+      },
+      "publisher_field_map_note": "v2.2: empty \u2014 all synthesis fields pass through with original names"
     },
     "european-strategic-autonomy": {
       "abbr": "ESA",
@@ -1394,21 +1455,21 @@
       "from_synthesis": 15,
       "carry_forward_or_legacy": 1,
       "synthesis_coverage_pct": 75,
-      "sprint_note": "Schema sprint v2: 44% → 75%. Executive briefing still partially analyst-legacy. Signal now from synthesis."
+      "sprint_note": "Schema sprint v2: 44% \u2192 75%. Executive briefing still partially analyst-legacy. Signal now from synthesis."
     },
     "fimi-cognitive-warfare": {
       "total_content_fields": 8,
       "from_synthesis": 7,
       "carry_forward_or_legacy": 1,
       "synthesis_coverage_pct": 85,
-      "sprint_note": "Schema sprint v2: 67% → 85%. Full prompt built from scratch. Only platform_responses remains persistent-state."
+      "sprint_note": "Schema sprint v2: 67% \u2192 85%. Full prompt built from scratch. Only platform_responses remains persistent-state."
     },
     "democratic-integrity": {
       "total_content_fields": 10,
       "from_synthesis": 9,
       "carry_forward_or_legacy": 1,
       "synthesis_coverage_pct": 92,
-      "sprint_note": "Schema sprint v2: 86% → 92%. Added institutional_integrity, mimicry_chain, legislative_watch, friction_notes, signal."
+      "sprint_note": "Schema sprint v2: 86% \u2192 92%. Added institutional_integrity, mimicry_chain, legislative_watch, friction_notes, signal."
     },
     "ai-governance": {
       "total_content_fields": 22,
@@ -1421,21 +1482,21 @@
       "from_synthesis": 10,
       "carry_forward_or_legacy": 5,
       "synthesis_coverage_pct": 67,
-      "sprint_note": "Schema sprint v2: 40% → 67%. Added extreme_events, policy_law, icj_tracker, loss_damage, attribution_gap, reverse_cascade."
+      "sprint_note": "Schema sprint v2: 40% \u2192 67%. Added extreme_events, policy_law, icj_tracker, loss_damage, attribution_gap, reverse_cascade."
     },
     "european-strategic-autonomy": {
       "total_content_fields": 6,
       "from_synthesis": 4,
       "carry_forward_or_legacy": 2,
       "synthesis_coverage_pct": 65,
-      "sprint_note": "Schema sprint v2: 17% → 65%. Prompt expanded with election_threat, lagrange_point, state_capture, domain_tracker."
+      "sprint_note": "Schema sprint v2: 17% \u2192 65%. Prompt expanded with election_threat, lagrange_point, state_capture, domain_tracker."
     },
     "conflict-escalation": {
       "total_content_fields": 16,
       "from_synthesis": 13,
       "carry_forward_or_legacy": 3,
       "synthesis_coverage_pct": 85,
-      "sprint_note": "Schema sprint v3: 60% → 85%. Added global_escalation_snapshot, theatre_tracker, escalation_indicators, hybrid_warfare_layer, key_judgments, cross_monitor_candidates. JSON enforcement added."
+      "sprint_note": "Schema sprint v3: 60% \u2192 85%. Added global_escalation_snapshot, theatre_tracker, escalation_indicators, hybrid_warfare_layer, key_judgments, cross_monitor_candidates. JSON enforcement added."
     }
   }
 }
