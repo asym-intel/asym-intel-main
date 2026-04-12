@@ -118,16 +118,12 @@ MONITOR_CONFIGS = {
         "title": "Global Environmental Risks Monitor",
         "abbr": "ERM",
         "publish_time": "T05:00:00Z",
-        "signal_key": None,
+        "signal_key": None,                # lead_signal lives inside planetary_status_snapshot
         "has_campaigns": False,
         "has_actor_tracker": False,
         "has_cognitive_warfare": False,
         "has_platform_responses": False,
-        "field_map": {
-            "planetary_status_snapshot": "m00_the_signal",
-            "planetary_boundary_tracker": "m02_planetary_boundaries",
-            "climate_security_nexus": "m03_threat_multiplier",
-        },
+        "field_map": {},                    # v2.2: pass-through synthesis field names directly
     },
     "conflict-escalation": {
         "title": "Strategic Conflict & Escalation Monitor",
@@ -544,7 +540,7 @@ def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict
     report = json.loads(json.dumps(prev_report))
 
     field_map = config.get("field_map", {})
-    skip_keys = {"_meta", "weekly_brief_draft", "cross_monitor_candidates",
+    skip_keys = {"_meta", "weekly_brief_draft",
                  "synthesis_quality_notes", "delta_strip", "_raw_fallback"}
 
     # Overlay synthesis fields
