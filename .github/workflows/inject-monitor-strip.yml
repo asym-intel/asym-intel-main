@@ -1,0 +1,107 @@
+name: Inject cross-monitor strip into all monitor pages
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - '.github/monitor-strip.html'
+      - 'static/monitors/**/*.html'
+      - 'static/monitors/shared/css/base.css'
+
+concurrency:
+  group: inject-monitor-strip-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  inject:
+    name: Inject monitor strip
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Inject monitor strip into all monitor HTML pages
+        run: |
+          STRIP_FILE=".github/monitor-strip.html"
+          if [ ! -f "$STRIP_FILE" ]; then
+            echo "ERROR: $STRIP_FILE not found"
+            exit 1
+          fi
+
+          # Read strip HTML (strip leading HTML comment lines for injection)
+          STRIP_HTML=$(cat "$STRIP_FILE" | sed '/^<!--/,/-->/d')
+
+          CHANGED=0
+
+          for PAGE in static/monitors/*/*.html; do
+            [ -f "$PAGE" ] || continue
+            # Skip shared directory (partials, not served pages)
+            [[ "$PAGE" == *"/shared/"* ]] && continue
+
+            # Skip if strip already present
+            if grep -q 'class="monitor-strip"' "$PAGE"; then
+              echo "  SKIP (already present): $PAGE"
+              continue
+            fi
+
+            # Insert strip before <nav class="monitor-nav" — the hierarchy is:
+            #   network bar (fixed) → monitor strip (sticky) → monitor nav (sticky)
+            if grep -q '<nav class="monitor-nav"' "$PAGE"; then
+              # Use Python for reliable multi-line insertion
+              python3 - "$PAGE" "$STRIP_HTML" << 'PYEOF'
+import sys
+path = sys.argv[1]
+strip = sys.argv[2]
+with open(path) as f:
+    content = f.read()
+# Insert strip before <nav class="monitor-nav"
+marker = '<nav class="monitor-nav"'
+idx = content.find(marker)
+if idx == -1:
+    print(f"  WARNING: marker not found in {path}")
+    sys.exit(0)
+content = content[:idx] + strip + '\n\n' + content[idx:]
+with open(path, 'w') as f:
+    f.write(content)
+print(f"  INJECTED: {path}")
+PYEOF
+              CHANGED=1
+            else
+              echo "  WARNING: no monitor-nav found in $PAGE — skipping"
+            fi
+          done
+
+          if [ "$CHANGED" -eq 0 ]; then
+            echo "All pages already have monitor strip — no changes"
+          fi
+
+      - name: Mirror to docs/
+        run: |
+          for PAGE in static/monitors/*/*.html; do
+            [ -f "$PAGE" ] || continue
+            [[ "$PAGE" == *"/shared/"* ]] && continue
+            DEST="docs/${PAGE#static/}"
+            mkdir -p "$(dirname "$DEST")"
+            cp "$PAGE" "$DEST"
+          done
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet static/monitors/ docs/monitors/; then
+            echo "No changes — skipping commit"
+          else
+            git add static/monitors/ docs/monitors/
+            git commit -m "build: inject cross-monitor strip into monitor pages [skip ci]"
+            git pull --rebase origin ${{ github.ref_name }}
+            git push
+          fi

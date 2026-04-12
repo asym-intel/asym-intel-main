@@ -46,8 +46,8 @@
   --space-16: 4rem;
   --space-20: 5rem;
 
-  /* Type scale */
-  --text-min: 0.8rem;
+  /* Type scale — minimum floor: 0.75rem (uppercase labels), 0.82rem (body) */
+  --text-min: 0.82rem;
   --text-xs:  0.85rem;
   --text-sm:  0.9rem;
 
@@ -235,7 +235,7 @@ img, svg { display: block; max-width: 100%; }
   display: inline-flex;
   align-items: center;
   padding: 5px 14px;
-  font-size: 0.8125rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--color-primary);
   border: 1.5px solid var(--color-primary);
@@ -363,6 +363,9 @@ a:hover { color: var(--color-primary-hover); }
   background: var(--color-bg);
   overflow-x: auto;
   scrollbar-width: none;
+  position: sticky;
+  top: calc(40px + 52px); /* network bar + site nav (Hugo pages) */
+  z-index: 99;
 }
 .monitor-strip::-webkit-scrollbar { display: none; }
 .monitor-strip__label {
@@ -389,10 +392,12 @@ a:hover { color: var(--color-primary-hover); }
   transition: background var(--t-fast) ease, color var(--t-fast) ease;
   border: 1px solid transparent;
 }
-.monitor-strip__pill:hover {
+.monitor-strip__pill:hover,
+.monitor-strip__pill--active {
   background: var(--color-surface);
-  border-color: var(--color-border);
+  border-color: var(--color-border-strong);
   color: var(--color-text);
+  font-weight: 600;
 }
 .monitor-strip__icon {
   width: 24px;
@@ -415,7 +420,7 @@ a:hover { color: var(--color-primary-hover); }
 .home__feed { padding-block: var(--space-12); }
 .home__feed-heading {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -492,7 +497,7 @@ a:hover { color: var(--color-primary-hover); }
 .monitor-card-v2__logo img { display: block; }
 
 .monitor-card-v2__abbr {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -505,7 +510,7 @@ a:hover { color: var(--color-primary-hover); }
   .monitor-card-v2__abbr { background: rgba(79, 152, 163, 0.12); }
 }
 .monitor-card-v2__day {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   color: var(--color-text-faint);
   font-weight: 500;
 }
@@ -538,7 +543,7 @@ a:hover { color: var(--color-primary-hover); }
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
 }
@@ -546,7 +551,7 @@ a:hover { color: var(--color-primary-hover); }
   color: var(--color-text-faint);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 .monitor-card-v2__latest-link {
@@ -564,7 +569,7 @@ a:hover { color: var(--color-primary-hover); }
   z-index: 1;
 }
 .monitor-card-v2__btn {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   padding: 6px 14px;
   border-radius: var(--radius-md);
@@ -613,7 +618,7 @@ a:hover { color: var(--color-primary-hover); }
   gap: var(--space-4);
 }
 .feed-card__monitor {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -676,7 +681,7 @@ a:hover { color: var(--color-primary-hover); }
   flex-wrap: wrap;
 }
 .post__monitor {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -720,7 +725,7 @@ a:hover { color: var(--color-primary-hover); }
 /* Tag pills — replaces the raw backtick code in monitor briefs */
 .post__body code {
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -794,7 +799,7 @@ a:hover { color: var(--color-primary-hover); }
 }
 .topic__back:hover { color: var(--color-primary); }
 .topic__cadence {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--color-primary);
   font-weight: 500;
 }
@@ -832,7 +837,7 @@ a:hover { color: var(--color-primary-hover); }
   gap: var(--space-4);
 }
 .topic__monitor-card-label {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -858,7 +863,7 @@ a:hover { color: var(--color-primary-hover); }
 .topic__monitor-card-link:hover { color: var(--color-primary-hover); }
 .topic__feed { padding-block: var(--space-12); }
 .topic__feed-heading {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -898,7 +903,7 @@ a:hover { color: var(--color-primary-hover); }
   padding: 0.2em 0.65em;
   border-radius: 99px;
   border: 1px solid var(--monitor-accent, var(--color-primary));
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--monitor-accent, var(--color-primary));
   background: var(--monitor-accent-bg, rgba(1,105,111,0.08));
@@ -979,7 +984,7 @@ a:hover { color: var(--color-primary-hover); }
   justify-content: space-between;
   padding: 0.5rem 1.25rem;
   border-top: 1px solid var(--color-border);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--color-text-faint);
 }
 
@@ -1047,14 +1052,14 @@ a:hover { color: var(--color-primary-hover); }
   margin-top: 5px;
 }
 .home-monitor-card__abbr {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   line-height: 1;
 }
 .home-monitor-card__desc {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
   line-height: 1.45;
   display: -webkit-box;
@@ -1078,7 +1083,7 @@ a:hover { color: var(--color-primary-hover); }
 
 /* ── Chatter pre-synthesis label ───────────────────────────────────────── */
 .home-chatter__label {
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -1088,7 +1093,7 @@ a:hover { color: var(--color-primary-hover); }
   border-radius: 3px;
 }
 .home-chatter__desc {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   color: var(--color-text-faint);
   padding: 0.5rem 1rem;
   margin: 0;
@@ -1098,7 +1103,7 @@ a:hover { color: var(--color-primary-hover); }
 
 /* ── Small button variant ──────────────────────────────────────────────── */
 .btn--sm {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   padding: 0.35em 0.85em;
 }
 .tn-lead__actions {
@@ -1112,7 +1117,7 @@ a:hover { color: var(--color-primary-hover); }
 /* ── Legacy: tn-domain-chip (use .monitor-pill for new work) ──────────── */
 .tn-domain-chip {
   display: inline-block;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1124,7 +1129,7 @@ a:hover { color: var(--color-primary-hover); }
   flex-shrink: 0;
 }
 .tn-domain-chip--sm {
-  font-size: 0.6rem;
+  font-size: 0.82rem;
   padding: 2px 6px;
 }
 
@@ -1388,7 +1393,7 @@ a:hover { color: var(--color-primary-hover); }
 .home-chatter__item:last-child { border-bottom: none; }
 .home-chatter__chip {
   display: inline-block;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1408,7 +1413,7 @@ a:hover { color: var(--color-primary-hover); }
 }
 .home-chatter__link:hover { color: var(--color-primary); }
 .home-chatter__source {
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   color: var(--color-text-faint);
 }
 
@@ -1491,7 +1496,7 @@ a:hover { color: var(--color-primary-hover); }
   flex-wrap: wrap;
 }
 .tn-story__date {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   color: var(--color-text-faint);
   font-weight: 500;
 }
@@ -1575,7 +1580,7 @@ a:hover { color: var(--color-primary-hover); }
   border-color: var(--color-border-strong);
 }
 .topic__feed-card__date {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--color-text-faint);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1733,7 +1738,7 @@ a:hover { color: var(--color-primary-hover); }
 }
 .subscribe-form__submit:hover { background: var(--color-primary-hover); }
 .subscribe-form__note {
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   color: var(--color-text-faint);
   line-height: 1.5;
 }
@@ -1767,7 +1772,7 @@ a:hover { color: var(--color-primary-hover); }
   background: transparent;
   color: var(--color-text-muted);
   border: 1px solid var(--color-border-strong);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
 }
 .monitor-card-v2__btn--subscribe:hover {
   color: var(--color-primary);
@@ -1840,7 +1845,7 @@ a:hover { color: var(--color-primary-hover); }
   flex-wrap: wrap;
 }
 .subscribe-schedule__day {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1910,7 +1915,7 @@ a:hover { color: var(--color-primary-hover); }
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   color: var(--nb-text);
   margin-bottom: var(--space-4);
   font-family: var(--nb-font);
@@ -1941,7 +1946,7 @@ a:hover { color: var(--color-primary-hover); }
   display: flex;
   align-items: center;
   gap: var(--space-6);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #6b6a67;
   font-family: var(--nb-font);
 }
@@ -1972,7 +1977,7 @@ a:hover { color: var(--color-primary-hover); }
 }
 .methodology-toc__heading {
   font-family: var(--font-body);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

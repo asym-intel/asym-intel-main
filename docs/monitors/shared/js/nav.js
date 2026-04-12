@@ -81,6 +81,41 @@
   injectNetworkBar();
 
 
+  /* ── Monitor Strip Offset Adjustment ─────────────────────────
+     The cross-monitor strip (.monitor-strip) is injected into
+     static monitor HTML by the inject-monitor-strip.yml workflow.
+     When present, adjust sticky offsets so the hierarchy stacks:
+       network bar (40px) → strip (50px) → monitor nav (52px)
+     ──────────────────────────────────────────────────────────── */
+  function adjustForMonitorStrip() {
+    var strip = document.querySelector('.monitor-strip');
+    if (!strip) return;
+
+    // Highlight current monitor pill
+    var currentSlug = getMonitorSlug();
+    if (currentSlug) {
+      strip.querySelectorAll('.monitor-strip__pill').forEach(function (pill) {
+        var href = pill.getAttribute('href') || '';
+        if (href.indexOf('/' + currentSlug + '/') !== -1) {
+          pill.classList.add('monitor-strip__pill--active');
+        }
+      });
+    }
+
+    // Adjust monitor-nav sticky top: 40 (nb) + 50 (strip) = 90px
+    var monitorNav = document.querySelector('.monitor-nav');
+    if (monitorNav) {
+      monitorNav.style.setProperty('top', '90px', 'important');
+    }
+    // Adjust sidebar offset too
+    var sidebar = document.querySelector('.monitor-sidebar');
+    if (sidebar) {
+      sidebar.style.setProperty('top', 'calc(90px + 52px)', 'important');
+      sidebar.style.setProperty('height', 'calc(100vh - 90px - 52px)', 'important');
+    }
+  }
+
+
   /* ── Monitor Nav Injection ───────────────────────────────────
      Derives current monitor slug and page from the URL path.
      Replaces .monitor-nav__links contents with the canonical
@@ -260,6 +295,7 @@
   }
 
   function init() {
+    adjustForMonitorStrip();
     injectMonitorBrand();
     injectMonitorNav();
     injectThemeToggle();
