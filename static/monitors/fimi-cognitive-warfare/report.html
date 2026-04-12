@@ -134,6 +134,15 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-title">Key Judgments</div>
+      </div>
+      <div id="key-judgments-wrap">
+        <div class="loading-state">Loading key judgments…</div>
+      </div>
+    </section>
+
     <section class="module-section" id="section-campaigns">
       <div class="module-header">
         <div class="module-title">Active Campaigns</div>
@@ -168,6 +177,15 @@
       </div>
       <div id="actor-tracker-block">
         <div class="loading-state">Loading actor tracker…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-intel-highlights">
+      <div class="module-header">
+        <div class="module-title">Intelligence Highlights</div>
+      </div>
+      <div id="intel-highlights-wrap">
+        <div class="loading-state">Loading intelligence highlights…</div>
       </div>
     </section>
 
@@ -213,8 +231,10 @@
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-signal">Lead Signal</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
       <li><a href="#section-campaigns">Campaigns</a></li>
       <li><a href="#section-actor-tracker">Actor Tracker</a></li>
+      <li><a href="#section-intel-highlights">Intel Highlights</a></li>
       <li><a href="#section-platform">Platform Responses</a></li>
       <li><a href="#section-attribution">Attribution Log</a></li>
       <li><a href="#section-cognitive-warfare">Cognitive Warfare</a></li>
@@ -403,6 +423,32 @@ document.addEventListener('DOMContentLoaded', function () {
           (d.source_url ? '<div style="margin-top:var(--space-4)"><a class="source-link" href="' + escHtml(d.source_url) + '" target="_blank" rel="noopener">Full brief →</a></div>' : '') +
         '</div>';
 
+      // Key Judgments (via AsymSections shared library)
+      if (window.AsymSections && window.AsymSections.renderKeyJudgments) {
+        AsymSections.renderKeyJudgments(d.key_judgments || [], 'key-judgments-wrap');
+      } else {
+        var kjWrap = document.getElementById('key-judgments-wrap');
+        var kj = d.key_judgments || [];
+        if (!kj.length) {
+          kjWrap.innerHTML = '<p class="text-muted">No key judgments this issue.</p>';
+        } else {
+          var kjHtml = '<div style="display:grid;gap:var(--space-3)">';
+          kj.forEach(function(j) {
+            kjHtml += '<div class="card">' +
+              '<div class="card__label">' + escHtml(j.id || '') +
+                (j.confidence ? ' · ' + confidenceBadge(j.confidence) : '') +
+                (j.trajectory ? ' <span style="font-size:var(--text-xs);color:var(--color-text-muted)">→ ' + escHtml(j.trajectory) + '</span>' : '') +
+              '</div>' +
+              '<div class="card__body" style="font-weight:600">' + escHtml(j.judgment || '') + '</div>' +
+              (j.basis ? '<div class="card__body" style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)">' + escHtml(j.basis) + '</div>' : '') +
+              (Array.isArray(j.mf_flags) && j.mf_flags.length ? '<div style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:var(--space-2)">' + j.mf_flags.map(function(f){ return '<span class="severity-badge severity-badge--high">' + escHtml(f) + '</span>'; }).join('') + '</div>' : '') +
+            '</div>';
+          });
+          kjHtml += '</div>';
+          kjWrap.innerHTML = kjHtml;
+        }
+      }
+
       // Campaigns
       var campaigns = d.campaigns || d.active_campaigns || {};
       var campHtml = '';
@@ -482,6 +528,25 @@ document.addEventListener('DOMContentLoaded', function () {
         actorHtml = '<p class="text-muted">Actor tracker data loaded from Living Knowledge — see <a href="persistent.html">Persistent State</a>.</p>';
       }
       document.getElementById('actor-tracker-block').innerHTML = actorHtml;
+
+      // Intelligence Highlights
+      var ihWrap = document.getElementById('intel-highlights-wrap');
+      var ih = d.intelligence_highlights || [];
+      if (!ih.length) {
+        ihWrap.innerHTML = '<p class="text-muted">No intelligence highlights this issue.</p>';
+      } else {
+        var ihHtml = '<div style="display:grid;gap:var(--space-3)">';
+        ih.forEach(function(h) {
+          ihHtml += '<div class="card">' +
+            '<div class="card__title">' + escHtml(h.headline || '') + '</div>' +
+            (h.relevance ? '<div class="card__label">' + escHtml(h.relevance) + '</div>' : '') +
+            '<div class="card__body">' + escHtml(h.detail || '') + '</div>' +
+            (h.source_url ? '<div class="card__footer">' + AsymRenderer.sourceLink(h.source_url) + '</div>' : '') +
+          '</div>';
+        });
+        ihHtml += '</div>';
+        ihWrap.innerHTML = ihHtml;
+      }
 
       // Platform responses
       var platforms = d.platform_responses || d.platform_actions || [];
