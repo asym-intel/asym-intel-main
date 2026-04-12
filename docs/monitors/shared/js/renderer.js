@@ -3810,3 +3810,159 @@ window.AsymSections = (function () {
   window.AsymCrossMonitorFlags = renderCrossMonitorFlags;
 
 }());
+
+
+/* ══════════════════════════════════════════════════════════════
+   SHARED TOOLKIT — Ramparts UI Pattern Functions
+   Extracted from Ramparts AI Frontier Monitor (2026-04-12)
+   Attached to window.AsymSections
+   ══════════════════════════════════════════════════════════════
+
+   AsymSections.renderFixedSidenav(sections, subscribeUrl)
+   AsymSections.renderSubscribeCTA(config)
+
+   Scroll-spy is self-contained and activates on call.
+   ══════════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  /* ── 1. renderFixedSidenav
+          Renders a position:fixed right-hand section nav with scroll-spy.
+          Bypasses WordPress sticky constraints.
+
+          @param sections  Array of { id, label, num } objects
+                           id     — matches section's HTML id attribute
+                           label  — display text in the nav
+                           num    — short prefix (e.g. "Δ", "01", "02")
+          @param subscribeUrl  URL for the subscribe button (or null to omit)
+          @param targetId  ID of element to inject the sidenav after (default: appends to body)
+   ─────────────────────────────────────────────────────────── */
+  function renderFixedSidenav(sections, subscribeUrl, targetId) {
+    // Build links
+    var linksHtml = sections.map(function (s) {
+      return '<a id="rnav-' + s.id + '" href="#' + s.id + '" class="asym-sidenav__link"' +
+        ' onclick="event.preventDefault();var el=document.getElementById(\'' + s.id + '\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'start\'})">' +
+        '<span class="asym-sidenav__num">' + s.num + '</span>' + s.label +
+        '</a>';
+    }).join('\n');
+
+    // Subscribe panel
+    var subscribeHtml = subscribeUrl ? (
+      '<div class="asym-sidenav__subscribe">' +
+        '<div class="asym-sidenav__subscribe-label">Weekly Digest</div>' +
+        '<a href="' + subscribeUrl + '" class="asym-sidenav__subscribe-btn">↯ Subscribe Free</a>' +
+      '</div>'
+    ) : '';
+
+    var html = '<div class="asym-sidenav" id="asym-sidenav" aria-label="Section navigation">' +
+      '<div class="asym-sidenav__label">Modules</div>' +
+      '<nav id="asym-sidenav-links" style="display:flex;flex-direction:column">' + linksHtml + '</nav>' +
+      subscribeHtml +
+      '</div>';
+
+    // Inject
+    var target = targetId ? document.getElementById(targetId) : null;
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    if (target) {
+      target.parentNode.insertBefore(wrapper.firstChild, target.nextSibling);
+    } else {
+      document.body.appendChild(wrapper.firstChild);
+    }
+
+    // Scroll-spy
+    var ids = sections.map(function (s) { return s.id; });
+    var active = null;
+
+    function setActive(id) {
+      if (id === active) return;
+      if (active) {
+        var prev = document.getElementById('rnav-' + active);
+        if (prev) prev.classList.remove('is-active');
+      }
+      active = id;
+      if (id) {
+        var el = document.getElementById('rnav-' + id);
+        if (el) el.classList.add('is-active');
+      }
+    }
+
+    function onScroll() {
+      var offset = window.innerHeight * 0.35;
+      var current = null;
+      for (var i = ids.length - 1; i >= 0; i--) {
+        var sec = document.getElementById(ids[i]);
+        if (sec && sec.getBoundingClientRect().top <= offset) {
+          current = ids[i];
+          break;
+        }
+      }
+      setActive(current || ids[0]);
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  /* ── 2. renderSubscribeCTA
+          Renders a teal CTA block — card or full-bleed variant.
+
+          @param config {
+            variant:      'card' | 'fullbleed'  (default: 'fullbleed')
+            eyebrow:      string  (default: 'Weekly Digest')
+            heading:      string
+            body:         string
+            primaryUrl:   string
+            primaryLabel: string  (default: '↯ Subscribe Free')
+            ghostUrl:     string | null
+            ghostLabel:   string | null
+            footnote:     string | null
+          }
+          @param targetId  ID of element to insert the CTA before (or append to body)
+   ─────────────────────────────────────────────────────────── */
+  function renderSubscribeCTA(config, targetId) {
+    var c = config || {};
+    var variant = c.variant === 'card' ? 'asym-cta--card' : 'asym-cta--fullbleed';
+
+    var ghostHtml = c.ghostUrl ? (
+      '<a href="' + c.ghostUrl + '" class="asym-cta__btn-ghost">' + (c.ghostLabel || 'Learn More') + '</a>'
+    ) : '';
+
+    var footnoteHtml = c.footnote ? (
+      '<p class="asym-cta__footnote">' + c.footnote + '</p>'
+    ) : '';
+
+    var html = '<div class="asym-cta ' + variant + '">' +
+      '<div class="asym-cta__inner">' +
+        '<div class="asym-cta__eyebrow">' + (c.eyebrow || 'Weekly Digest') + '</div>' +
+        '<h2 class="asym-cta__heading">' + (c.heading || '') + '</h2>' +
+        '<p class="asym-cta__body">' + (c.body || '') + '</p>' +
+        '<div class="asym-cta__actions">' +
+          '<a href="' + (c.primaryUrl || '#') + '" class="asym-cta__btn-primary">' +
+            (c.primaryLabel || '↯ Subscribe Free') +
+          '</a>' +
+          ghostHtml +
+        '</div>' +
+        footnoteHtml +
+      '</div>' +
+    '</div>';
+
+    var target = targetId ? document.getElementById(targetId) : null;
+    var wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    var node = wrapper.firstChild;
+    if (target) {
+      target.parentNode.insertBefore(node, target);
+    } else {
+      document.body.appendChild(node);
+    }
+  }
+
+  /* ── Attach to AsymSections ── */
+  if (window.AsymSections) {
+    window.AsymSections.renderFixedSidenav = renderFixedSidenav;
+    window.AsymSections.renderSubscribeCTA = renderSubscribeCTA;
+  }
+
+}());
