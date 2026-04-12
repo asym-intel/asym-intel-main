@@ -393,6 +393,32 @@
       </div>
     </section>
 
+    <!-- Key Judgments -->
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-title">Key Judgments</div>
+      </div>
+      <div id="key-judgments-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Intelligence Highlights -->
+    <section class="module-section" id="section-intel-highlights">
+      <div class="module-header">
+        <div class="module-title">Intelligence Highlights</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:0.2rem">Novel TTPs, cross-platform coordination, narrative persistence</div>
+      </div>
+      <div id="intel-highlights-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Cognitive Warfare -->
+    <section class="module-section" id="section-cognitive-warfare">
+      <div class="module-header">
+        <div class="module-title">Cognitive Warfare</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:0.2rem">Doctrine shifts and strategic patterns above individual campaigns</div>
+      </div>
+      <div id="cognitive-warfare-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
       <!-- Cross-Monitor Flags -->
       <section class="module-section" id="section-cross-monitor">
         <div class="module-header">
@@ -412,6 +438,9 @@
       <li><a href="#section-all-ops">All Operations</a></li>
       <li><a href="#section-attr-log">Attribution Log</a></li>
       <li><a href="#section-platform-enforce">Platform Enforcement</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-intel-highlights">Intel Highlights</a></li>
+      <li><a href="#section-cognitive-warfare">Cognitive Warfare</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
   </nav>
@@ -421,11 +450,6 @@
 <footer class="monitor-footer"></footer>
 <script src="../shared/js/renderer.js"></script>
 <script>
-  function escHtml(str) {
-    return String(str == null ? '' : str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
     return String(str == null ? '' : str)
@@ -793,6 +817,56 @@ document.addEventListener('DOMContentLoaded', function () {
         platHtml = '<p class="text-muted">No platform enforcement actions this issue.</p>';
       }
       document.getElementById('platform-enforce-block').innerHTML = platHtml;
+
+      // Key Judgments (via AsymSections shared library)
+      if (window.AsymSections && window.AsymSections.renderKeyJudgments) {
+        AsymSections.renderKeyJudgments(d.key_judgments || [], 'key-judgments-wrap');
+      }
+
+      // Intelligence Highlights
+      var ihWrap = document.getElementById('intel-highlights-wrap');
+      var ih = d.intelligence_highlights || [];
+      if (!ih.length) {
+        ihWrap.innerHTML = '<p class="text-muted text-sm">No intelligence highlights this issue.</p>';
+      } else {
+        var ihHtml = '<div style="display:grid;gap:var(--space-3)">';
+        ih.forEach(function(h) {
+          ihHtml += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4);border-left:3px solid var(--monitor-accent,#38bdf8)">' +
+            '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">' +
+              '<span style="font-weight:600;font-size:var(--text-sm)">' + escHtml(h.headline || '') + '</span>' +
+              (h.relevance ? '<span style="font-size:var(--text-xs);padding:2px 6px;border-radius:var(--radius-sm);background:var(--monitor-accent-bg,rgba(56,189,248,0.1));color:var(--monitor-accent,#38bdf8)">' + escHtml(h.relevance) + '</span>' : '') +
+            '</div>' +
+            '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.55">' + escHtml(h.detail || '') + '</div>' +
+            (h.source_url ? '<div style="margin-top:var(--space-2)">' + AsymRenderer.sourceLink(h.source_url) + '</div>' : '') +
+          '</div>';
+        });
+        ihHtml += '</div>';
+        ihWrap.innerHTML = ihHtml;
+      }
+
+      // Cognitive Warfare
+      var cwWrap = document.getElementById('cognitive-warfare-wrap');
+      var cw = d.cognitive_warfare || [];
+      if (!cw.length) {
+        cwWrap.innerHTML = '<p class="text-muted text-sm">No cognitive warfare developments this issue.</p>';
+      } else {
+        var cwHtml = '<div style="display:grid;gap:var(--space-3)">';
+        cw.forEach(function(c) {
+          var sigColor = (c.significance || '').toLowerCase() === 'high' ? 'var(--color-critical,#ef4444)' : (c.significance || '').toLowerCase() === 'medium' ? 'var(--color-amber,#f59e0b)' : 'var(--color-text-muted)';
+          cwHtml += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4)">' +
+            '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">' +
+              (c.classification ? '<span style="font-size:var(--text-xs);padding:2px 6px;border-radius:var(--radius-sm);background:var(--surface-3,rgba(255,255,255,0.06));color:var(--color-text-secondary)">' + escHtml(c.classification) + '</span>' : '') +
+              '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);color:' + sigColor + ';font-weight:600">' + escHtml(c.significance || '') + '</span>' +
+            '</div>' +
+            '<div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-2)">' + escHtml(c.headline || '') + '</div>' +
+            '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.55">' + escHtml(c.detail || c.summary || '') + '</div>' +
+            (c.actors_involved && c.actors_involved.length ? '<div style="margin-top:var(--space-2);display:flex;gap:var(--space-1)">' + c.actors_involved.map(function(a){ return actorTag(a); }).join('') + '</div>' : '') +
+            (c.source_url ? '<div style="margin-top:var(--space-2)">' + AsymRenderer.sourceLink(c.source_url) + '</div>' : '') +
+          '</div>';
+        });
+        cwHtml += '</div>';
+        cwWrap.innerHTML = cwHtml;
+      }
 
       // Cross-monitor flags
       renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
