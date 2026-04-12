@@ -147,8 +147,8 @@ MONITORS = {
     },
     "ai-governance": {
         "abbr": "AGM",
-        "name": "AI Governance Monitor",
-        "mission": "The AI Governance Monitor tracks frontier model releases, regulatory movements, military AI applications, and the global governance competition across sixteen thematic modules.",
+        "name": "Artificial Intelligence Monitor",
+        "mission": "The Artificial Intelligence Monitor tracks frontier model releases, regulatory movements, military AI applications, and the global governance competition across sixteen thematic modules.",
         "why_now_title": "AI governance is forming faster than the systems it governs",
         "why_now_body": "AGM maps the full strategic surface of AI development — from frontier model capabilities and investment flows to regulatory frameworks, military applications, and societal effects — treating AI governance as a first-order geopolitical question.",
         "cadence": "Weekly",
