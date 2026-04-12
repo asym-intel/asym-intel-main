@@ -43,7 +43,7 @@
     nav.style.cssText = [
       'height:40px','position:fixed','top:0','left:0','right:0',
       'z-index:9999','background:#1a1918','border-bottom:1px solid #2d2c2a',
-      "font-family:'Satoshi','Inter',sans-serif",'font-size:13px',
+      "font-family:'Satoshi','Inter',sans-serif",'font-size:15px',
       'letter-spacing:0.02em','display:flex','align-items:center',
       'padding:0 24px','gap:1.5rem'
     ].join(';');
