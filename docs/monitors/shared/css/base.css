@@ -2373,3 +2373,329 @@ body { padding-top: 40px; }
 .score-history-legend__name  { font-weight: 600; }
 .score-history-legend__score { font-variant-numeric: tabular-nums; }
 .score-history-legend__flag  { color: var(--color-text-muted); }
+
+
+/* ─── Snapshot KPI Strip (cross-monitor: summary stat strip) ───────────
+   Promoted from SCEM dashboard.html — Sprint 5
+   Used by SCEM Global Escalation Snapshot; intended for any monitor needing
+   a tight row of headline KPI tiles.
+
+   .snapshot-strip          — flex wrapper
+   .snapshot-kpi            — individual tile (grows to fill)
+   .snapshot-kpi--accent    — monitor-accent tinted tile
+   .snapshot-kpi__value     — large numeral
+   .snapshot-kpi__label     — uppercase category label
+   .snapshot-kpi__sub       — small supporting text (muted)
+   .snapshot-kpi__sub--text — slightly larger secondary text        */
+
+.snapshot-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+.snapshot-kpi {
+  flex: 1 1 140px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 120px;
+}
+.snapshot-kpi--accent {
+  border-color: rgba(var(--monitor-accent-rgb, 220,38,38), 0.35);
+  background: rgba(var(--monitor-accent-rgb, 220,38,38), 0.04);
+}
+[data-theme="dark"] .snapshot-kpi--accent {
+  background: rgba(var(--monitor-accent-rgb, 220,38,38), 0.08);
+}
+.snapshot-kpi__value {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--color-text);
+}
+.snapshot-kpi--accent .snapshot-kpi__value {
+  color: var(--monitor-accent, #dc2626);
+}
+[data-theme="dark"] .snapshot-kpi--accent .snapshot-kpi__value {
+  color: var(--monitor-accent-light, #f87171);
+}
+.snapshot-kpi__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-text-muted);
+}
+.snapshot-kpi__sub {
+  font-size: var(--text-min);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+.snapshot-kpi__sub--text {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* ─── Weekly Brief Card (cross-monitor: brief/prose card) ───────────────
+   Promoted from SCEM dashboard.html — Sprint 5
+   Generic card for displaying multi-paragraph brief/analysis text.  */
+
+.weekly-brief-card {
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  margin: var(--space-4) 0;
+}
+.weekly-brief-card p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.75;
+  margin: 0;
+}
+.weekly-brief-card p + p {
+  margin-top: var(--space-4);
+}
+
+/* ─── Theatre Card (cross-monitor: entity card with actor tags) ─────────
+   Promoted from SCEM dashboard.html — Sprint 5
+   Generalises across theatre/actor/entity displays in any monitor.
+
+   .theatre-cards               — responsive grid container
+   .theatre-card                — base card
+   .theatre-card__accent        — top accent bar (3px, colour via modifier)
+   .theatre-card__accent--high/medium/low  — severity colours
+   .theatre-card__header        — flex header
+   .theatre-card__name          — entity name
+   .theatre-card__intensity     — intensity/status pill
+   .theatre-card__actors        — actor tag flex row
+   .theatre-card__actor-tag     — individual actor pill
+   .theatre-card__dev           — latest development text (border-left callout)
+   .theatre-card__hybrid        — hybrid-threat tags row
+   .theatre-card__hybrid-tag    — individual hybrid-threat pill (accent-tinted)
+   .theatre-card__footer        — footer row with risk badge + delta
+   .theatre-card__risk-badge    — severity badge (--high/medium/low)
+   .theatre-card__ceasefire     — ceasefire/positive status pill
+   .theatre-card__delta         — direction indicator (--escalating/stable/deescalating) */
+
+.theatre-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+.theatre-card {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+  overflow: clip;
+  transition: box-shadow 0.15s;
+}
+.theatre-card:hover { box-shadow: var(--shadow-md); }
+.theatre-card__accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.theatre-card__accent--high    { background: #dc2626; }
+.theatre-card__accent--medium  { background: #d97706; }
+.theatre-card__accent--low     { background: #2563eb; }
+.theatre-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+.theatre-card__name {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+.theatre-card__intensity {
+  font-size: var(--text-min);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: var(--color-bg-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+.theatre-card__actors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: var(--space-1);
+}
+.theatre-card__actor-tag {
+  font-size: var(--text-min);
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: var(--color-bg-alt);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+.theatre-card__dev {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  border-left: 2px solid var(--color-border);
+  padding-left: var(--space-2);
+  margin-top: var(--space-1);
+}
+.theatre-card__hybrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: var(--space-1);
+}
+.theatre-card__hybrid-tag {
+  font-size: var(--text-min);
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(79, 152, 163, 0.1);
+  border: 1px solid rgba(79, 152, 163, 0.25);
+  color: var(--monitor-accent, #4f98a3);
+  font-weight: 600;
+}
+.theatre-card__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.theatre-card__risk-badge {
+  font-size: var(--text-min);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+.theatre-card__risk-badge--high   { background: rgba(220,38,38,0.1);  color: #dc2626; }
+.theatre-card__risk-badge--medium { background: rgba(217,119,6,0.1);  color: #d97706; }
+.theatre-card__risk-badge--low    { background: rgba(5,150,105,0.1);  color: #059669; }
+[data-theme="dark"] .theatre-card__risk-badge--high   { background: rgba(220,38,38,0.2);  color: #f87171; }
+[data-theme="dark"] .theatre-card__risk-badge--medium { background: rgba(217,119,6,0.2);  color: #fbbf24; }
+[data-theme="dark"] .theatre-card__risk-badge--low    { background: rgba(5,150,105,0.2);  color: #34d399; }
+.theatre-card__ceasefire {
+  font-size: var(--text-min);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 3px;
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  color: #059669;
+}
+[data-theme="dark"] .theatre-card__ceasefire {
+  background: rgba(5, 150, 105, 0.15);
+  color: #34d399;
+}
+.theatre-card__delta {
+  font-size: var(--text-min);
+  font-weight: 700;
+  margin-left: auto;
+}
+.theatre-card__delta--escalating   { color: #dc2626; }
+.theatre-card__delta--stable       { color: var(--color-text-muted); }
+.theatre-card__delta--deescalating { color: #059669; }
+
+/* ─── Key Judgment Card (cross-monitor: structured assessment cards) ────
+   Promoted from SCEM dashboard.html — Sprint 5
+   Used by SCEM; pattern applicable to WDM, FCW, AGM assessment cards.
+
+   .key-judgment-cards            — responsive grid container
+   .key-judgment-card             — individual card
+   .key-judgment-card__id         — judgment identifier (KJ-01, etc.)
+   .key-judgment-card__text       — judgment statement
+   .key-judgment-card__footer     — footer with theatre + confidence
+   .key-judgment-card__theatre    — geographic/thematic scope label
+   .kj-confidence-badge           — confidence level badge
+   .kj-confidence-badge--confirmed/high/assessed/low  — severity variants  */
+
+.key-judgment-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+.key-judgment-card {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: box-shadow 0.15s;
+}
+.key-judgment-card:hover { box-shadow: var(--shadow-md); }
+.key-judgment-card__id {
+  font-size: var(--text-min);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--color-text-muted);
+}
+.key-judgment-card__text {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.5;
+  flex: 1;
+}
+.key-judgment-card__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.key-judgment-card__theatre {
+  font-size: var(--text-min);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.kj-confidence-badge {
+  font-size: var(--text-min);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 1px 7px;
+  border-radius: 3px;
+}
+.kj-confidence-badge--confirmed { background: rgba(5,150,105,0.1);  color: #059669; }
+.kj-confidence-badge--high      { background: rgba(37,99,235,0.1);  color: #2563eb; }
+.kj-confidence-badge--assessed  { background: rgba(217,119,6,0.1);  color: #d97706; }
+.kj-confidence-badge--low       { background: rgba(220,38,38,0.1);  color: #dc2626; }
+[data-theme="dark"] .kj-confidence-badge--confirmed { background: rgba(5,150,105,0.2);   color: #34d399; }
+[data-theme="dark"] .kj-confidence-badge--high      { background: rgba(37,99,235,0.18);  color: #60a5fa; }
+[data-theme="dark"] .kj-confidence-badge--assessed  { background: rgba(217,119,6,0.2);   color: #fbbf24; }
+[data-theme="dark"] .kj-confidence-badge--low       { background: rgba(220,38,38,0.2);   color: #f87171; }
