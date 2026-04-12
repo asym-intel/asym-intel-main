@@ -1320,6 +1320,748 @@ window.AsymSections = (function () {
     el.innerHTML = html;
   }
 
+  /* ── ESA-specific sections ──────────────────────────────────── */
+
+  /**
+   * Domain tracker — 6 autonomy domain cards in a 2-column grid.
+   * domain_tracker[] → each card: accent bar, score %, delta badge,
+   * dependency risk/actor, key development, policy response, source link.
+   */
+  function renderDomainTracker(domains, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!domains || !domains.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No domain tracker data available.</p>';
+      return;
+    }
+
+    var DOMAIN_COLOURS = {
+      defence_security:       '#dc2626',
+      energy_climate:         '#22a0aa',
+      digital_ai:             '#38bdf8',
+      financial_economic:     '#3a7d5a',
+      supply_chain_industrial:'#f59e0b',
+      space_satellite:        '#8b5cf6'
+    };
+
+    var DOMAIN_LABELS = {
+      defence_security:       'Defence & Security',
+      energy_climate:         'Energy & Climate',
+      digital_ai:             'Digital & AI',
+      financial_economic:     'Financial & Economic',
+      supply_chain_industrial:'Supply Chain & Industrial',
+      space_satellite:        'Space & Satellite'
+    };
+
+    function deltaBadge(delta) {
+      var d = (delta || '').toLowerCase();
+      var colour = d === 'improving'  ? 'var(--positive,#4caf7d)'
+                 : d === 'declining'  ? 'var(--critical,#dc2626)'
+                 : 'var(--color-text-muted,#888)';
+      var arrow  = d === 'improving' ? '↑' : d === 'declining' ? '↓' : '→';
+      return '<span class="domain-card__delta" style="color:' + colour +
+        ';font-size:var(--text-xs);font-weight:600;letter-spacing:.02em">' +
+        arrow + ' ' + escHtml(delta || 'Stable') + '</span>';
+    }
+
+    function depRiskBadge(risk) {
+      var r = (risk || '').toLowerCase();
+      var colour = r === 'high'   ? 'var(--critical,#dc2626)'
+                 : r === 'medium' ? 'var(--high,#d97706)'
+                 : r === 'low'    ? 'var(--positive,#4caf7d)'
+                 : 'var(--color-text-muted)';
+      return '<span class="domain-card__dep-badge" style="color:' + colour +
+        ';font-weight:600">' + escHtml(risk || '—') + '</span>';
+    }
+
+    var html =
+      '<style>' +
+        '@media(min-width:640px){.domain-tracker-grid{grid-template-columns:1fr 1fr!important}}' +
+      '</style>' +
+      '<div class="domain-tracker-grid" style="display:grid;grid-template-columns:1fr;gap:var(--space-4)">';
+
+    domains.forEach(function (d) {
+      var key    = d.domain || '';
+      var colour = DOMAIN_COLOURS[key] || 'var(--monitor-accent)';
+      var label  = DOMAIN_LABELS[key] || escHtml(key.replace(/_/g, ' '));
+      var score  = d.autonomy_score_preliminary;
+      var pct    = (score !== undefined && score !== null)
+                   ? Math.round(Number(score) * 100) : null;
+
+      html +=
+        '<div class="domain-card" style="border-radius:var(--radius-md,6px);' +
+          'background:var(--color-surface-raised,#1a1a2e);overflow:hidden;' +
+          'border:1px solid var(--color-border,rgba(255,255,255,.08))">' +
+
+          // Accent bar
+          '<div class="domain-card__bar" style="height:3px;background:' + colour + '"></div>' +
+
+          '<div style="padding:var(--space-4)">' +
+
+            // Header row: label + delta
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2)">' +
+              '<span class="domain-card__label" style="font-weight:700;font-size:var(--text-sm);' +
+                'color:' + colour + '">' + escHtml(label) + '</span>' +
+              deltaBadge(d.score_delta) +
+            '</div>' +
+
+            // Score bar
+            (pct !== null
+              ? '<div style="margin-bottom:var(--space-3)">' +
+                  '<div style="display:flex;align-items:center;gap:var(--space-2)">' +
+                    '<div style="flex:1;height:6px;background:var(--color-border,rgba(255,255,255,.1));' +
+                      'border-radius:3px;overflow:hidden">' +
+                      '<div style="width:' + pct + '%;height:100%;background:' + colour +
+                        ';border-radius:3px;transition:width .3s"></div>' +
+                    '</div>' +
+                    '<span style="font-size:var(--text-xs);color:var(--color-text-muted);' +
+                      'white-space:nowrap;min-width:2.5rem;text-align:right">' +
+                      pct + '%' +
+                    '</span>' +
+                  '</div>' +
+                '</div>'
+              : '') +
+
+            // Dependency risk + actor
+            '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);' +
+              'font-size:var(--text-xs)">' +
+              '<span style="color:var(--color-text-muted)">Dep. risk:</span>' +
+              depRiskBadge(d.dependency_risk) +
+              (d.dependency_actor
+                ? '<span style="color:var(--color-text-muted)">/ <strong>' +
+                    escHtml(d.dependency_actor) + '</strong></span>'
+                : '') +
+            '</div>' +
+
+            // Key development
+            (d.key_development
+              ? '<div class="domain-card__dev" style="font-size:var(--text-xs);' +
+                  'color:var(--color-text-secondary,#bbb);margin-bottom:var(--space-2);' +
+                  'line-height:1.5">' + escHtml(d.key_development) + '</div>'
+              : '') +
+
+            // Policy response
+            (d.policy_response
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);' +
+                  'font-style:italic;margin-bottom:var(--space-2);line-height:1.5">' +
+                  '↳ ' + escHtml(d.policy_response) + '</div>'
+              : '') +
+
+            // Source link
+            (d.source_url
+              ? '<div style="margin-top:var(--space-1)">' +
+                  '<a href="' + escHtml(d.source_url) + '" target="_blank" rel="noopener" ' +
+                  'style="color:' + colour + ';font-size:var(--text-min);text-decoration:none" ' +
+                  'onmouseover="this.style.textDecoration=\'underline\'" ' +
+                  'onmouseout="this.style.textDecoration=\'none\'">' +
+                  'Source →</a>' +
+                '</div>'
+              : '') +
+
+          '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Autonomy snapshot — KPI row (4 cards) + lead signal.
+   * autonomy_snapshot{} → Trajectory, Lead Domain, US Decoupling, ReArm Status.
+   */
+  function renderAutonomySnapshot(snapshot, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!snapshot || !Object.keys(snapshot).length) {
+      el.innerHTML = '<p class="text-muted text-sm">No autonomy snapshot available.</p>';
+      return;
+    }
+
+    var DOMAIN_LABELS = {
+      defence_security:       'Defence & Security',
+      energy_climate:         'Energy & Climate',
+      digital_ai:             'Digital & AI',
+      financial_economic:     'Financial & Economic',
+      supply_chain_industrial:'Supply Chain & Industrial',
+      space_satellite:        'Space & Satellite'
+    };
+
+    function trajColour(traj) {
+      var t = (traj || '').toLowerCase();
+      if (t === 'improving')     return 'var(--positive,#4caf7d)';
+      if (t === 'declining')     return 'var(--critical,#dc2626)';
+      if (t === 'accelerating')  return 'var(--positive,#4caf7d)';
+      if (t === 'deteriorating') return 'var(--critical,#dc2626)';
+      return 'var(--monitor-accent)';
+    }
+
+    var leadDomainRaw = snapshot.lead_domain || '';
+    var leadDomainLabel = DOMAIN_LABELS[leadDomainRaw] ||
+      leadDomainRaw.replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+
+    var kpis = [
+      {
+        label: 'Trajectory',
+        value: escHtml(snapshot.overall_trajectory || '—'),
+        style: 'color:' + trajColour(snapshot.overall_trajectory) + ';font-weight:700'
+      },
+      {
+        label: 'Lead Domain',
+        value: escHtml(leadDomainLabel || '—'),
+        style: 'font-size:var(--text-sm);font-weight:700'
+      },
+      {
+        label: 'US Decoupling Signal',
+        value: escHtml(snapshot.us_decoupling_signal || '—'),
+        style: 'font-weight:700'
+      },
+      {
+        label: 'ReArm Europe Status',
+        value: escHtml(snapshot.rearm_europe_status || '—'),
+        style: 'font-size:var(--text-xs);font-weight:600;line-height:1.4'
+      }
+    ];
+
+    var html = '<div class="kpi-row">';
+    kpis.forEach(function (k) {
+      html +=
+        '<div class="kpi-card">' +
+          '<div class="kpi-card__value" style="' + k.style + '">' + k.value + '</div>' +
+          '<div class="kpi-card__label">' + escHtml(k.label) + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+
+    if (snapshot.lead_signal) {
+      html += '<div class="snapshot-note">' + escHtml(snapshot.lead_signal) + '</div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  /**
+   * US-EU tracker — status panel: 4 items in a grid + key development.
+   * us_eu_tracker{} → decoupling_level, nato_status, trade_pressure,
+   *                    intelligence_sharing, key_development_this_week, source_url
+   */
+  function renderUsEuTracker(tracker, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!tracker || !Object.keys(tracker).length) {
+      el.innerHTML = '<p class="text-muted text-sm">No US-EU tracker data available.</p>';
+      return;
+    }
+
+    function decouplingColour(level) {
+      var l = (level || '').toLowerCase();
+      if (l === 'aligned')    return 'var(--positive,#4caf7d)';
+      if (l === 'drifting')   return 'var(--high,#d97706)';
+      if (l === 'decoupling') return 'var(--critical,#dc2626)';
+      if (l === 'hostile')    return '#7f1d1d';
+      return 'var(--color-text-muted)';
+    }
+
+    function statusChip(value, colour) {
+      if (!value) return '<span style="color:var(--color-text-muted);font-size:var(--text-xs)">—</span>';
+      return '<span class="useu-chip" style="display:inline-block;padding:2px 8px;' +
+        'border-radius:3px;background:' + colour + '20;color:' + colour + ';' +
+        'font-weight:700;font-size:var(--text-xs)">' + escHtml(value) + '</span>';
+    }
+
+    var dColour = decouplingColour(tracker.decoupling_level);
+
+    var items = [
+      {
+        label: 'Decoupling Level',
+        content: statusChip(tracker.decoupling_level, dColour)
+      },
+      {
+        label: 'NATO Status',
+        content: '<span style="font-size:var(--text-xs);color:var(--color-text-secondary)">' +
+          escHtml(tracker.nato_status || '—') + '</span>'
+      },
+      {
+        label: 'Trade Pressure',
+        content: tracker.trade_pressure
+          ? '<span style="font-size:var(--text-xs);color:var(--high,#d97706)">' +
+              escHtml(tracker.trade_pressure) + '</span>'
+          : '<span style="color:var(--positive,#4caf7d);font-size:var(--text-xs)">None reported</span>'
+      },
+      {
+        label: 'Intelligence Sharing',
+        content: (function () {
+          var v = tracker.intelligence_sharing || '—';
+          var c = v.toLowerCase() === 'full' ? 'var(--positive,#4caf7d)'
+                : v.toLowerCase() === 'partial' ? 'var(--high,#d97706)'
+                : v.toLowerCase() === 'suspended' ? 'var(--critical,#dc2626)'
+                : 'var(--color-text-muted)';
+          return statusChip(v, c);
+        })()
+      }
+    ];
+
+    var html =
+      '<div class="useu-grid" style="display:grid;grid-template-columns:1fr 1fr;' +
+        'gap:var(--space-3);margin-bottom:var(--space-4)">';
+
+    items.forEach(function (item) {
+      html +=
+        '<div class="useu-item" style="padding:var(--space-3);' +
+          'background:var(--color-surface-raised,#1a1a2e);' +
+          'border-radius:var(--radius-sm,4px);' +
+          'border:1px solid var(--color-border,rgba(255,255,255,.08))">' +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-muted);' +
+            'text-transform:uppercase;letter-spacing:.05em;margin-bottom:var(--space-1)">' +
+            escHtml(item.label) +
+          '</div>' +
+          item.content +
+        '</div>';
+    });
+
+    html += '</div>';
+
+    if (tracker.key_development_this_week) {
+      html +=
+        '<div class="useu-key-dev" style="padding:var(--space-3);' +
+          'background:var(--monitor-accent,#5b8db0)1a;' +
+          'border-left:3px solid var(--monitor-accent,#5b8db0);' +
+          'border-radius:0 var(--radius-sm,4px) var(--radius-sm,4px) 0;' +
+          'font-size:var(--text-sm);color:var(--color-text-secondary);' +
+          'margin-bottom:var(--space-3)">' +
+          '<span style="font-weight:700;color:var(--monitor-accent,#5b8db0);' +
+            'font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.05em;' +
+            'display:block;margin-bottom:var(--space-1)">Key Development</span>' +
+          escHtml(tracker.key_development_this_week) +
+        '</div>';
+    }
+
+    if (tracker.source_url) {
+      html +=
+        '<div style="font-size:var(--text-xs)">' +
+          '<a href="' + escHtml(tracker.source_url) + '" target="_blank" rel="noopener" ' +
+          'style="color:var(--monitor-accent);text-decoration:none" ' +
+          'onmouseover="this.style.textDecoration=\'underline\'" ' +
+          'onmouseout="this.style.textDecoration=\'none\'">Source →</a>' +
+        '</div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  /**
+   * Election threats — sortable table.
+   * elections[] → Country, Election Date, Type, Days Until, Risk Rating, FIMI Risk.
+   * Risk rating badges: Critical=red, High=orange, Elevated=amber, Monitored=blue.
+   */
+  function renderElectionThreats(elections, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!elections || !elections.length) {
+      el.innerHTML =
+        '<p class="text-muted text-sm">No elections within monitoring window.</p>';
+      return;
+    }
+
+    function riskClass(rating) {
+      var r = (rating || '').toLowerCase();
+      if (r === 'critical')  return 'critical';
+      if (r === 'high')      return 'high';
+      if (r === 'elevated')  return 'moderate';
+      if (r === 'monitored' || r === 'low') return 'positive';
+      return 'moderate';
+    }
+
+    function daysUntil(dateStr) {
+      if (!dateStr) return '—';
+      try {
+        var d = new Date(dateStr);
+        if (isNaN(d.getTime())) return '—';
+        var diff = Math.round((d - Date.now()) / 86400000);
+        if (diff < 0) return 'Past';
+        if (diff === 0) return 'Today';
+        return diff + 'd';
+      } catch (e) { return '—'; }
+    }
+
+    function formatShortDate(dateStr) {
+      if (!dateStr) return '—';
+      try {
+        var d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch (e) { return dateStr; }
+    }
+
+    var html =
+      '<div style="overflow-x:auto">' +
+      '<table class="election-table" style="width:100%;border-collapse:collapse;font-size:var(--text-sm)">' +
+        '<thead>' +
+          '<tr style="border-bottom:1px solid var(--color-border,rgba(255,255,255,.12))">' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Country</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Election Date</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Type</th>' +
+            '<th style="text-align:center;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Days Until</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Risk Rating</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">FIMI Risk</th>' +
+          '</tr>' +
+        '</thead>' +
+        '<tbody>';
+
+    elections.forEach(function (e, idx) {
+      var rc   = riskClass(e.risk_rating);
+      var days = daysUntil(e.election_date);
+      var daysColour = (function () {
+        if (days === 'Today') return 'var(--critical,#dc2626)';
+        var n = parseInt(days, 10);
+        if (!isNaN(n) && n <= 7)  return 'var(--critical,#dc2626)';
+        if (!isNaN(n) && n <= 30) return 'var(--high,#d97706)';
+        return 'inherit';
+      })();
+      var rowBg = idx % 2 === 1
+        ? 'background:var(--color-surface-raised,rgba(255,255,255,.02))'
+        : '';
+
+      html +=
+        '<tr style="border-bottom:1px solid var(--color-border,rgba(255,255,255,.06));' + rowBg + '">' +
+          '<td style="padding:var(--space-2) var(--space-3);font-weight:700">' +
+            (window.AsymRenderer && window.AsymRenderer.flag
+              ? window.AsymRenderer.flag(e.country || '') + ' ' : '') +
+            escHtml(e.country || '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);white-space:nowrap">' +
+            escHtml(formatShortDate(e.election_date)) +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);color:var(--color-text-muted)">' +
+            escHtml(e.election_type || e.type || '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);text-align:center;' +
+            'font-weight:700;color:' + daysColour + '">' + escHtml(days) + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3)">' +
+            (e.risk_rating
+              ? '<span class="severity-badge severity-badge--' + rc + '">' +
+                  escHtml(e.risk_rating) + '</span>'
+              : '<span style="color:var(--color-text-muted)">—</span>') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3)">' +
+            (e.fimi_risk
+              ? '<span class="severity-badge severity-badge--' + riskClass(e.fimi_risk) + '">' +
+                  escHtml(e.fimi_risk) + '</span>'
+              : '<span style="color:var(--color-text-muted)">—</span>') +
+          '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Lagrange point scores — vertical list.
+   * lagrange_point_scores[] → vector label, progress status badge,
+   *                           key metric, blocker, source link.
+   * NOT the radar chart — that lives in persistent.html.
+   */
+  function renderLagrangeScores(scores, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!scores || !scores.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No Lagrange point data available.</p>';
+      return;
+    }
+
+    function progressColour(prog) {
+      var p = (prog || '').toLowerCase();
+      if (p === 'regressing')    return 'var(--critical,#dc2626)';
+      if (p === 'stalled')       return 'var(--high,#d97706)';
+      if (p === 'incremental')   return 'var(--monitor-accent,#5b8db0)';
+      if (p === 'advancing')     return 'var(--positive,#4caf7d)';
+      if (p === 'breakthrough')  return '#22c55e';
+      if (p === 'stable')        return 'var(--color-text-muted,#888)';
+      return 'var(--color-text-muted,#888)';
+    }
+
+    function progressIcon(prog) {
+      var p = (prog || '').toLowerCase();
+      if (p === 'regressing')   return '↓';
+      if (p === 'stalled')      return '⏸';
+      if (p === 'incremental')  return '→';
+      if (p === 'advancing')    return '↑';
+      if (p === 'breakthrough') return '⚡';
+      if (p === 'stable')       return '→';
+      return '◎';
+    }
+
+    var html = '<div class="lagrange-list" style="display:flex;flex-direction:column;gap:var(--space-2)">';
+
+    scores.forEach(function (s) {
+      var colour = progressColour(s.progress_preliminary);
+      var icon   = progressIcon(s.progress_preliminary);
+
+      html +=
+        '<div class="lagrange-row" style="display:flex;align-items:flex-start;gap:var(--space-3);' +
+          'padding:var(--space-3);' +
+          'background:var(--color-surface-raised,rgba(255,255,255,.03));' +
+          'border-radius:var(--radius-sm,4px);' +
+          'border:1px solid var(--color-border,rgba(255,255,255,.07))">' +
+
+          // Progress badge
+          '<div class="lagrange-row__badge" style="flex-shrink:0;display:flex;align-items:center;' +
+            'gap:4px;min-width:90px">' +
+            '<span style="color:' + colour + ';font-size:1rem" aria-hidden="true">' + icon + '</span>' +
+            '<span style="color:' + colour + ';font-weight:700;font-size:var(--text-xs);' +
+              'white-space:nowrap">' + escHtml(s.progress_preliminary || '—') + '</span>' +
+          '</div>' +
+
+          // Body
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-weight:700;font-size:var(--text-sm);' +
+              'color:var(--color-text-primary,#fff);margin-bottom:2px">' +
+              escHtml(s.vector || '') +
+            '</div>' +
+            (s.key_metric
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary,#bbb);' +
+                  'margin-bottom:2px">' + escHtml(s.key_metric) + '</div>'
+              : '') +
+            (s.blocker
+              ? '<div style="font-size:var(--text-xs);color:var(--high,#d97706)">' +
+                  '⚑ Blocker: ' + escHtml(s.blocker) + '</div>'
+              : '') +
+            (s.source_url
+              ? '<div style="margin-top:4px">' +
+                  '<a href="' + escHtml(s.source_url) + '" target="_blank" rel="noopener" ' +
+                  'style="color:var(--monitor-accent);font-size:var(--text-min);text-decoration:none" ' +
+                  'onmouseover="this.style.textDecoration=\'underline\'" ' +
+                  'onmouseout="this.style.textDecoration=\'none\'">Source →</a>' +
+                '</div>'
+              : '') +
+          '</div>' +
+
+        '</div>';
+    });
+
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Defence spending — sortable table with flag emoji, GDP%, target,
+   * budget (€bn), EDIP committed, change, on-track badge.
+   */
+  function renderDefenceSpending(spending, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!spending || !spending.length) {
+      el.innerHTML =
+        '<p class="text-muted text-sm">Defence spending data not yet available for this period.</p>';
+      return;
+    }
+
+    var html =
+      '<div style="overflow-x:auto">' +
+      '<table class="defence-spending-table" ' +
+        'style="width:100%;border-collapse:collapse;font-size:var(--text-sm)">' +
+        '<thead>' +
+          '<tr style="border-bottom:2px solid var(--color-border,rgba(255,255,255,.15))">' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Country</th>' +
+            '<th style="text-align:right;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">GDP%</th>' +
+            '<th style="text-align:right;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Target</th>' +
+            '<th style="text-align:right;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Budget (€bn)</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">EDIP Committed</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">Change</th>' +
+            '<th style="text-align:center;padding:var(--space-2) var(--space-3);font-size:var(--text-xs);' +
+              'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);font-weight:600">On Track</th>' +
+          '</tr>' +
+        '</thead>' +
+        '<tbody>';
+
+    spending.forEach(function (row, idx) {
+      var flagHtml = (window.AsymRenderer && window.AsymRenderer.flag)
+        ? window.AsymRenderer.flag(row.country || '') + ' '
+        : '';
+      var rowBg = idx % 2 === 1
+        ? 'background:var(--color-surface-raised,rgba(255,255,255,.02))'
+        : '';
+
+      var onTrack = row.on_track;
+      var trackBadge = onTrack === true || onTrack === 'true' || onTrack === 'yes'
+        ? '<span style="color:var(--positive,#4caf7d);font-size:1rem" title="On track">✓</span>'
+        : onTrack === false || onTrack === 'false' || onTrack === 'no'
+          ? '<span style="color:var(--critical,#dc2626);font-size:1rem" title="Not on track">✗</span>'
+          : '<span style="color:var(--color-text-muted)">—</span>';
+
+      var changeColour = (function () {
+        var c = (row.change || '').toString();
+        if (c.indexOf('+') >= 0) return 'var(--positive,#4caf7d)';
+        if (c.indexOf('-') >= 0) return 'var(--critical,#dc2626)';
+        return 'inherit';
+      })();
+
+      html +=
+        '<tr style="border-bottom:1px solid var(--color-border,rgba(255,255,255,.06));' + rowBg + '">' +
+          '<td style="padding:var(--space-2) var(--space-3);font-weight:700">' +
+            flagHtml + escHtml(row.country || '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);text-align:right;font-weight:700;' +
+            'color:var(--monitor-accent)">' +
+            escHtml(row.gdp_pct !== undefined ? String(row.gdp_pct) + '%' : '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);text-align:right;' +
+            'color:var(--color-text-muted)">' +
+            escHtml(row.target || '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);text-align:right">' +
+            escHtml(row.budget_bn !== undefined ? String(row.budget_bn) : '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);color:var(--color-text-muted);' +
+            'font-size:var(--text-xs)">' +
+            escHtml(row.edip_committed || '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);font-weight:700;color:' + changeColour + '">' +
+            escHtml(row.change || '—') +
+          '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);text-align:center">' +
+            trackBadge +
+          '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Defence programmes — card grid.
+   * defence_programmes[] → name, status badge, capability area, budget committed/disbursed,
+   *                        lead nations, score impact, update this week.
+   * Status colours: Announced=blue, Funded=green, In procurement=amber,
+   *                 Operational=bright green, Delayed=red, Cancelled=grey.
+   */
+  function renderDefenceProgrammes(programmes, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!programmes || !programmes.length) {
+      el.innerHTML =
+        '<p class="text-muted text-sm">No defence programme updates this period.</p>';
+      return;
+    }
+
+    function statusColour(status) {
+      var s = (status || '').toLowerCase();
+      if (s === 'announced')       return { bg: '#2563eb20', border: '#2563eb', text: '#60a5fa' };
+      if (s === 'funded')          return { bg: '#4caf7d20', border: '#4caf7d', text: '#4caf7d' };
+      if (s === 'in procurement')  return { bg: '#d9770620', border: '#d97706', text: '#fbbf24' };
+      if (s === 'operational')     return { bg: '#22c55e20', border: '#22c55e', text: '#22c55e' };
+      if (s === 'delayed')         return { bg: '#dc262620', border: '#dc2626', text: '#f87171' };
+      if (s === 'cancelled')       return { bg: '#6b728020', border: '#6b7280', text: '#9ca3af' };
+      return { bg: 'rgba(255,255,255,.05)', border: 'var(--color-border)', text: 'var(--color-text-muted)' };
+    }
+
+    function scoreBadge(impact) {
+      if (!impact) return '';
+      var i = (impact || '').toString();
+      var colour = i.indexOf('+') >= 0 ? 'var(--positive,#4caf7d)'
+                 : i.indexOf('-') >= 0 ? 'var(--critical,#dc2626)'
+                 : 'var(--color-text-muted)';
+      return '<span style="font-size:var(--text-xs);color:' + colour + ';font-weight:700">' +
+        'Score: ' + escHtml(i) + '</span>';
+    }
+
+    var html = '<div class="programmes-grid" style="display:grid;grid-template-columns:1fr;' +
+      'gap:var(--space-3)">';
+
+    programmes.forEach(function (p) {
+      var colours = statusColour(p.status);
+
+      var leadNations = Array.isArray(p.lead_nations)
+        ? p.lead_nations.join(', ')
+        : (p.lead_nations || '');
+
+      html +=
+        '<div class="programme-card" style="border-radius:var(--radius-md,6px);' +
+          'background:var(--color-surface-raised,#1a1a2e);' +
+          'border:1px solid var(--color-border,rgba(255,255,255,.08));overflow:hidden">' +
+
+          // Status colour bar
+          '<div style="height:2px;background:' + colours.border + '"></div>' +
+
+          '<div style="padding:var(--space-4)">' +
+
+            // Header: name + status badge
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;' +
+              'gap:var(--space-3);margin-bottom:var(--space-2)">' +
+              '<div style="font-weight:700;font-size:var(--text-sm);' +
+                'color:var(--color-text-primary,#fff)">' + escHtml(p.name || p.programme || '') + '</div>' +
+              (p.status
+                ? '<span style="flex-shrink:0;padding:2px 8px;border-radius:3px;' +
+                    'background:' + colours.bg + ';border:1px solid ' + colours.border + ';' +
+                    'color:' + colours.text + ';font-size:var(--text-xs);font-weight:700;' +
+                    'white-space:nowrap">' + escHtml(p.status) + '</span>'
+                : '') +
+            '</div>' +
+
+            // Meta row: capability + lead nations + score impact
+            '<div style="display:flex;flex-wrap:wrap;gap:var(--space-3);' +
+              'margin-bottom:var(--space-2);font-size:var(--text-xs)">' +
+              (p.capability_area
+                ? '<span style="color:var(--color-text-muted)">Capability: ' +
+                    '<strong style="color:var(--color-text-secondary)">' +
+                    escHtml(p.capability_area) + '</strong></span>'
+                : '') +
+              (leadNations
+                ? '<span style="color:var(--color-text-muted)">Lead: ' +
+                    '<strong style="color:var(--color-text-secondary)">' +
+                    escHtml(leadNations) + '</strong></span>'
+                : '') +
+              (p.score_impact ? scoreBadge(p.score_impact) : '') +
+            '</div>' +
+
+            // Budget line
+            (p.budget_committed || p.budget_disbursed
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);' +
+                  'margin-bottom:var(--space-2)">' +
+                  (p.budget_committed
+                    ? '<span>Committed: <strong style="color:var(--color-text-secondary)">' +
+                        escHtml(String(p.budget_committed)) + '</strong></span>'
+                    : '') +
+                  (p.budget_committed && p.budget_disbursed ? '  ' : '') +
+                  (p.budget_disbursed
+                    ? '<span>Disbursed: <strong style="color:var(--positive,#4caf7d)">' +
+                        escHtml(String(p.budget_disbursed)) + '</strong></span>'
+                    : '') +
+                '</div>'
+              : '') +
+
+            // Update this week
+            (p.update_this_week
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);' +
+                  'line-height:1.5;border-top:1px solid var(--color-border,rgba(255,255,255,.07));' +
+                  'padding-top:var(--space-2);margin-top:var(--space-2)">' +
+                  escHtml(p.update_this_week) +
+                '</div>'
+              : '') +
+
+          '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+
   /* ── Public API ─────────────────────────────────────────────── */
   return {
     // Helpers (exposed for inline orchestrators)
@@ -1345,7 +2087,15 @@ window.AsymSections = (function () {
     // Persistent-page enrichment helpers
     enrichBaselineWithTheatre: enrichBaselineWithTheatre,
     enrichIndicatorCell: enrichIndicatorCell,
-    renderEscalationLog: renderEscalationLog
+    renderEscalationLog: renderEscalationLog,
+    // ESA-specific sections
+    renderDomainTracker: renderDomainTracker,
+    renderAutonomySnapshot: renderAutonomySnapshot,
+    renderUsEuTracker: renderUsEuTracker,
+    renderElectionThreats: renderElectionThreats,
+    renderLagrangeScores: renderLagrangeScores,
+    renderDefenceSpending: renderDefenceSpending,
+    renderDefenceProgrammes: renderDefenceProgrammes
   };
 }());
 
