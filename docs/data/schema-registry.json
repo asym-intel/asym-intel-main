@@ -1,0 +1,1544 @@
+{
+  "schema_version": "1.1",
+  "description": "Consolidated schema registry for all 7 monitors. Defines every report field, its source (synthesis / persistent-state / publisher / carry-forward), the dashboard section that renders it, and the synthesis-to-report field mapping. The publisher and preflight checks validate against this file.",
+  "last_updated": "2026-04-12",
+  "field_sources": {
+    "synthesis": "Produced by the synthesiser each week",
+    "persistent-state": "Read from persistent-state.json (longitudinal memory)",
+    "publisher-build": "Computed by publisher.py at publish time",
+    "carry-forward": "Carried from previous report if synthesis doesn't provide it",
+    "analyst-legacy": "Originally produced by analyst cron; now carry-forward until synthesis covers it"
+  },
+  "monitors": {
+    "macro-monitor": {
+      "abbr": "GMM",
+      "title": "Global Macro Monitor",
+      "publish_day": "Tuesday",
+      "publish_time": "08:00 UTC",
+      "synthesis_status": "active",
+      "fields": {
+        "meta": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null,
+          "sub_fields": [
+            "issue",
+            "volume",
+            "week_label",
+            "published",
+            "slug",
+            "publish_time_utc",
+            "editor",
+            "schema_version",
+            "pipeline_inputs"
+          ],
+          "dashboard_section": null,
+          "notes": "Built by publisher from previous meta + synthesis _meta"
+        },
+        "signal": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lead_signal",
+          "sub_fields": [
+            "headline",
+            "system_stress_label",
+            "regime",
+            "regime_conviction",
+            "delta_vs_prior",
+            "regime_shift_probabilities",
+            "system_average_score",
+            "system_stress_direction",
+            "source_url"
+          ],
+          "dashboard_section": "signal-block",
+          "sprint_4": null,
+          "gap": null,
+          "notes": "Sprint v2: lead_signal now produced by synthesis. Publisher builds signal from lead_signal + stress_regime_preliminary."
+        },
+        "executive_briefing": {
+          "required": true,
+          "source": "analyst-legacy",
+          "synthesis_key": null,
+          "sub_fields": [
+            "system_stress_label",
+            "system_stress_direction",
+            "system_average_score",
+            "regime",
+            "regime_conviction",
+            "summary",
+            "one_number_to_watch",
+            "one_indicator_lying",
+            "scenario_analysis",
+            "real_m2",
+            "hard_landing_risk",
+            "regime_shift_probabilities",
+            "base_case_label",
+            "base_case_probability",
+            "source_url"
+          ],
+          "dashboard_section": "executive-briefing",
+          "sprint_4": null,
+          "gap": "Not produced by synthesis. Should be partially derivable from stress_regime_preliminary + indicator_domains. Requires synthesis prompt extension.",
+          "notes": "Key dashboard section — shows stress label, scenarios, regime probabilities"
+        },
+        "stress_regime": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "stress_regime_preliminary",
+          "sub_fields": [
+            "global",
+            "us",
+            "eu",
+            "china",
+            "em_basket",
+            "regime_delta",
+            "regime_change_evidence"
+          ],
+          "dashboard_section": "regime-map",
+          "sprint_4": null,
+          "gap": null,
+          "notes": "Sprint v2: regime, conviction, system_average now included in stress_regime_preliminary. Publisher maps to stress_regime."
+        },
+        "domain_indicators": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "domain_indicators",
+          "sub_fields": [
+            "domain_1_debt_sovereign",
+            "domain_2_banking_credit",
+            "domain_3_market_structure",
+            "domain_4_real_economy",
+            "domain_5_composite_indices",
+            "domain_6_amplifiers"
+          ],
+          "per_indicator_fields": [
+            "indicator",
+            "slug",
+            "flag",
+            "score",
+            "direction",
+            "reading",
+            "indicator_type",
+            "source_url"
+          ],
+          "dashboard_section": "domain-indicators-grid",
+          "sprint_4": null,
+          "gap": null,
+          "notes": "Sprint v2: all 24 indicators with flag, direction, type, value now produced by synthesis."
+        },
+        "indicator_domains": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "indicator_domains",
+          "sub_fields_per_item": [
+            "domain",
+            "signal",
+            "direction",
+            "stress_level",
+            "key_data_point",
+            "source"
+          ],
+          "expected_count": 6,
+          "dashboard_section": "indicator-domains-summary",
+          "sprint_4": null,
+          "notes": "6 domain summaries from synthesis. Different from domain_indicators (detailed per-indicator)."
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments",
+          "sub_fields_per_item": [
+            "id",
+            "judgment",
+            "confidence",
+            "source_url",
+            "stress_domain",
+            "trajectory"
+          ],
+          "expected_count": "3-5",
+          "dashboard_section": "key-judgments",
+          "notes": "Synthesis produces with confidence_preliminary; publisher strips _preliminary suffix"
+        },
+        "debt_dynamics": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "debt_dynamics",
+          "sub_fields_per_item": [
+            "indicator",
+            "slug",
+            "flag",
+            "score",
+            "direction",
+            "reading",
+            "source_url",
+            "update_this_week"
+          ],
+          "dashboard_section": "debt-dynamics-table",
+          "notes": "Sprint v2: entity-level debt/GDP, deficit, trajectory now produced by synthesis."
+        },
+        "credit_stress": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "credit_stress",
+          "sub_fields_per_item": [
+            "indicator",
+            "slug",
+            "flag",
+            "score",
+            "direction",
+            "reading",
+            "source_url",
+            "update_this_week"
+          ],
+          "dashboard_section": "credit-stress-table",
+          "notes": "Sprint v2: segment-level stress with contagion risk now produced by synthesis."
+        },
+        "systemic_risk": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "systemic_risk",
+          "sub_fields_per_item": [
+            "indicator",
+            "slug",
+            "flag",
+            "score",
+            "direction",
+            "reading",
+            "source_url",
+            "update_this_week"
+          ],
+          "dashboard_section": "systemic-risk-table",
+          "notes": "Sprint v2: risk with transmission channel and monitoring indicator now produced by synthesis."
+        },
+        "asset_outlook": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "asset_outlook",
+          "sub_fields_per_item": [
+            "asset_class",
+            "score",
+            "prior_score",
+            "delta",
+            "direction",
+            "flag",
+            "conviction",
+            "key_driver",
+            "source_url"
+          ],
+          "dashboard_section": "asset-outlook-grid",
+          "notes": "Sprint v2: 8 asset classes with scoring_breakdown, conviction, blind_spot_warning now produced by synthesis."
+        },
+        "safe_haven": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "safe_haven",
+          "sub_fields": [
+            "gold_thesis",
+            "bonds_note",
+            "cash_note"
+          ],
+          "dashboard_section": "safe-haven",
+          "notes": "Sprint v2: gold_thesis, bonds_note, cash_note now produced by synthesis."
+        },
+        "sentiment_overlay": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "sentiment_overlay",
+          "sub_fields": [
+            "fed_funds_futures",
+            "prob_zero_cuts_2026",
+            "matt_agreement_pct",
+            "source_url"
+          ],
+          "dashboard_section": "sentiment-overlay",
+          "notes": "Sprint v2: fed_funds_futures, matt_agreement_pct now produced by synthesis."
+        },
+        "tail_risks": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "tail_risks",
+          "sub_fields_per_item": [
+            "id",
+            "label",
+            "likelihood",
+            "impact",
+            "direction",
+            "note"
+          ],
+          "expected_count": "5+",
+          "dashboard_section": "tail-risk-heatmap",
+          "notes": "SC-004. Synthesis produces; publisher overlays."
+        },
+        "central_bank_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "central_bank_tracker",
+          "sub_fields_per_item": [
+            "institution",
+            "posture",
+            "last_action",
+            "next_meeting",
+            "forward_guidance"
+          ],
+          "dashboard_section": "central-bank-tracker",
+          "notes": "Direct pass-through from synthesis"
+        },
+        "tariff_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "tariff_tracker",
+          "sub_fields_per_item": [
+            "actor",
+            "target",
+            "measure",
+            "effective_date",
+            "status",
+            "macro_impact_assessment"
+          ],
+          "dashboard_section": "tariff-tracker",
+          "notes": "Direct pass-through from synthesis"
+        },
+        "cross_monitor_flags": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": "cross_monitor_candidates",
+          "sub_fields": [
+            "updated",
+            "flags",
+            "version_history"
+          ],
+          "dashboard_section": "cross-monitor-flags-widget",
+          "notes": "Publisher promotes candidates, verifies existing flags against adjacent reports"
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft",
+          "dashboard_section": null,
+          "gap": "Publisher writes Hugo brief but does NOT write weekly_brief to report JSON. Bug — weekly_brief_draft should be mapped to weekly_brief in the report.",
+          "notes": "Currently carries forward from previous report in the JSON"
+        },
+        "source_url": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null,
+          "dashboard_section": null,
+          "notes": "Set by publisher to the Hugo brief URL"
+        },
+        "scenario_framework": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "scenario_framework",
+          "sub_fields_per_item": [
+            "scenario",
+            "probability_pct",
+            "description",
+            "probability_delta",
+            "key_trigger",
+            "affected_asset_classes"
+          ],
+          "expected_count": 3,
+          "dashboard_section": "scenario-framework",
+          "notes": "Sprint v2: 3 scenarios (Slow Burn, De-escalation, Fast Cascade) with probability weights. Pass-through from synthesis."
+        },
+        "positioning_overlay": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "positioning_overlay",
+          "sub_fields": {
+            "fed_funds_futures": [
+              "implied_cuts_2026",
+              "prob_zero_cuts_2026",
+              "source"
+            ],
+            "matt_framework": [
+              "theme",
+              "matt_score",
+              "market_pricing",
+              "our_assessment",
+              "alpha_signal"
+            ],
+            "contrarian_corner": [
+              "source",
+              "view",
+              "scenario_under_which_correct"
+            ]
+          },
+          "dashboard_section": "positioning-overlay",
+          "notes": "Sprint v2: MATT framework positioning overlay + contrarian corner + fed funds futures. Pass-through from synthesis."
+        }
+      },
+      "sprint_4_additions": {
+        "credit_spreads": {
+          "description": "Add to prompt; render spread chart on dashboard",
+          "target_section": "dashboard",
+          "source": "synthesis",
+          "status": "planned"
+        },
+        "vix_term_structure": {
+          "description": "Add array to prompt; render curve chart",
+          "target_section": "dashboard",
+          "source": "synthesis",
+          "status": "planned"
+        },
+        "tariff_quantification": {
+          "description": "Structured tariff impact field; render as annotated figure",
+          "target_section": "dashboard",
+          "source": "synthesis",
+          "status": "planned"
+        }
+      },
+      "publisher_field_map": {
+        "stress_regime_preliminary": "stress_regime"
+      },
+      "synthesis_gaps": [],
+      "file_paths": {
+        "_note": "Canonical file locations for schema sprint and pipeline work",
+        "pipeline": {
+          "monitor_dir": "pipeline/monitors/macro-monitor/",
+          "chatter_prompt": "pipeline/monitors/macro-monitor/gmm-chatter-api-prompt.txt",
+          "collector_prompt": "pipeline/monitors/macro-monitor/gmm-collector-api-prompt.txt",
+          "weekly_research_prompt": "pipeline/monitors/macro-monitor/gmm-weekly-research-api-prompt.txt",
+          "reasoner_prompt": "pipeline/monitors/macro-monitor/gmm-reasoner-api-prompt.txt",
+          "synthesiser_prompt": "pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt",
+          "synthesiser_script": "pipeline/synthesisers/gmm/macro-monitor-synthesiser.py",
+          "synthesis_output": "pipeline/monitors/macro-monitor/synthesised/synthesis-latest.json",
+          "daily_latest": "pipeline/monitors/macro-monitor/daily/daily-latest.json",
+          "weekly_latest": "pipeline/monitors/macro-monitor/weekly/weekly-latest.json",
+          "reasoner_latest": "pipeline/monitors/macro-monitor/reasoner/reasoner-latest.json"
+        },
+        "data": {
+          "report_latest": "static/monitors/macro-monitor/data/report-latest.json",
+          "persistent_state": "static/monitors/macro-monitor/data/persistent-state.json",
+          "archive": "static/monitors/macro-monitor/data/archive.json"
+        },
+        "pages": {
+          "dashboard": "static/monitors/macro-monitor/dashboard.html",
+          "report": "static/monitors/macro-monitor/report.html",
+          "persistent": "static/monitors/macro-monitor/persistent.html"
+        },
+        "internal": {
+          "identity": "identities/IDENTITY-GMM.md",
+          "methodology_full": "methodology/macro-monitor-full.md",
+          "methodology_addenda": [
+            "methodology/macro-monitor-imf-2026.md"
+          ]
+        },
+        "workflows": {
+          "publisher": ".github/workflows/macro-monitor-publisher.yml",
+          "synthesiser": ".github/workflows/gmm-synthesiser.yml",
+          "chatter": ".github/workflows/gmm-chatter.yml",
+          "collector": ".github/workflows/gmm-collector.yml",
+          "weekly_research": ".github/workflows/gmm-weekly-research.yml",
+          "reasoner": ".github/workflows/gmm-reasoner.yml"
+        }
+      }
+    },
+    "fimi-cognitive-warfare": {
+      "abbr": "FCW",
+      "title": "FIMI & Cognitive Warfare Monitor",
+      "publish_day": "Thursday",
+      "publish_time": "09:00 UTC",
+      "synthesis_status": "active",
+      "fields": {
+        "meta": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null
+        },
+        "signal": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lead_signal",
+          "sub_fields": [
+            "headline",
+            "actor",
+            "confidence",
+            "f_flags",
+            "note"
+          ],
+          "dashboard_section": "signal-block",
+          "notes": "Publisher builds signal from synthesis lead_signal via signal_key config"
+        },
+        "campaigns": {
+          "required": true,
+          "source": "persistent-state",
+          "synthesis_key": "campaigns + delta_strip",
+          "sub_fields_per_item": [
+            "id",
+            "operation_name",
+            "status",
+            "attribution_confidence",
+            "actor",
+            "platform",
+            "target",
+            "summary",
+            "last_activity",
+            "changelog"
+          ],
+          "expected_count": "3+",
+          "dashboard_section": "campaign-roster",
+          "notes": "Publisher merges persistent-state campaigns with synthesis delta_strip"
+        },
+        "actor_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "actor_tracker",
+          "dashboard_section": "actor-tracker"
+        },
+        "platform_responses": {
+          "required": true,
+          "source": "persistent-state",
+          "synthesis_key": null,
+          "dashboard_section": "platform-responses",
+          "notes": "From persistent-state platform_enforcement_tracker"
+        },
+        "attribution_log": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "attribution_log",
+          "dashboard_section": "attribution-log",
+          "notes": "Publisher merges new entries from synthesis with existing log"
+        },
+        "cognitive_warfare": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": "intelligence_highlights + key_judgments",
+          "dashboard_section": "cognitive-warfare",
+          "notes": "Publisher builds from synthesis intelligence_highlights and high-confidence key_judgments"
+        },
+        "cross_monitor_flags": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": "cross_monitor_candidates"
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft",
+          "gap": "Same as GMM — not written to report JSON"
+        },
+        "source_url": {
+          "required": true,
+          "source": "publisher-build"
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments",
+          "sub_fields_per_item": [
+            "id",
+            "judgment",
+            "confidence",
+            "basis",
+            "mf_flags",
+            "trajectory"
+          ],
+          "expected_count": "3-5",
+          "dashboard_section": "key-judgments",
+          "notes": "Sprint v1: analytical judgments with MF-flag annotations and trajectory"
+        },
+        "intelligence_highlights": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "intelligence_highlights",
+          "sub_fields_per_item": [
+            "headline",
+            "detail",
+            "relevance",
+            "source_url"
+          ],
+          "dashboard_section": "intelligence-highlights",
+          "notes": "Sprint v1: novel TTPs, cross-platform coordination, narrative persistence, attribution gaps"
+        }
+      },
+      "sprint_4_additions": {
+        "narratives_registry": {
+          "description": "New top-level object; render as table",
+          "status": "planned"
+        },
+        "effectiveness_per_campaign": {
+          "description": "Scoring badge on campaign card",
+          "status": "planned"
+        }
+      },
+      "publisher_field_map": {
+        "lead_signal": "signal"
+      },
+      "synthesis_gaps": [],
+      "file_paths": {
+        "_note": "Canonical file locations for schema sprint and pipeline work",
+        "pipeline": {
+          "monitor_dir": "pipeline/monitors/fimi-cognitive-warfare/",
+          "chatter_prompt": "pipeline/monitors/fimi-cognitive-warfare/fcw-chatter-api-prompt.txt",
+          "collector_prompt": "pipeline/monitors/fimi-cognitive-warfare/fcw-collector-api-prompt.txt",
+          "weekly_research_prompt": "pipeline/monitors/fimi-cognitive-warfare/fcw-weekly-research-api-prompt.txt",
+          "reasoner_prompt": "pipeline/monitors/fimi-cognitive-warfare/fcw-reasoner-api-prompt.txt",
+          "synthesiser_prompt": "pipeline/synthesisers/fcw/fcw-synthesiser-api-prompt.txt",
+          "synthesiser_script": "pipeline/synthesisers/fcw/fcw-synthesiser.py",
+          "synthesis_output": "pipeline/monitors/fimi-cognitive-warfare/synthesised/synthesis-latest.json"
+        },
+        "data": {
+          "report_latest": "static/monitors/fimi-cognitive-warfare/data/report-latest.json",
+          "persistent_state": "static/monitors/fimi-cognitive-warfare/data/persistent-state.json",
+          "archive": "static/monitors/fimi-cognitive-warfare/data/archive.json"
+        },
+        "pages": {
+          "dashboard": "static/monitors/fimi-cognitive-warfare/dashboard.html",
+          "report": "static/monitors/fimi-cognitive-warfare/report.html",
+          "persistent": "static/monitors/fimi-cognitive-warfare/persistent.html",
+          "chatter": "static/monitors/fimi-cognitive-warfare/chatter.html"
+        }
+      }
+    },
+    "democratic-integrity": {
+      "abbr": "WDM",
+      "title": "World Democracy Monitor",
+      "publish_day": "Monday",
+      "publish_time": "06:00 UTC",
+      "synthesis_status": "active",
+      "fields": {
+        "meta": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null
+        },
+        "signal": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "signal",
+          "dashboard_section": "signal-block",
+          "gap": null,
+          "notes": "Sprint v2: signal now produced by synthesis with headline, body, source_url."
+        },
+        "heatmap": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "country_heatmap",
+          "dashboard_section": "heatmap",
+          "notes": "Publisher maps country_heatmap → heatmap"
+        },
+        "intelligence_items": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "backsliding_alerts",
+          "dashboard_section": "intelligence-items",
+          "notes": "Publisher maps backsliding_alerts → intelligence_items"
+        },
+        "institutional_integrity_flags": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "institutional_integrity_flags",
+          "dashboard_section": "institutional-integrity-flags",
+          "notes": "Sprint v2: 4 signal types tracked from synthesis."
+        },
+        "global_health_snapshot": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "global_health_snapshot",
+          "dashboard_section": "global-health-snapshot"
+        },
+        "electoral_calendar_watch": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "electoral_calendar_watch",
+          "dashboard_section": "electoral-calendar"
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments"
+        },
+        "cross_monitor_flags": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": "cross_monitor_candidates"
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft",
+          "gap": "Not written to report JSON"
+        },
+        "source_url": {
+          "required": true,
+          "source": "publisher-build"
+        },
+        "mimicry_chain_update": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "mimicry_chain_update",
+          "dashboard_section": "mimicry-chain",
+          "notes": "Sprint v2: new field — autocratic legislative model export chains."
+        },
+        "legislative_watch_entries": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "legislative_watch_entries",
+          "dashboard_section": "legislative-watch",
+          "notes": "Sprint v2: new field — bills/EOs/regulatory actions with lifecycle tracking."
+        },
+        "friction_notes": {
+          "required": false,
+          "source": "synthesis",
+          "synthesis_key": "friction_notes",
+          "dashboard_section": "friction-notes",
+          "notes": "Sprint v2: new field — official vs ground-truth divergences."
+        }
+      },
+      "publisher_field_map": {
+        "country_heatmap": "heatmap",
+        "backsliding_alerts": "intelligence_items"
+      },
+      "synthesis_gaps": [],
+      "file_paths": {
+        "_note": "Canonical file locations for schema sprint and pipeline work",
+        "pipeline": {
+          "monitor_dir": "pipeline/monitors/democratic-integrity/",
+          "chatter_prompt": "pipeline/monitors/democratic-integrity/wdm-chatter-api-prompt.txt",
+          "collector_prompt": "pipeline/monitors/democratic-integrity/wdm-collector-api-prompt.txt",
+          "weekly_research_prompt": "pipeline/monitors/democratic-integrity/wdm-weekly-research-api-prompt.txt",
+          "reasoner_prompt": "pipeline/monitors/democratic-integrity/wdm-reasoner-api-prompt.txt",
+          "synthesiser_prompt": "pipeline/synthesisers/wdm/democratic-integrity-synthesiser-api-prompt.txt",
+          "synthesiser_script": "pipeline/synthesisers/wdm/democratic-integrity-synthesiser.py",
+          "synthesis_output": "pipeline/monitors/democratic-integrity/synthesised/synthesis-latest.json",
+          "daily_latest": "pipeline/monitors/democratic-integrity/daily/daily-latest.json",
+          "weekly_latest": "pipeline/monitors/democratic-integrity/weekly/weekly-latest.json",
+          "reasoner_latest": "pipeline/monitors/democratic-integrity/reasoner/reasoner-latest.json"
+        },
+        "data": {
+          "report_latest": "static/monitors/democratic-integrity/data/report-latest.json",
+          "persistent_state": "static/monitors/democratic-integrity/data/persistent-state.json",
+          "archive": "static/monitors/democratic-integrity/data/archive.json"
+        },
+        "pages": {
+          "dashboard": "static/monitors/democratic-integrity/dashboard.html",
+          "report": "static/monitors/democratic-integrity/report.html",
+          "persistent": "static/monitors/democratic-integrity/persistent.html"
+        },
+        "internal": {
+          "identity": "identities/IDENTITY-WDM.md",
+          "methodology_full": "methodology/democratic-integrity-full.md",
+          "methodology_addenda": [
+            "methodology/democratic-integrity-vdem-2026.md"
+          ]
+        },
+        "workflows": {
+          "publisher": ".github/workflows/democratic-integrity-publisher.yml",
+          "synthesiser": ".github/workflows/wdm-synthesiser.yml",
+          "chatter": ".github/workflows/wdm-chatter.yml",
+          "collector": ".github/workflows/wdm-collector.yml",
+          "weekly_research": ".github/workflows/wdm-weekly-research.yml",
+          "reasoner": ".github/workflows/wdm-reasoner.yml"
+        }
+      }
+    },
+    "ai-governance": {
+      "abbr": "AIM",
+      "title": "Artificial Intelligence Monitor",
+      "publish_day": "Friday",
+      "publish_time": "09:00 UTC",
+      "synthesis_status": "active",
+      "fields": {
+        "meta": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null
+        },
+        "module_0": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_0",
+          "dashboard_section": "module-0"
+        },
+        "module_1": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_1",
+          "dashboard_section": "module-1"
+        },
+        "module_2": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_2",
+          "dashboard_section": "module-2"
+        },
+        "module_3": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_3",
+          "dashboard_section": "module-3"
+        },
+        "module_4": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_4",
+          "dashboard_section": "module-4"
+        },
+        "module_5": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_5",
+          "dashboard_section": "module-5"
+        },
+        "module_6": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_6",
+          "dashboard_section": "module-6"
+        },
+        "module_7": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_7",
+          "dashboard_section": "module-7"
+        },
+        "module_8": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_8",
+          "dashboard_section": "module-8"
+        },
+        "module_9": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_9",
+          "dashboard_section": "module-9"
+        },
+        "module_10": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_10",
+          "dashboard_section": "module-10"
+        },
+        "module_11": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_11",
+          "dashboard_section": "module-11"
+        },
+        "module_12": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_12",
+          "dashboard_section": "module-12"
+        },
+        "module_13": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_13",
+          "dashboard_section": "module-13"
+        },
+        "module_14": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_14",
+          "dashboard_section": "module-14"
+        },
+        "module_15": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "module_15",
+          "dashboard_section": "module-15"
+        },
+        "delta_strip": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "delta_strip",
+          "dashboard_section": "delta-strip"
+        },
+        "cross_monitor_flags": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": "cross_monitor_candidates"
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft",
+          "gap": "Not written to report JSON"
+        },
+        "source_url": {
+          "required": true,
+          "source": "publisher-build"
+        },
+        "jurisdiction_risk_matrix": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "jurisdiction_risk_matrix",
+          "dashboard_section": "jurisdiction-risk-matrix",
+          "note": "Sprint 4 — dashboard render pending"
+        },
+        "lab_posture_scorecard": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lab_posture_scorecard",
+          "dashboard_section": "lab-posture-scorecard",
+          "note": "Sprint 4 — dashboard render pending"
+        },
+        "governance_health_composite": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "governance_health_composite",
+          "dashboard_section": "governance-health-composite",
+          "note": "Sprint 4 — dashboard render pending"
+        }
+      },
+      "publisher_field_map": {},
+      "synthesis_gaps": [
+        "Dashboard HTML for Sprint 4 fields (jurisdiction_risk_matrix, lab_posture_scorecard, governance_health_composite) not yet built"
+      ],
+      "file_paths": {
+        "_note": "Canonical file locations for schema sprint and pipeline work",
+        "pipeline": {
+          "monitor_dir": "pipeline/monitors/ai-governance/",
+          "chatter_prompt": "pipeline/monitors/ai-governance/agm-chatter-api-prompt.txt",
+          "collector_prompt": "pipeline/monitors/ai-governance/agm-collector-api-prompt.txt",
+          "weekly_research_prompt": "pipeline/monitors/ai-governance/agm-weekly-research-api-prompt.txt",
+          "reasoner_prompt": "pipeline/monitors/ai-governance/agm-reasoner-api-prompt.txt",
+          "synthesiser_prompt": "pipeline/synthesisers/agm/ai-governance-synthesiser-api-prompt.txt",
+          "synthesiser_script": "pipeline/synthesisers/agm/ai-governance-synthesiser.py",
+          "synthesis_output": "pipeline/monitors/ai-governance/synthesised/synthesis-latest.json",
+          "daily_latest": "pipeline/monitors/ai-governance/daily/daily-latest.json",
+          "weekly_latest": "pipeline/monitors/ai-governance/weekly/weekly-latest.json",
+          "reasoner_latest": "pipeline/monitors/ai-governance/reasoner/reasoner-latest.json"
+        },
+        "data": {
+          "report_latest": "static/monitors/ai-governance/data/report-latest.json",
+          "persistent_state": "static/monitors/ai-governance/data/persistent-state.json",
+          "archive": "static/monitors/ai-governance/data/archive.json"
+        },
+        "pages": {
+          "dashboard": "static/monitors/ai-governance/dashboard.html",
+          "report": "static/monitors/ai-governance/report.html",
+          "persistent": "static/monitors/ai-governance/persistent.html"
+        },
+        "internal": {
+          "identity": "identities/IDENTITY-AGM.md",
+          "methodology_full": "methodology/ai-governance-full.md",
+          "methodology_addenda": [
+            "methodology/ai-governance-euaiact-2026.md"
+          ]
+        },
+        "workflows": {
+          "publisher": ".github/workflows/ai-governance-publisher.yml",
+          "synthesiser": ".github/workflows/agm-synthesiser.yml",
+          "chatter": ".github/workflows/agm-chatter.yml",
+          "collector": ".github/workflows/agm-collector.yml",
+          "weekly_research": ".github/workflows/agm-weekly-research.yml",
+          "reasoner": ".github/workflows/agm-reasoner.yml"
+        }
+      }
+    },
+    "environmental-risks": {
+      "abbr": "ERM",
+      "title": "Global Environmental Risks Monitor",
+      "publish_day": "Saturday",
+      "publish_time": "05:00 UTC",
+      "synthesis_status": "active",
+      "fields": {
+        "meta": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null
+        },
+        "m00_the_signal": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "planetary_status_snapshot",
+          "dashboard_section": "m00",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
+        },
+        "m01_executive_insight": {
+          "required": true,
+          "source": "analyst-legacy",
+          "synthesis_key": null,
+          "dashboard_section": "m01",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
+        },
+        "m02_planetary_boundaries": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "planetary_boundary_tracker",
+          "dashboard_section": "m02",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
+        },
+        "m03_threat_multiplier": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "climate_security_nexus",
+          "dashboard_section": "m03",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
+        },
+        "m04_extreme_weather": {
+          "required": true,
+          "source": "analyst-legacy",
+          "synthesis_key": null,
+          "dashboard_section": "m04",
+          "notes": "Not yet in schema-requirements; expected from full analyst output DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration.",
+          "deprecated": true
+        },
+        "m05_policy_law": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "policy_law_compliance",
+          "dashboard_section": "m05",
+          "notes": "Sprint v2: policy_law_compliance with F2 regulatory vacuum tagging."
+        },
+        "m06_ai_climate": {
+          "required": true,
+          "source": "analyst-legacy",
+          "synthesis_key": null,
+          "dashboard_section": "m06",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
+        },
+        "m07_biosphere": {
+          "required": true,
+          "source": "analyst-legacy",
+          "synthesis_key": null,
+          "dashboard_section": "m07",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
+        },
+        "m08_geostrategic_resources": {
+          "required": true,
+          "source": "analyst-legacy",
+          "synthesis_key": null,
+          "dashboard_section": "m08",
+          "deprecated": true,
+          "notes": "DEPRECATED v2.2: replaced by synthesis-named field. Will be removed after migration."
+        },
+        "cross_monitor_flags": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": "cross_monitor_candidates"
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft",
+          "gap": "Not written to report JSON"
+        },
+        "source_url": {
+          "required": true,
+          "source": "publisher-build"
+        },
+        "extreme_events_log": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "extreme_events_log",
+          "dashboard_section": "m04",
+          "notes": "Sprint v2: now produced by synthesis with non-linear departure test."
+        },
+        "icj_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "icj_tracker",
+          "dashboard_section": null,
+          "notes": "Sprint v2: standing tracker — published every week."
+        },
+        "loss_damage_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "loss_damage_tracker",
+          "dashboard_section": null,
+          "notes": "Sprint v2: standing tracker — disbursement vs commitment."
+        },
+        "attribution_gap_cases": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "attribution_gap_cases",
+          "dashboard_section": null,
+          "notes": "Sprint v2: F4 attribution gap — novel entities, deep-sea mining, aerosol, microplastics."
+        },
+        "reverse_cascade_check": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "reverse_cascade_check",
+          "dashboard_section": null,
+          "notes": "Sprint v2: mandatory weekly — does geopolitical event accelerate boundary transgression."
+        },
+        "planetary_status_snapshot": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "planetary_status_snapshot",
+          "dashboard_section": "m00",
+          "notes": "v2.2: replaces legacy m00_the_signal. Contains boundaries_exceeded, high_risk, increasing_risk, safe counts, status_delta_this_week, lead_signal"
+        },
+        "planetary_boundary_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "planetary_boundary_tracker",
+          "dashboard_section": "m02",
+          "notes": "v2.2: replaces legacy m02_planetary_boundaries. 9 boundaries with status, delta, key_indicator, data_source, week_development, filter_tags"
+        },
+        "tipping_point_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "tipping_point_tracker",
+          "dashboard_section": null,
+          "notes": "v2.2: tipping elements with proximity, probability, cascade_risk, amoc_fovs_proxy"
+        },
+        "climate_security_nexus": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "climate_security_nexus",
+          "dashboard_section": "m03",
+          "notes": "v2.2: replaces legacy m03_threat_multiplier. Risk items with type, region, severity, conflict_link, scem_link, cascade_chain"
+        },
+        "regional_coverage": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "regional_coverage",
+          "dashboard_section": null,
+          "notes": "v2.2: FM-ERM-02 compliance — sub_saharan_africa, mena, south_asia, ocean_systems item counts"
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments",
+          "dashboard_section": null,
+          "notes": "v2.2: analyst judgments with id, judgment, confidence_preliminary, boundary_or_element, trajectory"
+        },
+        "cross_monitor_candidates": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "cross_monitor_candidates",
+          "dashboard_section": null,
+          "notes": "v2.2: signals for routing to other monitors. target_monitor, signal, type, confidence"
+        }
+      },
+      "publisher_field_map": {},
+      "synthesis_gaps": [
+        "m01_executive_insight deprecated — no synthesis equivalent, carried forward only",
+        "m06-m08 deprecated — AI/biosphere/geostrategic not yet from synthesis"
+      ],
+      "file_paths": {
+        "_note": "Canonical file locations for schema sprint and pipeline work",
+        "pipeline": {
+          "monitor_dir": "pipeline/monitors/environmental-risks/",
+          "chatter_prompt": "pipeline/monitors/environmental-risks/erm-chatter-api-prompt.txt",
+          "collector_prompt": "pipeline/monitors/environmental-risks/erm-collector-api-prompt.txt",
+          "weekly_research_prompt": "pipeline/monitors/environmental-risks/erm-weekly-research-api-prompt.txt",
+          "reasoner_prompt": "pipeline/monitors/environmental-risks/erm-reasoner-api-prompt.txt",
+          "synthesiser_prompt": "pipeline/synthesisers/erm/environmental-risks-synthesiser-api-prompt.txt",
+          "synthesiser_script": "pipeline/synthesisers/erm/environmental-risks-synthesiser.py",
+          "synthesis_output": "pipeline/monitors/environmental-risks/synthesised/synthesis-latest.json",
+          "daily_latest": "pipeline/monitors/environmental-risks/daily/daily-latest.json",
+          "weekly_latest": "pipeline/monitors/environmental-risks/weekly/weekly-latest.json",
+          "reasoner_latest": "pipeline/monitors/environmental-risks/reasoner/reasoner-latest.json"
+        },
+        "data": {
+          "report_latest": "static/monitors/environmental-risks/data/report-latest.json",
+          "persistent_state": "static/monitors/environmental-risks/data/persistent-state.json",
+          "archive": "static/monitors/environmental-risks/data/archive.json"
+        },
+        "pages": {
+          "dashboard": "static/monitors/environmental-risks/dashboard.html",
+          "report": "static/monitors/environmental-risks/report.html",
+          "persistent": "static/monitors/environmental-risks/persistent.html"
+        },
+        "internal": {
+          "identity": "identities/IDENTITY-ERM.md",
+          "methodology_full": "methodology/environmental-risks-full.md",
+          "methodology_addenda": [
+            "methodology/environmental-risks-copernicus-2026.md"
+          ]
+        },
+        "workflows": {
+          "publisher": ".github/workflows/environmental-risks-publisher.yml",
+          "synthesiser": ".github/workflows/erm-synthesiser.yml",
+          "chatter": ".github/workflows/erm-chatter.yml",
+          "collector": ".github/workflows/erm-collector.yml",
+          "weekly_research": ".github/workflows/erm-weekly-research.yml",
+          "reasoner": ".github/workflows/erm-reasoner.yml"
+        }
+      },
+      "publisher_field_map_note": "v2.2: empty — all synthesis fields pass through with original names"
+    },
+    "european-strategic-autonomy": {
+      "abbr": "ESA",
+      "title": "European Strategic Autonomy Monitor",
+      "publish_day": "Wednesday",
+      "publish_time": "19:00 UTC",
+      "synthesis_status": "active",
+      "fields": {
+        "meta": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": "_meta"
+        },
+        "signal": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lead_signal",
+          "dashboard_section": "signal-block"
+        },
+        "autonomy_snapshot": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "autonomy_snapshot",
+          "dashboard_section": "autonomy-snapshot"
+        },
+        "domain_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "domain_tracker",
+          "dashboard_section": "domain-tracker"
+        },
+        "defence_developments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "defence_developments",
+          "dashboard_section": "defence-developments"
+        },
+        "hybrid_threats": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "hybrid_threats",
+          "dashboard_section": "hybrid-threats"
+        },
+        "institutional_developments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "institutional_developments",
+          "dashboard_section": "institutional-developments"
+        },
+        "member_state_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "member_state_tracker",
+          "dashboard_section": "member-state-tracker"
+        },
+        "us_eu_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "us_eu_tracker",
+          "dashboard_section": "us-eu-tracker"
+        },
+        "election_threat_assessment": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "election_threat_assessment",
+          "dashboard_section": "election-threats"
+        },
+        "lagrange_point_scores": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lagrange_point_scores",
+          "dashboard_section": "lagrange-scores"
+        },
+        "defence_spending": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "defence_spending",
+          "dashboard_section": "defence-spending"
+        },
+        "autonomy_scorecard": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "autonomy_scorecard",
+          "dashboard_section": "autonomy-scorecard"
+        },
+        "defence_programmes": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "defence_programmes",
+          "dashboard_section": "defence-programmes"
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments",
+          "dashboard_section": "key-judgments"
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft"
+        },
+        "cross_monitor_candidates": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "cross_monitor_candidates"
+        },
+        "cross_monitor_flags": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null
+        },
+        "source_url": {
+          "required": true,
+          "source": "publisher-build"
+        }
+      },
+      "publisher_field_map": {
+        "lead_signal": "signal"
+      },
+      "synthesis_gaps": [],
+      "known_issues": "Publisher now extracts lead_signal to signal. Synthesis v2.1 covers all target fields.",
+      "file_paths": {
+        "_note": "Canonical file locations for schema sprint and pipeline work",
+        "pipeline": {
+          "monitor_dir": "pipeline/monitors/european-strategic-autonomy/",
+          "chatter_prompt": "pipeline/monitors/european-strategic-autonomy/esa-chatter-api-prompt.txt",
+          "collector_prompt": "pipeline/monitors/european-strategic-autonomy/esa-collector-api-prompt.txt",
+          "weekly_research_prompt": "pipeline/monitors/european-strategic-autonomy/esa-weekly-research-api-prompt.txt",
+          "reasoner_prompt": "pipeline/monitors/european-strategic-autonomy/esa-reasoner-api-prompt.txt",
+          "synthesiser_prompt": "pipeline/synthesisers/esa/european-strategic-autonomy-synthesiser-api-prompt.txt",
+          "synthesiser_script": "pipeline/synthesisers/esa/european-strategic-autonomy-synthesiser.py",
+          "synthesis_output": "pipeline/monitors/european-strategic-autonomy/synthesised/synthesis-latest.json",
+          "daily_latest": "pipeline/monitors/european-strategic-autonomy/daily/daily-latest.json",
+          "weekly_latest": "pipeline/monitors/european-strategic-autonomy/weekly/weekly-latest.json",
+          "reasoner_latest": "pipeline/monitors/european-strategic-autonomy/reasoner/reasoner-latest.json"
+        },
+        "data": {
+          "report_latest": "static/monitors/european-strategic-autonomy/data/report-latest.json",
+          "persistent_state": "static/monitors/european-strategic-autonomy/data/persistent-state.json",
+          "archive": "static/monitors/european-strategic-autonomy/data/archive.json"
+        },
+        "pages": {
+          "dashboard": "static/monitors/european-strategic-autonomy/dashboard.html",
+          "report": "static/monitors/european-strategic-autonomy/report.html",
+          "persistent": "static/monitors/european-strategic-autonomy/persistent.html"
+        },
+        "internal": {
+          "identity": "identities/IDENTITY-ESA.md",
+          "methodology_full": "methodology/european-strategic-autonomy-full.md",
+          "methodology_addenda": [
+            "methodology/european-strategic-autonomy-ecfr-2026.md"
+          ]
+        },
+        "workflows": {
+          "publisher": ".github/workflows/european-strategic-autonomy-publisher.yml",
+          "synthesiser": ".github/workflows/esa-synthesiser.yml",
+          "chatter": ".github/workflows/esa-chatter.yml",
+          "collector": ".github/workflows/esa-collector.yml",
+          "weekly_research": ".github/workflows/esa-weekly-research.yml",
+          "reasoner": ".github/workflows/esa-reasoner.yml"
+        }
+      }
+    },
+    "conflict-escalation": {
+      "abbr": "SCEM",
+      "title": "Strategic Conflict & Escalation Monitor",
+      "publish_day": "Sunday",
+      "publish_time": "18:00 UTC",
+      "synthesis_status": "active",
+      "fields": {
+        "meta": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null
+        },
+        "lead_signal": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "lead_signal",
+          "dashboard_section": "signal-block"
+        },
+        "conflict_roster": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "conflict_roster",
+          "sub_fields_per_item": [
+            "conflict",
+            "theatre",
+            "trajectory",
+            "baseline_status",
+            "indicators",
+            "lead_development",
+            "summary",
+            "source_url",
+            "escalation_velocity",
+            "esc_score",
+            "negotiation_status"
+          ],
+          "expected_count": "5+",
+          "dashboard_section": "conflict-roster",
+          "notes": "Sprint v2: full roster with entry dates, structural breaks, baseline recalc."
+        },
+        "roster_watch": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "roster_watch",
+          "dashboard_section": "roster-watch",
+          "notes": "Sprint v2: approaching inclusion and retirement."
+        },
+        "cross_monitor_flags": {
+          "required": true,
+          "source": "publisher-build",
+          "synthesis_key": null
+        },
+        "weekly_brief": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "weekly_brief_draft",
+          "gap": "No valid synthesis yet"
+        },
+        "source_url": {
+          "required": true,
+          "source": "publisher-build"
+        },
+        "indicator_scoring": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "indicator_scoring",
+          "dashboard_section": "indicator-scoring",
+          "notes": "Sprint v2: I1-I6 per-theatre scoring with deviation from baseline."
+        },
+        "f_flag_matrix": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "f_flag_matrix",
+          "dashboard_section": "f-flag-matrix",
+          "notes": "Sprint v2: F1-F4 disinformation pattern detection per theatre."
+        },
+        "acled_reference": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "acled_reference",
+          "dashboard_section": "acled-reference",
+          "notes": "Sprint v2: biannual ACLED Conflict Index alignment. Preserved across weekly runs."
+        },
+        "global_escalation_snapshot": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "global_escalation_snapshot",
+          "dashboard_section": "kpi-strip",
+          "notes": "Active theatre count, escalations/de-escalations, highest intensity, lead signal summary."
+        },
+        "theatre_tracker": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "theatre_tracker",
+          "dashboard_section": "trajectory-grid",
+          "notes": "Per-theatre intensity, delta, ACLED counts, ceasefire status, hybrid dimensions."
+        },
+        "escalation_indicators": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "escalation_indicators",
+          "dashboard_section": "escalation-gauge",
+          "notes": "Kinetic/political/hybrid/nuclear/economic indicators per theatre with thresholds."
+        },
+        "hybrid_warfare_layer": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "hybrid_warfare_layer",
+          "notes": "FIMI/cyber/proxy/economic coercion developments per theatre with FCW cross-links."
+        },
+        "key_judgments": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "key_judgments",
+          "notes": "Analytical key judgments with confidence and trajectory per theatre."
+        },
+        "cross_monitor_candidates": {
+          "required": true,
+          "source": "synthesis",
+          "synthesis_key": "cross_monitor_candidates",
+          "notes": "Signals for routing to other monitors (FCW, WDM, ESA, GMM, ERM)."
+        }
+      },
+      "publisher_field_map": {},
+      "synthesis_gaps": [],
+      "file_paths": {
+        "_note": "Canonical file locations for schema sprint and pipeline work",
+        "pipeline": {
+          "monitor_dir": "pipeline/monitors/conflict-escalation/",
+          "chatter_prompt": "pipeline/monitors/conflict-escalation/scem-chatter-api-prompt.txt",
+          "collector_prompt": "pipeline/monitors/conflict-escalation/scem-collector-api-prompt.txt",
+          "weekly_research_prompt": "pipeline/monitors/conflict-escalation/scem-weekly-research-api-prompt.txt",
+          "reasoner_prompt": "pipeline/monitors/conflict-escalation/scem-reasoner-api-prompt.txt",
+          "synthesiser_prompt": "pipeline/synthesisers/scem/conflict-escalation-synthesiser-api-prompt.txt",
+          "synthesiser_script": "pipeline/synthesisers/scem/conflict-escalation-synthesiser.py",
+          "synthesis_output": "pipeline/monitors/conflict-escalation/synthesised/synthesis-latest.json",
+          "daily_latest": "pipeline/monitors/conflict-escalation/daily/daily-latest.json",
+          "weekly_latest": "pipeline/monitors/conflict-escalation/weekly/weekly-latest.json",
+          "reasoner_latest": "pipeline/monitors/conflict-escalation/reasoner/reasoner-latest.json"
+        },
+        "data": {
+          "report_latest": "static/monitors/conflict-escalation/data/report-latest.json",
+          "persistent_state": "static/monitors/conflict-escalation/data/persistent-state.json",
+          "archive": "static/monitors/conflict-escalation/data/archive.json"
+        },
+        "pages": {
+          "dashboard": "static/monitors/conflict-escalation/dashboard.html",
+          "report": "static/monitors/conflict-escalation/report.html",
+          "persistent": "static/monitors/conflict-escalation/persistent.html"
+        },
+        "internal": {
+          "identity": "identities/IDENTITY-SCEM.md",
+          "methodology_full": "methodology/conflict-escalation-full.md",
+          "methodology_addenda": [
+            "methodology/conflict-escalation-acled-2026.md"
+          ]
+        },
+        "workflows": {
+          "publisher": ".github/workflows/conflict-escalation-publisher.yml",
+          "synthesiser": ".github/workflows/scem-synthesiser.yml",
+          "chatter": ".github/workflows/scem-chatter.yml",
+          "collector": ".github/workflows/scem-collector.yml",
+          "weekly_research": ".github/workflows/scem-weekly-research.yml",
+          "reasoner": ".github/workflows/scem-reasoner.yml"
+        }
+      }
+    }
+  },
+  "synthesis_coverage_summary": {
+    "macro-monitor": {
+      "total_content_fields": 16,
+      "from_synthesis": 15,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 75,
+      "sprint_note": "Schema sprint v2: 44% → 75%. Executive briefing still partially analyst-legacy. Signal now from synthesis."
+    },
+    "fimi-cognitive-warfare": {
+      "total_content_fields": 8,
+      "from_synthesis": 7,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 85,
+      "sprint_note": "Schema sprint v2: 67% → 85%. Full prompt built from scratch. Only platform_responses remains persistent-state."
+    },
+    "democratic-integrity": {
+      "total_content_fields": 10,
+      "from_synthesis": 9,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 92,
+      "sprint_note": "Schema sprint v2: 86% → 92%. Added institutional_integrity, mimicry_chain, legislative_watch, friction_notes, signal."
+    },
+    "ai-governance": {
+      "total_content_fields": 22,
+      "from_synthesis": 21,
+      "carry_forward_or_legacy": 1,
+      "synthesis_coverage_pct": 95
+    },
+    "environmental-risks": {
+      "total_content_fields": 15,
+      "from_synthesis": 10,
+      "carry_forward_or_legacy": 5,
+      "synthesis_coverage_pct": 67,
+      "sprint_note": "Schema sprint v2: 40% → 67%. Added extreme_events, policy_law, icj_tracker, loss_damage, attribution_gap, reverse_cascade."
+    },
+    "european-strategic-autonomy": {
+      "total_content_fields": 6,
+      "from_synthesis": 4,
+      "carry_forward_or_legacy": 2,
+      "synthesis_coverage_pct": 65,
+      "sprint_note": "Schema sprint v2: 17% → 65%. Prompt expanded with election_threat, lagrange_point, state_capture, domain_tracker."
+    },
+    "conflict-escalation": {
+      "total_content_fields": 16,
+      "from_synthesis": 13,
+      "carry_forward_or_legacy": 3,
+      "synthesis_coverage_pct": 85,
+      "sprint_note": "Schema sprint v3: 60% → 85%. Added global_escalation_snapshot, theatre_tracker, escalation_indicators, hybrid_warfare_layer, key_judgments, cross_monitor_candidates. JSON enforcement added."
+    }
+  }
+}
