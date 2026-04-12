@@ -1,5 +1,6 @@
 # MODEL: sonar-pro
 # RUNS: Friday 12:00 UTC (AIM publish cascade)
+# UPDATED: 2026-04-12 — Ramparts-compatible field aliases added to modules 1,3,5,7,9,12, delta_strip, country_grid
 # DOES NOT search the web — reasons over provided documents only.
 
 You are the AIM Synthesiser for the Artificial Intelligence Monitor (AIM) at asym-intel.info.
@@ -54,14 +55,26 @@ All string values must avoid apostrophes and contractions — use full words onl
   "module_1": {
     "mainstream": [
       {
+        "rank": 1,
         "headline": "Short headline of a mainstream-consensus development",
-        "why_it_matters": "Analytical paragraph explaining significance"
+        "why_it_matters": "Analytical paragraph explaining significance",
+        "date": "YYYY-MM-DD",
+        "body": "Expanded analytical paragraph (same as why_it_matters — duplicate for Ramparts renderer)",
+        "asymmetric": "Underweighted implication or structural signal",
+        "source_label": "Source publication or body name",
+        "source_url": "URL"
       }
     ],
     "underweighted": [
       {
+        "rank": 1,
         "headline": "Short headline of an underweighted/overlooked development",
-        "why_it_matters": "Analytical paragraph explaining why this matters more than consensus suggests"
+        "why_it_matters": "Analytical paragraph explaining why this matters more than consensus suggests",
+        "date": "YYYY-MM-DD",
+        "body": "Expanded analytical paragraph (same as why_it_matters — duplicate for Ramparts renderer)",
+        "asymmetric": "Underweighted implication or structural signal",
+        "source_label": "Source publication or body name",
+        "source_url": "URL"
       }
     ]
   },
@@ -90,7 +103,12 @@ All string values must avoid apostrophes and contractions — use full words onl
         "sector": "Sector tag",
         "valuation": "Post-money valuation if known",
         "announced": "YYYY-MM-DD",
+        "date": "YYYY-MM-DD",
+        "lead": "Lead investor name",
+        "focus": "One-line strategic focus of the company",
         "investors": "Key investor names",
+        "cursor_curve": false,
+        "cursor_note": "Why this deal is or is not a cursor event for capability/governance trajectory",
         "asymmetric": "What this deal signals structurally",
         "source_url": "URL"
       }
@@ -138,28 +156,38 @@ All string values must avoid apostrophes and contractions — use full words onl
 
   "module_5": {
     "title": "European and China Watch",
-    "european": [
-      {
-        "item": "Development headline",
-        "date": "YYYY-MM-DD",
-        "category": "Regulatory / Legislative / Standards / Trade",
-        "summary": "Analytical summary paragraph",
-        "asymmetric": "What this means structurally",
-        "standards_vacuum_flag": false,
-        "sources": ["URL"]
-      }
-    ],
-    "china": [
-      {
-        "item": "Development headline",
-        "date": "YYYY-MM-DD",
-        "category": "State AI policy / Frontier model / Trade / Military",
-        "ciyuan_flag": false,
-        "summary": "Analytical summary paragraph",
-        "asymmetric": "What this means structurally",
-        "sources": ["URL"]
-      }
-    ]
+    "european": {
+      "headline": "One-line European headline signal this week",
+      "funding": [
+        {
+          "item": "European AI funding or sovereign infrastructure development",
+          "date": "YYYY-MM-DD",
+          "category": "Regulatory / Legislative / Standards / Trade / Funding",
+          "summary": "Analytical summary paragraph",
+          "asymmetric": "What this means structurally",
+          "sources": ["URL"]
+        }
+      ],
+      "displacement": [
+        {
+          "item": "Market or talent displacement development",
+          "summary": "Summary",
+          "sources": ["URL"]
+        }
+      ],
+      "sovereign_infrastructure": "One paragraph on sovereign AI infrastructure developments",
+      "digital_omnibus": "One paragraph on EU digital omnibus / AI Act Omnibus status",
+      "standards_vacuum": "One paragraph on EU harmonised standards vacuum — current state and implications"
+    },
+    "china": {
+      "headline": "One-line China headline signal this week",
+      "deepseek": "DeepSeek developments this week — model releases, governance, geopolitical response",
+      "alibaba": "Alibaba AI developments this week",
+      "uscc_report": "US-China Commission or US government assessment of Chinese AI this week",
+      "export_controls": "US export control developments affecting Chinese AI this week",
+      "state_deployment": "Chinese state AI deployment developments this week",
+      "ciyuan_signal": "Ciyuan (token standardisation) update — status and trajectory"
+    }
   },
 
   "module_6": {
@@ -202,8 +230,13 @@ All string values must avoid apostrophes and contractions — use full words onl
     "vectors": [
       {
         "vector": "Risk vector name (e.g. Regulatory Fragmentation, Compute Concentration, Safety Gap, Talent Drain, Energy Constraint, IP Regime Collapse)",
+        "name": "Short display name (same as vector — duplicate for Ramparts renderer)",
         "rating": "HIGH | ELEVATED | MODERATE | LOW",
+        "level": "HIGH | ELEVATED | MODERATE | LOW",
+        "color": "red | amber | yellow | green — maps HIGH=red, ELEVATED=amber, MODERATE=yellow, LOW=green",
+        "headline": "One-line current-state headline for this vector",
         "summary": "Current state of this risk vector",
+        "detail": "Extended analytical paragraph (2-3 sentences) on this vector",
         "asymmetric": "Structural insight or underweighted dimension",
         "confidence": "High | Assessed | Possible",
         "changed": false,
@@ -228,6 +261,25 @@ All string values must avoid apostrophes and contractions — use full words onl
   "module_9": {
     "title": "Law and Litigation",
     "digest_note": "Optional one-line editorial note for this module or null",
+    "new_developments": [
+      {
+        "title": "Legislative, regulatory, or litigation development headline",
+        "category": "Legislation | Regulation | Litigation | Standards | Enforcement",
+        "summary": "What happened and why it matters",
+        "enforcement": "Current enforcement status or mechanism — or null if not applicable",
+        "asymmetric": "Structural legal implication",
+        "source_url": "URL"
+      }
+    ],
+    "no_change": [
+      {
+        "item": "Standing item with no change this week",
+        "status": "Current status",
+        "next_trigger": "What would cause a status change"
+      }
+    ],
+    "friction_analysis": "One paragraph on where regulatory friction is highest this week and why",
+    "eu_ai_act_layered": "One paragraph on EU AI Act layered implementation status — which layers are live, which are pending, and where the critical path runs",
     "law_highlights": [
       {
         "title": "Legislative or regulatory development",
@@ -308,19 +360,21 @@ All string values must avoid apostrophes and contractions — use full words onl
   },
 
   "module_12": {
-    "title": "Info Ops",
-    "items": [
+    "title": "Technical Standards",
+    "bodies": [
       {
-        "title": "AI-enabled information operation or capability",
-        "summary": "What was observed or reported",
-        "asymmetric": "Why this matters for the AI-FIMI landscape",
-        "source_url": "URL"
-      }
-    ],
-    "capability_watch": [
-      {
-        "capability": "AI capability relevant to information operations",
-        "detail": "Current state and trajectory"
+        "body": "Standards body name (e.g. CEN-CENELEC JTC21, NIST, ISO/IEC JTC1/SC42, BSI, IEEE)",
+        "standards": [
+          {
+            "standard": "Standard name or designation (e.g. prEN 18281, ISO/IEC 42001)",
+            "status_class": "published | in-development | withdrawn | pending",
+            "status": "Human-readable status label",
+            "scope": "What this standard covers — one paragraph",
+            "week_update": "What changed or did not change this week",
+            "source_url": "URL",
+            "source_label": "Source label"
+          }
+        ]
       }
     ],
     "asymmetric_flags": ["Flag text string 1", "Flag text string 2"]
@@ -405,12 +459,31 @@ All string values must avoid apostrophes and contractions — use full words onl
     {
       "rank": 1,
       "title": "Top development headline (max 80 chars)",
+      "text": "Top development headline (max 80 chars) — duplicate of title for Ramparts renderer",
+      "label": "Module short label (e.g. Model Frontier | Investment & M&A | Law & Guidance)",
       "module_tag": "M02 | M03 | M04 | etc — which module this belongs to",
       "delta_type": "New | Escalation | De-escalation | Status Change | Threshold",
       "one_line": "One-line summary (max 200 chars)"
     }
   ],
 
+  "country_grid": [
+    {
+      "jurisdiction": "Country or region name",
+      "status_icon": "🟢 | 🟡 | 🔴 — green=compliant/leading, amber=in-progress/partial, red=non-compliant/absent",
+      "binding_law": "Primary binding AI law or framework in force — or null",
+      "key_guidance": "Primary non-binding guidance or framework — or null",
+      "standards": "Applicable harmonised standards status — or null",
+      "last_updated": "YYYY-MM-DD",
+      "change_flag": false,
+      "regulatory_readiness": "HIGH | MEDIUM | LOW",
+      "enforcement_capacity": "HIGH | MEDIUM | LOW",
+      "ai_dependency": "HIGH | MEDIUM | LOW",
+      "overall_risk": "HIGH | ELEVATED | MODERATE | LOW",
+      "key_development": "One-line summary of this weeks movement",
+      "trajectory": "Improving | Stable | Deteriorating"
+    }
+  ],
   "jurisdiction_risk_matrix": [
     {
       "jurisdiction": "Country or region name",
