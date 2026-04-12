@@ -3708,29 +3708,70 @@ window.AsymSections = (function () {
 
 
   /* ── renderCrossMonitorFlags ─────────────────────────────────
-   * Canonical shared implementation.
-   * Replaces 3× identical inline copies in WDM, GMM, and ESA.
+   * Canonical shared implementation (v2 — 12 Apr 2026).
+   * Handles all field-name variants across 7 monitors.
    *
    * cmf: {
    *   flags: [{
-   *     flag_id?:        string
-   *     monitor?:        string  (also: source_monitor)
-   *     title?:          string  (also: signal)
-   *     detail?:         string  (also: body, summary)
-   *     severity?:       string  (also: type) — 'critical'|'high'|'elevated'|'amber'|'moderate'
-   *     action?:         string
-   *     unchanged_since?: string
-   *     source_url?:     string
+   *     id|flag_id:       string
+   *     headline|title|signal: string
+   *     linkage|detail|body|summary|description: string
+   *     monitor|source_monitor: string (slug)
+   *     monitors_involved?: string[]
+   *     classification|type|structural_or_transient?: string
+   *     status?:           string  — 'Active', 'Active — ESCALATED', 'Resolved'
+   *     severity?:         string  — border colour tier
+   *     source_url|monitor_url?: string
+   *     monitor_slug?:     string  — fallback for URL
+   *     first_flagged|first_raised?: string
+   *     updated|last_updated?:      string
+   *     action?:           string
+   *     unchanged_since?:  string
+   *     conflict?:         string
+   *     indicator?:        string
    *   }],
-   *   updated?: string   — ISO date string for last-updated label
+   *   updated?: string
    * }
-   * targetId: container element to populate
-   *
-   * Border-left colour follows severity tier:
-   *   critical|high   → var(--color-critical,  #dc2626)
-   *   elevated|amber  → var(--color-high,       #d97706)
-   *   moderate|other  → var(--color-border,     #94a3b8)
    * ──────────────────────────────────────────────────────────── */
+
+  var _MONITOR_DISPLAY_NAMES = {
+    'democratic-integrity':       'World Democracy Monitor',
+    'macro-monitor':             'Global Macro Monitor',
+    'european-strategic-autonomy':'European Strategic Autonomy',
+    'fimi-cognitive-warfare':    'FIMI & Cognitive Warfare',
+    'ai-governance':             'AI Governance Monitor',
+    'environmental-risks':       'Environmental Risks Monitor',
+    'conflict-escalation':       'Conflict & Escalation Monitor'
+  };
+
+  function _cmfTitle(f) {
+    return f.headline || f.title || f.signal || f.summary || '';
+  }
+  function _cmfBody(f) {
+    return f.linkage || f.detail || f.body || f.description || '';
+  }
+  function _cmfMonitor(f) {
+    if (f.monitors_involved && f.monitors_involved.length) return f.monitors_involved;
+    var slug = f.monitor || f.source_monitor || '';
+    return slug ? [slug] : [];
+  }
+  function _cmfUrl(f) {
+    if (f.source_url) return f.source_url;
+    if (f.monitor_url) return f.monitor_url;
+    var slug = f.monitor_slug || f.monitor || f.source_monitor || '';
+    return slug ? '/monitors/' + slug + '/dashboard.html' : '';
+  }
+  function _cmfId(f) { return f.id || f.flag_id || ''; }
+  function _cmfFormatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d)) return _esc(iso);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  function _slugToName(slug) {
+    return _MONITOR_DISPLAY_NAMES[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  }
+
   function renderCrossMonitorFlags(cmf, targetId) {
     var el = document.getElementById(targetId);
     if (!el) return;
@@ -3743,58 +3784,91 @@ window.AsymSections = (function () {
 
     function _sevBorderColor(sev) {
       var s = (sev || '').toLowerCase();
-      if (s === 'critical' || s === 'high')      return 'var(--color-critical, #dc2626)';
+      if (s === 'critical' || s === 'high' || s.indexOf('escalat') >= 0) return 'var(--color-critical, #dc2626)';
       if (s === 'elevated' || s === 'amber')      return 'var(--color-high, #d97706)';
       return 'var(--color-border, #94a3b8)';
+    }
+    function _statusClass(s) {
+      if (!s) return 'badge';
+      var sl = s.toLowerCase();
+      if (sl.indexOf('escalat') >= 0 || sl.indexOf('critical') >= 0) return 'badge badge--critical';
+      if (sl.indexOf('active') >= 0)   return 'badge badge--accent';
+      if (sl.indexOf('resolved') >= 0) return 'badge';
+      return 'badge';
     }
 
     var html = '<div class="cross-monitor-panel">';
     if (cmf && cmf.updated) {
       html += '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-3)">' +
-        'Updated ' + _esc(String(cmf.updated).slice(0, 10)) +
+        'Updated ' + _cmfFormatDate(cmf.updated) +
         '</div>';
     }
 
     flags.forEach(function (flag) {
-      var sev         = (flag.severity || flag.type || 'moderate').toLowerCase();
-      var borderColor = _sevBorderColor(sev);
-      var title       = flag.title  || flag.signal  || '';
-      var detail      = flag.detail || flag.body    || flag.summary || '';
-      var monitor     = flag.monitor || flag.source_monitor || '';
-      var sourceLinkHtml = '';
-      if (flag.source_url &&
-          typeof window.AsymRenderer !== 'undefined' &&
-          typeof window.AsymRenderer.sourceLink === 'function') {
-        sourceLinkHtml = ' ' + window.AsymRenderer.sourceLink(flag.source_url);
+      var id      = _cmfId(flag);
+      var title   = _cmfTitle(flag);
+      var body    = _cmfBody(flag);
+      var slugs   = _cmfMonitor(flag);
+      var url     = _cmfUrl(flag);
+      var status  = flag.status || '';
+      var classification = flag.classification || flag.type || flag.structural_or_transient || '';
+      var severity = flag.severity || status || 'moderate';
+      var borderColor = _sevBorderColor(severity);
+      var firstFlagged = flag.first_flagged || flag.first_raised || '';
+      var updated = flag.updated || flag.last_updated || '';
+
+      /* Monitor display names — linked to source URL */
+      var monitorHtml = '';
+      if (slugs.length) {
+        var names = slugs.map(function(s) { return _slugToName(s); });
+        if (url) {
+          monitorHtml = '<a href="' + _esc(url) + '" style="color:var(--monitor-accent);text-decoration:underline;font-size:var(--text-xs)">' +
+            _esc(names.join(' · ')) + '</a>';
+        } else {
+          monitorHtml = '<span style="font-size:var(--text-xs);color:var(--text-muted)">' +
+            _esc(names.join(' · ')) + '</span>';
+        }
       }
 
+      /* Badges row */
+      var badgesHtml = '';
+      if (classification) badgesHtml += '<span class="badge">' + _esc(classification) + '</span>';
+      if (status)         badgesHtml += '<span class="' + _statusClass(status) + '">' + _esc(status) + '</span>';
+
+      /* Meta line (dates, extras) */
+      var meta = [];
+      if (firstFlagged) meta.push('First flagged: ' + _cmfFormatDate(firstFlagged));
+      if (updated)      meta.push('Updated: ' + _cmfFormatDate(updated));
+      if (flag.conflict) meta.push('Conflict: ' + flag.conflict);
+      if (flag.indicator) meta.push('Indicator: ' + flag.indicator);
+
       html +=
-        '<div style="padding:var(--space-3);border-left:3px solid ' + borderColor + ';' +
-          'background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">' +
-          '<div style="display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-1)">' +
-            (flag.flag_id
-              ? '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted)">' +
-                _esc(flag.flag_id) + '</span>'
-              : '') +
-            (monitor
-              ? '<span style="font-size:var(--text-xs);color:var(--text-muted)">· ' + _esc(monitor) + '</span>'
+        '<div class="cms-flag" style="border-left:3px solid ' + borderColor + '">' +
+          '<div class="cms-flag__header">' +
+            '<span class="cms-flag__id">' + _esc(id) + '</span>' +
+            (badgesHtml
+              ? '<div style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center">' + badgesHtml + '</div>'
               : '') +
           '</div>' +
-          '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' +
-            _esc(title) +
-          '</div>' +
-          '<div style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.5">' +
-            _esc(detail) +
-          '</div>' +
+          '<div class="cms-flag__title">' + _esc(title) + '</div>' +
+          (monitorHtml
+            ? '<div class="cms-flag__monitors">' + monitorHtml + '</div>'
+            : '') +
+          (body
+            ? '<div class="cms-flag__body cms-flag__body--collapsed">' + _esc(body) + '</div>' +
+              '<span class="cms-read-more" onclick="var b=this.previousElementSibling;' +
+                'b.classList.toggle(\'cms-flag__body--collapsed\');' +
+                'this.textContent=b.classList.contains(\'cms-flag__body--collapsed\')' +
+                '?\'Read more \u2192\':\'Show less \u2191\'">Read more \u2192</span>'
+            : '') +
           (flag.action
             ? '<div style="margin-top:var(--space-2);font-size:var(--text-xs);font-weight:600;' +
-                'color:var(--monitor-accent)">→ ' + _esc(flag.action) + '</div>'
+                'color:var(--monitor-accent)">\u2192 ' + _esc(flag.action) + '</div>'
             : '') +
-          (flag.unchanged_since
-            ? '<div style="font-size:var(--text-xs);color:var(--text-muted)">Unchanged since: ' +
-                _esc(flag.unchanged_since) + '</div>'
+          (meta.length
+            ? '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--space-2)">' +
+                _esc(meta.join(' \u00b7 ')) + '</div>'
             : '') +
-          sourceLinkHtml +
         '</div>';
     });
     html += '</div>';
