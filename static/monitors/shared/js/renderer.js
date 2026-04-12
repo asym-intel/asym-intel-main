@@ -137,9 +137,7 @@
     }
 
     if (obj.source_url) {
-      html += '<div style="margin-top:var(--space-3)">' +
-        '<a class="source-link" href="' + esc(obj.source_url) + '" target="_blank" rel="noopener">Source →</a>' +
-      '</div>';
+      html += ' <a class="source-link" href="' + esc(obj.source_url) + '" target="_blank" rel="noopener">Source →</a>';
     }
 
     html += '</div>';
