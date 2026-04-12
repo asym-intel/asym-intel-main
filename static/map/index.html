@@ -321,13 +321,13 @@
   <span class="controls__label">Monitors</span>
 
   <button class="filter-btn" data-filter="democratic-integrity" style="--btn-color:var(--c-wdm)">
-    <span class="filter-dot"></span> Democracy
+    <span class="filter-dot"></span> World Democracy
   </button>
   <button class="filter-btn" data-filter="macro-monitor" style="--btn-color:var(--c-gmm)">
-    <span class="filter-dot"></span> Macro
+    <span class="filter-dot"></span> Global Macro
   </button>
   <button class="filter-btn" data-filter="fimi-cognitive-warfare" style="--btn-color:var(--c-fcw)">
-    <span class="filter-dot"></span> FIMI
+    <span class="filter-dot"></span> FIMI &amp; Cog. Warfare
   </button>
   <button class="filter-btn" data-filter="european-strategic-autonomy" style="--btn-color:var(--c-esa)">
     <span class="filter-dot"></span> Strategic Autonomy
@@ -339,7 +339,7 @@
     <span class="filter-dot"></span> Environment
   </button>
   <button class="filter-btn" data-filter="conflict-escalation" style="--btn-color:var(--c-scem)">
-    <span class="filter-dot"></span> Conflict
+    <span class="filter-dot"></span> Strategic Conflict
   </button>
 </div>
 
@@ -370,7 +370,7 @@
     <div class="legend__item"><div class="legend__dot" style="background:var(--c-esa)"></div>Strategic Autonomy</div>
     <div class="legend__item"><div class="legend__dot" style="background:var(--c-aim)"></div>Artificial Intelligence</div>
     <div class="legend__item"><div class="legend__dot" style="background:var(--c-erm)"></div>Environmental Risks</div>
-    <div class="legend__item"><div class="legend__dot" style="background:var(--c-scem)"></div>Conflict &amp; Escalation</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-scem)"></div>Strategic Conflict</div>
   </div>
 </div>
 
@@ -386,7 +386,7 @@
     'european-strategic-autonomy': { abbr: 'ESA',  label: 'Strategic Autonomy',     color: '#006494', accent: '#006494' },
     'ai-governance':               { abbr: 'AIM',  label: 'Artificial Intelligence',color: '#7a39bb', accent: '#7a39bb' },
     'environmental-risks':         { abbr: 'ERM',  label: 'Environmental Risks',    color: '#da7101', accent: '#da7101' },
-    'conflict-escalation':         { abbr: 'SCEM', label: 'Conflict & Escalation',  color: '#a13544', accent: '#a13544' }
+    'conflict-escalation':         { abbr: 'SCEM', label: 'Strategic Conflict',     color: '#a13544', accent: '#a13544' }
   };
 
   /* ── Country name / code → ISO-A2 normalisation ─────────────── */
@@ -495,17 +495,36 @@
       });
     }
 
-    /* FCW — campaigns (origin + targets) */
+    /* FCW — actors (have ISO-A2 codes) + campaigns (extract countries from text) */
     if (slug === 'fimi-cognitive-warfare') {
-      (data.campaigns || []).forEach(function (c) {
-        add(c.origin, c.campaign_name || c.headline || '', '');
-        var targets = c.target_countries || c.targets || [];
-        if (Array.isArray(targets)) {
-          targets.forEach(function (t) { if (typeof t === 'string') add(t, c.campaign_name || '', ''); });
+      /* Actor tracker: actor field is ISO-A2 (RU, CN, IR, US, IL) or group code */
+      var FCW_ACTOR_MAP = { 'RU':'RU','CN':'CN','IR':'IR','US':'US','IL':'IL','UAE':'AE','GULF':'AE' };
+      (data.actor_tracker || []).forEach(function (a) {
+        var code = a.actor || '';
+        var iso = FCW_ACTOR_MAP[code];
+        if (iso) {
+          results.push({ iso: iso, country: code, monitor: slug, signal: a.headline || '', score: '', dashboardUrl: dashUrl });
         }
       });
-      (data.actor_tracker || []).forEach(function (a) {
-        add(a.origin || a.country, a.actor_name || a.headline || '', '');
+      /* Campaigns: extract countries from operation_name + summary */
+      var FCW_CAMPAIGN_COUNTRIES = {
+        'Hungary':'HU', 'Budapest':'HU', 'UK':'GB', 'Germany':'DE', 'Bundestag':'DE',
+        'France':'FR', 'Pacific Island':'FJ', 'EU':'EU'
+      };
+      (data.campaigns || []).forEach(function (c) {
+        var text = (c.operation_name || '') + ' ' + (c.summary || '');
+        Object.keys(FCW_CAMPAIGN_COUNTRIES).forEach(function (name) {
+          if (text.indexOf(name) > -1) {
+            var campIso = FCW_CAMPAIGN_COUNTRIES[name];
+            if (campIso === 'EU') {
+              EU_MEMBERS.forEach(function (m) {
+                results.push({ iso: m, country: 'EU', monitor: slug, signal: c.operation_name || '', score: '', dashboardUrl: dashUrl });
+              });
+            } else {
+              results.push({ iso: campIso, country: name, monitor: slug, signal: c.operation_name || '', score: '', dashboardUrl: dashUrl });
+            }
+          }
+        });
       });
     }
 
@@ -533,11 +552,30 @@
       });
     }
 
-    /* ERM — threat multiplier, regional coverage */
+    /* ERM — regional coverage maps to representative countries per region */
     if (slug === 'environmental-risks') {
+      var ERM_REGION_COUNTRIES = {
+        'sub_saharan_africa_items': ['NG','KE','ET','ZA','CD','SD','MZ','MG'],
+        'mena_items':              ['EG','IQ','SA','SY','YE','MA','TN','JO'],
+        'south_asia_items':        ['IN','BD','PK','NP','LK'],
+        'ocean_systems_items':     ['FJ','PH','ID','AU','MV']
+      };
+      var rc = data.regional_coverage || {};
+      Object.keys(ERM_REGION_COUNTRIES).forEach(function (regionKey) {
+        var items = rc[regionKey];
+        if (Array.isArray(items) && items.length > 0) {
+          var regionSignal = items.map(function (it) { return it.headline || it.summary || ''; }).filter(Boolean).join('; ').slice(0, 120);
+          ERM_REGION_COUNTRIES[regionKey].forEach(function (iso) {
+            results.push({ iso: iso, country: regionKey.replace(/_items$/, '').replace(/_/g, ' '), monitor: slug, signal: regionSignal, score: '', dashboardUrl: dashUrl });
+          });
+        }
+      });
+      /* Threat multiplier — if it names specific regions beyond 'Global' */
       var threats = data.m03_threat_multiplier || data.climate_security_nexus || [];
       threats.forEach(function (c) {
-        add(c.region || c.country, c.risk_type || c.headline || '', c.severity);
+        if (c.region && c.region !== 'Global') {
+          add(c.region, c.risk_type || '', c.severity);
+        }
       });
     }
 

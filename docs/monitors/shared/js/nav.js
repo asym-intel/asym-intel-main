@@ -61,7 +61,8 @@
       '<nav class="nb-links" style="display:flex;align-items:center;gap:1.25rem;" aria-label="Platform sections">',
         '<a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a>',
         '<a href="https://compossible.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Compossible</a>',
-        '<a href="https://whitespace.asym-intel.info" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Network</a>',
+        '<a href="https://asym-intel.info/network/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Network</a>',
+        '<a href="https://asym-intel.info/map/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">World Map</a>',
       '</nav>'
     ].join('');
 
