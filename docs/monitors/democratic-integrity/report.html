@@ -229,16 +229,16 @@ document.addEventListener('DOMContentLoaded', function () {
     countries.forEach(function (c) {
       var cls = tierClass || severityClass(c.severity_score);
       /* severity sub-scores inline */
-      var sub = c.severity_sub || {};
+      var sub = c.severity_sub || c.severity_dimensions || {};
       var subStr = Object.keys(sub).map(function(k){ return k.replace(/_/g,' ') + ': ' + sub[k]; }).join(' · ');
       html +=
         '<tr class="heatmap-row--' + cls + '">' +
-          '<td><strong>' + flag(c.country) + ' ' + esc(c.country) + '</strong></td>' +
+          '<td><strong>' + flag(c.country_name || c.country) + ' ' + esc(c.country_name || c.country) + '</strong></td>' +
           '<td><span class="severity-badge severity-badge--' + cls + '">' + esc(c.severity_score) + '</span>' +
             (subStr ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px">' + esc(subStr) + '</div>' : '') +
           '</td>' +
-          '<td>' + esc(c.severity_arrow || '') + '</td>' +
-          '<td>' + esc(c.lead_signal || c.summary || '') + '</td>' +
+          '<td>' + esc(c.severity_arrow || c.direction || '') + '</td>' +
+          '<td>' + esc(c.lead_signal || c.key_development || c.summary || '') + '</td>' +
         '</tr>';
     });
     html += '</tbody></table>';
@@ -253,10 +253,21 @@ document.addEventListener('DOMContentLoaded', function () {
       var signal  = signalObj.headline || signalObj.title || '';
       var signalBody = signalObj.body || signalObj.summary || '';
       var heatmap = d.heatmap || {};
+      /* Handle flat-array heatmap: bin countries by health_status */
+      if (Array.isArray(heatmap)) {
+        var _hm = {rapid_decay:[], recovery:[], watchlist:[]};
+        heatmap.forEach(function(c) {
+          var st = (c.health_status || '').toLowerCase().replace(/[\s-]+/g, '_');
+          if (st === 'backsliding' || st === 'rapid_decay' || st === 'crisis') _hm.rapid_decay.push(c);
+          else if (st === 'recovery' || st === 'improving') _hm.recovery.push(c);
+          else _hm.watchlist.push(c);
+        });
+        heatmap = _hm;
+      }
       var intel   = d.intelligence_items || [];
       var flags   = d.institutional_integrity_flags || [];
       var mimicryData = d.mimicry_chain_update || {};
-      var mimicry = mimicryData.active_chains || d.regional_mimicry_chains || [];
+      var mimicry = Array.isArray(mimicryData.active_chains) ? mimicryData.active_chains : (d.regional_mimicry_chains || []);
       var cross   = d.cross_monitor_flags || {};
       var wb      = d.weekly_brief || '';
 
