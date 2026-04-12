@@ -335,15 +335,14 @@ def build_graph(output_path: Path) -> None:
         report_slug = meta.get("slug", "")
         issue = meta.get("issue")
 
-        # Build URL to this specific report issue (for "Open report" button)
-        # If archive has entries, use the latest entry's slug to construct URL
-        report_url = m_meta["url"]  # default: dashboard
+        # Monitor node URL is always the dashboard (stable, never stale)
+        # Latest report URL goes in a separate field for the detail panel
+        latest_report_url = m_meta["url"]  # fallback to dashboard
         if archive and isinstance(archive, list):
             latest_entry = max(archive, key=lambda x: x.get("published", ""), default=None)
             if latest_entry:
                 entry_slug = latest_entry.get("slug", "")
-                src = None
-                report_url = build_report_url(BASE_URL, slug, entry_slug, src)
+                latest_report_url = build_report_url(BASE_URL, slug, entry_slug, None)
 
         # Description: use signal from latest archive entry if available
         description = ""
@@ -358,8 +357,8 @@ def build_graph(output_path: Path) -> None:
             "monitor":     slug,
             "label":       m_meta["label"],
             "color":       m_meta["color"],
-            "url":         report_url,
-            "dashboard_url": m_meta["url"],
+            "url":         m_meta["url"],
+            "latest_report_url": latest_report_url,
             "week_label":  week_label,
             "date":        published,
             "report_slug": report_slug,
