@@ -231,26 +231,37 @@
       <div id="tipping-content"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- ── STANDING TRACKERS — ICJ + Loss & Damage ── -->
     <section class="module-section" id="section-trackers">
       <div class="module-header">
-        <div class="module-title">Standing Trackers</div>
+        <h2 class="module-title">Standing Trackers</h2>
       </div>
-      <div id="trackers-content"><div class="loading-state">Loading…</div></div>
+      <div id="persistent-icj-content">
+        <p class="text-muted text-sm">Loading...</p>
+      </div>
+      <div id="persistent-loss-damage-content" style="margin-top:var(--space-4)">
+        <p class="text-muted text-sm">Loading...</p>
+      </div>
     </section>
 
     <!-- ── ATTRIBUTION GAP TRACKER ── -->
     <section class="module-section" id="section-attribution">
       <div class="module-header">
-        <div class="module-title">Active Attribution Gap Cases</div>
+        <h2 class="module-title">Active Attribution Gap Cases</h2>
       </div>
-      <div id="attribution-content"><div class="loading-state">Loading…</div></div>
+      <div id="persistent-attribution-content">
+        <p class="text-muted text-sm">Loading...</p>
+      </div>
     </section>
 
+    <!-- ── REGIONAL CASCADE CHAINS ── -->
     <section class="module-section" id="section-cascades">
       <div class="module-header">
-        <div class="module-title">Regional Cascade Chains</div>
+        <h2 class="module-title">Regional Cascade Chains</h2>
       </div>
-      <div id="cascades-content"><div class="loading-state">Loading…</div></div>
+      <div id="persistent-cascades-content">
+        <p class="text-muted text-sm">Loading...</p>
+      </div>
     </section>
 
     <section class="module-section" id="section-cross-monitor">
@@ -306,6 +317,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  // ── renderVersionHistory — page-specific, kept inline ──
   function renderVersionHistory(history, toggleId, historyId) {
     if (!history || !history.length) return '';
     var rows = history.map(function (h) {
@@ -322,89 +334,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var open = el.classList.toggle('version-history--open');
     if (btn) btn.textContent = open ? 'Hide history' : ('Show history (' + el.querySelectorAll('tbody tr').length + ')');
   };
-
-  // ── Attribution progress bar helpers ──
-  // Map a case's status/attributes to a 0-100 attribution score
-  // "Open" with no evidence = 0; "Open" early = 10; partial attribution = 40-60;
-  // "Confirmed" = 90-100. Since the JSON only has status, we use keyword signals
-  // in the description to estimate progress.
-  function attributionScore(gap) {
-    var status = (gap.status || '').toLowerCase();
-    var desc   = (gap.description || '').toLowerCase();
-    if (status === 'confirmed' || status === 'closed') return 95;
-    if (status === 'partial') return 55;
-    // Detect keyword signals in description
-    if (desc.indexOf('no binding') !== -1 || desc.indexOf('no governance') !== -1 ||
-        desc.indexOf('no international') !== -1 || desc.indexOf('no baseline') !== -1) return 5;
-    if (desc.indexOf('failed') !== -1 || desc.indexOf('void') !== -1) return 8;
-    if (status === 'open') return 10;
-    return 0;
-  }
-
-  function attributionProgressClass(pct) {
-    if (pct <= 0)  return 'attribution-progress-fill--0';
-    if (pct < 30)  return 'attribution-progress-fill--low';
-    if (pct < 65)  return 'attribution-progress-fill--mid';
-    return 'attribution-progress-fill--high';
-  }
-
-  function attributionStatusBadgeClass(status) {
-    switch ((status || '').toLowerCase()) {
-      case 'open':      return 'attribution-status-badge--open';
-      case 'closed':
-      case 'confirmed': return 'attribution-status-badge--closed';
-      case 'partial':   return 'attribution-status-badge--partial';
-      default:          return 'attribution-status-badge--open';
-    }
-  }
-
-  function renderAttributionTracker(gaps) {
-    if (!gaps || !gaps.length) {
-      return '<p class="text-muted">No attribution gap cases open.</p>';
-    }
-    var html = '<div class="attribution-tracker">';
-    gaps.forEach(function (g, i) {
-      var tid  = 'at-' + i;
-      var hid  = 'ah-' + i;
-      var pct  = attributionScore(g);
-      var pgCls = attributionProgressClass(pct);
-      var badgeCls = attributionStatusBadgeClass(g.status);
-
-      // Governance gap label — derive from case title keywords
-      var govGap = '';
-      var caseTitle = (g.case || '').toLowerCase();
-      if (caseTitle.indexOf('governance') !== -1 || caseTitle.indexOf('isa') !== -1) govGap = 'Governance void';
-      else if (caseTitle.indexOf('liability') !== -1) govGap = 'No liability framework';
-      else if (caseTitle.indexOf('attribution') !== -1 || g.status === 'Open') govGap = 'Attribution gap';
-
-      html +=
-        '<div class="attribution-case">' +
-          '<div class="attribution-case__header">' +
-            '<div class="attribution-case__title">' + escHtml(g.case || '') + '</div>' +
-            '<div class="attribution-case__meta">' +
-              '<span class="attribution-status-badge ' + badgeCls + '">' + escHtml(g.status || 'Open') + '</span>' +
-              (govGap ? '<span class="attribution-case__governance-gap">' + escHtml(govGap) + '</span>' : '') +
-            '</div>' +
-          '</div>' +
-          (g.description ? '<div class="attribution-case__description">' + escHtml(g.description) + '</div>' : '') +
-          '<div class="attribution-progress-wrap">' +
-            '<div class="attribution-progress-label">' +
-              '<span class="attribution-progress-label__text">Attribution progress</span>' +
-              '<span class="attribution-progress-label__pct">' + pct + '%</span>' +
-            '</div>' +
-            '<div class="attribution-progress-track" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Attribution progress for ' + escHtml(g.case || '') + '">' +
-              '<div class="attribution-progress-fill ' + pgCls + '" style="width:' + pct + '%"></div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="attribution-case__footer">' +
-            (g.opened ? '<span class="attribution-case__opened">Opened: ' + escHtml(g.opened) + '</span>' : '') +
-            renderVersionHistory(g.version_history || [], tid, hid) +
-          '</div>' +
-        '</div>';
-    });
-    html += '</div>';
-    return html;
-  }
 
   Promise.all([
     fetch('data/persistent-state.json').then(function(r){return r.json();}),
@@ -493,58 +422,174 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>';
       }).join('') || '<p class="text-muted">No tipping system data available.</p>';
 
-      // Standing Trackers
-      var trackers = d.standing_trackers || {};
-      var trackHtml = '';
-      if (trackers.icj_climate_advisory) {
-        var icj = trackers.icj_climate_advisory;
-        trackHtml +=
-          '<div class="card" style="margin-bottom:var(--space-4)">' +
-            '<div class="card__label">ICJ Climate Advisory Opinion</div>' +
-            '<div class="card__title" style="font-size:var(--text-base)">' + escHtml(icj.status || '') + '</div>' +
-            '<div class="card__body">' + escHtml(icj.last_development || '') + '</div>' +
-            '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)">Unchanged since: ' + escHtml(icj.unchanged_since || '') + ' · Last updated: ' + escHtml(icj.last_updated || '') + '</div>' +
-            (icj.source_url ? '<div class="card__footer"><a href="' + escHtml(icj.source_url) + '" target="_blank" rel="noopener" class="source-link">ICJ Case 187 →</a></div>' : '') +
-            renderVersionHistory(icj.version_history || [], 'icj-t', 'icj-h') +
-          '</div>';
-      }
-      if (trackers.loss_damage_finance) {
-        var ld = trackers.loss_damage_finance;
-        trackHtml +=
-          '<div class="card" style="margin-bottom:var(--space-4)">' +
-            '<div class="card__label">Loss &amp; Damage Finance Tracker</div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin:var(--space-3) 0">' +
-              '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Committed</div><div style="font-weight:700">' + escHtml(ld.committed || '—') + '</div></div>' +
-              '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Disbursed</div><div style="font-weight:700;color:var(--critical)">' + escHtml(ld.disbursed || '—') + '</div></div>' +
-              '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Gap</div><div style="font-weight:700;color:var(--critical)">' + escHtml(ld.gap || '—') + '</div></div>' +
+      // ── Standing Trackers — rendered via AsymSections shared library ──
+      var ps = d;
+
+      if (typeof AsymSections !== 'undefined') {
+        // ICJ Climate Advisory tracker
+        AsymSections.renderICJTracker(
+          ps.standing_trackers && ps.standing_trackers.icj_climate_advisory
+            ? ps.standing_trackers.icj_climate_advisory
+            : null,
+          'persistent-icj-content'
+        );
+
+        // Loss & Damage Finance tracker
+        AsymSections.renderLossDamageTracker(
+          ps.standing_trackers && ps.standing_trackers.loss_damage_finance
+            ? ps.standing_trackers.loss_damage_finance
+            : null,
+          'persistent-loss-damage-content'
+        );
+
+        // Attribution Gap Cases — rendered via shared library
+        AsymSections.renderAttributionGapCases(
+          ps.active_attribution_gap_cases || [],
+          'persistent-attribution-content'
+        );
+
+        // Regional Cascade Chains — similar shape (region + cascade chain)
+        AsymSections.renderClimateSecurityNexus(
+          ps.regional_cascade_chains || [],
+          'persistent-cascades-content'
+        );
+      } else {
+        // ── Fallback: inline renders if AsymSections library is not yet loaded ──
+
+        // Standing Trackers — fallback inline
+        var trackers = d.standing_trackers || {};
+        var trackHtmlICJ = '';
+        var trackHtmlLD = '';
+
+        if (trackers.icj_climate_advisory) {
+          var icj = trackers.icj_climate_advisory;
+          trackHtmlICJ =
+            '<div class="card" style="margin-bottom:var(--space-4)">' +
+              '<div class="card__label">ICJ Climate Advisory Opinion</div>' +
+              '<div class="card__title" style="font-size:var(--text-base)">' + escHtml(icj.status || '') + '</div>' +
+              '<div class="card__body">' + escHtml(icj.last_development || '') + '</div>' +
+              '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)">Unchanged since: ' + escHtml(icj.unchanged_since || '') + ' · Last updated: ' + escHtml(icj.last_updated || '') + '</div>' +
+              (icj.source_url ? '<div class="card__footer"><a href="' + escHtml(icj.source_url) + '" target="_blank" rel="noopener" class="source-link">ICJ Case 187 →</a></div>' : '') +
+              renderVersionHistory(icj.version_history || [], 'icj-t', 'icj-h') +
+            '</div>';
+        }
+
+        if (trackers.loss_damage_finance) {
+          var ld = trackers.loss_damage_finance;
+          trackHtmlLD =
+            '<div class="card" style="margin-bottom:var(--space-4)">' +
+              '<div class="card__label">Loss &amp; Damage Finance Tracker</div>' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);margin:var(--space-3) 0">' +
+                '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Committed</div><div style="font-weight:700">' + escHtml(ld.committed || '—') + '</div></div>' +
+                '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Disbursed</div><div style="font-weight:700;color:var(--critical)">' + escHtml(ld.disbursed || '—') + '</div></div>' +
+                '<div><div style="font-size:var(--text-xs);color:var(--color-text-muted)">Gap</div><div style="font-weight:700;color:var(--critical)">' + escHtml(ld.gap || '—') + '</div></div>' +
+              '</div>' +
+              '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Unchanged since: ' + escHtml(ld.unchanged_since || '') + ' · Last updated: ' + escHtml(ld.last_updated || '') + '</div>' +
+              (ld.source_url ? '<div class="card__footer"><a href="' + escHtml(ld.source_url) + '" target="_blank" rel="noopener" class="source-link">UNFCCC Fund →</a></div>' : '') +
+              renderVersionHistory(ld.version_history || [], 'ld-t', 'ld-h') +
+            '</div>';
+        }
+
+        document.getElementById('persistent-icj-content').innerHTML =
+          trackHtmlICJ || '<p class="text-muted">No ICJ tracker data available.</p>';
+        document.getElementById('persistent-loss-damage-content').innerHTML =
+          trackHtmlLD || '<p class="text-muted">No Loss &amp; Damage tracker data available.</p>';
+
+        // Attribution Gap Cases — fallback inline (replicates former renderAttributionTracker)
+        var gaps = d.active_attribution_gap_cases || [];
+
+        function attributionScore(gap) {
+          var status = (gap.status || '').toLowerCase();
+          var desc   = (gap.description || '').toLowerCase();
+          if (status === 'confirmed' || status === 'closed') return 95;
+          if (status === 'partial') return 55;
+          if (desc.indexOf('no binding') !== -1 || desc.indexOf('no governance') !== -1 ||
+              desc.indexOf('no international') !== -1 || desc.indexOf('no baseline') !== -1) return 5;
+          if (desc.indexOf('failed') !== -1 || desc.indexOf('void') !== -1) return 8;
+          if (status === 'open') return 10;
+          return 0;
+        }
+
+        function attributionProgressClass(pct) {
+          if (pct <= 0)  return 'attribution-progress-fill--0';
+          if (pct < 30)  return 'attribution-progress-fill--low';
+          if (pct < 65)  return 'attribution-progress-fill--mid';
+          return 'attribution-progress-fill--high';
+        }
+
+        function attributionStatusBadgeClass(status) {
+          switch ((status || '').toLowerCase()) {
+            case 'open':      return 'attribution-status-badge--open';
+            case 'closed':
+            case 'confirmed': return 'attribution-status-badge--closed';
+            case 'partial':   return 'attribution-status-badge--partial';
+            default:          return 'attribution-status-badge--open';
+          }
+        }
+
+        var attrHtml = '';
+        if (!gaps.length) {
+          attrHtml = '<p class="text-muted">No attribution gap cases open.</p>';
+        } else {
+          attrHtml = '<div class="attribution-tracker">';
+          gaps.forEach(function (g, i) {
+            var tid  = 'at-' + i;
+            var hid  = 'ah-' + i;
+            var pct  = attributionScore(g);
+            var pgCls = attributionProgressClass(pct);
+            var badgeCls = attributionStatusBadgeClass(g.status);
+            var govGap = '';
+            var caseTitle = (g.case || '').toLowerCase();
+            if (caseTitle.indexOf('governance') !== -1 || caseTitle.indexOf('isa') !== -1) govGap = 'Governance void';
+            else if (caseTitle.indexOf('liability') !== -1) govGap = 'No liability framework';
+            else if (caseTitle.indexOf('attribution') !== -1 || g.status === 'Open') govGap = 'Attribution gap';
+
+            attrHtml +=
+              '<div class="attribution-case">' +
+                '<div class="attribution-case__header">' +
+                  '<div class="attribution-case__title">' + escHtml(g.case || '') + '</div>' +
+                  '<div class="attribution-case__meta">' +
+                    '<span class="attribution-status-badge ' + badgeCls + '">' + escHtml(g.status || 'Open') + '</span>' +
+                    (govGap ? '<span class="attribution-case__governance-gap">' + escHtml(govGap) + '</span>' : '') +
+                  '</div>' +
+                '</div>' +
+                (g.description ? '<div class="attribution-case__description">' + escHtml(g.description) + '</div>' : '') +
+                '<div class="attribution-progress-wrap">' +
+                  '<div class="attribution-progress-label">' +
+                    '<span class="attribution-progress-label__text">Attribution progress</span>' +
+                    '<span class="attribution-progress-label__pct">' + pct + '%</span>' +
+                  '</div>' +
+                  '<div class="attribution-progress-track" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Attribution progress for ' + escHtml(g.case || '') + '">' +
+                    '<div class="attribution-progress-fill ' + pgCls + '" style="width:' + pct + '%"></div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="attribution-case__footer">' +
+                  (g.opened ? '<span class="attribution-case__opened">Opened: ' + escHtml(g.opened) + '</span>' : '') +
+                  renderVersionHistory(g.version_history || [], tid, hid) +
+                '</div>' +
+              '</div>';
+          });
+          attrHtml += '</div>';
+        }
+        document.getElementById('persistent-attribution-content').innerHTML = attrHtml;
+
+        // Regional Cascade Chains — fallback inline
+        var cascades = d.regional_cascade_chains || [];
+        document.getElementById('persistent-cascades-content').innerHTML = cascades.map(function (c, i) {
+          var tid = 'ct-' + i;
+          var hid = 'ch-' + i;
+          return '<div class="card" style="margin-bottom:var(--space-3)">' +
+            '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);flex-wrap:wrap">' +
+              '<strong>' + escHtml(c.region || '') + '</strong>' +
+              '<span class="severity-badge ' + statusBadgeClass(c.status) + '">' + escHtml(c.status || '') + '</span>' +
             '</div>' +
-            '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Unchanged since: ' + escHtml(ld.unchanged_since || '') + ' · Last updated: ' + escHtml(ld.last_updated || '') + '</div>' +
-            (ld.source_url ? '<div class="card__footer"><a href="' + escHtml(ld.source_url) + '" target="_blank" rel="noopener" class="source-link">UNFCCC Fund →</a></div>' : '') +
-            renderVersionHistory(ld.version_history || [], 'ld-t', 'ld-h') +
+            '<div style="font-size:var(--text-sm);font-family:monospace;padding:var(--space-2);background:var(--monitor-accent-bg);border-radius:var(--radius-sm);margin-bottom:var(--space-2)">' + escHtml(c.chain || '') + '</div>' +
+            (c.current_stage ? '<div style="font-size:var(--text-xs);margin-bottom:var(--space-1)">Current stage: <strong>' + escHtml(c.current_stage) + '</strong></div>' : '') +
+            (c.reverse_cascade ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Reverse cascade: ' + escHtml(c.reverse_cascade) + '</div>' : '') +
+            renderVersionHistory(c.version_history || [], tid, hid) +
           '</div>';
+        }).join('') || '<p class="text-muted">No cascade chain data.</p>';
       }
-      document.getElementById('trackers-content').innerHTML = trackHtml || '<p class="text-muted">No standing trackers available.</p>';
-
-      // ── Attribution Gap Cases — enhanced visual tracker ──
-      var gaps = d.active_attribution_gap_cases || [];
-      document.getElementById('attribution-content').innerHTML = renderAttributionTracker(gaps);
-
-      // Regional Cascade Chains
-      var cascades = d.regional_cascade_chains || [];
-      document.getElementById('cascades-content').innerHTML = cascades.map(function (c, i) {
-        var tid = 'ct-' + i;
-        var hid = 'ch-' + i;
-        return '<div class="card" style="margin-bottom:var(--space-3)">' +
-          '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2);flex-wrap:wrap">' +
-            '<strong>' + escHtml(c.region || '') + '</strong>' +
-            '<span class="severity-badge ' + statusBadgeClass(c.status) + '">' + escHtml(c.status || '') + '</span>' +
-          '</div>' +
-          '<div style="font-size:var(--text-sm);font-family:monospace;padding:var(--space-2);background:var(--monitor-accent-bg);border-radius:var(--radius-sm);margin-bottom:var(--space-2)">' + escHtml(c.chain || '') + '</div>' +
-          (c.current_stage ? '<div style="font-size:var(--text-xs);margin-bottom:var(--space-1)">Current stage: <strong>' + escHtml(c.current_stage) + '</strong></div>' : '') +
-          (c.reverse_cascade ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Reverse cascade: ' + escHtml(c.reverse_cascade) + '</div>' : '') +
-          renderVersionHistory(c.version_history || [], tid, hid) +
-        '</div>';
-      }).join('') || '<p class="text-muted">No cascade chain data.</p>';
 
       // Cross-Monitor Flags
       var cmf = d.cross_monitor_flags || {};
