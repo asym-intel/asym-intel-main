@@ -195,7 +195,7 @@
     },
     'ai-governance': {
       abbr:   'AGM',
-      name:   'AI Governance Monitor',
+      name:   'Artificial Intelligence Monitor',
       accent: '#3a7d5a',
       svg:    '<rect x="3" y="3" width="30" height="30" rx="3" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/><rect x="8" y="8" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.9"/><rect x="20" y="8" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.6"/><rect x="8" y="20" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.6"/><rect x="20" y="20" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.3"/><line x1="12" y1="16" x2="12" y2="20" stroke="var(--monitor-accent)" stroke-width="1.5"/><line x1="24" y1="16" x2="24" y2="20" stroke="var(--monitor-accent)" stroke-width="1.5"/><line x1="16" y1="12" x2="20" y2="12" stroke="var(--monitor-accent)" stroke-width="1.5"/>',
       vb:     '0 0 36 36',
