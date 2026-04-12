@@ -185,7 +185,7 @@ The Macro Monitor feeds signals to other monitors in the Asymmetric Intelligence
 | [Strategic Conflict & Escalation Monitor](https://asym-intel.info/monitors/conflict-escalation/dashboard.html) | Economic warfare signals (sanctions evasion, trade weaponisation, debt-trap leverage) escalating toward kinetic conflict risk |
 | [Global Environmental Risks Monitor](https://asym-intel.info/monitors/environmental-risks/dashboard.html) | Climate finance mechanism failures, carbon market structural stress, or resource-sector credit events |
 | [Global FIMI Monitor](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html) | Coordinated financial disinformation campaigns or market manipulation attributed to state actors |
-| [AI Governance Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html) | AI infrastructure investment flows, compute sovereignty developments, or AI-sector systemic financial risk |
+| [Artificial Intelligence Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html) | AI infrastructure investment flows, compute sovereignty developments, or AI-sector systemic financial risk |
 
 ## Version History
 
