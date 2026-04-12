@@ -108,10 +108,57 @@
       <div id="m-safe-haven"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M07 — Cross-Monitor Flags -->
-    <section class="module-section" id="section-cross-monitor">
+    <!-- M07 — Scenario Framework -->
+    <section class="module-section" id="section-scenarios">
       <div class="module-header">
         <div class="module-num-large">07</div>
+        <h2 class="module-title">Scenario Framework</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Three macro scenarios with probability weights, triggers, and affected asset classes.</p>
+      <div id="m-scenarios"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- M08 — Positioning Overlay -->
+    <section class="module-section" id="section-positioning">
+      <div class="module-header">
+        <div class="module-num-large">08</div>
+        <h2 class="module-title">Positioning Overlay</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">MATT framework: market agreement to our themes, contrarian positioning, and Fed funds futures.</p>
+      <div id="m-positioning"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- M09 — Key Judgments -->
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-num-large">09</div>
+        <h2 class="module-title">Key Judgments</h2>
+      </div>
+      <div id="m-key-judgments"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- M10 — Central Bank Tracker -->
+    <section class="module-section" id="section-central-bank">
+      <div class="module-header">
+        <div class="module-num-large">10</div>
+        <h2 class="module-title">Central Bank Tracker</h2>
+      </div>
+      <div id="m-central-bank"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- M11 — Tariff Tracker -->
+    <section class="module-section" id="section-tariff">
+      <div class="module-header">
+        <div class="module-num-large">11</div>
+        <h2 class="module-title">Tariff Tracker</h2>
+      </div>
+      <div id="m-tariff"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- M12 — Cross-Monitor Flags -->
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-num-large">12</div>
         <h2 class="module-title">Cross-Monitor Flags</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Intelligence from sister monitors that materially affects GMM indicators. Updated weekly alongside the full report.</p>
@@ -130,7 +177,12 @@
       <li><a href="#section-asset-outlook"><span class="sidebar-num">04</span> Asset Outlook</a></li>
       <li><a href="#section-amplifiers"><span class="sidebar-num">05</span> Amplifiers</a></li>
       <li><a href="#section-safe-haven"><span class="sidebar-num">06</span> Safe Haven</a></li>
-      <li><a href="#section-cross-monitor"><span class="sidebar-num">07</span> Cross-Monitor</a></li>
+      <li><a href="#section-scenarios"><span class="sidebar-num">07</span> Scenarios</a></li>
+      <li><a href="#section-positioning"><span class="sidebar-num">08</span> Positioning</a></li>
+      <li><a href="#section-key-judgments"><span class="sidebar-num">09</span> Key Judgments</a></li>
+      <li><a href="#section-central-bank"><span class="sidebar-num">10</span> Central Banks</a></li>
+      <li><a href="#section-tariff"><span class="sidebar-num">11</span> Tariff Tracker</a></li>
+      <li><a href="#section-cross-monitor"><span class="sidebar-num">12</span> Cross-Monitor</a></li>
     </ul>
   </nav>
 </div>
@@ -354,65 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // M05 — Amplifiers (domain_6_amplifiers)
     document.getElementById('m-amplifiers').innerHTML = renderIndicatorDomain(domains.domain_6_amplifiers);
 
-    // M06 — Safe Haven & Positioning
-    var shHtml = '';
-    // Render d.safe_haven directly if present (JSON schema)
-    var safeHaven = d.safe_haven || null;
-    if (safeHaven && safeHaven.asset) {
-      shHtml += '<div class="safe-haven-card">' +
-        '<div class="safe-haven-card__label">Safe Haven Positioning</div>' +
-        '<div class="safe-haven-card__item"><strong>Asset:</strong> ' + esc(safeHaven.asset || '') + '</div>' +
-        (safeHaven.regime ? '<div class="safe-haven-card__item"><strong>Regime:</strong> ' + esc(safeHaven.regime) + '</div>' : '') +
-        (safeHaven.horizon ? '<div class="safe-haven-card__item"><strong>Horizon:</strong> ' + esc(safeHaven.horizon) + '</div>' : '') +
-        (safeHaven.rationale ? '<div class="safe-haven-card__item">' + esc(safeHaven.rationale) + '</div>' : '') +
-        (safeHaven.condition_for_reassessment ? '<div class="safe-haven-card__item" style="font-style:italic"><strong>Reassess if:</strong> ' + esc(safeHaven.condition_for_reassessment) + '</div>' : '') +
-        (safeHaven.not_investment_advice ? '<div class="safe-haven-card__item" style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(safeHaven.not_investment_advice) + '</div>' : '') +
-      '</div>';
-    }
-    if (sentiment && Object.keys(sentiment).length) {
-      shHtml += '<div class="safe-haven-card">';
-      shHtml += '<div class="safe-haven-card__label">Sentiment Overlay</div>';
-      if (sentiment.risk_appetite) shHtml += '<div class="safe-haven-card__item"><strong>Risk Appetite:</strong> ' + esc(sentiment.risk_appetite) + '</div>';
-      if (sentiment.fed_funds_path) shHtml += '<div class="safe-haven-card__item"><strong>Fed Funds Path:</strong> ' + esc(sentiment.fed_funds_path) + '</div>';
-      if (sentiment.bofa_fms_positioning) shHtml += '<div class="safe-haven-card__item"><strong>BofA FMS:</strong> ' + esc(sentiment.bofa_fms_positioning) + '</div>';
-      if (sentiment.matt_framework_agreement) shHtml += '<div class="safe-haven-card__item"><strong>Market Agreement:</strong> ' + esc(sentiment.matt_framework_agreement) + '</div>';
-      if (sentiment.positioning_note) shHtml += '<div class="safe-haven-card__item" style="font-style:italic">' + esc(sentiment.positioning_note) + '</div>';
-      shHtml += '</div>';
-    }
-    // 360 intelligence
-    var intel360 = d['360_intelligence'] || [];
-    if (intel360.length) {
-      shHtml += '<div style="margin-top:var(--space-6)"><div class="section-label">360° Intelligence</div>';
-      intel360.forEach(function (item) {
-        shHtml += '<div class="cmf-item">' +
-          '<div class="cmf-item__header"><div>' +
-            '<div class="cmf-item__source">' + esc(item.cross_domain_tag || '') + '</div>' +
-            '<div class="cmf-item__title">' + esc(item.headline || '') + '</div>' +
-          '</div></div>' +
-          '<div class="cmf-item__body cmf-item__body--collapsed">' + esc(item.summary || '') + '</div>' +
-          '<button class="cms-read-more">Read more →</button>' +
-          (item.source_url ? AsymRenderer.sourceLink(item.source_url) : '') +
-        '</div>';
-      });
-      shHtml += '</div>';
-    }
-    // Blind spot overrides
-    if (blindSpots.length) {
-      shHtml += '<div style="margin-top:var(--space-6)"><div class="section-label">Blind Spot Overrides</div>';
-      blindSpots.forEach(function (bs) {
-        shHtml += '<div class="cmf-item">' +
-          '<div class="cmf-item__header"><div>' +
-            '<div class="cmf-item__source">' + esc(bs.rule || '') + '</div>' +
-            '<div class="cmf-item__title">' + esc(bs.affected_asset_class || '') + ' — ' + esc(bs.indicator || '') + '</div>' +
-          '</div>' +
-          '<span class="flag-badge flag-badge--' + flagClass(bs.flag) + '">' + esc(bs.flag || '') + '</span></div>' +
-          '<div class="cmf-item__body">' + esc(bs.warning || '') + '</div>' +
-          (bs.source_url ? AsymRenderer.sourceLink(bs.source_url) : '') +
-        '</div>';
-      });
-      shHtml += '</div>';
-    }
-    document.getElementById('m-safe-haven').innerHTML = shHtml || '<p class="text-muted text-sm">No safe haven data available.</p>';
+    // M06 — Safe Haven & Positioning — now handled by AsymSections.renderSafeHavenV2 below
 
     // M07 — Cross-Monitor Flags
     var flags = (cmf.flags || []);
@@ -437,6 +431,36 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>';
       });
       document.getElementById('m-cross-monitor').innerHTML = cmfHtml;
+    }
+
+    // Scenario Framework (v2)
+    if (window.AsymSections && window.AsymSections.renderScenarioFramework) {
+      AsymSections.renderScenarioFramework(d.scenario_framework || [], 'm-scenarios');
+    }
+
+    // Positioning Overlay (MATT)
+    if (window.AsymSections && window.AsymSections.renderPositioningOverlay) {
+      AsymSections.renderPositioningOverlay(d.positioning_overlay || {}, 'm-positioning');
+    }
+
+    // Key Judgments
+    if (window.AsymSections && window.AsymSections.renderKeyJudgments) {
+      AsymSections.renderKeyJudgments(d.key_judgments || [], 'm-key-judgments');
+    }
+
+    // Central Bank Tracker
+    if (window.AsymSections && window.AsymSections.renderCentralBankTracker) {
+      AsymSections.renderCentralBankTracker(d.central_bank_tracker || [], 'm-central-bank');
+    }
+
+    // Tariff Tracker
+    if (window.AsymSections && window.AsymSections.renderTariffTracker) {
+      AsymSections.renderTariffTracker(d.tariff_tracker || [], 'm-tariff');
+    }
+
+    // Safe Haven (v2 format)
+    if (window.AsymSections && window.AsymSections.renderSafeHavenV2) {
+      AsymSections.renderSafeHavenV2(d.safe_haven || {}, 'm-safe-haven');
     }
   }
 });
