@@ -205,9 +205,59 @@
   }
   .stat-value { font-size: 1.8rem; font-weight: 700; }
   .stat-label { font-size: 0.7rem; color: var(--text-muted); }
+
+  /* ── Network Bar ──────────────────────────────────────────────── */
+  .network-bar {
+    position: sticky; top: 0; z-index: 100;
+    height: 40px;
+    background: #1a1918;
+    border-bottom: 1px solid #2d2c2a;
+    font-size: 15px; letter-spacing: 0.02em;
+    font-family: 'Satoshi', 'Inter', sans-serif;
+  }
+  .network-bar__inner {
+    display: flex; align-items: center; gap: 1.5rem;
+    max-width: 1200px; margin: 0 auto;
+    padding: 0 24px; height: 100%;
+  }
+  .network-bar__brand {
+    display: flex; align-items: center; gap: 0.5rem;
+    text-decoration: none; color: #e0dfdc; font-weight: 500; flex-shrink: 0;
+  }
+  .network-bar__svg { color: #4f98a3; flex-shrink: 0; }
+  .network-bar__spacer { flex: 1; }
+  .network-bar__nav { display: flex; align-items: center; gap: 1.25rem; }
+  .network-bar__link {
+    color: #a8a7a4; text-decoration: none;
+    transition: color 120ms ease; font-size: 15px;
+  }
+  .network-bar__link:hover, .network-bar__link--active { color: #e0dfdc; }
+  @media (max-width: 640px) {
+    .network-bar__nav { display: none; }
+    .network-bar__brand span:last-child { display: none; }
+  }
 </style>
 </head>
 <body>
+<header class="network-bar" role="banner" aria-label="Asymmetric Intelligence network">
+  <div class="network-bar__inner">
+    <a class="network-bar__brand" href="/" aria-label="Asymmetric Intelligence home">
+      <svg class="network-bar__svg" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="currentColor"/>
+        <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="currentColor" opacity=".65"/>
+        <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="currentColor" opacity=".35"/>
+      </svg>
+      <span>Asymmetric Intelligence</span>
+    </a>
+    <div class="network-bar__spacer"></div>
+    <nav class="network-bar__nav" aria-label="Platform sections">
+      <a class="network-bar__link" href="/monitors/">Monitors</a>
+      <a class="network-bar__link" href="https://compossible.asym-intel.info">Compossible</a>
+      <a class="network-bar__link" href="/network/">Network</a>
+      <a class="network-bar__link" href="/map/">World Map</a>
+    </nav>
+  </div>
+</header>
 <div class="header">
   <h1>Pipeline Health</h1>
   <span class="subtitle">Asymmetric Intelligence</span>
