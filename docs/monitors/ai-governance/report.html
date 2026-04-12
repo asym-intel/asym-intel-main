@@ -364,6 +364,42 @@
         <div id="m15-content"><p class="loading-state">Loading…</p></div>
       </section>
 
+      <!-- Key Judgments -->
+      <section class="module-section" id="section-key-judgments">
+        <div class="module-header">
+          <div class="module-num" style="font-size:1.1rem">KJ</div>
+          <h2 class="module-title">Key Judgments</h2>
+        </div>
+        <div id="key-judgments-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Jurisdiction Risk Matrix -->
+      <section class="module-section" id="section-jurisdiction-risk">
+        <div class="module-header">
+          <div class="module-num" style="font-size:1.1rem">JR</div>
+          <h2 class="module-title">Jurisdiction Risk Matrix</h2>
+        </div>
+        <div id="jurisdiction-risk-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Lab Posture Scorecard -->
+      <section class="module-section" id="section-lab-posture">
+        <div class="module-header">
+          <div class="module-num" style="font-size:1.1rem">LP</div>
+          <h2 class="module-title">Lab Posture Scorecard</h2>
+        </div>
+        <div id="lab-posture-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- Governance Health Composite -->
+      <section class="module-section" id="section-governance-health">
+        <div class="module-header">
+          <div class="module-num" style="font-size:1.1rem">GH</div>
+          <h2 class="module-title">Governance Health Composite</h2>
+        </div>
+        <div id="governance-health-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
       <!-- Cross-Monitor Signals -->
       <section class="module-section" id="cross-monitor">
         <div class="module-header">
@@ -397,6 +433,10 @@
           <li><a href="#module-13"><span class="sidebar-num">13</span> AI &amp; Society</a></li>
           <li><a href="#module-14"><span class="sidebar-num">14</span> Power Structures</a></li>
           <li><a href="#module-15"><span class="sidebar-num">15</span> Personnel</a></li>
+          <li><a href="#section-key-judgments"><span class="sidebar-num">KJ</span> Key Judgments</a></li>
+          <li><a href="#section-jurisdiction-risk"><span class="sidebar-num">JR</span> Jurisdiction Risk</a></li>
+          <li><a href="#section-lab-posture"><span class="sidebar-num">LP</span> Lab Posture</a></li>
+          <li><a href="#section-governance-health"><span class="sidebar-num">GH</span> Governance Health</a></li>
           <li><a href="#cross-monitor"><span class="sidebar-num">⇔</span> Cross-Monitor</a></li>
         </ul>
       </nav>
@@ -733,6 +773,116 @@
         // Cross-Monitor Flags
         var cmf = d.cross_monitor_flags || {};
         document.getElementById('cross-monitor-content').innerHTML = renderCrossMonitor(cmf);
+
+        // Sprint 4: Key Judgments
+        var kjs = d.key_judgments || [];
+        if (kjs.length) {
+          var kjHtml = '';
+          kjs.forEach(function(kj) {
+            var conf = kj.confidence || kj.confidence_preliminary || 'Assessed';
+            var traj = kj.trajectory || '';
+            kjHtml += '<div class="intel-item" style="border-left:3px solid var(--monitor-accent);padding-left:var(--space-3);margin-bottom:var(--space-4)">' +
+              '<div style="display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-2)">' +
+                '<span class="tag tag--' + (conf === 'High' ? 'green' : conf === 'Possible' ? 'amber' : 'default') + '">' + esc(conf) + '</span>' +
+                (traj ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(traj) + '</span>' : '') +
+                (kj.framework_affected ? '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--color-text-muted)">' + esc(kj.framework_affected) + '</span>' : '') +
+              '</div>' +
+              '<div class="intel-item__body">' + esc(kj.judgment || kj.text || '') + '</div>' +
+            '</div>';
+          });
+          document.getElementById('key-judgments-content').innerHTML = kjHtml;
+        } else {
+          document.getElementById('key-judgments-content').innerHTML = empty();
+        }
+
+        // Sprint 4: Jurisdiction Risk Matrix
+        var jrm = d.jurisdiction_risk_matrix || [];
+        if (jrm.length) {
+          var jrHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">' +
+            '<thead><tr><th>Jurisdiction</th><th>Reg. Readiness</th><th>Enforcement</th><th>AI Dependency</th><th>Overall Risk</th><th>Key Development</th><th>Trajectory</th></tr></thead><tbody>';
+          jrm.forEach(function(row) {
+            var rc = riskClass(row.overall_risk);
+            jrHtml += '<tr>' +
+              '<td style="font-weight:600">' + esc(row.jurisdiction || '') + '</td>' +
+              '<td>' + esc(row.regulatory_readiness || '') + '</td>' +
+              '<td>' + esc(row.enforcement_capacity || '') + '</td>' +
+              '<td>' + esc(row.ai_dependency || '') + '</td>' +
+              '<td><span class="tag tag--' + rc + '">' + esc(row.overall_risk || '') + '</span></td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(row.key_development || '') + '</td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(row.trajectory || '') + '</td>' +
+            '</tr>';
+          });
+          jrHtml += '</tbody></table></div>';
+          document.getElementById('jurisdiction-risk-content').innerHTML = jrHtml;
+        } else {
+          document.getElementById('jurisdiction-risk-content').innerHTML = empty();
+        }
+
+        // Sprint 4: Lab Posture Scorecard
+        var lps = d.lab_posture_scorecard || [];
+        if (lps.length) {
+          var lpHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">' +
+            '<thead><tr><th>Lab</th><th>Safety Posture</th><th>Transparency</th><th>Reg. Engagement</th><th>Key Development</th><th>Trajectory</th></tr></thead><tbody>';
+          lps.forEach(function(row) {
+            var pc = row.safety_posture === 'Leading' ? 'green' : row.safety_posture === 'Lagging' ? 'amber' : row.safety_posture === 'Opaque' ? 'high' : 'default';
+            lpHtml += '<tr>' +
+              '<td style="font-weight:600">' + esc(row.lab || '') + '</td>' +
+              '<td><span class="tag tag--' + pc + '">' + esc(row.safety_posture || '') + '</span></td>' +
+              '<td>' + esc(row.transparency || '') + '</td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(row.regulatory_engagement || '') + '</td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(row.key_development || '') + '</td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(row.trajectory || '') + '</td>' +
+            '</tr>';
+          });
+          lpHtml += '</tbody></table></div>';
+          document.getElementById('lab-posture-content').innerHTML = lpHtml;
+        } else {
+          document.getElementById('lab-posture-content').innerHTML = empty();
+        }
+
+        // Sprint 4: Governance Health Composite
+        var ghc = d.governance_health_composite || {};
+        if (ghc.components) {
+          var ghScore = ghc.score != null ? (ghc.score * 100).toFixed(0) : '—';
+          var ghDir = ghc.direction || 'Stable';
+          var ghDirClass = ghDir === 'Improving' ? 'green' : ghDir === 'Deteriorating' ? 'high' : 'default';
+          var ghHtml =
+            '<div style="display:flex;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap">' +
+              '<div style="text-align:center;min-width:100px">' +
+                '<div style="font-size:2.2rem;font-weight:700;font-family:var(--font-mono);color:var(--monitor-accent)">' + ghScore + '%</div>' +
+                '<div><span class="tag tag--' + ghDirClass + '">' + esc(ghDir) + '</span></div>' +
+              '</div>' +
+              '<div style="flex:1;min-width:200px">';
+          var compLabels = {
+            regulatory_coverage: 'Regulatory Coverage',
+            enforcement_capacity: 'Enforcement Capacity',
+            standards_readiness: 'Standards Readiness',
+            safety_alignment: 'Safety Alignment',
+            international_coordination: 'Intl Coordination'
+          };
+          Object.keys(ghc.components).forEach(function(key) {
+            var val = parseFloat(ghc.components[key]);
+            var pct = isNaN(val) ? 0 : (val * 100);
+            var barColor = pct >= 70 ? '#22c55e' : pct >= 40 ? '#d97706' : '#ef4444';
+            ghHtml +=
+              '<div style="margin-bottom:var(--space-2)">' +
+                '<div style="display:flex;justify-content:space-between;font-size:var(--text-xs);margin-bottom:2px">' +
+                  '<span>' + esc(compLabels[key] || key) + '</span>' +
+                  '<span style="font-family:var(--font-mono)">' + pct.toFixed(0) + '%</span>' +
+                '</div>' +
+                '<div style="background:var(--color-border,#334155);border-radius:4px;height:8px;overflow:hidden">' +
+                  '<div style="width:' + pct + '%;height:100%;background:' + barColor + ';border-radius:4px"></div>' +
+                '</div>' +
+              '</div>';
+          });
+          ghHtml += '</div></div>';
+          if (ghc.note) {
+            ghHtml += '<div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic">' + esc(ghc.note) + '</div>';
+          }
+          document.getElementById('governance-health-content').innerHTML = ghHtml;
+        } else {
+          document.getElementById('governance-health-content').innerHTML = empty();
+        }
       })
       .catch(function (err) {
         document.getElementById('report-error').innerHTML = '<p class="error-state">Could not load report data.</p>';

@@ -881,6 +881,42 @@
         <div id="arxiv-wrap"><div class="loading-state">Loading…</div></div>
       </section>
 
+      <!-- Key Judgments -->
+      <section class="module-section" id="section-key-judgments">
+        <div class="module-header">
+          <div class="module-title">Key Judgments</div>
+          <div class="module-subtitle">Analytical assessments with confidence levels</div>
+        </div>
+        <div id="key-judgments-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
+      <!-- Jurisdiction Risk Matrix -->
+      <section class="module-section" id="section-jurisdiction-risk">
+        <div class="module-header">
+          <div class="module-title">Jurisdiction Risk Matrix</div>
+          <div class="module-subtitle">AI governance risk by jurisdiction</div>
+        </div>
+        <div id="jurisdiction-risk-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
+      <!-- Lab Posture Scorecard -->
+      <section class="module-section" id="section-lab-posture">
+        <div class="module-header">
+          <div class="module-title">Lab Posture Scorecard</div>
+          <div class="module-subtitle">Safety, transparency, and regulatory engagement</div>
+        </div>
+        <div id="lab-posture-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
+      <!-- Governance Health Composite -->
+      <section class="module-section" id="section-governance-health">
+        <div class="module-header">
+          <div class="module-title">Governance Health Composite</div>
+          <div class="module-subtitle">Overall AI governance health score</div>
+        </div>
+        <div id="governance-health-wrap"><div class="loading-state">Loading…</div></div>
+      </section>
+
         <!-- Cross-Monitor Flags -->
       <section class="module-section" id="section-cross-monitor">
         <div class="module-header">
@@ -901,6 +937,10 @@
           <li><a href="#delta-strip-section">Delta Strip</a></li>
           <li><a href="#country-grid-section">Country Grid</a></li>
           <li><a href="#model-frontier">Model Frontier</a></li>
+          <li><a href="#section-key-judgments">Key Judgments</a></li>
+          <li><a href="#section-jurisdiction-risk">Jurisdiction Risk</a></li>
+          <li><a href="#section-lab-posture">Lab Posture</a></li>
+          <li><a href="#section-governance-health">Governance Health</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
           <li><a href="#section-delta-strip">Top Movers</a></li>
           <li><a href="#section-energy-wall">Energy Wall</a></li>
@@ -1232,6 +1272,12 @@
       renderCountryGridWatch(d.country_grid_watch || []);
       renderConcentration((d.module_14 && d.module_14.concentration_index) ? d.module_14.concentration_index : []);
       renderRevolvingDoor((d.module_15 && d.module_15.revolving_door) ? d.module_15.revolving_door : []);
+
+      // Sprint 4 sections
+      renderKeyJudgments(d.key_judgments || []);
+      renderJurisdictionRisk(d.jurisdiction_risk_matrix || []);
+      renderLabPosture(d.lab_posture_scorecard || []);
+      renderGovernanceHealth(d.governance_health_composite || {});
     })
     .catch(function () {
       document.getElementById('signal-block').innerHTML = '<p class="error-state">Could not load data.</p>';
@@ -1570,6 +1616,134 @@
         '</div>';
     });
     html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── Key Judgments ───────────────────────────────────────────────
+  function renderKeyJudgments(items) {
+    var el = document.getElementById('key-judgments-wrap');
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No key judgments this issue.</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    items.forEach(function (kj) {
+      var conf = (kj.confidence || kj.confidence_preliminary || 'Assessed').toLowerCase();
+      var confClass = conf === 'high' ? 'signal' : conf === 'possible' ? 'amber' : 'muted';
+      var traj = kj.trajectory || '';
+      html +=
+        '<div style="padding:var(--space-3);background:var(--surface-2);border-radius:var(--radius-sm);border-left:3px solid var(--color-primary)">' +
+          '<div style="display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-2)">' +
+            '<span class="badge badge--' + confClass + '">' + escHtml(kj.confidence || kj.confidence_preliminary || 'Assessed') + '</span>' +
+            (traj ? '<span style="font-size:var(--text-xs);color:var(--text-muted)">' + escHtml(traj) + '</span>' : '') +
+            (kj.framework_affected ? '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted)">' + escHtml(kj.framework_affected) + '</span>' : '') +
+          '</div>' +
+          '<div style="font-size:var(--text-sm);line-height:1.6">' + escHtml(kj.judgment || kj.text || '') + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── Jurisdiction Risk Matrix ────────────────────────────────────
+  function renderJurisdictionRisk(items) {
+    var el = document.getElementById('jurisdiction-risk-wrap');
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No jurisdiction risk data this issue.</p>';
+      return;
+    }
+    var riskClass = { 'HIGH': 'critical', 'ELEVATED': 'high', 'MODERATE': 'moderate', 'LOW': 'low' };
+    var html = '<div class="table-responsive"><table class="data-table" style="width:100%">';
+    html += '<thead><tr><th>Jurisdiction</th><th>Regulatory Readiness</th><th>Enforcement</th><th>AI Dependency</th><th>Overall Risk</th><th>Key Development</th><th>Trajectory</th></tr></thead><tbody>';
+    items.forEach(function (row) {
+      var cls = riskClass[(row.overall_risk || '').toUpperCase()] || 'moderate';
+      html += '<tr>' +
+        '<td style="font-weight:600">' + escHtml(row.jurisdiction || '') + '</td>' +
+        '<td><span class="badge badge--muted">' + escHtml(row.regulatory_readiness || '') + '</span></td>' +
+        '<td><span class="badge badge--muted">' + escHtml(row.enforcement_capacity || '') + '</span></td>' +
+        '<td><span class="badge badge--muted">' + escHtml(row.ai_dependency || '') + '</span></td>' +
+        '<td><span class="badge badge--' + cls + '">' + escHtml(row.overall_risk || '') + '</span></td>' +
+        '<td style="font-size:var(--text-xs)">' + escHtml(row.key_development || '') + '</td>' +
+        '<td style="font-size:var(--text-xs)">' + escHtml(row.trajectory || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  // ── Lab Posture Scorecard ───────────────────────────────────────
+  function renderLabPosture(items) {
+    var el = document.getElementById('lab-posture-wrap');
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No lab posture data this issue.</p>';
+      return;
+    }
+    var postureClass = { 'Leading': 'signal', 'Adequate': 'muted', 'Lagging': 'amber', 'Opaque': 'critical' };
+    var html = '<div class="table-responsive"><table class="data-table" style="width:100%">';
+    html += '<thead><tr><th>Lab</th><th>Safety Posture</th><th>Transparency</th><th>Regulatory Engagement</th><th>Key Development</th><th>Trajectory</th></tr></thead><tbody>';
+    items.forEach(function (row) {
+      var cls = postureClass[row.safety_posture] || 'muted';
+      html += '<tr>' +
+        '<td style="font-weight:600">' + escHtml(row.lab || '') + '</td>' +
+        '<td><span class="badge badge--' + cls + '">' + escHtml(row.safety_posture || '') + '</span></td>' +
+        '<td><span class="badge badge--muted">' + escHtml(row.transparency || '') + '</span></td>' +
+        '<td style="font-size:var(--text-xs)">' + escHtml(row.regulatory_engagement || '') + '</td>' +
+        '<td style="font-size:var(--text-xs)">' + escHtml(row.key_development || '') + '</td>' +
+        '<td style="font-size:var(--text-xs)">' + escHtml(row.trajectory || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  // ── Governance Health Composite ─────────────────────────────────
+  function renderGovernanceHealth(data) {
+    var el = document.getElementById('governance-health-wrap');
+    if (!el) return;
+    if (!data || !data.components) {
+      el.innerHTML = '<p class="text-muted text-sm">No governance health data this issue.</p>';
+      return;
+    }
+    var score = data.score != null ? (data.score * 100).toFixed(0) : '—';
+    var direction = data.direction || 'Stable';
+    var dirClass = direction === 'Improving' ? 'signal' : direction === 'Deteriorating' ? 'critical' : 'muted';
+    var html =
+      '<div style="display:flex;gap:var(--space-4);align-items:flex-start;flex-wrap:wrap">' +
+        '<div style="text-align:center;min-width:120px">' +
+          '<div style="font-size:2.5rem;font-weight:700;font-family:var(--font-mono);color:var(--color-primary)">' + score + '%</div>' +
+          '<div><span class="badge badge--' + dirClass + '">' + escHtml(direction) + '</span></div>' +
+        '</div>' +
+        '<div style="flex:1;min-width:200px">';
+    var comps = data.components || {};
+    var compLabels = {
+      regulatory_coverage: 'Regulatory Coverage',
+      enforcement_capacity: 'Enforcement Capacity',
+      standards_readiness: 'Standards Readiness',
+      safety_alignment: 'Safety Alignment',
+      international_coordination: 'International Coordination'
+    };
+    Object.keys(comps).forEach(function (key) {
+      var val = parseFloat(comps[key]);
+      var pct = isNaN(val) ? 0 : (val * 100);
+      var barColor = pct >= 70 ? 'var(--color-signal,#22c55e)' : pct >= 40 ? 'var(--color-amber,#d97706)' : 'var(--color-critical,#ef4444)';
+      html +=
+        '<div style="margin-bottom:var(--space-2)">' +
+          '<div style="display:flex;justify-content:space-between;font-size:var(--text-xs);margin-bottom:2px">' +
+            '<span>' + escHtml(compLabels[key] || key) + '</span>' +
+            '<span style="font-family:var(--font-mono)">' + pct.toFixed(0) + '%</span>' +
+          '</div>' +
+          '<div style="background:var(--surface-3);border-radius:4px;height:8px;overflow:hidden">' +
+            '<div style="width:' + pct + '%;height:100%;background:' + barColor + ';border-radius:4px;transition:width 0.3s"></div>' +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+    if (data.note) {
+      html += '<div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--text-muted);font-style:italic">' + escHtml(data.note) + '</div>';
+    }
     el.innerHTML = html;
   }
 </script>
