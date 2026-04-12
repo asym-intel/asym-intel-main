@@ -173,7 +173,7 @@ Global FIMI & Cognitive Warfare Monitor
 Full actor attribution, campaign tracking, platform regulatory responses, and doctrinal frameworks — covering Russia, China, Iran, Gulf states, United States, and Israel globally. The dedicated hub for FIMI intelligence across the suite. This monitor's FIMI material cross-links here for depth.
 ](https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html)
 [
-AI Governance Monitor
+Artificial Intelligence Monitor
 AI Frontier Monitor
 AI regulation, model frontier, military AI, investment, and governance — global weekly intelligence synthesis. Covers EU AI Act implementation, US–China AI competition, and AI in FIMI operations. Three-tier source standard.
 ](https://asym-intel.info/monitors/ai-governance/dashboard.html)
