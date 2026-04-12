@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Map — Asymmetric Intelligence</title>
+  <meta name="description" content="Interactive geographic view of all seven Asymmetric Intelligence monitors. Filter by monitor to see country-level coverage and risk signals.">
+
+  <!-- Fonts -->
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    /* ── Reset & Tokens ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+
+    :root {
+      --nb-bg:      #1a1918;
+      --nb-border:  #2d2c2a;
+      --nb-text:    #a8a7a4;
+      --nb-hover:   #e0dfdc;
+      --nb-teal:    #4f98a3;
+      --nb-height:  40px;
+      --font-body:  'Satoshi', 'Inter', sans-serif;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+
+      --canvas-bg:  #0d0d0b;
+
+      /* Monitor accent colours */
+      --c-wdm:   #437a22;
+      --c-gmm:   #d19900;
+      --c-fcw:   #01696f;
+      --c-esa:   #006494;
+      --c-aim:   #7a39bb;
+      --c-erm:   #da7101;
+      --c-scem:  #a13544;
+
+      /* UI */
+      --panel-bg:     #141412;
+      --panel-border: #2a2926;
+      --text-primary: #e0dfdc;
+      --text-muted:   #b0afac;
+      --text-faint:   #7a7874;
+      --radius: 6px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--canvas-bg);
+      color: var(--text-primary);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Network Bar ─────────────────────────────────────────────── */
+    .network-bar {
+      position: relative;
+      z-index: 100;
+      flex-shrink: 0;
+      height: var(--nb-height);
+      background: var(--nb-bg);
+      border-bottom: 1px solid var(--nb-border);
+      font-size: 15px;
+      letter-spacing: 0.02em;
+    }
+    .network-bar__inner {
+      display: flex; align-items: center; gap: 1.5rem;
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 24px; height: 100%;
+    }
+    .network-bar__brand {
+      display: flex; align-items: center; gap: 0.5rem;
+      text-decoration: none; color: var(--nb-hover); font-weight: 500; flex-shrink: 0;
+    }
+    .network-bar__svg { color: var(--nb-teal); flex-shrink: 0; }
+    .network-bar__spacer { flex: 1; }
+    .network-bar__nav { display: flex; align-items: center; gap: 1.25rem; }
+    .network-bar__link {
+      color: var(--nb-text); text-decoration: none;
+      transition: color 120ms ease; font-size: 15px;
+    }
+    .network-bar__link:hover, .network-bar__link--active { color: var(--nb-hover); }
+    @media (max-width: 640px) {
+      .network-bar__nav { display: none; }
+      .network-bar__brand span:last-child { display: none; }
+    }
+
+    /* ── Controls Bar ────────────────────────────────────────────── */
+    .controls {
+      position: relative;
+      z-index: 50;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 20px;
+      background: rgba(20, 19, 18, 0.95);
+      border-bottom: 1px solid #1e1d1b;
+      flex-wrap: wrap;
+    }
+
+    .controls__label {
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    .filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: #1e1d1b;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: all 150ms var(--ease);
+      flex-shrink: 0;
+    }
+    .filter-btn:hover { color: var(--text-primary); background: #2a2926; }
+    .filter-btn.active {
+      color: var(--text-primary);
+      border-color: var(--btn-color, #4f98a3);
+      background: color-mix(in oklab, var(--btn-color, #4f98a3) 12%, transparent);
+    }
+    .filter-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--btn-color, #4f98a3);
+      flex-shrink: 0;
+    }
+
+    .controls__divider {
+      width: 1px; height: 18px;
+      background: #2a2926;
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
+
+    /* ── Map Canvas ──────────────────────────────────────────────── */
+    #map-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #world-map {
+      width: 100%;
+      height: 100%;
+      background: var(--canvas-bg);
+    }
+
+    /* Override Leaflet controls for dark theme */
+    .leaflet-control-zoom a {
+      background: var(--panel-bg) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--panel-border) !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background: #1e1d1b !important;
+    }
+
+    /* ── Loading State ───────────────────────────────────────────── */
+    #loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-faint);
+      font-size: 15px;
+      letter-spacing: 0.04em;
+      z-index: 10;
+    }
+    .loading-dots { display: flex; gap: 6px; }
+    .loading-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: #4f98a3;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50%       { opacity: 1;   transform: scale(1); }
+    }
+
+    /* ── Legend ──────────────────────────────────────────────────── */
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(20, 19, 18, 0.92);
+      border: 1px solid #2a2926;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      backdrop-filter: blur(8px);
+      z-index: 30;
+      max-width: 280px;
+    }
+    .legend__title {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+    .legend__item {
+      display: flex; align-items: center; gap: 7px;
+      margin-bottom: 5px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+    .legend__item:last-child { margin-bottom: 0; }
+    .legend__dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── Country Popup ───────────────────────────────────────────── */
+    .asym-popup { font-family: var(--font-body); font-size: 14px; line-height: 1.5; max-width: 280px; }
+    .asym-popup__country { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .asym-popup__monitor {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2px 8px; border-radius: 999px; font-size: 11.5px;
+      font-weight: 600; letter-spacing: 0.04em; margin-bottom: 6px;
+    }
+    .asym-popup__signal { font-size: 13px; color: #555; line-height: 1.5; margin-top: 4px; }
+    .asym-popup__score { font-size: 12px; color: #777; margin-top: 2px; }
+    .asym-popup__link {
+      display: inline-block; margin-top: 6px; font-size: 12.5px;
+      color: var(--nb-teal); text-decoration: none;
+    }
+    .asym-popup__link:hover { text-decoration: underline; }
+
+    /* Multi-monitor badge stack in popups */
+    .asym-popup__badges { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+
+    /* ── Stats Bar (below controls) ──────────────────────────────── */
+    .stats-bar {
+      position: relative;
+      z-index: 40;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 6px 20px;
+      background: rgba(14, 14, 12, 0.9);
+      border-bottom: 1px solid #1a1918;
+      font-size: 12.5px;
+      color: var(--text-faint);
+      letter-spacing: 0.03em;
+    }
+    .stats-bar__item strong {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2926; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Network Bar -->
+<header class="network-bar" role="banner" aria-label="Asymmetric Intelligence network">
+  <div class="network-bar__inner">
+    <a class="network-bar__brand" href="/" aria-label="Asymmetric Intelligence home">
+      <svg class="network-bar__svg" width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="2"  y="4"  width="10" height="2.5" rx="1.25" fill="currentcolor"/>
+        <rect x="6"  y="9"  width="12" height="2.5" rx="1.25" fill="currentcolor" opacity=".65"/>
+        <rect x="2"  y="14" width="7"  height="2.5" rx="1.25" fill="currentcolor" opacity=".35"/>
+      </svg>
+      <span>Asymmetric Intelligence</span>
+    </a>
+    <div class="network-bar__spacer"></div>
+    <nav class="network-bar__nav" aria-label="Platform sections">
+      <a class="network-bar__link" href="/monitors/">Monitors</a>
+      <a class="network-bar__link" href="https://compossible.asym-intel.info">Compossible</a>
+      <a class="network-bar__link" href="/network/">Network</a>
+      <a class="network-bar__link network-bar__link--active" href="/map/">World Map</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Controls -->
+<div class="controls" id="controls" role="toolbar" aria-label="Monitor filters">
+  <span class="controls__label">View</span>
+
+  <button class="filter-btn active" data-filter="all" style="--btn-color:#4f98a3">
+    <span class="filter-dot"></span> All Monitors
+  </button>
+
+  <div class="controls__divider"></div>
+  <span class="controls__label">Monitors</span>
+
+  <button class="filter-btn" data-filter="democratic-integrity" style="--btn-color:var(--c-wdm)">
+    <span class="filter-dot"></span> World Democracy
+  </button>
+  <button class="filter-btn" data-filter="macro-monitor" style="--btn-color:var(--c-gmm)">
+    <span class="filter-dot"></span> Global Macro
+  </button>
+  <button class="filter-btn" data-filter="fimi-cognitive-warfare" style="--btn-color:var(--c-fcw)">
+    <span class="filter-dot"></span> FIMI &amp; Cog. Warfare
+  </button>
+  <button class="filter-btn" data-filter="european-strategic-autonomy" style="--btn-color:var(--c-esa)">
+    <span class="filter-dot"></span> Strategic Autonomy
+  </button>
+  <button class="filter-btn" data-filter="ai-governance" style="--btn-color:var(--c-aim)">
+    <span class="filter-dot"></span> Artificial Intelligence
+  </button>
+  <button class="filter-btn" data-filter="environmental-risks" style="--btn-color:var(--c-erm)">
+    <span class="filter-dot"></span> Environment
+  </button>
+  <button class="filter-btn" data-filter="conflict-escalation" style="--btn-color:var(--c-scem)">
+    <span class="filter-dot"></span> Strategic Conflict
+  </button>
+</div>
+
+<!-- Stats bar -->
+<div class="stats-bar" id="stats-bar">
+  <span class="stats-bar__item">Loading coverage data…</span>
+</div>
+
+<!-- Map -->
+<div id="map-wrap">
+  <div id="world-map" role="main" aria-label="Interactive world map"></div>
+
+  <div id="loading">
+    <div class="loading-dots">
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+      <div class="loading-dot"></div>
+    </div>
+    <span>Building world map…</span>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" id="legend" role="note" aria-label="Monitor colour legend">
+    <div class="legend__title">Monitors</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-wdm)"></div>World Democracy</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-gmm)"></div>Global Macro</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-fcw)"></div>FIMI &amp; Cog. Warfare</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-esa)"></div>Strategic Autonomy</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-aim)"></div>Artificial Intelligence</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-erm)"></div>Environmental Risks</div>
+    <div class="legend__item"><div class="legend__dot" style="background:var(--c-scem)"></div>Strategic Conflict</div>
+  </div>
+</div>
+
+<script>
+(async function () {
+  'use strict';
+
+  /* ── Monitor config ─────────────────────────────────────────── */
+  var MONITORS = {
+    'democratic-integrity':        { abbr: 'WDM',  label: 'World Democracy',       color: '#437a22', accent: '#437a22' },
+    'macro-monitor':               { abbr: 'GMM',  label: 'Global Macro',          color: '#d19900', accent: '#d19900' },
+    'fimi-cognitive-warfare':      { abbr: 'FCW',  label: 'FIMI & Cog. Warfare',   color: '#01696f', accent: '#01696f' },
+    'european-strategic-autonomy': { abbr: 'ESA',  label: 'Strategic Autonomy',     color: '#006494', accent: '#006494' },
+    'ai-governance':               { abbr: 'AIM',  label: 'Artificial Intelligence',color: '#7a39bb', accent: '#7a39bb' },
+    'environmental-risks':         { abbr: 'ERM',  label: 'Environmental Risks',    color: '#da7101', accent: '#da7101' },
+    'conflict-escalation':         { abbr: 'SCEM', label: 'Strategic Conflict',     color: '#a13544', accent: '#a13544' }
+  };
+
+  /* ── Country name / code → ISO-A2 normalisation ─────────────── */
+  var NAME_TO_ISO = {
+    'United States': 'US', 'USA': 'US', 'US': 'US',
+    'United Kingdom': 'GB', 'UK': 'GB',
+    'Hungary': 'HU', 'HU': 'HU',
+    'Serbia': 'RS', 'India': 'IN', 'IND': 'IN',
+    'Philippines': 'PH', 'PHL': 'PH',
+    'Georgia': 'GE', 'GEO': 'GE',
+    'Tunisia': 'TN', 'Nicaragua': 'NI',
+    'El Salvador': 'SV', 'Venezuela': 'VE',
+    'Bolivia': 'BO', 'Mexico': 'MX',
+    'Colombia': 'CO', 'Iran': 'IR',
+    'Tanzania': 'TZ', 'Uganda': 'UG',
+    'DRC': 'CD', 'Kazakhstan': 'KZ',
+    'Bangladesh': 'BD', 'Slovakia': 'SK',
+    'Poland': 'PL', 'PL': 'PL',
+    'Italy': 'IT', 'Romania': 'RO', 'ROU': 'RO',
+    'South Korea': 'KR', 'Israel': 'IL',
+    'Iraq': 'IQ', "Côte d'Ivoire": 'CI',
+    'Benin': 'BJ', 'Turkey': 'TR',
+    'China': 'CN', 'Germany': 'DE', 'DE': 'DE',
+    'France': 'FR', 'FR': 'FR', 'FRA': 'FR',
+    'Russia': 'RU', 'Ukraine': 'UA',
+    'Sudan': 'SD', 'Gaza': 'PS',
+    'Armenia': 'AM', 'Saudi Arabia': 'SA',
+    'EU': 'EU',  /* special — handled separately */
+    'NATO': 'NATO',
+    'Canada': 'CA', 'CAN': 'CA',
+    'Angola': 'AO', 'AGO': 'AO',
+    'Gabon': 'GA', 'GAB': 'GA',
+    'Guinea-Bissau': 'GW', 'GNB': 'GW',
+    'Moldova': 'MD', 'MDA': 'MD',
+    'Malawi': 'MW', 'MWI': 'MW',
+    'Nepal': 'NP', 'NPL': 'NP',
+    'Pakistan': 'PK', 'PAK': 'PK',
+    'Paraguay': 'PY', 'PRY': 'PY',
+    'Senegal': 'SN', 'SEN': 'SN',
+    'Czech Republic': 'CZ', 'CZ': 'CZ', 'Czechia': 'CZ',
+    /* ISO-A2 pass-through */
+    'US': 'US', 'GB': 'GB', 'IN': 'IN', 'PH': 'PH',
+    'HU': 'HU', 'PL': 'PL', 'DE': 'DE', 'FR': 'FR',
+    'RO': 'RO', 'CZ': 'CZ', 'IL': 'IL', 'RU': 'RU',
+    'UA': 'UA', 'SD': 'SD', 'CN': 'CN', 'AM': 'AM',
+    'SA': 'SA'
+  };
+
+  /* EU member states for expansion */
+  var EU_MEMBERS = [
+    'AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU',
+    'IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'
+  ];
+
+  function resolveISO(name) {
+    if (!name) return null;
+    var iso = NAME_TO_ISO[name];
+    if (iso && iso !== 'EU' && iso !== 'NATO') return iso;
+    /* If it's a 2-letter code already and uppercase, pass through */
+    if (name.length === 2 && name === name.toUpperCase()) return name;
+    /* If it's a 3-letter ISO code, try common mappings */
+    if (name.length === 3 && name === name.toUpperCase()) return NAME_TO_ISO[name] || null;
+    return null;
+  }
+
+  /* ── Per-monitor data extraction ────────────────────────────── */
+  /* Returns array of { iso, country, monitor, signal, score, dashboardUrl } */
+  function extractCountries(slug, data) {
+    var results = [];
+    var cfg = MONITORS[slug];
+    var dashUrl = '/monitors/' + slug + '/dashboard.html';
+
+    function add(name, signal, score) {
+      var iso = resolveISO(name);
+      if (!iso) return;
+      /* Expand EU to member states */
+      if (name === 'EU') {
+        EU_MEMBERS.forEach(function (m) {
+          results.push({ iso: m, country: name + ' (' + m + ')', monitor: slug, signal: signal, score: score, dashboardUrl: dashUrl });
+        });
+        return;
+      }
+      results.push({ iso: iso, country: name, monitor: slug, signal: signal, score: score, dashboardUrl: dashUrl });
+    }
+
+    /* WDM — heatmap */
+    if (slug === 'democratic-integrity') {
+      (data.heatmap || []).forEach(function (c) {
+        add(c.country_name || c.country, c.key_development || c.summary || c.lead_signal || '', c.severity_score);
+      });
+      (data.electoral_calendar_watch || []).forEach(function (c) {
+        add(c.country, c.event || '', '');
+      });
+    }
+
+    /* GMM — central bank tracker, tariff tracker, debt dynamics */
+    if (slug === 'macro-monitor') {
+      (data.central_bank_tracker || []).forEach(function (c) {
+        add(c.country || c.bank, c.latest_action || c.headline || '', '');
+      });
+      (data.tariff_tracker || []).forEach(function (c) {
+        add(c.country || c.target, c.headline || c.measure || '', '');
+      });
+      (data.debt_dynamics || []).forEach(function (c) {
+        add(c.country, c.headline || c.summary || '', c.risk_score);
+      });
+    }
+
+    /* FCW — actors (have ISO-A2 codes) + campaigns (extract countries from text) */
+    if (slug === 'fimi-cognitive-warfare') {
+      /* Actor tracker: actor field is ISO-A2 (RU, CN, IR, US, IL) or group code */
+      var FCW_ACTOR_MAP = { 'RU':'RU','CN':'CN','IR':'IR','US':'US','IL':'IL','UAE':'AE','GULF':'AE' };
+      (data.actor_tracker || []).forEach(function (a) {
+        var code = a.actor || '';
+        var iso = FCW_ACTOR_MAP[code];
+        if (iso) {
+          results.push({ iso: iso, country: code, monitor: slug, signal: a.headline || '', score: '', dashboardUrl: dashUrl });
+        }
+      });
+      /* Campaigns: extract countries from operation_name + summary */
+      var FCW_CAMPAIGN_COUNTRIES = {
+        'Hungary':'HU', 'Budapest':'HU', 'UK':'GB', 'Germany':'DE', 'Bundestag':'DE',
+        'France':'FR', 'Pacific Island':'FJ', 'EU':'EU'
+      };
+      (data.campaigns || []).forEach(function (c) {
+        var text = (c.operation_name || '') + ' ' + (c.summary || '');
+        Object.keys(FCW_CAMPAIGN_COUNTRIES).forEach(function (name) {
+          if (text.indexOf(name) > -1) {
+            var campIso = FCW_CAMPAIGN_COUNTRIES[name];
+            if (campIso === 'EU') {
+              EU_MEMBERS.forEach(function (m) {
+                results.push({ iso: m, country: 'EU', monitor: slug, signal: c.operation_name || '', score: '', dashboardUrl: dashUrl });
+              });
+            } else {
+              results.push({ iso: campIso, country: name, monitor: slug, signal: c.operation_name || '', score: '', dashboardUrl: dashUrl });
+            }
+          }
+        });
+      });
+    }
+
+    /* ESA — member state tracker */
+    if (slug === 'european-strategic-autonomy') {
+      (data.member_state_tracker || []).forEach(function (c) {
+        add(c.country, c.headline || c.status || '', '');
+      });
+      /* Defence spending, election threats */
+      (data.defence_spending || []).forEach(function (c) {
+        add(c.country, c.headline || '', c.gdp_pct);
+      });
+      (data.election_threats || []).forEach(function (c) {
+        add(c.country, c.headline || c.threat || '', '');
+      });
+    }
+
+    /* AIM — country grid + watch */
+    if (slug === 'ai-governance') {
+      (data.country_grid || []).forEach(function (c) {
+        add(c.country, c.signal || c.headline || '', '');
+      });
+      (data.country_grid_watch || []).forEach(function (c) {
+        add(c.country, c.signal || c.headline || '', '');
+      });
+    }
+
+    /* ERM — regional coverage maps to representative countries per region */
+    if (slug === 'environmental-risks') {
+      var ERM_REGION_COUNTRIES = {
+        'sub_saharan_africa_items': ['NG','KE','ET','ZA','CD','SD','MZ','MG'],
+        'mena_items':              ['EG','IQ','SA','SY','YE','MA','TN','JO'],
+        'south_asia_items':        ['IN','BD','PK','NP','LK'],
+        'ocean_systems_items':     ['FJ','PH','ID','AU','MV']
+      };
+      var rc = data.regional_coverage || {};
+      Object.keys(ERM_REGION_COUNTRIES).forEach(function (regionKey) {
+        var items = rc[regionKey];
+        if (Array.isArray(items) && items.length > 0) {
+          var regionSignal = items.map(function (it) { return it.headline || it.summary || ''; }).filter(Boolean).join('; ').slice(0, 120);
+          ERM_REGION_COUNTRIES[regionKey].forEach(function (iso) {
+            results.push({ iso: iso, country: regionKey.replace(/_items$/, '').replace(/_/g, ' '), monitor: slug, signal: regionSignal, score: '', dashboardUrl: dashUrl });
+          });
+        }
+      });
+      /* Threat multiplier — if it names specific regions beyond 'Global' */
+      var threats = data.m03_threat_multiplier || data.climate_security_nexus || [];
+      threats.forEach(function (c) {
+        if (c.region && c.region !== 'Global') {
+          add(c.region, c.risk_type || '', c.severity);
+        }
+      });
+    }
+
+    /* SCEM — theatre tracker (actors as countries) */
+    if (slug === 'conflict-escalation') {
+      (data.theatre_tracker || []).forEach(function (t) {
+        var actors = t.primary_actors || [];
+        actors.forEach(function (a) {
+          add(a, t.theatre_name + ' — ' + (t.intensity || '') + ' ' + (t.intensity_delta || ''), '');
+        });
+      });
+    }
+
+    return results;
+  }
+
+  /* ── Fetch all monitor data ─────────────────────────────────── */
+  var allCountries = []; /* { iso, country, monitor, signal, score, dashboardUrl } */
+  var countryMap = {};   /* iso → [entry, entry, …] (multi-monitor) */
+  var monitorCounts = {};
+
+  var fetches = Object.keys(MONITORS).map(function (slug) {
+    var url = '/monitors/' + slug + '/data/report-latest.json';
+    return fetch(url)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) { return { slug: slug, data: data }; })
+      .catch(function () { return { slug: slug, data: null }; });
+  });
+
+  var results = await Promise.all(fetches);
+
+  results.forEach(function (r) {
+    if (!r.data) return;
+    var entries = extractCountries(r.slug, r.data);
+    entries.forEach(function (e) {
+      allCountries.push(e);
+      if (!countryMap[e.iso]) countryMap[e.iso] = [];
+      /* Deduplicate same monitor for same country */
+      var exists = countryMap[e.iso].some(function (x) { return x.monitor === e.monitor; });
+      if (!exists) countryMap[e.iso].push(e);
+    });
+  });
+
+  /* Count per monitor */
+  Object.keys(MONITORS).forEach(function (slug) {
+    var isos = new Set();
+    allCountries.forEach(function (e) { if (e.monitor === slug) isos.add(e.iso); });
+    monitorCounts[slug] = isos.size;
+  });
+
+  /* ── State ──────────────────────────────────────────────────── */
+  var activeFilter = 'all';
+  var worldMap = null;
+  var geoLayer = null;
+
+  /* ── Helpers ────────────────────────────────────────────────── */
+  function escHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function getMonitorColor(slug) {
+    return MONITORS[slug] ? MONITORS[slug].color : '#4f98a3';
+  }
+
+  /* ── Map style per feature ──────────────────────────────────── */
+  function getStyle(feature) {
+    var iso = feature.properties.ISO_A2;
+    var entries = countryMap[iso];
+
+    if (!entries || !entries.length) {
+      return { fillColor: '#2a2926', fillOpacity: 0.35, color: '#3a3936', weight: 0.4 };
+    }
+
+    /* Filter by active monitor */
+    var filtered = activeFilter === 'all'
+      ? entries
+      : entries.filter(function (e) { return e.monitor === activeFilter; });
+
+    if (!filtered.length) {
+      return { fillColor: '#2a2926', fillOpacity: 0.35, color: '#3a3936', weight: 0.4 };
+    }
+
+    /* If multiple monitors cover this country, blend towards white/bright */
+    var color;
+    if (filtered.length === 1) {
+      color = getMonitorColor(filtered[0].monitor);
+    } else {
+      /* Pick the "primary" monitor (first by coverage) and brighten */
+      color = getMonitorColor(filtered[0].monitor);
+    }
+
+    return {
+      fillColor: color,
+      fillOpacity: 0.65,
+      color: '#e0dfdc',
+      weight: 0.6
+    };
+  }
+
+  /* ── Popup content ──────────────────────────────────────────── */
+  function buildPopup(feature) {
+    var iso = feature.properties.ISO_A2;
+    var name = feature.properties.NAME || feature.properties.ADMIN || iso;
+    var entries = countryMap[iso];
+    if (!entries || !entries.length) return null;
+
+    var filtered = activeFilter === 'all'
+      ? entries
+      : entries.filter(function (e) { return e.monitor === activeFilter; });
+    if (!filtered.length) return null;
+
+    var html = '<div class="asym-popup">';
+    html += '<div class="asym-popup__country">' + escHtml(name) + '</div>';
+    html += '<div class="asym-popup__badges">';
+    filtered.forEach(function (e) {
+      var m = MONITORS[e.monitor];
+      html += '<span class="asym-popup__monitor" style="background:' + m.color + '20;color:' + m.color + ';border:1px solid ' + m.color + '40">' +
+        escHtml(m.abbr) + '</span>';
+    });
+    html += '</div>';
+
+    /* Show signals from each monitor */
+    filtered.forEach(function (e) {
+      if (e.signal) {
+        var m = MONITORS[e.monitor];
+        html += '<div class="asym-popup__signal"><strong style="color:' + m.color + '">' + escHtml(m.abbr) + ':</strong> ' +
+          escHtml(e.signal.slice(0, 120)) + (e.signal.length > 120 ? '…' : '') + '</div>';
+      }
+    });
+
+    /* Link to first monitor's dashboard */
+    html += '<a class="asym-popup__link" href="' + escHtml(filtered[0].dashboardUrl) + '">Open dashboard →</a>';
+    html += '</div>';
+    return html;
+  }
+
+  function onEachFeature(feature, layer) {
+    var popup = buildPopup(feature);
+    if (popup) {
+      layer.bindPopup(popup, { maxWidth: 300, className: 'asym-country-popup' });
+    }
+    layer.on('mouseover', function () {
+      layer.setStyle({ weight: 1.5, color: '#e0dfdc' });
+      layer.bringToFront();
+    });
+    layer.on('mouseout', function () {
+      if (geoLayer) geoLayer.resetStyle(layer);
+    });
+  }
+
+  /* ── Init Leaflet map ───────────────────────────────────────── */
+  if (typeof L === 'undefined') {
+    document.getElementById('loading').innerHTML =
+      '<span style="color:#c0392b">Leaflet failed to load.</span>';
+    return;
+  }
+
+  worldMap = L.map('world-map', {
+    center: [25, 15],
+    zoom: 2.5,
+    minZoom: 2,
+    maxZoom: 7,
+    zoomControl: true,
+    attributionControl: false,
+    worldCopyJump: true
+  });
+
+  worldMap.getContainer().style.background = '#0d0d0b';
+
+  /* GeoJSON — Natural Earth 110m */
+  var geoUrl = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
+
+  try {
+    var geoRes = await fetch(geoUrl);
+    var geoData = await geoRes.json();
+
+    geoLayer = L.geoJSON(geoData, {
+      style: getStyle,
+      onEachFeature: onEachFeature
+    }).addTo(worldMap);
+
+    document.getElementById('loading').style.display = 'none';
+
+    /* Fit to world bounds */
+    worldMap.fitBounds(geoLayer.getBounds(), { padding: [10, 10] });
+
+  } catch (err) {
+    console.error('[world-map] GeoJSON load error', err);
+    document.getElementById('loading').innerHTML =
+      '<span style="color:#c0392b">Failed to load map data.</span>';
+    return;
+  }
+
+  /* ── Update stats bar ───────────────────────────────────────── */
+  function updateStats() {
+    var bar = document.getElementById('stats-bar');
+    var totalCountries = new Set();
+    var monitorCount = 0;
+
+    if (activeFilter === 'all') {
+      Object.keys(countryMap).forEach(function (iso) { totalCountries.add(iso); });
+      monitorCount = 7;
+    } else {
+      allCountries.forEach(function (e) {
+        if (e.monitor === activeFilter) totalCountries.add(e.iso);
+      });
+      monitorCount = 1;
+    }
+
+    var label = activeFilter === 'all' ? 'All Monitors' : MONITORS[activeFilter].label;
+    bar.innerHTML =
+      '<span class="stats-bar__item"><strong>' + totalCountries.size + '</strong> countries covered</span>' +
+      '<span class="stats-bar__item"><strong>' + monitorCount + '</strong> active monitor' + (monitorCount > 1 ? 's' : '') + '</span>' +
+      '<span class="stats-bar__item">Viewing: <strong>' + escHtml(label) + '</strong></span>';
+  }
+
+  updateStats();
+
+  /* ── Refresh map for filter changes ─────────────────────────── */
+  function refreshMap() {
+    if (geoLayer) {
+      geoLayer.setStyle(getStyle);
+      /* Rebind popups */
+      geoLayer.eachLayer(function (layer) {
+        layer.unbindPopup();
+        var popup = buildPopup(layer.feature);
+        if (popup) {
+          layer.bindPopup(popup, { maxWidth: 300, className: 'asym-country-popup' });
+        }
+      });
+    }
+    updateStats();
+
+    /* Update legend to highlight active monitor */
+    var legendItems = document.querySelectorAll('.legend__item');
+    legendItems.forEach(function (item) {
+      item.style.opacity = activeFilter === 'all' ? '1' : '0.35';
+    });
+    if (activeFilter !== 'all') {
+      var idx = Object.keys(MONITORS).indexOf(activeFilter);
+      if (idx >= 0 && legendItems[idx]) legendItems[idx].style.opacity = '1';
+    }
+  }
+
+  /* ── Filter controls ────────────────────────────────────────── */
+  document.querySelectorAll('.filter-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      refreshMap();
+    });
+  });
+
+  /* ── Resize ─────────────────────────────────────────────────── */
+  var ro = new ResizeObserver(function () {
+    worldMap.invalidateSize();
+  });
+  ro.observe(document.getElementById('map-wrap'));
+
+})();
+</script>
+
+</body>
+</html>
