@@ -2,24 +2,30 @@
    SCEM — Monitor Paint Layer
    conflict-escalation/assets/monitor.css
    Override shared design tokens with monitor accent colour.
+
+   Accent: #b91c1c (darker crimson)
+   Separated from --critical (#dc2626) per PED Q8 decision
+   2026-04-12. All hardcoded #dc2626 in dashboard/report/
+   persistent pages are severity-semantic (escalation, RED
+   band, critical class) — they correctly stay as #dc2626.
    ============================================================ */
 
 :root {
-  --monitor-accent:      #dc2626;
-  --monitor-accent-bg:   rgba(220, 38, 38, 0.12);
-  --monitor-accent-dark: #ef4444;
+  --monitor-accent:      #b91c1c;
+  --monitor-accent-bg:   rgba(185, 28, 28, 0.12);
+  --monitor-accent-dark: #dc2626;
   --monitor-name:        "Strategic Conflict & Escalation Monitor";
   --monitor-abbr:        "SCEM";
 }
 
 [data-theme="dark"] {
-  --monitor-accent:    #ef4444;
-  --monitor-accent-bg: rgba(239, 68, 68, 0.12);
+  --monitor-accent:    #dc2626;
+  --monitor-accent-bg: rgba(220, 38, 38, 0.12);
 }
 
 /* SCEM personality — conflict intelligence */
 /* NOTE: background on .signal-block is owned by base.css (architectural rule) */
-.signal-block { border-left: 4px solid #dc2626; border-radius: 0; }
-.module-num { color: #dc2626; font-weight: 900; }
-.intel-item { border-left-color: rgba(220,38,38,0.4); }
-.intel-item:hover { border-left-color: #dc2626; }
+.signal-block { border-left: 4px solid #b91c1c; border-radius: 0; }
+.module-num { color: #b91c1c; font-weight: 900; }
+.intel-item { border-left-color: rgba(185,28,28,0.4); }
+.intel-item:hover { border-left-color: #b91c1c; }
