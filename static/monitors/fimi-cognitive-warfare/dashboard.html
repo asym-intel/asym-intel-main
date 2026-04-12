@@ -294,69 +294,19 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <section class="module-section" id="section-kpi">
-      <div class="page-header">
-        <div class="page-header__eyebrow">FCW Dashboard</div>
-        <h1 class="page-header__title">FIMI &amp; Cognitive Warfare Monitor</h1>
-        <div class="page-header__meta" id="page-meta">Loading…</div>
-      </div>
-
-      <!-- THREAT LEVEL BADGE -->
-      <div id="threat-banner">
-        <div class="fcw-threat-banner">
-          <div class="fcw-threat-banner__pulse"></div>
-          <div class="fcw-threat-banner__body">
-            <div class="fcw-threat-banner__level">Current Threat Level</div>
-            <div class="fcw-threat-banner__title" id="threat-level-text">ELEVATED — ACTIVE MULTI-VECTOR OPERATIONS</div>
-            <div class="fcw-threat-banner__sub" id="threat-level-sub">Loading signal…</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-campaigns">—</div>
-          <div class="kpi-card__label">Active Campaigns</div>
-          <div class="kpi-card__sub">Tracked across all actors</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-actors">—</div>
-          <div class="kpi-card__label">Actors Tracked</div>
-          <div class="kpi-card__sub">State &amp; near-state actors</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-signal">—</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub" id="kpi-signal-sub">Top story this week</div>
-        </div>
+    <!-- ACTOR ACTIVITY MATRIX -->
+    
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
       </div>
     </section>
-
-    <!-- ACTOR ACTIVITY MATRIX -->
     <section class="module-section" id="section-actor-matrix">
       <div class="module-header">
         <div class="module-title">Actor Threat Board</div>
       </div>
       <div id="actor-matrix-block">
         <div class="loading-state">Loading actor matrix…</div>
-      </div>
-    </section>
-
-    <section class="module-section" id="section-signal">
-      <div class="module-header">
-        <div class="module-title">Lead Signal</div>
-      </div>
-      <div id="signal-block">
-        <div class="loading-state">Loading signal…</div>
-      </div>
-    </section>
-
-    <section class="module-section" id="section-delta">
-      <div class="module-header">
-        <div class="module-title">Top Campaigns — This Issue</div>
-      </div>
-      <div id="delta-strip">
-        <div class="loading-state">Loading campaign intelligence…</div>
       </div>
     </section>
 
@@ -431,10 +381,8 @@
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-triage">Triage Strip</a></li>
       <li><a href="#section-actor-matrix">Actor Threat Board</a></li>
-      <li><a href="#section-signal">Lead Signal</a></li>
-      <li><a href="#section-delta">Top Campaigns</a></li>
       <li><a href="#section-all-ops">All Operations</a></li>
       <li><a href="#section-attr-log">Attribution Log</a></li>
       <li><a href="#section-platform-enforce">Platform Enforcement</a></li>
@@ -737,6 +685,34 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>';
       });
       document.getElementById('delta-strip').innerHTML = deltaHtml || '<p class="text-muted">No campaign data available.</p>';
+
+      /* ── Triage Strip ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+        AsymSections.renderTriageStrip({
+          kpis: [
+            { label: 'Active Campaigns', value: activeCampaigns || '—', sub: 'Tracked across all actors' },
+            { label: 'Actors Tracked',   value: actorCount      || '—', sub: 'State & near-state actors' },
+            { label: 'Confidence',        value: signalConf      || '—', sub: 'Lead signal confidence' },
+            { label: 'Issue',             value: meta.week_label || '—', sub: 'Issue ' + (meta.issue || '—') }
+          ],
+          signal: {
+            label:      'Lead Signal · FCW',
+            title:      signal || '',
+            body:       signalBody || '',
+            confidence: signalConf || '',
+            source_url: sourceUrl  || ''
+          },
+          structural: {
+            label:    'Actor Threat Board',
+            targetId: 'triage-actor-matrix',
+            renderFn: function(id) {
+              var src = document.getElementById('actor-matrix-block');
+              if (src) { var el = document.getElementById(id); if (el) el.appendChild(src); }
+            }
+          },
+          delta: { label: 'Top Campaigns This Issue', items: deltaItems.slice(0, 5) }
+        }, 'triage-container');
+      }
 
       // ── ADDITIONAL ACTIVE OPERATIONS (remaining campaigns not in top 5) ──
       var opsHtml = '';
