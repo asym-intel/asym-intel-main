@@ -277,6 +277,27 @@
       <div id="lagrange-scorecard"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <section class="module-section" id="section-domain-tracker">
+      <div class="module-header">
+        <div class="module-title">Domain Tracker</div>
+      </div>
+      <div id="domain-tracker-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-title">Key Judgments</div>
+      </div>
+      <div id="key-judgments-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-cross-candidates">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Candidates</div>
+      </div>
+      <div id="cross-candidates-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
     <section class="module-section" id="section-cross-monitor">
       <div class="module-header">
         <div class="module-num-large">06</div>
@@ -299,6 +320,9 @@
       <li><a href="#section-timeline">Timeline</a></li>
       <li><a href="#section-actor-campaigns">Actor Campaigns</a></li>
       <li><a href="#section-lagrange">Autonomy Scorecard</a></li>
+      <li><a href="#section-domain-tracker">Domain Tracker</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-cross-candidates">Cross-Monitor Candidates</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
   </nav>
@@ -652,6 +676,16 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error(err);
       document.getElementById('ps-meta').textContent = 'Failed to load persistent state.';
     });
+
+  // Load report-latest.json for new AsymSections
+  fetch('data/report-latest.json')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.domain_tracker) AsymSections.renderDomainTracker(d.domain_tracker, 'domain-tracker-block');
+      if (d.key_judgments) AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-block');
+      if (d.cross_monitor_candidates) AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates, 'cross-candidates-block');
+    })
+    .catch(function(err) { console.error('Report data load error:', err); });
 });
 </script>
 </body>
