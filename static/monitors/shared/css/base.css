@@ -3050,3 +3050,90 @@ body { padding-top: 40px; }
   color: rgba(255,255,255,0.6);
   text-decoration: none;
 }
+
+/* ─── Cross-Monitor Strip (injected by nav.js) ──────────────────────────
+   Inverted contrast: light page → dark strip, dark page → light strip.
+   Active pill is prominent; inactive pills recede.
+   ──────────────────────────────────────────────────────────────────── */
+.monitor-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 clamp(1rem, 3vw, 3rem);
+  height: 50px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #1c1b19;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 40px; /* below network bar */
+  z-index: 99;
+}
+.monitor-strip::-webkit-scrollbar { display: none; }
+.monitor-strip__label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-right: 0.625rem;
+  flex-shrink: 0;
+}
+.monitor-strip__pill {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 5px 15px 5px 10px;
+  border-radius: 100px;
+  font-size: 15.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 120ms ease, color 120ms ease, opacity 120ms ease;
+  border: 1px solid transparent;
+  font-family: 'Satoshi', 'Inter', sans-serif;
+  opacity: 0.55;
+}
+.monitor-strip__pill:hover {
+  opacity: 0.85;
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.10);
+}
+.monitor-strip__pill--active {
+  opacity: 1;
+  color: #fff;
+  font-weight: 600;
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  border-left: 3px solid var(--pill-accent, #fff);
+}
+.monitor-strip__icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+/* Dark mode: invert — light strip on dark page */
+[data-theme="dark"] .monitor-strip {
+  background: #f3f0ec;
+  border-bottom-color: rgba(40,37,29,0.10);
+}
+[data-theme="dark"] .monitor-strip__label {
+  color: rgba(40,37,29,0.35);
+}
+[data-theme="dark"] .monitor-strip__pill {
+  color: rgba(40,37,29,0.45);
+}
+[data-theme="dark"] .monitor-strip__pill:hover {
+  color: rgba(40,37,29,0.85);
+  background: rgba(40,37,29,0.06);
+  border-color: rgba(40,37,29,0.10);
+}
+[data-theme="dark"] .monitor-strip__pill--active {
+  color: #28251d;
+  background: rgba(40,37,29,0.08);
+  border-color: rgba(40,37,29,0.15);
+  border-left-color: var(--pill-accent, #28251d);
+}
