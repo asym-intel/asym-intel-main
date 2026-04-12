@@ -10,6 +10,6 @@ Autonomy snapshot: Overall trajectory stable with lead movement in defence_secur
 
 ---
 
-The [live dashboard](https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html) and [JSON data feed](https://asym-intel.info/monitors/european-strategic-autonomy/data/report-latest.json) have been updated to Issue 4 (W/E 12 April 2026).
+The [live dashboard](https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html) and [JSON data feed](https://asym-intel.info/monitors/european-strategic-autonomy/data/report-latest.json) have been updated to Issue 5 (W/E 12 April 2026).
 
 *Published by ESA Publisher Bot.*
