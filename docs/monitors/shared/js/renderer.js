@@ -2244,6 +2244,331 @@ window.AsymSections = (function () {
 
 
   /* ── Public API ─────────────────────────────────────────────── */
+
+  // ── ERM: Policy, Law & Compliance (F2 Regulatory Vacuum) ──────────────
+  function renderPolicyLawCompliance(items, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No policy or regulatory data available.</p>';
+      return;
+    }
+    var STATUS_COLORS = {
+      'In force':     { bg: '#22c55e20', text: '#22c55e', border: '#22c55e' },
+      'Proposed':     { bg: '#2563eb20', text: '#60a5fa', border: '#2563eb' },
+      'Under review': { bg: '#d9770620', text: '#fbbf24', border: '#d97706' },
+      'Withdrawn':    { bg: '#dc262620', text: '#f87171', border: '#dc2626' },
+      'Unenforced':   { bg: '#ef444420', text: '#f87171', border: '#ef4444' }
+    };
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    items.forEach(function (p) {
+      var sc = STATUS_COLORS[p.status] || { bg: 'rgba(255,255,255,.05)', text: 'var(--color-text-muted)', border: 'var(--color-border)' };
+      html +=
+        '<div style="padding:var(--space-3) var(--space-4);border-left:3px solid ' + sc.border + ';background:var(--color-surface);border-radius:var(--radius-sm)">' +
+          '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;margin-bottom:var(--space-2)">' +
+            '<span style="font-size:var(--text-sm);font-weight:600">' + escHtml(p.item || '') + '</span>' +
+            '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:3px;background:' + sc.bg + ';color:' + sc.text + ';border:1px solid ' + sc.border + '">' + escHtml(p.status || '') + '</span>' +
+            (p.filter_tag ? '<span style="font-size:var(--text-min);padding:1px 5px;border-radius:2px;background:rgba(239,68,68,0.1);color:#f87171;font-family:var(--font-mono)">' + escHtml(p.filter_tag) + '</span>' : '') +
+          '</div>' +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--space-1)">' +
+            escHtml(p.jurisdiction || '') +
+            (p.type ? ' · ' + escHtml(p.type) : '') +
+          '</div>' +
+          (p.governance_gap ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;margin-bottom:var(--space-1)"><strong style="font-weight:600;color:var(--color-text-body)">Gap:</strong> ' + escHtml(p.governance_gap) + '</div>' : '') +
+          (p.root_cause ? '<div style="font-size:var(--text-min);color:var(--color-text-muted)">Root cause: ' + escHtml(p.root_cause) + '</div>' : '') +
+          (p.source ? '<div style="margin-top:var(--space-1);font-size:var(--text-min);color:var(--color-text-muted)">' + escHtml(p.source) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: ICJ Climate Advisory Opinion — Standing Tracker ─────────────
+  function renderICJTracker(tracker, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!tracker || typeof tracker !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">No ICJ tracker data available.</p>';
+      return;
+    }
+    var STATUS_COLORS = {
+      'Pending':                  { bg: '#d9770620', text: '#fbbf24', icon: '⏳' },
+      'Hearings':                 { bg: '#2563eb20', text: '#60a5fa', icon: '⚖️' },
+      'Deliberation':             { bg: '#7c3aed20', text: '#a78bfa', icon: '🔍' },
+      'Advisory opinion issued':  { bg: '#22c55e20', text: '#22c55e', icon: '✓' }
+    };
+    var sc = STATUS_COLORS[tracker.status] || { bg: 'rgba(255,255,255,.05)', text: 'var(--color-text-muted)', icon: '—' };
+    var html =
+      '<div style="padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md)">' +
+        '<div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3)">' +
+          '<span style="font-size:1.25rem">' + sc.icon + '</span>' +
+          '<span style="font-size:var(--text-sm);font-weight:600">ICJ Climate Advisory Opinion</span>' +
+          '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:3px;background:' + sc.bg + ';color:' + sc.text + '">' + escHtml(tracker.status || '') + '</span>' +
+        '</div>' +
+        (tracker.last_development ? '<div style="font-size:var(--text-xs);line-height:1.55;margin-bottom:var(--space-2)">' + escHtml(tracker.last_development) + '</div>' : '') +
+        (tracker.last_development_date ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-bottom:var(--space-2)">Last development: ' + escHtml(tracker.last_development_date) + '</div>' : '') +
+        (tracker.next_milestone ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--space-2)"><strong style="font-weight:600">Next:</strong> ' + escHtml(tracker.next_milestone) + '</div>' : '') +
+        (tracker.significance ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;padding-top:var(--space-2);border-top:1px solid var(--color-border-subtle)">' + escHtml(tracker.significance) + '</div>' : '') +
+        (tracker.source_url ? '<div style="margin-top:var(--space-2)"><a class="source-link" style="font-size:var(--text-min)" href="' + escHtml(tracker.source_url) + '" target="_blank" rel="noopener">ICJ Case 187 →</a></div>' : '') +
+      '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: Loss & Damage Finance Mechanism — Standing Tracker ──────────
+  function renderLossDamageTracker(tracker, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!tracker || typeof tracker !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">No loss and damage tracker data available.</p>';
+      return;
+    }
+    var committed = tracker.committed_usd || 0;
+    var disbursed = tracker.disbursed_usd || 0;
+    var ratio = tracker.disbursement_ratio != null ? tracker.disbursement_ratio : (committed > 0 ? disbursed / committed : 0);
+    var pct = Math.round(ratio * 100);
+    var barColor = pct < 25 ? '#dc2626' : pct < 50 ? '#d97706' : pct < 75 ? '#2563eb' : '#22c55e';
+
+    function fmtUSD(n) {
+      if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
+      if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+      return '$' + n;
+    }
+
+    var html =
+      '<div style="padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md)">' +
+        '<div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3)">' +
+          '<span style="font-size:var(--text-sm);font-weight:600">Loss & Damage Finance Mechanism</span>' +
+          '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:3px;background:rgba(76,175,125,0.1);color:#4caf7d">' + escHtml(tracker.mechanism_status || '') + '</span>' +
+          (tracker.filter_tag ? '<span style="font-size:var(--text-min);padding:1px 5px;border-radius:2px;background:rgba(239,68,68,0.1);color:#f87171;font-family:var(--font-mono)">' + escHtml(tracker.filter_tag) + '</span>' : '') +
+        '</div>' +
+        // Disbursement bar
+        '<div style="margin-bottom:var(--space-3)">' +
+          '<div style="display:flex;justify-content:space-between;font-size:var(--text-xs);margin-bottom:var(--space-1)">' +
+            '<span>Disbursed: ' + fmtUSD(disbursed) + '</span>' +
+            '<span>Committed: ' + fmtUSD(committed) + '</span>' +
+          '</div>' +
+          '<div style="height:20px;background:rgba(100,116,139,0.08);border-radius:10px;overflow:hidden">' +
+            '<div style="width:' + pct + '%;height:100%;background:' + barColor + ';border-radius:10px;opacity:0.85;transition:width 0.4s"></div>' +
+          '</div>' +
+          '<div style="text-align:center;font-size:var(--text-xs);font-weight:600;color:' + barColor + ';margin-top:var(--space-1)">' + pct + '% disbursed</div>' +
+        '</div>' +
+        (tracker.compliance_cycle ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--space-2)"><strong style="font-weight:600">Compliance cycle:</strong> ' + escHtml(tracker.compliance_cycle) + '</div>' : '') +
+        (tracker.key_development ? '<div style="font-size:var(--text-xs);line-height:1.55;margin-bottom:var(--space-2)">' + escHtml(tracker.key_development) + '</div>' : '') +
+        (tracker.source ? '<div style="font-size:var(--text-min);color:var(--color-text-muted)">' + escHtml(tracker.source) + '</div>' : '') +
+      '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: Attribution Gap Cases (F4) ──────────────────────────────────
+  function renderAttributionGapCases(cases, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!cases || !cases.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No attribution gap data available.</p>';
+      return;
+    }
+    var GOV_COLORS = {
+      'No binding framework': { bg: '#dc262615', border: '#dc2626', text: '#f87171' },
+      'Framework contested':  { bg: '#d9770615', border: '#d97706', text: '#fbbf24' },
+      'Framework unenforced': { bg: '#ef444415', border: '#ef4444', text: '#fb923c' }
+    };
+    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3)">';
+    cases.forEach(function (c) {
+      var gc = GOV_COLORS[c.governance_status] || { bg: 'rgba(255,255,255,.05)', border: 'var(--color-border)', text: 'var(--color-text-muted)' };
+      html +=
+        '<div style="padding:var(--space-3) var(--space-4);border:1px solid ' + gc.border + ';border-radius:var(--radius-md);background:' + gc.bg + '">' +
+          '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-2)">' + escHtml(c.case || c['case'] || '') + '</div>' +
+          '<div style="font-size:var(--text-xs);margin-bottom:var(--space-2)">' +
+            '<span style="padding:1px 6px;border-radius:3px;background:' + gc.bg + ';color:' + gc.text + ';border:1px solid ' + gc.border + '">' + escHtml(c.governance_status || '') + '</span>' +
+            (c.filter_tag ? ' <span style="font-size:var(--text-min);padding:1px 5px;border-radius:2px;background:rgba(239,68,68,0.1);color:#f87171;font-family:var(--font-mono)">' + escHtml(c.filter_tag) + '</span>' : '') +
+          '</div>' +
+          (c.key_metric ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;margin-bottom:var(--space-1)"><em>' + escHtml(c.key_metric) + '</em></div>' : '') +
+          (c.this_week_development ? '<div style="font-size:var(--text-xs);line-height:1.5">' + escHtml(c.this_week_development) + '</div>' : '<div style="font-size:var(--text-min);color:var(--color-text-muted);font-style:italic">No new development this week</div>') +
+          (c.source ? '<div style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted)">' + escHtml(c.source) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: Reverse Cascade Check (FM-ERM-04) ──────────────────────────
+  function renderReverseCascadeCheck(check, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!check || typeof check !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">No reverse cascade check data available.</p>';
+      return;
+    }
+    var isPositive = check.accelerates_boundary === true;
+    var borderColor = isPositive ? '#dc2626' : '#22c55e';
+    var bgColor = isPositive ? 'rgba(220,38,38,0.05)' : 'rgba(34,197,94,0.05)';
+    var statusLabel = isPositive ? 'CASCADE CONFIRMED' : 'No cascade detected';
+    var statusColor = isPositive ? '#f87171' : '#4ade80';
+
+    var html =
+      '<div style="padding:var(--space-4);border-left:3px solid ' + borderColor + ';background:' + bgColor + ';border-radius:var(--radius-sm)">' +
+        '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">' +
+          '<span style="font-size:var(--text-min);font-weight:700;padding:2px 8px;border-radius:3px;background:' + (isPositive ? 'rgba(220,38,38,0.15)' : 'rgba(34,197,94,0.15)') + ';color:' + statusColor + '">' + statusLabel + '</span>' +
+          '<span style="font-size:var(--text-min);color:var(--color-text-muted);font-family:var(--font-mono)">FM-ERM-04</span>' +
+        '</div>' +
+        (check.geopolitical_event ? '<div style="font-size:var(--text-xs);margin-bottom:var(--space-2)"><strong style="font-weight:600">Event checked:</strong> ' + escHtml(check.geopolitical_event) + '</div>' : '') +
+        (isPositive && check.affected_boundary ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--space-1)"><strong style="font-weight:600;color:#f87171">Affected boundary:</strong> ' + escHtml(check.affected_boundary) + '</div>' : '') +
+        (check.cascade_description ? '<div style="font-size:var(--text-xs);line-height:1.55;margin-bottom:var(--space-2)">' + escHtml(check.cascade_description) + '</div>' : '') +
+        (check.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;font-style:italic">' + escHtml(check.note) + '</div>' : '') +
+      '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: Regional Coverage (FM-ERM-02 Compliance) ────────────────────
+  function renderRegionalCoverage(coverage, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!coverage || typeof coverage !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">No regional coverage data available.</p>';
+      return;
+    }
+    var regions = [
+      { key: 'sub_saharan_africa_items', label: 'Sub-Saharan Africa', icon: '🌍' },
+      { key: 'mena_items', label: 'MENA', icon: '🏜️' },
+      { key: 'south_asia_items', label: 'South Asia', icon: '🌏' },
+      { key: 'ocean_systems_items', label: 'Ocean Systems', icon: '🌊' }
+    ];
+    var met = coverage.fm_erm_02_met === true;
+    var metColor = met ? '#22c55e' : '#dc2626';
+    var metBg = met ? 'rgba(34,197,94,0.1)' : 'rgba(220,38,38,0.1)';
+
+    var html =
+      '<div style="padding:var(--space-4);background:var(--color-surface);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md)">' +
+        '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3)">' +
+          '<span style="font-size:var(--text-min);font-weight:700;padding:2px 8px;border-radius:3px;background:' + metBg + ';color:' + metColor + '">' + (met ? 'FM-ERM-02 MET' : 'FM-ERM-02 NOT MET') + '</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);text-align:center">';
+    regions.forEach(function (r) {
+      var count = coverage[r.key] || 0;
+      html +=
+        '<div>' +
+          '<div style="font-size:1.25rem;margin-bottom:var(--space-1)">' + r.icon + '</div>' +
+          '<div style="font-size:var(--text-lg);font-weight:700;color:' + (count > 0 ? '#4caf7d' : 'var(--color-text-muted)') + '">' + count + '</div>' +
+          '<div style="font-size:var(--text-min);color:var(--color-text-muted)">' + r.label + '</div>' +
+        '</div>';
+    });
+    html += '</div>' +
+        (coverage.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;margin-top:var(--space-3);padding-top:var(--space-2);border-top:1px solid var(--color-border-subtle)">' + escHtml(coverage.note) + '</div>' : '') +
+      '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: Extreme Events Log ──────────────────────────────────────────
+  function renderExtremeEventsLog(events, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!events || !events.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No extreme events logged this issue.</p>';
+      return;
+    }
+    var SEV_COLORS = {
+      'Moderate':        { bg: '#2563eb20', text: '#60a5fa', border: '#2563eb' },
+      'Severe':          { bg: '#d9770620', text: '#fbbf24', border: '#d97706' },
+      'Extreme':         { bg: '#ef444420', text: '#fb923c', border: '#ef4444' },
+      'Record-breaking': { bg: '#dc262620', text: '#f87171', border: '#dc2626' }
+    };
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    events.forEach(function (evt) {
+      var sc = SEV_COLORS[evt.severity] || { bg: 'rgba(255,255,255,.05)', text: 'var(--color-text-muted)', border: 'var(--color-border)' };
+      var filterBadges = '';
+      if (evt.filter_tags && evt.filter_tags.length) {
+        evt.filter_tags.forEach(function (ft) {
+          if (ft) filterBadges += '<span style="font-size:var(--text-min);padding:1px 5px;border-radius:2px;background:rgba(239,68,68,0.1);color:#f87171;font-family:var(--font-mono);margin-left:var(--space-1)">' + escHtml(ft) + '</span>';
+        });
+      }
+      html +=
+        '<div style="padding:var(--space-3) var(--space-4);border-left:3px solid ' + sc.border + ';background:var(--color-surface);border-radius:var(--radius-sm)">' +
+          '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;margin-bottom:var(--space-2)">' +
+            '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:3px;background:' + sc.bg + ';color:' + sc.text + '">' + escHtml(evt.severity || '') + '</span>' +
+            '<span style="font-size:var(--text-sm);font-weight:600">' + escHtml(evt.event_type || '') + '</span>' +
+            '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(evt.location || '') + '</span>' +
+            filterBadges +
+          '</div>' +
+          // Non-linear departure test (FM-ERM-01)
+          (evt.non_linear_test_result ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--space-1)"><span style="font-family:var(--font-mono);font-size:var(--text-min);color:var(--color-text-muted)">FM-ERM-01:</span> ' + escHtml(evt.non_linear_test_result) + (evt.non_linear_departure ? ' <span style="color:#f87171;font-weight:600">NON-LINEAR</span>' : '') + '</div>' : '') +
+          (evt.geopolitical_implication ? '<div style="font-size:var(--text-xs);line-height:1.55">' + escHtml(evt.geopolitical_implication) + '</div>' : '') +
+          (evt.conflict_nexus && evt.conflict_nexus_note ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-1)"><strong style="font-weight:600;color:#d97706">Conflict nexus:</strong> ' + escHtml(evt.conflict_nexus_note) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: Climate Security Nexus (Threat Multiplier) ──────────────────
+  function renderClimateSecurityNexus(items, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No climate-security nexus data available.</p>';
+      return;
+    }
+    var SEV_COLORS = {
+      'Emerging':  { bg: '#2563eb20', text: '#60a5fa', border: '#2563eb' },
+      'Moderate':  { bg: '#d9770620', text: '#fbbf24', border: '#d97706' },
+      'Severe':    { bg: '#ef444420', text: '#fb923c', border: '#ef4444' },
+      'Critical':  { bg: '#dc262620', text: '#f87171', border: '#dc2626' }
+    };
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    items.forEach(function (item) {
+      var sc = SEV_COLORS[item.severity] || { bg: 'rgba(255,255,255,.05)', text: 'var(--color-text-muted)', border: 'var(--color-border)' };
+      html +=
+        '<div style="padding:var(--space-3) var(--space-4);border-left:3px solid ' + sc.border + ';background:var(--color-surface);border-radius:var(--radius-sm)">' +
+          '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center;margin-bottom:var(--space-2)">' +
+            '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:3px;background:' + sc.bg + ';color:' + sc.text + '">' + escHtml(item.severity || '') + '</span>' +
+            '<span style="font-size:var(--text-sm);font-weight:600">' + escHtml(item.risk_type || '') + '</span>' +
+            '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(item.region || '') + '</span>' +
+          '</div>' +
+          (item.cascade_chain ? '<div style="font-size:var(--text-xs);line-height:1.55;margin-bottom:var(--space-2)"><strong style="font-weight:600;color:var(--color-text-body)">Cascade:</strong> ' + escHtml(item.cascade_chain) + '</div>' : '') +
+          (item.conflict_link ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary)"><strong style="font-weight:600">Conflict link:</strong> ' + escHtml(item.conflict_link) + '</div>' : '') +
+          (item.scem_link ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-top:var(--space-1)">SCEM: ' + escHtml(item.scem_link) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ── ERM: Planetary Status Snapshot (header KPI card) ─────────────────
+  function renderPlanetaryStatusSnapshot(snapshot, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!snapshot || typeof snapshot !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">No planetary status data available.</p>';
+      return;
+    }
+    var deltaColor = snapshot.status_delta_this_week === 'Deteriorating' ? '#f87171' :
+                     snapshot.status_delta_this_week === 'Improving' ? '#4ade80' : 'var(--color-text-muted)';
+    var html =
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--space-3);margin-bottom:var(--space-3)">' +
+        '<div style="text-align:center;padding:var(--space-3);background:rgba(220,38,38,0.08);border-radius:var(--radius-md)">' +
+          '<div style="font-size:var(--text-2xl);font-weight:700;color:#f87171">' + (snapshot.boundaries_exceeded || 0) + '</div>' +
+          '<div style="font-size:var(--text-min);color:var(--color-text-muted)">Beyond Boundary</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding:var(--space-3);background:rgba(239,68,68,0.06);border-radius:var(--radius-md)">' +
+          '<div style="font-size:var(--text-2xl);font-weight:700;color:#fb923c">' + (snapshot.boundaries_high_risk || 0) + '</div>' +
+          '<div style="font-size:var(--text-min);color:var(--color-text-muted)">High Risk</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding:var(--space-3);background:rgba(217,119,6,0.06);border-radius:var(--radius-md)">' +
+          '<div style="font-size:var(--text-2xl);font-weight:700;color:#fbbf24">' + (snapshot.boundaries_increasing_risk || 0) + '</div>' +
+          '<div style="font-size:var(--text-min);color:var(--color-text-muted)">Increasing Risk</div>' +
+        '</div>' +
+        '<div style="text-align:center;padding:var(--space-3);background:rgba(34,197,94,0.06);border-radius:var(--radius-md)">' +
+          '<div style="font-size:var(--text-2xl);font-weight:700;color:#4ade80">' + (snapshot.boundaries_safe || 0) + '</div>' +
+          '<div style="font-size:var(--text-min);color:var(--color-text-muted)">Safe</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:var(--space-2)">' +
+        '<span style="font-size:var(--text-xs);color:' + deltaColor + ';font-weight:600">' + escHtml(snapshot.status_delta_this_week || 'Stable') + '</span>' +
+      '</div>' +
+      (snapshot.lead_signal ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55;margin-top:var(--space-2)">' + escHtml(snapshot.lead_signal) + '</div>' : '');
+    el.innerHTML = html;
+  }
+
   return {
     // Helpers (exposed for inline orchestrators)
     escHtml: escHtml,
@@ -2278,7 +2603,17 @@ window.AsymSections = (function () {
     renderDefenceSpending: renderDefenceSpending,
     renderDefenceProgrammes: renderDefenceProgrammes,
     // Generic reusable chart
-    renderRadarChart: renderRadarChart
+    renderRadarChart: renderRadarChart,
+    // ERM-specific sections (reusable cross-monitor where applicable)
+    renderPolicyLawCompliance: renderPolicyLawCompliance,
+    renderICJTracker: renderICJTracker,
+    renderLossDamageTracker: renderLossDamageTracker,
+    renderAttributionGapCases: renderAttributionGapCases,
+    renderReverseCascadeCheck: renderReverseCascadeCheck,
+    renderRegionalCoverage: renderRegionalCoverage,
+    renderExtremeEventsLog: renderExtremeEventsLog,
+    renderClimateSecurityNexus: renderClimateSecurityNexus,
+    renderPlanetaryStatusSnapshot: renderPlanetaryStatusSnapshot
   };
 }());
 
