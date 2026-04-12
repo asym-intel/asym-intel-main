@@ -383,6 +383,108 @@
         </div>
         <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
       </section>
+
+      <!-- ── NEW SYNTHESIS SECTIONS ── -->
+
+      <section class="module-section" id="section-planetary-snapshot">
+        <div class="module-header">
+          <h2 class="module-title">Planetary Status Snapshot</h2>
+        </div>
+        <div id="planetary-snapshot-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-extreme-events">
+        <div class="module-header">
+          <h2 class="module-title">Extreme Events Log</h2>
+        </div>
+        <div id="extreme-events-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-climate-security">
+        <div class="module-header">
+          <h2 class="module-title">Climate-Security Nexus</h2>
+        </div>
+        <div id="climate-security-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-policy-law">
+        <div class="module-header">
+          <h2 class="module-title">Policy, Law &amp; Compliance</h2>
+        </div>
+        <div id="policy-law-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-icj-tracker">
+        <div class="module-header">
+          <h2 class="module-title">ICJ Climate Advisory Opinion</h2>
+        </div>
+        <div id="icj-tracker-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-loss-damage">
+        <div class="module-header">
+          <h2 class="module-title">Loss &amp; Damage Finance Mechanism</h2>
+        </div>
+        <div id="loss-damage-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-attribution-gap">
+        <div class="module-header">
+          <h2 class="module-title">Attribution Gap Cases</h2>
+        </div>
+        <div id="attribution-gap-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-reverse-cascade">
+        <div class="module-header">
+          <h2 class="module-title">Reverse Cascade Check</h2>
+        </div>
+        <div id="reverse-cascade-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-regional-coverage">
+        <div class="module-header">
+          <h2 class="module-title">Regional Coverage</h2>
+        </div>
+        <div id="regional-coverage-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-key-judgments">
+        <div class="module-header">
+          <h2 class="module-title">Key Judgments</h2>
+        </div>
+        <div id="key-judgments-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
+      <section class="module-section" id="section-cross-monitor-candidates">
+        <div class="module-header">
+          <h2 class="module-title">Cross-Monitor Intelligence</h2>
+        </div>
+        <div id="cross-monitor-candidates-content">
+          <p class="text-muted text-sm">Loading...</p>
+        </div>
+      </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -396,6 +498,18 @@
       <li><a href="#section-tipping">Tipping Flags</a></li>
       <li><a href="#section-cascade-heatmap">Cascade Heatmap</a></li>
       <li><a href="#section-boundaries">Boundary Table</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
+      <li><a href="#section-planetary-snapshot">Planetary Snapshot</a></li>
+      <li><a href="#section-extreme-events">Extreme Events</a></li>
+      <li><a href="#section-climate-security">Climate-Security</a></li>
+      <li><a href="#section-policy-law">Policy &amp; Law</a></li>
+      <li><a href="#section-icj-tracker">ICJ Opinion</a></li>
+      <li><a href="#section-loss-damage">Loss &amp; Damage</a></li>
+      <li><a href="#section-attribution-gap">Attribution Gap</a></li>
+      <li><a href="#section-reverse-cascade">Reverse Cascade</a></li>
+      <li><a href="#section-regional-coverage">Regional Coverage</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-cross-monitor-candidates">Cross-Monitor Intel</a></li>
     </ul>
   </nav>
 </div>
@@ -483,8 +597,8 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var meta       = d.meta || {};
-      var signal     = d.m00_the_signal || {};
-      var m02        = d.m02_planetary_boundaries || {};
+      var signal     = d.planetary_status_snapshot || d.m00_the_signal || {};
+      var m02        = d.planetary_boundary_tracker || d.m02_planetary_boundaries || {};
       var boundaries = m02.boundaries || [];
       var tipping    = m02.tipping_systems || [];
 
@@ -506,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('kpi-week').textContent = meta.week_label || '—';
 
       // Cascade Chain Heatmap — from M03 data
-      var m03Chains = d.m03_threat_multiplier || [];
+      var m03Chains = (d.climate_security_nexus && d.climate_security_nexus.chains) || d.m03_threat_multiplier || [];
       if (m03Chains.length) {
         document.getElementById('cascade-heatmap-loading').style.display = 'none';
         document.getElementById('cascade-heatmap-wrap').style.display = 'block';
@@ -654,8 +768,23 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      // Cross-monitor flags
+      // Cross-monitor flags (legacy inline render for cross_monitor_flags structure)
       renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
+
+      // ── New synthesis section renders ──
+      if (typeof AsymSections !== 'undefined') {
+        AsymSections.renderPlanetaryStatusSnapshot(d.planetary_status_snapshot || d.m00_the_signal, 'planetary-snapshot-content');
+        AsymSections.renderClimateSecurityNexus(d.climate_security_nexus || d.m03_threat_multiplier, 'climate-security-content');
+        AsymSections.renderExtremeEventsLog(d.extreme_events_log, 'extreme-events-content');
+        AsymSections.renderPolicyLawCompliance(d.policy_law_compliance, 'policy-law-content');
+        AsymSections.renderICJTracker(d.icj_tracker, 'icj-tracker-content');
+        AsymSections.renderLossDamageTracker(d.loss_damage_tracker, 'loss-damage-content');
+        AsymSections.renderAttributionGapCases(d.attribution_gap_cases, 'attribution-gap-content');
+        AsymSections.renderReverseCascadeCheck(d.reverse_cascade_check, 'reverse-cascade-content');
+        AsymSections.renderRegionalCoverage(d.regional_coverage, 'regional-coverage-content');
+        AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-content');
+        AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates, 'cross-monitor-candidates-content');
+      }
     })
     .catch(function (e) {
       document.getElementById('kpi-strip').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
