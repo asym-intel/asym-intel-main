@@ -3,22 +3,13 @@
 {{/*
   Homepage — asym-intel.info
   ─────────────────────────────────────────────────────────────────────────────
-  Two-column layout: domain panel (left) + briefing feed (right)
-  Domain panel is above the fold and persistent — briefing scrolls independently
+  Three-zone layout: left monitor panel · centre editorial feed · right chatter
+  HP-01: monitor strip + report-card grid (Sprint 1)
+  HP-02: value statement + routing cues (Sprint 1)
   ─────────────────────────────────────────────────────────────────────────────
 */}}
 
-{{/* ── Collect latest brief from every monitor ─────────────────────────── */}}
-{{ $monitorSlugs := slice
-  "european-strategic-autonomy"
-  "democratic-integrity"
-  "macro-monitor"
-  "ai-governance"
-  "fimi-cognitive-warfare"
-  "environmental-risks"
-  "conflict-escalation"
-}}
-
+{{/* ── Monitor registry: triage order per spec (GMM · SCEM · FCW · AGM · WDM · ESA · ERM) */}}
 {{ $monitorColours := dict
   "european-strategic-autonomy" "#5b8db0"
   "democratic-integrity"        "#61a5d2"
@@ -30,70 +21,49 @@
 }}
 
 {{ $monitorLabels := dict
+  "european-strategic-autonomy" "ESA"
+  "democratic-integrity"        "WDM"
+  "macro-monitor"               "GMM"
+  "ai-governance"               "AGM"
+  "fimi-cognitive-warfare"      "FCW"
+  "environmental-risks"         "ERM"
+  "conflict-escalation"         "SCEM"
+}}
+
+{{ $monitorFullNames := dict
   "european-strategic-autonomy" "European Strategic Autonomy"
-  "democratic-integrity"        "Democratic Integrity"
-  "macro-monitor"               "Global Macro"
-  "ai-governance"               "AI Governance"
+  "democratic-integrity"        "World Democracy Monitor"
+  "macro-monitor"               "Global Macro Monitor"
+  "ai-governance"               "AI Governance Monitor"
   "fimi-cognitive-warfare"      "FIMI & Cognitive Warfare"
-  "environmental-risks"         "Environmental Risks"
+  "environmental-risks"         "Environmental Risks Monitor"
   "conflict-escalation"         "Strategic Conflict & Escalation"
 }}
 
-{{ $domainData := slice
-  (dict
-    "slug"        "european-strategic-autonomy"
-    "title"       "European Strategic Autonomy"
-    "abbr"        "ESA"
-    "description" "Hybrid threats, European defence, and the geopolitical contest over strategic independence."
-    "logo"        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36" fill="none"><polygon points="18,2 32,10 32,26 18,34 4,26 4,10" stroke="#5b8db0" stroke-width="1.5" fill="none"/><polygon points="18,7 27,12 27,24 18,29 9,24 9,12" stroke="#4a7fa0" stroke-width="1" fill="none"/><polygon points="18,11 24,14.5 24,21.5 18,25 12,21.5 12,14.5" stroke="#3d6f8e" stroke-width="1" fill="none"/><line x1="18" y1="2" x2="18" y2="34" stroke="#4a7fa0" stroke-width="0.7"/><line x1="4" y1="10" x2="32" y2="26" stroke="#4a7fa0" stroke-width="0.7"/><line x1="4" y1="26" x2="32" y2="10" stroke="#4a7fa0" stroke-width="0.7"/><circle cx="18" cy="18" r="2.5" fill="#6488ac"/></svg>`
-  )
-  (dict
-    "slug"        "democratic-integrity"
-    "title"       "Democratic Integrity"
-    "abbr"        "WDM"
-    "description" "Democratic erosion, resilience, and state capture — tracked between the annual indices."
-    "logo"        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="13" stroke="#61a5d2" stroke-width="1.5" fill="none"/><ellipse cx="16" cy="16" rx="13" ry="5" stroke="#61a5d2" stroke-width="1" fill="none"/><ellipse cx="16" cy="16" rx="13" ry="9" stroke="#61a5d2" stroke-width="1" fill="none"/><ellipse cx="16" cy="16" rx="5" ry="13" stroke="#61a5d2" stroke-width="1" fill="none"/><line x1="3" y1="16" x2="29" y2="16" stroke="#61a5d2" stroke-width="1"/><line x1="16" y1="3" x2="16" y2="29" stroke="#61a5d2" stroke-width="1"/></svg>`
-  )
-  (dict
-    "slug"        "macro-monitor"
-    "title"       "Global Macro"
-    "abbr"        "GMM"
-    "description" "Financial crisis early-warning — debt dynamics, credit stress, and systemic risk."
-    "logo"        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 38 38" fill="none"><rect x="2" y="2" width="34" height="34" rx="6" stroke="#22a0aa" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="2.5" fill="#e87040"/><line x1="12" y1="12.5" x2="12" y2="18" stroke="#e87040" stroke-width="1.5"/><line x1="8" y1="15" x2="16" y2="15" stroke="#e87040" stroke-width="1.5"/><line x1="12" y1="18" x2="9" y2="22" stroke="#e87040" stroke-width="1.5"/><line x1="12" y1="18" x2="15" y2="22" stroke="#e87040" stroke-width="1.5"/><polyline points="5,30 10,30 13,24 17,33 21,26 25,33 29,22 33,30" stroke="#e87040" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>`
-  )
-  (dict
-    "slug"        "ai-governance"
-    "title"       "AI Governance"
-    "abbr"        "AGM"
-    "description" "AI capability developments, regulatory frameworks, and the governance contest over artificial intelligence."
-    "logo"        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36" fill="none"><rect x="3" y="3" width="30" height="30" rx="3" stroke="#3a7d5a" stroke-width="1.5" fill="none"/><rect x="8" y="8" width="8" height="8" rx="1" fill="#3a7d5a" opacity="0.9"/><rect x="20" y="8" width="8" height="8" rx="1" fill="#3a7d5a" opacity="0.6"/><rect x="8" y="20" width="8" height="8" rx="1" fill="#3a7d5a" opacity="0.6"/><rect x="20" y="20" width="8" height="8" rx="1" fill="#3a7d5a" opacity="0.3"/><line x1="12" y1="16" x2="12" y2="20" stroke="#3a7d5a" stroke-width="1.5"/><line x1="24" y1="16" x2="24" y2="20" stroke="#3a7d5a" stroke-width="1.5"/><line x1="16" y1="12" x2="20" y2="12" stroke="#3a7d5a" stroke-width="1.5"/></svg>`
-  )
-  (dict
-    "slug"        "fimi-cognitive-warfare"
-    "title"       "FIMI & Cognitive Warfare"
-    "abbr"        "FCW"
-    "description" "Foreign information manipulation and cognitive warfare — campaigns, attribution, and the frameworks attempting to counter them."
-    "logo"        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="14" stroke="#38bdf8" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="9" stroke="#38bdf8" stroke-width="1" fill="none" opacity="0.6"/><circle cx="18" cy="18" r="4" stroke="#38bdf8" stroke-width="1" fill="none" opacity="0.35"/><line x1="18" y1="4" x2="18" y2="32" stroke="#38bdf8" stroke-width="0.75" opacity="0.4"/><line x1="4" y1="18" x2="32" y2="18" stroke="#38bdf8" stroke-width="0.75" opacity="0.4"/><circle cx="18" cy="18" r="2" fill="#dc2626"/><circle cx="26" cy="10" r="1.5" fill="#dc2626" opacity="0.8"/><circle cx="10" cy="24" r="1" fill="#38bdf8" opacity="0.9"/></svg>`
-  )
-  (dict
-    "slug"        "environmental-risks"
-    "title"       "Environmental Risks"
-    "abbr"        "ERM"
-    "description" "Earth system risk, tipping points, and geopolitical cascades from environmental stress."
-    "logo"        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="14" stroke="#4caf7d" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="9" stroke="#4caf7d" stroke-width="1" fill="none" opacity="0.5"/><path d="M18 4 Q22 10 18 18 Q14 26 18 32" stroke="#4caf7d" stroke-width="1" fill="none" opacity="0.6"/><path d="M4 18 Q10 14 18 18 Q26 22 32 18" stroke="#4caf7d" stroke-width="1" fill="none" opacity="0.6"/><circle cx="18" cy="18" r="2.5" fill="#4caf7d" opacity="0.9"/></svg>`
-  )
-  (dict
-    "slug"        "conflict-escalation"
-    "title"       "Strategic Conflict & Escalation"
-    "abbr"        "SCEM"
-    "description" "Armed conflict trajectories and military escalation risks — tracked across 10 active theatres."
-    "logo"        `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 36 36" fill="none"><line x1="6" y1="30" x2="30" y2="6" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round"/><line x1="6" y1="6" x2="30" y2="30" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="18" r="3" fill="#dc2626" opacity="0.9"/><polyline points="22,6 30,6 30,14" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="6,22 6,30 14,30" stroke="#dc2626" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-  )
+{{/* Triage order — highest stakes first */}}
+{{ $triageOrder := slice
+  "macro-monitor"
+  "conflict-escalation"
+  "fimi-cognitive-warfare"
+  "ai-governance"
+  "democratic-integrity"
+  "european-strategic-autonomy"
+  "environmental-risks"
 }}
 
-{{/* ── Collect and sort briefs ───────────────────────────────────────────── */}}
+{{ $domainData := slice
+  (dict "slug" "macro-monitor"               "abbr" "GMM" "description" "Financial crisis early-warning — debt dynamics, credit stress, and systemic risk.")
+  (dict "slug" "conflict-escalation"          "abbr" "SCEM" "description" "Armed conflict trajectories and escalation risks across 10 active theatres.")
+  (dict "slug" "fimi-cognitive-warfare"       "abbr" "FCW" "description" "Foreign information manipulation — campaigns, attribution, and countermeasures.")
+  (dict "slug" "ai-governance"                "abbr" "AGM" "description" "AI capability developments and the governance contest over artificial intelligence.")
+  (dict "slug" "democratic-integrity"         "abbr" "WDM" "description" "Democratic erosion and resilience — tracked between the annual indices.")
+  (dict "slug" "european-strategic-autonomy"  "abbr" "ESA" "description" "Hybrid threats, European defence, and the strategic independence contest.")
+  (dict "slug" "environmental-risks"          "abbr" "ERM" "description" "Earth system risk, tipping points, and geopolitical cascades from environmental stress.")
+}}
+
+{{/* ── Collect latest brief from every monitor ─────────────────────────── */}}
 {{ $allLatest := slice }}
-{{ range $monitorSlugs }}
+{{ range $triageOrder }}
   {{ $slug := . }}
   {{ with site.GetPage (printf "/monitors/%s" $slug) }}
     {{ with ((where .Pages "Type" "ne" "methodology").ByDate.Reverse | first 1) }}
@@ -108,38 +78,68 @@
 {{ $lead      := index $sorted 0 }}
 {{ $secondary := after 1 $sorted }}
 
-{{/* ── Two-column homepage ──────────────────────────────────────────────── */}}
+{{/* ── Three-zone homepage ────────────────────────────────────────────── */}}
 <div class="home-layout">
   <div class="container container--wide">
     <div class="home-grid">
 
-      {{/* ── LEFT: domain panel ────────────────────────────────────────── */}}
+      {{/* ── LEFT: sticky monitor panel ─────────────────────────────── */}}
       <aside class="home-panel">
         <p class="home-panel__tagline">Seven monitors tracking geopolitics, democracy, AI governance, and systemic risk.</p>
         <nav class="home-panel__nav" aria-label="Monitors">
           {{ range $domainData }}
-          <a class="home-monitor-card" href="/monitors/{{ .slug }}/dashboard.html" data-monitor="{{ .slug }}"
-             style="--card-accent: {{ index $monitorColours .slug }}">
-            <div class="home-monitor-card__logo" aria-hidden="true">{{ .logo | safeHTML }}</div>
+          {{ $accent := index $monitorColours .slug }}
+          <a class="home-monitor-card" href="/monitors/{{ .slug }}/overview.html" data-monitor="{{ .slug }}"
+             style="--card-accent: {{ $accent }}">
+            <div class="home-monitor-card__dot" aria-hidden="true" style="background: {{ $accent }}"></div>
             <div class="home-monitor-card__body">
-              <span class="home-monitor-card__title">{{ .title }}</span>
+              <span class="home-monitor-card__abbr" style="color: {{ $accent }}">{{ .abbr }}</span>
+              <span class="home-monitor-card__desc">{{ .description }}</span>
             </div>
           </a>
           {{ end }}
         </nav>
       </aside>
 
-      {{/* ── RIGHT: briefing feed ──────────────────────────────────────── */}}
+      {{/* ── CENTRE: editorial feed ──────────────────────────────────── */}}
       <div class="home-feed">
 
-        {{/* Lead story */}}
+        {{/* Value statement — HP-02 (signed off 7 Apr 2026) */}}
+        <div class="home-value-statement">
+          <p class="home-value-statement__text">Asymmetric Intelligence is a public, methodology-transparent intelligence platform that surfaces pre-consensus structural risks and weekly signals across democracy, conflict, information operations, macroeconomy, AI governance, European strategy, and planetary boundaries.</p>
+          <div class="home-routing-cues">
+            <div class="home-routing-cue">
+              <span class="home-routing-cue__label">Triage</span>
+              <span class="home-routing-cue__body">This week's assessed signals, risk levels, and cross-monitor flags.</span>
+              <a class="home-routing-cue__link" href="/monitors/">Monitor dashboards →</a>
+            </div>
+            <div class="home-routing-cue">
+              <span class="home-routing-cue__label">This week's analysis</span>
+              <span class="home-routing-cue__body">Weekly briefs and reports for in-depth analytical coverage.</span>
+            </div>
+            <div class="home-routing-cue">
+              <span class="home-routing-cue__label">Structural pipelines</span>
+              <span class="home-routing-cue__body">Living Knowledge — slower-moving structures, indices, and scenarios behind the weekly data.</span>
+            </div>
+            <div class="home-routing-cue">
+              <span class="home-routing-cue__label">Raw signal</span>
+              <span class="home-routing-cue__body">Chatter feeds — pre-synthesis, high-volume signal, clearly labelled and separate from assessed intelligence.</span>
+            </div>
+          </div>
+        </div>
+
+        {{/* Lead story — featured article stripe */}}
         {{ with $lead }}
         {{ $colour := index $monitorColours .slug }}
-        {{ $label  := index $monitorLabels .slug }}
-        <article class="tn-lead">
+        {{ $abbr   := index $monitorLabels .slug }}
+        {{ $name   := index $monitorFullNames .slug }}
+        <article class="tn-lead" style="--lead-accent: {{ $colour }}">
+          <div class="tn-lead__stripe"></div>
           <div class="tn-lead__inner">
             <div class="tn-lead__meta">
-              <span class="tn-domain-chip" style="--chip-colour: {{ $colour }}">{{ $label }}</span>
+              <span class="monitor-pill" style="--monitor-accent: {{ $colour }}; --monitor-accent-bg: {{ $colour }}1a">
+                <span class="monitor-dot" style="background: {{ $colour }}"></span>{{ $abbr }}
+              </span>
               <time class="tn-lead__date" datetime="{{ .post.Date.Format "2006-01-02" }}">
                 {{ .post.Date.Format "2 January 2006" }}
               </time>
@@ -150,45 +150,55 @@
             {{ with .post.Params.summary }}
             <p class="tn-lead__summary">{{ . }}</p>
             {{ end }}
-
+            <div class="tn-lead__actions">
+              <a class="btn btn--primary btn--sm" href="{{ .post.RelPermalink }}">Read brief</a>
+              <a class="btn btn--outline btn--sm" href="/monitors/{{ .slug }}/dashboard.html">Dashboard →</a>
+            </div>
           </div>
         </article>
         {{ end }}
 
-        {{/* Secondary stories */}}
+        {{/* Report-card grid — HP-01 */}}
         {{ if $secondary }}
-        <section class="tn-secondary">
-          {{ range first 6 $secondary }}
-          {{ $colour := index $monitorColours .slug }}
-          {{ $label  := index $monitorLabels .slug }}
-          <article class="tn-story">
-            <div class="tn-story__meta">
-              <span class="tn-domain-chip tn-domain-chip--sm" style="--chip-colour: {{ $colour }}">{{ $label }}</span>
-              <time class="tn-story__date" datetime="{{ .post.Date.Format "2006-01-02" }}">
-                {{ .post.Date.Format "2 Jan 2006" }}
-              </time>
-            </div>
-            <h2 class="tn-story__title">
-              <a href="{{ .post.RelPermalink }}">{{ .post.Title }}</a>
-            </h2>
-            {{ with .post.Params.summary }}
-            <p class="tn-story__summary">{{ . }}</p>
+        <section class="home-report-grid" aria-label="Latest from all monitors">
+          <h2 class="home-section-label">Latest issues</h2>
+          <div class="card-grid">
+            {{ range first 6 $secondary }}
+            {{ $colour := index $monitorColours .slug }}
+            {{ $abbr   := index $monitorLabels .slug }}
+            <a class="report-card" href="{{ .post.RelPermalink }}"
+               style="--card-accent: {{ $colour }}; --monitor-accent: {{ $colour }}; --monitor-accent-bg: {{ $colour }}1a">
+              <div class="report-card__accent"></div>
+              <div class="report-card__body">
+                <div class="report-card__monitor">
+                  <span class="monitor-dot"></span> {{ $abbr }}
+                </div>
+                <div class="report-card__title">{{ .post.Title }}</div>
+                {{ with .post.Params.summary }}
+                <div class="report-card__summary">{{ . | truncate 120 }}</div>
+                {{ end }}
+              </div>
+              <div class="report-card__footer">
+                <time datetime="{{ .post.Date.Format "2006-01-02" }}">{{ .post.Date.Format "2 Jan 2006" }}</time>
+                <span>Read →</span>
+              </div>
+            </a>
             {{ end }}
-
-          </article>
-          {{ end }}
+          </div>
         </section>
         {{ end }}
 
       </div>{{/* /home-feed */}}
 
-      {{/* ── RIGHT: chatter column ─────────────────────────────────────── */}}
+      {{/* ── RIGHT: chatter column ───────────────────────────────────── */}}
       <aside class="home-chatter" id="home-chatter-col">
         <div class="home-chatter__header">
           <h2 class="home-chatter__title">Signal Chatter</h2>
+          <span class="home-chatter__label">Pre-synthesis</span>
         </div>
+        <p class="home-chatter__desc">Raw signal streamed daily before weekly synthesis. Unvalidated.</p>
         <ul class="home-chatter__list" id="chatter-col-list">
-          <li class="home-chatter__item" style="color:var(--color-text-faint);font-size:var(--text-xs);padding:var(--space-4)">Loading…</li>
+          <li class="home-chatter__item" style="color:var(--color-text-faint);font-size:0.75rem;padding:1rem">Loading…</li>
         </ul>
       </aside>
 
@@ -208,17 +218,9 @@
     { slug: 'conflict-escalation',         accent: '#dc2626', label: 'SCEM' },
   ];
 
-  // ── Live signal cards (left panel) ──────────────────────────────────────
-  monitors.forEach(function(m) {
-    fetch('/monitors/' + m.slug + '/data/report-latest.json')
-      .then(function(r) { return r.json(); })
-      .then(function(d) {
-        var card = document.querySelector('[data-monitor="' + m.slug + '"]');
-        if (!card) return;
-        card.style.setProperty('--accent-live', m.accent);
-      })
-      .catch(function() {});
-  });
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
   // ── Chatter column ───────────────────────────────────────────────────────
   var listEl = document.getElementById('chatter-col-list');
@@ -242,16 +244,11 @@
       });
   });
 
-  function escHtml(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
   function renderChatter() {
     if (!allItems.length) {
-      listEl.innerHTML = '<li class="home-chatter__item" style="font-size:var(--text-xs);color:var(--color-text-faint)">No chatter available yet. Check back after 08:00 UTC.</li>';
+      listEl.innerHTML = '<li class="home-chatter__item" style="font-size:0.75rem;color:var(--color-text-faint)">No chatter available yet. Check back after 08:00 UTC.</li>';
       return;
     }
-    // Shuffle and take top 10
     allItems.sort(function() { return Math.random() - 0.5; });
     var top = allItems.slice(0, 10);
     var html = '';
@@ -259,7 +256,7 @@
       var item = entry.item;
       html += '<li class="home-chatter__item">';
       html += '<span class="home-chatter__chip" style="color:' + entry.accent + ';border-color:' + entry.accent + '">' + escHtml(entry.label) + '</span>';
-      html += '<a class="home-chatter__link" href="' + escHtml(item.source_url || '#') + '" target="_blank" rel="noopener" style="--link-hover:' + entry.accent + '">' + escHtml(item.title || '') + '</a>';
+      html += '<a class="home-chatter__link" href="' + escHtml(item.source_url || '#') + '" target="_blank" rel="noopener">' + escHtml(item.title || '') + '</a>';
       html += '<span class="home-chatter__source">' + escHtml(item.source_name || '') + '</span>';
       html += '</li>';
     });
