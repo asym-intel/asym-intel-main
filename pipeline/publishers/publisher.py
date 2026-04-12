@@ -94,12 +94,14 @@ MONITOR_CONFIGS = {
         "title": "European Strategic Autonomy Monitor",
         "abbr": "ESA",
         "publish_time": "T19:00:00Z",
-        "signal_key": None,
+        "signal_key": "lead_signal",
         "has_campaigns": False,
         "has_actor_tracker": False,
         "has_cognitive_warfare": False,
         "has_platform_responses": False,
-        "field_map": {},
+        "field_map": {
+            "lead_signal": "signal",
+        },
     },
     "ai-governance": {
         "title": "Artificial Intelligence Monitor",
