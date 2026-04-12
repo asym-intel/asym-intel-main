@@ -349,6 +349,11 @@
   window.AsymRenderer = {
     init: init,
     register: register,
+    /* stubs — overwritten by real implementations later in this file.
+       Ensures callers never hit 'is not a function' if a later IIFE fails. */
+    sourceLink:  function () { return ''; },
+    sourceLabel: function () { return 'Source'; },
+    flag:        function () { return ''; },
     /* exposed for testing */
     _renderMeta: renderMeta,
     _renderSignal: renderSignal,
