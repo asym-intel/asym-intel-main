@@ -1,0 +1,26 @@
+{{/*
+  monitor-strip.html — Cross-monitor navigation bar
+  Horizontal pill strip below site header. SVG icons from /images/monitors/.
+  Accent colours from MONITOR_REGISTRY (nav.js).
+  Triage order: GMM · SCEM · FCW · AGM · WDM · ESA · ERM
+*/}}
+{{ $monitors := slice
+  (dict "slug" "macro-monitor"              "abbr" "GMM"  "name" "Global Macro"                   "accent" "#22a0aa" "icon" "gmm")
+  (dict "slug" "conflict-escalation"        "abbr" "SCEM" "name" "Strategic Conflict"              "accent" "#dc2626" "icon" "scem")
+  (dict "slug" "fimi-cognitive-warfare"     "abbr" "FCW"  "name" "FIMI & Cognitive Warfare"  "accent" "#38bdf8" "icon" "fcw")
+  (dict "slug" "ai-governance"              "abbr" "AGM"  "name" "AI Governance"                   "accent" "#3a7d5a" "icon" "agm")
+  (dict "slug" "democratic-integrity"       "abbr" "WDM"  "name" "World Democracy"                 "accent" "#61a5d2" "icon" "wdm")
+  (dict "slug" "european-strategic-autonomy" "abbr" "ESA" "name" "European Strategic Autonomy"     "accent" "#5b8db0" "icon" "esa")
+  (dict "slug" "environmental-risks"        "abbr" "ERM"  "name" "Environmental Risks"             "accent" "#4caf7d" "icon" "erm")
+}}
+<nav class="monitor-strip" role="navigation" aria-label="Monitor navigation">
+  <span class="monitor-strip__label">Monitors</span>
+  {{ range $monitors }}
+  <a class="monitor-strip__pill" href="/monitors/{{ .slug }}/overview.html"
+     style="--pill-accent: {{ .accent }}">
+    <img class="monitor-strip__icon" src="/images/monitors/{{ .icon }}.svg"
+         alt="" width="16" height="16" aria-hidden="true">
+    <span>{{ .name }}</span>
+  </a>
+  {{ end }}
+</nav>

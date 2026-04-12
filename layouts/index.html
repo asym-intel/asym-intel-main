@@ -83,21 +83,31 @@
   <div class="container container--wide">
     <div class="home-grid">
 
-      {{/* ── LEFT: sticky monitor panel ─────────────────────────────── */}}
+      {{/* ── LEFT: featured tools panel ────────────────────────────── */}}
       <aside class="home-panel">
         <p class="home-panel__tagline">Seven monitors tracking geopolitics, democracy, AI governance, and systemic risk.</p>
-        <nav class="home-panel__nav" aria-label="Monitors">
-          {{ range $domainData }}
-          {{ $accent := index $monitorColours .slug }}
-          <a class="home-monitor-card" href="/monitors/{{ .slug }}/overview.html" data-monitor="{{ .slug }}"
-             style="--card-accent: {{ $accent }}">
-            <div class="home-monitor-card__dot" aria-hidden="true" style="background: {{ $accent }}"></div>
-            <div class="home-monitor-card__body">
-              <span class="home-monitor-card__abbr" style="color: {{ $accent }}">{{ .abbr }}</span>
-              <span class="home-monitor-card__desc">{{ .description }}</span>
+        <nav class="home-panel__nav" aria-label="Platform tools">
+          <a class="home-featured-card" href="/network/">
+            <img class="home-featured-card__thumb" src="/images/thumbs/network-graph.svg" alt="" width="48" height="48" loading="lazy">
+            <div class="home-featured-card__body">
+              <span class="home-featured-card__title">Network Graph</span>
+              <span class="home-featured-card__desc">Cross-monitor entity and theme relationships.</span>
             </div>
           </a>
-          {{ end }}
+          <a class="home-featured-card" href="/map/">
+            <img class="home-featured-card__thumb" src="/images/thumbs/world-map.svg" alt="" width="48" height="48" loading="lazy">
+            <div class="home-featured-card__body">
+              <span class="home-featured-card__title">World Map</span>
+              <span class="home-featured-card__desc">Geographic view of monitored risks and events.</span>
+            </div>
+          </a>
+          <a class="home-featured-card" href="/ops/pipeline.html">
+            <img class="home-featured-card__thumb" src="/images/thumbs/pipeline-health.svg" alt="" width="48" height="48" loading="lazy">
+            <div class="home-featured-card__body">
+              <span class="home-featured-card__title">Pipeline Health</span>
+              <span class="home-featured-card__desc">Live status of data collection, synthesis, and publishing.</span>
+            </div>
+          </a>
         </nav>
       </aside>
 
