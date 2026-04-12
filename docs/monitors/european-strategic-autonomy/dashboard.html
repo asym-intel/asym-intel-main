@@ -54,6 +54,13 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-autonomy-snapshot">
+      <div class="module-header">
+        <div class="module-title">Autonomy Snapshot</div>
+      </div>
+      <div id="autonomy-snapshot-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
     <section class="module-section" id="section-autonomy-scorecard">
       <div class="module-header">
         <div class="module-title">Strategic Autonomy Scorecard</div>
@@ -61,6 +68,20 @@
       <div id="autonomy-scorecard-block">
         <div class="loading-state">Loading scorecard&hellip;</div>
       </div>
+    </section>
+
+    <section class="module-section" id="section-domain-tracker">
+      <div class="module-header">
+        <div class="module-title">Domain Tracker</div>
+      </div>
+      <div id="domain-tracker-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-us-eu-tracker">
+      <div class="module-header">
+        <div class="module-title">US-EU Tracker</div>
+      </div>
+      <div id="us-eu-tracker-block"><div class="loading-state">Loading&hellip;</div></div>
     </section>
 
     <section class="module-section" id="section-kpi-bars">
@@ -99,6 +120,13 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-title">Key Judgments</div>
+      </div>
+      <div id="key-judgments-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
       <!-- Cross-Monitor Flags -->
       <section class="module-section" id="section-cross-monitor">
         <div class="module-header">
@@ -112,11 +140,15 @@
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-autonomy-snapshot">Autonomy Snapshot</a></li>
       <li><a href="#section-autonomy-scorecard">Autonomy Score</a></li>
+      <li><a href="#section-domain-tracker">Domain Tracker</a></li>
+      <li><a href="#section-us-eu-tracker">US-EU Tracker</a></li>
       <li><a href="#section-kpi-bars">KPI Indicators</a></li>
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-delta">Top Items</a></li>
       <li><a href="#section-member-states">Member States</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
   </nav>
@@ -256,6 +288,12 @@ document.addEventListener('DOMContentLoaded', function () {
         gridHtml += '</div>';
         msEl.innerHTML = gridHtml;
       }
+
+      // New AsymSections renders from report-latest.json
+      if (d.autonomy_snapshot) AsymSections.renderAutonomySnapshot(d.autonomy_snapshot, 'autonomy-snapshot-block');
+      if (d.domain_tracker) AsymSections.renderDomainTracker(d.domain_tracker, 'domain-tracker-block');
+      if (d.us_eu_tracker) AsymSections.renderUsEuTracker(d.us_eu_tracker, 'us-eu-tracker-block');
+      if (d.key_judgments) AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-block');
 
       // Cross-monitor flags (d is in scope here)
       renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
