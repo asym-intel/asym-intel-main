@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-AI Governance Monitor Synthesiser
+Artificial Intelligence Monitor Synthesiser
 Monitor slug : ai-governance
 Model       : sonar-pro (no web search — reasons over supplied docs)
 Output      : pipeline/monitors/ai-governance/synthesised/synthesis-latest.json
