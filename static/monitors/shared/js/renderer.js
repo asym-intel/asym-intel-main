@@ -474,6 +474,881 @@ window.AsymPersistent = (function () {
   };
 }());
 
+/* ─── Cross-Monitor Section Renderers ────────────────────────────
+   window.AsymSections — reusable render functions for new data
+   sections produced by schema enrichment sprints.
+
+   Every function takes (data, targetId) and renders into the
+   element. No monitor-specific labels or colours — uses
+   var(--monitor-accent) throughout. Ready to call from any
+   monitor's orchestrator.
+
+   Added: 12 April 2026 (SCEM schema sprint)
+   ─────────────────────────────────────────────────────────────── */
+
+window.AsymSections = (function () {
+  'use strict';
+
+  /* ── Shared helpers ─────────────────────────────────────────── */
+
+  function escHtml(str) {
+    if (str == null) return '';
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function deriveStatusClass(text) {
+    var t = (text || '').toLowerCase();
+    if (t.indexOf('ceasefire')  >= 0) return 'ceasefire';
+    if (t.indexOf('de-escal')   >= 0 || t.indexOf('deescal') >= 0) return 'deescalating';
+    if (t.indexOf('watch')      >= 0 || t.indexOf('monitor') >= 0) return 'monitoring';
+    if (t.indexOf('escal')      >= 0) return 'escalating';
+    if (t.indexOf('stable')     >= 0) return 'stable';
+    if (t.indexOf('active')     >= 0) return 'active';
+    return 'monitoring';
+  }
+
+  function buildStatusBadge(text, cls) {
+    var icons = {
+      active: '●', ceasefire: '⏸', deescalating: '↓',
+      monitoring: '◎', escalating: '↑', stable: '→'
+    };
+    var icon = icons[cls] || '◎';
+    return '<span class="status-badge status-badge--' + cls + '">' +
+      '<span class="status-badge__icon" aria-hidden="true">' + icon + '</span>' +
+      escHtml(text) +
+    '</span>';
+  }
+
+  function bandToRowClass(band) {
+    var b = (band || '').toUpperCase();
+    if (b === 'RED'   || b === 'ANOMALOUS') return 'critical';
+    if (b === 'AMBER' || b === 'ELEVATED')  return 'high';
+    if (b === 'CONTESTED')                  return 'moderate';
+    if (b === 'GREEN' || b === 'NORMAL')    return 'positive';
+    return 'moderate';
+  }
+
+  function confBadgeClass(conf) {
+    var c = (conf || '').toLowerCase();
+    if (c === 'confirmed') return 'conf-badge--confirmed';
+    if (c === 'high')      return 'conf-badge--high';
+    if (c === 'assessed')  return 'conf-badge--assessed';
+    return '';
+  }
+
+  function deviationBandClass(band) {
+    var b = (band || '').toLowerCase();
+    if (b.indexOf('green') !== -1) return 'ind-band--green';
+    if (b.indexOf('amber') !== -1) return 'ind-band--amber';
+    if (b.indexOf('red')   !== -1) return 'ind-band--red';
+    return '';
+  }
+
+  function levelLabelClass(label) {
+    var l = (label || '').toLowerCase();
+    if (l === 'green')  return 'ind-level--green';
+    if (l === 'amber')  return 'ind-level--amber';
+    if (l === 'red')    return 'ind-level--red';
+    if (l === 'crisis') return 'ind-level--crisis';
+    return '';
+  }
+
+  /* ── Report / Dashboard sections ────────────────────────────── */
+
+  /**
+   * Escalation alert banner — threshold crossings.
+   * Shows/hides parent section via optional sectionEl argument.
+   * If empty, renders nothing (section stays hidden).
+   */
+  function renderEscalationAlerts(indicators, targetId, sectionEl) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!indicators || !indicators.length) return;
+    if (sectionEl) sectionEl.style.display = '';
+
+    var count = indicators.length;
+    var html = '<div class="alert-banner">' +
+      '<div class="alert-banner__heading">' +
+        '<span aria-hidden="true">▲</span>' +
+        escHtml(String(count)) + ' active threshold' + (count > 1 ? 's' : '') + ' crossed' +
+      '</div>';
+
+    indicators.forEach(function (item) {
+      html +=
+        '<div class="alert-banner__row">' +
+          '<div class="alert-banner__entity">' + escHtml(item.theatre_id || '') + '</div>' +
+          '<div class="alert-banner__indicator">' + escHtml(item.indicator || '') + '</div>' +
+          '<div class="alert-banner__type">' + escHtml(item.type || '') + '</div>' +
+          '<div class="alert-banner__threshold">' +
+            '<span class="alert-banner__threshold-label">⚑ ' +
+              escHtml(item.threshold_crossed || '') + '</span>' +
+            (item.confidence_preliminary
+              ? '<span class="alert-banner__conf">Confidence: ' +
+                  escHtml(item.confidence_preliminary) + '</span>'
+              : '') +
+          '</div>' +
+        '</div>';
+    });
+
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Global escalation snapshot — KPI card row.
+   */
+  function renderGlobalSnapshot(snapshot, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!snapshot || !Object.keys(snapshot).length) {
+      el.innerHTML = '<p class="text-muted text-sm">No snapshot data available.</p>';
+      return;
+    }
+
+    var kpis = [
+      { key: 'active_theatres',           label: 'Active Theatres',   sub: '',          accent: true },
+      { key: 'new_escalations_this_week', label: 'New Escalations',   sub: 'this week', accent: false },
+      { key: 'de_escalations_this_week',  label: 'De-escalations',    sub: 'this week', accent: false },
+      { key: 'highest_intensity_theatre', label: 'Highest Intensity', sub: '',          accent: false, text: true }
+    ];
+
+    var html = '<div class="kpi-row">';
+    kpis.forEach(function (def) {
+      var val = snapshot[def.key];
+      if (val === undefined || val === null) return;
+      var valStr = escHtml(String(val));
+      var valClass = 'kpi-card__value' + (def.accent ? ' kpi-card__value--accent' : '');
+      var valStyle = def.text
+        ? ' style="font-size:var(--text-base,1rem);font-weight:700"'
+        : '';
+      html +=
+        '<div class="kpi-card">' +
+          '<div class="' + valClass + '"' + valStyle + '>' + valStr + '</div>' +
+          '<div class="kpi-card__label">' + escHtml(def.label) + '</div>' +
+          (def.sub ? '<div class="kpi-card__sub">' + escHtml(def.sub) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+
+    if (snapshot.lead_signal) {
+      html += '<div class="snapshot-note">' + escHtml(snapshot.lead_signal) + '</div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  /**
+   * Weekly brief — narrative paragraphs in a card.
+   * Splits string on double newlines.
+   */
+  function renderWeeklyBrief(brief, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!brief) {
+      el.innerHTML = '<p class="text-muted text-sm">No brief available this issue.</p>';
+      return;
+    }
+    var html = '<div class="brief-card">';
+    brief.split('\n\n').forEach(function (para) {
+      var t = para.trim();
+      if (t) html += '<p>' + escHtml(t) + '</p>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Theatre tracker — responsive card grid.
+   */
+  function renderTheatreTracker(theatres, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!theatres || !theatres.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No tracker data available.</p>';
+      return;
+    }
+
+    var html = '<div class="theatre-grid">';
+    theatres.forEach(function (t) {
+      var deltaClass = deriveStatusClass(t.intensity_delta || '');
+
+      var actorTags = (t.primary_actors || []).map(function (a) {
+        return '<span class="tag tag--actor">' + escHtml(a) + '</span>';
+      }).join('');
+
+      var hybridTags = (t.hybrid_dimensions || []).map(function (h) {
+        return '<span class="tag tag--hybrid">' + escHtml(h) + '</span>';
+      }).join('');
+
+      var warnTag = t.nuclear_threshold_concern
+        ? '<span class="tag tag--warn">Nuclear Threshold</span>'
+        : '';
+
+      var riskClass = (function () {
+        var r = (t.escalation_risk || '').toLowerCase();
+        if (r === 'critical' || r === 'high') return 'critical';
+        if (r === 'medium')  return 'high';
+        if (r === 'low')     return 'positive';
+        return 'moderate';
+      })();
+
+      var hasEventStats = t.acled_event_count_7d !== undefined ||
+                          t.acled_fatality_count_7d !== undefined;
+
+      html +=
+        '<div class="theatre-card theatre-card--' + deltaClass + '">' +
+          '<div class="theatre-card__header">' +
+            '<div class="theatre-card__name">' +
+              escHtml(t.theatre_name || t.theatre_id || '') + '</div>' +
+            (t.intensity
+              ? '<span class="theatre-card__intensity">' + escHtml(t.intensity) + '</span>'
+              : '') +
+          '</div>' +
+          (actorTags
+            ? '<div class="theatre-card__tags">' + actorTags + '</div>' : '') +
+          (t.key_development
+            ? '<div class="theatre-card__key-dev">' + escHtml(t.key_development) + '</div>' : '') +
+          '<div class="theatre-card__row">' +
+            (t.intensity_delta
+              ? '<span class="theatre-card__delta theatre-card__delta--' + deltaClass + '">' +
+                  escHtml(t.intensity_delta) + '</span>'
+              : '') +
+            (t.escalation_risk
+              ? '<span class="severity-badge severity-badge--' + riskClass + '">Risk: ' +
+                  escHtml(t.escalation_risk) + '</span>'
+              : '') +
+          '</div>' +
+          (hasEventStats
+            ? '<div class="theatre-card__stats">' +
+                (t.acled_event_count_7d !== undefined
+                  ? '<span>Events 7d: <strong>' +
+                      escHtml(String(t.acled_event_count_7d)) + '</strong></span>'
+                  : '') +
+                (t.acled_fatality_count_7d !== undefined
+                  ? '<span>Fatalities 7d: <strong>' +
+                      escHtml(String(t.acled_fatality_count_7d)) + '</strong></span>'
+                  : '') +
+              '</div>'
+            : '') +
+          ((hybridTags || warnTag)
+            ? '<div class="theatre-card__tags">' + hybridTags + warnTag + '</div>' : '') +
+          '<div class="theatre-card__footer">' +
+            (t.ceasefire_status !== undefined
+              ? '<span>Ceasefire: ' + escHtml(t.ceasefire_status) + '</span>'
+              : '<span></span>') +
+            (t.source
+              ? '<span style="font-size:var(--text-min)">' + escHtml(t.source) + '</span>'
+              : '') +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Indicator scoring — per-entity tables with full detail.
+   */
+  function renderIndicatorScoring(scoring, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!scoring || !scoring.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No indicator scoring data available.</p>';
+      return;
+    }
+
+    var html = '';
+    scoring.forEach(function (entity) {
+      var indicators = entity.indicators || [];
+      html +=
+        '<div class="scoring-block">' +
+          '<div class="scoring-block__title">' + escHtml(entity.theatre_id || '') + '</div>' +
+          '<table class="indicator-table">' +
+            '<thead><tr>' +
+              '<th>Indicator</th>' +
+              '<th>Level</th>' +
+              '<th>Baseline</th>' +
+              '<th>Deviation</th>' +
+              '<th>Label</th>' +
+              '<th>Confidence</th>' +
+              '<th>Tier / Source</th>' +
+              '<th>Key Evidence</th>' +
+              '<th>Note</th>' +
+            '</tr></thead>' +
+            '<tbody>';
+
+      indicators.forEach(function (ind) {
+        var levelClass = (function () {
+          var ll = (ind.level_label || '').toLowerCase();
+          if (ll === 'red' || ll === 'crisis' || ll === 'anomalous') return 'critical';
+          if (ll === 'amber' || ll === 'elevated') return 'high';
+          if (ll === 'green' || ll === 'normal')   return 'positive';
+          return 'moderate';
+        })();
+
+        var pips = '';
+        for (var i = 1; i <= 5; i++) {
+          pips += '<div class="level-bar__pip' +
+            (i <= (ind.level || 0) ? ' level-bar__pip--' + levelClass : '') +
+          '"></div>';
+        }
+
+        var dev    = ind.deviation !== undefined ? Number(ind.deviation) : 0;
+        var devStr = dev > 0 ? '+' + dev : String(dev);
+        var devCol = dev > 0 ? 'var(--critical)' : dev < 0 ? 'var(--positive)' : 'var(--color-text-muted)';
+
+        html +=
+          '<tr>' +
+            '<td>' +
+              '<strong>' + escHtml(ind.indicator || '') + '</strong>' +
+              (ind.indicator_name
+                ? ' <span style="color:var(--color-text-muted);font-weight:400">' +
+                    escHtml(ind.indicator_name) + '</span>'
+                : '') +
+              (ind.ai_generation_check
+                ? ' <span title="AI generation check flagged" ' +
+                    'style="color:var(--high,#d97706);font-size:var(--text-min)">AI⚑</span>'
+                : '') +
+            '</td>' +
+            '<td>' +
+              '<div class="level-bar">' + pips + '</div>' +
+              '<span style="font-size:var(--text-min);margin-left:4px;color:var(--color-text-muted)">' +
+                escHtml(String(ind.level !== undefined ? ind.level : 0)) + '/5</span>' +
+            '</td>' +
+            '<td>' + escHtml(String(ind.baseline !== undefined ? ind.baseline : '—')) + '</td>' +
+            '<td>' +
+              '<strong style="color:' + devCol + '">' + escHtml(devStr) + '</strong>' +
+              (ind.deviation_band
+                ? '<br><span style="font-size:var(--text-min);color:var(--color-text-muted)">' +
+                    escHtml(ind.deviation_band) + '</span>'
+                : '') +
+            '</td>' +
+            '<td><span class="severity-badge severity-badge--' + levelClass + '">' +
+              escHtml(ind.level_label || '') + '</span></td>' +
+            '<td>' + escHtml(ind.confidence_preliminary || '') + '</td>' +
+            '<td style="white-space:nowrap">' +
+              escHtml(ind.source_tier || '') +
+              (ind.source
+                ? '<br><span style="font-size:var(--text-min);color:var(--color-text-muted)">' +
+                    escHtml(ind.source) + '</span>'
+                : '') +
+            '</td>' +
+            '<td style="max-width:200px;white-space:normal;font-size:var(--text-min);' +
+              'color:var(--color-text-secondary)">' +
+              escHtml(ind.key_evidence || '') + '</td>' +
+            '<td style="max-width:160px;white-space:normal;font-size:var(--text-min);' +
+              'color:var(--color-text-muted)">' +
+              escHtml(ind.note || '—') + '</td>' +
+          '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+    });
+    el.innerHTML = html;
+  }
+
+  /**
+   * F-flag matrix — per-entity grid of flag tiles.
+   */
+  function renderFlagMatrix(matrix, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!matrix || !matrix.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No flag matrix data available.</p>';
+      return;
+    }
+
+    var html = '';
+    matrix.forEach(function (entity) {
+      var flags = entity.f_flags || [];
+      html +=
+        '<div class="flag-matrix-entity">' +
+          '<div class="flag-matrix-entity__title">' + escHtml(entity.theatre_id || '') + '</div>' +
+          '<div class="flag-matrix-grid">';
+
+      flags.forEach(function (f) {
+        var detected = !!f.detected;
+        html +=
+          '<div class="flag-matrix-item' + (detected ? ' flag-matrix-item--detected' : '') + '">' +
+            '<div class="flag-matrix-item__header">' +
+              '<span class="f-flag-tag">' + escHtml(f.flag || '') + '</span>' +
+              '<span class="flag-matrix-item__status ' +
+                (detected ? 'flag-matrix-item__status--detected' : 'flag-matrix-item__status--clear') +
+                '">' + (detected ? '● DETECTED' : '○ Clear') + '</span>' +
+            '</div>' +
+            '<div class="flag-matrix-item__name">' + escHtml(f.flag_name || '') + '</div>' +
+            (f.indicator_affected
+              ? '<div class="flag-matrix-item__desc">Affects: ' +
+                  escHtml(f.indicator_affected) + '</div>'
+              : '') +
+            (f.description
+              ? '<div class="flag-matrix-item__desc">' + escHtml(f.description) + '</div>'
+              : '') +
+            (f.fcw_link
+              ? '<a class="flag-matrix-item__link" href="' + escHtml(f.fcw_link) +
+                  '" target="_blank" rel="noopener">FCW link →</a>'
+              : '') +
+          '</div>';
+      });
+
+      html += '</div></div>';
+    });
+    el.innerHTML = html;
+  }
+
+  /**
+   * ACLED reference — alignment table + global top-N.
+   * Accepts both `scem_theatre_id`/`scem_tracked` and generic
+   * `monitor_theatre_id`/`monitor_tracked` field names.
+   */
+  function renderACLEDReference(acled, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!acled || !Object.keys(acled).length) {
+      el.innerHTML = '<p class="text-muted text-sm">No ACLED reference data available.</p>';
+      return;
+    }
+
+    var html = '';
+
+    // Meta row
+    html += '<div class="ref-meta">' +
+      (acled.index_version
+        ? '<span>Index version: <strong>' + escHtml(acled.index_version) + '</strong></span>'
+        : '') +
+      (acled.last_updated
+        ? '<span>Updated: <strong>' + escHtml(acled.last_updated) + '</strong></span>'
+        : '') +
+      (acled.source_url
+        ? '<span><a href="' + escHtml(acled.source_url) +
+            '" target="_blank" rel="noopener">Source index →</a></span>'
+        : '') +
+    '</div>';
+
+    // Theatre alignment table
+    var alignment = acled.theatre_alignment || [];
+    if (alignment.length) {
+      html += '<div class="ref-table-label">Theatre Alignment</div>' +
+        '<table class="ref-table">' +
+          '<thead><tr>' +
+            '<th>Theatre</th>' +
+            '<th>ACLED Rank</th>' +
+            '<th>Category</th>' +
+            '<th>Deadliness</th>' +
+            '<th>Danger / Civilians</th>' +
+            '<th>Geo Diffusion</th>' +
+            '<th>Group Frag.</th>' +
+            '<th>Band</th>' +
+            '<th>Alignment</th>' +
+            '<th>Divergence</th>' +
+          '</tr></thead>' +
+          '<tbody>';
+
+      alignment.forEach(function (row) {
+        var scores = row.acled_scores || {};
+        // Support both scem_* and monitor_* field names
+        var theatreId = row.scem_theatre_id || row.monitor_theatre_id || '';
+        var overallBand = row.scem_overall_band || row.monitor_overall_band || '';
+        html +=
+          '<tr>' +
+            '<td><strong>' + escHtml(theatreId) + '</strong></td>' +
+            '<td style="text-align:center">' + escHtml(String(row.acled_rank || '—')) + '</td>' +
+            '<td><span class="severity-badge severity-badge--critical">' +
+              escHtml(row.acled_category || '') + '</span></td>' +
+            '<td>' + buildScoreBar(scores.deadliness) + '</td>' +
+            '<td>' + buildScoreBar(scores.danger_to_civilians) + '</td>' +
+            '<td>' + buildScoreBar(scores.geographic_diffusion) + '</td>' +
+            '<td>' + buildScoreBar(scores.armed_group_fragmentation) + '</td>' +
+            '<td><span class="severity-badge severity-badge--' +
+              bandToRowClass(overallBand) + '">' +
+              escHtml(overallBand) + '</span></td>' +
+            '<td>' + escHtml(row.alignment_status || '') + '</td>' +
+            '<td style="font-size:var(--text-min);color:var(--color-text-muted)">' +
+              escHtml(row.divergence_note || '—') + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    // Global top-N table
+    var topN = acled.global_top_20 || [];
+    if (topN.length) {
+      html += '<div class="ref-table-label" style="margin-top:var(--space-6)">Global Top ' +
+        topN.length + ' — tracked entries highlighted</div>' +
+        '<table class="ref-table">' +
+          '<thead><tr>' +
+            '<th>Rank</th>' +
+            '<th>Country</th>' +
+            '<th>Category</th>' +
+            '<th>Deadliness</th>' +
+            '<th>Danger / Civilians</th>' +
+            '<th>Geo Diffusion</th>' +
+            '<th>Group Frag.</th>' +
+            '<th>Tracked</th>' +
+          '</tr></thead>' +
+          '<tbody>';
+
+      topN.forEach(function (row) {
+        // Support both scem_tracked and monitor_tracked
+        var tracked = !!(row.scem_tracked || row.monitor_tracked);
+        var theatreId = row.scem_theatre_id || row.monitor_theatre_id || '';
+        html +=
+          '<tr' + (tracked ? ' class="ref-table__row--tracked"' : '') + '>' +
+            '<td style="text-align:center;font-weight:700;color:var(--color-text-muted)">' +
+              escHtml(String(row.rank || '')) + '</td>' +
+            '<td><strong>' + escHtml(row.country || '') + '</strong></td>' +
+            '<td><span class="severity-badge severity-badge--critical">' +
+              escHtml(row.category || '') + '</span></td>' +
+            '<td>' + buildScoreBar(row.deadliness) + '</td>' +
+            '<td>' + buildScoreBar(row.danger_to_civilians) + '</td>' +
+            '<td>' + buildScoreBar(row.geographic_diffusion) + '</td>' +
+            '<td>' + buildScoreBar(row.armed_group_fragmentation) + '</td>' +
+            '<td>' +
+              (tracked
+                ? '<span class="tracked-badge">✓</span>'
+                : '<span style="color:var(--color-text-muted);font-size:var(--text-min)">—</span>') +
+            '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  /** Score bar helper for ACLED reference tables. */
+  function buildScoreBar(score) {
+    if (score === undefined || score === null) {
+      return '<span style="color:var(--color-text-muted)">—</span>';
+    }
+    var pct = Math.max(0, Math.min(100, Number(score)));
+    return '<div class="score-bar">' +
+      '<div class="score-bar__track">' +
+        '<div class="score-bar__fill" style="width:' + pct + '%"></div>' +
+      '</div>' +
+      '<span class="score-bar__num">' + escHtml(String(score)) + '</span>' +
+    '</div>';
+  }
+
+  /**
+   * Key judgments — analyst judgment cards.
+   */
+  function renderKeyJudgments(judgments, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!judgments || !judgments.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No key judgments this issue.</p>';
+      return;
+    }
+
+    var html = '<div class="kj-list">';
+    judgments.forEach(function (kj) {
+      var trajClass = kj.trajectory ? deriveStatusClass(kj.trajectory) : '';
+      var trajBadge = kj.trajectory ? buildStatusBadge(kj.trajectory, trajClass) : '';
+
+      var confClass = (function () {
+        var c = (kj.confidence_preliminary || '').toLowerCase();
+        if (c === 'confirmed') return 'positive';
+        if (c === 'high')      return 'high';
+        return 'moderate';
+      })();
+
+      html +=
+        '<div class="kj-card">' +
+          '<div class="kj-card__id">' + escHtml(kj.id || '') + '</div>' +
+          '<div class="kj-card__body">' +
+            '<div class="kj-card__text">' + escHtml(kj.judgment || '') + '</div>' +
+            '<div class="kj-card__meta">' +
+              (kj.theatre
+                ? '<span class="kj-card__context">' + escHtml(kj.theatre) + '</span>'
+                : '') +
+              (kj.confidence_preliminary
+                ? '<span class="severity-badge severity-badge--' + confClass + '">' +
+                    escHtml(kj.confidence_preliminary) + '</span>'
+                : '') +
+              (trajBadge ? trajBadge : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * Cross-monitor candidates — signals flagged for other monitors.
+   */
+  function renderCrossMonitorCandidates(candidates, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!candidates || !candidates.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No cross-monitor candidates this issue.</p>';
+      return;
+    }
+
+    var html = '<div class="cmc-list">';
+    candidates.forEach(function (c) {
+      html +=
+        '<div class="cmc-item">' +
+          '<div class="cmc-item__target">' + escHtml(c.target_monitor || '') + '</div>' +
+          '<div class="cmc-item__body">' +
+            '<div class="cmc-item__signal">' + escHtml(c.signal || '') + '</div>' +
+            '<div class="cmc-item__meta">' +
+              (c.type
+                ? '<span>' + escHtml(c.type) + '</span>'
+                : '') +
+              (c.confidence_preliminary
+                ? '<span>Confidence: ' + escHtml(c.confidence_preliminary) + '</span>'
+                : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /* ── Persistent-page helpers ────────────────────────────────── */
+
+  /**
+   * Enrich a baseline card with theatre tracker data.
+   * Returns HTML string for a theatre metadata strip.
+   */
+  function enrichBaselineWithTheatre(t) {
+    if (!t) return '';
+
+    var deltaKey = (t.intensity_delta || '').toLowerCase().replace(/\s+/g, '-');
+    var deltaClass = deltaKey ? 'delta-badge--' + deltaKey : '';
+
+    var riskKey = (t.escalation_risk || '').toLowerCase();
+    var riskClass = riskKey === 'high' ? 'esc-risk-val--high'
+      : riskKey === 'medium' ? 'esc-risk-val--medium'
+      : riskKey === 'low'    ? 'esc-risk-val--low'
+      : '';
+
+    var ceasefireRaw = t.ceasefire_status || '';
+    var ceasefireActive = ceasefireRaw &&
+      ceasefireRaw.toLowerCase() !== 'none' &&
+      ceasefireRaw.toLowerCase() !== 'no';
+    var ceasefireClass = ceasefireActive ? 'ceasefire-badge--active' : '';
+
+    var actors = Array.isArray(t.primary_actors)    ? t.primary_actors.join(', ')    : (t.primary_actors || '');
+    var hybrid = Array.isArray(t.hybrid_dimensions) ? t.hybrid_dimensions.join(', ') : (t.hybrid_dimensions || '');
+
+    var items = [];
+
+    if (t.intensity) {
+      items.push(
+        '<div class="theatre-strip__item">' +
+          '<span class="theatre-strip__label">Intensity</span>' +
+          '<span class="theatre-strip__value">' + escHtml(t.intensity) + '</span>' +
+        '</div>'
+      );
+    }
+
+    if (t.intensity_delta) {
+      items.push(
+        '<div class="theatre-strip__divider"></div>' +
+        '<div class="theatre-strip__item">' +
+          '<span class="theatre-strip__label">Delta</span>' +
+          '<span class="theatre-strip__value">' +
+            '<span class="delta-badge ' + deltaClass + '">' + escHtml(t.intensity_delta) + '</span>' +
+          '</span>' +
+        '</div>'
+      );
+    }
+
+    if (t.escalation_risk) {
+      items.push(
+        '<div class="theatre-strip__divider"></div>' +
+        '<div class="theatre-strip__item">' +
+          '<span class="theatre-strip__label">Esc. Risk</span>' +
+          '<span class="theatre-strip__value esc-risk-val ' + riskClass + '">' + escHtml(t.escalation_risk) + '</span>' +
+        '</div>'
+      );
+    }
+
+    if (ceasefireRaw) {
+      items.push(
+        '<div class="theatre-strip__divider"></div>' +
+        '<div class="theatre-strip__item">' +
+          '<span class="theatre-strip__label">Ceasefire</span>' +
+          '<span class="theatre-strip__value">' +
+            '<span class="ceasefire-badge ' + ceasefireClass + '">' + escHtml(ceasefireRaw) + '</span>' +
+          '</span>' +
+        '</div>'
+      );
+    }
+
+    if (actors) {
+      items.push(
+        '<div class="theatre-strip__divider"></div>' +
+        '<div class="theatre-strip__item">' +
+          '<span class="theatre-strip__label">Primary Actors</span>' +
+          '<span class="theatre-strip__value">' + escHtml(actors) + '</span>' +
+        '</div>'
+      );
+    }
+
+    if (hybrid) {
+      items.push(
+        '<div class="theatre-strip__divider"></div>' +
+        '<div class="theatre-strip__item">' +
+          '<span class="theatre-strip__label">Hybrid Dims</span>' +
+          '<span class="theatre-strip__value">' + escHtml(hybrid) + '</span>' +
+        '</div>'
+      );
+    }
+
+    if (!items.length) return '';
+    return '<div class="theatre-strip">' + items.join('') + '</div>';
+  }
+
+  /**
+   * Enrich an indicator cell with detailed scoring data.
+   * Returns HTML string with expand button + detail panel.
+   */
+  function enrichIndicatorCell(s) {
+    if (!s) return '';
+
+    var uid = 'ind-' + Math.random().toString(36).slice(2, 9);
+    var lvlClass  = levelLabelClass(s.level_label);
+    var bandClass = deviationBandClass(s.deviation_band);
+    var cClass    = confBadgeClass(s.confidence_preliminary);
+
+    var levelDisplay = s.level_label
+      ? escHtml(s.level_label) + (s.level !== undefined ? ' (' + escHtml(String(s.level)) + ')' : '')
+      : (s.level !== undefined ? escHtml(String(s.level)) : '—');
+
+    var rows = '';
+
+    rows += '<div class="ind-scoring-detail__row">' +
+      '<span class="ind-scoring-detail__label">Level</span>' +
+      '<span class="ind-scoring-detail__val ' + lvlClass + '">' + levelDisplay + '</span>' +
+    '</div>';
+
+    if (s.deviation !== undefined && s.deviation !== null) {
+      rows += '<div class="ind-scoring-detail__row">' +
+        '<span class="ind-scoring-detail__label">Deviation</span>' +
+        '<span class="ind-scoring-detail__val ' + bandClass + '">' +
+          escHtml(String(s.deviation)) +
+          (s.deviation_band ? ' — ' + escHtml(s.deviation_band) : '') +
+        '</span>' +
+      '</div>';
+    }
+
+    if (s.confidence_preliminary) {
+      rows += '<div class="ind-scoring-detail__row">' +
+        '<span class="ind-scoring-detail__label">Confidence</span>' +
+        '<span class="ind-scoring-detail__val">' +
+          '<span class="conf-badge ' + cClass + '">' + escHtml(s.confidence_preliminary) + '</span>' +
+        '</span>' +
+      '</div>';
+    }
+
+    if (s.key_evidence) {
+      rows += '<div class="ind-scoring-detail__row">' +
+        '<span class="ind-scoring-detail__label">Evidence</span>' +
+        '<span class="ind-scoring-detail__val">' + escHtml(s.key_evidence) + '</span>' +
+      '</div>';
+    }
+
+    if (s.source) {
+      var srcVal = escHtml(s.source) + (s.source_tier ? ' (' + escHtml(s.source_tier) + ')' : '');
+      rows += '<div class="ind-scoring-detail__row">' +
+        '<span class="ind-scoring-detail__label">Source</span>' +
+        '<span class="ind-scoring-detail__val">' + srcVal + '</span>' +
+      '</div>';
+    }
+
+    if (s.note) {
+      rows += '<div class="ind-scoring-detail__row">' +
+        '<span class="ind-scoring-detail__label">Note</span>' +
+        '<span class="ind-scoring-detail__val" style="font-style:italic">' + escHtml(s.note) + '</span>' +
+      '</div>';
+    }
+
+    return (
+      '<button class="ind-expand-btn" type="button" aria-expanded="false" aria-controls="' + uid + '">Details ▸</button>' +
+      '<div class="ind-scoring-detail" id="' + uid + '" role="region">' +
+        rows +
+      '</div>'
+    );
+  }
+
+  /**
+   * Escalation log — accumulating threshold crossings (persistent page).
+   */
+  function renderEscalationLog(indicators, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+
+    if (!indicators || !indicators.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No threshold crossings recorded.</p>';
+      return;
+    }
+
+    var html = '<div class="esc-log">';
+    indicators.forEach(function (item) {
+      var cClass = confBadgeClass(item.confidence_preliminary);
+      html +=
+        '<div class="esc-log__entry">' +
+          '<div class="esc-log__entry-body">' +
+            (item.theatre_id
+              ? '<div class="esc-log__theatre-id">' + escHtml(item.theatre_id) + '</div>'
+              : '') +
+            (item.indicator
+              ? '<div class="esc-log__indicator-name">' + escHtml(item.indicator) + '</div>'
+              : '') +
+            '<div class="esc-log__meta">' +
+              (item.type
+                ? '<span class="esc-type-badge">' + escHtml(item.type) + '</span>'
+                : '') +
+              (item.threshold_crossed
+                ? '<span>Threshold: <span class="esc-threshold-val">' + escHtml(item.threshold_crossed) + '</span></span>'
+                : '') +
+              (item.confidence_preliminary
+                ? '<span class="conf-badge ' + cClass + '">' + escHtml(item.confidence_preliminary) + '</span>'
+                : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /* ── Public API ─────────────────────────────────────────────── */
+  return {
+    // Helpers (exposed for inline orchestrators)
+    escHtml: escHtml,
+    deriveStatusClass: deriveStatusClass,
+    buildStatusBadge: buildStatusBadge,
+    bandToRowClass: bandToRowClass,
+    confBadgeClass: confBadgeClass,
+    deviationBandClass: deviationBandClass,
+    levelLabelClass: levelLabelClass,
+
+    // Report / Dashboard sections
+    renderEscalationAlerts: renderEscalationAlerts,
+    renderGlobalSnapshot: renderGlobalSnapshot,
+    renderWeeklyBrief: renderWeeklyBrief,
+    renderTheatreTracker: renderTheatreTracker,
+    renderIndicatorScoring: renderIndicatorScoring,
+    renderFlagMatrix: renderFlagMatrix,
+    renderACLEDReference: renderACLEDReference,
+    renderKeyJudgments: renderKeyJudgments,
+    renderCrossMonitorCandidates: renderCrossMonitorCandidates,
+
+    // Persistent-page enrichment helpers
+    enrichBaselineWithTheatre: enrichBaselineWithTheatre,
+    enrichIndicatorCell: enrichIndicatorCell,
+    renderEscalationLog: renderEscalationLog
+  };
+}());
+
 
 /* ─── Country Flag Utility ───────────────────────────────────
    AsymRenderer.flag(code) — returns emoji flag for ISO 3166-1 alpha-2
