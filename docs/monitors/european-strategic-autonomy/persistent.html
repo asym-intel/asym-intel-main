@@ -122,9 +122,9 @@
   }
   .lagrange-radar-wrap {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: var(--space-8);
-    align-items: start;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: center;
     overflow: visible;
   }
   @media (max-width: 768px) {
@@ -133,11 +133,10 @@
     }
   }
   .lagrange-radar-canvas-wrap {
-    max-width: 580px;
-    margin: 0 auto;
-    /* Prevent Chart.js point labels from being clipped */
+    width: 100%;
+    /* No max-width — let the radar fill its grid column */
     overflow: visible;
-    padding: var(--space-6);
+    padding: var(--space-2);
     position: relative;
   }
   .lagrange-radar-canvas-wrap canvas {
@@ -489,7 +488,7 @@ document.addEventListener('DOMContentLoaded', function () {
               options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                layout: { padding: { top: 45, bottom: 45, left: 55, right: 55 } },
+                layout: { padding: { top: 30, bottom: 35, left: 75, right: 75 } },
                 animation: { duration: 700, easing: 'easeInOutQuart' },
                 scales: {
                   r: {
@@ -505,8 +504,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     angleLines: { color: gridColor },
                     pointLabels: {
                       color: labelColor,
-                      font: { size: 13, weight: '600' },
-                      padding: 8
+                      font: { size: 12, weight: '600' },
+                      padding: 12
                     }
                   }
                 },
