@@ -28,32 +28,12 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <section class="module-section" id="section-kpi">
-      <div class="page-header">
-        <div class="page-header__eyebrow">ESA Dashboard</div>
-        <h1 class="page-header__title">European Strategic Autonomy Monitor</h1>
-        <div class="page-header__meta" id="page-meta">Loading&hellip;</div>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-defence">&mdash;</div>
-          <div class="kpi-card__label">Defence Developments</div>
-          <div class="kpi-card__sub">Items this issue</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-hybrid">&mdash;</div>
-          <div class="kpi-card__label">Hybrid Threats</div>
-          <div class="kpi-card__sub">Active this issue</div>
-        </div>
-        <div class="kpi-card" style="cursor:pointer" onclick="document.getElementById('section-signal').scrollIntoView({behavior:'smooth'})">
-          <div class="kpi-card__value kpi-card__value--text" id="kpi-lead-signal">&mdash;</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub">Click to read &darr;</div>
-        </div>
+    
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
       </div>
     </section>
-
     <section class="module-section" id="section-autonomy-snapshot">
       <div class="module-header">
         <div class="module-title">Autonomy Snapshot</div>
@@ -93,24 +73,6 @@
       </div>
     </section>
 
-    <section class="module-section" id="section-signal">
-      <div class="module-header">
-        <div class="module-title">Lead Signal</div>
-      </div>
-      <div id="signal-block">
-        <div class="loading-state">Loading signal&hellip;</div>
-      </div>
-    </section>
-
-    <section class="module-section" id="section-delta">
-      <div class="module-header">
-        <div class="module-title">Top Items This Issue</div>
-      </div>
-      <div id="delta-strip">
-        <div class="loading-state">Loading items&hellip;</div>
-      </div>
-    </section>
-
     <section class="module-section" id="section-member-states">
       <div class="module-header">
         <div class="module-title">Member State Tracker</div>
@@ -139,14 +101,12 @@
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-triage">Triage Strip</a></li>
       <li><a href="#section-autonomy-snapshot">Autonomy Snapshot</a></li>
       <li><a href="#section-autonomy-scorecard">Strategic Autonomy Scorecard</a></li>
       <li><a href="#section-domain-tracker">Domain Tracker</a></li>
       <li><a href="#section-us-eu-tracker">US-EU Tracker</a></li>
       <li><a href="#section-kpi-bars">KPI Indicators</a></li>
-      <li><a href="#section-signal">Lead Signal</a></li>
-      <li><a href="#section-delta">Top Items This Issue</a></li>
       <li><a href="#section-member-states">Member State Tracker</a></li>
       <li><a href="#section-key-judgments">Key Judgments</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
@@ -230,6 +190,32 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       dsHtml += '</ul>';
       document.getElementById('delta-strip').innerHTML = top5.length ? dsHtml : '<p class="text-muted">No items this issue.</p>';
+
+      /* ── Triage Strip ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+        AsymSections.renderTriageStrip({
+          kpis: [
+            { label: 'Defence Items',  value: defItems.length  || '—', sub: 'Defence developments' },
+            { label: 'Hybrid Threats', value: hybItems.length  || '—', sub: 'Active this issue' },
+            { label: 'Institutional',  value: instItems.length || '—', sub: 'Institutional items' },
+            { label: 'Issue',          value: meta.week_label  || '—', sub: 'Issue ' + (meta.issue || '—') }
+          ],
+          signal: {
+            label:      'Lead Signal · ESA',
+            title:      signal || '',
+            body:       signalBody || '',
+            source_url: sourceUrl || ''
+          },
+          structural: {
+            label:    'Strategic Autonomy Snapshot',
+            targetId: 'triage-autonomy',
+            renderFn: function(id) {
+              if (d.autonomy_snapshot) AsymSections.renderAutonomySnapshot(d.autonomy_snapshot, id);
+            }
+          },
+          delta: { label: 'Top Items This Issue', items: top5 }
+        }, 'triage-container');
+      }
 
       // Member State Grid Cards
       var msEl = document.getElementById('member-state-table');
