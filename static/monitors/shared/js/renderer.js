@@ -3468,3 +3468,347 @@ window.AsymSections = (function () {
   window.AsymSourceLink  = sourceLink;
 })();
 
+
+
+/* ─────────────────────────────────────────────────────────────
+   SL-02B  Shared Chart & Cross-Monitor Functions
+   Added Sprint 1 — centralise inline patterns from WDM/GMM/ESA
+   ─────────────────────────────────────────────────────────────
+
+   All three functions are attached to AsymSections:
+     AsymSections.renderTierBar(config, targetId)
+     AsymSections.renderRankedBar(config, targetId)
+     AsymSections.renderCrossMonitorFlags(cmf, targetId)
+
+   ───────────────────────────────────────────────────────────── */
+
+(function () {
+  'use strict';
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  function _esc(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function _isDark() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+
+  /* ── renderTierBar ───────────────────────────────────────────
+   * Stacked horizontal Chart.js bar (single-row) for tier counts.
+   *
+   * config: {
+   *   segments: [{ label: string, count: number, color: string }],
+   *   legendId?: string   — ID of an existing <div> to write legend into
+   *   canvasId?: string   — ID of an existing <canvas>; if absent, one is
+   *                         created inside targetId
+   *   height?:  number    — canvas height px (default 60)
+   * }
+   * targetId: ID of container element. Populated with <canvas> when
+   *           config.canvasId is absent.
+   *
+   * Segment border-radius rule: first → leftRound, last → rightRound,
+   * middle → square.  Segments with count 0 are skipped from rendering
+   * but kept in legend.
+   * ──────────────────────────────────────────────────────────── */
+  function renderTierBar(config, targetId) {
+    if (!config || !Array.isArray(config.segments)) return;
+    if (typeof Chart === 'undefined') return;
+
+    var container = document.getElementById(targetId);
+    if (!container) return;
+
+    var segs = config.segments;
+    var height = config.height || 60;
+    var labelColor = _isDark() ? '#9d9893' : '#6b6660';
+
+    /* Total — guard divide-by-zero */
+    var total = 0;
+    segs.forEach(function (s) { total += (s.count || 0); });
+    if (total === 0) {
+      container.innerHTML = '<p class="text-muted text-sm">No tier data available.</p>';
+      return;
+    }
+
+    /* Canvas: reuse existing or create */
+    var canvasId = config.canvasId || (targetId + '-canvas');
+    var canvas = document.getElementById(canvasId);
+    if (!canvas) {
+      container.innerHTML = '<canvas id="' + canvasId + '" height="' + height + '" ' +
+        'aria-label="Tier distribution chart" role="img"></canvas>';
+      canvas = document.getElementById(canvasId);
+    }
+    if (!canvas) return;
+
+    /* Build datasets — first/last track for border-radius */
+    var nonZeroIdx = [];
+    segs.forEach(function (s, i) { if ((s.count || 0) > 0) nonZeroIdx.push(i); });
+    var firstNZ = nonZeroIdx[0];
+    var lastNZ  = nonZeroIdx[nonZeroIdx.length - 1];
+
+    var datasets = segs.map(function (s, i) {
+      var isFirst = i === firstNZ;
+      var isLast  = i === lastNZ;
+      var br = isFirst && isLast
+        ? 4
+        : isFirst
+          ? { topLeft: 4, bottomLeft: 4, topRight: 0, bottomRight: 0 }
+          : isLast
+            ? { topLeft: 0, bottomLeft: 0, topRight: 4, bottomRight: 4 }
+            : 0;
+      return {
+        label: _esc(s.label) + ' (' + (s.count || 0) + ')',
+        data: [s.count || 0],
+        backgroundColor: s.color || 'rgba(148,163,184,0.6)',
+        borderWidth: 0,
+        borderRadius: br
+      };
+    });
+
+    new Chart(canvas, {
+      type: 'bar',
+      data: { labels: [''], datasets: datasets },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (ctx) { return ctx.dataset.label; }
+            }
+          },
+          datalabels: false
+        },
+        scales: {
+          x: { stacked: true, display: false, grid: { display: false } },
+          y: { stacked: true, display: false, grid: { display: false } }
+        },
+        layout: { padding: 0 },
+        animation: { duration: 500 }
+      },
+      plugins: [{
+        id: 'asymTierCountLabels',
+        afterDatasetsDraw: function (chart) {
+          var c2 = chart.ctx;
+          chart.data.datasets.forEach(function (dataset, di) {
+            var meta = chart.getDatasetMeta(di);
+            if (meta.hidden) return;
+            meta.data.forEach(function (bar) {
+              var count = dataset.data[0];
+              if (!count) return;
+              var barW = bar.width;
+              if (barW < 28) return;
+              c2.save();
+              c2.fillStyle = 'rgba(255,255,255,0.92)';
+              c2.font = 'bold 13px Satoshi, system-ui, sans-serif';
+              c2.textAlign = 'center';
+              c2.textBaseline = 'middle';
+              c2.fillText(String(count), bar.x - barW / 2 + barW / 2, bar.y);
+              c2.restore();
+            });
+          });
+        }
+      }]
+    });
+
+    /* Legend injection */
+    var legendId = config.legendId;
+    if (legendId) {
+      var legendEl = document.getElementById(legendId);
+      if (legendEl) {
+        legendEl.innerHTML = segs.map(function (s) {
+          return '<span class="tier-legend-item">' +
+            '<span class="tier-legend-dot" style="background:' + _esc(s.color || '#94a3b8') + '"></span>' +
+            _esc(s.label) + ': <strong>' + (s.count || 0) + '</strong>' +
+            '</span>';
+        }).join('');
+      }
+    }
+  }
+
+
+  /* ── renderRankedBar ──────────────────────────────────────────
+   * Sorted horizontal bar list (CSS, no Chart.js).
+   * Canonical replacement for the inline renderSeverityBar pattern.
+   *
+   * config: {
+   *   items: [{ label: string, score: number, color: string, flag?: string }],
+   *   maxScore?: number   — override bar scale ceiling (default: max of items)
+   *   showScore?: boolean — show score value at bar end (default: true)
+   *   labelWidth?: string — CSS width for label column (default: '145px')
+   * }
+   * targetId: container element to populate
+   * ──────────────────────────────────────────────────────────── */
+  function renderRankedBar(config, targetId) {
+    if (!config || !Array.isArray(config.items)) return;
+    var el = document.getElementById(targetId);
+    if (!el) return;
+
+    var items = config.items.slice().sort(function (a, b) {
+      return (b.score || 0) - (a.score || 0);
+    });
+
+    if (!items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No ranked data available.</p>';
+      return;
+    }
+
+    var maxScore = config.maxScore != null
+      ? config.maxScore
+      : (items[0].score || 10);
+    if (maxScore === 0) maxScore = 10;
+
+    var showScore  = config.showScore !== false;
+    var labelWidth = config.labelWidth || '145px';
+
+    var html = '<div style="display:flex;flex-direction:column;gap:6px">';
+    items.forEach(function (c) {
+      var pct = Math.max(4, Math.round(((c.score || 0) / maxScore) * 100));
+      var col = c.color || 'var(--monitor-accent)';
+      var flagHtml = '';
+      if (c.flag) {
+        /* Accept either a pre-rendered emoji or a code to pass through AsymRenderer.flag */
+        if (/\p{Emoji_Presentation}/u.test(c.flag)) {
+          flagHtml = _esc(c.flag) + ' ';
+        } else if (typeof window.AsymRenderer !== 'undefined' && window.AsymRenderer.flag) {
+          flagHtml = (_esc(window.AsymRenderer.flag(c.flag)) || '') + ' ';
+        }
+      }
+      html +=
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">' +
+          '<div style="width:' + labelWidth + ';font-size:var(--text-xs);' +
+            'color:var(--color-text-secondary);flex-shrink:0;text-align:right">' +
+            flagHtml + _esc(c.label) +
+          '</div>' +
+          '<div style="position:relative;flex:1;height:16px;' +
+            'background:rgba(100,116,139,0.1);border-radius:3px">' +
+            '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;' +
+              'background:' + col + ';border-radius:3px;opacity:0.80"></div>' +
+          '</div>' +
+          (showScore
+            ? '<div style="width:34px;font-size:var(--text-xs);font-weight:600;' +
+                'color:' + col + ';flex-shrink:0;text-align:right">' +
+                parseFloat(c.score || 0).toFixed(1) + '</div>'
+            : '') +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+
+  /* ── renderCrossMonitorFlags ─────────────────────────────────
+   * Canonical shared implementation.
+   * Replaces 3× identical inline copies in WDM, GMM, and ESA.
+   *
+   * cmf: {
+   *   flags: [{
+   *     flag_id?:        string
+   *     monitor?:        string  (also: source_monitor)
+   *     title?:          string  (also: signal)
+   *     detail?:         string  (also: body, summary)
+   *     severity?:       string  (also: type) — 'critical'|'high'|'elevated'|'amber'|'moderate'
+   *     action?:         string
+   *     unchanged_since?: string
+   *     source_url?:     string
+   *   }],
+   *   updated?: string   — ISO date string for last-updated label
+   * }
+   * targetId: container element to populate
+   *
+   * Border-left colour follows severity tier:
+   *   critical|high   → var(--color-critical,  #dc2626)
+   *   elevated|amber  → var(--color-high,       #d97706)
+   *   moderate|other  → var(--color-border,     #94a3b8)
+   * ──────────────────────────────────────────────────────────── */
+  function renderCrossMonitorFlags(cmf, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+
+    var flags = (cmf && Array.isArray(cmf.flags)) ? cmf.flags : [];
+    if (!flags.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
+      return;
+    }
+
+    function _sevBorderColor(sev) {
+      var s = (sev || '').toLowerCase();
+      if (s === 'critical' || s === 'high')      return 'var(--color-critical, #dc2626)';
+      if (s === 'elevated' || s === 'amber')      return 'var(--color-high, #d97706)';
+      return 'var(--color-border, #94a3b8)';
+    }
+
+    var html = '<div class="cross-monitor-panel">';
+    if (cmf && cmf.updated) {
+      html += '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-3)">' +
+        'Updated ' + _esc(String(cmf.updated).slice(0, 10)) +
+        '</div>';
+    }
+
+    flags.forEach(function (flag) {
+      var sev         = (flag.severity || flag.type || 'moderate').toLowerCase();
+      var borderColor = _sevBorderColor(sev);
+      var title       = flag.title  || flag.signal  || '';
+      var detail      = flag.detail || flag.body    || flag.summary || '';
+      var monitor     = flag.monitor || flag.source_monitor || '';
+      var sourceLinkHtml = '';
+      if (flag.source_url &&
+          typeof window.AsymRenderer !== 'undefined' &&
+          typeof window.AsymRenderer.sourceLink === 'function') {
+        sourceLinkHtml = ' ' + window.AsymRenderer.sourceLink(flag.source_url);
+      }
+
+      html +=
+        '<div style="padding:var(--space-3);border-left:3px solid ' + borderColor + ';' +
+          'background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">' +
+          '<div style="display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-1)">' +
+            (flag.flag_id
+              ? '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted)">' +
+                _esc(flag.flag_id) + '</span>'
+              : '') +
+            (monitor
+              ? '<span style="font-size:var(--text-xs);color:var(--text-muted)">· ' + _esc(monitor) + '</span>'
+              : '') +
+          '</div>' +
+          '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' +
+            _esc(title) +
+          '</div>' +
+          '<div style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.5">' +
+            _esc(detail) +
+          '</div>' +
+          (flag.action
+            ? '<div style="margin-top:var(--space-2);font-size:var(--text-xs);font-weight:600;' +
+                'color:var(--monitor-accent)">→ ' + _esc(flag.action) + '</div>'
+            : '') +
+          (flag.unchanged_since
+            ? '<div style="font-size:var(--text-xs);color:var(--text-muted)">Unchanged since: ' +
+                _esc(flag.unchanged_since) + '</div>'
+            : '') +
+          sourceLinkHtml +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+
+  /* ── Attach to AsymSections ──────────────────────────────── */
+  if (window.AsymSections) {
+    window.AsymSections.renderTierBar           = renderTierBar;
+    window.AsymSections.renderRankedBar         = renderRankedBar;
+    window.AsymSections.renderCrossMonitorFlags = renderCrossMonitorFlags;
+  }
+
+  /* Fallback direct access (defensive) */
+  window.AsymTierBar           = renderTierBar;
+  window.AsymRankedBar         = renderRankedBar;
+  window.AsymCrossMonitorFlags = renderCrossMonitorFlags;
+
+}());
