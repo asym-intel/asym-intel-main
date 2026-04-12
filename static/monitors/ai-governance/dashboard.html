@@ -912,7 +912,7 @@
       document.getElementById('dash-title').textContent = 'Dashboard — Issue ' + (meta.issue || '');
       document.getElementById('dash-meta').innerHTML =
         '<span>' + esc(meta.week_label) + '</span>' +
-        '<span>Published ' + esc(meta.published) + '</span>';
+        '<span>Published ' + (meta.published ? new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '') + '</span>';
 
       // KPIs
       document.getElementById('kpi-delta').textContent = deltaStrip.length;
