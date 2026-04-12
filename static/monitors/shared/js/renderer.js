@@ -3750,14 +3750,36 @@ window.AsymSections = (function () {
   function _cmfBody(f) {
     return f.linkage || f.detail || f.body || f.description || '';
   }
+  /* Abbreviation map for ID-based target extraction (e.g. wdm-fcw-001 → fcw → fimi-cognitive-warfare) */
+  var _ABBR_TO_SLUG = {
+    'wdm': 'democratic-integrity', 'gmm': 'macro-monitor',
+    'esa': 'european-strategic-autonomy', 'fcw': 'fimi-cognitive-warfare',
+    'agm': 'ai-governance', 'aim': 'ai-governance',
+    'erm': 'environmental-risks', 'scem': 'conflict-escalation'
+  };
+  function _cmfLinkedSlug(f) {
+    /* Extract the linked (target) monitor slug — not the host monitor.
+       Priority: source_url path > ID-encoded abbreviation > monitor field */
+    if (f.source_url) {
+      var m = f.source_url.match(/\/monitors\/([^\/]+)\//);
+      if (m) return m[1];
+    }
+    var id = (f.id || f.flag_id || '').toLowerCase();
+    var parts = id.split('-');
+    /* Pattern: host-target-seq, e.g. wdm-fcw-001 → target = parts[1] */
+    if (parts.length >= 3 && _ABBR_TO_SLUG[parts[1]]) return _ABBR_TO_SLUG[parts[1]];
+    return '';
+  }
   function _cmfMonitor(f) {
     if (f.monitors_involved && f.monitors_involved.length) return f.monitors_involved;
-    var slug = f.monitor || f.source_monitor || '';
-    return slug ? [slug] : [];
+    var linked = _cmfLinkedSlug(f);
+    return linked ? [linked] : [];
   }
   function _cmfUrl(f) {
     if (f.source_url) return f.source_url;
     if (f.monitor_url) return f.monitor_url;
+    var linked = _cmfLinkedSlug(f);
+    if (linked) return '/monitors/' + linked + '/dashboard.html';
     var slug = f.monitor_slug || f.monitor || f.source_monitor || '';
     return slug ? '/monitors/' + slug + '/dashboard.html' : '';
   }
