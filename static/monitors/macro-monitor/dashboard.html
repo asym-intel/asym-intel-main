@@ -106,52 +106,17 @@
   <main class="monitor-main" id="main-content">
 
     <!-- KPI Strip -->
-    <section class="module-section" id="section-kpi">
-      <div class="page-header">
-        <div class="page-header__eyebrow">GMM Dashboard · Asymmetric Intelligence</div>
-        <h1 class="page-header__title" id="page-title">Global Macro Monitor</h1>
-        <div class="page-header__meta" id="page-meta">Loading…</div>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-stress">—</div>
-          <div class="kpi-card__label">System Stress</div>
-          <div class="kpi-card__sub" id="kpi-stress-dir">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-regime">—</div>
-          <div class="kpi-card__label">Regime</div>
-          <div class="kpi-card__sub" id="kpi-regime-conv">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-week">—</div>
-          <div class="kpi-card__label">Week</div>
-          <div class="kpi-card__sub" id="kpi-score">—</div>
-        </div>
-        <div class="kpi-card" id="kpi-hard-landing-card" style="display:none">
-          <div class="kpi-card__value" id="kpi-hard-landing">—</div>
-          <div class="kpi-card__label">Hard Landing Risk</div>
-          <div class="kpi-card__sub" id="kpi-hard-landing-dir">—</div>
-        </div>
-      </div>
-
-      <!-- Risk Heatmap: replaces gauge -->
-      <div class="risk-heatmap" id="risk-heatmap-wrap">
-        <div class="risk-heatmap__header">
-          <span class="risk-heatmap__title">Tail Risk Heatmap</span>
-          <span class="risk-heatmap__method">Likelihood sourced from Horizon Matrix · Impact = (asset classes affected / 8) × avg score change × 1.5</span>
-        </div>
-        <div class="risk-heatmap__grid" id="risk-heatmap-grid">
-          <div class="loading-state" style="grid-column:1/5;font-size:var(--text-sm)">Loading tail risks…</div>
-        </div>
-      </div>
-    </section>
 
     <!-- Signal Block -->
+    
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
+      </div>
+    </section>
     <section class="module-section" id="section-signal">
       <div class="module-header">
-        <div class="module-title">Weekly Signal</div>
+        <div class="module-title">Signal Detail</div>
       </div>
       <div id="signal-block-wrap">
         <div class="loading-state">Loading signal…</div>
@@ -191,14 +156,6 @@
     </section>
 
     <!-- Delta Strip -->
-    <section class="module-section" id="section-delta">
-      <div class="module-header">
-        <div class="module-title">Top Items This Issue</div>
-      </div>
-      <ul class="delta-strip" id="delta-strip">
-        <li class="loading-state">Loading delta strip…</li>
-      </ul>
-    </section>
 
     <!-- Domain Indicators -->
     <section class="module-section" id="section-domain-indicators">
@@ -324,10 +281,9 @@
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-kpi">KPIs &amp; Tail Risk</a></li>
-      <li><a href="#section-signal">Weekly Signal</a></li>
+      <li><a href="#section-triage">Triage Strip</a></li>
+      <li><a href="#section-signal">Signal Detail</a></li>
       <li><a href="#section-regime-shift">Regime Shift</a></li>
-      <li><a href="#section-delta">Delta Strip</a></li>
       <li><a href="#section-domain-indicators">Domain Indicators</a></li>
       <li><a href="#section-tail-risks">Tail Risk Matrix</a></li>
       <li><a href="#section-asset-chart">Asset Scores</a></li>
@@ -688,20 +644,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Delta strip — build from domain indicators
     var deltaItems = buildDeltaItems(d);
-    var ds = document.getElementById('delta-strip');
-    if (!deltaItems.length) {
-      ds.innerHTML = '<li class="text-muted text-sm">No delta items available.</li>';
-    } else {
-      ds.innerHTML = deltaItems.slice(0, 5).map(function (item, i) {
-        return '<li class="delta-item">' +
-          '<span class="delta-item__rank">' + (i + 1) + '</span>' +
-          '<div>' +
-            '<div class="delta-item__title">' + esc(item.title) + '</div>' +
-            '<div class="delta-item__line">' + esc(item.reading) + '</div>' +
-          '</div>' +
-          '<span class="flag-badge flag-badge--' + flagClass(item.flag) + '">' + esc(item.flag) + '</span>' +
-        '</li>';
-      }).join('');
+    /* ── Triage Strip ── */
+    if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+      AsymSections.renderTriageStrip({
+        kpis: [
+          { label: 'System Stress', value: stressLabel || '—', sub: stressDir || '' },
+          { label: 'Regime',        value: regime || '—', sub: (conviction || '—') + ' conviction', accent: regime === 'Stress' || regime === 'Crisis' },
+          { label: 'Avg Score',     value: avgScore != null ? (avgScore > 0 ? '+' : '') + parseFloat(avgScore).toFixed(2) : '—', sub: signalObj.delta_vs_prior != null ? 'Δ' + (signalObj.delta_vs_prior > 0 ? '+' : '') + parseFloat(signalObj.delta_vs_prior).toFixed(3) : '' },
+          { label: 'Issue',         value: meta.week_label || '—', sub: 'Issue ' + (meta.issue || '—') }
+        ],
+        signal: {
+          label:      'Weekly Signal · GMM',
+          title:      signal || '',
+          body:       eb.summary || signalBody || '',
+          source_url: eb.source_url || signalObj.source_url || d.source_url || ''
+        },
+        structural: {
+          label:    'Tail Risk Heat',
+          targetId: 'triage-heatmap',
+          renderFn: function(id) { renderRiskHeatmap(d.tail_risks || []); }
+        },
+        delta: {
+          label: 'Top Moves This Issue',
+          items: deltaItems.slice(0, 5).map(function(item) {
+            return { title: item.title, one_line: item.reading, type: item.flag };
+          })
+        }
+      }, 'triage-container');
     }
 
     // Asset bar chart
