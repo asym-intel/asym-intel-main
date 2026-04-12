@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cross-Monitor Flags — Global Macro Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Cross-monitor flags and inter-domain connections for Global Macro Monitor. Where structural and episodic signals cross domain boundaries.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/nav.js"></script>
+</head>
+<body>
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html"></a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list"></ul>
+  <div class="monitor-nav__actions"></div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+  <div style="padding:var(--space-10) 0 var(--space-6)">
+    <div class="page-header__eyebrow" style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:color-mix(in srgb,var(--monitor-accent) 65%,#000);margin-bottom:var(--space-2)">GMM · ASYMMETRIC INTELLIGENCE</div>
+    <h1 class="page-header__title" style="font-size:var(--text-4xl);font-weight:700;line-height:1.1;margin:0 0 var(--space-3)">Cross-Monitor Flags</h1>
+    <div id="cm-meta" style="font-size:var(--text-sm);color:var(--text-muted)">Loading&hellip;</div>
+  </div>
+
+  <div class="cm-intro" style="background:var(--surface-2,#f5f4f2);border-left:3px solid var(--monitor-accent);border-radius:4px;padding:var(--space-4) var(--space-5);margin-bottom:var(--space-8)">
+    <p style="font-size:var(--text-sm);margin:0 0 var(--space-2)">
+      <strong>Inter-domain intelligence connections.</strong> Cross-monitor flags identify where structural or episodic signals from one domain create material implications for another. Each flag links back to its source monitor for full context.
+    </p>
+    <p style="font-size:var(--text-sm);color:var(--text-muted);margin:0">
+      Flags are classified as <strong>Structural</strong> (persistent systemic linkage) or <strong>Episodic</strong> (time-bound event-driven). Active flags are updated weekly; resolved flags are archived.
+    </p>
+  </div>
+
+  <!-- Active Flags -->
+  <section class="module-section" id="section-active-flags">
+    <div class="module-header">
+      <div class="module-title">Active Flags</div>
+    </div>
+    <div id="active-flags-content"><div class="loading-state">Loading cross-monitor flags&hellip;</div></div>
+  </section>
+
+  <!-- Candidates -->
+  <section class="module-section" id="section-candidates" style="display:none">
+    <div class="module-header">
+      <div class="module-title">Emerging Candidates</div>
+    </div>
+    <div class="cm-candidates-intro" style="font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--space-4)">
+      Signals under observation that may be elevated to formal cross-monitor flags. Not yet analytically confirmed.
+    </div>
+    <div id="candidates-content"></div>
+  </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-active-flags">Active Flags</a></li>
+      <li id="sidebar-candidates-link" style="display:none"><a href="#section-candidates">Emerging Candidates</a></li>
+    </ul>
+    <div class="sidebar-nav__title" style="margin-top:var(--space-6)">Navigate</div>
+    <ul>
+      <li><a href="dashboard.html">Dashboard</a></li>
+      <li><a href="report.html">Latest Issue</a></li>
+      <li><a href="persistent.html">Living Knowledge</a></li>
+    </ul>
+  </nav>
+
+</div>
+
+<footer class="monitor-footer"></footer>
+
+<script src="../shared/js/renderer.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d)) return esc(iso);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  function flagTitle(f) {
+    return f.title || f.headline || f.signal || f.summary || '';
+  }
+
+  function flagBody(f) {
+    return f.linkage || f.body || f.description || f.detail || '';
+  }
+
+  function flagMonitor(f) {
+    if (f.monitors_involved && f.monitors_involved.length) return f.monitors_involved.join(' \u00b7 ');
+    if (f.monitor) return f.monitor;
+    return '';
+  }
+
+  function flagUrl(f) {
+    if (f.source_url) return f.source_url;
+    if (f.monitor_url) return f.monitor_url;
+    if (f.monitor_slug) return '/monitors/' + f.monitor_slug + '/dashboard.html';
+    return '';
+  }
+
+  function severityClass(sev) {
+    if (!sev) return '';
+    var s = sev.toLowerCase();
+    if (s.indexOf('critical') >= 0 || s.indexOf('escalat') >= 0) return 'badge--critical';
+    if (s.indexOf('high') >= 0) return 'badge--high';
+    if (s.indexOf('active') >= 0) return 'badge--accent';
+    return 'badge';
+  }
+
+  function renderFlagCard(f) {
+    var id = f.id || f.flag_id || '';
+    var title = flagTitle(f);
+    var body = flagBody(f);
+    var monitor = flagMonitor(f);
+    var url = flagUrl(f);
+    var status = f.status || '';
+    var classification = f.classification || f.type || f.structural_or_transient || '';
+    var firstFlagged = f.first_flagged || f.first_raised || '';
+    var updated = f.updated || f.last_updated || '';
+
+    var html = '<div class="cms-flag">' +
+      '<div class="cms-flag__header">' +
+        '<span class="cms-flag__id">' + esc(id) + '</span>' +
+        '<div style="display:flex;gap:var(--space-2);flex-wrap:wrap;align-items:center">' +
+          (classification ? '<span class="badge">' + esc(classification) + '</span>' : '') +
+          (status ? '<span class="badge ' + severityClass(status) + '">' + esc(status) + '</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="cms-flag__title">' + esc(title) + '</div>';
+
+    if (monitor) {
+      html += '<div class="cms-flag__monitors">';
+      if (url) {
+        html += '<a href="' + esc(url) + '" style="color:var(--monitor-accent);text-decoration:underline">' + esc(monitor) + '</a>';
+      } else {
+        html += esc(monitor);
+      }
+      html += '</div>';
+    }
+
+    if (body) {
+      html += '<div class="cms-flag__body cms-flag__body--collapsed">' + esc(body) + '</div>' +
+        '<span class="cms-read-more">Read more \u2192</span>';
+    }
+
+    var meta = [];
+    if (firstFlagged) meta.push('First flagged: ' + formatDate(firstFlagged));
+    if (updated) meta.push('Updated: ' + formatDate(updated));
+    if (f.conflict) meta.push('Conflict: ' + f.conflict);
+    if (f.indicator) meta.push('Indicator: ' + f.indicator);
+    if (f.severity) meta.push('Severity: ' + f.severity);
+    if (meta.length) {
+      html += '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--space-2)">' +
+        esc(meta.join(' \u00b7 ')) + '</div>';
+    }
+
+    html += '</div>';
+    return html;
+  }
+
+  function renderCandidateCard(c) {
+    var monitor = c.target_monitor || '';
+    var monitorUrl = monitor ? '/monitors/' + monitor + '/dashboard.html' : '';
+
+    return '<div class="cms-flag" style="border-left:2px solid var(--color-border-subtle);padding-left:var(--space-4)">' +
+      '<div class="cms-flag__header">' +
+        '<span class="badge">Candidate</span>' +
+        (c.confidence_preliminary ? '<span class="badge">' + esc(c.confidence_preliminary) + ' confidence</span>' : '') +
+      '</div>' +
+      '<div class="cms-flag__title" style="font-weight:600">' + esc(c.signal || '') + '</div>' +
+      '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--space-1)">' +
+        (c.type ? esc(c.type) + ' \u00b7 ' : '') +
+        'Target: ' +
+        (monitorUrl
+          ? '<a href="' + esc(monitorUrl) + '" style="color:var(--monitor-accent)">' + esc(monitor.replace(/-/g, ' ')) + '</a>'
+          : esc(monitor)) +
+      '</div>' +
+    '</div>';
+  }
+
+  function render(data) {
+    var cmf = data.cross_monitor_flags || {};
+    var flags = cmf.flags || [];
+    var candidates = data.cross_monitor_candidates || [];
+
+    var metaEl = document.getElementById('cm-meta');
+    if (metaEl) {
+      var parts = [];
+      if (cmf.updated) parts.push('Updated ' + formatDate(cmf.updated));
+      parts.push(flags.length + ' active flag' + (flags.length !== 1 ? 's' : ''));
+      if (candidates.length) parts.push(candidates.length + ' emerging candidate' + (candidates.length !== 1 ? 's' : ''));
+      metaEl.textContent = parts.join(' \u00b7 ');
+    }
+
+    var container = document.getElementById('active-flags-content');
+    if (flags.length === 0) {
+      container.innerHTML = '<div style="font-size:var(--text-sm);color:var(--text-muted);padding:var(--space-6) 0">No active cross-monitor flags this issue.</div>';
+    } else {
+      var html = '<div class="cross-monitor-panel" style="margin-top:0">';
+      flags.forEach(function (f) { html += renderFlagCard(f); });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    if (candidates.length > 0) {
+      document.getElementById('section-candidates').style.display = '';
+      var sidebarLink = document.getElementById('sidebar-candidates-link');
+      if (sidebarLink) sidebarLink.style.display = '';
+
+      var cHtml = '';
+      candidates.forEach(function (c) { cHtml += renderCandidateCard(c); });
+      document.getElementById('candidates-content').innerHTML = cHtml;
+    }
+
+    document.querySelectorAll('.cms-read-more').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var body = this.previousElementSibling;
+        if (body && body.classList.contains('cms-flag__body--collapsed')) {
+          body.classList.remove('cms-flag__body--collapsed');
+          this.textContent = 'Show less \u2190';
+        } else if (body) {
+          body.classList.add('cms-flag__body--collapsed');
+          this.textContent = 'Read more \u2192';
+        }
+      });
+    });
+
+    if (window.AsymNav) window.AsymNav.init();
+  }
+
+  fetch('data/report-latest.json')
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(render)
+    .catch(function (err) {
+      document.getElementById('active-flags-content').innerHTML =
+        '<div class="error-banner" style="background:var(--surface-warning,#fff3e0);border-left:3px solid var(--color-warning,#e65100);border-radius:4px;padding:var(--space-4) var(--space-5);font-size:var(--text-sm);color:var(--color-text)">' +
+        'Failed to load cross-monitor data. ' + esc(err.message) + '</div>';
+    });
+})();
+</script>
+</body>
+</html>
