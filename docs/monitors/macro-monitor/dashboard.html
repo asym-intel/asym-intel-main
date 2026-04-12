@@ -518,7 +518,7 @@
       <li><a href="#section-systemic-risk">Systemic Risk</a></li>
       <li><a href="#section-real-m2">Real M2</a></li>
       <li><a href="#section-score-history">Score History</a></li>
-      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
     </ul>
   </nav>
 </div>
@@ -848,9 +848,9 @@ document.addEventListener('DOMContentLoaded', function () {
         (eb.one_indicator_lying ? '<p style="margin-top:var(--space-3);font-size:var(--text-sm);color:rgba(255,255,255,0.8)"><strong>One indicator that may be lying:</strong> ' + esc(eb.one_indicator_lying) + '</p>' : '') +
         (eb.hard_landing_risk && eb.hard_landing_risk.score != null
           ? '<div style="margin-top:var(--space-3);display:flex;align-items:center;gap:var(--space-3)">' +
-            '<span style="font-size:var(--text-xs);color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:.05em">Hard Landing Risk</span>' +
+            '<span style="font-size:var(--text-xs);color:rgba(255,255,255,0.75);text-transform:uppercase;letter-spacing:.05em">Hard Landing Risk</span>' +
             '<span style="font-size:var(--text-sm);font-weight:700;color:rgba(255,255,255,0.95)">' + esc(String(eb.hard_landing_risk.score)) + '/10</span>' +
-            (eb.hard_landing_risk.direction ? '<span style="font-size:var(--text-xs);color:rgba(255,255,255,0.7)">' + esc(eb.hard_landing_risk.direction) + '</span>' : '') +
+            (eb.hard_landing_risk.direction ? '<span style="font-size:var(--text-xs);color:rgba(255,255,255,0.75)">' + esc(eb.hard_landing_risk.direction) + '</span>' : '') +
             '</div>' +
             (eb.hard_landing_risk.note ? '<p style="font-size:var(--text-xs);color:rgba(255,255,255,0.75);margin-top:var(--space-2)">' + esc(eb.hard_landing_risk.note) + '</p>' : '')
           : '') +
