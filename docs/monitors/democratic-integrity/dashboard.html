@@ -404,47 +404,6 @@
         <div id="integrity-flags-content"><div class="loading-state">Loading…</div></div>
       </section>
 
-      <!-- Key Judgments -->
-      <section class="module-section" id="section-key-judgments">
-        <div class="module-header">
-          <div class="module-title">Key Judgments</div>
-        </div>
-        <div id="key-judgments-wrap"><div class="loading-state">Loading…</div></div>
-      </section>
-
-      <!-- Electoral Calendar -->
-      <section class="module-section" id="section-electoral-calendar">
-        <div class="module-header">
-          <div class="module-title">Electoral Calendar Watch</div>
-        </div>
-        <div id="electoral-calendar-content"><div class="loading-state">Loading…</div></div>
-      </section>
-
-      <!-- Mimicry Chains -->
-      <section class="module-section" id="section-mimicry-chains">
-        <div class="module-header">
-          <div class="module-title">Mimicry Chains</div>
-        </div>
-        <div id="mimicry-chains-content"><div class="loading-state">Loading…</div></div>
-      </section>
-
-      <!-- Legislative Watch -->
-      <section class="module-section" id="section-legislative-watch">
-        <div class="module-header">
-          <div class="module-title">Legislative Watch</div>
-        </div>
-        <div id="legislative-watch-content"><div class="loading-state">Loading…</div></div>
-      </section>
-
-      <!-- Friction Notes -->
-      <section class="module-section" id="section-friction-notes">
-        <div class="module-header">
-          <div class="module-title">Friction Notes</div>
-          <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:0.2rem">Official vs ground-truth divergences</div>
-        </div>
-        <div id="friction-notes-content"><div class="loading-state">Loading…</div></div>
-      </section>
-
       <!-- Cross-Monitor Flags -->
       <section class="module-section" id="section-cross-monitor">
         <div class="module-header">
@@ -466,11 +425,6 @@
       <li><a href="#section-heatmap">Country Tracker</a></li>
       <li><a href="#geographic-view">Geographic View</a></li>
       <li><a href="#section-integrity-flags">Integrity Flags</a></li>
-      <li><a href="#section-key-judgments">Key Judgments</a></li>
-      <li><a href="#section-electoral-calendar">Electoral Calendar</a></li>
-      <li><a href="#section-mimicry-chains">Mimicry Chains</a></li>
-      <li><a href="#section-legislative-watch">Legislative Watch</a></li>
-      <li><a href="#section-friction-notes">Friction Notes</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
 
@@ -482,6 +436,11 @@
 <script src="../shared/js/renderer.js"></script>
 <script src="../shared/js/charts.js"></script>
 <script>
+function escHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
     return String(str == null ? '' : str)
@@ -848,118 +807,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Integrity flags
       renderIntegrityFlags(d.institutional_integrity_flags || [], 'integrity-flags-content');
-
-      // Key Judgments (via AsymSections shared library)
-      if (window.AsymSections && window.AsymSections.renderKeyJudgments) {
-        AsymSections.renderKeyJudgments(d.key_judgments || [], 'key-judgments-wrap');
-      } else {
-        var kjWrap = document.getElementById('key-judgments-wrap');
-        var kj = d.key_judgments || [];
-        if (!kj.length) {
-          kjWrap.innerHTML = '<p class="text-muted text-sm">No key judgments this issue.</p>';
-        } else {
-          var kjHtml = '';
-          kj.forEach(function(j) {
-            kjHtml += '<div class="card">' +
-              '<div class="card__label">' + escHtml(j.id || '') +
-                (j.confidence ? ' \u00b7 <span class="severity-badge severity-badge--' + (j.confidence === 'High' ? 'critical' : 'moderate') + '">' + escHtml(j.confidence) + '</span>' : '') +
-                (j.trajectory ? ' <span style="font-size:var(--text-xs);color:var(--color-text-muted)">\u2192 ' + escHtml(j.trajectory) + '</span>' : '') +
-              '</div>' +
-              '<div class="card__body" style="font-weight:600">' + escHtml(j.judgment || '') + '</div>' +
-              (Array.isArray(j.countries_affected) && j.countries_affected.length ? '<div style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:var(--space-1)">' + j.countries_affected.map(function(c){ return '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:3px;background:var(--monitor-accent-bg);color:var(--monitor-accent)">' + (typeof AsymRenderer !== "undefined" && AsymRenderer.flag ? (AsymRenderer.flag(c)||'') + ' ' : '') + escHtml(c) + '</span>'; }).join('') + '</div>' : '') +
-            '</div>';
-          });
-          kjWrap.innerHTML = kjHtml;
-        }
-      }
-
-      // Electoral Calendar Watch
-      var ecwEl = document.getElementById('electoral-calendar-content');
-      var ecw = d.electoral_calendar_watch || [];
-      if (!ecw.length) {
-        ecwEl.innerHTML = '<p class="text-muted text-sm">No upcoming elections in watch window.</p>';
-      } else {
-        var ecwHtml = '<table class="heatmap-table"><thead><tr><th>Country</th><th>Date</th><th>Type</th><th>FIMI Risk</th><th>Note</th></tr></thead><tbody>';
-        ecw.forEach(function(ev) {
-          ecwHtml += '<tr>' +
-            '<td>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(ev.country)||'') + ' ' : '') + escHtml(ev.country || '') + '</td>' +
-            '<td>' + escHtml(ev.election_date || ev.date || '') + '</td>' +
-            '<td>' + escHtml(ev.election_type || ev.event || '') + '</td>' +
-            '<td><span class="severity-badge severity-badge--' + ((ev.fimi_risk||'').toLowerCase() === 'high' ? 'critical' : (ev.fimi_risk||'').toLowerCase() === 'medium' ? 'high' : 'moderate') + '">' + escHtml(ev.fimi_risk || 'None') + '</span></td>' +
-            '<td>' + escHtml(ev.integrity_concern || ev.wdm_significance || ev.note || '') + '</td>' +
-          '</tr>';
-        });
-        ecwHtml += '</tbody></table>';
-        ecwEl.innerHTML = ecwHtml;
-      }
-
-      // Mimicry Chains
-      var mcEl = document.getElementById('mimicry-chains-content');
-      var mcData = d.mimicry_chain_update || {};
-      var mcChains = mcData.active_chains || [];
-      if (!mcChains.length) {
-        mcEl.innerHTML = '<p class="text-muted text-sm">No active mimicry chains tracked.</p>';
-      } else {
-        var mcHtml = '';
-        if (mcData.note) mcHtml += '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin-bottom:var(--space-3)">' + escHtml(mcData.note) + '</p>';
-        mcChains.forEach(function(ch) {
-          mcHtml += '<div class="card">' +
-            '<div class="card__label">' + escHtml(ch.chain_name || '') +
-              (ch.legislative_status ? ' <span class="severity-badge severity-badge--moderate">' + escHtml(ch.legislative_status) + '</span>' : '') +
-            '</div>' +
-            '<div class="card__body">' +
-              (ch.origin_country ? '<strong>Origin:</strong> ' + escHtml(ch.origin_country) : '') +
-              (ch.adopting_countries && ch.adopting_countries.length ? ' \u2192 ' + ch.adopting_countries.map(function(c){ return escHtml(c); }).join(', ') : '') +
-              (ch.current_front ? ' \u2192 <strong>' + escHtml(ch.current_front) + '</strong> (current front)' : '') +
-            '</div>' +
-            (ch.notes ? '<div class="card__footer"><span>' + escHtml(ch.notes) + '</span></div>' : '') +
-          '</div>';
-        });
-        mcEl.innerHTML = mcHtml;
-      }
-
-      // Legislative Watch
-      var lwEl = document.getElementById('legislative-watch-content');
-      var lwArr = d.legislative_watch || d.legislative_watch_entries || [];
-      if (Array.isArray(lwArr) && lwArr.length) {
-        var lwHtml = '<table class="heatmap-table"><thead><tr><th>Country</th><th>Bill / Law</th><th>Status</th><th>Concern</th></tr></thead><tbody>';
-        lwArr.forEach(function(item) {
-          var statusCls = (item.status || '').toLowerCase() === 'in_force' || (item.status || '').toLowerCase() === 'signed' ? 'critical' : 'moderate';
-          lwHtml += '<tr>' +
-            '<td>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(item.country)||'') + ' ' : '') + escHtml(item.country || '') + '</td>' +
-            '<td>' + escHtml(item.name || item.bill || item.title || '') + '</td>' +
-            '<td><span class="severity-badge severity-badge--' + statusCls + '">' + escHtml(item.status || item.stage || '') + '</span></td>' +
-            '<td>' + escHtml(item.analytic_concern || item.democratic_impact || '') + '</td>' +
-          '</tr>';
-        });
-        lwHtml += '</tbody></table>';
-        lwEl.innerHTML = lwHtml;
-      } else {
-        lwEl.innerHTML = '<p class="text-muted text-sm">No legislative watch entries this issue.</p>';
-      }
-
-      // Friction Notes
-      var fnEl = document.getElementById('friction-notes-content');
-      var fnArr = d.friction_notes || [];
-      if (fnArr.length) {
-        var fnHtml = '';
-        fnArr.forEach(function(n) {
-          fnHtml += '<div class="card">' +
-            '<div class="card__label">' +
-              (n.country ? (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(n.country)||'') + ' ' : '') + escHtml(n.country) : '') +
-              (n.status ? ' \u00b7 <span class="severity-badge severity-badge--' + (n.status === 'Active' ? 'high' : 'positive') + '">' + escHtml(n.status) + '</span>' : '') +
-            '</div>' +
-            '<div class="card__body">' +
-              '<div style="margin-bottom:var(--space-2)"><strong>Official (T1):</strong> ' + escHtml(n.tier1_claim || '') + '</div>' +
-              '<div><strong>Ground Truth (T3/T4):</strong> ' + escHtml(n.ground_truth || '') + '</div>' +
-            '</div>' +
-            (n.ground_truth_sources ? '<div class="card__footer"><span>Sources: ' + escHtml(n.ground_truth_sources) + '</span></div>' : '') +
-          '</div>';
-        });
-        fnEl.innerHTML = fnHtml;
-      } else {
-        fnEl.innerHTML = '<p class="text-muted text-sm">No friction notes this issue.</p>';
-      }
 
       // Cross-monitor flags
       renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
