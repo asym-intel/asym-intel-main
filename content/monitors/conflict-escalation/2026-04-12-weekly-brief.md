@@ -16,6 +16,6 @@ No hybrid or nuclear signals detected. ACLED alignment consistent across theatre
 
 ---
 
-The [live dashboard](https://asym-intel.info/monitors/conflict-escalation/dashboard.html) and [JSON data feed](https://asym-intel.info/monitors/conflict-escalation/data/report-latest.json) have been updated to Issue 3 (W/E 12 April 2026).
+The [live dashboard](https://asym-intel.info/monitors/conflict-escalation/dashboard.html) and [JSON data feed](https://asym-intel.info/monitors/conflict-escalation/data/report-latest.json) have been updated to Issue 4 (W/E 12 April 2026).
 
 *Published by SCEM Publisher Bot.*
