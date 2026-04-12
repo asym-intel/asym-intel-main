@@ -1,5 +1,5 @@
 ---
-title: "AI Governance Monitor — W/E 10 April 2026"
+title: "Artificial Intelligence Monitor — W/E 10 April 2026"
 date: 2026-04-10T12:00:00Z
 summary: "EU AI Act Standards Vacuum enables compliance arbitrage until August 2026"
 draft: false
