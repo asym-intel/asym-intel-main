@@ -2062,6 +2062,187 @@ window.AsymSections = (function () {
   }
 
 
+  /* ── Generic Radar Chart ────────────────────────────────────
+   * renderRadarChart(config, targetId)
+   *
+   * Renders a Chart.js radar with side-by-side bar list.
+   * Works for any dataset — Lagrange scores, threat dimensions,
+   * capability assessments, etc.
+   *
+   * config: {
+   *   title:      string — section heading (optional)
+   *   subtitle:   string — description text (optional)
+   *   badge:      string — large centre value e.g. "~35%" (optional)
+   *   badgeLabel: string — small label below badge (optional)
+   *   accent:     string — CSS colour, defaults to var(--monitor-accent)
+   *   dimensions: [
+   *     { label: 'Energy Independence', score: 52, note: 'Russian gas...' },
+   *     ...
+   *   ]
+   * }
+   */
+  function renderRadarChart(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var dims = config.dimensions || [];
+    if (!dims.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No radar data available.</p>';
+      return;
+    }
+
+    var accent = config.accent || 'var(--monitor-accent,#5b8db0)';
+    var accentRaw = config.accent || '#5b8db0';
+    var canvasId = 'radar-canvas-' + targetId;
+    var dimListId = 'radar-dim-list-' + targetId;
+
+    // Inject CSS once
+    if (!document.getElementById('asym-radar-css')) {
+      var style = document.createElement('style');
+      style.id = 'asym-radar-css';
+      style.textContent =
+        '.asym-radar-wrap{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6,1.5rem);align-items:center;overflow:visible}' +
+        '@media(max-width:768px){.asym-radar-wrap{grid-template-columns:1fr}}' +
+        '.asym-radar-canvas-wrap{width:100%;aspect-ratio:1/1;overflow:visible;position:relative}' +
+        '.asym-radar-canvas-wrap canvas{overflow:visible}' +
+        '.asym-radar-badge{text-align:center;margin-bottom:var(--space-6,1.5rem)}' +
+        '.asym-radar-badge__value{font-size:2.5rem;font-weight:800;line-height:1}' +
+        '.asym-radar-badge__label{font-size:var(--text-xs,.75rem);text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted,#888);margin-top:var(--space-1,.25rem)}' +
+        '.asym-radar-dim-list{display:flex;flex-direction:column;gap:var(--space-4,1rem);padding-top:var(--space-2,.5rem)}' +
+        '.asym-radar-dim-row{display:grid;grid-template-columns:1fr auto;gap:var(--space-2,.5rem) var(--space-4,1rem);align-items:center}' +
+        '.asym-radar-dim-row__label{font-size:var(--text-sm,.875rem);font-weight:600;color:var(--color-text)}' +
+        '.asym-radar-dim-row__note{font-size:var(--text-xs,.75rem);color:var(--color-text-muted,#888);line-height:1.3;margin-top:2px}' +
+        '.asym-radar-dim-row__score{font-size:var(--text-lg,1.125rem);font-weight:800;font-variant-numeric:tabular-nums;text-align:right;min-width:2.5rem}' +
+        '.asym-radar-dim-row__bar-wrap{grid-column:1/-1;height:8px;background:var(--color-bg-alt,rgba(0,0,0,.05));border-radius:4px;overflow:hidden}' +
+        '[data-theme=dark] .asym-radar-dim-row__bar-wrap{background:rgba(255,255,255,.06)}' +
+        '.asym-radar-dim-row__bar{height:100%;border-radius:4px;transition:width .6s ease;min-width:2px}';
+      document.head.appendChild(style);
+    }
+
+    // Build HTML
+    var html = '';
+    if (config.badge) {
+      html +=
+        '<div class="asym-radar-badge">' +
+          '<div class="asym-radar-badge__value" style="color:' + accentRaw + '">' + escHtml(config.badge) + '</div>' +
+          (config.badgeLabel ? '<div class="asym-radar-badge__label">' + escHtml(config.badgeLabel) + '</div>' : '') +
+        '</div>';
+    }
+
+    html +=
+      '<div class="asym-radar-wrap">' +
+        '<div class="asym-radar-canvas-wrap">' +
+          '<canvas id="' + canvasId + '" aria-label="' + escHtml(config.title || 'Radar Chart') + '" role="img"></canvas>' +
+        '</div>' +
+        '<div class="asym-radar-dim-list" id="' + dimListId + '"></div>' +
+      '</div>';
+    el.innerHTML = html;
+
+    // Build bar list
+    var dimListEl = document.getElementById(dimListId);
+    var barsHtml = '';
+    dims.forEach(function(d) {
+      var score = parseFloat(d.score || 0);
+      var barColor = score >= 50 ? 'var(--positive,#4caf7d)' : score >= 30 ? accentRaw : 'var(--high,#d97706)';
+      barsHtml +=
+        '<div class="asym-radar-dim-row">' +
+          '<div>' +
+            '<div class="asym-radar-dim-row__label">' + escHtml(d.label || '') + '</div>' +
+            (d.note ? '<div class="asym-radar-dim-row__note">' + escHtml(d.note) + '</div>' : '') +
+          '</div>' +
+          '<div class="asym-radar-dim-row__score" style="color:' + barColor + '">' + escHtml(String(d.score != null ? d.score : '—')) + '</div>' +
+          '<div class="asym-radar-dim-row__bar-wrap">' +
+            '<div class="asym-radar-dim-row__bar" style="width:' + Math.min(score, 100) + '%;background:' + barColor + '"></div>' +
+          '</div>' +
+        '</div>';
+    });
+    if (dimListEl) dimListEl.innerHTML = barsHtml;
+
+    // Draw Chart.js radar
+    var radarCanvas = document.getElementById(canvasId);
+    if (!radarCanvas || typeof Chart === 'undefined') return;
+
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var labelColor = isDark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
+    var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+    var labels = dims.map(function(d) { return d.label || ''; });
+    var scores = dims.map(function(d) { return parseFloat(d.score || 0); });
+    var maxVal = config.max || 100;
+
+    var chart = new Chart(radarCanvas.getContext('2d'), {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: config.title || 'Score',
+          data: scores,
+          backgroundColor: (accentRaw + '30'),
+          borderColor: accentRaw,
+          borderWidth: 2,
+          pointBackgroundColor: accentRaw,
+          pointBorderColor: isDark ? '#1e1d1b' : '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 20, bottom: 25, left: 50, right: 50 } },
+        animation: { duration: 700, easing: 'easeInOutQuart' },
+        scales: {
+          r: {
+            min: 0,
+            max: maxVal,
+            ticks: {
+              stepSize: maxVal / 4,
+              color: labelColor,
+              backdropColor: 'transparent',
+              font: { size: 11 }
+            },
+            grid: { color: gridColor },
+            angleLines: { color: gridColor },
+            pointLabels: {
+              color: labelColor,
+              font: { size: 12, weight: '600' },
+              padding: 12
+            }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                return ' ' + ctx.parsed.r + ' / ' + maxVal;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Theme toggle listener
+    var themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', function() {
+        setTimeout(function() {
+          var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+          var lc = dark ? 'rgba(224,223,220,0.85)' : 'rgba(26,25,23,0.75)';
+          var gc = dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+          chart.options.scales.r.ticks.color = lc;
+          chart.options.scales.r.pointLabels.color = lc;
+          chart.options.scales.r.grid.color = gc;
+          chart.options.scales.r.angleLines.color = gc;
+          chart.data.datasets[0].pointBorderColor = dark ? '#1e1d1b' : '#ffffff';
+          chart.update();
+        }, 80);
+      });
+    }
+  }
+
+
   /* ── Public API ─────────────────────────────────────────────── */
   return {
     // Helpers (exposed for inline orchestrators)
@@ -2095,7 +2276,9 @@ window.AsymSections = (function () {
     renderElectionThreats: renderElectionThreats,
     renderLagrangeScores: renderLagrangeScores,
     renderDefenceSpending: renderDefenceSpending,
-    renderDefenceProgrammes: renderDefenceProgrammes
+    renderDefenceProgrammes: renderDefenceProgrammes,
+    // Generic reusable chart
+    renderRadarChart: renderRadarChart
   };
 }());
 
