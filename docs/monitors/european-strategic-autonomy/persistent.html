@@ -122,9 +122,10 @@
   }
   .lagrange-radar-wrap {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.3fr 1fr;
     gap: var(--space-8);
     align-items: start;
+    overflow: visible;
   }
   @media (max-width: 768px) {
     .lagrange-radar-wrap {
@@ -132,8 +133,11 @@
     }
   }
   .lagrange-radar-canvas-wrap {
-    max-width: 400px;
+    max-width: 500px;
     margin: 0 auto;
+    /* Prevent Chart.js point labels from being clipped */
+    overflow: visible;
+    padding: var(--space-4);
   }
   .lagrange-dim-list {
     display: flex;
@@ -401,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '</div>' +
             '<div class="lagrange-radar-wrap">' +
               '<div class="lagrange-radar-canvas-wrap">' +
-                '<canvas id="lagrange-radar-canvas" width="543" height="543" aria-label="Strategic Autonomy Radar Chart" role="img"></canvas>' +
+                '<canvas id="lagrange-radar-canvas" aria-label="Strategic Autonomy Radar Chart" role="img"></canvas>' +
               '</div>' +
               '<div class="lagrange-dim-list" id="lagrange-dim-list"></div>' +
             '</div>';
@@ -457,6 +461,7 @@ document.addEventListener('DOMContentLoaded', function () {
               options: {
                 responsive: true,
                 maintainAspectRatio: true,
+                layout: { padding: 16 },
                 animation: { duration: 700, easing: 'easeInOutQuart' },
                 scales: {
                   r: {
