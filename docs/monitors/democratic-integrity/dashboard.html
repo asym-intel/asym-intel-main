@@ -7,272 +7,60 @@
   <meta name="description" content="Live dashboard for the World Democracy Monitor. KPIs, lead signal, delta strip, and heatmap summary.">
   <link rel="stylesheet" href="../shared/css/base.css">
   <link rel="stylesheet" href="assets/monitor.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/sp38=" crossorigin=""></script>
   <style>
-    /* ── Tier Distribution Strip ──────────────────────────────── */
-    .tier-distribution {
-      margin-bottom: var(--space-6, 1.5rem);
-    }
-    .tier-distribution__label {
-      font-size: var(--text-xs, 0.75rem);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--color-text-muted, #6b6660);
-      margin-bottom: var(--space-2, 0.5rem);
-      font-weight: 600;
-    }
-    .tier-distribution__bar-wrap {
-      position: relative;
-    }
-    #tier-dist-canvas-container {
-      width: 100%;
-      height: 60px;
-      position: relative;
-    }
-    #tier-dist-canvas-container canvas {
-      border-radius: var(--radius-md, 6px);
-    }
-    .tier-distribution__legend {
-      display: flex;
-      gap: var(--space-5, 1.25rem);
-      margin-top: var(--space-2, 0.5rem);
-      flex-wrap: wrap;
-    }
-    .tier-legend-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: var(--text-xs, 0.75rem);
-      color: var(--color-text-secondary, #3d3a35);
-    }
-    .tier-legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-    .tier-legend-dot--decay    { background: #b91c1c; }
-    .tier-legend-dot--watchlist{ background: #d97706; }
-    .tier-legend-dot--recovery { background: #059669; }
-    [data-theme="dark"] .tier-legend-item {
-      color: var(--color-text-secondary, #9d9893);
-    }
+    /* ── WDM monitor accent ─────────────────────────────────────── */
+    :root { --monitor-accent: #61a5d2; }
 
-    /* ── Country Severity Cards ───────────────────────────────── */
-    .severity-cards-section {
-      margin-bottom: var(--space-6, 1.5rem);
-    }
-    .severity-cards-row {
-      display: flex;
-      gap: var(--space-4, 1rem);
-      overflow-x: auto;
-      padding-bottom: var(--space-2, 0.5rem);
-      scrollbar-width: thin;
-      scrollbar-color: var(--color-border, #d8d4cd) transparent;
-    }
-    .severity-cards-row::-webkit-scrollbar {
-      height: 4px;
-    }
-    .severity-cards-row::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .severity-cards-row::-webkit-scrollbar-thumb {
-      background: var(--color-border, #d8d4cd);
-      border-radius: 2px;
-    }
-    .severity-card {
-      flex: 0 0 180px;
-      background: var(--color-surface, #ffffff);
-      border: 1px solid var(--color-border, #d8d4cd);
-      border-radius: var(--radius-lg, 10px);
-      padding: var(--space-4, 1rem) var(--space-5, 1.25rem);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2, 0.5rem);
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow 0.15s;
-    }
-    .severity-card:hover {
-      box-shadow: var(--shadow);
-    }
-    .severity-card--critical {
-      border-top: 3px solid #b91c1c;
-    }
-    .severity-card--high {
-      border-top: 3px solid #ea580c;
-    }
-    .severity-card--moderate {
-      border-top: 3px solid #d97706;
-    }
-    .severity-card__flag {
-      font-size: 1.75rem;
-      line-height: 1;
-    }
-    .severity-card__name {
-      font-size: var(--text-sm, 0.875rem);
-      font-weight: 700;
-      color: var(--color-text, #1a1917);
-      line-height: 1.3;
-    }
-    .severity-card__score-row {
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
-    }
-    .severity-card__score {
-      font-size: 2rem;
-      font-weight: 800;
-      line-height: 1;
-      color: var(--color-text, #1a1917);
-    }
-    .severity-card__arrow {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-    .severity-card__arrow--up    { color: #b91c1c; }
-    .severity-card__arrow--down  { color: #059669; }
-    .severity-card__arrow--flat  { color: var(--color-text-muted, #6b6660); }
-    .severity-card__signal {
-      font-size: var(--text-xs, 0.75rem);
-      color: var(--color-text-muted, #6b6660);
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    [data-theme="dark"] .severity-card {
-      background: var(--color-surface, #1e1d1b);
-      border-color: var(--color-border, #2d2c2a);
-    }
-    [data-theme="dark"] .severity-card__name,
-    [data-theme="dark"] .severity-card__score {
-      color: var(--color-text, #e0dfdc);
-    }
-    [data-theme="dark"] .severity-card__signal {
-      color: var(--color-text-muted, #8a8580);
-    }
-    .severity-cards-empty {
-      font-size: var(--text-sm, 0.875rem);
-      color: var(--color-text-muted, #6b6660);
-      padding: var(--space-4, 1rem) 0;
-    }
-  </style>
-  <style>
-    /* ── Geographic View ──────────────────────────────────────── */
-    #geographic-view {
-      margin-bottom: var(--space-6, 1.5rem);
-    }
-    .geo-view-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-4, 1rem);
-      margin-bottom: var(--space-4, 1rem);
-      flex-wrap: wrap;
-    }
-    #map-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: var(--radius-md, 6px);
-      border: 1px solid var(--color-border, #d8d4cd);
-      background: var(--color-surface, #ffffff);
-      color: var(--color-text, #1a1917);
-      font-size: var(--text-sm, 0.875rem);
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-    }
-    #map-toggle:hover {
-      background: var(--color-surface-raised, #f5f3f0);
-      border-color: var(--monitor-accent, #1d4ed8);
-    }
-    #map-toggle[data-active="map"] {
-      background: var(--monitor-accent, #1d4ed8);
-      color: #fff;
-      border-color: var(--monitor-accent, #1d4ed8);
-    }
-    [data-theme="dark"] #map-toggle {
-      background: var(--color-surface, #1e1d1b);
-      border-color: var(--color-border, #2d2c2a);
-      color: var(--color-text, #e0dfdc);
-    }
-    [data-theme="dark"] #map-toggle:hover {
-      border-color: var(--monitor-accent, #3b82f6);
-    }
-    [data-theme="dark"] #map-toggle[data-active="map"] {
-      background: var(--monitor-accent, #3b82f6);
-      color: #fff;
-    }
-    .wdm-map-wrap {
-      overflow-x: clip;
-      border-radius: var(--radius-lg, 10px);
-      border: 1px solid var(--color-border, #d8d4cd);
-    }
-    #wdm-map {
-      height: 420px;
+    /* ── Triage Map (structural slot) ────────────────────────────── */
+    #wdm-triage-map {
+      height: 320px;
       width: 100%;
       background: #f8f7f5;
+      border-radius: var(--radius-md, 6px);
+      border: 1px solid var(--color-border, #d8d4cd);
+      overflow: clip;
     }
-    @media (max-width: 640px) {
-      #wdm-map {
-        height: 300px;
-      }
+    @media (max-width: 640px) { #wdm-triage-map { height: 220px; } }
+
+    /* ── Geographic View (full below-fold) ───────────────────────── */
+    .geo-view-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: var(--space-4, 1rem); margin-bottom: var(--space-4, 1rem); flex-wrap: wrap;
     }
-    /* Leaflet popup overrides */
-    .wdm-popup-name {
-      font-weight: 700;
-      font-size: var(--text-sm, 0.875rem);
-      margin-bottom: 4px;
+    #map-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: var(--radius-md, 6px);
+      border: 1px solid var(--color-border, #d8d4cd);
+      background: var(--color-surface, #ffffff); color: var(--color-text, #1a1917);
+      font-size: var(--text-sm, 0.875rem); font-weight: 600; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
     }
-    .wdm-popup-tier {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: var(--text-xs, 0.75rem);
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .wdm-popup-tier--rapid_decay  { background: #fee2e2; color: #b91c1c; }
-    .wdm-popup-tier--recovery      { background: #dcfce7; color: #15803d; }
-    .wdm-popup-tier--watchlist     { background: #fef3c7; color: #b45309; }
-    .wdm-popup-row {
-      font-size: var(--text-xs, 0.75rem);
-      margin-bottom: 3px;
-      line-height: 1.5;
-    }
-    .wdm-popup-signal {
-      font-size: var(--text-xs, 0.75rem);
-      color: #6b6660;
-      margin-top: 4px;
-      line-height: 1.4;
-    }
-    /* Leaflet legend */
-    .wdm-map-legend {
-      background: rgba(255,255,255,0.93);
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #e5e7eb;
-      font-size: var(--text-xs, 0.75rem);
-      line-height: 1.8;
-    }
-    [data-theme="dark"] .wdm-map-legend {
-      background: rgba(30,29,27,0.93);
-      border-color: #3d3a35;
-      color: #c5c2bc;
-    }
-    .wdm-map-legend-swatch {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-      margin-right: 5px;
-      vertical-align: middle;
-    }
+    #map-toggle:hover { background: var(--color-surface-raised, #f5f3f0); border-color: var(--monitor-accent, #61a5d2); }
+    #map-toggle[data-active="map"] { background: var(--monitor-accent, #61a5d2); color: #fff; border-color: var(--monitor-accent, #61a5d2); }
+    [data-theme="dark"] #map-toggle { background: var(--color-surface, #1e1d1b); border-color: var(--color-border, #2d2c2a); color: var(--color-text, #e0dfdc); }
+    [data-theme="dark"] #map-toggle:hover { border-color: var(--monitor-accent, #61a5d2); }
+    [data-theme="dark"] #map-toggle[data-active="map"] { background: var(--monitor-accent, #61a5d2); color: #fff; }
+    .wdm-map-wrap { overflow: clip; border-radius: var(--radius-lg, 10px); border: 1px solid var(--color-border, #d8d4cd); }
+    #wdm-map { height: 420px; width: 100%; background: #f8f7f5; }
+    @media (max-width: 640px) { #wdm-map { height: 300px; } }
+
+    /* Leaflet popup styles */
+    .wdm-popup-name  { font-weight: 700; font-size: var(--text-sm, 0.875rem); margin-bottom: 4px; }
+    .wdm-popup-tier  { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: var(--text-xs, 0.75rem); font-weight: 600; margin-bottom: 6px; }
+    .wdm-popup-tier--rapid_decay { background: #fee2e2; color: #b91c1c; }
+    .wdm-popup-tier--recovery    { background: #dcfce7; color: #15803d; }
+    .wdm-popup-tier--watchlist   { background: #fef3c7; color: #b45309; }
+    .wdm-popup-row   { font-size: var(--text-xs, 0.75rem); margin-bottom: 3px; line-height: 1.5; }
+    .wdm-popup-signal{ font-size: var(--text-xs, 0.75rem); color: #6b6660; margin-top: 4px; line-height: 1.4; }
+    .wdm-map-legend  { background: rgba(255,255,255,0.93); padding: 8px 12px; border-radius: 6px; border: 1px solid #e5e7eb; font-size: var(--text-xs, 0.75rem); line-height: 1.8; }
+    [data-theme="dark"] .wdm-map-legend { background: rgba(30,29,27,0.93); border-color: #3d3a35; color: #c5c2bc; }
+    .wdm-map-legend-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+
   </style>
 </head>
 
@@ -292,47 +80,24 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <section class="module-section" id="section-kpi">
+    <!-- ── Page Header ──────────────────────────────────────────── -->
+    <section class="module-section" id="section-header">
       <div class="page-header">
         <div class="page-header__eyebrow">WDM Dashboard</div>
         <h1 class="page-header__title">World Democracy Monitor</h1>
         <div class="page-header__meta" id="page-meta">Loading…</div>
       </div>
+    </section>
 
-      <!-- Tier distribution strip -->
-      <div class="tier-distribution" id="section-tier-dist">
-        <div class="tier-distribution__label">Global Democratic Health — This Issue</div>
-        <div id="tier-dist-canvas-container">
-          <canvas id="tier-dist-chart" height="60" aria-label="Tier distribution chart" role="img"></canvas>
-        </div>
-        <div class="tier-distribution__legend" id="tier-dist-legend">
-          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--decay"></span>Rapid Decay</span>
-          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--watchlist"></span>Watchlist</span>
-          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--recovery"></span>Recovery</span>
-        </div>
-      </div>
-
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-countries">—</div>
-          <div class="kpi-card__label">Countries Monitored</div>
-          <div class="kpi-card__sub">Across all tiers this issue</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-rapid-decay">—</div>
-          <div class="kpi-card__label">Rapid Decay</div>
-          <div class="kpi-card__sub">Active decay episodes</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__value" id="kpi-lead-signal">—</div>
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__sub" id="kpi-lead-signal-sub">Top story this week</div>
-        </div>
+    <!-- ── Triage Strip ─────────────────────────────────────────── -->
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
       </div>
     </section>
 
-    <!-- Top 5 most severe rapid decay countries -->
-    <section class="module-section severity-cards-section" id="section-severity-cards">
+    <!-- ── Severity Cards — Top Rapid Decay ─────────────────────── -->
+    <section class="module-section" id="section-severity-cards">
       <div class="module-header">
         <div class="module-title">Most Severe — Rapid Decay</div>
       </div>
@@ -341,38 +106,37 @@
       </div>
     </section>
 
-    <section class="module-section" id="section-signal">
-      <div class="module-header">
-        <div class="module-title">Lead Signal</div>
-      </div>
-      <div id="signal-block">
-        <div class="loading-state">Loading signal…</div>
-      </div>
-    </section>
-
+    <!-- ── Weekly Brief ──────────────────────────────────────────── -->
     <section class="module-section" id="section-weekly-brief">
       <div class="module-header"><div class="module-title">Weekly Brief</div></div>
       <div id="weekly-brief-content"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <section class="module-section" id="section-delta">
-      <div class="module-header">
-        <div class="module-title">Top Items This Issue</div>
-      </div>
-      <div id="delta-strip">
-        <div class="loading-state">Loading intelligence items…</div>
+    <!-- ── Tier Distribution Chart ───────────────────────────────── -->
+    <section class="module-section" id="section-tier-dist">
+      <div class="module-header"><div class="module-title">Global Democratic Health — This Issue</div></div>
+      <div class="tier-distribution">
+        <div id="tier-dist-canvas-container">
+          <canvas id="tier-dist-chart" height="48" aria-label="Tier distribution chart" role="img"></canvas>
+        </div>
+        <div class="tier-distribution__legend" id="tier-dist-legend">
+          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--decay"></span>Rapid Decay</span>
+          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--watchlist"></span>Watchlist</span>
+          <span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--recovery"></span>Recovery</span>
+        </div>
       </div>
     </section>
 
-    <!-- Country Severity Ranked Bar -->
+    <!-- ── Country Severity Ranking ─────────────────────────────── -->
     <section class="module-section" id="section-severity-bar">
       <div class="module-header">
         <div class="module-title">Country Severity Ranking</div>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-3)">All monitored countries ranked by severity score. Coloured by category: <span style="color:#dc2626;font-weight:600">Rapid Decay</span> · <span style="color:#f59e0b;font-weight:600">Watchlist</span> · <span style="color:#22c55e;font-weight:600">Recovery</span>.</p>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-3)">Monitored countries ranked by severity score. <span style="color:#dc2626;font-weight:600">Rapid Decay</span> · <span style="color:#f59e0b;font-weight:600">Watchlist</span> · <span style="color:#22c55e;font-weight:600">Recovery</span>.</p>
       <div id="severity-bar-wrap"></div>
     </section>
 
+    <!-- ── Country Tracker (Heatmap Table) ──────────────────────── -->
     <section class="module-section" id="section-heatmap">
       <div class="module-header">
         <div class="module-title">Country Tracker</div>
@@ -382,7 +146,7 @@
       </div>
     </section>
 
-    <!-- Geographic View -->
+    <!-- ── Geographic View ──────────────────────────────────────── -->
     <section class="module-section" id="geographic-view">
       <div class="geo-view-header">
         <div class="module-header" style="margin-bottom:0">
@@ -396,52 +160,51 @@
       <div id="geo-table-view" style="display:none"></div>
     </section>
 
-      <!-- Integrity Flags -->
-      <section class="module-section" id="section-integrity-flags">
-        <div class="module-header">
-          <div class="module-title">Institutional Integrity Flags</div>
-        </div>
-        <div id="integrity-flags-content"><div class="loading-state">Loading…</div></div>
-      </section>
+    <!-- ── Integrity Flags ───────────────────────────────────────── -->
+    <section class="module-section" id="section-integrity-flags">
+      <div class="module-header">
+        <div class="module-title">Institutional Integrity Flags</div>
+      </div>
+      <div id="integrity-flags-content"><div class="loading-state">Loading…</div></div>
+    </section>
 
-      <!-- Cross-Monitor Flags -->
-      <section class="module-section" id="section-cross-monitor">
-        <div class="module-header">
-          <div class="module-title">Cross-Monitor Flags</div>
-        </div>
-        <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
-      </section>
+    <!-- ── Cross-Monitor Flags ───────────────────────────────────── -->
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Flags</div>
+      </div>
+      <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-kpi">Overview</a></li>
+      <li><a href="#section-triage">Triage Strip</a></li>
       <li><a href="#section-severity-cards">Most Severe</a></li>
-      <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-weekly-brief">Weekly Brief</a></li>
-      <li><a href="#section-delta">Top Items This Issue</a></li>
+      <li><a href="#section-tier-dist">Health Overview</a></li>
       <li><a href="#section-severity-bar">Severity Ranking</a></li>
       <li><a href="#section-heatmap">Country Tracker</a></li>
       <li><a href="#geographic-view">Geographic View</a></li>
       <li><a href="#section-integrity-flags">Integrity Flags</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
     </ul>
-
   </nav>
-
 </div>
 
 <footer class="monitor-footer"></footer>
 <script src="../shared/js/renderer.js"></script>
 <script src="../shared/js/charts.js"></script>
-<script>
-function escHtml(str) {
-  return String(str == null ? '' : str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
 
-document.addEventListener('DOMContentLoaded', function () {
+<script src="assets/wdm-map.js"></script>
+
+<script>
+/* ── WDM Dashboard orchestrator ──────────────────────────────────── */
+(function () {
+  'use strict';
+
   function escHtml(str) {
     return String(str == null ? '' : str)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -462,168 +225,60 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'flat';
   }
 
-  /* ── Tier Distribution Chart ──────────────────────────────── */
-  function renderTierChart(rdCount, wlCount, rcCount) {
-    var total = rdCount + wlCount + rcCount;
-    if (total === 0 || typeof Chart === 'undefined') return;
+  /* ── Heatmap normalisation (v2 flat array → rd/wl/rc) ── */
+  function normaliseHeatmap(rawHeatmap) {
+    if (Array.isArray(rawHeatmap)) {
+      var rd = [], wl = [], rc = [];
+      rawHeatmap.forEach(function (c) {
+        var status = (c.health_status || '').toLowerCase();
+        var delta  = (c.health_delta  || c.direction || '').toLowerCase();
+        var tier;
+        if (status === 'crisis')                               tier = 'rapid_decay';
+        else if (status === 'backsliding' && delta.indexOf('declin') > -1) tier = 'rapid_decay';
+        else if (status === 'backsliding')                     tier = 'watchlist';
+        else if (status === 'constrained' && delta.indexOf('declin') > -1) tier = 'watchlist';
+        else if (status === 'constrained' || status === 'consolidated') tier = 'recovery';
+        else                                                   tier = 'watchlist';
 
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    var labelColor = isDark ? '#9d9893' : '#6b6660';
-
-    var ctx = document.getElementById('tier-dist-chart');
-    if (!ctx) return;
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: [''],
-        datasets: [
-          {
-            label: 'Rapid Decay (' + rdCount + ')',
-            data: [rdCount],
-            backgroundColor: '#b91c1c',
-            borderWidth: 0,
-            borderRadius: { topLeft: 4, bottomLeft: 4, topRight: 0, bottomRight: 0 }
-          },
-          {
-            label: 'Watchlist (' + wlCount + ')',
-            data: [wlCount],
-            backgroundColor: '#d97706',
-            borderWidth: 0,
-            borderRadius: 0
-          },
-          {
-            label: 'Recovery (' + rcCount + ')',
-            data: [rcCount],
-            backgroundColor: '#059669',
-            borderWidth: 0,
-            borderRadius: { topLeft: 0, bottomLeft: 0, topRight: 4, bottomRight: 4 }
-          }
-        ]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function (ctx) {
-                return ctx.dataset.label;
-              }
-            }
-          },
-          datalabels: false
-        },
-        scales: {
-          x: {
-            stacked: true,
-            display: false,
-            grid: { display: false }
-          },
-          y: {
-            stacked: true,
-            display: false,
-            grid: { display: false }
-          }
-        },
-        layout: {
-          padding: 0
-        },
-        animation: {
-          duration: 500
-        }
-      },
-      plugins: [{
-        id: 'countLabels',
-        afterDatasetsDraw: function (chart) {
-          var ctx2 = chart.ctx;
-          chart.data.datasets.forEach(function (dataset, i) {
-            var meta = chart.getDatasetMeta(i);
-            if (!meta.hidden) {
-              meta.data.forEach(function (bar) {
-                var count = dataset.data[0];
-                if (count === 0) return;
-                var barW = bar.width;
-                // Only draw if segment is wide enough for the label
-                if (barW < 28) return;
-                var label = String(count);
-                ctx2.save();
-                ctx2.fillStyle = 'rgba(255,255,255,0.92)';
-                ctx2.font = 'bold 13px Satoshi, system-ui, sans-serif';
-                ctx2.textAlign = 'center';
-                ctx2.textBaseline = 'middle';
-                ctx2.fillText(label, bar.x - barW / 2 + barW / 2, bar.y);
-                ctx2.restore();
-              });
-            }
-          });
-        }
-      }]
-    });
-
-    // Update legend with live counts
-    var legend = document.getElementById('tier-dist-legend');
-    if (legend) {
-      legend.innerHTML =
-        '<span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--decay"></span>Rapid Decay: <strong>' + rdCount + '</strong></span>' +
-        '<span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--watchlist"></span>Watchlist: <strong>' + wlCount + '</strong></span>' +
-        '<span class="tier-legend-item"><span class="tier-legend-dot tier-legend-dot--recovery"></span>Recovery: <strong>' + rcCount + '</strong></span>';
+        var entry = {
+          country:        c.country_name || c.country || '',
+          severity_score: c.severity_score || '',
+          severity_arrow: c.severity_arrow || (delta.indexOf('declin') > -1 ? '↑' : '↓'),
+          lead_signal:    c.key_development || c.summary || '',
+          confidence:     c.confidence || '',
+          first_seen:     c.first_seen || '',
+          source_url:     c.source_url || '',
+          threshold_crossed: false,
+          triggers:       []
+        };
+        if (tier === 'rapid_decay') rd.push(entry);
+        else if (tier === 'watchlist') wl.push(entry);
+        else rc.push(entry);
+      });
+      return { rapid_decay: rd, watchlist: wl, recovery: rc };
     }
+    // Legacy object shape
+    return {
+      rapid_decay: rawHeatmap.rapid_decay || [],
+      watchlist:   rawHeatmap.watchlist   || [],
+      recovery:    rawHeatmap.recovery    || []
+    };
   }
 
-  /* ── Severity Cards ───────────────────────────────────────── */
-  function renderSeverityBar(rdList, wlList, rcList) {
-    var wrap = document.getElementById('severity-bar-wrap');
-    if (!wrap) return;
-    var COLOURS = { rapid_decay: '#dc2626', watchlist: '#f59e0b', recovery: '#22c55e' };
-    // Combine all countries with their tier and score, sort descending by score
-    var all = [];
-    (rdList || []).forEach(function(c) { all.push({ country: c.country, score: parseFloat(c.severity_score||0), tier: 'rapid_decay' }); });
-    (wlList || []).forEach(function(c) { all.push({ country: c.country, score: parseFloat(c.severity_score||0), tier: 'watchlist' }); });
-    (rcList || []).forEach(function(c) { all.push({ country: c.country, score: parseFloat(c.severity_score||0), tier: 'recovery' }); });
-    all.sort(function(a, b) { return b.score - a.score; });
-    if (!all.length) {
-      wrap.innerHTML = '<p class="text-muted text-sm">No country data this issue.</p>';
-      return;
-    }
-    var maxScore = all[0].score || 10;
-    var html = '<div style="display:flex;flex-direction:column;gap:6px">';
-    all.forEach(function(c) {
-      var pct = Math.max(4, Math.round((c.score / maxScore) * 100));
-      var col = COLOURS[c.tier] || '#94a3b8';
-      html +=
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">' +
-          '<div style="width:145px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right">' +
-          (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country) || '') + ' ' : '') +
-          escHtml(c.country) + '</div>' +
-          '<div style="position:relative;flex:1;height:16px;background:rgba(100,116,139,0.1);border-radius:3px">' +
-            '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;background:' + col + ';border-radius:3px;opacity:0.80"></div>' +
-          '</div>' +
-          '<div style="width:34px;font-size:var(--text-xs);font-weight:600;color:' + col + ';flex-shrink:0;text-align:right">' + c.score.toFixed(1) + '</div>' +
-        '</div>';
-    });
-    html += '</div>';
-    wrap.innerHTML = html;
-  }
 
+
+  /* ── Severity cards ── */
   function renderSeverityCards(rdList) {
     var container = document.getElementById('severity-cards-row');
     if (!container) return;
-    if (!rdList || rdList.length === 0) {
+    if (!rdList || !rdList.length) {
       container.innerHTML = '<div class="severity-cards-empty">No rapid decay countries to display.</div>';
       return;
     }
-
-    // Sort by severity_score descending, take top 5
-    var sorted = rdList.slice().sort(function (a, b) {
-      return (parseFloat(b.severity_score) || 0) - (parseFloat(a.severity_score) || 0);
-    }).slice(0, 5);
-
+    var sorted = rdList.slice().sort(function(a,b){ return (parseFloat(b.severity_score)||0) - (parseFloat(a.severity_score)||0); }).slice(0,5);
     var html = '<div class="severity-cards-row">';
-    sorted.forEach(function (c) {
-      var cls = severityClass(c.severity_score);
+    sorted.forEach(function(c){
+      var cls  = severityClass(c.severity_score);
       var flag = (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag) ? (AsymRenderer.flag(c.country) || '') : '';
       var arrClass = arrowClass(c.severity_arrow);
       var signalText = (c.lead_signal || c.summary || '').slice(0, 100);
@@ -642,461 +297,285 @@ document.addEventListener('DOMContentLoaded', function () {
     container.innerHTML = html;
   }
 
-  fetch('data/report-latest.json')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      var meta    = d.meta    || {};
-      var signalObj = d.signal || {};
-      var signal = signalObj.headline || '';
-      var signalBody = signalObj.body || '';
-      var heatmap = d.heatmap || {};
-      var intel   = d.intelligence_items || [];
-
-      var rd = heatmap.rapid_decay || [];
-      var rc = heatmap.recovery    || [];
-      var wl = heatmap.watchlist   || [];
-      var total = rd.length + rc.length + wl.length;
-
-      // KPIs
-      document.getElementById('kpi-countries').textContent   = total;
-      document.getElementById('kpi-rapid-decay').textContent = rd.length;
-      var firstWords = signal.split(' ').slice(0, 6).join(' ');
-      document.getElementById('kpi-lead-signal').textContent = firstWords + (signal.split(' ').length > 6 ? '\u2026' : '');
-      var kpiSub = document.getElementById('kpi-lead-signal-sub');
-      if (kpiSub) {
-        kpiSub.innerHTML = '<a class="source-link" href="#section-signal" onclick="document.getElementById(\'section-signal\').scrollIntoView({behavior:\'smooth\'});return false;">See lead signal \u2193</a>';
+  /* ── Heatmap table ── */
+  function renderHeatmapRows(list, tierKey) {
+    var rows = '';
+    list.forEach(function(c){
+      var cls = severityClass(c.severity_score);
+      var summaryText = escHtml((c.lead_signal || c.summary || '').slice(0,120)) + '\u2026';
+      var confidenceBadge = c.confidence ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-left:var(--space-2)">\u25cf ' + escHtml(c.confidence) + '</span>' : '';
+      var firstSeenBadge  = c.first_seen  ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-left:var(--space-2)">Since ' + escHtml(c.first_seen)  + '</span>' : '';
+      var watchlistExtras = '';
+      if (tierKey === 'watchlist') {
+        var triggers = c.triggers || [];
+        var triggerTags = triggers.map(function(t){ return '<span class="card__tag" style="margin-right:2px">' + escHtml(t) + '</span>'; }).join('');
+        var thresholdBadge = c.threshold_crossed ? '<span style="font-size:var(--text-xs);font-weight:600;color:#b91c1c;margin-left:var(--space-2)">Threshold crossed</span>' : '';
+        watchlistExtras = (triggerTags ? '<div style="margin-top:var(--space-1)">' + triggerTags + '</div>' : '') + thresholdBadge;
       }
-
-      // Weekly brief — inline renderMarkdown (same pattern as report.html — do not use AsymRenderer here)
-      var briefEl = document.getElementById('weekly-brief-content');
-      if (briefEl) {
-        var brief = d.weekly_brief || '';
-        if (brief) {
-          var briefHtml = brief
-            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-            .replace(/\n\n/g, '</p><p>')
-            .replace(/\n/g, ' ')
-            .replace(/^/, '<p>').replace(/$/, '</p>');
-          briefEl.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + briefHtml + '</div>';
-        } else {
-          briefEl.innerHTML = '<p class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</p>';
-        }
-      }
-
-      // Page meta
-      document.getElementById('page-meta').innerHTML =
-        (meta.week_label ? '<span>' + escHtml(meta.week_label) + '</span>' : '') +
-        (meta.published  ? '<span>Published ' + new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) + '</span>' : '');
-
-      // Tier distribution strip
-      renderTierChart(rd.length, wl.length, rc.length);
-
-      // Feed heatmap data to choropleth map module
-      if (typeof window._wdmMapReady === 'function') {
-        window._wdmMapReady(heatmap);
-      }
-
-      // Country severity ranked bar chart
-      renderSeverityBar(rd, wl, rc);
-
-      // Severity league table cards
-      renderSeverityCards(rd);
-
-      // Signal block
-      var sourceUrl = d.signal && d.signal.source_url ? d.signal.source_url : (d.source_url || '');
-      document.getElementById('signal-block').innerHTML =
-        '<div class="signal-block">' +
-          '<div class="signal-block__label">Lead Signal — Issue ' + escHtml(meta.issue || '') + '</div>' +
-          '<p>' + escHtml(signal) + '</p>' +
-          (signalBody ? '<p class="signal-block__body">' + escHtml(signalBody) + '</p>' : '') +
-          (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Read the top story ↓</a></div>' : '') +
-        '</div>';
-
-      // Delta strip — top 5 intel items
-      var deltaHtml = '<ul class="delta-strip">';
-      intel.slice(0, 5).forEach(function (item) {
-        var sevCls = item.severity === 'High' ? 'critical' : item.severity === 'Medium' ? 'moderate' : 'positive';
-        deltaHtml +=
-          '<li class="delta-item">' +
-            '<div class="delta-item__rank">' + escHtml(item.rank || '') + '</div>' +
-            '<div class="delta-item__body">' +
-              '<div class="delta-item__module">' + escHtml(item.country || '') + '</div>' +
-              '<div class="delta-item__title">' + escHtml(item.headline || '') + '</div>' +
-              '<div class="delta-item__one-line">' + escHtml((item.summary || '').slice(0, 140)) + (item.summary && item.summary.length > 140 ? '\u2026' : '') + '</div>' +
-              '<div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-1)">' +
-                (item.severity ? '<span class="severity-badge severity-badge--' + sevCls + '">' + escHtml(item.severity) + '</span>' : '') +
-                (item.tier ? '<span class="card__tag">' + escHtml(item.tier) + '</span>' : '') +
-                (item.resilience !== undefined && item.resilience !== null
-                  ? (typeof item.resilience === 'boolean'
-                    ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Resilience: ' + (item.resilience ? 'Present' : 'Low') + '</span>'
-                    : '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(item.resilience) + '</span>')
-                  : '') +
-              '</div>' +
-              (item.source_url ? '<div style="margin-top:var(--space-1)">' + AsymRenderer.sourceLink(item.source_url) + '</div>' : '') +
-            '</div>' +
-          '</li>';
-      });
-      deltaHtml += '</ul>';
-      document.getElementById('delta-strip').innerHTML = deltaHtml;
-
-      // Heatmap table — all tiers (rapid decay, watchlist, recovery)
-      function renderHeatmapRows(list, tierKey) {
-        var rows = '';
-        list.forEach(function (c) {
-          var cls = severityClass(c.severity_score);
-          var summaryText = escHtml((c.lead_signal || c.summary || '').slice(0, 120)) + '\u2026';
-          // confidence badge
-          var confidenceBadge = c.confidence
-            ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-left:var(--space-2)">'  + '\u25cf ' + escHtml(c.confidence) + '</span>'
-            : '';
-          // first_seen
-          var firstSeenBadge = c.first_seen
-            ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-left:var(--space-2)">Since ' + escHtml(c.first_seen) + '</span>'
-            : '';
-          // watchlist extras
-          var watchlistExtras = '';
-          if (tierKey === 'watchlist') {
-            var triggers = c.triggers || [];
-            var triggerTags = triggers.map(function (t) {
-              return '<span class="card__tag" style="margin-right:2px">' + escHtml(t) + '</span>';
-            }).join('');
-            var thresholdBadge = c.threshold_crossed
-              ? '<span style="font-size:var(--text-xs);font-weight:600;color:#b91c1c;margin-left:var(--space-2)">Threshold crossed</span>'
-              : '';
-            watchlistExtras =
-              (triggerTags ? '<div style="margin-top:var(--space-1)">' + triggerTags + '</div>' : '') +
-              thresholdBadge;
-          }
-          rows +=
-            '<tr class="heatmap-row--' + cls + '">' +
-              '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
-              '<td><span class="severity-badge severity-badge--' + cls + '">' + escHtml(c.severity_score) + '</span></td>' +
-              '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
-              '<td>' +
-                summaryText +
-                confidenceBadge +
-                firstSeenBadge +
-                watchlistExtras +
-                (c.source_url ? ' <a class="source-link" style="font-size:var(--text-min)" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Source \u2192</a>' : '') +
-              '</td>' +
-            '</tr>';
-        });
-        return rows;
-      }
-
-      var tableHtml =
-        '<table class="heatmap-table">' +
-          '<thead><tr>' +
-            '<th>Country</th><th>Score</th><th>Trend</th><th>Key Development</th>' +
-          '</tr></thead><tbody>';
-      if (rd.length) {
-        tableHtml += '<tr><td colspan="4" style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#b91c1c;padding-top:var(--space-3);padding-bottom:var(--space-1)">Rapid Decay</td></tr>';
-        tableHtml += renderHeatmapRows(rd.slice(0, 5), 'rapid_decay');
-      }
-      if (wl.length) {
-        tableHtml += '<tr><td colspan="4" style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#d97706;padding-top:var(--space-3);padding-bottom:var(--space-1)">Watchlist</td></tr>';
-        tableHtml += renderHeatmapRows(wl.slice(0, 5), 'watchlist');
-      }
-      if (rc.length) {
-        tableHtml += '<tr><td colspan="4" style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#059669;padding-top:var(--space-3);padding-bottom:var(--space-1)">Recovery</td></tr>';
-        tableHtml += renderHeatmapRows(rc.slice(0, 5), 'recovery');
-      }
-      tableHtml += '</tbody></table>';
-      tableHtml += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)"><a href="report.html">View full heatmap \u2192</a></p>';
-      document.getElementById('heatmap-table').innerHTML = tableHtml;
-
-      // Integrity flags
-      renderIntegrityFlags(d.institutional_integrity_flags || [], 'integrity-flags-content');
-
-      // Cross-monitor flags
-      renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
-    })
-    .catch(function (err) {
-      console.error(err);
-      ['signal-block','delta-strip','heatmap-table','severity-cards-row'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) el.innerHTML = '<div class="error-state">Failed to load data.</div>';
-      });
+      rows +=
+        '<tr class="heatmap-row--' + cls + '">' +
+          '<td><strong>' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country)||'') + ' ' : '') + escHtml(c.country) + '</strong></td>' +
+          '<td><span class="severity-badge severity-badge--' + cls + '">' + escHtml(c.severity_score) + '</span></td>' +
+          '<td>' + escHtml(c.severity_arrow || '') + '</td>' +
+          '<td>' + summaryText + confidenceBadge + firstSeenBadge + watchlistExtras +
+            (c.source_url ? ' <a class="source-link" style="font-size:var(--text-min)" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Source \u2192</a>' : '') +
+          '</td>' +
+        '</tr>';
     });
-});
-</script>
-<script>
-/* ── WDM Leaflet Choropleth Map ─────────────────────────────── */
-(function () {
-  var ISO_MAP = {
-    'United States':'US','Hungary':'HU','Serbia':'RS','India':'IN',
-    'Philippines':'PH','Georgia':'GE','Tunisia':'TN','Nicaragua':'NI',
-    'El Salvador':'SV','Venezuela':'VE','Bolivia':'BO','Mexico':'MX',
-    'Colombia':'CO','Iran':'IR','Tanzania':'TZ','Uganda':'UG','DRC':'CD',
-    'Kazakhstan':'KZ','Bangladesh':'BD','Slovakia':'SK','Poland':'PL',
-    'Italy':'IT','Romania':'RO','South Korea':'KR','Israel':'IL','Iraq':'IQ',
-    "C\u00f4te d'Ivoire":'CI','Benin':'BJ','United Kingdom':'GB','Turkey':'TR'
-  };
-
-  var TIER_COLORS = {
-    rapid_decay: '#dc2626',
-    recovery:    '#22c55e',
-    watchlist:   '#f59e0b',
-    unmonitored: '#e5e7eb'
-  };
-
-  var TIER_LABELS = {
-    rapid_decay: 'Rapid Decay',
-    recovery:    'Recovery',
-    watchlist:   'Watchlist',
-    unmonitored: 'Unmonitored'
-  };
-
-  // Country data indexed by ISO2
-  var countryData = {};
-  var mapInitialised = false;
-  var wdmMap = null;
-  var geoLayer = null;
-
-  // Build countryData from heatmap once data is loaded
-  // We hook into the existing fetch by overriding the global namespace
-  window._wdmMapReady = function (heatmap) {
-    var rd = heatmap.rapid_decay || [];
-    var rc = heatmap.recovery   || [];
-    var wl = heatmap.watchlist  || [];
-
-    function indexList(list, tier) {
-      list.forEach(function (c) {
-        var iso = ISO_MAP[c.country];
-        if (iso) {
-          countryData[iso] = {
-            country:        c.country,
-            tier:           tier,
-            severity_score: c.severity_score,
-            severity_arrow: c.severity_arrow || '',
-            lead_signal:    c.lead_signal || c.summary || '',
-            source_url:     c.source_url || ''
-          };
-        }
-      });
-    }
-    indexList(rd, 'rapid_decay');
-    indexList(rc, 'recovery');
-    indexList(wl, 'watchlist');
-  };
-
-  function opacityForScore(score) {
-    var s = parseFloat(score) || 0;
-    // Map 0-10 scale or 0-1 scale to 0.4–0.85
-    if (s > 1) s = s / 10;
-    return 0.4 + (s * 0.45);
+    return rows;
   }
 
-  function getStyle(feature) {
-    var iso = feature.properties.ISO_A2;
-    var info = countryData[iso];
-    if (!info) {
-      return {
-        fillColor:   TIER_COLORS.unmonitored,
-        fillOpacity: 0.45,
-        color:       '#adb5bd',
-        weight:      0.5
-      };
-    }
-    var opacity = info.tier === 'rapid_decay'
-      ? opacityForScore(info.severity_score)
-      : 0.72;
-    return {
-      fillColor:   TIER_COLORS[info.tier] || TIER_COLORS.unmonitored,
-      fillOpacity: opacity,
-      color:       '#ffffff',
-      weight:      0.6
-    };
-  }
-
-  function escHtml(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function tierLabel(tier) {
-    return TIER_LABELS[tier] || tier;
-  }
-
-  function onEachFeature(feature, layer) {
-    var iso  = feature.properties.ISO_A2;
-    var info = countryData[iso];
-    if (!info) return;
-
-    var signal = (info.lead_signal || '').slice(0, 100);
-    var popup =
-      '<div class="wdm-popup-name">' + escHtml(info.country) + '</div>' +
-      '<div class="wdm-popup-tier wdm-popup-tier--' + info.tier + '">' + escHtml(tierLabel(info.tier)) + '</div>' +
-      '<div class="wdm-popup-row">Score: <strong>' + escHtml(info.severity_score) + '</strong> ' + escHtml(info.severity_arrow) + '</div>' +
-      (signal ? '<div class="wdm-popup-signal">' + escHtml(signal) + (info.lead_signal && info.lead_signal.length > 100 ? '\u2026' : '') + '</div>' : '') +
-      (info.source_url ? ' ' + AsymRenderer.sourceLink(info.source_url) : '');
-
-    layer.bindPopup(popup, { maxWidth: 240, className: 'wdm-country-popup' });
-
-    layer.on('mouseover', function () { layer.setStyle({ weight: 1.5, color: '#334155' }); });
-    layer.on('mouseout',  function () { geoLayer && geoLayer.resetStyle(layer); });
-  }
-
-  function initMap() {
-    if (mapInitialised) return;
-    mapInitialised = true;
-
-    var isMobile = window.matchMedia && window.matchMedia('(max-width:640px)').matches;
-
-    wdmMap = L.map('wdm-map', {
-      center:          [20, 10],
-      zoom:            2,
-      minZoom:         1,
-      maxZoom:         6,
-      scrollWheelZoom: !isMobile,
-      zoomControl:     true,
-      attributionControl: false
-    });
-
-    // Blank white background — no tile layer (clean choropleth look)
-    // Set map pane background via CSS
-    wdmMap.getContainer().style.background = '#f0f0f0';
-
-    // Load GeoJSON
-    var geoUrl = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
-    fetch(geoUrl)
-      .then(function (r) { return r.json(); })
-      .then(function (geo) {
-        geoLayer = L.geoJSON(geo, {
-          style:          getStyle,
-          onEachFeature:  onEachFeature
-        }).addTo(wdmMap);
-        wdmMap.fitBounds(geoLayer.getBounds(), { padding: [4, 4] });
-      })
-      .catch(function (err) {
-        console.error('[WDM Map] GeoJSON load error', err);
-      });
-
-    // Legend
-    var legend = L.control({ position: 'bottomright' });
-    legend.onAdd = function () {
-      var div = L.DomUtil.create('div', 'wdm-map-legend');
-      var tiers = ['rapid_decay','watchlist','recovery','unmonitored'];
-      var lines = tiers.map(function (t) {
-        return '<div><span class="wdm-map-legend-swatch" style="background:' + TIER_COLORS[t] + '"></span>' + TIER_LABELS[t] + '</div>';
-      });
-      div.innerHTML = lines.join('');
-      return div;
-    };
-    legend.addTo(wdmMap);
-  }
-
-  // Toggle logic
-  document.addEventListener('DOMContentLoaded', function () {
-    var btn    = document.getElementById('map-toggle');
-    var mapDiv = document.getElementById('wdm-map');
-    var geoTable = document.getElementById('geo-table-view');
-
-    if (!btn || !mapDiv) return;
-
-    btn.addEventListener('click', function () {
-      var isMap = btn.getAttribute('data-active') === 'map';
-      if (isMap) {
-        // Switch to table view — clone heatmap table into geo section
-        mapDiv.style.display = 'none';
-        var src = document.getElementById('heatmap-table');
-        if (geoTable && src) { geoTable.innerHTML = src.innerHTML; geoTable.style.display = ''; }
-        btn.setAttribute('data-active', 'table');
-        btn.setAttribute('aria-pressed', 'false');
-        btn.textContent = 'Map view';
-      } else {
-        // Switch to map view
-        if (geoTable) geoTable.style.display = 'none';
-        mapDiv.style.display = 'block';
-        btn.setAttribute('data-active', 'map');
-        btn.setAttribute('aria-pressed', 'true');
-        btn.textContent = 'Table view';
-        // Init Leaflet now that container is visible
-        initMap();
-        setTimeout(function () { if (wdmMap) wdmMap.invalidateSize(); }, 120);
-      }
-    });
-    // Map is default — geo table hidden, map visible
-    initMap();
-    setTimeout(function () { if (wdmMap) wdmMap.invalidateSize(); }, 250);
-  });
-
-  // Hook into the existing data fetch: patch fetch in DOMContentLoaded
-  // We monkey-patch by listening for the custom wdmDataLoaded event
-  // Alternatively, we piggyback on the same fetch below in the data load section.
-  // We expose a global that the existing script block calls after loading heatmap.
-  // The existing script already runs _wdmMapReady if it exists — we add the call below.
-}());
-
-  
-  // ── Integrity Flags ──────────────────────────────────────────────────
+  /* ── Integrity flags ── */
   function renderIntegrityFlags(flags, targetId) {
     var el = document.getElementById(targetId);
     if (!el) return;
-    if (!flags.length) {
-      el.innerHTML = '<p class="text-muted text-sm">No integrity flags this issue.</p>';
-      return;
-    }
-    function escIF(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    if (!flags.length) { el.innerHTML = '<p class="text-muted text-sm">No integrity flags this issue.</p>'; return; }
     var html = '';
-    flags.forEach(function (f) {
+    flags.forEach(function(f){
       var sevCls = (f.severity || '').toLowerCase() === 'high' ? 'critical' : 'moderate';
       html +=
         '<div class="card" style="margin-bottom:var(--space-3)">' +
           '<div class="card__label">' +
-            (f.flag_type ? escIF(f.flag_type) : '') +
-            (f.country ? ' \u00b7 ' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? AsymRenderer.flag(f.country) + ' ' : '') + escIF(f.country) : '') +
+            (f.flag_type ? escHtml(f.flag_type) : '') +
+            (f.country ? ' \u00b7 ' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? AsymRenderer.flag(f.country) + ' ' : '') + escHtml(f.country) : '') +
           '</div>' +
-          '<div class="card__title">' + escIF(f.headline || '') + '</div>' +
-          '<div class="card__body">' + escIF(f.summary || '') + '</div>' +
+          '<div class="card__title">' + escHtml(f.headline || '') + '</div>' +
+          '<div class="card__body">'  + escHtml(f.summary  || '') + '</div>' +
           '<div style="margin-top:var(--space-2);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
-            (f.severity ? '<span class="severity-badge severity-badge--' + sevCls + '">' + escIF(f.severity) + '</span>' : '') +
+            (f.severity ? '<span class="severity-badge severity-badge--' + sevCls + '">' + escHtml(f.severity) + '</span>' : '') +
           '</div>' +
-          (f.lead_time ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">\u23f1 Lead time: ' + escIF(f.lead_time) + '</div>' : '') +
-          (f.source_url ? '<div style="margin-top:var(--space-1)">' + AsymRenderer.sourceLink(f.source_url) + '</div>' : '') +
-          (f.source && !f.source_url ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' + escIF(f.source) + '</div>' : '') +
+          (f.lead_time  ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">\u23f1 Lead time: ' + escHtml(f.lead_time) + '</div>' : '') +
+          (f.source_url ? '<div style="margin-top:var(--space-1)">' + (typeof AsymRenderer !== 'undefined' ? AsymRenderer.sourceLink(f.source_url) : '') + '</div>' : '') +
+          (f.source && !f.source_url ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(f.source) + '</div>' : '') +
         '</div>';
     });
     el.innerHTML = html;
   }
 
-// ── Cross-Monitor Flags ───────────────────────────────────────────
-  function escHtml(str) {
-    return String(str == null ? '' : str)
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
 
-  function renderCrossMonitor(cmf, targetId) {
-    var flags = (cmf && cmf.flags) ? cmf.flags : [];
-    var el = document.getElementById(targetId);
-    if (!el) return;
-    if (!flags.length) {
-      el.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
-      return;
-    }
-    var html = '<div class="cross-monitor-panel">';
-    if (cmf.updated) {
-      html += '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-3)">Updated ' + escHtml(cmf.updated.slice(0,10)) + '</div>';
-    }
-    flags.forEach(function (flag) {
-      var sev = (flag.severity || flag.type || 'moderate').toLowerCase();
-      var sevClass = sev === 'critical' || sev === 'high' ? 'critical' : sev === 'elevated' || sev === 'amber' ? 'high' : 'moderate';
-      html +=
-        '<div style="padding:var(--space-3);border-left:3px solid var(--color-' + sevClass + ',#94a3b8);background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">' +
-          '<div style="display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-1)">' +
-            '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted)">' + escHtml(flag.flag_id || '') + '</span>' +
-            (flag.monitor || flag.source_monitor ? '<span style="font-size:var(--text-xs);color:var(--text-muted)">· ' + escHtml(flag.monitor || flag.source_monitor || '') + '</span>' : '') +
-          '</div>' +
-          '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' + escHtml(flag.title || flag.signal || '') + '</div>' +
-          '<div style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.5">' + escHtml(flag.detail || flag.body || flag.summary || '') + '</div>' +
-          (flag.action ? '<div style="margin-top:var(--space-2);font-size:var(--text-xs);font-weight:600;color:var(--monitor-accent)">→ ' + escHtml(flag.action) + '</div>' : '') +
-          (flag.unchanged_since ? '<div style="font-size:var(--text-xs);color:var(--text-muted)">Unchanged since: ' + escHtml(flag.unchanged_since) + '</div>' : '') +
-          (flag.source_url ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '') +
-        '</div>';
-    });
-    html += '</div>';
-    el.innerHTML = html;
-  }
+  /* ── Main fetch & render ── */
+  document.addEventListener('DOMContentLoaded', function () {
+
+    fetch('data/report-latest.json')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+
+        var meta      = d.meta    || {};
+        var signalObj = d.signal  || d.signal_panel || {};
+        var snap      = d.global_health_snapshot || {};
+        var rawHeatmap = d.heatmap || [];
+        var intel     = d.intelligence_items || [];
+        var calWatch  = d.electoral_calendar_watch || [];
+
+        /* ── Normalise heatmap ── */
+        var hm = normaliseHeatmap(rawHeatmap);
+        var rd = hm.rapid_decay;
+        var wl = hm.watchlist;
+        var rc = hm.recovery;
+
+        /* Use authoritative counts from global_health_snapshot if available */
+        var rdCount = snap.rapid_decay_count != null ? snap.rapid_decay_count : rd.length;
+        var wlCount = snap.watchlist_count   != null ? snap.watchlist_count   : wl.length;
+        var rcCount = snap.recovery_count    != null ? snap.recovery_count    : rc.length;
+        var total   = rawHeatmap.length || (rdCount + wlCount + rcCount);
+
+        /* ── Page meta ── */
+        document.getElementById('page-meta').innerHTML =
+          (meta.week_label ? '<span>' + escHtml(meta.week_label) + '</span>' : '') +
+          (meta.published  ? '<span>Published ' + new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) + '</span>' : '');
+
+        /* ── Feed heatmap data to map module ── */
+        if (typeof window._wdmMapReady === 'function') {
+          window._wdmMapReady(rawHeatmap);
+        }
+
+        /* ── Build threshold HTML from electoral_calendar_watch ── */
+        var thresholdHtml = '';
+        var thresholdEvents = calWatch.filter(function(e){ return e.days_away <= 14; });
+        if (thresholdEvents.length) {
+          thresholdHtml = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+          thresholdEvents.forEach(function(e){
+            var daysText = e.days_away === 0 ? 'Today' : (e.days_away === 1 ? '1 day' : e.days_away + ' days');
+            thresholdHtml +=
+              '<div style="padding:var(--space-3);background:rgba(185,28,28,0.06);border-left:3px solid #b91c1c;border-radius:var(--radius-sm)">' +
+                '<div style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#b91c1c;margin-bottom:var(--space-1)">' +
+                  escHtml(e.country) + ' · ' + daysText +
+                '</div>' +
+                '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' + escHtml(e.event) + '</div>' +
+                '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5">' + escHtml(e.wdm_significance || '') + '</div>' +
+                (e.fimi_risk && e.fimi_risk !== 'Low' ? '<div style="font-size:var(--text-xs);color:#b45309;margin-top:var(--space-1)">FIMI: ' + escHtml(e.fimi_risk.slice(0,80)) + '</div>' : '') +
+                (e.source_url ? '<div style="margin-top:var(--space-1)">' + (typeof AsymRenderer !== 'undefined' ? AsymRenderer.sourceLink(e.source_url) : '') + '</div>' : '') +
+              '</div>';
+          });
+          thresholdHtml += '</div>';
+        }
+
+        /* ── Build delta items from intelligence_items ── */
+        var deltaItems = intel.slice(0, 5).map(function(item){
+          return {
+            module:  item.country || '',
+            title:   item.alert_type || '',
+            one_line: (item.development || '').slice(0, 140),
+            type:    item.severity || '',
+            source_url: ''
+          };
+        });
+
+        /* ── Build triage strip config ── */
+        var signalHeadline = signalObj.headline || '';
+        var signalBody     = signalObj.body     || '';
+
+        var triageConfig = {
+          kpis: [
+            {
+              label: 'Countries Monitored',
+              value: total,
+              sub:   'Across all tiers this issue',
+              trend: rdCount + ' Rapid Decay · ' + wlCount + ' Watchlist · ' + rcCount + ' Recovery'
+            },
+            {
+              label:  'Rapid Decay',
+              value:  rdCount,
+              sub:    'Active decay episodes',
+              accent: true
+            },
+            {
+              label: 'New Alerts',
+              value: snap.new_alerts_this_week != null ? snap.new_alerts_this_week : '',
+              sub:   'New flags this issue'
+            },
+            {
+              label: 'Mimicry Chains',
+              value: (d.mimicry_chain_update && d.mimicry_chain_update.active_chains != null) ? d.mimicry_chain_update.active_chains : '',
+              sub:   'Active legislative patterns'
+            }
+          ],
+          signal: {
+            label:      'Issue ' + (meta.issue || ''),
+            title:      signalHeadline,
+            body:       signalBody,
+            source_url: signalObj.source_url || d.source_url || '',
+            confidence: 'Confirmed'
+          },
+          structural: {
+            label:    'Geographic Risk Map',
+            targetId: 'wdm-triage-map',
+            renderFn: function(containerId) {
+              var el = document.getElementById(containerId);
+              if (!el) return;
+              // Ensure the container has correct height (CSS sets it, just init Leaflet)
+              if (typeof window._wdmInitMap === 'function') {
+                window._wdmInitMap(containerId);
+              }
+            }
+          },
+          delta: {
+            label: 'Intelligence Items This Issue',
+            items: deltaItems
+          }
+        };
+
+        /* Add threshold zone if we have upcoming events */
+        if (thresholdHtml) {
+          triageConfig.threshold = {
+            label: 'Threshold Watch — Next 14 Days',
+            html:  thresholdHtml
+          };
+        }
+
+        /* ── Render triage strip ── */
+        if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+          AsymSections.renderTriageStrip(triageConfig, 'triage-container');
+        }
+
+        /* ── Weekly brief ── */
+        var briefEl = document.getElementById('weekly-brief-content');
+        if (briefEl) {
+          var brief = d.weekly_brief || '';
+          if (brief && typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
+            briefEl.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + AsymRenderer.renderMarkdown(brief) + '</div>';
+          } else if (brief) {
+            var briefHtml = brief
+              .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+              .replace(/\n\n/g, '</p><p>')
+              .replace(/\n/g, ' ')
+              .replace(/^/, '<p>').replace(/$/, '</p>');
+            briefEl.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + briefHtml + '</div>';
+          } else {
+            briefEl.innerHTML = '<p class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</p>';
+          }
+        }
+
+        /* ── Tier distribution chart — AsymSections.renderTierBar ── */
+        if (typeof AsymSections !== 'undefined' && AsymSections.renderTierBar) {
+          AsymSections.renderTierBar({
+            segments: [
+              { label: 'Rapid Decay', count: rdCount, color: '#b91c1c' },
+              { label: 'Watchlist',   count: wlCount, color: '#d97706' },
+              { label: 'Recovery',    count: rcCount, color: '#059669' }
+            ],
+            canvasId: 'tier-dist-chart',
+            legendId: 'tier-dist-legend',
+            height: 48
+          }, 'tier-dist-canvas-container');
+        }
+
+        /* ── Severity cards (rapid decay top 5) ── */
+        renderSeverityCards(rd);
+
+        /* ── Severity ranked bar ── */
+        /* ── Severity ranked bar — AsymSections.renderRankedBar ── */
+        if (typeof AsymSections !== 'undefined' && AsymSections.renderRankedBar) {
+          var barItems = [];
+          var TIER_COLOURS = { rapid_decay: '#dc2626', watchlist: '#f59e0b', recovery: '#22c55e' };
+          [].concat(
+            (rd || []).map(function(c){ return { label: c.country, score: parseFloat(c.severity_score||0), color: TIER_COLOURS.rapid_decay, flag: c.country }; }),
+            (wl || []).map(function(c){ return { label: c.country, score: parseFloat(c.severity_score||0), color: TIER_COLOURS.watchlist, flag: c.country }; }),
+            (rc || []).map(function(c){ return { label: c.country, score: parseFloat(c.severity_score||0), color: TIER_COLOURS.recovery, flag: c.country }; })
+          ).forEach(function(i){ barItems.push(i); });
+          AsymSections.renderRankedBar({ items: barItems }, 'severity-bar-wrap');
+        }
+
+        /* ── Heatmap table ── */
+        var tableHtml =
+          '<table class="heatmap-table">' +
+          '<thead><tr><th>Country</th><th>Score</th><th>Trend</th><th>Key Development</th></tr></thead><tbody>';
+        if (rd.length) {
+          tableHtml += '<tr><td colspan="4" style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#b91c1c;padding-top:var(--space-3);padding-bottom:var(--space-1)">Rapid Decay</td></tr>';
+          tableHtml += renderHeatmapRows(rd.slice(0,5), 'rapid_decay');
+        }
+        if (wl.length) {
+          tableHtml += '<tr><td colspan="4" style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#d97706;padding-top:var(--space-3);padding-bottom:var(--space-1)">Watchlist</td></tr>';
+          tableHtml += renderHeatmapRows(wl.slice(0,5), 'watchlist');
+        }
+        if (rc.length) {
+          tableHtml += '<tr><td colspan="4" style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#059669;padding-top:var(--space-3);padding-bottom:var(--space-1)">Recovery</td></tr>';
+          tableHtml += renderHeatmapRows(rc.slice(0,5), 'recovery');
+        }
+        tableHtml += '</tbody></table>';
+        tableHtml += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)"><a href="report.html">View full heatmap \u2192</a></p>';
+        document.getElementById('heatmap-table').innerHTML = tableHtml;
+
+        /* ── Integrity flags ── */
+        renderIntegrityFlags(d.institutional_integrity_flags || [], 'integrity-flags-content');
+
+        /* ── Cross-monitor flags — AsymSections.renderCrossMonitorFlags ── */
+        if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
+          AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
+        }
+
+      })
+      .catch(function(err){
+        console.error('[WDM Dashboard]', err);
+        ['triage-container','severity-cards-row','heatmap-table'].forEach(function(id){
+          var el = document.getElementById(id);
+          if (el) el.innerHTML = '<div class="error-state">Failed to load data.</div>';
+        });
+      });
+
+  });
+
+}());
 </script>
 </body>
 </html>
