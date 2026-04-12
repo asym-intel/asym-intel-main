@@ -1,13 +1,13 @@
 ---
-title: "Methodology — AI Governance Monitor"
-description: "Source standards, forensic filters, module guide, and editorial principles for the AI Governance Monitor."
+title: "Methodology — Artificial Intelligence Monitor"
+description: "Source standards, forensic filters, module guide, and editorial principles for the Artificial Intelligence Monitor."
 date: 2026-03-20
 monitor: "ai-governance"
 type: "methodology"
 draft: false
 ---
 
-The AI Governance Monitor applies a consistent research standard across all 16 modules every week. This page documents that standard.
+The Artificial Intelligence Monitor applies a consistent research standard across all 16 modules every week. This page documents that standard.
 
 ## Source Hierarchy
 
@@ -77,15 +77,15 @@ Each issue covers Monday to Sunday of the preceding week. Published Friday at 18
 
 ## Cross-Monitor Signals
 
-Each issue of the AI Governance Monitor includes a **Cross-Monitor Signals** section in the dashboard. This section identifies overlaps, reinforcing signals, and conflicts with the other monitors on asym-intel.info.
+Each issue of the Artificial Intelligence Monitor includes a **Cross-Monitor Signals** section in the dashboard. This section identifies overlaps, reinforcing signals, and conflicts with the other monitors on asym-intel.info.
 
 ### Scope
 
-The AI Governance Monitor scans the public dashboards and briefs of all other monitors published on asym-intel.info before each weekly compilation. The monitor set is treated generically — new monitors are included automatically as they appear, without any change to this methodology.
+The Artificial Intelligence Monitor scans the public dashboards and briefs of all other monitors published on asym-intel.info before each weekly compilation. The monitor set is treated generically — new monitors are included automatically as they appear, without any change to this methodology.
 
 ### What constitutes a cross-monitor flag
 
-A flag is raised when developments in another monitor's domain materially affect, or are materially affected by, AI governance dynamics. The flag names the other monitor, describes the linkage in 2–4 sentences, and states the AI Governance Monitor's specific perspective.
+A flag is raised when developments in another monitor's domain materially affect, or are materially affected by, AI governance dynamics. The flag names the other monitor, describes the linkage in 2–4 sentences, and states the Artificial Intelligence Monitor's specific perspective.
 
 ### Update rules
 
