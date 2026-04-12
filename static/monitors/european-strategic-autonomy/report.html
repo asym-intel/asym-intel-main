@@ -73,6 +73,30 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-autonomy-snapshot">
+      <div class="module-header">
+        <div class="module-num-large">00A</div>
+        <h2 class="module-title">Autonomy Snapshot</h2>
+      </div>
+      <div id="autonomy-snapshot-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-domain-tracker">
+      <div class="module-header">
+        <div class="module-num-large">00B</div>
+        <h2 class="module-title">Domain Tracker</h2>
+      </div>
+      <div id="domain-tracker-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-us-eu">
+      <div class="module-header">
+        <div class="module-num-large">00C</div>
+        <h2 class="module-title">US-EU Tracker</h2>
+      </div>
+      <div id="us-eu-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
     <section class="module-section" id="section-defence">
       <div class="module-header">
         <div class="module-num-large">01</div>
@@ -123,17 +147,65 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-num-large">06</div>
+        <h2 class="module-title">Key Judgments</h2>
+      </div>
+      <div id="key-judgments-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-cross-candidates">
+      <div class="module-header">
+        <div class="module-num-large">07</div>
+        <h2 class="module-title">Cross-Monitor Candidates</h2>
+      </div>
+      <div id="cross-candidates-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-election-threats">
+      <div class="module-header">
+        <div class="module-num-large">08</div>
+        <h2 class="module-title">Election Threats</h2>
+      </div>
+      <div id="election-threats-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-defence-spending">
+      <div class="module-header">
+        <div class="module-num-large">09</div>
+        <h2 class="module-title">Defence Spending</h2>
+      </div>
+      <div id="defence-spending-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <section class="module-section" id="section-defence-programmes">
+      <div class="module-header">
+        <div class="module-num-large">10</div>
+        <h2 class="module-title">Defence Programmes</h2>
+      </div>
+      <div id="defence-programmes-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-signal">Lead Signal</a></li>
+      <li><a href="#section-autonomy-snapshot">Autonomy Snapshot</a></li>
+      <li><a href="#section-domain-tracker">Domain Tracker</a></li>
+      <li><a href="#section-us-eu">US-EU Tracker</a></li>
       <li><a href="#section-defence">Defence Developments</a></li>
       <li><a href="#section-hybrid">Hybrid Threats</a></li>
       <li><a href="#section-institutional">Institutional</a></li>
       <li><a href="#section-member-states">Member States</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-cross-candidates">Cross-Monitor Candidates</a></li>
+      <li><a href="#section-election-threats">Election Threats</a></li>
+      <li><a href="#section-defence-spending">Defence Spending</a></li>
+      <li><a href="#section-defence-programmes">Defence Programmes</a></li>
     </ul>
   </nav>
 
@@ -275,6 +347,15 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         cmEl.innerHTML = html;
       }
+      // New AsymSections renders
+      if (d.autonomy_snapshot) AsymSections.renderAutonomySnapshot(d.autonomy_snapshot, 'autonomy-snapshot-block');
+      if (d.domain_tracker) AsymSections.renderDomainTracker(d.domain_tracker, 'domain-tracker-block');
+      if (d.us_eu_tracker) AsymSections.renderUsEuTracker(d.us_eu_tracker, 'us-eu-block');
+      if (d.key_judgments) AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-block');
+      if (d.cross_monitor_candidates) AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates, 'cross-candidates-block');
+      if (d.election_threats) AsymSections.renderElectionThreats(d.election_threats, 'election-threats-block');
+      if (d.defence_spending) AsymSections.renderDefenceSpending(d.defence_spending, 'defence-spending-block');
+      if (d.defence_programmes) AsymSections.renderDefenceProgrammes(d.defence_programmes, 'defence-programmes-block');
     })
     .catch(function (err) {
       console.error(err);
