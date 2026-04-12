@@ -666,23 +666,13 @@
         <div class="page-header__meta" id="dash-meta"></div>
       </header>
 
-      <!-- KPI Strip -->
-      <div class="kpi-strip" id="kpi-strip">
-        <div class="kpi-card">
-          <div class="kpi-card__label">Delta Items</div>
-          <div class="kpi-card__value" id="kpi-delta">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__label">Country Grid</div>
-          <div class="kpi-card__value" id="kpi-grid">—</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-card__label">Lead Signal</div>
-          <div class="kpi-card__value kpi-card__value--text" id="kpi-signal">—</div>
-        </div>
-      </div>
-
       <!-- EU AI Act Compact Tracker -->
+      
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
+      </div>
+    </section>
       <section id="eu-act-dash" aria-labelledby="euact-dash-heading">
         <h2 class="section-label" id="euact-dash-heading">EU AI Act — Regulatory Pipeline</h2>
         <div id="euact-dash-content"><p class="loading-state">Loading…</p></div>
@@ -708,30 +698,7 @@
         <div id="risk-heat-content"><p class="loading-state">Loading…</p></div>
       </section>
 
-      <!-- Signal Block -->
-      <section id="lead-signal" aria-labelledby="signal-heading">
-        <h2 class="section-label" id="signal-heading">Lead Signal</h2>
-        <div class="signal-block" id="signal-block">
-          <p class="loading-state">Loading…</p>
-        </div>
-      </section>
-
-      <!-- Delta Strip (legacy) -->
-      <section id="delta-strip-section" aria-labelledby="delta-heading">
-        <h2 class="section-label" id="delta-heading">Top Items This Issue</h2>
-        <div id="delta-strip-content">
-          <p class="loading-state">Loading…</p>
-        </div>
-      </section>
-
       <!-- Top Movers (new module-section) -->
-      <section class="module-section" id="section-delta-strip">
-        <div class="module-header">
-          <div class="module-title">Top Movers This Issue</div>
-          <div class="module-subtitle">Highest-signal changes since last issue</div>
-        </div>
-        <div id="delta-strip-wrap"><div class="loading-state">Loading…</div></div>
-      </section>
 
       <!-- Country Grid Summary -->
       <section id="country-grid-section" aria-labelledby="grid-heading">
@@ -842,11 +809,9 @@
       <nav class="sidebar-nav" aria-label="Page sections">
         <div class="sidebar-nav__title">Sections</div>
         <ul>
-          <li><a href="#eu-act-dash">EU AI Act Tracker</a></li>
+          <li><a href="#section-triage">Triage Strip</a></li>
+      <li><a href="#eu-act-dash">EU AI Act Tracker</a></li>
           <li><a href="#risk-heat-dash">Risk Heat Grid</a></li>
-          <li><a href="#lead-signal">Lead Signal</a></li>
-          <li><a href="#delta-strip-section">Top Items This Issue</a></li>
-          <li><a href="#section-delta-strip">Top Movers</a></li>
           <li><a href="#country-grid-section">Country Grid</a></li>
           <li><a href="#section-country-grid-watch">Country Watch</a></li>
           <li><a href="#model-frontier">Model Frontier</a></li>
@@ -1189,6 +1154,39 @@
 
       // New module sections
       renderDeltaStrip(d.delta_strip || []);
+
+      /* ── Triage Strip ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+        var _vecs = Array.isArray(m7.vectors) ? m7.vectors : [];
+        var _S = { CRITICAL: 100, HIGH: 80, ELEVATED: 60, MODERATE: 40, LOW: 20 };
+        AsymSections.renderTriageStrip({
+          kpis: [
+            { label: 'Delta Items',  value: deltaStrip.length  || '—', sub: 'Governance items this issue' },
+            { label: 'Country Grid', value: countryGrid.length || '—', sub: 'Jurisdictions tracked' },
+            { label: 'Issue',        value: meta.week_label    || '—', sub: 'Issue ' + (meta.issue || '—') }
+          ],
+          signal: {
+            label:      'Lead Signal · AGM',
+            title:      signal || '',
+            body:       signalBody || '',
+            source_url: m0.source_url || d.source_url || ''
+          },
+          structural: {
+            label:    'Risk Vector Radar',
+            targetId: 'triage-radar',
+            renderFn: function(id) {
+              AsymSections.renderRadarChart({
+                title: '',
+                dimensions: _vecs.map(function(v) {
+                  var r = (v.rating || 'MODERATE').toUpperCase();
+                  return { label: v.vector || '', score: _S[r] || 40, note: r };
+                })
+              }, id);
+            }
+          },
+          delta: { label: 'Top Items This Issue', items: deltaStrip.slice(0, 5) }
+        }, 'triage-container');
+      }
       renderEnergyWall((d.module_3 && d.module_3.energy_wall) ? d.module_3.energy_wall : []);
       renderArxiv((d.module_6 && d.module_6.arxiv_highlights) ? d.module_6.arxiv_highlights : []);
       renderCountryGridWatch(d.country_grid_watch || []);
