@@ -171,6 +171,47 @@ The lead_signal field is REQUIRED — never skip it.
     }
   ],
   "weekly_brief_draft": "string — 400-800 words. Opens with autonomy snapshot and lead signal. Covers domain movements, US-EU tracker, hybrid threats, defence developments, member state tracker, election threats. Analytical register — cold, structured, strategic.",
+  "defence_spending": [
+    {
+      "country": "string — ISO 3166-1 alpha-2",
+      "country_name": "string",
+      "gdp_pct": 0.0,
+      "gdp_pct_target": 2.0,
+      "on_track": true,
+      "annual_budget_eur_bn": 0.0,
+      "edip_committed_eur_mn": 0,
+      "change_from_last_quarter": "Increasing | Stable | Declining",
+      "source_url": "string | null"
+    }
+  ],
+  "autonomy_scorecard": {
+    "overall_score_preliminary": 0.0,
+    "score_delta": "Improving | Stable | Declining",
+    "domains": [
+      {
+        "domain": "defence_security | energy_climate | digital_ai | financial_economic | supply_chain_industrial | space_satellite",
+        "score_preliminary": 0.0,
+        "score_delta": "Improving | Stable | Declining",
+        "us_dependency_score": 0.0,
+        "ru_dependency_score": 0.0,
+        "cn_dependency_score": 0.0,
+        "headline": "string — one-sentence assessment"
+      }
+    ]
+  },
+  "defence_programmes": [
+    {
+      "programme": "string — e.g. EDIP, PESCO, EDF, ReArm Europe, Eurofighter upgrade",
+      "status": "Announced | Funded | In procurement | Operational | Delayed | Cancelled",
+      "budget_committed_eur_mn": 0,
+      "budget_disbursed_eur_mn": 0,
+      "lead_nations": ["string"],
+      "capability_area": "string — e.g. air defence, munitions, naval, cyber, space",
+      "scoreimpact": "Confirmed | Conditional | Watch",
+      "update_this_week": "string | null",
+      "source_url": "string | null"
+    }
+  ],
   "cross_monitor_candidates": [
     {
       "target_monitor": "fimi-cognitive-warfare | democratic-integrity | conflict-escalation | macro-monitor | ai-governance | environmental-risks",
@@ -200,6 +241,6 @@ The lead_signal field is REQUIRED — never skip it.
 13. JSON string values must never contain apostrophes or contractions. Use full words only.
 14. All fields in the schema are REQUIRED. If no data exists for a section, return an empty array.
 
-# Version: v2.0 | Updated: 2026-04-11 | Schema sprint — expanded from 17% to full methodology coverage
-# Added: election_threat_assessment, lagrange_point_scores, state_capture_risk in member_state_tracker,
-# us_eu_tracker, structured defence_developments, hybrid_threats with HT taxonomy, domain_tracker
+# Version: v2.1 | Updated: 2026-04-12 | Schema sprint v2 — added defence_spending, autonomy_scorecard, defence_programmes
+# v2.0 (2026-04-11): election_threat_assessment, lagrange_point_scores, state_capture_risk, us_eu_tracker, domain_tracker
+# v2.1 (2026-04-12): defence_spending array, autonomy_scorecard with per-domain dependency scores, defence_programmes tracker
