@@ -73,13 +73,34 @@ The lead_signal field is REQUIRED — never skip it.
   "domain_tracker": [
     {
       "domain": "defence_security | energy_climate | digital_ai | financial_economic | supply_chain_industrial | space_satellite",
+      "domain_label": "string — human-readable e.g. Defence & Security",
       "autonomy_score_preliminary": 0.0,
       "score_delta": "Improving | Stable | Declining",
-      "key_development": "string — most significant development in this domain",
+      "lagrange_pillar": "P1 | P2 | P3 | P4 | P5 | null — maps to Lagrange Point pillar",
+      "status_summary": "string — 2-3 sentence analytical summary of this domain this week",
+      "key_developments": [
+        {
+          "headline": "string",
+          "summary": "string — 1-2 sentences",
+          "actor_involved": "RU | CN | US | IL | EU | NATO | null",
+          "impact": "Positive | Negative | Mixed | Neutral",
+          "source_url": "string"
+        }
+      ],
       "dependency_risk": "Low | Medium | High | Critical",
-      "dependency_actor": "string | null — which actor creates the dependency",
-      "policy_response": "string | null — EU institutional response to the dependency",
-      "source_url": "string"
+      "dependency_actor": "string | null — primary actor creating dependency",
+      "dependency_detail": "string | null — specific dependency mechanism (e.g. US cloud infrastructure, Russian gas transit)",
+      "policy_response": "string | null — EU institutional response",
+      "policy_response_effectiveness": "Effective | Partial | Insufficient | None",
+      "threats_this_week": [
+        {
+          "threat_type": "HT1 | HT2 | HT3 | HT4 | HT5 | HT6",
+          "actor": "RU | CN | US | IL | Unknown",
+          "summary": "string",
+          "source_url": "string | null"
+        }
+      ],
+      "source_url": "string — primary source for this domain assessment"
     }
   ],
   "defence_developments": [
@@ -241,6 +262,7 @@ The lead_signal field is REQUIRED — never skip it.
 13. JSON string values must never contain apostrophes or contractions. Use full words only.
 14. All fields in the schema are REQUIRED. If no data exists for a section, return an empty array.
 
-# Version: v2.1 | Updated: 2026-04-12 | Schema sprint v2 — added defence_spending, autonomy_scorecard, defence_programmes
+# Version: v2.2 | Updated: 2026-04-12 | Schema sprint v2 — 6 autonomy domains as first-class sections
 # v2.0 (2026-04-11): election_threat_assessment, lagrange_point_scores, state_capture_risk, us_eu_tracker, domain_tracker
 # v2.1 (2026-04-12): defence_spending array, autonomy_scorecard with per-domain dependency scores, defence_programmes tracker
+# v2.2 (2026-04-12): enriched domain_tracker with key_developments[], threats_this_week[], dependency_detail, policy_response_effectiveness, lagrange_pillar mapping
