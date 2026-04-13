@@ -590,8 +590,10 @@ def step4_update_standing_pages(
     except Exception as exc:
         log(f"ERROR updating Digest page: {exc}")
 
-    # --- Search page (all issues) ---
+    # --- Search page (all issues, base64-encoded script to prevent WP mangling) ---
     try:
+        import base64
+
         search_items = []
         data_dir = Path(os.environ.get("REPO_ROOT", os.getcwd())) / "static/monitors/ai-governance/data"
 
@@ -604,7 +606,7 @@ def step4_update_standing_pages(
             iss = entry.get("issue", "")
             vol_issue_str = ""
             if vol:
-                vol_issue_str += f"Vol. {vol} · "
+                vol_issue_str += f"Vol. {vol} \u00b7 "
             if iss:
                 vol_issue_str += f"Issue {iss}"
 
@@ -642,35 +644,57 @@ def step4_update_standing_pages(
                 except Exception:
                     pass
 
+        # Serialise search data as JSON for the data-items attribute
         search_json = json.dumps(search_items, ensure_ascii=False)
+        # HTML-escape for safe embedding in a data attribute
+        search_json_attr = html_escape(search_json)
+
+        # Build the search script — uses DOM methods (no innerHTML assignment
+        # with HTML-like strings that WP wpautop would mangle)
+        search_script = (
+            'var c=document.getElementById("aim-search");'
+            'var items=JSON.parse(c.getAttribute("data-items"));'
+            'var inp=document.getElementById("aim-search-input");'
+            'var res=document.getElementById("aim-search-results");'
+            'inp.addEventListener("input",function(){'
+            'var q=this.value.toLowerCase().trim();'
+            'if(q.length<3){while(res.firstChild)res.removeChild(res.firstChild);return;}'
+            'var hits=items.filter(function(d){return d.text.toLowerCase().indexOf(q)!==-1;});'
+            'while(res.firstChild)res.removeChild(res.firstChild);'
+            'hits.slice(0,20).forEach(function(h){'
+            'var idx=h.text.toLowerCase().indexOf(q);'
+            'var start=Math.max(0,idx-80);'
+            'var snippet=(start>0?"\u2026":"")+h.text.substring(start,idx+q.length+120)+"\u2026";'
+            'var row=document.createElement("div");'
+            'row.style.cssText="padding:12px 0;border-bottom:1px solid #eee";'
+            'var a=document.createElement("a");'
+            'a.href=h.url;a.style.cssText="font-weight:600;color:#006b6f;text-decoration:none";'
+            'a.textContent=h.module+" \u2014 "+h.week;'
+            'var sp=document.createElement("span");'
+            'sp.style.cssText="font-size:13px;color:#888;margin-left:8px";'
+            'sp.textContent=h.issue;'
+            'var p=document.createElement("p");'
+            'p.style.cssText="font-size:14px;color:#555;margin-top:4px;line-height:1.5";'
+            'p.textContent=snippet;'
+            'row.appendChild(a);row.appendChild(sp);row.appendChild(p);res.appendChild(row);});'
+            'if(hits.length===0){var np=document.createElement("p");'
+            'np.style.color="#888";np.textContent="No results found.";res.appendChild(np);}'
+            'if(hits.length>20){var mp=document.createElement("p");'
+            'mp.style.cssText="color:#888;margin-top:12px";'
+            'mp.textContent="Showing 20 of "+hits.length+" results.";res.appendChild(mp);}'
+            '});'
+        )
+        # Base64-encode the script to prevent WordPress wpautop from mangling it
+        search_script_b64 = base64.b64encode(search_script.encode("utf-8")).decode("ascii")
+
         search_block = (
-            '<div class="aim-search" id="aim-search">\n'
+            f'<div class="aim-search" id="aim-search" data-items="{search_json_attr}">\n'
             '  <h2>Search All Issues</h2>\n'
             '  <input type="text" id="aim-search-input" placeholder="Search across all modules and issues\u2026" '
             'style="width:100%;padding:12px 16px;border:1px solid #ccc;border-radius:8px;font-size:16px;margin-bottom:16px">\n'
             '  <div id="aim-search-results"></div>\n'
             '</div>\n'
-            '<script>\n'
-            f'var AIM_SEARCH_DATA = {search_json};\n'
-            'var input = document.getElementById("aim-search-input");\n'
-            'var results = document.getElementById("aim-search-results");\n'
-            'input.addEventListener("input", function() {\n'
-            '  var q = this.value.toLowerCase().trim();\n'
-            '  if (q.length < 3) { results.innerHTML = ""; return; }\n'
-            '  var hits = AIM_SEARCH_DATA.filter(function(d) { return d.text.toLowerCase().indexOf(q) !== -1; });\n'
-            '  results.innerHTML = hits.slice(0, 20).map(function(h) {\n'
-            '    var idx = h.text.toLowerCase().indexOf(q);\n'
-            '    var start = Math.max(0, idx - 80);\n'
-            '    var snippet = (start > 0 ? "\u2026" : "") + h.text.substring(start, idx + q.length + 120) + "\u2026";\n'
-            '    return \'<div style="padding:12px 0;border-bottom:1px solid #eee">\' +\n'
-            '      \'<a href="\' + h.url + \'" style="font-weight:600;color:#006b6f;text-decoration:none">\' + h.module + \' &mdash; \' + h.week + \'</a>\' +\n'
-            '      \'<span style="font-size:13px;color:#888;margin-left:8px">\' + h.issue + \'</span>\' +\n'
-            '      \'<p style="font-size:14px;color:#555;margin-top:4px;line-height:1.5">\' + snippet + \'</p></div>\';\n'
-            '  }).join("");\n'
-            '  if (hits.length === 0) results.innerHTML = \'<p style="color:#888">No results found.</p>\';\n'
-            '  if (hits.length > 20) results.innerHTML += \'<p style="color:#888;margin-top:12px">Showing 20 of \' + hits.length + \' results.</p>\';\n'
-            '});\n'
-            '</script>'
+            f'<script>eval(atob("{search_script_b64}"))</script>'
         )
 
         # Fetch existing page to preserve styling
@@ -684,7 +708,7 @@ def step4_update_standing_pages(
         current_search = _cdata.get("raw", "") or _cdata.get("rendered", "")
 
         # Replace the aim-search div + script if it exists, otherwise append
-        search_pattern = r'<div class="aim-search" id="aim-search">.*?</script>'
+        search_pattern = r'<div class="aim-search" id="aim-search"[^>]*>.*?</script>'
         if _re.search(search_pattern, current_search, _re.DOTALL):
             new_search = _re.sub(search_pattern, search_block, current_search, flags=_re.DOTALL)
         else:
@@ -697,7 +721,7 @@ def step4_update_standing_pages(
             timeout=120,
         )
         resp.raise_for_status()
-        log(f"Search page (ID {WP_SEARCH_ID}) updated with {len(search_items)} items from {len(archive)} issues (styling preserved).")
+        log(f"Search page (ID {WP_SEARCH_ID}) updated with {len(search_items)} items from {len(archive)} issues (base64 script, styling preserved).")
     except Exception as exc:
         log(f"ERROR updating Search page: {exc}")
 
