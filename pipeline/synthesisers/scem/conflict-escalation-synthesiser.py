@@ -17,10 +17,11 @@ from synth_utils import parse_llm_json
 REPO_ROOT   = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
 MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "conflict-escalation"
 SYNTH_DIR   = MONITOR_DIR / "synthesised"
-PROMPT_FILE = pathlib.Path(__file__).with_name("conflict-escalation-synthesiser-api-prompt.txt")
-METHODOLOGY = REPO_ROOT / "docs" / "methodology" / "conflict-escalation-full.md"
-IDENTITY    = REPO_ROOT / "docs" / "identity" / "scem-identity.md"
-ADDENDUM    = REPO_ROOT / "docs" / "methodology" / "conflict-escalation-addendum.md"
+PROMPT_FILE    = pathlib.Path(__file__).with_name("conflict-escalation-synthesiser-api-prompt.txt")
+RESPONSE_SCHEMA = pathlib.Path(__file__).with_name("scem-response-schema.json")
+METHODOLOGY    = REPO_ROOT / "docs" / "methodology" / "conflict-escalation-full.md"
+IDENTITY       = REPO_ROOT / "docs" / "identity" / "scem-identity.md"
+ADDENDUM       = REPO_ROOT / "docs" / "methodology" / "conflict-escalation-addendum.md"
 
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DATED = SYNTH_DIR / f"synthesis-{TODAY_STR}.json"
@@ -106,19 +107,29 @@ if len(user_msg) > MAX_CONTEXT:
     print(f"[SCEM] Context truncated: {len(user_msg)} → {MAX_CONTEXT} chars")
     user_msg = user_msg[:MAX_CONTEXT]
 
+# ── Load response schema for structured output ───────────────────────────────
+response_schema = load_json(RESPONSE_SCHEMA)
+request_body = {
+    "model": MODEL,
+    "messages": [
+        {"role": "system", "content": system_msg},
+        {"role": "user",   "content": user_msg},
+    ],
+    "max_tokens": 16384,
+    "temperature": 0.1,
+}
+if response_schema:
+    request_body["response_format"] = {
+        "type": "json_schema",
+        "json_schema": {"schema": response_schema},
+    }
+    print("[SCEM] Using structured output (response_format)")
+
 print(f"[SCEM] Calling {MODEL} …")
 resp = requests.post(
     API_URL,
     headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
-    json={
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": system_msg},
-            {"role": "user",   "content": user_msg},
-        ],
-        "max_tokens": 16384,
-        "temperature": 0.1,
-    },
+    json=request_body,
     timeout=300,
 )
 if resp.status_code == 429:
@@ -126,8 +137,7 @@ if resp.status_code == 429:
     time.sleep(60)
     resp = requests.post(API_URL,
         headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
-        json={"model": MODEL, "messages": [{"role": "system", "content": system_msg},
-              {"role": "user", "content": user_msg}], "max_tokens": 16384, "temperature": 0.1},
+        json=request_body,
         timeout=300)
 resp.raise_for_status()
 raw = resp.json()["choices"][0]["message"]["content"].strip()
