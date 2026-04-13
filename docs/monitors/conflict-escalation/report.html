@@ -169,6 +169,19 @@
     .cmc-item__body { flex:1; display:flex; flex-direction:column; gap:var(--space-1); }
     .cmc-item__signal { font-size:var(--text-sm); color:var(--color-text); line-height:1.5; }
     .cmc-item__meta { display:flex; gap:var(--space-3); font-size:var(--text-xs); color:var(--color-text-muted); flex-wrap:wrap; }
+
+    /* ── Hybrid warfare layer ──────────────────────────────────── */
+    .hybrid-warfare-list { display:flex; flex-direction:column; gap:var(--space-3); }
+    .hybrid-warfare-item { display:flex; gap:var(--space-3); padding:var(--space-4); background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); }
+    .hybrid-warfare-item__icon { font-size:1.25rem; flex-shrink:0; width:28px; text-align:center; padding-top:2px; }
+    .hybrid-warfare-item__body { flex:1; display:flex; flex-direction:column; gap:var(--space-1); }
+    .hybrid-warfare-item__header { display:flex; gap:var(--space-3); align-items:center; flex-wrap:wrap; }
+    .hybrid-warfare-item__dimension { font-size:var(--text-sm); font-weight:700; color:var(--color-text); }
+    .hybrid-warfare-item__theatre { font-size:var(--text-xs); color:var(--color-text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.04em; }
+    .hybrid-warfare-item__dev { font-size:var(--text-sm); color:var(--color-text-secondary); line-height:1.55; }
+    .hybrid-warfare-item__meta { display:flex; gap:var(--space-3); align-items:center; flex-wrap:wrap; margin-top:var(--space-1); }
+    .hybrid-warfare-item__fcw-link { font-size:var(--text-xs); color:var(--monitor-accent); text-decoration:none; font-weight:600; }
+    .hybrid-warfare-item__fcw-link:hover { text-decoration:underline; }
   </style>
 </head>
 
@@ -242,6 +255,15 @@
       <div id="theatre-tracker-content">
         <div class="loading-state">Loading…</div>
       </div>
+    </section>
+
+    <!-- 6b. Hybrid Warfare Layer (hidden until data present) -->
+    <section class="module-section" id="section-hybrid-warfare" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Hybrid Warfare Layer</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Non-kinetic dimensions active across conflict theatres this week</div>
+      </div>
+      <div id="hybrid-warfare-content"></div>
     </section>
 
     <!-- 7. Indicator Scoring -->
@@ -336,6 +358,7 @@
       <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-lead-signal">Lead Signal</a></li>
       <li><a href="#section-theatre-tracker">Theatre Tracker</a></li>
+      <li><a href="#section-hybrid-warfare">Hybrid Warfare</a></li>
       <li><a href="#section-indicator-scoring">Indicator Scoring</a></li>
       <li><a href="#section-conflicts">Conflicts</a></li>
       <li><a href="#section-fflag-matrix">F-Flag Matrix</a></li>
@@ -367,7 +390,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderReport(d) {
     var meta   = d.meta   || {};
-    var ls     = d.lead_signal || {};
+    /* F1: JSON uses d.signal (not d.lead_signal). Map fields for display. */
+    var rawSig = d.lead_signal || d.signal || {};
+    var ls = {
+      conflict: rawSig.conflict || rawSig.actor || '',
+      headline: rawSig.headline || '',
+      indicator: rawSig.indicator || '',
+      deviation: rawSig.deviation || '',
+      summary: rawSig.summary || rawSig.note || '',
+      source_url: rawSig.source_url || '',
+      confidence: rawSig.confidence || ''
+    };
     var rawRoster = d.conflict_roster || [];
     var rw     = d.roster_watch || {};
     var cmf    = d.cross_monitor_flags || {};
@@ -408,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
           return raw;
         })(),
-        f_flags: ffEntry.f_flags || c.f_flags || [],
+        f_flags: ffEntry.f_flags_detected || ffEntry.f_flags || c.f_flags || [],
         lead_development: ttEntry.key_development || c.lead_development || '',
         summary: ttEntry.escalation_risk ? ('Escalation risk: ' + ttEntry.escalation_risk) : (c.summary || ''),
         source_url: ttEntry.source_url || c.source_url || '',
@@ -429,15 +462,29 @@ document.addEventListener('DOMContentLoaded', function () {
       '</div>';
 
     // ── Lead signal ──────────────────────────────────────────────────
+    // Audience: headline for journalists/laypeople, confidence+indicator for intel pros
+    var lsLabel = ls.conflict ? 'Lead Signal — ' + escHtml(ls.conflict) : 'Lead Signal';
+    var lsMeta = '';
+    if (ls.indicator || ls.deviation) {
+      lsMeta = '<p style="margin-bottom:var(--space-2)"><strong style="opacity:0.85">Indicator:</strong> ' +
+        escHtml(ls.indicator||'—') + ' · <strong style="opacity:0.85">Deviation:</strong> ' +
+        escHtml(ls.deviation||'—') + '</p>';
+    }
     document.getElementById('lead-signal-full').innerHTML =
       '<div class="signal-block">' +
-        '<div class="signal-block__label">Lead Signal — ' + escHtml(ls.conflict||'') + '</div>' +
+        '<div class="signal-block__label">' + lsLabel +
+          (ls.confidence && ls.confidence !== 'N/A'
+            ? ' <span class="badge-confidence badge-confidence--' +
+                escHtml(ls.confidence.toLowerCase()) + '">' +
+                escHtml(ls.confidence) + '</span>'
+            : '') +
+        '</div>' +
         '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' +
-          escHtml(ls.headline||'') + '</h2>' +
-        '<p style="margin-bottom:var(--space-2)"><strong style="opacity:0.85">Indicator:</strong> ' +
-          escHtml(ls.indicator||'') + ' · <strong style="opacity:0.85">Deviation:</strong> ' +
-          escHtml(ls.deviation||'') + '</p>' +
-        '<p>' + escHtml(ls.summary||'') + '</p>' +
+          escHtml(ls.headline||'No lead signal this issue.') + '</h2>' +
+        lsMeta +
+        (ls.summary
+          ? '<p>' + escHtml(ls.summary) + '</p>'
+          : '') +
         (ls.source_url
           ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' +
               escHtml(ls.source_url) +
@@ -460,6 +507,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<li><a href="#section-weekly-brief">Weekly Brief</a></li>' +
       '<li><a href="#section-lead-signal">Lead Signal</a></li>' +
       '<li><a href="#section-theatre-tracker">Theatre Tracker</a></li>' +
+      '<li><a href="#section-hybrid-warfare">Hybrid Warfare</a></li>' +
       '<li><a href="#section-indicator-scoring">Indicator Scoring</a></li>' +
       '<li><a href="#section-conflicts">Conflicts</a></li>' +
       conflictSubLinks +
@@ -532,6 +580,8 @@ document.addEventListener('DOMContentLoaded', function () {
       AsymSections.renderGlobalSnapshot(d.global_escalation_snapshot || {}, 'global-snapshot-content');
       AsymSections.renderWeeklyBrief(d.weekly_brief || '', 'weekly-brief-content');
       AsymSections.renderTheatreTracker(d.theatre_tracker || [], 'theatre-tracker-content');
+      AsymSections.renderHybridWarfareLayer(d.hybrid_warfare_layer || [], 'hybrid-warfare-content',
+        document.getElementById('section-hybrid-warfare'));
       AsymSections.renderIndicatorScoring(d.indicator_scoring || [], 'indicator-scoring-content');
       AsymSections.renderFlagMatrix(d.f_flag_matrix || [], 'fflag-matrix-content');
       AsymSections.renderACLEDReference(d.acled_reference || {}, 'acled-reference-content');
@@ -565,8 +615,11 @@ document.addEventListener('DOMContentLoaded', function () {
         'margin-bottom:var(--space-2)">Approaching Inclusion</p>' +
         '<ul class="roster-watch-list">';
       inc.forEach(function (item) {
+        /* F5: JSON uses theatre_name/reason; HTML expected conflict/note */
+        var name = item.conflict || item.theatre_name || '';
+        var note = item.note || item.reason || '';
         html += '<li style="padding:var(--space-3) 0;border-bottom:1px solid var(--border)">' +
-          '<div style="font-weight:600;margin-bottom:2px">' + escHtml(item.conflict || '') + '</div>' +
+          '<div style="font-weight:600;margin-bottom:2px">' + escHtml(name) + '</div>' +
           '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:4px">' +
             escHtml(item.theatre || '') + '</div>';
         if (item.criteria_met && item.criteria_met.length) {
@@ -578,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           html += '</div>';
         }
-        html += '<div style="font-size:var(--text-sm)">' + escHtml(item.note || '') + '</div></li>';
+        html += '<div style="font-size:var(--text-sm)">' + escHtml(note) + '</div></li>';
       });
       html += '</ul>';
     }
@@ -588,10 +641,12 @@ document.addEventListener('DOMContentLoaded', function () {
         'Approaching Retirement</p>' +
         '<ul class="roster-watch-list">';
       ret.forEach(function (item) {
+        var retName = item.conflict || item.theatre_name || '';
+        var retNote = item.note || item.reason || '';
         html += '<li style="padding:var(--space-3) 0;border-bottom:1px solid var(--border)">' +
-          '<div style="font-weight:600;margin-bottom:2px">' + escHtml(item.conflict || '') + '</div>' +
+          '<div style="font-weight:600;margin-bottom:2px">' + escHtml(retName) + '</div>' +
           '<div style="font-size:var(--text-sm);color:var(--text-muted)">' +
-            escHtml(item.note || '') + '</div></li>';
+            escHtml(retNote) + '</div></li>';
       });
       html += '</ul>';
     }

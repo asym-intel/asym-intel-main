@@ -881,14 +881,16 @@ window.AsymSections = (function () {
 
     var html = '';
     matrix.forEach(function (entity) {
-      var flags = entity.f_flags || [];
+      var flags = entity.f_flags_detected || entity.f_flags || [];
       html +=
         '<div class="flag-matrix-entity">' +
-          '<div class="flag-matrix-entity__title">' + escHtml(entity.theatre_id || '') + '</div>' +
+          '<div class="flag-matrix-entity__title">' + escHtml(entity.theatre_name || entity.theatre_id || '') + '</div>' +
           '<div class="flag-matrix-grid">';
 
       flags.forEach(function (f) {
-        var detected = !!f.detected;
+        /* Items in f_flags_detected are detected by definition;
+           fall back to explicit f.detected for legacy f_flags format */
+        var detected = (f.detected !== undefined) ? !!f.detected : true;
         html +=
           '<div class="flag-matrix-item' + (detected ? ' flag-matrix-item--detected' : '') + '">' +
             '<div class="flag-matrix-item__header">' +
@@ -1120,6 +1122,66 @@ window.AsymSections = (function () {
                 : '') +
               (c.confidence_preliminary
                 ? '<span>Confidence: ' + escHtml(c.confidence_preliminary) + '</span>'
+                : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * renderHybridWarfareLayer — cross-domain hybrid activity summary.
+   * Shows non-kinetic dimensions (cyber, economic coercion, information ops)
+   * linked to conflict theatres, with optional FCW cross-reference.
+   *
+   * Written for all audiences: plain-language dimension labels for journalists
+   * and laypeople; structured theatre + actor + FCW linkback for intel pros.
+   *
+   * @param {Array}  items  [{theatre_id, dimension, development, actor, fcw_link}]
+   * @param {string} targetId
+   * @param {HTMLElement} [wrapperEl]  optional — unhide if items exist
+   */
+  function renderHybridWarfareLayer(items, targetId, wrapperEl) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No hybrid warfare activity this issue.</p>';
+      return;
+    }
+    if (wrapperEl) wrapperEl.style.display = '';
+
+    var dimensionIcons = {
+      'cyber': '🖥',
+      'economic coercion': '💰',
+      'information operations': '📡',
+      'political subversion': '🏛',
+      'energy': '⚡',
+      'lawfare': '⚖'
+    };
+
+    var html = '<div class="hybrid-warfare-list">';
+    items.forEach(function (item) {
+      var dimLower = (item.dimension || '').toLowerCase();
+      var icon = dimensionIcons[dimLower] || '◆';
+
+      html +=
+        '<div class="hybrid-warfare-item">' +
+          '<div class="hybrid-warfare-item__icon" aria-hidden="true">' + icon + '</div>' +
+          '<div class="hybrid-warfare-item__body">' +
+            '<div class="hybrid-warfare-item__header">' +
+              '<span class="hybrid-warfare-item__dimension">' + escHtml(item.dimension || '') + '</span>' +
+              '<span class="hybrid-warfare-item__theatre">' + escHtml(item.theatre_id || '') + '</span>' +
+            '</div>' +
+            '<div class="hybrid-warfare-item__dev">' + escHtml(item.development || '') + '</div>' +
+            '<div class="hybrid-warfare-item__meta">' +
+              (item.actor
+                ? '<span class="tag tag--actor">' + escHtml(item.actor) + '</span>'
+                : '') +
+              (item.fcw_link
+                ? '<a class="hybrid-warfare-item__fcw-link" href="' + escHtml(item.fcw_link) +
+                    '" target="_blank" rel="noopener">FCW assessment →</a>'
                 : '') +
             '</div>' +
           '</div>' +
@@ -3098,6 +3160,7 @@ window.AsymSections = (function () {
     renderACLEDReference: renderACLEDReference,
     renderKeyJudgments: renderKeyJudgments,
     renderCrossMonitorCandidates: renderCrossMonitorCandidates,
+    renderHybridWarfareLayer: renderHybridWarfareLayer,
 
     // Persistent-page enrichment helpers
     enrichBaselineWithTheatre: enrichBaselineWithTheatre,
