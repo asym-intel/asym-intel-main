@@ -343,7 +343,7 @@
     .ctx-panel.open { display: block; }
 
     /* ── SHARED CONFIDENCE BADGE (all new generic sections) ─────────── */
-    /* Used by: renderEscalationLog, renderKeyJudgments, renderCrossMonitorCandidates */
+    /* Used by: renderEscalationLog */
     .conf-badge {
       font-size: var(--text-min);
       font-weight: 700;
@@ -359,7 +359,7 @@
     .conf-badge--assessed  { background: rgba(217,119,6,0.15); color: #d97706; }
 
     /* ── SHARED TRAJECTORY BADGE ────────────────────────────────────── */
-    /* Used by: renderKeyJudgments */
+    /* Used by: renderEscalationLog */
     .traj-badge {
       font-size: var(--text-min);
       font-weight: 700;
@@ -542,63 +542,19 @@
       margin: var(--space-4) 0 var(--space-3);
     }
 
-    /* ── renderKeyJudgments ─────────────────────────────────────────── */
-    .kj-list {
+    /* ── Cross-Monitor Flags ────────────────────────────────────────── */
+    .cross-monitor-panel {
       display: flex;
       flex-direction: column;
-      gap: var(--space-3);
-      margin-top: var(--space-4);
-    }
-    .kj-entry {
-      display: flex;
       gap: var(--space-4);
-      align-items: flex-start;
-      padding: var(--space-4);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
     }
-    .kj-entry__badges {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      flex-shrink: 0;
-      min-width: 80px;
-      align-items: flex-start;
-    }
-    .kj-entry__body { flex: 1; min-width: 0; }
-    .kj-id {
-      font-size: var(--text-min);
-      font-weight: 700;
+    .cross-monitor-panel__title {
+      font-size: var(--text-sm);
       color: var(--color-text-muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+      font-weight: 500;
       margin-bottom: var(--space-1);
     }
-    .kj-judgment {
-      font-size: var(--text-sm);
-      color: var(--color-text);
-      font-weight: 500;
-      line-height: 1.5;
-      margin-bottom: var(--space-2);
-    }
-    .kj-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2) var(--space-3);
-      font-size: var(--text-min);
-      color: var(--color-text-muted);
-      align-items: center;
-    }
-
-    /* ── renderCrossMonitorCandidates ───────────────────────────────── */
-    .cmc-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: var(--space-4);
-      margin-top: var(--space-4);
-    }
-    .cmc-card {
+    .cms-flag {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
@@ -607,37 +563,48 @@
       flex-direction: column;
       gap: var(--space-2);
     }
-    /* Target monitor label — uses monitor-accent of THIS page, not the target */
-    .cmc-card__target {
+    .cms-flag__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .cms-flag__id {
       font-size: var(--text-min);
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--monitor-accent);
+      color: var(--color-text-muted);
+      font-family: var(--font-mono, monospace);
     }
-    .cmc-card__signal {
+    .cms-flag__title {
       font-size: var(--text-sm);
+      font-weight: 600;
       color: var(--color-text);
-      font-weight: 500;
-      line-height: 1.5;
+      line-height: 1.4;
     }
-    .cmc-card__meta {
+    .cms-flag__summary {
+      font-size: var(--text-sm);
+      color: var(--color-text-muted);
+      line-height: 1.6;
+    }
+    .cms-flag__monitors {
       display: flex;
       flex-wrap: wrap;
-      gap: var(--space-2);
+      gap: var(--space-1);
       align-items: center;
-      margin-top: var(--space-1);
-    }
-    /* Type badge — neutral blue, doesn't inherit monitor-accent */
-    .cmc-type-badge {
       font-size: var(--text-min);
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: rgba(37,99,235,0.10);
-      color: #2563eb;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+    }
+    .cms-flag__monitors a {
+      color: var(--monitor-accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .cms-flag__monitors a:hover {
+      text-decoration: underline;
+    }
+    .cms-flag__icon {
+      vertical-align: -3px;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -764,8 +731,8 @@
 /* ==========================================================================
    LOCAL RENDERER HELPERS
    SCEM-specific helpers retained here. Generic helpers (enrichBaselineWithTheatre,
-   enrichIndicatorCell, renderEscalationLog, renderACLEDReference, renderKeyJudgments,
-   renderCrossMonitorCandidates, confBadgeClass, deviationBandClass, levelLabelClass)
+   enrichIndicatorCell, renderEscalationLog, renderACLEDReference,
+   confBadgeClass, deviationBandClass, levelLabelClass)
    are provided by window.AsymSections via shared/js/renderer.js.
    ========================================================================== */
 
@@ -1081,6 +1048,34 @@ document.addEventListener('DOMContentLoaded', function () {
     var cmf   = d._report_cmf || d.cross_monitor_flags || {};
     var flags = cmf.flags || [];
     var cmEl  = document.getElementById('cross-monitor');
+
+    /* Monitor name → { href, slug } — slug used for SVG icon path */
+    var MONITOR_LINKS = {
+      'FIMI & Cognitive Warfare':                          { href: '../fimi-cognitive-warfare/persistent.html', slug: 'fcw' },
+      'FCW':                                               { href: '../fimi-cognitive-warfare/persistent.html', slug: 'fcw' },
+      'European Geopolitical & Hybrid Threat Monitor':      { href: '../european-strategic-autonomy/persistent.html', slug: 'esa' },
+      'EGHTM':                                             { href: '../european-strategic-autonomy/persistent.html', slug: 'esa' },
+      'ESA':                                               { href: '../european-strategic-autonomy/persistent.html', slug: 'esa' },
+      'Global Environmental Risks & Planetary Boundaries Monitor': { href: '../environmental-risks/persistent.html', slug: 'erm' },
+      'GERP':                                              { href: '../environmental-risks/persistent.html', slug: 'erm' },
+      'ERM':                                               { href: '../environmental-risks/persistent.html', slug: 'erm' },
+      'Macro Monitor':                                     { href: '../macro-monitor/persistent.html', slug: 'gmm' },
+      'GMM':                                               { href: '../macro-monitor/persistent.html', slug: 'gmm' },
+      'World Democratic Integrity Monitor':                 { href: '../democratic-integrity/persistent.html', slug: 'wdm' },
+      'WDM':                                               { href: '../democratic-integrity/persistent.html', slug: 'wdm' },
+      'AI Governance Monitor':                              { href: '../ai-governance/persistent.html', slug: 'agm' },
+      'AIM':                                               { href: '../ai-governance/persistent.html', slug: 'agm' },
+      'Strategic Conflict & Escalation Monitor':            { href: 'persistent.html', slug: 'scem' },
+      'SCEM':                                              { href: 'persistent.html', slug: 'scem' }
+    };
+
+    function monitorLink(name) {
+      var m = MONITOR_LINKS[name];
+      if (!m) return escHtml(name);
+      var icon = '<img src="../../images/monitors/' + m.slug + '.svg" alt="" width="16" height="16" class="cms-flag__icon">';
+      return '<a href="' + m.href + '">' + icon + ' ' + escHtml(name) + '</a>';
+    }
+
     if (!flags.length) {
       cmEl.innerHTML = '<p class="text-muted text-sm">Cross-monitor flags are written by the weekly cron task and accumulate here across issues. Flags will appear after the next publish cycle.</p>';
     } else {
@@ -1088,6 +1083,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<div class="cross-monitor-panel__title">Accumulating Cross-Monitor Flags · Updated ' + escHtml(cmf.updated || '') + '</div>';
       flags.forEach(function (flag) {
         var sc = bandToSeverityClass(flag.severity || '');
+        var monLinks = (flag.monitors || []).map(monitorLink).join(', ');
         cmHtml +=
           '<div class="cms-flag">' +
             '<div class="cms-flag__header">' +
@@ -1095,9 +1091,8 @@ document.addEventListener('DOMContentLoaded', function () {
               '<span class="severity-badge severity-badge--' + sc + '">' + escHtml(flag.severity || '') + '</span>' +
             '</div>' +
             '<div class="cms-flag__title">'   + escHtml(flag.title   || '') + '</div>' +
-            '<div class="cms-flag__monitors">Monitors: ' + escHtml((flag.monitors || []).join(', ')) + '</div>' +
-            '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(flag.summary || '') + '</div>' +
-            '<span class="cms-read-more">Read more →</span>' +
+            '<p class="cms-flag__summary">'   + escHtml(flag.summary || '') + '</p>' +
+            '<div class="cms-flag__monitors">Flagged for: ' + monLinks + '</div>' +
           '</div>';
       });
       cmHtml += '</div>';
