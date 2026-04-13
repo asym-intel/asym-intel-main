@@ -1,0 +1,336 @@
+{
+  "type": "object",
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "research_model": {
+          "type": "string"
+        },
+        "monitor_slug": {
+          "type": "string"
+        },
+        "synthesised_at": {
+          "type": "string"
+        },
+        "week_ending": {
+          "type": "string"
+        },
+        "null_signal_week": {
+          "type": "boolean"
+        },
+        "null_signal_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "planetary_status_snapshot": {
+      "type": "object",
+      "properties": {
+        "boundaries_exceeded": {
+          "type": "integer"
+        },
+        "boundaries_high_risk": {
+          "type": "integer"
+        },
+        "boundaries_increasing_risk": {
+          "type": "integer"
+        },
+        "boundaries_safe": {
+          "type": "integer"
+        },
+        "status_delta_this_week": {
+          "type": "string"
+        },
+        "lead_signal": {
+          "type": "string"
+        }
+      }
+    },
+    "planetary_boundary_tracker": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "boundary": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "status_delta": {
+            "type": "string"
+          },
+          "key_indicator": {
+            "type": "string"
+          },
+          "data_source": {
+            "type": "string"
+          },
+          "week_development": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "filter_tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "tipping_point_tracker": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipping_element": {
+            "type": "string"
+          },
+          "proximity": {
+            "type": "string"
+          },
+          "probability_preliminary": {
+            "type": "string"
+          },
+          "key_indicator": {
+            "type": "string"
+          },
+          "cascade_risk": {
+            "type": "string"
+          },
+          "cascade_chain": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "amoc_fovs_proxy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "extreme_events_log": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "climate_security_nexus": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "policy_law_compliance": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "icj_tracker": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "last_development": {
+          "type": "string"
+        },
+        "last_development_date": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "next_milestone": {
+          "type": "string"
+        },
+        "significance": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string"
+        }
+      }
+    },
+    "loss_damage_tracker": {
+      "type": "object",
+      "properties": {
+        "mechanism_status": {
+          "type": "string"
+        },
+        "committed_usd": {
+          "type": "integer"
+        },
+        "disbursed_usd": {
+          "type": "integer"
+        },
+        "disbursement_ratio": {
+          "type": "number"
+        },
+        "compliance_cycle": {
+          "type": "string"
+        },
+        "key_development": {
+          "type": "string"
+        },
+        "filter_tag": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        }
+      }
+    },
+    "attribution_gap_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "case": {
+            "type": "string"
+          },
+          "governance_status": {
+            "type": "string"
+          },
+          "this_week_development": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "filter_tag": {
+            "type": "string"
+          },
+          "key_metric": {
+            "type": "string"
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "reverse_cascade_check": {
+      "type": "object",
+      "properties": {
+        "checked": {
+          "type": "boolean"
+        },
+        "geopolitical_event": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "accelerates_boundary": {
+          "type": "boolean"
+        },
+        "affected_boundary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cascade_description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "regional_coverage": {
+      "type": "object",
+      "properties": {
+        "sub_saharan_africa_items": {
+          "type": "integer"
+        },
+        "mena_items": {
+          "type": "integer"
+        },
+        "south_asia_items": {
+          "type": "integer"
+        },
+        "ocean_systems_items": {
+          "type": "integer"
+        },
+        "fm_erm_02_met": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "judgment": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string"
+          },
+          "boundary_or_element": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "weekly_brief_draft": {
+      "type": "string"
+    },
+    "cross_monitor_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "_meta",
+    "planetary_status_snapshot",
+    "planetary_boundary_tracker",
+    "tipping_point_tracker",
+    "extreme_events_log",
+    "climate_security_nexus",
+    "policy_law_compliance",
+    "icj_tracker",
+    "loss_damage_tracker",
+    "attribution_gap_cases",
+    "reverse_cascade_check",
+    "regional_coverage",
+    "key_judgments",
+    "weekly_brief_draft",
+    "cross_monitor_candidates"
+  ]
+}
