@@ -48,12 +48,15 @@ def load_text(path):
     p = pathlib.Path(path)
     return p.read_text(encoding="utf-8") if p.exists() else ""
 
-daily_latest  = load_json(MONITOR_DIR / "daily"  / "daily-latest.json")
-weekly_latest = load_json(MONITOR_DIR / "weekly" / "weekly-latest.json")
-prompt_text   = load_text(PROMPT_FILE)
-methodology   = load_text(METHODOLOGY)
-identity      = load_text(IDENTITY)
-addendum      = load_text(ADDENDUM)
+daily_latest      = load_json(MONITOR_DIR / "daily"  / "daily-latest.json")
+weekly_latest     = load_json(MONITOR_DIR / "weekly" / "weekly-latest.json")
+reasoner_latest   = load_json(MONITOR_DIR / "reasoner" / "reasoner-latest.json")
+DATA_DIR          = REPO_ROOT / "docs" / "monitors" / "conflict-escalation" / "data"
+persistent_state  = load_json(DATA_DIR / "persistent-state.json")
+prompt_text       = load_text(PROMPT_FILE)
+methodology       = load_text(METHODOLOGY)
+identity          = load_text(IDENTITY)
+addendum          = load_text(ADDENDUM)
 
 if not prompt_text:
     sys.exit(f"[SCEM] ERROR: prompt file not found at {PROMPT_FILE}")
@@ -66,6 +69,14 @@ system_msg = (
     "No markdown fences. No explanatory text outside the JSON object."
 )
 
+# ── Extract key sections from persistent-state (full roster context) ──────
+ps_extract = {}
+for key in ("roster_status", "conflict_baselines", "f_flag_history", "roster_watch"):
+    if key in persistent_state:
+        ps_extract[key] = persistent_state[key]
+if persistent_state.get("_meta"):
+    ps_extract["_meta"] = persistent_state["_meta"]
+
 parts = [
     "## SYNTHESIS PROMPT\n\n" + prompt_text,
     "## IDENTITY CARD (analytical quality standard)\n\n" + identity[:6000],
@@ -73,13 +84,23 @@ parts = [
 ]
 if addendum:
     parts.append("## METHODOLOGY ADDENDUM\n\n" + addendum[:4000])
+
+# ── Analytical continuity: reasoner + persistent-state before raw news ────
+if reasoner_latest:
+    parts.append("## REASONER ANALYSIS (reasoner-latest.json)\n\n"
+                 + json.dumps(reasoner_latest, indent=2)[:16000])
+if ps_extract:
+    parts.append("## PERSISTENT STATE (roster + baselines + f-flags)\n\n"
+                 + json.dumps(ps_extract, indent=2)[:16000])
+
+# ── Raw collector data ────────────────────────────────────────────────────
 parts.append("## DAILY COLLECTOR (daily-latest.json)\n\n"
-             + json.dumps(daily_latest, indent=2)[:8000])
+             + json.dumps(daily_latest, indent=2)[:12000])
 if weekly_latest:
     parts.append("## WEEKLY RESEARCH (weekly-latest.json)\n\n"
-                 + json.dumps(weekly_latest, indent=2)[:8000])
+                 + json.dumps(weekly_latest, indent=2)[:12000])
 
-MAX_CONTEXT = 40000
+MAX_CONTEXT = 120000
 user_msg = "\n\n---\n\n".join(parts)
 if len(user_msg) > MAX_CONTEXT:
     print(f"[SCEM] Context truncated: {len(user_msg)} → {MAX_CONTEXT} chars")
@@ -95,10 +116,10 @@ resp = requests.post(
             {"role": "system", "content": system_msg},
             {"role": "user",   "content": user_msg},
         ],
-        "max_tokens": 8192,
+        "max_tokens": 16384,
         "temperature": 0.1,
     },
-    timeout=180,
+    timeout=300,
 )
 if resp.status_code == 429:
     print(f"[SCEM] 429 rate limit — waiting 60s")
@@ -106,8 +127,8 @@ if resp.status_code == 429:
     resp = requests.post(API_URL,
         headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
         json={"model": MODEL, "messages": [{"role": "system", "content": system_msg},
-              {"role": "user", "content": user_msg}], "max_tokens": 8192, "temperature": 0.1},
-        timeout=180)
+              {"role": "user", "content": user_msg}], "max_tokens": 16384, "temperature": 0.1},
+        timeout=300)
 resp.raise_for_status()
 raw = resp.json()["choices"][0]["message"]["content"].strip()
 
