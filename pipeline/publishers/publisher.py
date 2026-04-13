@@ -665,12 +665,6 @@ monitor: "{MONITOR_SLUG}"
 ---
 
 {brief_body}
-
----
-
-The [live dashboard]({SITE_URL}/monitors/{MONITOR_SLUG}/dashboard.html) and [JSON data feed]({SITE_URL}/monitors/{MONITOR_SLUG}/data/report-latest.json) have been updated to Issue {meta['issue']} ({meta['week_label']}).
-
-*Published by {config['abbr']} Publisher Bot.*
 """
 
 

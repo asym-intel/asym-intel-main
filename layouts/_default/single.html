@@ -31,6 +31,13 @@
       {{ with .Params.summary }}
         <p class="post__summary">{{ . }}</p>
       {{ end }}
+      {{ with .Params.monitor }}
+        {{ $slug := . }}
+        {{ $dashURL := printf "/monitors/%s/dashboard.html" $slug }}
+        <nav class="post__monitor-links">
+          <a href="{{ $dashURL }}">View live dashboard →</a>
+        </nav>
+      {{ end }}
     </header>
 
     <div class="post__body">
@@ -40,18 +47,6 @@
     <footer class="post__footer">
       <div class="post__footer-links">
         <a class="post__back" href="{{ .Parent.RelPermalink }}">← All {{ .Parent.Title }} briefings</a>
-        {{ with .Params.monitor }}
-          {{ $slug := . }}
-          {{ if or (fileExists (printf "static/monitors/%s/dashboard.html" $slug)) (fileExists (printf "static/monitors/%s/index.html" $slug)) }}
-            {{ $dashURL := "/monitors/" }}
-            {{ if fileExists (printf "static/monitors/%s/index.html" $slug) }}
-              {{ $dashURL = printf "/monitors/%s/index.html" $slug }}
-            {{ else }}
-              {{ $dashURL = printf "/monitors/%s/dashboard.html" $slug }}
-            {{ end }}
-          <a class="post__dashboard-link" href="{{ $dashURL }}">View live dashboard →</a>
-          {{ end }}
-        {{ end }}
       </div>
     </footer>
   </article>
