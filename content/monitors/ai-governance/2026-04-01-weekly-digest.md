@@ -1,5 +1,5 @@
 ---
-title: "AI Governance Monitor — W/E 1 April 2026"
+title: "Artificial Intelligence Monitor — W/E 1 April 2026"
 date: 2026-04-01T09:00:00Z
 summary: "Anthropic's double opsec failure in five days — Claude Mythos leaked via CMS and KAIROS/BUDDY/undercover-mode exposed via npm — reveals systemic internal controls failure at the lab with the largest DoD-adjacent AI footprint, exactly as the GSA 'any lawful use' clause threatens to codify no-safety-restrictions as standard federal AI procurement."
 draft: false
@@ -60,4 +60,4 @@ Unsupervised ML applied to raw particle physics experimental data from the 1950s
 
 ---
 
-*Full issue: [AI Governance Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html)*
+*Full issue: [Artificial Intelligence Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html)*
