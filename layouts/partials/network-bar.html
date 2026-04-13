@@ -41,13 +41,11 @@
     <nav class="network-bar__nav" aria-label="Platform sections">
       <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.mainSite "/") }} network-bar__link--active{{ end }}"
          href="{{ .Site.Params.networkBar.mainSite }}/monitors/">Monitors</a>
-      <a class="network-bar__link{{ if eq .Site.BaseURL (print .Site.Params.networkBar.compossible "/") }} network-bar__link--active{{ end }}"
-         href="{{ .Site.Params.networkBar.compossible }}">Compossible</a>
       <a class="network-bar__link" href="{{ .Site.Params.networkBar.network }}">Network</a>
       <a class="network-bar__link" href="/map/">World Map</a>
     </nav>
 
-    {{/* Mobile hamburger — shows Monitors/Compossible/White Space */}}
+    {{/* Mobile hamburger */}}
     <button class="network-bar__hamburger" aria-label="Toggle network links" aria-expanded="false"
             onclick="this.setAttribute('aria-expanded', this.nextElementSibling.classList.toggle('network-bar__nav--open') ? 'true' : 'false')">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#a8a7a4" stroke-width="1.5">
@@ -57,7 +55,6 @@
     </button>
     <nav class="network-bar__dropdown" aria-label="Network links mobile">
       <a href="{{ .Site.Params.networkBar.mainSite }}/monitors/">Monitors</a>
-      <a href="{{ .Site.Params.networkBar.compossible }}">Compossible</a>
       <a href="{{ .Site.Params.networkBar.network }}">Network</a>
       <a href="/map/">World Map</a>
     </nav>
