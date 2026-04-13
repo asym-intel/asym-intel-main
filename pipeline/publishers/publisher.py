@@ -229,15 +229,26 @@ def build_meta(prev_report: dict, synthesis: dict, publish_date: str, config: di
 # ── Signal ────────────────────────────────────────────────────────────────
 
 def build_signal(synthesis: dict, prev_report: dict, config: dict) -> dict | None:
-    """Build signal from synthesis lead_signal, or carry forward."""
+    """Build signal from synthesis, or carry forward.
+
+    Checks both legacy key (lead_signal) and normalised key (signal)
+    so monitors work regardless of which schema version their
+    synthesiser outputs.  Class fix for stale carry-forward bug.
+    """
     signal_key = config.get("signal_key")
 
     # GMM: signal is a composite of lead_signal + stress_regime_preliminary
     if config.get("signal_builder") == "gmm":
         return build_gmm_signal(synthesis, prev_report)
 
-    if signal_key and signal_key in synthesis:
-        ls = synthesis[signal_key]
+    # Try configured key first, then normalised "signal", then legacy "lead_signal"
+    ls = None
+    for candidate in [signal_key, "signal", "lead_signal"]:
+        if candidate and candidate in synthesis:
+            ls = synthesis[candidate]
+            break
+
+    if ls and isinstance(ls, dict):
         return {
             "headline": ls.get("headline", ""),
             "actor": ls.get("actor", ls.get("region", "N/A")),
@@ -254,7 +265,7 @@ def build_gmm_signal(synthesis: dict, prev_report: dict) -> dict:
     Dashboard reads: headline, system_stress_label, system_stress_direction,
     system_average_score, regime, regime_conviction, regime_shift_probabilities, source_url.
     """
-    ls = synthesis.get("lead_signal", {})
+    ls = synthesis.get("signal", synthesis.get("lead_signal", {}))
     srp = synthesis.get("stress_regime_preliminary", {})
     prev_signal = prev_report.get("signal", {})
 
