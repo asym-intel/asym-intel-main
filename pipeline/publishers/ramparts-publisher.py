@@ -15,6 +15,7 @@ import subprocess
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+import re as _re
 import requests
 
 # ---------------------------------------------------------------------------
@@ -431,7 +432,7 @@ def step4_update_standing_pages(
     except Exception as exc:
         log(f"ERROR updating homepage: {exc}")
 
-    # --- Archive page ---
+    # --- Archive page (read-then-patch to preserve styling) ---
     try:
         archive_rows = []
         for entry in archive:
@@ -452,25 +453,40 @@ def step4_update_standing_pages(
             )
 
         archive_list_html = "\n".join(archive_rows)
-        archive_html = (
-            "<!-- wp:html -->\n"
+        archive_block = (
             '<div class="aim-archive">\n'
             "  <h2>Issue Archive</h2>\n"
             "  <ul>\n"
             f"{archive_list_html}\n"
             "  </ul>\n"
-            "</div>\n"
-            "<!-- /wp:html -->"
+            "</div>"
         )
+
+        # Fetch existing page to preserve styling
+        resp = requests.get(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ARCHIVE_ID}",
+            auth=wp_auth,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        _cdata = resp.json().get("content", {})
+        current_archive = _cdata.get("raw", "") or _cdata.get("rendered", "")
+
+        # Replace the aim-archive div if it exists, otherwise append
+        archive_pattern = r'<div class="aim-archive">.*?</div>'
+        if _re.search(archive_pattern, current_archive, _re.DOTALL):
+            new_archive = _re.sub(archive_pattern, archive_block, current_archive, flags=_re.DOTALL)
+        else:
+            new_archive = current_archive + "\n<!-- wp:html -->\n" + archive_block + "\n<!-- /wp:html -->"
 
         resp = requests.post(
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ARCHIVE_ID}",
             auth=wp_auth,
-            json={"content": archive_html, "status": "publish"},
+            json={"content": new_archive, "status": "publish"},
             timeout=60,
         )
         resp.raise_for_status()
-        log(f"Archive page (ID {WP_ARCHIVE_ID}) updated.")
+        log(f"Archive page (ID {WP_ARCHIVE_ID}) updated (styling preserved).")
     except Exception as exc:
         log(f"ERROR updating archive page: {exc}")
 
@@ -492,10 +508,10 @@ def step4_update_standing_pages(
             timeout=30,
         )
         resp.raise_for_status()
-        current_about = resp.json().get("content", {}).get("raw", "")
+        _cdata = resp.json().get("content", {})
+        current_about = _cdata.get("raw", "") or _cdata.get("rendered", "")
 
         # Replace the CTA block if it exists, otherwise append
-        import re as _re
         cta_pattern = r'<!-- wp:html -->\s*<div class="aim-about-cta".*?<!-- /wp:html -->'
         if _re.search(cta_pattern, current_about, _re.DOTALL):
             new_about = _re.sub(cta_pattern, about_cta_html, current_about, flags=_re.DOTALL)
@@ -553,7 +569,8 @@ def step4_update_standing_pages(
             timeout=30,
         )
         resp.raise_for_status()
-        current_digest = resp.json().get("content", {}).get("raw", "")
+        _cdata = resp.json().get("content", {})
+        current_digest = _cdata.get("raw", "") or _cdata.get("rendered", "")
 
         # Replace digest preview if it exists, otherwise append
         preview_pattern = r'<!-- wp:html -->\s*<div class="aim-digest-preview".*?<!-- /wp:html -->'
@@ -626,8 +643,7 @@ def step4_update_standing_pages(
                     pass
 
         search_json = json.dumps(search_items, ensure_ascii=False)
-        search_html = (
-            "<!-- wp:html -->\n"
+        search_block = (
             '<div class="aim-search" id="aim-search">\n'
             '  <h2>Search All Issues</h2>\n'
             '  <input type="text" id="aim-search-input" placeholder="Search across all modules and issues\u2026" '
@@ -654,18 +670,34 @@ def step4_update_standing_pages(
             '  if (hits.length === 0) results.innerHTML = \'<p style="color:#888">No results found.</p>\';\n'
             '  if (hits.length > 20) results.innerHTML += \'<p style="color:#888;margin-top:12px">Showing 20 of \' + hits.length + \' results.</p>\';\n'
             '});\n'
-            '</script>\n'
-            "<!-- /wp:html -->"
+            '</script>'
         )
+
+        # Fetch existing page to preserve styling
+        resp = requests.get(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_SEARCH_ID}",
+            auth=wp_auth,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        _cdata = resp.json().get("content", {})
+        current_search = _cdata.get("raw", "") or _cdata.get("rendered", "")
+
+        # Replace the aim-search div + script if it exists, otherwise append
+        search_pattern = r'<div class="aim-search" id="aim-search">.*?</script>'
+        if _re.search(search_pattern, current_search, _re.DOTALL):
+            new_search = _re.sub(search_pattern, search_block, current_search, flags=_re.DOTALL)
+        else:
+            new_search = current_search + "\n<!-- wp:html -->\n" + search_block + "\n<!-- /wp:html -->"
 
         resp = requests.post(
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_SEARCH_ID}",
             auth=wp_auth,
-            json={"content": search_html, "status": "publish"},
+            json={"content": new_search, "status": "publish"},
             timeout=120,
         )
         resp.raise_for_status()
-        log(f"Search page (ID {WP_SEARCH_ID}) updated with {len(search_items)} items from {len(archive)} issues.")
+        log(f"Search page (ID {WP_SEARCH_ID}) updated with {len(search_items)} items from {len(archive)} issues (styling preserved).")
     except Exception as exc:
         log(f"ERROR updating Search page: {exc}")
 
