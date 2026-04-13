@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-build_graph.py — rebuild network graph.json from live monitor and Compossible data.
+build_graph.py — rebuild network graph.json from live monitor data.
 
 Sources (all public URLs, no auth required):
   • https://asym-intel.info/monitors/{slug}/data/report-latest.json  (×7)
   • https://asym-intel.info/monitors/{slug}/data/archive.json         (×7)
-  • https://compossible.asym-intel.info/posts-index.json
 
 Outputs:
   • static/network/data/graph.json  (served at /network/data/graph.json)
@@ -15,9 +14,6 @@ Edge design:
   - Monitor→monitor edges sourced from cross_monitor_flags in each report-latest.json.
     Edges carry first_flagged date, report_slug, and a direct report_url so every
     connection is traceable to the exact weekly report that identified it.
-  - Compossible→monitor edges inferred from monitors_referenced frontmatter (primary)
-    or graph_tags (fallback), capped at 3 per post. Poetry/creative posts excluded.
-  - Series-chain edges (extends) between sequential posts in the same series.
 """
 
 import json
@@ -76,7 +72,6 @@ MONITORS = [
 ]
 
 BASE_URL    = "https://asym-intel.info"
-COMP_INDEX  = "https://compossible.asym-intel.info/posts-index.json"
 REPORT_URL  = "{base}/monitors/{slug}/data/report-latest.json"
 ARCHIVE_URL = "{base}/monitors/{slug}/data/archive.json"
 
@@ -120,27 +115,6 @@ MONITOR_NAME_TO_SLUG = {
     "european geopolitical & hybrid threat monitor (eghtm)": "european-strategic-autonomy",
     "monitoring":                             None,  # classification value, not a monitor name
 }
-
-# graph_tag → monitor slug mapping for Compossible fallback edges
-GRAPH_TAG_TO_MONITOR = {
-    "ai-governance":       "ai-governance",
-    "democratic-integrity":"democratic-integrity",
-    "ecological-crisis":   "environmental-risks",
-    "environmental-risks": "environmental-risks",
-    "hybrid-warfare":      "fimi-cognitive-warfare",
-    "fimi":                "fimi-cognitive-warfare",
-    "european-autonomy":   "european-strategic-autonomy",
-    "geopolitical-competition": "european-strategic-autonomy",
-    "ukraine-conflict":    "conflict-escalation",
-    "conflict-escalation": "conflict-escalation",
-    "far-right-networks":  "democratic-integrity",
-    "wealth-inequality":   "macro-monitor",
-    "tech-power-concentration": "ai-governance",
-}
-
-# Post types to exclude from graph (no analytical connections to monitors)
-EXCLUDED_POST_TYPES = {"poetry", "music"}
-EXCLUDED_GRAPH_TAGS = {"creative-writing"}
 
 # Relation type for cross-monitor flags
 FLAG_RELATION_MAP = {
@@ -410,118 +384,7 @@ def build_graph(output_path: Path) -> None:
 
     print(f"  → {sum(1 for e in edges if e['edge_type'] == 'monitor-monitor')} monitor→monitor edges")
 
-    # ── 4. Compossible posts ─────────────────────────────────────────────────
-    print("Fetching Compossible posts-index…")
-    posts_index = fetch_json(COMP_INDEX) or {}
-    posts = posts_index.get("posts", []) if isinstance(posts_index, dict) else []
-    print(f"  {len(posts)} posts found")
-
-    monitor_ids = {m["id"] for m in MONITORS}
-    compossible_nodes_added = 0
-
-    for post in posts:
-        post_type = post.get("post_type", "essay")
-        graph_tags = post.get("graph_tags", [])
-        title = post.get("title", "")
-        slug = post.get("slug", "")
-
-        if not slug or not title:
-            continue
-
-        # Exclude pure creative/poetry posts
-        if post_type in EXCLUDED_POST_TYPES:
-            continue
-        if all(t in EXCLUDED_GRAPH_TAGS for t in graph_tags) and graph_tags:
-            continue
-
-        node_id = f"compossible-{slug}"
-
-        # ── Determine monitor connections ────────────────────────────────────
-        # Priority 1: explicit monitors_referenced frontmatter
-        monitors_ref = [
-            r.strip() for r in post.get("monitors_referenced", [])
-            if r.strip() in monitor_ids
-        ]
-
-        # Priority 2: graph_tags mapped to monitors (fallback if monitors_referenced empty)
-        if not monitors_ref:
-            tag_monitors = []
-            for tag in graph_tags:
-                if tag in EXCLUDED_GRAPH_TAGS:
-                    continue
-                m = GRAPH_TAG_TO_MONITOR.get(tag)
-                if m and m not in tag_monitors:
-                    tag_monitors.append(m)
-            monitors_ref = tag_monitors[:3]  # cap at 3
-
-        if not monitors_ref:
-            continue  # no connections → skip (orphan)
-
-        # Determine post_type relation
-        if post_type in ("series-part", "fiction"):
-            relation = "extends"
-        elif post_type == "essay":
-            relation = "analyses"
-        else:
-            relation = "contextualises"
-
-        # Add node
-        nodes.append({
-            "id":          node_id,
-            "type":        "compossible",
-            "monitor":     monitors_ref[0] if monitors_ref else None,
-            "label":       title,
-            "url":         post.get("url", ""),
-            "date":        post.get("date", ""),
-            "description": post.get("description", ""),
-            "post_type":   post_type,
-            "series":      post.get("series", ""),
-            "series_part": post.get("series_part"),
-            "graph_tags":  graph_tags,
-            "monitors_referenced": monitors_ref,
-        })
-        compossible_nodes_added += 1
-
-        # Add edges to each connected monitor
-        for m_slug in monitors_ref[:3]:
-            add_edge(
-                source=node_id,
-                target=m_slug,
-                relation=relation,
-                title=truncate(title, 80),
-                rationale=f"Post references {m_slug} monitor via {'monitors_referenced frontmatter' if post.get('monitors_referenced') else 'graph_tags'}.",
-                edge_type="compossible-monitor",
-            )
-
-    print(f"  → {compossible_nodes_added} Compossible nodes added")
-
-    # ── 5. Series chain edges ────────────────────────────────────────────────
-    print("Building series chain edges…")
-    series_posts: dict[str, list] = {}
-    for node in nodes:
-        if node.get("type") == "compossible" and node.get("series"):
-            series_posts.setdefault(node["series"], []).append(node)
-
-    chain_count = 0
-    for series_name, parts in series_posts.items():
-        parts_sorted = sorted(
-            [p for p in parts if p.get("series_part") is not None],
-            key=lambda p: p["series_part"]
-        )
-        for i in range(len(parts_sorted) - 1):
-            add_edge(
-                source=parts_sorted[i]["id"],
-                target=parts_sorted[i+1]["id"],
-                relation="extends",
-                title=f"{series_name} series chain",
-                rationale=f"Sequential parts of the '{series_name}' series.",
-                edge_type="series-chain",
-            )
-            chain_count += 1
-
-    print(f"  → {chain_count} series chain edges")
-
-    # ── 6. Assemble and write ────────────────────────────────────────────────
+    # ── 4. Assemble and write ────────────────────────────────────────────────
     graph = {
         "generated":   datetime.now(timezone.utc).isoformat(),
         "node_count":  len(nodes),
@@ -534,11 +397,8 @@ def build_graph(output_path: Path) -> None:
     output_path.write_text(json.dumps(graph, indent=2, ensure_ascii=False))
 
     print(f"\n✓ graph.json written → {output_path}")
-    print(f"  Nodes: {len(nodes)}  ({sum(1 for n in nodes if n['type']=='monitor')} monitors, "
-          f"{sum(1 for n in nodes if n['type']=='compossible')} Compossible)")
-    print(f"  Edges: {len(edges)}  ({sum(1 for e in edges if e['edge_type']=='monitor-monitor')} monitor↔monitor, "
-          f"{sum(1 for e in edges if e['edge_type']=='compossible-monitor')} post→monitor, "
-          f"{sum(1 for e in edges if e['edge_type']=='series-chain')} series chains)")
+    print(f"  Nodes: {len(nodes)}  ({sum(1 for n in nodes if n['type']=='monitor')} monitors)")
+    print(f"  Edges: {len(edges)}  ({sum(1 for e in edges if e['edge_type']=='monitor-monitor')} monitor↔monitor)")
 
 
 # ── Entry point ──────────────────────────────────────────────────────────────
