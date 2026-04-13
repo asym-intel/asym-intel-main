@@ -12,106 +12,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
   <script src="../shared/js/charts.js"></script>
   <style>
-    /* ── F-FLAG MATRIX ───────────────────────────────────────────────── */
-    .fflag-matrix {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: var(--space-4) 0 var(--space-2);
-    }
-    .fflag-cell {
-      flex: 0 0 auto;
-      width: 88px;
-      min-height: 88px;
-      border-radius: var(--radius-md);
-      border: 1.5px solid var(--color-border);
-      background: var(--color-bg-alt);
-      padding: var(--space-3);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-      cursor: default;
-      transition: box-shadow 0.15s;
-      position: relative;
-      overflow: hidden;
-    }
-    .fflag-cell--active {
-      background: rgba(220, 38, 38, 0.12);
-      border-color: #dc2626;
-      box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.2);
-    }
-    [data-theme="dark"] .fflag-cell--active {
-      background: rgba(220, 38, 38, 0.15);
-      border-color: rgba(220, 38, 38, 0.7);
-    }
-    .fflag-cell:hover { box-shadow: var(--shadow-md); }
-    .fflag-cell__id {
-      font-size: 1.4rem;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1;
-      color: var(--color-text-muted);
-    }
-    .fflag-cell--active .fflag-cell__id {
-      color: #dc2626;
-    }
-    [data-theme="dark"] .fflag-cell--active .fflag-cell__id {
-      color: #f87171;
-    }
-    .fflag-cell__status {
-      font-size: var(--text-min);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--color-text-muted);
-    }
-    .fflag-cell--active .fflag-cell__status {
-      color: #dc2626;
-    }
-    [data-theme="dark"] .fflag-cell--active .fflag-cell__status {
-      color: #f87171;
-    }
-    .fflag-cell__conflict {
-      font-size: var(--text-min);
-      font-weight: 600;
-      color: var(--color-text-secondary);
-      line-height: 1.3;
-      margin-top: 2px;
-      word-break: break-word;
-    }
-    .fflag-cell__count {
-      position: absolute;
-      top: 6px;
-      right: 8px;
-      font-size: var(--text-min);
-      font-weight: 700;
-      color: #dc2626;
-      background: rgba(220, 38, 38, 0.1);
-      border-radius: 10px;
-      padding: 1px 5px;
-    }
-    [data-theme="dark"] .fflag-cell__count {
-      color: #f87171;
-      background: rgba(220, 38, 38, 0.2);
-    }
-    .fflag-matrix-legend {
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
-      margin-top: var(--space-2);
-      line-height: 1.6;
-    }
-    .fflag-definitions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2) var(--space-4);
-      margin-top: var(--space-2);
-      font-size: var(--text-min);
-      color: var(--color-text-muted);
-    }
-    .fflag-def { display: flex; gap: 4px; align-items: baseline; }
-    .fflag-def strong { color: var(--color-text-secondary); font-weight: 700; }
-
     /* ── ESCALATION GAUGE ───────────────────────────────────────────── */
     .escalation-gauge-wrap {
       background: var(--color-surface);
@@ -161,7 +61,7 @@
       justify-content: center;
     }
     .escalation-gauge-zone:first-child { border-radius: 6px 0 0 6px; }
-    .escalation-gauge-zone:last-child  { border-radius: 0 6px 6px 6px; }
+    .escalation-gauge-zone:last-child  { border-radius: 0 6px 6px 0; }
     .escalation-gauge-zone--low      { background: rgba(5,150,105,0.18); }
     .escalation-gauge-zone--moderate { background: rgba(37,99,235,0.18); }
     .escalation-gauge-zone--high     { background: rgba(217,119,6,0.22); }
@@ -198,18 +98,6 @@
       border-left: 5px solid transparent;
       border-right: 5px solid transparent;
       border-top: 6px solid #dc2626;
-    }
-    .escalation-gauge-labels {
-      display: flex;
-      margin-top: var(--space-2);
-    }
-    .escalation-gauge-labels > span {
-      flex: 1;
-      font-size: var(--text-min);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--color-text-muted);
-      text-align: center;
     }
     .escalation-gauge-sub {
       font-size: var(--text-xs);
@@ -303,86 +191,35 @@
       flex-shrink: 0;
     }
 
-    /* ── ESCALATION INDICATORS (alert banner) ──────────────────────── */
-    .escalation-indicators {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      margin: 0 0 var(--space-4);
-    }
-    .escalation-indicator-row {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-3);
-      padding: var(--space-3) var(--space-4);
-      background: rgba(220, 38, 38, 0.07);
-      border: 1px solid rgba(220, 38, 38, 0.25);
-      border-left: 4px solid #dc2626;
-      border-radius: var(--radius-md);
-    }
-    [data-theme="dark"] .escalation-indicator-row {
-      background: rgba(220, 38, 38, 0.12);
-      border-color: rgba(220, 38, 38, 0.35);
-    }
-    .escalation-indicator-row__icon {
-      font-size: 1rem;
-      line-height: 1;
-      flex-shrink: 0;
-      margin-top: 1px;
-      color: #dc2626;
-    }
-    .escalation-indicator-row__body {
-      flex: 1;
-      min-width: 0;
-    }
-    .escalation-indicator-row__title {
-      font-size: var(--text-sm);
-      font-weight: 700;
-      color: var(--color-text);
-      line-height: 1.3;
-    }
-    .escalation-indicator-row__meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-      margin-top: var(--space-1);
-    }
-    .escalation-indicator-row__badge {
-      font-size: var(--text-min);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      padding: 1px 7px;
+    /* ── F-FLAG INLINE BADGES ────────────────────────────────────────── */
+    .fflag-badge {
+      display: inline-block;
+      background: #dc2626;
+      color: #fff;
       border-radius: 3px;
-      border: 1px solid currentColor;
-    }
-    .escalation-indicator-row__badge--threshold {
-      color: #dc2626;
-      background: rgba(220, 38, 38, 0.08);
-    }
-    .escalation-indicator-row__badge--type {
-      color: var(--color-text-muted);
-      background: var(--color-bg-alt);
-    }
-    .escalation-indicator-row__badge--confidence {
-      color: var(--color-text-secondary);
-      background: var(--color-surface);
-    }
-
-    /* ── F-FLAG MATRIX PER-THEATRE ────────────────────────────────────── */
-    .fflag-theatre-block {
-      margin-bottom: var(--space-5);
-    }
-    .fflag-theatre-block:last-child { margin-bottom: 0; }
-    .fflag-theatre-label {
-      font-size: var(--text-xs);
+      padding: 1px 5px;
+      font-size: 10px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--color-text-muted);
-      margin-bottom: var(--space-2);
+      line-height: 1.4;
+      margin: 1px 2px 1px 0;
+      cursor: default;
+    }
+    [data-theme="dark"] .fflag-badge {
+      background: rgba(220,38,38,0.85);
     }
 
+    /* ── TRAJECTORY GRID ─────────────────────────────────────────────── */
+    .trajectory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: var(--space-4);
+    }
+    .trajectory-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4);
+    }
   </style>
 </head>
 
@@ -401,26 +238,14 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    <!-- ESCALATION INDICATORS — alert banner (rendered only when entries exist) -->
-    
+    <!-- § 1  AT A GLANCE — triage strip with KPIs + signal + delta -->
     <section class="module-section" id="section-triage">
       <div id="triage-container">
         <div class="loading-state">Loading triage data…</div>
       </div>
     </section>
-    <section class="module-section" id="section-escalation-indicators" style="display:none">
-      <div id="escalation-indicators-wrap"></div>
-    </section>
 
-    <!-- GLOBAL ESCALATION SNAPSHOT — KPI strip -->
-    <section class="module-section" id="section-global-snapshot">
-      <div class="module-header">
-        <div class="module-title">Global Escalation Snapshot</div>
-      </div>
-      <div id="global-snapshot-wrap"><div class="loading-state">Loading…</div></div>
-    </section>
-
-    <!-- WEEKLY BRIEF — executive summary -->
+    <!-- § 2  WEEKLY BRIEF — narrative executive summary -->
     <section class="module-section" id="section-weekly-brief">
       <div class="module-header">
         <div class="module-title">Weekly Brief</div>
@@ -428,7 +253,7 @@
       <div id="weekly-brief-wrap"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- TRAJECTORY STATUS GRID -->
+    <!-- § 3  TRAJECTORY STATUS — 10-conflict grid cards with inline F-flags -->
     <section class="module-section" id="section-trajectory-grid">
       <div class="module-header">
         <div class="module-title">Trajectory Status</div>
@@ -436,7 +261,7 @@
       <div id="trajectory-grid-content"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- GLOBAL ESCALATION GAUGE -->
+    <!-- § 4  GLOBAL ESCALATION INDEX — 4-zone gauge -->
     <section class="module-section" id="section-gauge">
       <div class="module-header">
         <div class="module-title">Global Escalation Index</div>
@@ -446,26 +271,7 @@
       </div>
     </section>
 
-    <!-- F-FLAG INDICATOR MATRIX -->
-    <section class="module-section" id="section-fflag-matrix">
-      <div class="module-header">
-        <div class="module-title">Friction Flag Matrix</div>
-      </div>
-      <div id="fflag-matrix-wrap">
-        <div class="loading-state">Loading F-flag matrix…</div>
-      </div>
-    </section>
-
-    <section class="module-section" id="section-lead-signal">
-      <div class="module-header">
-        <div class="module-title">Lead Signal</div>
-      </div>
-      <div id="lead-signal-block">
-        <div class="loading-state">Loading lead signal…</div>
-      </div>
-    </section>
-
-    <!-- THEATRE TRACKER — compact per-theatre cards -->
+    <!-- § 5  THEATRE TRACKER — per-theatre cards (shared template, no ACLED zeros) -->
     <section class="module-section" id="section-theatre-tracker">
       <div class="module-header">
         <div class="module-title">Theatre Tracker</div>
@@ -473,25 +279,16 @@
       <div id="theatre-tracker-wrap"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- 10-Conflict Comparison Bar -->
+    <!-- § 6  CONFLICT SEVERITY RANKING — horizontal bars (Pattern A) -->
     <section class="module-section" id="section-conflict-overview">
       <div class="module-header">
-        <div class="module-title">Conflict Overview — All Active Roster</div>
+        <div class="module-title">Conflict Severity Ranking</div>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-3)">Highest single-indicator reading per conflict. Coloured by escalation trajectory. Click a bar to jump to that conflict's detail.</p>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-3)">Highest single-indicator level per conflict (1–5 scale). Coloured by escalation trajectory.</p>
       <div id="conflict-overview-wrap"></div>
     </section>
 
-    <!-- CONFLICT ESCALATION CARDS -->
-    <section class="module-section" id="section-conflict-cards">
-      <div class="module-header">
-        <div class="module-title">Active Conflicts</div>
-      </div>
-      <div id="conflict-cards-wrap">
-        <div class="loading-state">Loading conflict cards…</div>
-      </div>
-    </section>
-
+    <!-- § 7  CONFLICT ROSTER — tabular summary -->
     <section class="module-section" id="section-roster">
       <div class="module-header">
         <div class="module-title">Conflict Roster</div>
@@ -501,7 +298,7 @@
       </div>
     </section>
 
-    <!-- ROSTER WATCH -->
+    <!-- § 8  ROSTER WATCH — approaching inclusion / retirement -->
     <section class="module-section" id="section-roster-watch">
       <div class="module-header">
         <div class="module-title">Roster Watch</div>
@@ -510,16 +307,7 @@
       <div id="roster-watch-wrap"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- F-FLAG MATRIX PER-THEATRE — grouped by theatre -->
-    <section class="module-section" id="section-fflag-per-theatre">
-      <div class="module-header">
-        <div class="module-title">F-Flag Matrix — By Theatre</div>
-        <div class="module-subtitle">Fabrication &amp; manipulation signals grouped per theatre</div>
-      </div>
-      <div id="fflag-per-theatre-wrap"><div class="loading-state">Loading…</div></div>
-    </section>
-
-    <!-- KEY JUDGMENTS -->
+    <!-- § 9  KEY JUDGMENTS — analyst judgment cards -->
     <section class="module-section" id="section-key-judgments">
       <div class="module-header">
         <div class="module-title">Key Judgments</div>
@@ -527,7 +315,7 @@
       <div id="key-judgments-wrap"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- INDICATOR BREAKDOWN -->
+    <!-- § 10 INDICATOR BREAKDOWN — per-conflict Chart.js bar -->
     <section class="module-section" id="indicator-breakdown">
       <div class="module-header">
         <div class="module-title">Indicator Breakdown</div>
@@ -550,23 +338,18 @@
 
   </main>
 
+  <!-- SIDEBAR NAV — consolidated 10 sections -->
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-escalation-indicators">Alert Strip</a></li>
-      <li><a href="#section-global-snapshot">Snapshot</a></li>
+      <li><a href="#section-triage">At a Glance</a></li>
       <li><a href="#section-weekly-brief">Weekly Brief</a></li>
-      <li><a href="#section-triage">Triage Strip</a></li>
       <li><a href="#section-trajectory-grid">Trajectory Status</a></li>
       <li><a href="#section-gauge">Global Escalation Index</a></li>
-      <li><a href="#section-fflag-matrix">Friction Flag Status Board</a></li>
-      <li><a href="#section-lead-signal">Lead Signal</a></li>
       <li><a href="#section-theatre-tracker">Theatre Tracker</a></li>
-      <li><a href="#section-conflict-overview">Conflict Overview</a></li>
-      <li><a href="#section-conflict-cards">Active Conflicts</a></li>
+      <li><a href="#section-conflict-overview">Conflict Severity Ranking</a></li>
       <li><a href="#section-roster">Conflict Roster</a></li>
       <li><a href="#section-roster-watch">Roster Watch</a></li>
-      <li><a href="#section-fflag-per-theatre">F-Flag by Theatre</a></li>
       <li><a href="#section-key-judgments">Key Judgments</a></li>
       <li><a href="#indicator-breakdown">Indicator Breakdown</a></li>
     </ul>
@@ -576,289 +359,37 @@
 <footer class="monitor-footer"></footer>
 <script src="../shared/js/renderer.js"></script>
 <script>
-/* ── INDICATOR BREAKDOWN CHART ─────────────────────────────────────────── */
-(function () {
-  'use strict';
-
-  var INDICATOR_KEYS = [
-    'I1_rhetoric',
-    'I2_military_posture',
-    'I3_nuclear_strategic',
-    'I4_economic_warfare',
-    'I5_diplomatic',
-    'I6_displacement'
-  ];
-  var INDICATOR_LABELS = [
-    'I1 Rhetoric',
-    'I2 Military',
-    'I3 Nuclear',
-    'I4 Economic',
-    'I5 Diplomatic',
-    'I6 Displacement'
-  ];
-  var BAND_COLOURS = {
-    'CONTESTED': '#94a3b8',
-    'GREEN':     '#22c55e',
-    'NORMAL':    '#22c55e',
-    'AMBER':     '#f59e0b',
-    'ELEVATED':  '#f59e0b',
-    'RED':       '#dc2626',
-    'ANOMALOUS': '#dc2626'
-  };
-
-  var _roster = [];
-  var _chart  = null;
-  var _currentRosterIndex = 0;
-
-  /* Watermark plugin — draws "CONTESTED BASELINE" diagonally when all bands are CONTESTED */
-  var contestedWatermarkPlugin = {
-    id: 'contestedWatermark',
-    beforeDraw: function (chart) {
-      if (!chart.config.options._showContestedWatermark) return;
-      var ctx  = chart.ctx;
-      var area = chart.chartArea;
-      if (!area) return;
-      ctx.save();
-      ctx.globalAlpha = 0.07;
-      ctx.fillStyle   = '#64748b';
-      var cx = (area.left + area.right) / 2;
-      var cy = (area.top  + area.bottom) / 2;
-      ctx.translate(cx, cy);
-      ctx.rotate(-Math.PI / 6);
-      ctx.font = 'bold 22px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('CONTESTED BASELINE', 0, 0);
-      ctx.restore();
-    }
-  };
-
-  /* Register the plugin globally once */
-  Chart.register(contestedWatermarkPlugin);
-
-  function bandColour(band) {
-    return BAND_COLOURS[(band || '').toUpperCase()] || '#94a3b8';
-  }
-
-  function hexToRgba(hex, alpha) {
-    var r = parseInt(hex.slice(1, 3), 16);
-    var g = parseInt(hex.slice(3, 5), 16);
-    var b = parseInt(hex.slice(5, 7), 16);
-    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-  }
-
-  function buildChartData(conflict) {
-    var inds       = conflict.indicators || {};
-    var deviations = [];
-    var colours    = [];
-    var baselines  = []; // kept for tooltip reference
-
-    INDICATOR_KEYS.forEach(function (key) {
-      var ind = inds[key] || {};
-      var dev = ind.deviation != null ? ind.deviation : (ind.level != null && ind.baseline != null ? ind.level - ind.baseline : 0);
-      deviations.push(dev);
-      baselines.push(ind.baseline != null ? ind.baseline : 0);
-      // Colour by band but always show deviation magnitude
-      colours.push(bandColour(ind.band || 'CONTESTED'));
-    });
-
-    return {
-      deviations: deviations,
-      baselines:  baselines,
-      colours:    colours
-    };
-  }
-
-  function isAllContested(conflict) {
-    var inds = conflict.indicators || {};
-    return INDICATOR_KEYS.every(function (key) {
-      return ((inds[key] || {}).band || '').toUpperCase() === 'CONTESTED';
-    });
-  }
-
-  function renderChart(rosterIndex) {
-    _currentRosterIndex = rosterIndex;
-    var conflict = _roster[rosterIndex];
-    if (!conflict) return;
-
-    var data = buildChartData(conflict);
-    var allContested = isAllContested(conflict) ||
-                       (conflict.baseline_status || '').toUpperCase().indexOf('CONTESTED') >= 0;
-
-    var solidColours  = data.colours;
-    var fadedColours  = data.colours.map(function (c) { return hexToRgba(c, 0.38); });
-
-    /* Hide note panel when switching conflicts */
-    var notePanel = document.getElementById('indicator-note-panel');
-    if (notePanel) {
-      notePanel.classList.remove('visible');
-    }
-
-    if (_chart) {
-      /* Update existing chart in-place */
-      _chart.data.datasets[0].data            = data.deviations;
-      _chart.data.datasets[0].backgroundColor = solidColours;
-      _chart.options._showContestedWatermark   = allContested;
-      _chart.update();
-      renderLegend(data.colours, INDICATOR_LABELS);
-      return;
-    }
-
-    var ctx = document.getElementById('indicator-breakdown-chart');
-    if (!ctx) return;
-
-    _chart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: INDICATOR_LABELS,
-        datasets: [
-          {
-            label: 'Deviation from baseline',
-            data: data.deviations,
-            backgroundColor: solidColours,
-            borderWidth: 0,
-            borderRadius: 3,
-            barPercentage: 0.55,
-            categoryPercentage: 0.85
-          }
-        ]
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        maintainAspectRatio: false,
-        _showContestedWatermark: allContested,
-        interaction: {
-          mode: 'index',
-          intersect: false
-        },
-        onClick: function (evt, elements) {
-          if (!elements || !elements.length) return;
-          var idx = elements[0].index;
-          showNote(idx);
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function (item) {
-                var dev = item.raw;
-                var devStr = dev > 0 ? '+' + dev : String(dev);
-                var conflict = _roster[_currentRosterIndex];
-                var ind = (conflict.indicators || {})[INDICATOR_KEYS[item.dataIndex]] || {};
-                return 'Deviation: ' + devStr + (ind.baseline != null ? '  (baseline ' + ind.baseline + ')' : '');
-              },
-              afterBody: function (items) {
-                var idx = items[0] && items[0].dataIndex;
-                if (idx == null) return '';
-                var conflict = _roster[_currentRosterIndex];
-                var ind = (conflict.indicators || {})[INDICATOR_KEYS[idx]] || {};
-                return ind.note ? ['', 'Note: ' + ind.note] : [];
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            min: -2,
-            max: 4,
-            ticks: {
-              stepSize: 1,
-              font: { size: 11 },
-              callback: function(v) { return v > 0 ? '+' + v : v; }
-            },
-            grid: {
-              color: function(ctx2) {
-                return ctx2.tick && ctx2.tick.value === 0
-                  ? 'rgba(100,116,139,0.5)'
-                  : 'rgba(148,163,184,0.15)';
-              }
-            }
-          },
-          y: {
-            ticks: { font: { size: 11 } },
-            grid: { display: false }
-          }
-        }
-      }
-    });
-
-    renderLegend(data.colours, INDICATOR_LABELS);
-  }
-
-  function showNote(indicatorIndex) {
-    var conflict = _roster[_currentRosterIndex];
-    if (!conflict) return;
-    var ind = (conflict.indicators || {})[INDICATOR_KEYS[indicatorIndex]] || {};
-    var notePanel = document.getElementById('indicator-note-panel');
-    var noteLabel = document.getElementById('indicator-note-label');
-    var noteText  = document.getElementById('indicator-note-text');
-    if (!notePanel || !noteText) return;
-    noteLabel.textContent = INDICATOR_LABELS[indicatorIndex] + ' — Note';
-    noteText.textContent  = ind.note || 'No note available.';
-    notePanel.classList.add('visible');
-  }
-
-  function renderLegend(colours, labels) {
-    var legendEl = document.getElementById('indicator-breakdown-legend');
-    if (!legendEl) return;
-    var html = '';
-    /* Show unique band/colour combos */
-    var seen = {};
-    var bandNames = { '#94a3b8': 'CONTESTED', '#22c55e': 'GREEN', '#f59e0b': 'AMBER', '#dc2626': 'RED' };
-    colours.forEach(function (c) {
-      var norm = c.toLowerCase();
-      if (!seen[norm]) {
-        seen[norm] = true;
-        html += '<span class="indicator-breakdown-legend-item">' +
-          '<span class="indicator-breakdown-legend-swatch" style="background:' + c + '"></span>' +
-          '<span>' + (bandNames[norm] || norm) + '</span>' +
-          '</span>';
-      }
-    });
-    /* Deviation scale note */
-    html += '<span class="indicator-breakdown-legend-item" style="margin-left:auto;font-style:italic;color:var(--color-text-muted)">' +
-      '<span>Bars show deviation from baseline (0 = at baseline, +1 = one step above)</span></span>';
-    legendEl.innerHTML = html;
-  }
-
-  function initIndicatorBreakdown(roster) {
-    _roster = roster || [];
-    var select = document.getElementById('indicator-conflict-select');
-    if (!select) return;
-
-    /* Populate dropdown */
-    select.innerHTML = '';
-    _roster.forEach(function (c, i) {
-      var opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = c.conflict;
-      select.appendChild(opt);
-    });
-
-    /* Render first conflict immediately */
-    if (_roster.length > 0) {
-      renderChart(0);
-    }
-
-    /* On change update chart */
-    select.addEventListener('change', function () {
-      renderChart(parseInt(this.value, 10));
-    });
-  }
-
-  /* Hook into data load — wait for DOMContentLoaded + data fetch */
-  window._initIndicatorBreakdown = initIndicatorBreakdown;
-}());
-</script>
-<script>
+/* ══════════════════════════════════════════════════════════════════════
+   SCEM Dashboard — Consolidated 10-section layout
+   Sprint 2 rebuild: uses shared AsymSections template functions.
+   ══════════════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function () {
 
-  /* ── v2 Schema Join ──────────────────────────────────────────────────
+  /* ── INDICATOR KEYS (SCEM-specific domain config) ────────────────── */
+  var INDICATOR_KEYS = [
+    'I1_rhetoric', 'I2_military_posture', 'I3_nuclear_strategic',
+    'I4_economic_warfare', 'I5_diplomatic', 'I6_displacement'
+  ];
+  var INDICATOR_LABELS = [
+    'I1 Rhetoric', 'I2 Military', 'I3 Nuclear',
+    'I4 Economic', 'I5 Diplomatic', 'I6 Displacement'
+  ];
+
+  var F_FLAG_DEFS = {
+    F1: 'Single-source signal', F2: 'Adjacent escalation risk',
+    F3: 'Unverified capability', F4: 'Premature de-escalation',
+    F5: 'Attribution gap', F6: 'Data denial', F7: 'Spoofed indicator'
+  };
+
+  var TRAJ_COLOURS = {
+    'Escalating': '#dc2626', 'Stable': '#64748b', 'De-escalating': '#059669',
+    'CONTESTED': '#94a3b8'
+  };
+
+  /* ── v2 Schema Join ────────────────────────────────────────────────
      Merges the v2 separated arrays (conflict_roster, indicator_scoring,
      f_flag_matrix, theatre_tracker) into the flat per-conflict structure
      that the render functions expect.
-     Falls back gracefully if data is already in v1 flat format.
      ──────────────────────────────────────────────────────────────────── */
   function joinV2Schema(d) {
     var roster = d.conflict_roster || [];
@@ -888,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var ffMap = {};
     (d.f_flag_matrix || []).forEach(function(entry) {
       ffMap[entry.theatre_id] = (entry.f_flags_detected || []).map(function(f) {
-        return { flag: f.flag, indicator: f.indicator_affected || '' };
+        return { flag: f.flag, indicator: f.indicator_affected || '', description: f.description || '' };
       });
     });
 
@@ -922,540 +453,12 @@ document.addEventListener('DOMContentLoaded', function () {
     return d;
   }
 
-  /* Indicator keys — shared with the breakdown chart IIFE above */
-  var INDICATOR_KEYS = [
-    'I1_rhetoric', 'I2_military_posture', 'I3_nuclear_strategic',
-    'I4_economic_warfare', 'I5_diplomatic', 'I6_displacement'
-  ];
-
-  var F_FLAG_DEFS = {
-    F1: 'Single-source signal — only one independent source corroborates.',
-    F2: 'Adjacent escalation risk — neighbouring conflict or actor could be drawn in.',
-    F3: 'Unverified capability claim — stated military capability not independently confirmed.',
-    F4: 'Premature de-escalation signal — ceasefire/diplomatic signals unverified or contradicted.',
-    F5: 'Attribution gap — action claimed but responsible actor unconfirmed.',
-    F6: 'Data denial — access/reporting severely restricted in theatre.',
-    F7: 'Spoofed indicator — signal may be deliberate manipulation of one or more indicators.'
-  };
-
-
-  Promise.all([
-    fetch('data/report-latest.json').then(function(r){ return r.json(); }),
-    fetch('data/persistent-state.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
-  ]).then(function(results) {
-    var report = joinV2Schema(results[0]);
-    renderDashboard(report, results[1]);
-    renderRosterWatch(report.roster_watch || {});
-  }).catch(function (e) {
-    console.error('SCEM dashboard data load failed:', e);
-    var tc = document.getElementById('triage-container');
-    if (tc) tc.innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
-  });
-
-  function renderDashboard(d, ps) {
-    var meta   = d.meta || {};
-    var ls     = d.signal || {};
-    // Normalise field names: publisher writes actor/note, dashboard expects conflict/summary
-    ls.conflict = ls.conflict || ls.actor || '';
-    ls.summary  = ls.summary  || ls.note  || '';
-    var roster = d.conflict_roster || [];
-    var fFlags = ps.f_flag_history || [];
-
-    /* Header + KPIs — fed via triage strip below */
-
-    // ── NEW SECTIONS: shared AsymSections render functions ─────────────────
-    if (window.AsymSections) {
-      // Escalation indicators — alert banner (hide section if empty)
-      AsymSections.renderEscalationAlerts(d.escalation_indicators, 'escalation-indicators-wrap',
-        document.getElementById('section-escalation-indicators'));
-
-      // Global escalation snapshot — KPI strip
-      AsymSections.renderGlobalSnapshot(d.global_escalation_snapshot, 'global-snapshot-wrap');
-
-      // Weekly brief — narrative text block
-      AsymSections.renderWeeklyBrief(d.weekly_brief, 'weekly-brief-wrap');
-
-      // Theatre tracker — compact per-theatre cards (after lead signal)
-      AsymSections.renderTheatreTracker(d.theatre_tracker, 'theatre-tracker-wrap');
-
-      // F-flag matrix per theatre — grouped flag cells (after conflict roster)
-      AsymSections.renderFlagMatrix(d.f_flag_matrix, 'fflag-per-theatre-wrap');
-
-      // Key judgments — judgment cards with confidence + trajectory
-      AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-wrap');
-    }
-
-    // ── EXISTING SECTIONS ────────────────────────────────────────────
-
-    // Trajectory status grid
-    renderTrajectoryGrid(roster);
-
-    // Render escalation gauge
-    renderEscalationGauge(roster, meta);
-
-    // Render F-flag matrix
-    renderFFlagMatrix(roster);
-
-    // Lead signal block
-    var lsBlock = document.getElementById('lead-signal-block');
-    lsBlock.innerHTML =
-      '<div class="signal-block">' +
-        '<div class="signal-block__label">Lead Signal — ' + escHtml(ls.conflict || '') + '</div>' +
-        '<h2 style="font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-3);color:inherit;line-height:1.2">' + escHtml(ls.headline || '') + '</h2>' +
-        '<p>' + escHtml(ls.summary || '') + '</p>' +
-        (ls.source_url ? '<p style="margin-top:var(--space-3);font-size:var(--text-xs);opacity:0.8"><a href="' + escHtml(ls.source_url) + '" target="_blank" rel="noopener" style="color:inherit;border-bottom:1px dashed rgba(255,255,255,0.5)">Read the top story ↓</a></p>' : '') +
-      '</div>';
-
-    // Delta strip — derive from conflict_roster indicator deviations
-    var deltaItems = buildDeltaItems(roster);
-    var deltaHtml = '';
-    deltaItems.slice(0, 5).forEach(function (item, i) {
-      deltaHtml +=
-        '<li class="delta-item">' +
-          '<div class="delta-item__rank">' + (i + 1) + '</div>' +
-          '<div class="delta-item__body">' +
-            '<div class="delta-item__module">' + escHtml(item.theatre) + '</div>' +
-            '<div class="delta-item__title">' + escHtml(item.conflict) + '</div>' +
-            '<div class="delta-item__one-line">Highest indicator deviation: <strong>' + item.deviation + '</strong> · ' + escHtml(item.indicator) + '</div>' +
-          '</div>' +
-          '<div class="delta-item__type">' + escHtml(item.arrow) + ' ' + escHtml(item.trajectory) + '</div>' +
-        '</li>';
-    });
-    /* delta-strip — fed via triage strip below */
-
-    /* ── Triage Strip ── */
-    if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
-      AsymSections.renderTriageStrip({
-        kpis: [
-          { label: 'Active Conflicts', value: roster.length || '—', sub: 'On roster this issue' },
-          { label: 'Lead Conflict',    value: (ls.conflict || '—').split(/[\s\/\u2013]/)[0], sub: ls.conflict || '', accent: true },
-          { label: 'Issue',            value: meta.week_label || '—', sub: 'Issue ' + (meta.issue || '—') }
-        ],
-        signal: {
-          label:      'Lead Signal · SCEM',
-          title:      ls.headline || '',
-          body:       ls.summary  || '',
-          source_url: ls.source_url || d.source_url || ''
-        },
-        structural: {
-          label:    'Global Escalation Snapshot',
-          targetId: 'triage-escalation',
-          renderFn: function(id) {
-            AsymSections.renderGlobalSnapshot(d.global_escalation_snapshot, id);
-          }
-        },
-        delta: {
-          label: 'Delta Strip',
-          items: deltaItems.slice(0, 5).map(function(item) {
-            return { title: item.conflict || item.title || '', one_line: item.note || item.summary || '', source_url: item.source_url || '' };
-          })
-        }
-      }, 'triage-container');
-    }
-
-    // Conflict escalation cards
-    renderConflictOverview(roster);
-    renderConflictCards(roster);
-
-    // Indicator breakdown chart
-    if (typeof window._initIndicatorBreakdown === 'function') {
-      window._initIndicatorBreakdown(roster);
-    }
-
-    // Roster summary table
-    var tableHtml =
-      '<table class="heatmap-table">' +
-        '<thead><tr>' +
-          '<th>Conflict</th>' +
-          '<th>Theatre</th>' +
-          '<th>Trajectory</th>' +
-          '<th>Highest Band</th>' +
-          '<th>Baseline</th>' +
-        '</tr></thead>' +
-        '<tbody>';
-
-    roster.forEach(function (c) {
-      var worstBand = getWorstBand(c.indicators || {});
-      var rowClass  = bandToRowClass(worstBand.band);
-      tableHtml +=
-        '<tr class="heatmap-row--' + rowClass + '">' +
-          '<td><strong>' + escHtml(c.conflict) + '</strong>' +
-            (c.source_url ? '<br><a class="source-link" style="font-size:var(--text-min);font-weight:normal" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
-          '</td>' +
-          '<td>' + escHtml(c.theatre) + '</td>' +
-          '<td>' + escHtml(c.trajectory_arrow || '') + ' ' + escHtml(c.trajectory || '') + '</td>' +
-          '<td><span class="severity-badge severity-badge--' + rowClass + '">' + escHtml(worstBand.band) + '</span></td>' +
-          '<td>' + escHtml(c.baseline_status || 'Contested') + '</td>' +
-        '</tr>';
-    });
-    tableHtml += '</tbody></table>';
-    document.getElementById('roster-table-wrap').innerHTML = tableHtml;
-  }
-
-  /* ── ESCALATION GAUGE ─────────────────────────────────────────────── */
-  // ── 10-Conflict Comparison Bar ─────────────────────────────────────────────────────
-  function renderTrajectoryGrid(roster) {
-    var wrap = document.getElementById('trajectory-grid-content');
-    if (!wrap || !roster.length) return;
-
-    function trajectoryColour(t) {
-      if (!t) return 'var(--color-text-muted)';
-      if (t.indexOf('Escalating') >= 0) return '#dc2626';
-      if (t.indexOf('De-escalat') >= 0) return '#2D6A4F';
-      return 'var(--color-text-muted)';
-    }
-
-    var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--space-4)">';
-
-    roster.forEach(function (c) {
-      var netDev = 0;
-      var inds = c.indicators || {};
-      Object.keys(inds).forEach(function (k) {
-        netDev += (inds[k].deviation || 0);
-      });
-
-      var devBadge;
-      if (netDev > 0) {
-        devBadge = '<span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600">+' + netDev + ' dev</span>';
-      } else if (netDev < 0) {
-        devBadge = '<span style="background:#f0fdf4;color:#2D6A4F;border:1px solid #bbf7d0;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600">' + netDev + ' dev</span>';
-      } else {
-        devBadge = '<span style="background:var(--color-surface-offset,#f5f5f0);color:var(--color-text-muted);border-radius:3px;padding:1px 6px;font-size:11px">0 dev</span>';
-      }
-
-      var col = trajectoryColour(c.trajectory);
-      html +=
-        '<div style="background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;padding:var(--space-4)">' +
-          '<div style="font-size:11px;color:var(--color-text-muted);margin-bottom:var(--space-1);text-transform:uppercase;letter-spacing:.05em">' + escHtml(c.theatre || '') + '</div>' +
-          '<div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-2);line-height:1.3">' + escHtml(c.conflict) + '</div>' +
-          '<div style="display:flex;align-items:center;justify-content:space-between">' +
-            '<span style="font-size:1.6rem;color:' + col + ';line-height:1">' + escHtml(c.trajectory_arrow || '') + '</span>' +
-            devBadge +
-          '</div>' +
-          '<div style="font-size:11px;color:' + col + ';margin-top:var(--space-1);font-weight:500">' + escHtml(c.trajectory || 'Assessing') + '</div>' +
-        '</div>';
-    });
-
-    html += '</div>';
-    wrap.innerHTML = html;
-  }
-
-  function renderConflictOverview(roster) {
-    var wrap = document.getElementById('conflict-overview-wrap');
-    if (!wrap || !roster.length) return;
-    var TRAJ_COLOURS = {
-      'Escalating':    '#dc2626',
-      'Stable':        '#64748b',
-      'De-escalating': '#059669',
-      'CONTESTED':     '#94a3b8'
-    };
-    // For each conflict: get max indicator reading (absolute level, pre-baseline)
-    var items = roster.map(function(c) {
-      var inds = c.indicators || {};
-      var maxLevel = 0;
-      var maxDev   = 0;
-      Object.keys(inds).forEach(function(k) {
-        var ind = inds[k] || {};
-        if ((ind.level || 0) > maxLevel) maxLevel = ind.level || 0;
-        if ((ind.deviation || 0) > maxDev)  maxDev   = ind.deviation || 0;
-      });
-      return {
-        conflict:  c.conflict || '?',
-        theatre:   c.theatre  || '',
-        trajectory: c.trajectory || 'Stable',
-        maxLevel:  maxLevel,
-        maxDev:    maxDev
-      };
-    });
-    // Sort by maxLevel descending
-    items.sort(function(a, b) { return b.maxLevel - a.maxLevel; });
-    var maxL = items[0] ? items[0].maxLevel : 5;
-    var html = '<div style="display:flex;flex-direction:column;gap:6px">';
-    items.forEach(function(item) {
-      var col = TRAJ_COLOURS[item.trajectory] || '#94a3b8';
-      var pct = Math.max(6, Math.round((item.maxLevel / 5) * 100));
-      var devStr = item.maxDev > 0 ? '+' + item.maxDev : (item.maxDev < 0 ? item.maxDev : '—');
-      html +=
-        '<div style="display:flex;align-items:center;gap:var(--space-3)" ' +
-            'role="button" tabindex="0" style="cursor:pointer" ' +
-            'onclick="var cards=document.getElementById(\'conflict-cards-wrap\');if(cards)cards.scrollIntoView({behavior:\'smooth\'});">' +
-          '<div style="width:180px;font-size:var(--text-xs);color:var(--color-text-secondary);flex-shrink:0;text-align:right;line-height:1.2">' +
-            escHtml(item.conflict) + '<br><span style="font-size:var(--text-min);opacity:0.6">' + escHtml(item.theatre) + '</span>' +
-          '</div>' +
-          '<div style="flex:1;height:22px;background:rgba(100,116,139,0.08);border-radius:3px;overflow:hidden">' +
-            '<div style="width:' + pct + '%;height:100%;background:' + col + ';opacity:0.75;border-radius:3px"></div>' +
-          '</div>' +
-          '<div style="width:28px;text-align:right;font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);flex-shrink:0">' + item.maxLevel + '/5</div>' +
-          '<div style="width:36px;text-align:right;font-size:var(--text-xs);font-weight:600;color:' + col + ';flex-shrink:0">' + devStr + '</div>' +
-        '</div>';
-    });
-    html += '</div><p style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted);font-style:italic">Bars show absolute indicator level (1–5). Deviation column (+N) shows change vs. baseline.</p>';
-    wrap.innerHTML = html;
-  }
-
-  function renderEscalationGauge(roster, meta) {
-    meta = meta || {};
-    // Count conflicts with high-severity DEVIATION indicators
-    // Use deviation magnitude, not band (band is suppressed during CONTESTED period)
-    var criticalCount  = 0; // conflicts with ≥1 indicator at deviation ≥ +2
-    var highCount      = 0; // conflicts with ≥1 indicator at deviation +1
-    var contestedCount = 0; // conflicts with all-CONTESTED baselines
-    var totalConflicts = roster.length;
-    var contestedNote  = '';
-
-    roster.forEach(function(c) {
-      var inds = c.indicators || {};
-      var allContestedConflict = INDICATOR_KEYS.every(function(k) {
-        return ((inds[k] || {}).band || '').toUpperCase() === 'CONTESTED';
-      });
-      if (allContestedConflict) contestedCount++;
-
-      // Score by deviation regardless of CONTESTED status
-      var maxDev = 0;
-      INDICATOR_KEYS.forEach(function(k) {
-        var ind = inds[k] || {};
-        var dev = ind.deviation != null ? ind.deviation
-                : (ind.level != null && ind.baseline != null ? ind.level - ind.baseline : 0);
-        if (dev > maxDev) maxDev = dev;
-      });
-      if (maxDev >= 2) criticalCount++;
-      else if (maxDev >= 1) highCount++;
-    });
-
-    // Derive overall index from deviation counts
-    var pctCritical = totalConflicts > 0 ? criticalCount / totalConflicts : 0;
-    var pctHigh     = totalConflicts > 0 ? highCount / totalConflicts : 0;
-    var indexLevel  = 0;
-    if (pctCritical > 0.20) indexLevel = 3;
-    else if (criticalCount > 0 || pctHigh > 0.40) indexLevel = 2;
-    else if (highCount > 0) indexLevel = 1;
-
-    var levelNames   = ['Low', 'Moderate', 'High', 'Critical'];
-    var levelClasses = ['low', 'moderate', 'high', 'critical'];
-    var levelName    = levelNames[indexLevel];
-    var levelClass   = levelClasses[indexLevel];
-
-    var zoneCenter = (indexLevel * 25) + 12.5;
-    var markerPct  = zoneCenter;
-
-    // CONTESTED disclaimer — shown when any baselines are still being established
-    if (contestedCount > 0) {
-      contestedNote = '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted);font-style:italic;border-left:3px solid #94a3b8;padding-left:var(--space-2)">' +
-        '<strong>Note:</strong> ' + contestedCount + ' of ' + totalConflicts + ' conflict' + (contestedCount !== 1 ? 's have' : ' has') + ' contested baselines (pre-baseline period). ' +
-        'Index is derived from deviation magnitude; band classifications will activate once baselines are established.' +
-      '</div>';
-    }
-
-    var gaugeHtml =
-      '<div class="escalation-gauge-header">' +
-        '<span class="escalation-gauge-title">Global Escalation Index — ' + escHtml(meta.week_label || '') + '</span>' +
-        '<span class="escalation-gauge-level escalation-gauge-level--' + levelClass + '">' + levelName + '</span>' +
-      '</div>' +
-      '<div class="escalation-gauge-bar" id="gauge-bar">' +
-        '<div class="escalation-gauge-zone escalation-gauge-zone--low"><span class="escalation-gauge-zone__label">Low</span></div>' +
-        '<div class="escalation-gauge-zone escalation-gauge-zone--moderate"><span class="escalation-gauge-zone__label">Moderate</span></div>' +
-        '<div class="escalation-gauge-zone escalation-gauge-zone--high"><span class="escalation-gauge-zone__label">High</span></div>' +
-        '<div class="escalation-gauge-zone escalation-gauge-zone--critical"><span class="escalation-gauge-zone__label">Critical</span></div>' +
-        '<div class="escalation-gauge-marker" id="gauge-marker" style="left:' + markerPct + '%"></div>' +
-      '</div>' +
-      '<div class="escalation-gauge-sub">' +
-        '<strong>' + criticalCount + '</strong> conflict' + (criticalCount !== 1 ? 's' : '') + ' with deviation ≥+2, ' +
-        '<strong>' + highCount + '</strong> with deviation +1, across <strong>' + totalConflicts + '</strong> active conflicts.' +
-      '</div>' +
-      contestedNote;
-
-    document.getElementById('escalation-gauge-wrap').innerHTML = gaugeHtml;
-  }
-
-  /* ── F-FLAG MATRIX ────────────────────────────────────────────────── */
-  function renderFFlagMatrix(roster) {
-    var wrap = document.getElementById('fflag-matrix-wrap');
-    if (!wrap) return;
-
-    var indicators = ['I1','I2','I3','I4','I5','I6'];
-    var indLabels  = {
-      I1:'I1 Rhetoric', I2:'I2 Military', I3:'I3 Nuclear',
-      I4:'I4 Economic', I5:'I5 Diplomatic', I6:'I6 Displacement'
-    };
-    var flagColours = {
-      'F1':'#dc2626','F2':'#dc2626','F3':'#dc2626','F4':'#dc2626',
-      'F5':'#dc2626','F6':'#dc2626','F7':'#dc2626','F2-adjacent':'#b45309'
-    };
-    var flagShort = {
-      'F1':'Single-source','F2':'Adjacent esc.','F3':'Unverified cap.',
-      'F4':'Premature d-esc.','F5':'Attribution gap','F6':'Data denial',
-      'F7':'Spoofed ind.','F2-adjacent':'Adjacent (adj.)'
-    };
-
-    // Build lookup: conflict_name → { I1: flagType, I2: flagType, ... }
-    var lookup = {};
-    var activeFlagTypes = {};
-    var conflictsWithFlags = {};
-    roster.forEach(function (c) {
-      lookup[c.conflict] = {};
-      (c.f_flags || []).forEach(function (flag) {
-        // flag.indicator may be 'I5' or 'I1/I2' — handle both
-        var parts = (flag.indicator || '').split('/');
-        parts.forEach(function (ind) {
-          var key = ind.trim().substring(0, 2);
-          if (indicators.indexOf(key) >= 0) {
-            lookup[c.conflict][key] = flag.flag;
-          }
-        });
-        activeFlagTypes[flag.flag] = true;
-        conflictsWithFlags[c.conflict] = true;
-      });
-    });
-
-    var flagTypeCount = Object.keys(activeFlagTypes).length;
-    var conflictCount = Object.keys(conflictsWithFlags).length;
-    var summary = flagTypeCount > 0
-      ? flagTypeCount + ' flag type' + (flagTypeCount > 1 ? 's' : '') + ' active across ' + conflictCount + ' conflict' + (conflictCount > 1 ? 's' : '') + ' this week (' + Object.keys(activeFlagTypes).join(', ') + ')'
-      : 'No friction flags active this week — all indicator scores fully sourced.';
-
-    var html = '<p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-4)">' + escHtml(summary) + '</p>';
-    html += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:var(--text-sm)">';
-    html += '<thead><tr><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:2px solid var(--color-border)">Conflict</th>';
-    indicators.forEach(function (ind) {
-      html += '<th style="text-align:center;padding:var(--space-2) var(--space-3);border-bottom:2px solid var(--color-border);font-size:11px">' + escHtml(indLabels[ind]) + '</th>';
-    });
-    html += '</tr></thead><tbody>';
-
-    roster.forEach(function (c, i) {
-      var bg = i % 2 === 0 ? 'var(--color-surface)' : 'var(--color-bg,#faf9f6)';
-      html += '<tr style="background:' + bg + '">';
-      html += '<td style="padding:var(--space-2) var(--space-3);font-weight:500;white-space:nowrap">' + escHtml(c.conflict) + '</td>';
-      indicators.forEach(function (ind) {
-        var flagType = (lookup[c.conflict] || {})[ind];
-        if (flagType) {
-          var col = flagColours[flagType] || '#dc2626';
-          var fShort = flagShort[flagType] || '';
-          html += '<td style="text-align:center;padding:var(--space-2)">' +
-            '<span title="' + escHtml(F_FLAG_DEFS[flagType] || flagType) + '" ' +
-              'style="display:inline-block;background:' + col + ';color:#fff;border-radius:3px;' +
-              'padding:3px 6px;font-size:11px;font-weight:700;line-height:1.3;cursor:default">' +
-              escHtml(flagType) +
-              (fShort ? '<br><span style="font-size:9px;font-weight:400;opacity:0.9">' + escHtml(fShort) + '</span>' : '') +
-            '</span></td>';
-        } else {
-          html += '<td style="text-align:center;padding:var(--space-2);color:var(--color-text-faint,#ccc)">' + String.fromCharCode(8212) + '</td>';
-        }
-      });
-      html += '</tr>';
-    });
-
-    html += '</tbody></table></div>';
-    html += '<p style="font-size:var(--text-xs);color:var(--color-text-faint,#999);margin-top:var(--space-3)">F1 Single-source ' + String.fromCharCode(183) + ' F2 Adjacent escalation ' + String.fromCharCode(183) + ' F3 Unverified capability ' + String.fromCharCode(183) + ' F4 Premature de-escalation ' + String.fromCharCode(183) + ' F5 Attribution gap ' + String.fromCharCode(183) + ' F6 Data denial ' + String.fromCharCode(183) + ' F7 Spoofed indicator</p>';
-
-    wrap.innerHTML = html;
-  }
-
-  /* ── CONFLICT ESCALATION CARDS ────────────────────────────────────── */
-  function renderConflictCards(roster) {
-    // Sort by severity then show top conflicts
-    var sorted = roster.slice().sort(function(a, b) {
-      return getSeverityScore(b.indicators || {}) - getSeverityScore(a.indicators || {});
-    });
-
-    var cardsHtml = '<div class="entity-card-grid">';
-    sorted.slice(0, 10).forEach(function(c) {
-      var worst = getWorstBand(c.indicators || {});
-      var cls   = bandToRowClass(worst.band);
-      var traj  = c.trajectory || c.status || 'Active';
-      var trajArrow = c.trajectory_arrow || (traj.toLowerCase().indexOf('escal') >= 0 ? '↑' : traj.toLowerCase().indexOf('de-escal') >= 0 ? '↓' : '→');
-
-      /* Build per-indicator score rows */
-      var indRows = '';
-      var CARD_IND_LABELS = {
-        'I1_rhetoric': 'I1 Rhetoric',
-        'I2_military_posture': 'I2 Military',
-        'I3_nuclear_strategic': 'I3 Nuclear',
-        'I4_economic_warfare': 'I4 Economic',
-        'I5_diplomatic': 'I5 Diplomatic',
-        'I6_displacement': 'I6 Displacement'
-      };
-      INDICATOR_KEYS.forEach(function(key) {
-        var ind = (c.indicators || {})[key] || {};
-        var devNum = ind.deviation != null ? ind.deviation : 0;
-        var devStr = devNum > 0 ? '+' + devNum : String(devNum);
-        var bandVal = ind.band || 'CONTESTED';
-        var bandCls = bandToRowClass(bandVal);
-        indRows +=
-          '<div style="display:flex;align-items:baseline;gap:var(--space-2);padding:2px 0;border-bottom:1px solid var(--color-border-subtle);font-size:var(--text-min)">' +
-            '<span style="flex:1;color:var(--color-text-secondary);font-weight:500">' + escHtml(CARD_IND_LABELS[key] || key) + '</span>' +
-            '<span style="color:var(--color-text-muted)">' + escHtml(String(ind.level != null ? ind.level : '—')) + '</span>' +
-            '<span style="min-width:28px;text-align:right;font-weight:600;color:' + (devNum > 0 ? '#dc2626' : devNum < 0 ? '#059669' : 'var(--color-text-muted)') + '">' + devStr + '</span>' +
-            '<span class="entity-card__tag" style="padding:1px 5px;font-size:10px">' + escHtml(bandVal) + '</span>' +
-          '</div>' +
-          (ind.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px;font-style:italic">' + escHtml(ind.note) + '</div>' : '');
-      });
-
-      cardsHtml +=
-        '<div class="entity-card entity-card--' + cls + '">' +
-          '<div class="entity-card__header">' +
-            '<div class="entity-card__name">' + escHtml(c.conflict) + '</div>' +
-            '<div class="entity-card__dot entity-card__dot--' + cls + '" title="' + escHtml(worst.band || cls) + '"></div>' +
-          '</div>' +
-          '<div class="entity-card__meta">' + escHtml(c.theatre || '') + '</div>' +
-          (c.summary ? '<p style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2);line-height:1.5">' + escHtml(c.summary) + '</p>' : '') +
-          (c.lead_development
-            ? '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);background:rgba(220,38,38,0.07);border-left:3px solid var(--monitor-accent);border-radius:0 4px 4px 0">' +
-                '<span style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.05em;color:var(--monitor-accent);font-weight:600">Lead Development</span>' +
-                '<p style="font-size:var(--text-sm);margin-top:var(--space-1)">' + escHtml(c.lead_development) + '</p>' +
-              '</div>'
-            : '') +
-          '<div style="margin-top:var(--space-3)">' + indRows + '</div>' +
-          '<div class="entity-card__footer">' +
-            '<span class="entity-card__tag">' + escHtml(trajArrow + ' ' + traj) + '</span>' +
-            '<span class="entity-card__tag">' + escHtml(worst.band || cls.toUpperCase()) + '</span>' +
-          '</div>' +
-        '</div>';
-    });
-    cardsHtml += '</div>';
-
-    document.getElementById('conflict-cards-wrap').innerHTML = cardsHtml;
-  }
-
-  function getSeverityScore(inds) {
-    var score = 0;
-    Object.values(inds).forEach(function(ind) {
-      var b = (ind.band || '').toUpperCase();
-      if (b === 'RED' || b === 'ANOMALOUS') score += 3;
-      else if (b === 'AMBER' || b === 'ELEVATED') score += 2;
-      else if (b === 'CONTESTED') score += 1;
-    });
-    return score;
-  }
-
-  function buildDeltaItems(roster) {
-    var items = [];
-    roster.forEach(function (c) {
-      var inds = c.indicators || {};
-      var maxDev = -Infinity;
-      var maxInd = '';
-      Object.keys(inds).forEach(function (k) {
-        var ind = inds[k];
-        var dev = ind.deviation || 0;
-        if (dev > maxDev) {
-          maxDev = dev;
-          maxInd = k.replace(/_/g, ' ').replace(/^I(\d)/, 'I$1');
-        }
-      });
-      items.push({
-        conflict:  c.conflict,
-        theatre:   c.theatre,
-        deviation: maxDev === -Infinity ? 0 : maxDev,
-        indicator: maxInd,
-        trajectory: c.trajectory || '',
-        arrow:     c.trajectory_arrow || ''
-      });
-    });
-    items.sort(function (a, b) { return b.deviation - a.deviation; });
-    return items;
+  /* ── Utility ──────────────────────────────────────────────────────── */
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   function getWorstBand(indicators) {
-    var priority = ['Red','ANOMALOUS','Amber','ELEVATED','CONTESTED','Green','NORMAL'];
     var worst = { band: 'CONTESTED', level: 3 };
     Object.values(indicators).forEach(function (ind) {
       var b = (ind.band || '').toUpperCase();
@@ -1474,79 +477,354 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'moderate';
   }
 
-  function formatDate(iso) {
-    if (!iso) return '—';
-    try { return new Date(iso).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}); }
-    catch(e) { return iso; }
+  function buildFlagBadges(fFlags) {
+    if (!fFlags || !fFlags.length) return '';
+    return fFlags.map(function(f) {
+      var tip = F_FLAG_DEFS[f.flag] || f.flag;
+      if (f.description) tip += ' — ' + f.description;
+      return '<span class="fflag-badge" title="' + escHtml(tip) + '">' +
+        escHtml(f.flag) + '</span>';
+    }).join('');
   }
 
-  function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  /* ── Data Load ──────────────────────────────────────────────────── */
+  Promise.all([
+    fetch('data/report-latest.json').then(function(r){ return r.json(); }),
+    fetch('data/persistent-state.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
+  ]).then(function(results) {
+    var report = joinV2Schema(results[0]);
+    renderDashboard(report, results[1]);
+  }).catch(function (e) {
+    console.error('SCEM dashboard data load failed:', e);
+    var tc = document.getElementById('triage-container');
+    if (tc) tc.innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
+  });
 
-  /* ── ROSTER WATCH ─────────────────────────────────────────────────── */
-  function renderRosterWatch(rw) {
-    var wrap = document.getElementById('roster-watch-wrap');
-    if (!wrap) return;
 
-    var approaching = rw.approaching_inclusion || [];
-    var retirement  = rw.approaching_retirement;
+  /* ══════════════════════════════════════════════════════════════════
+     RENDER DASHBOARD — orchestrates all 10 sections
+     ══════════════════════════════════════════════════════════════════ */
+  function renderDashboard(d, ps) {
+    var meta   = d.meta || {};
+    var ls     = d.signal || {};
+    // Normalise field names: publisher writes actor/note, dashboard expects conflict/summary
+    ls.conflict = ls.conflict || ls.actor || '';
+    ls.summary  = ls.summary  || ls.note  || '';
+    var roster = d.conflict_roster || [];
 
-    var hasInclusion   = approaching.length > 0;
-    var hasRetirement  = Array.isArray(retirement) ? retirement.length > 0 : (retirement && String(retirement).trim().length > 0);
+    /* ─── § 1  AT A GLANCE — Triage Strip ──────────────────────────── */
+    var deltaItems = buildDeltaItems(roster);
 
-    if (!hasInclusion && !hasRetirement) {
-      wrap.innerHTML = '<p class="text-muted text-sm">No conflicts currently approaching inclusion or retirement.</p>';
-      return;
-    }
-
-    var html = '';
-
-    if (hasInclusion) {
-      html += '<div style="margin-bottom:var(--space-4)">' +
-        '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);font-weight:700;margin-bottom:var(--space-3)">Approaching Inclusion</div>';
-
-      approaching.forEach(function(item) {
-        var criteria = Array.isArray(item.criteria_met) ? item.criteria_met : [];
-        var tagsHtml = criteria.map(function(c) {
-          return '<span style="display:inline-block;background:rgba(220,38,38,0.1);color:#dc2626;border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600;margin:2px 2px 2px 0">' + escHtml(c) + '</span>';
-        }).join('');
-
-        html +=
-          '<div style="background:var(--color-surface);border:1.5px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);margin-bottom:var(--space-3);box-shadow:var(--shadow-sm)">' +
-            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-2)">' +
-              '<div>' +
-                '<div style="font-size:var(--text-sm);font-weight:700;color:var(--color-text);line-height:1.2">' + escHtml(item.conflict || '') + '</div>' +
-                (item.theatre ? '<div style="font-size:var(--text-min);font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);margin-top:3px">' + escHtml(item.theatre) + '</div>' : '') +
-              '</div>' +
-              (item.status ? '<span style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:rgba(220,38,38,0.1);color:#dc2626;border-radius:3px;padding:2px 8px;white-space:nowrap;flex-shrink:0">' + escHtml(item.status) + '</span>' : '') +
-            '</div>' +
-            (item.note ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.6;margin-bottom:var(--space-2)">' + escHtml(item.note) + '</p>' : '') +
-            (tagsHtml ? '<div style="margin-top:var(--space-2)">' + tagsHtml + '</div>' : '') +
-          '</div>';
-      });
-
-      html += '</div>';
-    }
-
-    if (hasRetirement) {
-      html += '<div style="margin-top:var(--space-2)">' +
-        '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);font-weight:700;margin-bottom:var(--space-3)">Approaching Retirement</div>';
-
-      if (Array.isArray(retirement)) {
-        html += '<ul style="list-style:none;padding:0;margin:0">';
-        retirement.forEach(function(item) {
-          html += '<li style="font-size:var(--text-sm);color:var(--color-text-secondary);padding:var(--space-2) 0;border-bottom:1px solid var(--color-border-subtle)">' + escHtml(String(item)) + '</li>';
-        });
-        html += '</ul>';
-      } else {
-        html += '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);font-style:italic">' + escHtml(String(retirement)) + '</p>';
+    if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+      /* Fix #12: Lead Conflict KPI "N" bug — use full conflict name,
+         don't split on whitespace/slash/dash */
+      var leadConflictName = ls.conflict || '—';
+      /* Only abbreviate if clearly a multi-part name (e.g. "Russia-Ukraine / NATO") */
+      if (leadConflictName.length > 30) {
+        leadConflictName = leadConflictName.split(/[\/\u2013]/)[0].trim();
       }
 
-      html += '</div>';
+      AsymSections.renderTriageStrip({
+        kpis: [
+          { label: 'Active Conflicts', value: roster.length || '—', sub: 'On roster this issue' },
+          { label: 'Lead Conflict',    value: leadConflictName, sub: ls.conflict || '', accent: true },
+          { label: 'Issue',            value: meta.week_label || '—', sub: 'Issue ' + (meta.issue || '—') }
+        ],
+        signal: {
+          label:      'Lead Signal · SCEM',
+          title:      ls.headline || '',
+          body:       ls.summary  || '',
+          source_url: ls.source_url || d.source_url || ''
+        },
+        structural: {
+          label:    'Global Escalation Snapshot',
+          targetId: 'triage-escalation',
+          renderFn: function(id) {
+            AsymSections.renderGlobalSnapshot(d.global_escalation_snapshot, id);
+          }
+        },
+        delta: {
+          label: 'Top Items This Issue',
+          items: deltaItems.slice(0, 5).map(function(item) {
+            return { title: item.conflict || '', one_line: item.note || item.summary || '', source_url: item.source_url || '' };
+          })
+        }
+      }, 'triage-container');
     }
 
+    /* ─── § 2  WEEKLY BRIEF (shared template — now parses markdown) ── */
+    if (window.AsymSections) {
+      AsymSections.renderWeeklyBrief(d.weekly_brief, 'weekly-brief-wrap');
+    }
+
+    /* ─── § 3  TRAJECTORY STATUS — grid cards + inline F-flags ─────── */
+    renderTrajectoryGrid(roster);
+
+    /* ─── § 4  GLOBAL ESCALATION INDEX — 4-zone gauge ──────────────── */
+    renderEscalationGaugeLocal(roster, meta);
+
+    /* ─── § 5  THEATRE TRACKER (shared template — ACLED zeros hidden) */
+    if (window.AsymSections) {
+      AsymSections.renderTheatreTracker(d.theatre_tracker, 'theatre-tracker-wrap');
+    }
+
+    /* ─── § 6  CONFLICT SEVERITY RANKING (shared template) ─────────── */
+    renderConflictSeverityRanking(roster);
+
+    /* ─── § 7  CONFLICT ROSTER (shared template) ───────────────────── */
+    renderConflictRosterTable(roster);
+
+    /* ─── § 8  ROSTER WATCH (shared template) ──────────────────────── */
+    if (window.AsymSections) {
+      var rw = d.roster_watch || {};
+      AsymSections.renderEntityRosterWatch({
+        approaching: (rw.approaching_inclusion || []).map(function(item) {
+          return {
+            name:   item.conflict || item.theatre_name || '',
+            sub:    item.theatre || '',
+            note:   item.note || item.reason || '',
+            status: item.status || '',
+            tags:   item.criteria_met || []
+          };
+        }),
+        retiring: rw.approaching_retirement || []
+      }, 'roster-watch-wrap');
+    }
+
+    /* ─── § 9  KEY JUDGMENTS (shared template) ─────────────────────── */
+    if (window.AsymSections) {
+      AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-wrap');
+    }
+
+    /* ─── § 10 INDICATOR BREAKDOWN (shared template) ───────────────── */
+    if (window.AsymSections) {
+      var entities = roster.map(function(c) {
+        return { id: c.theatre_id, name: c.conflict, indicators: c.indicators };
+      });
+      AsymSections.renderIndicatorBreakdownChart({
+        entities:      entities,
+        indicatorKeys: INDICATOR_KEYS,
+        labels:        INDICATOR_LABELS,
+        contestedMsg:  'All baselines contested (week 1). Showing absolute levels only — deviations will activate once baselines lock.',
+        selectId:      'indicator-conflict-select',
+        canvasId:      'indicator-breakdown-chart',
+        legendId:      'indicator-breakdown-legend',
+        noteId:        'indicator-note-panel',
+        noteLabelId:   'indicator-note-label',
+        noteTextId:    'indicator-note-text'
+      }, 'indicator-breakdown');
+    }
+  }
+
+
+  /* ══════════════════════════════════════════════════════════════════
+     SCEM-SPECIFIC RENDER HELPERS
+     (Too domain-specific to promote to shared; call shared where possible)
+     ══════════════════════════════════════════════════════════════════ */
+
+  /* ── § 3: Trajectory Grid ─────────────────────────────────────────── */
+  function renderTrajectoryGrid(roster) {
+    var wrap = document.getElementById('trajectory-grid-content');
+    if (!wrap || !roster.length) return;
+
+    function trajectoryColour(t) {
+      if (!t) return 'var(--color-text-muted)';
+      if (t.indexOf('Escalating') >= 0) return '#dc2626';
+      if (t.indexOf('De-escalat') >= 0) return '#2D6A4F';
+      return 'var(--color-text-muted)';
+    }
+
+    var html = '<div class="trajectory-grid">';
+    roster.forEach(function (c) {
+      /* Use absolute level max instead of deviation sum — fixes #2 (all-zero deviations) */
+      var maxLevel = 0;
+      var inds = c.indicators || {};
+      INDICATOR_KEYS.forEach(function(k) {
+        var lv = (inds[k] || {}).level || 0;
+        if (lv > maxLevel) maxLevel = lv;
+      });
+
+      var levelBadge;
+      if (maxLevel >= 4) {
+        levelBadge = '<span style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600">Level ' + maxLevel + '/5</span>';
+      } else if (maxLevel >= 3) {
+        levelBadge = '<span style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600">Level ' + maxLevel + '/5</span>';
+      } else {
+        levelBadge = '<span style="background:var(--color-surface-offset,#f5f5f0);color:var(--color-text-muted);border-radius:3px;padding:1px 6px;font-size:11px">Level ' + maxLevel + '/5</span>';
+      }
+
+      /* Inline F-flag badges — fix #9 */
+      var flagHtml = buildFlagBadges(c.f_flags);
+
+      var col = trajectoryColour(c.trajectory);
+      html +=
+        '<div class="trajectory-card">' +
+          '<div style="font-size:11px;color:var(--color-text-muted);margin-bottom:var(--space-1);text-transform:uppercase;letter-spacing:.05em">' + escHtml(c.theatre || '') + '</div>' +
+          '<div style="font-weight:600;font-size:var(--text-sm);margin-bottom:var(--space-2);line-height:1.3">' + escHtml(c.conflict) + '</div>' +
+          '<div style="display:flex;align-items:center;justify-content:space-between">' +
+            '<span style="font-size:1.6rem;color:' + col + ';line-height:1">' + escHtml(c.trajectory_arrow || '') + '</span>' +
+            levelBadge +
+          '</div>' +
+          '<div style="font-size:11px;color:' + col + ';margin-top:var(--space-1);font-weight:500">' + escHtml(c.trajectory || 'Assessing') + '</div>' +
+          (flagHtml ? '<div style="margin-top:var(--space-2)">' + flagHtml + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
     wrap.innerHTML = html;
+  }
+
+
+  /* ── § 4: Escalation Gauge (delegates to shared when levels work) ── */
+  function renderEscalationGaugeLocal(roster, meta) {
+    meta = meta || {};
+    /* Score by absolute level (not deviation) during contested baseline period */
+    var criticalCount  = 0;
+    var highCount      = 0;
+    var contestedCount = 0;
+    var totalConflicts = roster.length;
+
+    roster.forEach(function(c) {
+      var inds = c.indicators || {};
+      var allContested = INDICATOR_KEYS.every(function(k) {
+        return !((inds[k] || {}).baseline) || (inds[k] || {}).baseline === 0;
+      });
+      if (allContested) contestedCount++;
+
+      /* During contested period: score by level instead of deviation */
+      var maxLevel = 0;
+      INDICATOR_KEYS.forEach(function(k) {
+        var lv = (inds[k] || {}).level || 0;
+        if (lv > maxLevel) maxLevel = lv;
+      });
+      if (maxLevel >= 4) criticalCount++;
+      else if (maxLevel >= 3) highCount++;
+    });
+
+    var pctCritical = totalConflicts > 0 ? criticalCount / totalConflicts : 0;
+    var pctHigh     = totalConflicts > 0 ? highCount / totalConflicts : 0;
+    var indexLevel  = 0;
+    if (pctCritical > 0.20) indexLevel = 3;
+    else if (criticalCount > 0 || pctHigh > 0.40) indexLevel = 2;
+    else if (highCount > 0) indexLevel = 1;
+
+    var levelNames = ['Low', 'Moderate', 'High', 'Critical'];
+
+    var contestedNote = '';
+    if (contestedCount > 0) {
+      contestedNote = '<strong>Note:</strong> ' + contestedCount + ' of ' + totalConflicts +
+        ' conflict' + (contestedCount !== 1 ? 's have' : ' has') +
+        ' contested baselines (pre-baseline period). Index uses absolute indicator levels; ' +
+        'deviation-based scoring will activate once baselines are established.';
+    }
+
+    if (window.AsymSections) {
+      AsymSections.renderEscalationGauge({
+        title:     'Global Escalation Index — ' + escHtml(meta.week_label || ''),
+        level:     indexLevel,
+        levelName: levelNames[indexLevel],
+        details:   '<strong>' + criticalCount + '</strong> conflict' + (criticalCount !== 1 ? 's' : '') +
+                   ' at level 4–5, <strong>' + highCount + '</strong> at level 3, across ' +
+                   '<strong>' + totalConflicts + '</strong> active conflicts.',
+        note:      contestedNote
+      }, 'escalation-gauge-wrap');
+    }
+  }
+
+
+  /* ── § 6: Conflict Severity Ranking ────────────────────────────────── */
+  function renderConflictSeverityRanking(roster) {
+    /* For each conflict: get max indicator level (absolute, not deviation) */
+    var items = roster.map(function(c) {
+      var inds = c.indicators || {};
+      var maxLevel = 0;
+      INDICATOR_KEYS.forEach(function(k) {
+        var lv = (inds[k] || {}).level || 0;
+        if (lv > maxLevel) maxLevel = lv;
+      });
+      return {
+        name:  c.conflict || '?',
+        sub:   c.theatre  || '',
+        score: maxLevel,
+        trajectory: c.trajectory || 'Stable',
+        trajectoryColour: TRAJ_COLOURS[c.trajectory] || '#94a3b8'
+      };
+    });
+    /* Sort by score descending */
+    items.sort(function(a, b) { return b.score - a.score; });
+
+    if (window.AsymSections) {
+      AsymSections.renderSeverityRanking({
+        items:    items,
+        maxScore: 5,
+        footer:   'Bars show absolute indicator level (1–5). Coloured by escalation trajectory.'
+      }, 'conflict-overview-wrap');
+    }
+  }
+
+
+  /* ── § 7: Conflict Roster Table ────────────────────────────────────── */
+  function renderConflictRosterTable(roster) {
+    if (window.AsymSections) {
+      AsymSections.renderEntityRoster({
+        columns: [
+          { label: 'Conflict', render: function(c) {
+            var html = '<strong>' + escHtml(c.conflict) + '</strong>';
+            if (c.source_url) html += '<br><a class="source-link" style="font-size:var(--text-min);font-weight:normal" href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener">Source →</a>';
+            var flags = buildFlagBadges(c.f_flags);
+            if (flags) html += '<br>' + flags;
+            return html;
+          }},
+          { key: 'theatre', label: 'Theatre' },
+          { label: 'Trajectory', render: function(c) {
+            return escHtml(c.trajectory_arrow || '') + ' ' + escHtml(c.trajectory || '');
+          }},
+          { label: 'Highest Band', render: function(c) {
+            var worst = getWorstBand(c.indicators || {});
+            var cls = bandToRowClass(worst.band);
+            return '<span class="severity-badge severity-badge--' + cls + '">' + escHtml(worst.band) + '</span>';
+          }},
+          { label: 'Status', render: function(c) {
+            return escHtml(c.baseline_status || 'Contested');
+          }}
+        ],
+        rows: roster.map(function(c) {
+          var worst = getWorstBand(c.indicators || {});
+          c._rowClass = bandToRowClass(worst.band);
+          return c;
+        })
+      }, 'roster-table-wrap');
+    }
+  }
+
+
+  /* ── Delta Items helper ──────────────────────────────────────────── */
+  function buildDeltaItems(roster) {
+    var items = [];
+    roster.forEach(function (c) {
+      var inds = c.indicators || {};
+      /* Use level (not deviation) during contested period */
+      var maxLevel = 0;
+      var maxInd = '';
+      Object.keys(inds).forEach(function (k) {
+        var lv = (inds[k] || {}).level || 0;
+        if (lv > maxLevel) {
+          maxLevel = lv;
+          maxInd = k.replace(/_/g, ' ').replace(/^I(\d)/, 'I$1');
+        }
+      });
+      items.push({
+        conflict:   c.conflict,
+        theatre:    c.theatre,
+        level:      maxLevel,
+        indicator:  maxInd,
+        trajectory: c.trajectory || '',
+        arrow:      c.trajectory_arrow || '',
+        summary:    c.summary || '',
+        source_url: c.source_url || ''
+      });
+    });
+    items.sort(function (a, b) { return b.level - a.level; });
+    return items;
   }
 
 });
