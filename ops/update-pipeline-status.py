@@ -37,8 +37,10 @@ MONITORS = {
 WORKFLOW_FILES = {}
 for abbr, ga_abbr in [("WDM","wdm"), ("GMM","gmm"), ("ESA","esa"), ("FCW","fcw"),
                        ("AIM","agm"), ("ERM","erm"), ("SCEM","scem")]:
-    for stage in ["collector", "chatter", "weekly-research", "reasoner", "synthesiser"]:
+    for stage in ["collector", "weekly-research", "reasoner", "synthesiser"]:
         WORKFLOW_FILES[(abbr, stage)] = f"{ga_abbr}-{stage}.yml"
+    # Chatter is now unified — one workflow for all monitors (13 Apr 2026)
+    WORKFLOW_FILES[(abbr, "chatter")] = "unified-chatter.yml"
 
 # Published/dashboard detection: commit message patterns per monitor
 PUBLISH_PATTERNS = {
