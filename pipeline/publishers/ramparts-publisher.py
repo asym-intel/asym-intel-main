@@ -45,6 +45,9 @@ MODULE_NAMES = {
 # WordPress standing page IDs
 WP_HOMEPAGE_ID = 22643
 WP_ARCHIVE_ID = 22648
+WP_ABOUT_ID = 22647
+WP_DIGEST_ID = 22649
+WP_SEARCH_ID = 22651
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -470,6 +473,201 @@ def step4_update_standing_pages(
         log(f"Archive page (ID {WP_ARCHIVE_ID}) updated.")
     except Exception as exc:
         log(f"ERROR updating archive page: {exc}")
+
+    # --- About page CTA ---
+    try:
+        about_cta_html = (
+            "<!-- wp:html -->\n"
+            '<div class="aim-about-cta" style="background:#006b6f;color:#fff;padding:3rem;text-align:center;border-radius:12px;margin-top:2rem">\n'
+            f"  <h2 style=\"color:#fff;margin-bottom:0.5rem\">Read the Latest Issue</h2>\n"
+            f"  <p style=\"color:rgba(255,255,255,0.8);margin-bottom:1.5rem\">Week of {html_escape(week_label)} &middot; Published {html_escape(report_date_str)}. All primary sources linked. All asymmetric signals flagged.</p>\n"
+            f'  <a href="{html_escape(page_url)}" style="background:#fff;color:#006b6f;padding:0.6rem 1.5rem;border-radius:6px;text-decoration:none;font-weight:600">Open Report &rarr;</a>\n'
+            "</div>\n"
+            "<!-- /wp:html -->"
+        )
+        # Fetch current About page content
+        resp = requests.get(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ABOUT_ID}",
+            auth=wp_auth,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        current_about = resp.json().get("content", {}).get("raw", "")
+
+        # Replace the CTA block if it exists, otherwise append
+        import re as _re
+        cta_pattern = r'<!-- wp:html -->\s*<div class="aim-about-cta".*?<!-- /wp:html -->'
+        if _re.search(cta_pattern, current_about, _re.DOTALL):
+            new_about = _re.sub(cta_pattern, about_cta_html, current_about, flags=_re.DOTALL)
+        else:
+            new_about = current_about + "\n" + about_cta_html
+
+        resp = requests.post(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ABOUT_ID}",
+            auth=wp_auth,
+            json={"content": new_about, "status": "publish"},
+            timeout=60,
+        )
+        resp.raise_for_status()
+        log(f"About page CTA (ID {WP_ABOUT_ID}) updated.")
+    except Exception as exc:
+        log(f"ERROR updating About page CTA: {exc}")
+
+    # --- Digest page (latest issue preview) ---
+    try:
+        m0 = report.get("module_0") or report.get("module-0") or {}
+        signal_text = ""
+        if isinstance(m0, dict):
+            signal_text = m0.get("body") or m0.get("text") or m0.get("summary") or ""
+        words = signal_text.split()
+        signal_truncated = " ".join(words[:80]) + ("\u2026" if len(words) > 80 else "")
+
+        delta_strip = report.get("delta_strip", [])
+        delta_items = ""
+        for d in delta_strip[:5]:
+            if isinstance(d, dict):
+                delta_items += f"<li>{html_escape(d.get('text', ''))}</li>\n"
+
+        digest_preview_html = (
+            "<!-- wp:html -->\n"
+            '<div class="aim-digest-preview" style="max-width:620px;margin:2rem auto;border:1px solid #ddd;border-radius:12px;overflow:hidden">\n'
+            f'  <div style="background:#006b6f;padding:1.5rem;color:#fff">\n'
+            f'    <div style="font-weight:700;font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase">Ramparts AI Frontier Monitor</div>\n'
+            f'    <div style="font-size:1.1rem;font-weight:700;margin-top:0.5rem">The Signal &mdash; Week of {html_escape(week_label)}</div>\n'
+            f'    <div style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin-top:0.25rem">Asymmetric Intelligence &middot; ramparts.gi</div>\n'
+            f"  </div>\n"
+            f'  <div style="padding:1.5rem;background:#f8f7f4">\n'
+            f'    <div style="font-weight:700;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:#006b6f;border-bottom:2px solid #006b6f;padding-bottom:0.5rem;margin-bottom:1rem">&#9889; The Signal</div>\n'
+            f'    <p style="font-size:0.9rem;line-height:1.75;margin-bottom:1.5rem">{html_escape(signal_truncated)}</p>\n'
+            f'    <div style="font-weight:700;font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:0.75rem">&darr; Five Key Changes This Week</div>\n'
+            f'    <ul style="list-style:none;padding:0;margin-bottom:1.5rem">{delta_items}</ul>\n'
+            f'    <a href="{html_escape(page_url)}" style="display:block;text-align:center;background:#006b6f;color:#fff;padding:0.6rem;border-radius:6px;text-decoration:none;font-weight:600">Read the full report &rarr;</a>\n'
+            f"  </div>\n"
+            "</div>\n"
+            "<!-- /wp:html -->"
+        )
+        # Fetch current Digest page
+        resp = requests.get(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_DIGEST_ID}",
+            auth=wp_auth,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        current_digest = resp.json().get("content", {}).get("raw", "")
+
+        # Replace digest preview if it exists, otherwise append
+        preview_pattern = r'<!-- wp:html -->\s*<div class="aim-digest-preview".*?<!-- /wp:html -->'
+        if _re.search(preview_pattern, current_digest, _re.DOTALL):
+            new_digest = _re.sub(preview_pattern, digest_preview_html, current_digest, flags=_re.DOTALL)
+        else:
+            new_digest = current_digest + "\n" + digest_preview_html
+
+        resp = requests.post(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_DIGEST_ID}",
+            auth=wp_auth,
+            json={"content": new_digest, "status": "publish"},
+            timeout=60,
+        )
+        resp.raise_for_status()
+        log(f"Digest page (ID {WP_DIGEST_ID}) updated.")
+    except Exception as exc:
+        log(f"ERROR updating Digest page: {exc}")
+
+    # --- Search page (all issues) ---
+    try:
+        search_items = []
+        data_dir = Path(os.environ.get("REPO_ROOT", os.getcwd())) / "static/monitors/ai-governance/data"
+
+        # Build search index from all report JSON files
+        for entry in archive:
+            slug = entry.get("slug", "")
+            entry_url = entry.get("source_url") or f"{WP_SITE}/ai-frontier-monitor-issue-{slug}/"
+            entry_label = entry.get("week_label") or slug
+            vol = entry.get("volume", "")
+            iss = entry.get("issue", "")
+            vol_issue_str = ""
+            if vol:
+                vol_issue_str += f"Vol. {vol} · "
+            if iss:
+                vol_issue_str += f"Issue {iss}"
+
+            # Try to load full report for this issue
+            report_file = data_dir / f"report-{slug}.json"
+            if not report_file.exists():
+                report_file = data_dir / "report-latest.json" if slug == report_date_str else None
+
+            if report_file and report_file.exists():
+                try:
+                    with open(report_file, "r", encoding="utf-8") as fh:
+                        issue_report = json.load(fh)
+                    for mod_key, mod_name in MODULE_NAMES.items():
+                        mod_data = issue_report.get(mod_key) or issue_report.get(mod_key.replace("_", "-"))
+                        if not mod_data:
+                            continue
+                        text_parts = []
+                        items = get_module_items(mod_data)
+                        for item in items:
+                            if isinstance(item, dict):
+                                for field in ("title", "headline", "body", "text", "summary", "asymmetric"):
+                                    v = item.get(field, "")
+                                    if v:
+                                        text_parts.append(str(v))
+                        if isinstance(mod_data, dict) and mod_data.get("body"):
+                            text_parts.insert(0, str(mod_data["body"]))
+                        if text_parts:
+                            search_items.append({
+                                "module": mod_name,
+                                "week": entry_label,
+                                "issue": vol_issue_str,
+                                "text": " ".join(text_parts)[:2000],
+                                "url": entry_url,
+                            })
+                except Exception:
+                    pass
+
+        search_json = json.dumps(search_items, ensure_ascii=False)
+        search_html = (
+            "<!-- wp:html -->\n"
+            '<div class="aim-search" id="aim-search">\n'
+            '  <h2>Search All Issues</h2>\n'
+            '  <input type="text" id="aim-search-input" placeholder="Search across all modules and issues\u2026" '
+            'style="width:100%;padding:12px 16px;border:1px solid #ccc;border-radius:8px;font-size:16px;margin-bottom:16px">\n'
+            '  <div id="aim-search-results"></div>\n'
+            '</div>\n'
+            '<script>\n'
+            f'var AIM_SEARCH_DATA = {search_json};\n'
+            'var input = document.getElementById("aim-search-input");\n'
+            'var results = document.getElementById("aim-search-results");\n'
+            'input.addEventListener("input", function() {\n'
+            '  var q = this.value.toLowerCase().trim();\n'
+            '  if (q.length < 3) { results.innerHTML = ""; return; }\n'
+            '  var hits = AIM_SEARCH_DATA.filter(function(d) { return d.text.toLowerCase().indexOf(q) !== -1; });\n'
+            '  results.innerHTML = hits.slice(0, 20).map(function(h) {\n'
+            '    var idx = h.text.toLowerCase().indexOf(q);\n'
+            '    var start = Math.max(0, idx - 80);\n'
+            '    var snippet = (start > 0 ? "\u2026" : "") + h.text.substring(start, idx + q.length + 120) + "\u2026";\n'
+            '    return \'<div style="padding:12px 0;border-bottom:1px solid #eee">\' +\n'
+            '      \'<a href="\' + h.url + \'" style="font-weight:600;color:#006b6f;text-decoration:none">\' + h.module + \' &mdash; \' + h.week + \'</a>\' +\n'
+            '      \'<span style="font-size:13px;color:#888;margin-left:8px">\' + h.issue + \'</span>\' +\n'
+            '      \'<p style="font-size:14px;color:#555;margin-top:4px;line-height:1.5">\' + snippet + \'</p></div>\';\n'
+            '  }).join("");\n'
+            '  if (hits.length === 0) results.innerHTML = \'<p style="color:#888">No results found.</p>\';\n'
+            '  if (hits.length > 20) results.innerHTML += \'<p style="color:#888;margin-top:12px">Showing 20 of \' + hits.length + \' results.</p>\';\n'
+            '});\n'
+            '</script>\n'
+            "<!-- /wp:html -->"
+        )
+
+        resp = requests.post(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_SEARCH_ID}",
+            auth=wp_auth,
+            json={"content": search_html, "status": "publish"},
+            timeout=120,
+        )
+        resp.raise_for_status()
+        log(f"Search page (ID {WP_SEARCH_ID}) updated with {len(search_items)} items from {len(archive)} issues.")
+    except Exception as exc:
+        log(f"ERROR updating Search page: {exc}")
 
 
 # ---------------------------------------------------------------------------
