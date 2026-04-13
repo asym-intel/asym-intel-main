@@ -23,7 +23,7 @@ MONITORS = {
     "macro-monitor":               ("GMM",  "Global Macro Monitor"),
     "european-strategic-autonomy":  ("ESA",  "European Strategic Autonomy Monitor"),
     "fimi-cognitive-warfare":      ("FCW",  "FIMI & Cognitive Warfare Monitor"),
-    "ai-governance":               ("AGM",  "AI Governance Monitor"),
+    "ai-governance":               ("AGM",  "Artificial Intelligence Monitor"),
     "environmental-risks":         ("ERM",  "Environmental Risks Monitor"),
     "conflict-escalation":         ("SCEM", "Strategic Conflict & Escalation Monitor"),
 }
@@ -33,7 +33,7 @@ META_DESC = {
     "macro-monitor": "All published issues of the Global Macro Monitor. Weekly macro-financial intelligence from Asymmetric Intelligence.",
     "european-strategic-autonomy": "Archive of all published issues of the European Strategic Autonomy Monitor.",
     "fimi-cognitive-warfare": "Archive of all FIMI &amp; Cognitive Warfare Monitor weekly briefs.",
-    "ai-governance": "Archive of all AI Governance Monitor weekly issues.",
+    "ai-governance": "Archive of all Artificial Intelligence Monitor weekly issues.",
     "environmental-risks": "Full issue archive of the Environmental Risks Monitor — all weekly briefs since volume 1.",
     "conflict-escalation": "Archive of all past SCEM weekly intelligence issues.",
 }
