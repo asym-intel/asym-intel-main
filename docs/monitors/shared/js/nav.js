@@ -273,15 +273,28 @@
   function injectMonitorFooter() {
     var footer = document.querySelector('.monitor-footer');
     if (!footer) return;
-    var slug = getMonitorSlug();
-    var m = slug && MONITOR_REGISTRY[slug];
-    if (!m) return;
 
     footer.innerHTML =
-      '<span>' + m.name + ' &middot; <a href="https://asym-intel.info">asym-intel.info</a></span>' +
-      '<span class="monitor-footer__credit">' +
-        '<a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Produced with Perplexity Computer</a>' +
+      '<span>' +
+        '&copy; 2026 Asymmetric Intelligence. ' +
+        'Published by <a href="https://ramparts.gi/people/peter-howitt/">Peter Howitt</a>. ' +
+        'Content is published under <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>. ' +
+        '<a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Produced with Perplexity Computer</a>.' +
       '</span>';
+  }
+
+  /* ── AI discovery link tag ──────────────────────────────────
+     Injects <link rel="alternate" type="text/markdown"> for AI crawlers.
+     Points to report-latest.md sidecar (when it exists). */
+  function injectDiscoveryTag() {
+    var slug = getMonitorSlug();
+    if (!slug) return;
+    var link = document.createElement('link');
+    link.rel = 'alternate';
+    link.type = 'text/markdown';
+    link.title = 'AI-Readable Version';
+    link.href = '/monitors/' + slug + '/data/report-latest.md';
+    document.head.appendChild(link);
   }
 
   var MONITOR_NAV_LINKS = [
@@ -334,6 +347,7 @@
     injectMonitorNav();
     injectThemeToggle();
     injectMonitorFooter();
+    injectDiscoveryTag();
     setupScrollSpy();
     setupHamburger();
     setupSiteNavHamburger();
