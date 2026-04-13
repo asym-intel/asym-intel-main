@@ -954,7 +954,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderDashboard(d, ps) {
     var meta   = d.meta || {};
-    var ls     = d.lead_signal || {};
+    var ls     = d.signal || {};
     var roster = d.conflict_roster || [];
     var fFlags = ps.f_flag_history || [];
 
@@ -1245,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var gaugeHtml =
       '<div class="escalation-gauge-header">' +
-        '<span class="escalation-gauge-title">Global Escalation Index — W/E ' + escHtml(meta.week_label || '') + '</span>' +
+        '<span class="escalation-gauge-title">Global Escalation Index — ' + escHtml(meta.week_label || '') + '</span>' +
         '<span class="escalation-gauge-level escalation-gauge-level--' + levelClass + '">' + levelName + '</span>' +
       '</div>' +
       '<div class="escalation-gauge-bar" id="gauge-bar">' +

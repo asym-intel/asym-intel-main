@@ -823,6 +823,9 @@ def main():
     report["source_url"] = f"{SITE_URL}/monitors/{MONITOR_SLUG}/{publish_date}-weekly-brief/"
     report["_meta"] = {"last_run_status": build_last_run_status(synthesis, config)}
 
+    # Normalise: all monitors use "signal" — remove legacy "lead_signal" if carried forward
+    report.pop("lead_signal", None)
+
     # Validate
     print("\n[4/6] Validating schema...")
     errors = validate_report(report, prev_report)
