@@ -17,7 +17,8 @@ from synth_utils import parse_llm_json
 REPO_ROOT   = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
 MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "ai-governance"
 SYNTH_DIR   = MONITOR_DIR / "synthesised"
-PROMPT_FILE = pathlib.Path(__file__).with_name("ai-governance-synthesiser-api-prompt.txt")
+PROMPT_FILE    = pathlib.Path(__file__).with_name("ai-governance-synthesiser-api-prompt.txt")
+RESPONSE_SCHEMA = pathlib.Path(__file__).with_name("agm-response-schema.json")
 METHODOLOGY = REPO_ROOT / "docs" / "methodology" / "ai-governance-full.md"
 IDENTITY    = REPO_ROOT / "docs" / "identity" / "agm-identity.md"
 ADDENDUM    = REPO_ROOT / "docs" / "methodology" / "ai-governance-addendum.md"
@@ -48,12 +49,13 @@ def load_text(path):
     p = pathlib.Path(path)
     return p.read_text(encoding="utf-8") if p.exists() else ""
 
-daily_latest  = load_json(MONITOR_DIR / "daily"  / "daily-latest.json")
-weekly_latest = load_json(MONITOR_DIR / "weekly" / "weekly-latest.json")
-prompt_text   = load_text(PROMPT_FILE)
-methodology   = load_text(METHODOLOGY)
-identity      = load_text(IDENTITY)
-addendum      = load_text(ADDENDUM)
+daily_latest      = load_json(MONITOR_DIR / "daily"  / "daily-latest.json")
+weekly_latest     = load_json(MONITOR_DIR / "weekly" / "weekly-latest.json")
+reasoner_latest   = load_json(MONITOR_DIR / "reasoner" / "reasoner-latest.json")
+prompt_text       = load_text(PROMPT_FILE)
+methodology       = load_text(METHODOLOGY)
+identity          = load_text(IDENTITY)
+addendum          = load_text(ADDENDUM)
 
 if not prompt_text:
     sys.exit(f"[AGM] ERROR: prompt file not found at {PROMPT_FILE}")
@@ -73,31 +75,47 @@ parts = [
 ]
 if addendum:
     parts.append("## METHODOLOGY ADDENDUM\n\n" + addendum[:6000])
+# ── Analytical continuity: reasoner before raw news ──────────────────────
+if reasoner_latest:
+    parts.append("## REASONER ANALYSIS (reasoner-latest.json)\n\n"
+                 + json.dumps(reasoner_latest, indent=2)[:16000])
+
+# ── Raw collector data ────────────────────────────────────────────────────
 parts.append("## DAILY COLLECTOR (daily-latest.json)\n\n"
              + json.dumps(daily_latest, indent=2)[:12000])
 if weekly_latest:
     parts.append("## WEEKLY RESEARCH (weekly-latest.json)\n\n"
-                 + json.dumps(weekly_latest, indent=2)[:20000])
+                 + json.dumps(weekly_latest, indent=2)[:12000])
 
-MAX_CONTEXT = 80000
+MAX_CONTEXT = 120000
 user_msg = "\n\n---\n\n".join(parts)
 if len(user_msg) > MAX_CONTEXT:
     print(f"[AGM] Context truncated: {len(user_msg)} → {MAX_CONTEXT} chars")
     user_msg = user_msg[:MAX_CONTEXT]
 
+# ── Load response schema for structured output ───────────────────────────────
+response_schema = load_json(RESPONSE_SCHEMA)
+request_body = {
+    "model": MODEL,
+    "messages": [
+        {"role": "system", "content": system_msg},
+        {"role": "user",   "content": user_msg},
+    ],
+    "max_tokens": 16384,
+    "temperature": 0.1,
+}
+if response_schema:
+    request_body["response_format"] = {
+        "type": "json_schema",
+        "json_schema": {"schema": response_schema},
+    }
+    print("[AGM] Using structured output (response_format)")
+
 print(f"[AGM] Calling {MODEL} …")
 resp = requests.post(
     API_URL,
     headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
-    json={
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": system_msg},
-            {"role": "user",   "content": user_msg},
-        ],
-        "max_tokens": 16384,
-        "temperature": 0.1,
-    },
+    json=request_body,
     timeout=300,
 )
 if resp.status_code == 429:
@@ -105,9 +123,8 @@ if resp.status_code == 429:
     time.sleep(60)
     resp = requests.post(API_URL,
         headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
-        json={"model": MODEL, "messages": [{"role": "system", "content": system_msg},
-              {"role": "user", "content": user_msg}], "max_tokens": 16384, "temperature": 0.1},
-        timeout=180)
+        json=request_body,
+        timeout=300)
 resp.raise_for_status()
 raw = resp.json()["choices"][0]["message"]["content"].strip()
 
