@@ -221,31 +221,15 @@
     z-index: 2;
     filter: drop-shadow(0 0 4px rgba(0,0,0,0.6));
     pointer-events: none;
-    animation: chug 12s linear infinite;
-    will-change: left;
+    transition: left 0.6s ease;
   }
-  @keyframes chug {
-    0%   { left: -24px; }
-    100% { left: calc(100% + 24px); }
-  }
-  /* Stagger each monitor's train so they don't all overlap */
-  .line:nth-child(1)  .train { animation-delay: 0s; }
-  .line:nth-child(3)  .train { animation-delay: -1.7s; }
-  .line:nth-child(5)  .train { animation-delay: -3.4s; }
-  .line:nth-child(7)  .train { animation-delay: -5.1s; }
-  .line:nth-child(9)  .train { animation-delay: -6.8s; }
-  .line:nth-child(11) .train { animation-delay: -8.5s; }
-  .line:nth-child(13) .train { animation-delay: -10.2s; }
 
-  /* Smoke puff behind train */
-  .train::before {
-    content: '💨';
-    position: absolute;
-    right: 100%;
-    top: -2px;
-    font-size: 0.7rem;
-    opacity: 0.5;
+  /* Gentle idle bob when train is parked at a station */
+  @keyframes idle {
+    0%, 100% { transform: translateY(-50%) translateX(0); }
+    50%      { transform: translateY(-50%) translateX(3px); }
   }
+  .train.parked { animation: idle 2.5s ease-in-out infinite; }
 
   .divider {
     height: 1px;
@@ -387,11 +371,35 @@ monitorOrder.forEach((name, idx) => {
   rail.style.background = info.accent;
   track.appendChild(rail);
 
-  // Train
+  // Train — positioned at current pipeline stage
   const train = document.createElement('div');
   train.className = 'train';
   train.textContent = TRAIN_EMOJI[name] || '🚂';
   track.appendChild(train);
+
+  // Calculate train position: find last completed (success) station index
+  let lastSuccessIdx = -1;
+  let hasRunning = false;
+  STAGE_ORDER.forEach((stage, i) => {
+    const st = info.stations[stage];
+    if (!st) return;
+    const status = getStatus(st);
+    if (status === 'success' || status === 'warning') lastSuccessIdx = i;
+    if (status === 'running') { lastSuccessIdx = i; hasRunning = true; }
+  });
+
+  // Position train as percentage across the track
+  // Stations are evenly spaced, so position = stationIndex / (totalStations - 1)
+  const totalStages = STAGE_ORDER.length;
+  if (lastSuccessIdx >= 0) {
+    const pctPos = (lastSuccessIdx / (totalStages - 1)) * 100;
+    train.style.left = `calc(${pctPos}% - 10px)`;
+    if (!hasRunning) train.classList.add('parked');
+  } else {
+    // No stations completed — park train at the start
+    train.style.left = '-20px';
+    train.classList.add('parked');
+  }
 
   const stations = document.createElement('div');
   stations.className = 'stations';
