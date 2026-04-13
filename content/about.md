@@ -33,7 +33,7 @@ Every monitor follows the same structure. Start with the page that matches what 
     <div style="color:var(--color-text-secondary,#7a7974);font-size:0.95rem;line-height:1.55">Check the pre-synthesis signal flow for fresh developments before they enter the scored framework. Raw signal, not yet elevated.</div>
  </div>
 
-
+<br></br>
 ![AI humanoid](https://github.com/user-attachments/assets/efc74cc5-4b32-4269-9dd0-68e3d68c5b16)
 
  </div>
