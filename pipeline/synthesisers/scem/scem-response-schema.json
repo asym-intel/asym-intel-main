@@ -1,0 +1,230 @@
+{
+  "type": "object",
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": {"type": "string"},
+        "research_model": {"type": "string"},
+        "monitor_slug": {"type": "string"},
+        "synthesised_at": {"type": "string"},
+        "week_ending": {"type": "string"},
+        "null_signal_week": {"type": "boolean"},
+        "null_signal_reason": {"type": ["string", "null"]}
+      },
+      "required": ["schema_version", "monitor_slug", "synthesised_at", "week_ending", "null_signal_week"]
+    },
+    "global_escalation_snapshot": {
+      "type": "object",
+      "properties": {
+        "active_theatres": {"type": "integer"},
+        "new_escalations_this_week": {"type": "integer"},
+        "de_escalations_this_week": {"type": "integer"},
+        "highest_intensity_theatre": {"type": "string"},
+        "lead_signal": {"type": "string"}
+      },
+      "required": ["active_theatres", "highest_intensity_theatre", "lead_signal"]
+    },
+    "lead_signal": {
+      "type": "object",
+      "properties": {
+        "conflict": {"type": "string"},
+        "headline": {"type": "string"},
+        "indicator": {"type": "string"},
+        "deviation": {"type": "string"},
+        "summary": {"type": "string"}
+      },
+      "required": ["conflict", "headline", "indicator", "summary"]
+    },
+    "conflict_roster": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theatre_id": {"type": "string"},
+          "theatre_name": {"type": "string"},
+          "entry_date": {"type": "string"},
+          "entry_trigger": {"type": "string"},
+          "status": {"type": "string"},
+          "overall_band": {"type": "string"},
+          "overall_band_delta": {"type": "string"},
+          "structural_break_dates": {"type": "array", "items": {"type": "string"}},
+          "baseline_recalc_due": {"type": ["string", "null"]}
+        },
+        "required": ["theatre_id", "theatre_name", "status", "overall_band", "overall_band_delta"]
+      }
+    },
+    "theatre_tracker": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theatre_id": {"type": "string"},
+          "theatre_name": {"type": "string"},
+          "intensity": {"type": "string"},
+          "intensity_delta": {"type": "string"},
+          "primary_actors": {"type": "array", "items": {"type": "string"}},
+          "acled_event_count_7d": {"type": "integer"},
+          "acled_fatality_count_7d": {"type": "integer"},
+          "key_development": {"type": "string"},
+          "escalation_risk": {"type": "string"},
+          "nuclear_threshold_concern": {"type": "boolean"},
+          "hybrid_dimensions": {"type": "array", "items": {"type": "string"}},
+          "ceasefire_status": {"type": "string"},
+          "source": {"type": "string"}
+        },
+        "required": ["theatre_id", "theatre_name", "intensity", "intensity_delta", "key_development", "escalation_risk"]
+      }
+    },
+    "indicator_scoring": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theatre_id": {"type": "string"},
+          "indicators": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "indicator": {"type": "string"},
+                "level": {"type": "integer"},
+                "level_label": {"type": "string"},
+                "baseline": {"type": "integer"},
+                "deviation": {"type": "number"},
+                "deviation_band": {"type": "string"},
+                "key_evidence": {"type": "string"},
+                "note": {"type": ["string", "null"]}
+              },
+              "required": ["indicator", "level", "level_label", "deviation_band", "key_evidence"]
+            }
+          }
+        },
+        "required": ["theatre_id", "indicators"]
+      }
+    },
+    "f_flag_matrix": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theatre_id": {"type": "string"},
+          "f_flags_detected": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "flag": {"type": "string"},
+                "indicator_affected": {"type": "string"},
+                "description": {"type": "string"},
+                "fcw_link": {"type": ["string", "null"]}
+              },
+              "required": ["flag", "indicator_affected", "description"]
+            }
+          }
+        },
+        "required": ["theatre_id", "f_flags_detected"]
+      }
+    },
+    "escalation_indicators": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theatre_id": {"type": "string"},
+          "indicator": {"type": "string"},
+          "type": {"type": "string"},
+          "confidence_preliminary": {"type": "string"},
+          "threshold_crossed": {"type": ["string", "null"]}
+        },
+        "required": ["theatre_id", "indicator", "type"]
+      }
+    },
+    "hybrid_warfare_layer": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "theatre_id": {"type": "string"},
+          "dimension": {"type": "string"},
+          "development": {"type": "string"},
+          "actor": {"type": "string"},
+          "fcw_link": {"type": ["string", "null"]}
+        },
+        "required": ["theatre_id", "dimension", "development"]
+      }
+    },
+    "roster_watch": {
+      "type": "object",
+      "properties": {
+        "approaching_inclusion": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "theatre_name": {"type": "string"},
+              "reason": {"type": "string"},
+              "criteria_met": {"type": "array", "items": {"type": "string"}}
+            },
+            "required": ["theatre_name", "reason"]
+          }
+        },
+        "approaching_retirement": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "theatre_id": {"type": "string"},
+              "theatre_name": {"type": "string"},
+              "reason": {"type": "string"}
+            },
+            "required": ["theatre_name", "reason"]
+          }
+        }
+      },
+      "required": ["approaching_inclusion", "approaching_retirement"]
+    },
+    "acled_reference": {"type": "string"},
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "judgment": {"type": "string"},
+          "confidence_preliminary": {"type": "string"},
+          "theatre": {"type": "string"},
+          "trajectory": {"type": "string"}
+        },
+        "required": ["id", "judgment", "confidence_preliminary", "theatre"]
+      }
+    },
+    "weekly_brief_draft": {"type": "string"},
+    "cross_monitor_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_monitor": {"type": "string"},
+          "signal": {"type": "string"},
+          "type": {"type": "string"},
+          "confidence_preliminary": {"type": "string"}
+        },
+        "required": ["target_monitor", "signal", "type"]
+      }
+    }
+  },
+  "required": [
+    "_meta",
+    "global_escalation_snapshot",
+    "lead_signal",
+    "conflict_roster",
+    "theatre_tracker",
+    "indicator_scoring",
+    "f_flag_matrix",
+    "roster_watch",
+    "key_judgments",
+    "weekly_brief_draft",
+    "cross_monitor_candidates"
+  ]
+}
