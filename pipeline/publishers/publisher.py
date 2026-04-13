@@ -696,7 +696,7 @@ def build_last_run_status(synthesis: dict, config: dict, issues: list = None) ->
 
 # ── Schema validation ────────────────────────────────────────────────────
 
-def validate_report(report: dict) -> list[str]:
+def validate_report(report: dict, prev_report: dict | None = None) -> list[str]:
     errors = []
     meta = report.get("meta", {})
     if not meta.get("issue"):
@@ -707,6 +707,21 @@ def validate_report(report: dict) -> list[str]:
         errors.append(f"schema_version is '{meta.get('schema_version')}', expected '2.0'")
     if not report.get("source_url"):
         errors.append("source_url is empty")
+
+    # ── Roster continuity check (SCEM and any future roster monitors) ────
+    new_roster = report.get("conflict_roster", [])
+    if prev_report and new_roster:
+        prev_roster = prev_report.get("conflict_roster", [])
+        if prev_roster:
+            drop = len(prev_roster) - len(new_roster)
+            retirements = report.get("roster_watch", {}).get("approaching_retirement", [])
+            if drop > 1 and len(retirements) < drop:
+                errors.append(
+                    f"ROSTER DROP: conflict_roster shrank by {drop} "
+                    f"(from {len(prev_roster)} to {len(new_roster)}) "
+                    f"with only {len(retirements)} retirement(s). "
+                    f"Blocking publish — synthesiser may have dropped conflicts."
+                )
     return errors
 
 
@@ -810,12 +825,19 @@ def main():
 
     # Validate
     print("\n[4/6] Validating schema...")
-    errors = validate_report(report)
-    if errors:
-        print("  ⚠ Validation warnings:")
-        for e in errors:
+    errors = validate_report(report, prev_report)
+    blocking = [e for e in errors if e.startswith("ROSTER DROP")]
+    warnings = [e for e in errors if e not in blocking]
+    if blocking:
+        print("  ✗ BLOCKING validation errors:")
+        for e in blocking:
             print(f"    - {e}")
-        report["_meta"]["last_run_status"]["issues"] = errors
+        sys.exit(1)
+    if warnings:
+        print("  ⚠ Validation warnings:")
+        for e in warnings:
+            print(f"    - {e}")
+        report["_meta"]["last_run_status"]["issues"] = warnings
     else:
         print("  ✓ schema valid")
 
