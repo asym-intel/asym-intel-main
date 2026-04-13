@@ -33,7 +33,7 @@ from urllib.error import URLError, HTTPError
 MONITORS = [
     {
         "id":    "ai-governance",
-        "label": "AI Governance",
+        "label": "Artificial Intelligence",
         "url":   "https://asym-intel.info/monitors/ai-governance/dashboard.html",
         "color": "#4f98a3",
     },
@@ -84,6 +84,7 @@ ARCHIVE_URL = "{base}/monitors/{slug}/data/archive.json"
 MONITOR_NAME_TO_SLUG = {
     # Full canonical names
     "ai governance":                          "ai-governance",
+    "artificial intelligence":                 "ai-governance",
     "global fimi & cognitive warfare":        "fimi-cognitive-warfare",
     "global fimi & cognitive warfare monitor":"fimi-cognitive-warfare",
     "fimi & cognitive warfare":               "fimi-cognitive-warfare",
@@ -107,6 +108,7 @@ MONITOR_NAME_TO_SLUG = {
     "macro monitor":                          "macro-monitor",
     "macro-monitor":                          "macro-monitor",
     "ai governance monitor":                  "ai-governance",
+    "artificial intelligence monitor":         "ai-governance",
     # Additional variants found in the wild
     "strategic conflict & escalation monitor":         "conflict-escalation",
     "strategic conflict and escalation monitor":       "conflict-escalation",
