@@ -322,5 +322,7 @@ When generating theatre_alignment, compare SCEM overall band with ACLED category
 9. f_flag_matrix must include all four F-flags for each active theatre, even if not detected (detected: false).
 10. acled_reference section is preserved from prior week during normal runs. Only update biannually.
 11. conflict_roster must reflect current Active/Dormant Watch status with entry dates and structural break history.
+12. ROSTER COMPLETENESS GUARDRAIL: conflict_roster MUST contain every conflict from the REASONER ANALYSIS trajectory_reviews AND every conflict in the PERSISTENT STATE roster_status. Never drop a conflict from the roster without a corresponding entry in roster_watch.approaching_retirement explaining why. If the daily/weekly collectors have no news for a theatre, carry it forward as Stable — do not omit it.
+13. theatre_tracker, indicator_scoring, and f_flag_matrix must also cover every roster conflict. If collector data is thin for a theatre, score from reasoner analysis and persistent-state baselines, noting limited evidence.
 
-# Version: schema-sprint-v2 | Updated: 2026-04-11 | Added: indicator_scoring (I1-I6 per-theatre), f_flag_matrix (F1-F4), acled_reference with theatre_alignment and global_top_20, conflict_roster with entry/break metadata, ai_generation_check on I1, drone normalisation baseline, Russia I3 persistent doctrine, US I5 de-weighting
+# Version: schema-sprint-v2.1 | Updated: 2026-04-13 | Added: roster completeness guardrail (rules 12-13), reasoner + persistent-state as input sources | Prior: schema-sprint-v2 (2026-04-11) added indicator_scoring, f_flag_matrix, acled_reference, conflict_roster metadata, ai_generation_check, drone normalisation, Russia I3 persistent doctrine, US I5 de-weighting
