@@ -23,7 +23,7 @@ MONITORS = {
     "macro-monitor":               ("GMM",  "Global Macro Monitor"),
     "european-strategic-autonomy":  ("ESA",  "European Strategic Autonomy Monitor"),
     "fimi-cognitive-warfare":      ("FCW",  "FIMI & Cognitive Warfare Monitor"),
-    "ai-governance":               ("AGM",  "AI Governance Monitor"),
+    "ai-governance":               ("AGM",  "Artificial Intelligence Monitor"),
     "environmental-risks":         ("ERM",  "Environmental Risks Monitor"),
     "conflict-escalation":         ("SCEM", "Strategic Conflict & Escalation Monitor"),
 }
