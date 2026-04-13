@@ -101,7 +101,7 @@ MONITOR SLUGS AND PROMPT PATHS
 | Global Macro Monitor | GMM | macro-monitor | gmm-cron-prompt.md | Monday | 08:00 |
 | FIMI & Cognitive Warfare | FCW | fimi-cognitive-warfare | fcw-cron-prompt.md | Thursday | 09:00 |
 | European Strategic Autonomy | ESA | european-strategic-autonomy | esa-cron-prompt.md | Wednesday | 19:00 |
-| AI Governance Monitor | AGM | ai-governance | agm-cron-prompt.md | Friday | 09:00 |
+| Artificial Intelligence Monitor | AGM | ai-governance | agm-cron-prompt.md | Friday | 09:00 |
 | Environmental Risks Monitor | ERM | environmental-risks | erm-cron-prompt.md | Saturday | 05:00 |
 | Strategic Conflict & Escalation | SCEM | conflict-escalation | scem-cron-prompt.md | Sunday | 18:00 |
 
