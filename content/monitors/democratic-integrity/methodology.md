@@ -107,7 +107,7 @@ The World Democracy Monitor is part of the [Asymmetric Intelligence](https://asy
 | [Strategic Conflict & Escalation Monitor](https://asym-intel.info/monitors/conflict-escalation/dashboard.html) | Spoke — receives signals where conflict drives democratic collapse | Armed conflict identified as primary driver of democratic backsliding; election held under active conflict conditions |
 | [Global Environmental Risks Monitor](https://asym-intel.info/monitors/environmental-risks/dashboard.html) | Spoke — receives signals where environmental stress drives democratic collapse | Ecosystem collapse or climate displacement demonstrably correlating with V-Dem index decline in same region |
 | [Global Macro Monitor](https://asym-intel.info/monitors/macro-monitor/dashboard.html) | Spoke — receives signals where economic coercion drives backsliding | Economic dependency or sanctions weaponised as instrument of democratic erosion |
-| [AI Governance Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html) | Spoke — receives signals where AI tools are deployed for democratic suppression | AI surveillance, deepfake deployment, or algorithmic censorship documented as instrument of institutional capture |
+| [Artificial Intelligence Monitor](https://asym-intel.info/monitors/ai-governance/dashboard.html) | Spoke — receives signals where AI tools are deployed for democratic suppression | AI surveillance, deepfake deployment, or algorithmic censorship documented as instrument of institutional capture |
 
 ## Persistent Data
 
