@@ -3739,7 +3739,7 @@ window.AsymSections = (function () {
     'macro-monitor':             'Global Macro Monitor',
     'european-strategic-autonomy':'European Strategic Autonomy',
     'fimi-cognitive-warfare':    'FIMI & Cognitive Warfare',
-    'ai-governance':             'AI Governance Monitor',
+    'ai-governance':             'Artificial Intelligence Monitor',
     'environmental-risks':       'Environmental Risks Monitor',
     'conflict-escalation':       'Conflict & Escalation Monitor'
   };
