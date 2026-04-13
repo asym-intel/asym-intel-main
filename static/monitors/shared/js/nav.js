@@ -265,6 +265,14 @@
         '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 12A5.5 5.5 0 1 1 11.7 3.8 6.5 6.5 0 0 0 7.5 13z"/>' +
       '</svg>';
     actions.insertBefore(btn, actions.firstChild);
+
+    // Wire click handler immediately — theme.js wireButton may have
+    // already fired on DOMContentLoaded before this button existed.
+    btn.addEventListener('click', function () {
+      if (window.AsymTheme && window.AsymTheme.toggle) {
+        window.AsymTheme.toggle();
+      }
+    });
   }
 
   /* ── Footer injection ────────────────────────────────────────
