@@ -132,6 +132,7 @@ data["items"] = filtered
 
 # ── Fix meta ──────────────────────────────────────────────────────────────────
 
+data.setdefault("_meta", {})
 data["_meta"]["generated_at"] = datetime.datetime.utcnow().isoformat() + "Z"
 data["_meta"]["data_date"]    = TODAY_STR
 data["_meta"]["item_count"]   = len(filtered)
