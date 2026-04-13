@@ -14,6 +14,8 @@ Edge design:
   - Monitor→monitor edges sourced from cross_monitor_flags in each report-latest.json.
     Edges carry first_flagged date, report_slug, and a direct report_url so every
     connection is traceable to the exact weekly report that identified it.
+  - Report nodes: latest N reports per monitor from archive.json, each linked to its
+    parent monitor via a "published_by" edge. Clicking opens the full report.
 """
 
 import json
@@ -74,6 +76,9 @@ MONITORS = [
 BASE_URL    = "https://asym-intel.info"
 REPORT_URL  = "{base}/monitors/{slug}/data/report-latest.json"
 ARCHIVE_URL = "{base}/monitors/{slug}/data/archive.json"
+
+# How many recent reports per monitor to include as graph nodes
+REPORT_NODES_PER_MONITOR = 3
 
 # Canonical monitor slug lookup — handles all name variants seen across monitors
 MONITOR_NAME_TO_SLUG = {
@@ -261,11 +266,13 @@ def build_graph(output_path: Path) -> None:
                  flag_id_val=None, report_url=None, first_flagged=None,
                  edge_type="monitor-monitor", status="Active"):
         # Deduplicate: one edge per source/target pair per relation
-        key = f"{source}|{target}|{relation}"
-        rev = f"{target}|{source}|{relation}"
-        if key in edge_ids_seen or rev in edge_ids_seen:
-            return
-        edge_ids_seen.add(key)
+        # For report-monitor edges, each report is unique so no dedup needed
+        if edge_type != "report-monitor":
+            key = f"{source}|{target}|{relation}"
+            rev = f"{target}|{source}|{relation}"
+            if key in edge_ids_seen or rev in edge_ids_seen:
+                return
+            edge_ids_seen.add(key)
         e = {
             "id":           next_edge_id(),
             "source":       source,
@@ -384,7 +391,72 @@ def build_graph(output_path: Path) -> None:
 
     print(f"  → {sum(1 for e in edges if e['edge_type'] == 'monitor-monitor')} monitor→monitor edges")
 
-    # ── 4. Assemble and write ────────────────────────────────────────────────
+    # ── 4. Recent report nodes from archive.json ───────────────────────────
+    print("Building report nodes from archive data…")
+    report_nodes_added = 0
+
+    for slug, data in monitor_data.items():
+        archive = data["archive"] or []
+        m_meta  = data["meta"]
+
+        if not isinstance(archive, list) or not archive:
+            continue
+
+        # Sort by published date descending, take latest N
+        sorted_reports = sorted(
+            [r for r in archive if r.get("published")],
+            key=lambda r: r["published"],
+            reverse=True,
+        )[:REPORT_NODES_PER_MONITOR]
+
+        for entry in sorted_reports:
+            pub_date   = entry.get("published", "")[:10]
+            entry_slug = entry.get("slug", pub_date)
+            signal     = entry.get("signal", "")
+            week_label = entry.get("week_label", "")
+            issue      = entry.get("issue")
+            source_url = entry.get("source_url", "")
+
+            node_id = f"report-{slug}-{entry_slug}"
+            report_url = source_url or build_report_url(BASE_URL, slug, entry_slug, None)
+
+            # Build description from delta_strip top items if available
+            description = truncate(signal, 300) if signal else ""
+            delta_strip = entry.get("delta_strip", [])
+            if delta_strip:
+                top_deltas = [d.get("one_line", "") for d in delta_strip[:3] if d.get("one_line")]
+                if top_deltas:
+                    description = description + " — " + "; ".join(top_deltas) if description else "; ".join(top_deltas)
+                    description = truncate(description, 500)
+
+            nodes.append({
+                "id":          node_id,
+                "type":        "report",
+                "monitor":     slug,
+                "label":       f"{m_meta['label']} — {week_label or pub_date}",
+                "color":       m_meta["color"],
+                "url":         report_url,
+                "date":        pub_date,
+                "week_label":  week_label,
+                "issue":       issue,
+                "description": description,
+            })
+            report_nodes_added += 1
+
+            add_edge(
+                source=node_id,
+                target=slug,
+                relation="published_by",
+                title=f"{week_label or pub_date}",
+                rationale=f"Weekly report published by {m_meta['label']}.",
+                report_url=report_url,
+                first_flagged=pub_date,
+                edge_type="report-monitor",
+            )
+
+    print(f"  → {report_nodes_added} report nodes added")
+
+    # ── 5. Assemble and write ────────────────────────────────────────────────
     graph = {
         "generated":   datetime.now(timezone.utc).isoformat(),
         "node_count":  len(nodes),
@@ -397,8 +469,10 @@ def build_graph(output_path: Path) -> None:
     output_path.write_text(json.dumps(graph, indent=2, ensure_ascii=False))
 
     print(f"\n✓ graph.json written → {output_path}")
-    print(f"  Nodes: {len(nodes)}  ({sum(1 for n in nodes if n['type']=='monitor')} monitors)")
-    print(f"  Edges: {len(edges)}  ({sum(1 for e in edges if e['edge_type']=='monitor-monitor')} monitor↔monitor)")
+    print(f"  Nodes: {len(nodes)}  ({sum(1 for n in nodes if n['type']=='monitor')} monitors, "
+          f"{sum(1 for n in nodes if n['type']=='report')} reports)")
+    print(f"  Edges: {len(edges)}  ({sum(1 for e in edges if e['edge_type']=='monitor-monitor')} monitor↔monitor, "
+          f"{sum(1 for e in edges if e['edge_type']=='report-monitor')} report→monitor)")
 
 
 # ── Entry point ──────────────────────────────────────────────────────────────
