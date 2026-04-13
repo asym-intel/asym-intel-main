@@ -843,6 +843,10 @@ def main():
 
     # Update persistent state
     print("\n[5/6] Updating persistent state + archive...")
+    # Snapshot persistent-state before overwrite (insurance against data loss)
+    if persistent and persistent_path.exists():
+        snapshot_path = data_dir / f"persistent-state-{publish_date}.json"
+        write_json(snapshot_path, persistent)
     persistent = update_persistent_state(persistent, synthesis, meta, config)
     archive.append(build_archive_entry(meta, signal, synthesis))
 
