@@ -232,6 +232,259 @@
           }
         }
       }
+    },
+    "mimicry_chain_update": {
+      "type": "object",
+      "properties": {
+        "active_chains": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chain_name": {
+                "type": "string"
+              },
+              "origin_country": {
+                "type": "string"
+              },
+              "adopting_countries": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "current_front": {
+                "type": "string"
+              },
+              "legislative_status": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "new_mimicry_detected": {
+          "type": "boolean"
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "legislative_watch_entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "week": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "status_code": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "official_justification": {
+            "type": "string"
+          },
+          "analytic_concern": {
+            "type": "string"
+          },
+          "democratic_impact": {
+            "type": "string"
+          },
+          "lawfare_angle": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "election_adjacent": {
+            "type": "boolean"
+          },
+          "fimi_link": {
+            "type": "boolean"
+          },
+          "regional_mimicry": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "overlap": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "first_seen": {
+            "type": "string"
+          },
+          "last_material_change": {
+            "type": "string"
+          },
+          "changelog": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "change": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "friction_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "week": {
+            "type": "string"
+          },
+          "tier1_source": {
+            "type": "string"
+          },
+          "tier1_claim": {
+            "type": "string"
+          },
+          "ground_truth": {
+            "type": "string"
+          },
+          "ground_truth_tiers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ground_truth_sources": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "resolution_note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "overlap": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "first_seen": {
+            "type": "string"
+          },
+          "changelog": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "change": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "judgment": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string"
+          },
+          "countries_affected": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trajectory": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "weekly_brief_draft": {
+      "type": "string"
+    },
+    "cross_monitor_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_monitor": {
+            "type": "string"
+          },
+          "signal": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "required": [
@@ -241,6 +494,9 @@
     "country_heatmap",
     "backsliding_alerts",
     "electoral_calendar_watch",
-    "institutional_integrity_flags"
+    "institutional_integrity_flags",
+    "key_judgments",
+    "weekly_brief_draft",
+    "cross_monitor_candidates"
   ]
 }
