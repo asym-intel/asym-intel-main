@@ -570,6 +570,27 @@
           });
         }
       });
+      /* Tipping point tracker — map each element to its geographic location(s) */
+      var TIPPING_GEO = {
+        'AMOC':                    ['IS','GL'],
+        'Arctic sea ice':          ['NO','CA','RU'],
+        'Permafrost':              ['RU','CA'],
+        'Amazon':                  ['BR','CO','PE'],
+        'Coral':                   ['AU','MV','FJ','PH','BZ'],
+        'Greenland ice sheet':     ['GL'],
+        'West Antarctic ice sheet':['AR','CL','NZ']
+      };
+      (data.tipping_point_tracker || []).forEach(function (tp) {
+        var geos = TIPPING_GEO[tp.tipping_element] || [];
+        var proxLabel = tp.proximity || 'Unknown';
+        var probLabel = tp.probability_preliminary ? ' (prob: ' + tp.probability_preliminary + ')' : '';
+        var signal = tp.tipping_element + ' — ' + proxLabel + probLabel;
+        if (tp.cascade_risk) signal += ' · Cascade risk: ' + tp.cascade_risk;
+        geos.forEach(function (iso) {
+          results.push({ iso: iso, country: tp.tipping_element, monitor: slug, signal: signal, score: proxLabel, dashboardUrl: dashUrl });
+        });
+      });
+
       /* Threat multiplier — if it names specific regions beyond 'Global' */
       var threats = data.m03_threat_multiplier || data.climate_security_nexus || [];
       threats.forEach(function (c) {
