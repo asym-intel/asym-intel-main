@@ -899,7 +899,7 @@ Signal routing rule: If ESA Lagrange Point score drops in the Technology pillar 
 
 
 ═══════════════════════════════════════════════════════════════
-IDENTITY CARD: AGM — AI Governance Monitor
+IDENTITY CARD: AGM — Artificial Intelligence Monitor
 ═══════════════════════════════════════════════════════════════
 Cron ID: 267fd76e | Schedule: Friday 09:00 UTC
 Publishes to: /monitors/ai-governance/
