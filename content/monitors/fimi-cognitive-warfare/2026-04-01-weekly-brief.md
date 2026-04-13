@@ -58,4 +58,4 @@ The US permanent injunction barring NSO Group from targeting WhatsApp users with
 
 **European Strategic Autonomy Monitor** — Washington Post reporting on Hungarian FM Szijjártó allegedly leaking EU meeting content to Lavrov represents the intelligence-capture dimension of the Hungary state-capture picture tracked in ESA. If confirmed, this is FIMI infrastructure operating at the diplomatic level, not just social media.
 
-**AI Governance Monitor** — DFRLab AI YouTube network (1.8B views) is the most significant empirical data point on AI-FIMI convergence since the EEAS 47% figure. YouTube's failure to enforce against synthetic anchors presenting fabricated events as news is a platform governance failure with direct FIMI consequences.
+**Artificial Intelligence Monitor** — DFRLab AI YouTube network (1.8B views) is the most significant empirical data point on AI-FIMI convergence since the EEAS 47% figure. YouTube's failure to enforce against synthetic anchors presenting fabricated events as news is a platform governance failure with direct FIMI consequences.
