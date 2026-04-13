@@ -30,6 +30,15 @@
   {{ printf `<link rel="%s" type="%s" href="%s" title="%s">` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
 {{ end }}
 
+<!-- AI-readable discovery tag (monitor section pages) -->
+{{ if and .IsSection (hasPrefix .RelPermalink "/monitors/") -}}
+{{ $slug := path.Base .RelPermalink }}
+<link rel="alternate" type="text/markdown" title="AI-Readable Version" href="/monitors/{{ $slug }}/data/report-latest.md">
+{{ end }}
+
+<!-- LLMs index -->
+<link rel="alternate" type="text/plain" title="LLM Site Index" href="/llms.txt">
+
 <!-- Open Graph -->
 <meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}">
 <meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}{{ end }}">
