@@ -50,6 +50,8 @@
   function wireButton() {
     var btn = document.getElementById('theme-toggle');
     if (!btn) return;
+    if (btn._asymWired) return; // guard: only wire once
+    btn._asymWired = true;
 
     // Inject sun/moon SVG icons if not already present
     if (!btn.innerHTML.trim()) {
@@ -83,6 +85,7 @@
   window.AsymTheme = {
     toggle: toggle,
     set: setTheme,
-    current: function () { return current; }
+    current: function () { return current; },
+    _wire: wireButton  // exposed so nav.js can re-trigger after injecting the button
   };
 })();

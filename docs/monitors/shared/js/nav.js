@@ -266,13 +266,12 @@
       '</svg>';
     actions.insertBefore(btn, actions.firstChild);
 
-    // Wire click handler immediately — theme.js wireButton may have
-    // already fired on DOMContentLoaded before this button existed.
-    btn.addEventListener('click', function () {
-      if (window.AsymTheme && window.AsymTheme.toggle) {
-        window.AsymTheme.toggle();
-      }
-    });
+    // Re-run theme.js wireButton now that button exists in the DOM.
+    // theme.js fires wireButton on DOMContentLoaded which may run
+    // before nav.js injects this button — so we re-trigger it here.
+    if (window.AsymTheme && window.AsymTheme._wire) {
+      window.AsymTheme._wire();
+    }
   }
 
   /* ── Footer injection ────────────────────────────────────────
