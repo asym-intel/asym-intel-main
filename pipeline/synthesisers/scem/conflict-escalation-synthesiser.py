@@ -157,6 +157,15 @@ if "_meta" in synthesis:
     )
     synthesis["_meta"]["research_model"] = MODEL
 
+# ── Carry forward acled_reference from previous report ─────────────────────
+prev_report = load_json(DATA_DIR / "report-latest.json")
+if synthesis.get("acled_reference") in ("CARRY_FORWARD", None, ""):
+    if prev_report.get("acled_reference"):
+        synthesis["acled_reference"] = prev_report["acled_reference"]
+        print("[SCEM] acled_reference carried forward from previous report")
+    else:
+        print("[SCEM] WARNING: no acled_reference to carry forward")
+
 SYNTH_DIR.mkdir(parents=True, exist_ok=True)
 (SYNTH_DIR / f"debug-{TODAY_STR}.json").write_text(json.dumps(synthesis, indent=2), encoding="utf-8")
 out = json.dumps(synthesis, indent=2, ensure_ascii=False)
