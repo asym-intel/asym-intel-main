@@ -461,7 +461,7 @@ SECTION 12 — BLUEPRINT v2.0 (locked 31 March 2026)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Supersedes the v1.0 decisions (Sections 3–10) where in conflict.
-Reference standard: AI Governance Monitor architecture + WDM
+Reference standard: Artificial Intelligence Monitor architecture + WDM
 persistent-state patterns + lessons from Build 1.
 
 ────────────────────────────────────────────────────────────────
@@ -555,7 +555,7 @@ CANONICAL MONITOR NAMES (use these names consistently — always)
   Global Macro Monitor                     GMM    macro-monitor
   FIMI & Cognitive Warfare Monitor         FCW    fimi-cognitive-warfare
   European Strategic Autonomy Monitor      ESA    european-strategic-autonomy
-  AI Governance Monitor                    AGM    ai-governance
+  Artificial Intelligence Monitor                    AGM    ai-governance
   Environmental Risks Monitor              ERM    environmental-risks
   Strategic Conflict & Escalation Monitor  SCEM   conflict-escalation
 
@@ -574,7 +574,7 @@ matching existing publish schedule:
   Monday    — Global Macro Monitor (GMM) [08:00 UTC, after WDM]
   Thursday  — FIMI & Cognitive Warfare Monitor (FCW)
   Wednesday — European Strategic Autonomy Monitor (ESA)
-  Friday    — AI Governance Monitor (AGM)
+  Friday    — Artificial Intelligence Monitor (AGM)
   Saturday  — Environmental Risks Monitor (ERM)
   Sunday    — Strategic Conflict & Escalation Monitor (SCEM)
 
