@@ -102,7 +102,7 @@ def build_redirect_page(slug):
     """Build a minimal redirect page for methodology.html → about.html#methodology."""
     # Get monitor name from slug for the title
     names = {
-        'ai-governance': 'AI Governance Monitor',
+        'ai-governance': 'Artificial Intelligence Monitor',
         'conflict-escalation': 'Strategic Conflict & Escalation Monitor',
         'democratic-integrity': 'World Democracy Monitor',
         'environmental-risks': 'Environmental Risks Monitor',
