@@ -187,38 +187,33 @@ def check_workflow_infrastructure(r: Results):
 
 
 def check_chatter_schedules(r: Results):
-    """Verify all 7 chatters are daily with correct stagger."""
+    """Verify per-monitor chatter workflow files exist with workflow_dispatch trigger.
+
+    Chatters are dispatched by the unified Cloudflare Worker (unified-chatter.yml)
+    since Apr 2026 — individual workflows no longer need cron schedule blocks.
+    """
     wf_dir = REPO_ROOT / ".github" / "workflows"
 
-    for abbr, expected_minute in CHATTER_STAGGER.items():
+    # Check unified chatter workflow exists
+    unified = wf_dir / "unified-chatter.yml"
+    if unified.exists():
+        r.ok("CHATTER-UNIFIED", "unified-chatter.yml present")
+    else:
+        r.warn("CHATTER-UNIFIED", "unified-chatter.yml not found — check Cloudflare Worker dispatch target")
+
+    for abbr in CHATTER_STAGGER:
         wf_file = wf_dir / f"{abbr}-chatter.yml"
         if not wf_file.exists():
             r.fail(f"CHATTER-EXISTS:{abbr}", f"{abbr}-chatter.yml not found")
             continue
 
         content = wf_file.read_text()
-        cron_match = re.search(r'cron:\s*"([^"]+)"', content)
-        if not cron_match:
-            r.fail(f"CHATTER-CRON:{abbr}", "No cron expression found")
-            continue
 
-        cron_expr = cron_match.group(1)
-        parts = cron_expr.split()
-
-        # Verify daily: day-of-week should be * (not a specific day)
-        if parts[4] != "*":
-            r.fail(f"CHATTER-DAILY:{abbr}",
-                   f"Not daily — day-of-week is '{parts[4]}', expected '*'. Cron: {cron_expr}")
+        # Verify workflow_dispatch trigger is present (required for Cloudflare Worker dispatch)
+        if "workflow_dispatch" in content:
+            r.ok(f"CHATTER-DISPATCH:{abbr}", "workflow_dispatch trigger present")
         else:
-            r.ok(f"CHATTER-DAILY:{abbr}", f"Daily schedule confirmed: {cron_expr}")
-
-        # Verify stagger minute
-        actual_minute = int(parts[0]) if parts[0].isdigit() else -1
-        if actual_minute != expected_minute:
-            r.warn(f"CHATTER-STAGGER:{abbr}",
-                   f"Minute is {actual_minute}, expected {expected_minute}. Cron: {cron_expr}")
-        else:
-            r.ok(f"CHATTER-STAGGER:{abbr}", f"Stagger correct: minute {actual_minute}")
+            r.fail(f"CHATTER-DISPATCH:{abbr}", "No workflow_dispatch trigger — Cloudflare Worker cannot dispatch")
 
 
 def check_collector_schedules(r: Results):
