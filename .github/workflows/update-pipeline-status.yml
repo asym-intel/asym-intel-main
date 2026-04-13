@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read     # read own workflow runs
-      contents: write   # write to static/ops/pipeline.html
+      contents: write   # write to static/ops/ and docs/ops/
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}    # PAT for cross-repo write to asym-intel-internal
 
@@ -34,10 +34,11 @@ jobs:
         run: |
           if [ -f pipeline-dashboard.html ]; then
             cp pipeline-dashboard.html static/ops/pipeline.html
+            cp pipeline-dashboard.html docs/ops/pipeline.html
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add static/ops/pipeline.html
-            git diff --cached --quiet || git commit -m "ops: auto-update pipeline dashboard ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git add static/ops/pipeline.html docs/ops/pipeline.html
+            git diff --cached --quiet || git commit -m "ops: auto-update pipeline dashboard ($(date -u '+%Y-%m-%d %H:%M UTC')) [skip ci]"
             git pull --rebase
             git push
           fi
