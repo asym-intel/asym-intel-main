@@ -83,17 +83,12 @@ All string values must avoid apostrophes and contractions — use full words onl
       "indicators": [
         {
           "indicator": "I1 | I2 | I3 | I4 | I5 | I6",
-          "indicator_name": "Rhetoric Intensity | Military Posture | Nuclear & Strategic | Economic Warfare | Diplomatic Channel Status | Displacement Velocity",
           "level": 0,
           "level_label": "Green | Amber | Red | Crisis",
           "baseline": 0,
           "deviation": 0.0,
-          "deviation_band": "Green (within baseline) | Amber (elevated) | Red (critical deviation)",
-          "confidence_preliminary": "Confirmed | High | Assessed | Possible",
-          "ai_generation_check": false,
-          "key_evidence": "string",
-          "source_tier": "T1 | T2 | T3",
-          "source": "string",
+          "deviation_band": "Green | Amber | Red",
+          "key_evidence": "string — single sentence",
           "note": "string | null"
         }
       ]
@@ -102,14 +97,12 @@ All string values must avoid apostrophes and contractions — use full words onl
   "f_flag_matrix": [
     {
       "theatre_id": "string",
-      "f_flags": [
+      "f_flags_detected": [
         {
           "flag": "F1 | F2 | F3 | F4",
-          "flag_name": "Fabricated content | Manipulated context | Impersonation | Coordinated inauthentic behaviour",
-          "detected": false,
-          "indicator_affected": "I1 | I2 | I3 | I4 | I5 | I6 | null",
-          "description": "string | null",
-          "fcw_link": "string | null — reference to FCW monitor if FIMI actor overlap"
+          "indicator_affected": "I1-I6",
+          "description": "string",
+          "fcw_link": "string | null"
         }
       ]
     }
@@ -161,41 +154,7 @@ All string values must avoid apostrophes and contractions — use full words onl
       }
     ]
   },
-  "acled_reference": {
-    "index_version": "string — e.g. 2026-Q1",
-    "last_updated": "YYYY-MM-DD",
-    "next_update_expected": "YYYY-MM-DD",
-    "source_url": "https://acleddata.com/series/acled-conflict-index",
-    "theatre_alignment": [
-      {
-        "scem_theatre_id": "string",
-        "acled_rank": 0,
-        "acled_category": "Extreme | High | Medium",
-        "acled_scores": {
-          "deadliness": 0,
-          "danger_to_civilians": 0,
-          "geographic_diffusion": 0,
-          "armed_group_fragmentation": 0
-        },
-        "scem_overall_band": "Green | Amber | Red | Crisis",
-        "alignment_status": "Consistent | Divergent — SCEM higher | Divergent — SCEM lower",
-        "divergence_note": "string — analyst explanation when not Consistent"
-      }
-    ],
-    "global_top_20": [
-      {
-        "rank": 0,
-        "country": "string",
-        "category": "Extreme | High | Medium",
-        "deadliness": 0,
-        "danger_to_civilians": 0,
-        "geographic_diffusion": 0,
-        "armed_group_fragmentation": 0,
-        "scem_tracked": false,
-        "scem_theatre_id": "string | null"
-      }
-    ]
-  },
+  "acled_reference": "CARRY FORWARD — copy acled_reference verbatim from persistent-state or previous report. Only regenerate biannually when ACLED publishes a new index.",
   "key_judgments": [
     {
       "id": "kj-001",
@@ -319,8 +278,8 @@ When generating theatre_alignment, compare SCEM overall band with ACLED category
 6. Do not search the web. Reason only over provided documents.
 7. JSON string values must never contain apostrophes or contractions. Use full words only (e.g. "this weeks" not "this week's", "does not" not "doesn't"). Apostrophes break JSON parsing.
 8. indicator_scoring must include all six indicators (I1-I6) for each active theatre with deviation from baseline.
-9. f_flag_matrix must include all four F-flags for each active theatre, even if not detected (detected: false).
-10. acled_reference section is preserved from prior week during normal runs. Only update biannually.
+9. f_flag_matrix: include only DETECTED f-flags (f_flags_detected array). If no f-flags detected for a theatre, use an empty array. Do not list undetected flags.
+10. acled_reference: output the string "CARRY_FORWARD" as the value. The publisher will inject the real acled_reference from the previous report.
 11. conflict_roster must reflect current Active/Dormant Watch status with entry dates and structural break history.
 12. ROSTER COMPLETENESS GUARDRAIL: conflict_roster MUST contain every conflict from the REASONER ANALYSIS trajectory_reviews AND every conflict in the PERSISTENT STATE roster_status. Never drop a conflict from the roster without a corresponding entry in roster_watch.approaching_retirement explaining why. If the daily/weekly collectors have no news for a theatre, carry it forward as Stable — do not omit it.
 13. theatre_tracker, indicator_scoring, and f_flag_matrix must also cover every roster conflict. If collector data is thin for a theatre, score from reasoner analysis and persistent-state baselines, noting limited evidence.
