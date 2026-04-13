@@ -955,6 +955,9 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderDashboard(d, ps) {
     var meta   = d.meta || {};
     var ls     = d.signal || {};
+    // Normalise field names: publisher writes actor/note, dashboard expects conflict/summary
+    ls.conflict = ls.conflict || ls.actor || '';
+    ls.summary  = ls.summary  || ls.note  || '';
     var roster = d.conflict_roster || [];
     var fFlags = ps.f_flag_history || [];
 
