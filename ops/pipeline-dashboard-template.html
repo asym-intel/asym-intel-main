@@ -39,6 +39,7 @@
   .legend {
     display: flex; gap: 1.5rem; margin-bottom: 2rem;
     font-size: 0.75rem; color: var(--text-muted);
+    flex-wrap: wrap;
   }
   .legend-item { display: flex; align-items: center; gap: 0.4rem; }
   .legend-dot {
@@ -92,6 +93,34 @@
     opacity: 0.4;
   }
 
+  /* ── Sleepers (railroad ties) ──────────────────────────── */
+  .sleepers {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 12px;
+    transform: translateY(-50%);
+    z-index: 0;
+    overflow: hidden;
+  }
+  .sleepers::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 18px,
+      var(--border) 18px,
+      var(--border) 21px
+    );
+    opacity: 0.35;
+  }
+
   .stations {
     display: flex;
     align-items: center;
@@ -107,7 +136,7 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    min-width: 100px;
+    min-width: 90px;
   }
   .station-dot {
     width: 18px;
@@ -153,7 +182,7 @@
     opacity: 0.7;
   }
 
-  /* Terminal station (Computer / Published) */
+  /* Terminal station (Published / Dashboard) */
   .station-dot.terminal {
     width: 24px;
     height: 24px;
@@ -180,6 +209,41 @@
   }
   .station:hover .tooltip { display: block; }
 
+  /* ── Train ─────────────────────────────────────────────── */
+  .train {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    z-index: 2;
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.6));
+    pointer-events: none;
+    animation: chug 12s linear infinite;
+    will-change: left;
+  }
+  @keyframes chug {
+    0%   { left: -24px; }
+    100% { left: calc(100% + 24px); }
+  }
+  /* Stagger each monitor's train so they don't all overlap */
+  .line:nth-child(1)  .train { animation-delay: 0s; }
+  .line:nth-child(3)  .train { animation-delay: -1.7s; }
+  .line:nth-child(5)  .train { animation-delay: -3.4s; }
+  .line:nth-child(7)  .train { animation-delay: -5.1s; }
+  .line:nth-child(9)  .train { animation-delay: -6.8s; }
+  .line:nth-child(11) .train { animation-delay: -8.5s; }
+  .line:nth-child(13) .train { animation-delay: -10.2s; }
+
+  /* Smoke puff behind train */
+  .train::before {
+    content: '💨';
+    position: absolute;
+    right: 100%;
+    top: -2px;
+    font-size: 0.7rem;
+    opacity: 0.5;
+  }
+
   .divider {
     height: 1px;
     background: var(--border);
@@ -205,11 +269,23 @@
   }
   .stat-value { font-size: 1.8rem; font-weight: 700; }
   .stat-label { font-size: 0.7rem; color: var(--text-muted); }
+
+  .arch-note {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border-left: 3px solid var(--running);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .arch-note strong { color: var(--text); }
 </style>
 </head>
 <body>
 <div class="header">
-  <h1>Pipeline Health</h1>
+  <h1>🚂 Pipeline Health</h1>
   <span class="subtitle">Asymmetric Intelligence</span>
 </div>
 <div class="updated" id="updated"></div>
@@ -226,19 +302,31 @@
 
 <div class="summary" id="summary"></div>
 
+<div class="arch-note">
+  <strong>Scheduling:</strong> Cloudflare Worker (pipeline-dispatcher) → GitHub Actions (execution only). No GA cron triggers.<br>
+  <strong>Chatter:</strong> Unified — 1 sonar call covers all 7 monitors daily at 06:00 UTC.
+</div>
+
 <script>
 const DATA = __PIPELINE_DATA__;
 
-const STAGE_ORDER = ['collector', 'chatter', 'weekly-research', 'reasoner', 'published', 'dashboard'];
+const STAGE_ORDER = ['collector', 'chatter', 'weekly-research', 'reasoner', 'synthesiser', 'published', 'dashboard'];
 const STAGE_LABELS = {
   'collector': 'Collector',
   'chatter': 'Chatter',
   'weekly-research': 'Weekly',
   'reasoner': 'Reasoner',
+  'synthesiser': 'Synth',
   'published': 'Brief',
   'dashboard': 'Dashboard'
 };
 const TERMINAL_STAGES = ['published', 'dashboard'];
+
+// Train emoji per monitor — each gets a different one
+const TRAIN_EMOJI = {
+  'WDM': '🚂', 'GMM': '🚃', 'ESA': '🚄', 'FCW': '🚅',
+  'AIM': '🚆', 'ERM': '🚇', 'SCEM': '🚈'
+};
 
 const now = new Date();
 const meta = DATA._meta || {};
@@ -286,10 +374,21 @@ monitorOrder.forEach((name, idx) => {
   const track = document.createElement('div');
   track.className = 'track';
 
+  // Sleepers (railroad ties)
+  const sleepers = document.createElement('div');
+  sleepers.className = 'sleepers';
+  track.appendChild(sleepers);
+
   const rail = document.createElement('div');
   rail.className = 'rail';
   rail.style.background = info.accent;
   track.appendChild(rail);
+
+  // Train
+  const train = document.createElement('div');
+  train.className = 'train';
+  train.textContent = TRAIN_EMOJI[name] || '🚂';
+  track.appendChild(train);
 
   const stations = document.createElement('div');
   stations.className = 'stations';
@@ -311,7 +410,9 @@ monitorOrder.forEach((name, idx) => {
 
     const nameEl = document.createElement('div');
     nameEl.className = 'station-name';
-    nameEl.textContent = STAGE_LABELS[stage] || stage;
+    let stageLabel = STAGE_LABELS[stage] || stage;
+    if (stage === 'chatter') stageLabel += ' *';
+    nameEl.textContent = stageLabel;
 
     const timeEl = document.createElement('div');
     timeEl.className = 'station-time';
@@ -320,9 +421,11 @@ monitorOrder.forEach((name, idx) => {
     const tooltip = document.createElement('div');
     tooltip.className = 'tooltip';
     if (st && st.last_run) {
-      tooltip.innerHTML = '<strong>' + (st.last_conclusion || 'unknown') + '</strong><br>'
+      let tipHTML = '<strong>' + (st.last_conclusion || 'unknown') + '</strong><br>'
         + 'Last run: ' + new Date(st.last_run).toLocaleString() + '<br>'
         + (st.last_success ? 'Last success: ' + new Date(st.last_success).toLocaleString() : 'Never succeeded');
+      if (stage === 'chatter') tipHTML += '<br><em>Unified — shared across all monitors</em>';
+      tooltip.innerHTML = tipHTML;
     } else {
       tooltip.textContent = 'Never run';
     }
@@ -333,8 +436,6 @@ monitorOrder.forEach((name, idx) => {
     stEl.appendChild(timeEl);
     stations.appendChild(stEl);
   });
-
-  // No separate terminal — published and dashboard are now in STAGE_ORDER
 
   track.appendChild(stations);
   line.appendChild(label);
