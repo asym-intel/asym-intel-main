@@ -653,10 +653,25 @@ window.AsymSections = (function () {
       el.innerHTML = '<p class="text-muted text-sm">No brief available this issue.</p>';
       return;
     }
+    /* Parse lightweight markdown: ## headings, **bold**, paragraphs.
+       Keeps output safe via escHtml on text content. */
     var html = '<div class="brief-card">';
-    brief.split('\n\n').forEach(function (para) {
-      var t = para.trim();
-      if (t) html += '<p>' + escHtml(t) + '</p>';
+    brief.split('\n').forEach(function (line) {
+      var t = line.trim();
+      if (!t) return;
+      /* ## / ### headings */
+      var hMatch = t.match(/^(#{2,4})\s+(.*)$/);
+      if (hMatch) {
+        var level = Math.min(hMatch[1].length, 4);
+        html += '<h' + level + ' style="font-size:var(--text-sm);font-weight:700;' +
+          'margin:var(--space-4) 0 var(--space-2);color:var(--color-text);' +
+          'letter-spacing:-0.01em">' + escHtml(hMatch[2]) + '</h' + level + '>';
+        return;
+      }
+      /* Inline **bold** */
+      var escaped = escHtml(t);
+      escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html += '<p>' + escaped + '</p>';
     });
     html += '</div>';
     el.innerHTML = html;
@@ -697,8 +712,9 @@ window.AsymSections = (function () {
         return 'moderate';
       })();
 
-      var hasEventStats = t.acled_event_count_7d !== undefined ||
-                          t.acled_fatality_count_7d !== undefined;
+      /* Only show ACLED stats when non-zero — synthesiser often returns 0 */
+      var hasEventStats = (t.acled_event_count_7d > 0) ||
+                          (t.acled_fatality_count_7d > 0);
 
       html +=
         '<div class="theatre-card theatre-card--' + deltaClass + '">' +
@@ -865,14 +881,16 @@ window.AsymSections = (function () {
 
     var html = '';
     matrix.forEach(function (entity) {
-      var flags = entity.f_flags || [];
+      var flags = entity.f_flags_detected || entity.f_flags || [];
       html +=
         '<div class="flag-matrix-entity">' +
-          '<div class="flag-matrix-entity__title">' + escHtml(entity.theatre_id || '') + '</div>' +
+          '<div class="flag-matrix-entity__title">' + escHtml(entity.theatre_name || entity.theatre_id || '') + '</div>' +
           '<div class="flag-matrix-grid">';
 
       flags.forEach(function (f) {
-        var detected = !!f.detected;
+        /* Items in f_flags_detected are detected by definition;
+           fall back to explicit f.detected for legacy f_flags format */
+        var detected = (f.detected !== undefined) ? !!f.detected : true;
         html +=
           '<div class="flag-matrix-item' + (detected ? ' flag-matrix-item--detected' : '') + '">' +
             '<div class="flag-matrix-item__header">' +
@@ -1104,6 +1122,66 @@ window.AsymSections = (function () {
                 : '') +
               (c.confidence_preliminary
                 ? '<span>Confidence: ' + escHtml(c.confidence_preliminary) + '</span>'
+                : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * renderHybridWarfareLayer — cross-domain hybrid activity summary.
+   * Shows non-kinetic dimensions (cyber, economic coercion, information ops)
+   * linked to conflict theatres, with optional FCW cross-reference.
+   *
+   * Written for all audiences: plain-language dimension labels for journalists
+   * and laypeople; structured theatre + actor + FCW linkback for intel pros.
+   *
+   * @param {Array}  items  [{theatre_id, dimension, development, actor, fcw_link}]
+   * @param {string} targetId
+   * @param {HTMLElement} [wrapperEl]  optional — unhide if items exist
+   */
+  function renderHybridWarfareLayer(items, targetId, wrapperEl) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No hybrid warfare activity this issue.</p>';
+      return;
+    }
+    if (wrapperEl) wrapperEl.style.display = '';
+
+    var dimensionIcons = {
+      'cyber': '🖥',
+      'economic coercion': '💰',
+      'information operations': '📡',
+      'political subversion': '🏛',
+      'energy': '⚡',
+      'lawfare': '⚖'
+    };
+
+    var html = '<div class="hybrid-warfare-list">';
+    items.forEach(function (item) {
+      var dimLower = (item.dimension || '').toLowerCase();
+      var icon = dimensionIcons[dimLower] || '◆';
+
+      html +=
+        '<div class="hybrid-warfare-item">' +
+          '<div class="hybrid-warfare-item__icon" aria-hidden="true">' + icon + '</div>' +
+          '<div class="hybrid-warfare-item__body">' +
+            '<div class="hybrid-warfare-item__header">' +
+              '<span class="hybrid-warfare-item__dimension">' + escHtml(item.dimension || '') + '</span>' +
+              '<span class="hybrid-warfare-item__theatre">' + escHtml(item.theatre_id || '') + '</span>' +
+            '</div>' +
+            '<div class="hybrid-warfare-item__dev">' + escHtml(item.development || '') + '</div>' +
+            '<div class="hybrid-warfare-item__meta">' +
+              (item.actor
+                ? '<span class="tag tag--actor">' + escHtml(item.actor) + '</span>'
+                : '') +
+              (item.fcw_link
+                ? '<a class="hybrid-warfare-item__fcw-link" href="' + escHtml(item.fcw_link) +
+                    '" target="_blank" rel="noopener">FCW assessment →</a>'
                 : '') +
             '</div>' +
           '</div>' +
@@ -3082,6 +3160,7 @@ window.AsymSections = (function () {
     renderACLEDReference: renderACLEDReference,
     renderKeyJudgments: renderKeyJudgments,
     renderCrossMonitorCandidates: renderCrossMonitorCandidates,
+    renderHybridWarfareLayer: renderHybridWarfareLayer,
 
     // Persistent-page enrichment helpers
     enrichBaselineWithTheatre: enrichBaselineWithTheatre,
@@ -3117,8 +3196,378 @@ window.AsymSections = (function () {
     renderSystemicRisk: renderSystemicRisk,
     renderSafeHavenV2: renderSafeHavenV2,
     // Sprint 1 SL-02: Shared triage strip
-    renderTriageStrip: renderTriageStrip
+    renderTriageStrip: renderTriageStrip,
+
+    // Sprint 2: Promoted template functions (SCEM → all monitors)
+    renderEscalationGauge: renderEscalationGauge,
+    renderSeverityRanking: renderSeverityRanking,
+    renderEntityRoster: renderEntityRoster,
+    renderEntityRosterWatch: renderEntityRosterWatch,
+    renderIndicatorBreakdownChart: renderIndicatorBreakdownChart
   };
+
+  /* ══════════════════════════════════════════════════════════════
+     SPRINT 2 — Promoted template functions
+     Originally SCEM-specific, now parameterised for all monitors.
+     ══════════════════════════════════════════════════════════════ */
+
+  /**
+   * renderEscalationGauge — 4-zone horizontal gauge with marker.
+   *
+   * @param {Object}  config
+   *   .title       {string}  e.g. "Global Escalation Index — W/E 13 Apr"
+   *   .zones       {Array}   [{name,class}] default Low/Moderate/High/Critical
+   *   .level       {number}  0-3 index into zones
+   *   .levelName   {string}  human label for current level
+   *   .details     {string}  sub-text (e.g. "2 conflicts with deviation ≥+2")
+   *   .note        {string}  optional italic note (e.g. contested baselines)
+   * @param {string}  targetId
+   */
+  function renderEscalationGauge(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var zones = config.zones || [
+      {name:'Low',      cls:'low'},
+      {name:'Moderate', cls:'moderate'},
+      {name:'High',     cls:'high'},
+      {name:'Critical', cls:'critical'}
+    ];
+    var level = config.level || 0;
+    var markerPct = (level * 25) + 12.5;
+    var levelCls = zones[level] ? zones[level].cls : 'moderate';
+
+    var html =
+      '<div class="escalation-gauge-header">' +
+        '<span class="escalation-gauge-title">' + escHtml(config.title || '') + '</span>' +
+        '<span class="escalation-gauge-level escalation-gauge-level--' + levelCls + '">' +
+          escHtml(config.levelName || zones[level].name) + '</span>' +
+      '</div>' +
+      '<div class="escalation-gauge-bar">';
+    zones.forEach(function(z, i) {
+      var radius = '';
+      if (i === 0) radius = 'border-radius:6px 0 0 6px;';
+      if (i === zones.length - 1) radius = 'border-radius:0 6px 6px 0;';
+      html += '<div class="escalation-gauge-zone escalation-gauge-zone--' + z.cls + '"' +
+        (radius ? ' style="' + radius + '"' : '') +
+        '><span class="escalation-gauge-zone__label">' + escHtml(z.name) + '</span></div>';
+    });
+    html += '<div class="escalation-gauge-marker" style="left:' + markerPct + '%"></div></div>';
+    if (config.details) {
+      html += '<div class="escalation-gauge-sub">' + config.details + '</div>';
+    }
+    if (config.note) {
+      html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted);' +
+        'font-style:italic;border-left:3px solid #94a3b8;padding-left:var(--space-2)">' +
+        config.note + '</div>';
+    }
+    el.innerHTML = html;
+  }
+
+  /**
+   * renderSeverityRanking — horizontal bar chart of entities ranked by score.
+   * Implements Pattern A from section-naming-registry.md.
+   *
+   * @param {Object}  config
+   *   .items  {Array}  [{name, sub, score, maxScore, trajectory, trajectoryColour}]
+   *   .footer {string} optional footnote
+   * @param {string}  targetId
+   */
+  function renderSeverityRanking(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var items = config.items || [];
+    if (!items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No ranking data available.</p>';
+      return;
+    }
+    var maxScore = config.maxScore || 5;
+    var html = '<div style="display:flex;flex-direction:column;gap:6px">';
+    items.forEach(function(item) {
+      var col = item.trajectoryColour || '#94a3b8';
+      var pct = Math.max(6, Math.round((item.score / maxScore) * 100));
+      html +=
+        '<div style="display:flex;align-items:center;gap:var(--space-3)">' +
+          '<div style="width:180px;font-size:var(--text-xs);color:var(--color-text-secondary);' +
+            'flex-shrink:0;text-align:right;line-height:1.2">' +
+            escHtml(item.name) +
+            (item.sub ? '<br><span style="font-size:var(--text-min);opacity:0.6">' +
+              escHtml(item.sub) + '</span>' : '') +
+          '</div>' +
+          '<div style="flex:1;height:22px;background:rgba(100,116,139,0.08);border-radius:3px;overflow:hidden">' +
+            '<div style="width:' + pct + '%;height:100%;background:' + col + ';opacity:0.75;border-radius:3px"></div>' +
+          '</div>' +
+          '<div style="width:36px;text-align:right;font-size:var(--text-xs);font-weight:700;' +
+            'color:var(--color-text-muted);flex-shrink:0">' + item.score + '/' + maxScore + '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+    if (config.footer) {
+      html += '<p style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted);' +
+        'font-style:italic">' + escHtml(config.footer) + '</p>';
+    }
+    el.innerHTML = html;
+  }
+
+  /**
+   * renderEntityRoster — generic roster table for any monitor.
+   *
+   * @param {Object}  config
+   *   .columns  {Array}  [{key, label, render(row)}] — render returns html string
+   *   .rows     {Array}  data objects
+   * @param {string}  targetId
+   */
+  function renderEntityRoster(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var rows = config.rows || [];
+    var cols = config.columns || [];
+    if (!rows.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No roster data available.</p>';
+      return;
+    }
+    var html = '<table class="heatmap-table"><thead><tr>';
+    cols.forEach(function(c) { html += '<th>' + escHtml(c.label) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    rows.forEach(function(row, i) {
+      var rowCls = row._rowClass || (i % 2 === 0 ? '' : 'alt');
+      html += '<tr' + (rowCls ? ' class="heatmap-row--' + rowCls + '"' : '') + '>';
+      cols.forEach(function(c) {
+        html += '<td>' + (c.render ? c.render(row) : escHtml(String(row[c.key] || ''))) + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    el.innerHTML = html;
+  }
+
+  /**
+   * renderEntityRosterWatch — approaching inclusion / retirement lists.
+   *
+   * @param {Object}  config
+   *   .approaching  {Array}  [{name, sub, note, status, tags}]
+   *   .retiring     {Array|string}  [{name, note}] or plain string
+   * @param {string}  targetId
+   */
+  function renderEntityRosterWatch(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var approaching = config.approaching || [];
+    var retiring = config.retiring;
+    var hasApp = approaching.length > 0;
+    var hasRet = Array.isArray(retiring) ? retiring.length > 0 : (retiring && String(retiring).trim().length > 0);
+
+    if (!hasApp && !hasRet) {
+      el.innerHTML = '<p class="text-muted text-sm">No entities currently approaching inclusion or retirement.</p>';
+      return;
+    }
+    var accent = getComputedStyle(document.documentElement).getPropertyValue('--monitor-accent').trim() || '#dc2626';
+    var html = '';
+    if (hasApp) {
+      html += '<div style="margin-bottom:var(--space-4)">' +
+        '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.07em;' +
+          'color:var(--color-text-muted);font-weight:700;margin-bottom:var(--space-3)">Approaching Inclusion</div>';
+      approaching.forEach(function(item) {
+        var tags = (item.tags || []).map(function(t) {
+          return '<span style="display:inline-block;background:rgba(220,38,38,0.1);color:' + accent + ';' +
+            'border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600;margin:2px 2px 2px 0">' +
+            escHtml(t) + '</span>';
+        }).join('');
+        html +=
+          '<div style="background:var(--color-surface);border:1.5px solid var(--color-border);' +
+            'border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);margin-bottom:var(--space-3);' +
+            'box-shadow:var(--shadow-sm)">' +
+            '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-2)">' +
+              '<div>' +
+                '<div style="font-size:var(--text-sm);font-weight:700;color:var(--color-text);line-height:1.2">' +
+                  escHtml(item.name || '') + '</div>' +
+                (item.sub ? '<div style="font-size:var(--text-min);font-weight:600;text-transform:uppercase;' +
+                  'letter-spacing:.07em;color:var(--color-text-muted);margin-top:3px">' + escHtml(item.sub) + '</div>' : '') +
+              '</div>' +
+              (item.status ? '<span style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;' +
+                'letter-spacing:.05em;background:rgba(220,38,38,0.1);color:' + accent + ';border-radius:3px;' +
+                'padding:2px 8px;white-space:nowrap;flex-shrink:0">' + escHtml(item.status) + '</span>' : '') +
+            '</div>' +
+            (item.note ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.6;' +
+              'margin-bottom:var(--space-2)">' + escHtml(item.note) + '</p>' : '') +
+            (tags ? '<div style="margin-top:var(--space-2)">' + tags + '</div>' : '') +
+          '</div>';
+      });
+      html += '</div>';
+    }
+    if (hasRet) {
+      html += '<div style="margin-top:var(--space-2)">' +
+        '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.07em;' +
+          'color:var(--color-text-muted);font-weight:700;margin-bottom:var(--space-3)">Approaching Retirement</div>';
+      if (Array.isArray(retiring)) {
+        html += '<ul style="list-style:none;padding:0;margin:0">';
+        retiring.forEach(function(item) {
+          var text = typeof item === 'string' ? item : (item.name || String(item));
+          html += '<li style="font-size:var(--text-sm);color:var(--color-text-secondary);' +
+            'padding:var(--space-2) 0;border-bottom:1px solid var(--color-border-subtle)">' + escHtml(text) + '</li>';
+        });
+        html += '</ul>';
+      } else {
+        html += '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);font-style:italic">' +
+          escHtml(String(retiring)) + '</p>';
+      }
+      html += '</div>';
+    }
+    el.innerHTML = html;
+  }
+
+  /**
+   * renderIndicatorBreakdownChart — per-entity bar chart with conflict selector.
+   * Requires Chart.js loaded.
+   *
+   * @param {Object}  config
+   *   .entities      {Array}  [{id, name, indicators: {key: {level, baseline, deviation, band, note}}}]
+   *   .indicatorKeys {Array}  e.g. ['I1_rhetoric','I2_military_posture',...]
+   *   .labels        {Array}  e.g. ['I1 Rhetoric','I2 Military',...]
+   *   .contestedMsg  {string} message when all baselines are zero/contested
+   *   .selectId      {string} ID of <select> element
+   *   .canvasId      {string} ID of <canvas> element
+   *   .legendId      {string} ID of legend container
+   *   .noteId        {string} ID of note panel
+   *   .noteLabelId   {string} ID of note label
+   *   .noteTextId    {string} ID of note text
+   * @param {string}  targetId  (unused — operates on sub-element IDs)
+   */
+  function renderIndicatorBreakdownChart(config, targetId) {
+    if (typeof Chart === 'undefined') return;
+    var entities = config.entities || [];
+    var keys = config.indicatorKeys || [];
+    var labels = config.labels || [];
+    var selectEl = document.getElementById(config.selectId);
+    var canvasEl = document.getElementById(config.canvasId);
+    var legendEl = document.getElementById(config.legendId);
+    var notePanel = document.getElementById(config.noteId);
+    var noteLabel = document.getElementById(config.noteLabelId);
+    var noteText = document.getElementById(config.noteTextId);
+    if (!selectEl || !canvasEl || !entities.length) return;
+
+    var BAND_COLOURS = {
+      'Red': '#dc2626', 'ANOMALOUS': '#dc2626',
+      'Amber': '#d97706', 'ELEVATED': '#d97706',
+      'Green': '#059669', 'NORMAL': '#059669',
+      'CONTESTED': '#94a3b8'
+    };
+
+    /* Populate select */
+    selectEl.innerHTML = '';
+    entities.forEach(function(e, i) {
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = e.name || e.id;
+      selectEl.appendChild(opt);
+    });
+
+    var chart = null;
+    function renderChart(idx) {
+      var entity = entities[idx];
+      if (!entity) return;
+      var inds = entity.indicators || {};
+
+      /* Check if all baselines are zero/contested */
+      var allContested = keys.every(function(k) {
+        var ind = inds[k] || {};
+        return !ind.baseline || ind.baseline === 0;
+      });
+
+      var levels = [], baselines = [], barColours = [], borderColours = [];
+      keys.forEach(function(k) {
+        var ind = inds[k] || {};
+        levels.push(ind.level || 0);
+        baselines.push(ind.baseline || 0);
+        var col = BAND_COLOURS[ind.band] || '#94a3b8';
+        barColours.push(col + '33');
+        borderColours.push(col);
+      });
+
+      var datasets = [{
+        label: 'Level',
+        data: levels,
+        backgroundColor: barColours,
+        borderColor: borderColours,
+        borderWidth: 1
+      }];
+      if (!allContested) {
+        datasets.push({
+          label: 'Baseline',
+          data: baselines,
+          type: 'line',
+          borderColor: 'rgba(100,116,139,0.5)',
+          borderDash: [4, 3],
+          pointRadius: 3,
+          pointBackgroundColor: 'rgba(100,116,139,0.6)',
+          fill: false,
+          order: -1
+        });
+      }
+
+      if (chart) chart.destroy();
+      chart = new Chart(canvasEl, {
+        type: 'bar',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { min: 0, max: 5, ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.06)' } },
+            y: { grid: { display: false } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                afterLabel: function(ctx) {
+                  if (ctx.datasetIndex !== 0) return '';
+                  var ind = inds[keys[ctx.dataIndex]] || {};
+                  var parts = [];
+                  if (ind.band) parts.push('Band: ' + ind.band);
+                  if (ind.deviation != null) parts.push('Deviation: ' + (ind.deviation > 0 ? '+' : '') + ind.deviation);
+                  if (ind.note) parts.push(ind.note);
+                  return parts.join('\n');
+                }
+              }
+            }
+          },
+          onClick: function(evt, elems) {
+            if (!elems.length || elems[0].datasetIndex !== 0) return;
+            var ind = inds[keys[elems[0].index]] || {};
+            if (ind.note && notePanel && noteText) {
+              noteText.textContent = ind.note;
+              if (noteLabel) noteLabel.textContent = labels[elems[0].index] + ' — Note';
+              notePanel.classList.add('visible');
+            }
+          }
+        }
+      });
+
+      /* Legend */
+      if (legendEl) {
+        var legHtml = '<div class="indicator-breakdown-legend-item">' +
+          '<div class="indicator-breakdown-legend-swatch" style="background:#94a3b833;border:1px solid #94a3b8"></div>Level (1–5)</div>';
+        if (!allContested) {
+          legHtml += '<div class="indicator-breakdown-legend-item">' +
+            '<div class="indicator-breakdown-legend-swatch" style="background:transparent;border:2px dashed rgba(100,116,139,0.5)"></div>Baseline</div>';
+        }
+        legHtml += '<div class="indicator-breakdown-legend-item" style="margin-left:auto;font-style:italic;color:var(--color-text-muted)">' +
+          (allContested
+            ? (config.contestedMsg || 'Baselines not yet established — showing levels only.')
+            : 'Click a bar to see the indicator note.') +
+          '</div>';
+        legendEl.innerHTML = legHtml;
+      }
+    }
+
+    selectEl.addEventListener('change', function() {
+      renderChart(parseInt(this.value, 10));
+      if (notePanel) notePanel.classList.remove('visible');
+    });
+    renderChart(0);
+  }
+
 }());
 
 
@@ -3739,7 +4188,7 @@ window.AsymSections = (function () {
     'macro-monitor':             'Global Macro Monitor',
     'european-strategic-autonomy':'European Strategic Autonomy',
     'fimi-cognitive-warfare':    'FIMI & Cognitive Warfare',
-    'ai-governance':             'Artificial Intelligence Monitor',
+    'ai-governance':             'AI Governance Monitor',
     'environmental-risks':       'Environmental Risks Monitor',
     'conflict-escalation':       'Conflict & Escalation Monitor'
   };
