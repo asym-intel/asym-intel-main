@@ -1,11 +1,11 @@
-name: WDM Chatter — Daily Signal
+name: Unified Chatter — Daily Signal (all monitors)
 
 on:
-  workflow_dispatch:  # Schedule DISABLED 13 Apr 2026 — replaced by unified-chatter.yml
+  workflow_dispatch:
 
 jobs:
   chatter:
-    name: WDM Daily Chatter (sonar)
+    name: Unified Daily Chatter (sonar)
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -15,17 +15,17 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
-      - name: Run WDM Chatter
+      - name: Run Unified Chatter
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-        run: python pipeline/monitors/democratic-integrity/wdm-chatter.py
+        run: python pipeline/chatter/unified-chatter.py
       - name: Commit chatter output
         run: |
-          git config user.name "WDM Chatter Bot"
-          git config user.email "wdm-chatter@asym-intel.info"
-          git add static/monitors/democratic-integrity/data/chatter*.json
+          git config user.name "Chatter Bot"
+          git config user.email "chatter@asym-intel.info"
+          git add static/monitors/*/data/chatter*.json
           git diff --staged --quiet && echo "No chatter output to commit" && exit 0
-          git commit -m "data(wdm-chatter): daily signal — $(date -u +%Y-%m-%d)"
+          git commit -m "data(chatter): unified daily signal — $(date -u +%Y-%m-%d)"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
