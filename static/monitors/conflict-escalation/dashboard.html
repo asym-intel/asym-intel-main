@@ -854,6 +854,74 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+  /* ── v2 Schema Join ──────────────────────────────────────────────────
+     Merges the v2 separated arrays (conflict_roster, indicator_scoring,
+     f_flag_matrix, theatre_tracker) into the flat per-conflict structure
+     that the render functions expect.
+     Falls back gracefully if data is already in v1 flat format.
+     ──────────────────────────────────────────────────────────────────── */
+  function joinV2Schema(d) {
+    var roster = d.conflict_roster || [];
+    if (roster.length > 0 && roster[0].indicators) return d;
+
+    var indMap = {};
+    (d.indicator_scoring || []).forEach(function(entry) {
+      var obj = {};
+      (entry.indicators || []).forEach(function(ind) {
+        var shortKey = (ind.indicator || '').toUpperCase();
+        var fullKey = {
+          'I1': 'I1_rhetoric', 'I2': 'I2_military_posture',
+          'I3': 'I3_nuclear_strategic', 'I4': 'I4_economic_warfare',
+          'I5': 'I5_diplomatic', 'I6': 'I6_displacement'
+        }[shortKey] || shortKey;
+        obj[fullKey] = {
+          level:     ind.level != null ? ind.level : 0,
+          baseline:  ind.baseline != null ? ind.baseline : 0,
+          deviation: ind.deviation != null ? ind.deviation : 0,
+          band:      ind.deviation_band || 'CONTESTED',
+          note:      ind.note || ''
+        };
+      });
+      indMap[entry.theatre_id] = obj;
+    });
+
+    var ffMap = {};
+    (d.f_flag_matrix || []).forEach(function(entry) {
+      ffMap[entry.theatre_id] = (entry.f_flags_detected || []).map(function(f) {
+        return { flag: f.flag, indicator: f.indicator_affected || '' };
+      });
+    });
+
+    var ttMap = {};
+    (d.theatre_tracker || []).forEach(function(entry) {
+      ttMap[entry.theatre_id] = entry;
+    });
+
+    roster.forEach(function(c) {
+      var tid = c.theatre_id || '';
+      var tt  = ttMap[tid] || {};
+      c.conflict         = c.theatre_name || tt.theatre_name || tid;
+      c.theatre          = c.theatre_name || tt.theatre_name || tid;
+      c.trajectory       = c.overall_band_delta || 'Stable';
+      c.trajectory_arrow = ({ 'Escalating': '\u2191', 'De-escalating': '\u2193', 'Stable': '\u2192' })[c.trajectory] || '\u2192';
+      c.baseline_status  = c.baseline_recalc_due ? 'Contested' : 'Established';
+      c.indicators       = indMap[tid] || {};
+      c.f_flags          = ffMap[tid] || [];
+      c.summary          = tt.key_development || '';
+      c.lead_development = '';
+      c.source_url       = tt.source || '';
+    });
+
+    var rw = d.roster_watch || {};
+    (rw.approaching_inclusion || []).forEach(function(item) {
+      item.conflict = item.conflict || item.theatre_name || '';
+      item.theatre  = item.theatre  || item.theatre_name || '';
+      item.note     = item.note     || item.reason || '';
+    });
+
+    return d;
+  }
+
   /* Indicator keys — shared with the breakdown chart IIFE above */
   var INDICATOR_KEYS = [
     'I1_rhetoric', 'I2_military_posture', 'I3_nuclear_strategic',
@@ -875,8 +943,9 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('data/report-latest.json').then(function(r){ return r.json(); }),
     fetch('data/persistent-state.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
   ]).then(function(results) {
-    renderDashboard(results[0], results[1]);
-    renderRosterWatch(results[0].roster_watch || {});
+    var report = joinV2Schema(results[0]);
+    renderDashboard(report, results[1]);
+    renderRosterWatch(report.roster_watch || {});
   }).catch(function (e) {
     console.error('SCEM dashboard data load failed:', e);
     var tc = document.getElementById('triage-container');
