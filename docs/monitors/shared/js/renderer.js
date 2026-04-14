@@ -1614,6 +1614,44 @@ window.AsymSections = (function () {
                   '↳ ' + escHtml(d.policy_response) + '</div>'
               : '') +
 
+            // Dependency score breakdown (3-actor mini bars — enriched from scorecard)
+            (d._dep_us != null || d._dep_ru != null || d._dep_cn != null
+              ? (function() {
+                  var actors = [
+                    { code:'US', score: d._dep_us, colour:'#3b82f6' },
+                    { code:'RU', score: d._dep_ru, colour:'#dc2626' },
+                    { code:'CN', score: d._dep_cn, colour:'#f59e0b' }
+                  ];
+                  var depHtml = '<div style="margin-bottom:var(--space-2)">' +
+                    '<div style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;' +
+                      'color:var(--color-text-muted);margin-bottom:4px">Dependency Exposure</div>';
+                  actors.forEach(function(a) {
+                    if (a.score == null) return;
+                    var pct = Math.round(a.score * 100);
+                    depHtml += '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:2px">' +
+                      '<span style="font-size:var(--text-min);width:1.5rem;color:var(--color-text-muted);font-weight:600">' + a.code + '</span>' +
+                      '<div style="flex:1;height:4px;background:var(--color-border-subtle);border-radius:2px;overflow:hidden">' +
+                        '<div style="width:' + pct + '%;height:100%;background:' + a.colour + ';border-radius:2px"></div>' +
+                      '</div>' +
+                      '<span style="font-size:var(--text-min);color:var(--color-text-muted);width:2rem;text-align:right">' + pct + '%</span>' +
+                    '</div>';
+                  });
+                  depHtml += '</div>';
+                  return depHtml;
+                })()
+              : '') +
+
+            // Persistent context note (enriched from lagrange dimensions)
+            (d._persistent_note && d._persistent_note !== d.key_development
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);' +
+                  'margin-bottom:var(--space-2);line-height:1.4;padding:var(--space-2);' +
+                  'background:rgba(91,141,176,0.05);border-radius:var(--radius-sm);' +
+                  'border-left:2px solid var(--monitor-accent,#5b8db0)">' +
+                  '<span style="font-weight:600;font-size:var(--text-min);text-transform:uppercase;' +
+                    'letter-spacing:0.05em">Persistent ·</span> ' +
+                  escHtml(d._persistent_note) + '</div>'
+              : '') +
+
             // Source link
             (d.source_url
               ? '<div style="margin-top:var(--space-1)">' +
@@ -1662,47 +1700,85 @@ window.AsymSections = (function () {
       if (t === 'deteriorating') return 'var(--critical,#dc2626)';
       return 'var(--monitor-accent)';
     }
+    function trajArrow(traj) {
+      var t = (traj || '').toLowerCase();
+      if (t === 'improving' || t === 'accelerating') return '↑';
+      if (t === 'declining' || t === 'deteriorating') return '↓';
+      return '→';
+    }
+    function decouplingColour(sig) {
+      var s = (sig || '').toLowerCase();
+      if (s === 'none' || s === 'aligned') return 'var(--positive,#4caf7d)';
+      if (s === 'emerging' || s === 'drifting') return 'var(--high,#d97706)';
+      if (s === 'active' || s === 'decoupling') return 'var(--critical,#dc2626)';
+      return 'var(--color-text-muted)';
+    }
 
     var leadDomainRaw = snapshot.lead_domain || '';
     var leadDomainLabel = DOMAIN_LABELS[leadDomainRaw] ||
       leadDomainRaw.replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
 
-    var kpis = [
-      {
-        label: 'Trajectory',
-        value: escHtml(snapshot.overall_trajectory || '—'),
-        style: 'color:' + trajColour(snapshot.overall_trajectory) + ';font-weight:700'
-      },
-      {
-        label: 'Lead Domain',
-        value: escHtml(leadDomainLabel || '—'),
-        style: 'font-size:var(--text-sm);font-weight:700'
-      },
-      {
-        label: 'US Decoupling Signal',
-        value: escHtml(snapshot.us_decoupling_signal || '—'),
-        style: 'font-weight:700'
-      },
-      {
-        label: 'ReArm Europe Status',
-        value: escHtml(snapshot.rearm_europe_status || '—'),
-        style: 'font-size:var(--text-xs);font-weight:600;line-height:1.4'
-      }
-    ];
+    var tCol = trajColour(snapshot.overall_trajectory);
+    var tArrow = trajArrow(snapshot.overall_trajectory);
+    var dCol = decouplingColour(snapshot.us_decoupling_signal);
 
-    var html = '<div class="kpi-row">';
-    kpis.forEach(function (k) {
-      html +=
-        '<div class="kpi-card">' +
-          '<div class="kpi-card__value" style="' + k.style + '">' + k.value + '</div>' +
-          '<div class="kpi-card__label">' + escHtml(k.label) + '</div>' +
-        '</div>';
-    });
-    html += '</div>';
+    var html =
+      '<div style="display:grid;grid-template-columns:auto 1fr;gap:var(--space-6);align-items:start">' +
 
-    if (snapshot.lead_signal) {
-      html += '<div class="snapshot-note">' + escHtml(snapshot.lead_signal) + '</div>';
-    }
+        /* LEFT: trajectory gauge — large arrow + label */
+        '<div style="text-align:center;padding:var(--space-4) var(--space-5);' +
+          'background:var(--color-surface);border:1px solid var(--color-border);' +
+          'border-radius:var(--radius-md);min-width:100px">' +
+          '<div style="font-size:2.5rem;line-height:1;color:' + tCol + '">' + tArrow + '</div>' +
+          '<div style="font-size:var(--text-lg);font-weight:800;color:' + tCol + ';margin-top:var(--space-1)">' +
+            escHtml(snapshot.overall_trajectory || '—') + '</div>' +
+          '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.08em;' +
+            'color:var(--color-text-muted);margin-top:var(--space-1)">Trajectory</div>' +
+        '</div>' +
+
+        /* RIGHT: signal + status chips */
+        '<div>' +
+          /* Lead signal callout */
+          (snapshot.lead_signal
+            ? '<div style="font-size:var(--text-base);font-weight:600;color:var(--color-text);' +
+                'line-height:1.45;margin-bottom:var(--space-4);padding-left:var(--space-3);' +
+                'border-left:3px solid var(--monitor-accent)">' +
+                escHtml(snapshot.lead_signal) +
+              '</div>'
+            : '') +
+
+          /* Chip row: Lead Domain + US Decoupling + ReArm */
+          '<div style="display:flex;flex-wrap:wrap;gap:var(--space-3)">' +
+            /* Lead domain chip */
+            '<div style="display:flex;flex-direction:column;gap:2px">' +
+              '<span style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.07em;' +
+                'color:var(--color-text-muted)">Lead Domain</span>' +
+              '<span style="display:inline-block;padding:3px 10px;border-radius:4px;' +
+                'background:var(--monitor-accent);color:#fff;font-size:var(--text-xs);' +
+                'font-weight:700">' + escHtml(leadDomainLabel || '—') + '</span>' +
+            '</div>' +
+
+            /* US decoupling chip */
+            '<div style="display:flex;flex-direction:column;gap:2px">' +
+              '<span style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.07em;' +
+                'color:var(--color-text-muted)">US Decoupling</span>' +
+              '<span style="display:inline-block;padding:3px 10px;border-radius:4px;' +
+                'background:' + dCol + '20;color:' + dCol + ';font-size:var(--text-xs);' +
+                'font-weight:700;border:1px solid ' + dCol + '40">' +
+                escHtml(snapshot.us_decoupling_signal || '—') + '</span>' +
+            '</div>' +
+
+            /* ReArm Europe chip */
+            '<div style="display:flex;flex-direction:column;gap:2px;max-width:240px">' +
+              '<span style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.07em;' +
+                'color:var(--color-text-muted)">ReArm Europe</span>' +
+              '<span style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-secondary);' +
+                'line-height:1.35">' + escHtml(snapshot.rearm_europe_status || '—') + '</span>' +
+            '</div>' +
+          '</div>' +
+
+        '</div>' +
+      '</div>';
 
     el.innerHTML = html;
   }
@@ -2276,7 +2352,7 @@ window.AsymSections = (function () {
 
     html +=
       '<div class="asym-radar-wrap">' +
-        '<div class="asym-chart-wrap asym-chart-wrap--square">' +
+        '<div class="asym-chart-wrap asym-chart-wrap--radar-fill">' +
           '<canvas id="' + canvasId + '" aria-label="' + escHtml(config.title || 'Radar Chart') + '" role="img"></canvas>' +
         '</div>' +
         '<div class="asym-radar-dim-list" id="' + dimListId + '"></div>' +

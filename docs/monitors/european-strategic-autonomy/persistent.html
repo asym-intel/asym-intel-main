@@ -568,19 +568,94 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('ps-meta').textContent = 'Failed to load persistent state.';
     });
 
-  /* ── Report data (sections 08–09) ── */
-  fetch('data/report-latest.json')
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      /* 08 Domain Tracker */
-      if (d.domain_tracker) AsymSections.renderDomainTracker(d.domain_tracker, 'domain-tracker-block');
+  /* ── Report data (sections 08–09) — merged with persistent for domain depth ── */
+  Promise.all([
+    fetch('data/report-latest.json').then(function(r) { return r.json(); }),
+    fetch('data/persistent-state.json').then(function(r) { return r.json(); })
+  ]).then(function(results) {
+    var rpt = results[0];
+    var ps  = results[1];
 
-      /* 09 Cross-Monitor Flags (shared function) */
-      if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
-        AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-list');
-      }
-    })
-    .catch(function(err) { console.error('Report data load error:', err); });
+    /* 08 Domain Tracker — enrich with persistent Lagrange + pillar + scorecard data */
+    var domains = rpt.domain_tracker || [];
+    if (domains.length) {
+      var lagDims   = (ps.kpi_state || {}).lagrange_point_dimensions || {};
+      var lag2026   = ps.lagrange_scoring_2026 || {};
+      var pillars   = lag2026.pillar_directions || {};
+      var scorecard = (rpt.autonomy_scorecard || {}).domains || [];
+
+      /* Map report domain keys → lagrange dimension keys */
+      var domToLag = {
+        defence_security:       'defence',
+        energy_climate:         'energy',
+        digital_ai:             'technology',
+        financial_economic:     'finance',
+        supply_chain_industrial:'materials',
+        space_satellite:        'institutions'
+      };
+      /* Map domain keys → pillar keys */
+      var domToPillar = {
+        defence_security:       'P1_defence_industrial',
+        energy_climate:         'P2_energy_independence',
+        digital_ai:             'P3_digital_sovereignty',
+        financial_economic:     'P4_financial_instruments',
+        supply_chain_industrial:null,
+        space_satellite:        null
+      };
+
+      domains.forEach(function(d) {
+        var isSparse = !d.key_development || d.key_development.toLowerCase().indexOf('no new developments') !== -1;
+
+        /* Merge Lagrange dimension note when report data is sparse */
+        var lagKey = domToLag[d.domain];
+        var lagDim = lagKey ? lagDims[lagKey] : null;
+        if (lagDim) {
+          if (isSparse && lagDim.note) {
+            d.key_development = lagDim.note;
+          }
+          /* Add persistent context note alongside report data */
+          if (!d._persistent_note && lagDim.note) {
+            d._persistent_note = lagDim.note;
+          }
+        }
+
+        /* Merge pillar direction as policy response when report is empty */
+        var pillarKey = domToPillar[d.domain];
+        var pillar = pillarKey ? pillars[pillarKey] : null;
+        if (pillar && !d.policy_response) {
+          var dirLabel = (pillar.direction || '').replace(/_/g, ' ');
+          d.policy_response = dirLabel.charAt(0).toUpperCase() + dirLabel.slice(1);
+          if (pillar.note) d.policy_response += ' — ' + pillar.note;
+        }
+
+        /* Merge scorecard headline when report key_development still sparse */
+        if (isSparse) {
+          for (var i = 0; i < scorecard.length; i++) {
+            if (scorecard[i].domain === d.domain && scorecard[i].headline) {
+              d.key_development = scorecard[i].headline;
+              break;
+            }
+          }
+        }
+
+        /* Merge dependency scores from scorecard */
+        for (var j = 0; j < scorecard.length; j++) {
+          if (scorecard[j].domain === d.domain) {
+            d._dep_us = scorecard[j].us_dependency_score;
+            d._dep_ru = scorecard[j].ru_dependency_score;
+            d._dep_cn = scorecard[j].cn_dependency_score;
+            break;
+          }
+        }
+      });
+    }
+    if (domains.length) AsymSections.renderDomainTracker(domains, 'domain-tracker-block');
+
+    /* 09 Cross-Monitor Flags (shared function) */
+    if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
+      AsymSections.renderCrossMonitorFlags(rpt.cross_monitor_flags || {}, 'cross-monitor-list');
+    }
+  }).catch(function(err) { console.error('Report/persistent merge error:', err); });
 });
 </script>
 </body>
