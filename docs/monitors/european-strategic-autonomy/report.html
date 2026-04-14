@@ -9,35 +9,8 @@
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
-  <style>
-  /* ESA accent #5b8db0 is medium blue — boost contrast for signal-block */
-  .signal-block {
-    background: #2d5a7e;
-    color: #f0f4f8;
-  }
-  .signal-block__label { opacity: 0.85; }
-  .signal-block__title {
-    color: #ffffff;
-    font-size: var(--text-lg);
-    font-weight: 700;
-    line-height: 1.45;
-    margin-bottom: var(--space-4);
-  }
-  .signal-block__body {
-    color: rgba(240,244,248,0.92);
-    font-size: var(--text-sm);
-    line-height: 1.7;
-    margin-bottom: 0;
-  }
-  .signal-block a.source-link { color: rgba(255,255,255,0.8); }
-  .signal-block a.source-link:hover { color: #ffffff; }
-  [data-theme="dark"] .signal-block {
-    background: rgba(45,90,126,0.55);
-    color: var(--color-text);
-  }
-  [data-theme="dark"] .signal-block__title { color: var(--color-text); }
-  [data-theme="dark"] .signal-block__body { color: var(--color-text-secondary); }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
+  <script src="../shared/js/charts.js"></script>
 </head>
 
 <body>
@@ -75,15 +48,23 @@
 
     <section class="module-section" id="section-autonomy-snapshot">
       <div class="module-header">
-        <div class="module-num-large">00A</div>
+        <div class="module-num-large">01</div>
         <h2 class="module-title">Autonomy Snapshot</h2>
       </div>
       <div id="autonomy-snapshot-block"><div class="loading-state">Loading&hellip;</div></div>
     </section>
 
+    <section class="module-section" id="section-autonomy-scorecard">
+      <div class="module-header">
+        <div class="module-num-large">02</div>
+        <h2 class="module-title">Autonomy Scorecard</h2>
+      </div>
+      <div id="autonomy-scorecard-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
     <section class="module-section" id="section-domain-tracker">
       <div class="module-header">
-        <div class="module-num-large">00B</div>
+        <div class="module-num-large">03</div>
         <h2 class="module-title">Domain Tracker</h2>
       </div>
       <div id="domain-tracker-block"><div class="loading-state">Loading&hellip;</div></div>
@@ -91,7 +72,7 @@
 
     <section class="module-section" id="section-us-eu">
       <div class="module-header">
-        <div class="module-num-large">00C</div>
+        <div class="module-num-large">04</div>
         <h2 class="module-title">US-EU Tracker</h2>
       </div>
       <div id="us-eu-block"><div class="loading-state">Loading&hellip;</div></div>
@@ -99,7 +80,7 @@
 
     <section class="module-section" id="section-defence">
       <div class="module-header">
-        <div class="module-num-large">01</div>
+        <div class="module-num-large">05</div>
         <h2 class="module-title">Defence Developments</h2>
       </div>
       <div id="defence-list">
@@ -109,7 +90,7 @@
 
     <section class="module-section" id="section-hybrid">
       <div class="module-header">
-        <div class="module-num-large">02</div>
+        <div class="module-num-large">06</div>
         <h2 class="module-title">Hybrid Threats</h2>
       </div>
       <div id="hybrid-list">
@@ -119,7 +100,7 @@
 
     <section class="module-section" id="section-institutional">
       <div class="module-header">
-        <div class="module-num-large">03</div>
+        <div class="module-num-large">07</div>
         <h2 class="module-title">Institutional Developments</h2>
       </div>
       <div id="institutional-list">
@@ -129,7 +110,7 @@
 
     <section class="module-section" id="section-member-states">
       <div class="module-header">
-        <div class="module-num-large">04</div>
+        <div class="module-num-large">08</div>
         <h2 class="module-title">Member State Tracker</h2>
       </div>
       <div id="member-state-list">
@@ -139,52 +120,12 @@
 
     <section class="module-section" id="section-cross-monitor">
       <div class="module-header">
-        <div class="module-num-large">05</div>
+        <div class="module-num-large">09</div>
         <h2 class="module-title">Cross-Monitor Flags</h2>
       </div>
       <div id="cross-monitor-list">
         <div class="loading-state">Loading cross-monitor flags&hellip;</div>
       </div>
-    </section>
-
-    <section class="module-section" id="section-key-judgments">
-      <div class="module-header">
-        <div class="module-num-large">06</div>
-        <h2 class="module-title">Key Judgments</h2>
-      </div>
-      <div id="key-judgments-block"><div class="loading-state">Loading&hellip;</div></div>
-    </section>
-
-    <section class="module-section" id="section-cross-candidates">
-      <div class="module-header">
-        <div class="module-num-large">07</div>
-        <h2 class="module-title">Cross-Monitor Candidates</h2>
-      </div>
-      <div id="cross-candidates-block"><div class="loading-state">Loading&hellip;</div></div>
-    </section>
-
-    <section class="module-section" id="section-election-threats">
-      <div class="module-header">
-        <div class="module-num-large">08</div>
-        <h2 class="module-title">Election Threats</h2>
-      </div>
-      <div id="election-threats-block"><div class="loading-state">Loading&hellip;</div></div>
-    </section>
-
-    <section class="module-section" id="section-defence-spending">
-      <div class="module-header">
-        <div class="module-num-large">09</div>
-        <h2 class="module-title">Defence Spending</h2>
-      </div>
-      <div id="defence-spending-block"><div class="loading-state">Loading&hellip;</div></div>
-    </section>
-
-    <section class="module-section" id="section-defence-programmes">
-      <div class="module-header">
-        <div class="module-num-large">10</div>
-        <h2 class="module-title">Defence Programmes</h2>
-      </div>
-      <div id="defence-programmes-block"><div class="loading-state">Loading&hellip;</div></div>
     </section>
 
   </main>
@@ -194,18 +135,14 @@
     <ul>
       <li><a href="#section-signal">Lead Signal</a></li>
       <li><a href="#section-autonomy-snapshot">Autonomy Snapshot</a></li>
+      <li><a href="#section-autonomy-scorecard">Autonomy Scorecard</a></li>
       <li><a href="#section-domain-tracker">Domain Tracker</a></li>
       <li><a href="#section-us-eu">US-EU Tracker</a></li>
       <li><a href="#section-defence">Defence Developments</a></li>
       <li><a href="#section-hybrid">Hybrid Threats</a></li>
       <li><a href="#section-institutional">Institutional</a></li>
       <li><a href="#section-member-states">Member States</a></li>
-      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
-      <li><a href="#section-key-judgments">Key Judgments</a></li>
-      <li><a href="#section-cross-candidates">Cross-Monitor Candidates</a></li>
-      <li><a href="#section-election-threats">Election Threats</a></li>
-      <li><a href="#section-defence-spending">Defence Spending</a></li>
-      <li><a href="#section-defence-programmes">Defence Programmes</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
     </ul>
   </nav>
 
@@ -250,9 +187,10 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(function (d) {
       var meta = d.meta || {};
       var signalObj = d.signal || {};
-      var signal = signalObj.title || signalObj.headline || '';
-      var signalBody = signalObj.body || '';
+      var signal = signalObj.headline || signalObj.title || '';
+      var signalBody = signalObj.body || signalObj.note || '';
       var sourceUrl = signalObj.source_url || d.source_url || '';
+      var confidence = signalObj.confidence || '';
 
       document.getElementById('report-eyebrow').textContent =
         'Issue ' + (meta.issue || '—') + ' · ' + (meta.week_label || '') + ' · ESA';
@@ -260,19 +198,101 @@ document.addEventListener('DOMContentLoaded', function () {
         ? 'Published ' + new Date(meta.published).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
         : '';
 
+      /* ── 00 Lead Signal ── */
       var sb = document.getElementById('signal-block');
+      var confBadge = '';
+      if (confidence && confidence !== 'N/A') {
+        confBadge = '<span class="severity-badge severity-badge--moderate" style="margin-left:var(--space-2);font-size:var(--text-xs);vertical-align:middle">' + escHtml(confidence) + '</span>';
+      }
       sb.innerHTML =
         '<div class="signal-block">' +
-          '<div class="signal-block__label">Lead Signal — M00</div>' +
+          '<div class="signal-block__label">Lead Signal' + confBadge + '</div>' +
           '<div class="signal-block__title">' + escHtml(signal) + '</div>' +
           (signalBody ? '<p class="signal-block__body">' + escHtml(signalBody) + '</p>' : '') +
-          (sourceUrl ? '<div style="margin-top:var(--space-3)"><a class="source-link" href="' + escHtml(sourceUrl) + '" target="_blank" rel="noopener">Source &rarr;</a></div>' : '') +
+          (sourceUrl ? '<div style="margin-top:var(--space-3)">' + AsymRenderer.sourceLink(sourceUrl) + '</div>' : '') +
         '</div>';
 
+      /* ── 01 Autonomy Snapshot ── */
+      if (d.autonomy_snapshot) AsymSections.renderAutonomySnapshot(d.autonomy_snapshot, 'autonomy-snapshot-block');
+
+      /* ── 02 Autonomy Scorecard (previously unsurfaced) ── */
+      var asc = d.autonomy_scorecard;
+      var ascEl = document.getElementById('autonomy-scorecard-block');
+      if (asc && asc.domains && asc.domains.length) {
+        var ascHtml = '';
+        if (asc.overall_score_preliminary != null) {
+          var pctScore = Math.round(asc.overall_score_preliminary * 100);
+          ascHtml += '<div style="display:flex;align-items:center;gap:var(--space-4);margin-bottom:var(--space-6)">' +
+            '<div style="font-size:var(--text-2xl);font-weight:800;color:var(--monitor-accent)">' + pctScore + '%</div>' +
+            '<div>' +
+              '<div style="font-size:var(--text-sm);font-weight:600;color:var(--color-text)">Overall Autonomy Score</div>' +
+              '<div style="font-size:var(--text-xs);color:var(--color-text-muted)">Delta: ' + escHtml(asc.score_delta || '—') + '</div>' +
+            '</div>' +
+          '</div>';
+        }
+        ascHtml += '<div style="overflow-x:auto"><table class="data-table" style="width:100%;font-size:var(--text-sm)">' +
+          '<thead><tr>' +
+            '<th style="text-align:left">Domain</th>' +
+            '<th>Score</th><th>Delta</th>' +
+            '<th>US Dep.</th><th>RU Dep.</th><th>CN Dep.</th>' +
+            '<th style="text-align:left">Headline</th>' +
+          '</tr></thead><tbody>';
+        asc.domains.forEach(function(dom) {
+          var score = dom.score_preliminary != null ? Math.round(dom.score_preliminary * 100) + '%' : '—';
+          var domName = (dom.domain || '').replace(/_/g, ' ').replace(/\b\w/g, function(c){return c.toUpperCase();});
+          function depBadge(val) {
+            if (val == null) return '—';
+            var pct = Math.round(val * 100);
+            var cls = val >= 0.6 ? 'critical' : val >= 0.3 ? 'high' : 'low';
+            return '<span class="severity-badge severity-badge--' + cls + '" style="font-size:var(--text-xs)">' + pct + '%</span>';
+          }
+          ascHtml += '<tr>' +
+            '<td style="font-weight:600">' + escHtml(domName) + '</td>' +
+            '<td style="text-align:center">' + score + '</td>' +
+            '<td style="text-align:center">' + escHtml(dom.score_delta || '—') + '</td>' +
+            '<td style="text-align:center">' + depBadge(dom.us_dependency_score) + '</td>' +
+            '<td style="text-align:center">' + depBadge(dom.ru_dependency_score) + '</td>' +
+            '<td style="text-align:center">' + depBadge(dom.cn_dependency_score) + '</td>' +
+            '<td style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(dom.headline || '') + '</td>' +
+          '</tr>';
+        });
+        ascHtml += '</tbody></table></div>';
+
+        /* Lagrange Point Scores (vector progress) */
+        var lps = d.lagrange_point_scores || [];
+        if (lps.length) {
+          ascHtml += '<div style="margin-top:var(--space-6)">' +
+            '<div style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:var(--space-3)">Lagrange Point Vectors</div>';
+          lps.forEach(function(lp) {
+            var progColor = (lp.progress_preliminary || '').toLowerCase();
+            var badgeCls = progColor === 'stalled' ? 'high' : progColor === 'declining' ? 'critical' : 'moderate';
+            ascHtml += '<div class="card" style="margin-bottom:var(--space-2);padding:var(--space-3)">' +
+              '<div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap">' +
+                '<span style="font-weight:600;font-size:var(--text-sm)">' + escHtml(lp.vector || '') + '</span>' +
+                '<span class="severity-badge severity-badge--' + badgeCls + '" style="font-size:var(--text-xs)">' + escHtml(lp.progress_preliminary || '—') + '</span>' +
+              '</div>' +
+              (lp.key_metric ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(lp.key_metric) + '</div>' : '') +
+            '</div>';
+          });
+          ascHtml += '</div>';
+        }
+        ascEl.innerHTML = ascHtml;
+      } else {
+        ascEl.innerHTML = '<p class="text-muted">Scorecard data will appear after the next publish cycle.</p>';
+      }
+
+      /* ── 03 Domain Tracker ── */
+      if (d.domain_tracker) AsymSections.renderDomainTracker(d.domain_tracker, 'domain-tracker-block');
+
+      /* ── 04 US-EU Tracker ── */
+      if (d.us_eu_tracker) AsymSections.renderUsEuTracker(d.us_eu_tracker, 'us-eu-block');
+
+      /* ── 05–07 Item cards ── */
       renderCards(d.defence_developments || [], 'defence-list');
       renderCards(d.hybrid_threats || [], 'hybrid-list');
       renderCards(d.institutional_developments || [], 'institutional-list');
-      // Member State tracker — rich layout with flag, status badge, details
+
+      /* ── 08 Member State Tracker ── */
       var flagMap2 = {
         'HU':'\ud83c\udded\ud83c\uddfa','SI':'\ud83c\uddf8\ud83c\uddee','CZ':'\ud83c\udde8\ud83c\uddff','FR':'\ud83c\uddeb\ud83c\uddf7',
         'DE':'\ud83c\udde9\ud83c\uddea','PL':'\ud83c\uddf5\ud83c\uddf1','IT':'\ud83c\uddee\ud83c\uddf9','ES':'\ud83c\uddea\ud83c\uddf8',
@@ -280,7 +300,8 @@ document.addEventListener('DOMContentLoaded', function () {
         'AT':'\ud83c\udde6\ud83c\uddf9','BE':'\ud83c\udde7\ud83c\uddea','NL':'\ud83c\uddf3\ud83c\uddf1','PT':'\ud83c\uddf5\ud83c\uddf9',
         'SE':'\ud83c\uddf8\ud83c\uddea','FI':'\ud83c\uddeb\ud83c\uddee','DK':'\ud83c\udde9\ud83c\uddf0','EE':'\ud83c\uddea\ud83c\uddea',
         'LV':'\ud83c\uddf1\ud83c\uddfb','LT':'\ud83c\uddf1\ud83c\uddf9','IE':'\ud83c\uddee\ud83c\uddea','LU':'\ud83c\uddf1\ud83c\uddfa',
-        'MT':'\ud83c\uddf2\ud83c\uddf9','CY':'\ud83c\udde8\ud83c\uddfe','HR':'\ud83c\udded\ud83c\uddf7','RS':'\ud83c\uddf7\ud83c\uddf8'
+        'MT':'\ud83c\uddf2\ud83c\uddf9','CY':'\ud83c\udde8\ud83c\uddfe','HR':'\ud83c\udded\ud83c\uddf7','RS':'\ud83c\uddf7\ud83c\uddf8',
+        'GE':'\ud83c\uddec\ud83c\uddea'
       };
       function msStatusClass(st) {
         if (!st) return 'moderate';
@@ -297,6 +318,15 @@ document.addEventListener('DOMContentLoaded', function () {
         msEl.innerHTML = '<p class="text-muted">No member state data this issue.</p>';
       } else {
         var msHtml = '';
+        var countryNames = {
+          'HU':'Hungary','SI':'Slovenia','CZ':'Czechia','FR':'France',
+          'DE':'Germany','PL':'Poland','IT':'Italy','ES':'Spain',
+          'GR':'Greece','RO':'Romania','BG':'Bulgaria','SK':'Slovakia',
+          'AT':'Austria','BE':'Belgium','NL':'Netherlands','PT':'Portugal',
+          'SE':'Sweden','FI':'Finland','DK':'Denmark','EE':'Estonia',
+          'LV':'Latvia','LT':'Lithuania','IE':'Ireland','LU':'Luxembourg',
+          'MT':'Malta','CY':'Cyprus','HR':'Croatia','RS':'Serbia','GE':'Georgia'
+        };
         msItems.forEach(function(ms) {
           var code = (ms.country || ms.name || '').toUpperCase();
           var flag = flagMap2[code] || '\ud83c\udff3\ufe0f';
@@ -304,15 +334,6 @@ document.addEventListener('DOMContentLoaded', function () {
           var statusParts = (ms.status || '').split('\u2014');
           var statusLabel = statusParts[0].trim();
           var statusDetail = statusParts[1] ? statusParts[1].trim() : '';
-          var countryNames = {
-            'HU':'Hungary','SI':'Slovenia','CZ':'Czechia','FR':'France',
-            'DE':'Germany','PL':'Poland','IT':'Italy','ES':'Spain',
-            'GR':'Greece','RO':'Romania','BG':'Bulgaria','SK':'Slovakia',
-            'AT':'Austria','BE':'Belgium','NL':'Netherlands','PT':'Portugal',
-            'SE':'Sweden','FI':'Finland','DK':'Denmark','EE':'Estonia',
-            'LV':'Latvia','LT':'Lithuania','IE':'Ireland','LU':'Luxembourg',
-            'MT':'Malta','CY':'Cyprus','HR':'Croatia'
-          };
           msHtml += '<div class="card">' +
             '<div class="card__title" style="display:flex;align-items:center;gap:var(--space-3)">' +
               '<span style="font-size:1.6rem;line-height:1;flex-shrink:0">' + flag + '</span>' +
@@ -328,34 +349,10 @@ document.addEventListener('DOMContentLoaded', function () {
         msEl.innerHTML = msHtml;
       }
 
-      var cmf = d.cross_monitor_flags || {};
-      var flags = cmf.flags || [];
-      var cmEl = document.getElementById('cross-monitor-list');
-      if (!flags.length) {
-        cmEl.innerHTML = '<p class="text-muted">No cross-monitor flags this issue.</p>';
-      } else {
-        var html = '';
-        if (cmf.updated) html += '<p class="text-muted" style="margin-bottom:var(--space-4)">Updated: ' + escHtml(cmf.updated) + '</p>';
-        flags.forEach(function (flag) {
-          html += '<div class="card">';
-          var ft = flag.monitor || flag.title || '';
-          if (ft) html += '<div class="card__label">' + escHtml(ft) + '</div>';
-          var fb = flag.summary || flag.body || flag.note || '';
-          if (fb) html += '<div class="card__body">' + escHtml(fb) + '</div>';
-          if (flag.source_url) html += AsymRenderer.sourceLink(flag.source_url);
-          html += '</div>';
-        });
-        cmEl.innerHTML = html;
+      /* ── 09 Cross-Monitor Flags (shared function) ── */
+      if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
+        AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-list');
       }
-      // New AsymSections renders
-      if (d.autonomy_snapshot) AsymSections.renderAutonomySnapshot(d.autonomy_snapshot, 'autonomy-snapshot-block');
-      if (d.domain_tracker) AsymSections.renderDomainTracker(d.domain_tracker, 'domain-tracker-block');
-      if (d.us_eu_tracker) AsymSections.renderUsEuTracker(d.us_eu_tracker, 'us-eu-block');
-      if (d.key_judgments) AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-block');
-      if (d.cross_monitor_candidates) AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates, 'cross-candidates-block');
-      if (d.election_threats) AsymSections.renderElectionThreats(d.election_threats, 'election-threats-block');
-      if (d.defence_spending) AsymSections.renderDefenceSpending(d.defence_spending, 'defence-spending-block');
-      if (d.defence_programmes) AsymSections.renderDefenceProgrammes(d.defence_programmes, 'defence-programmes-block');
     })
     .catch(function (err) {
       console.error(err);
