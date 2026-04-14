@@ -849,20 +849,18 @@ window.AsymSections = (function () {
 
     html += '</tbody></table></div>';
 
-    /* Toggle script: click summary row to expand/collapse detail */
-    html += '<script>' +
-      'document.querySelectorAll("[data-tt-toggle]").forEach(function(row){' +
-        'row.addEventListener("click",function(){' +
-          'var d=document.getElementById(this.getAttribute("data-tt-toggle"));' +
-          'if(!d)return;' +
-          'var open=d.style.display!=="none";' +
-          'd.style.display=open?"none":"table-row";' +
-          'this.querySelector("td").textContent=open?"\u25b8":"\u25be";' +
-        '});' +
-      '});' +
-    '<\/script>';
-
     el.innerHTML = html;
+
+    /* Wire toggle listeners directly (script tags in innerHTML don't execute) */
+    el.querySelectorAll('[data-tt-toggle]').forEach(function(row) {
+      row.addEventListener('click', function() {
+        var d = document.getElementById(this.getAttribute('data-tt-toggle'));
+        if (!d) return;
+        var open = d.style.display !== 'none';
+        d.style.display = open ? 'none' : 'table-row';
+        this.querySelector('td').textContent = open ? '\u25b8' : '\u25be';
+      });
+    });
   }
 
   /**
@@ -1135,20 +1133,18 @@ window.AsymSections = (function () {
 
     html += '</tbody></table></div>';
 
-    /* Toggle script */
-    html += '<script>' +
-      'document.querySelectorAll("[data-' + prefix + '-toggle]").forEach(function(row){' +
-        'row.addEventListener("click",function(){' +
-          'var d=document.getElementById(this.getAttribute("data-' + prefix + '-toggle"));' +
-          'if(!d)return;' +
-          'var open=d.style.display!=="none";' +
-          'd.style.display=open?"none":"table-row";' +
-          'this.querySelector("td").textContent=open?"\u25b8":"\u25be";' +
-        '});' +
-      '});' +
-    '<\/script>';
-
     el.innerHTML = html;
+
+    /* Wire toggle listeners directly (script tags in innerHTML don't execute) */
+    el.querySelectorAll('[data-' + prefix + '-toggle]').forEach(function(row) {
+      row.addEventListener('click', function() {
+        var d = document.getElementById(this.getAttribute('data-' + prefix + '-toggle'));
+        if (!d) return;
+        var open = d.style.display !== 'none';
+        d.style.display = open ? 'none' : 'table-row';
+        this.querySelector('td').textContent = open ? '\u25b8' : '\u25be';
+      });
+    });
   }
 
   /**
