@@ -4843,3 +4843,182 @@ window.AsymSections = (function () {
   window.AsymMetricTileGrid = renderMetricTileGrid;
 
 }());
+
+
+/* ════════════════════════════════════════════════════════════════
+   SHARED TOOLKIT — Entity Heat Strip
+   Promoted from ESA dashboard.html (14 Apr 2026)
+   Attached to window.AsymSections
+   ════════════════════════════════════════════════════════════════
+
+   AsymSections.renderEntityHeatStrip(config, targetId)
+
+   Renders a horizontal strip of entity pills sorted by severity.
+   Click/tap expands a detail panel below with headline + delta.
+   Most critical entity auto-expands on load.
+
+   config shape:
+   {
+     entities: [
+       {
+         code:     string,       // short code, e.g. 'HU', 'DE', 'Eastern Europe'
+         name:     string?,      // optional full name for detail panel
+         icon:     string?,      // emoji flag or icon character
+         status:   string,       // e.g. 'CRITICAL — 4 days to election'
+         headline: string?,      // main development text
+         delta:    string?,      // change from last period
+         source_url: string?     // optional source link
+       }
+     ],
+     iconMap:  object?,          // optional { 'HU': '🇭🇺', ... } fallback for icon
+     sortBySeverity: boolean?    // default true — sorts critical first
+   }
+
+   CSS classes: .heat-strip, .heat-pill, .heat-detail  (in base.css)
+   ════════════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  function _esc(s) {
+    if (s == null) return '';
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(s)));
+    return d.innerHTML;
+  }
+
+  var SEV_ORDER = { critical: 0, high: 1, elevated: 2, watch: 3, stable: 4 };
+
+  function _classify(status) {
+    if (!status) return 'stable';
+    var s = status.toLowerCase();
+    if (s.indexOf('critical') !== -1) return 'critical';
+    if (s.indexOf('high') !== -1)     return 'high';
+    if (s.indexOf('elevated') !== -1) return 'elevated';
+    if (s.indexOf('watch') !== -1)    return 'watch';
+    return 'stable';
+  }
+
+  function _statusLabel(status) {
+    if (!status) return 'Unknown';
+    return status.split('—')[0].trim();
+  }
+
+  /**
+   * renderEntityHeatStrip(config, targetId)
+   */
+  function renderEntityHeatStrip(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var entities = (config && config.entities) || [];
+    if (!entities.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No tracked entities this issue.</p>';
+      return;
+    }
+
+    var iconMap = config.iconMap || {};
+
+    // Sort by severity (critical first)
+    if (config.sortBySeverity !== false) {
+      entities = entities.slice().sort(function (a, b) {
+        return (SEV_ORDER[_classify(a.status)] || 4) - (SEV_ORDER[_classify(b.status)] || 4);
+      });
+    }
+
+    // Build pill strip
+    var stripHtml = '<div class="heat-strip">';
+    entities.forEach(function (e, i) {
+      var sev = _classify(e.status);
+      var icon = e.icon || iconMap[e.code] || '';
+      stripHtml +=
+        '<div class="heat-pill heat-pill--' + sev + '" data-heat-idx="' + i + '" ' +
+          'role="button" tabindex="0" aria-expanded="false" ' +
+          'aria-label="' + _esc(e.code) + ' — ' + _esc(_statusLabel(e.status)) + '">' +
+          (icon ? '<span class="heat-pill__flag">' + icon + '</span>' : '') +
+          '<span class="heat-pill__code">' + _esc(e.code) + '</span>' +
+          '<span class="heat-pill__dot"></span>' +
+        '</div>';
+    });
+    stripHtml += '</div>';
+
+    // Detail panel container
+    stripHtml += '<div id="' + targetId + '-detail"></div>';
+    el.innerHTML = stripHtml;
+
+    // Interaction
+    var detailEl = document.getElementById(targetId + '-detail');
+    var activeIdx = -1;
+
+    function showDetail(idx) {
+      if (idx === activeIdx) {
+        // toggle off
+        detailEl.innerHTML = '';
+        var prevPill = el.querySelector('.heat-pill.is-active');
+        if (prevPill) { prevPill.classList.remove('is-active'); prevPill.setAttribute('aria-expanded', 'false'); }
+        activeIdx = -1;
+        return;
+      }
+
+      var prevPill = el.querySelector('.heat-pill.is-active');
+      if (prevPill) { prevPill.classList.remove('is-active'); prevPill.setAttribute('aria-expanded', 'false'); }
+
+      var e = entities[idx];
+      var sev = _classify(e.status);
+      var icon = e.icon || iconMap[e.code] || '';
+      var name = e.name || e.code;
+
+      var html =
+        '<div class="heat-detail">' +
+          '<div class="heat-detail__header">' +
+            (icon ? '<span class="heat-detail__flag">' + icon + '</span>' : '') +
+            '<span class="heat-detail__name">' + _esc(name) + '</span>' +
+            '<span class="heat-detail__status heat-detail__status--' + sev + '">' +
+              _esc(_statusLabel(e.status)) + '</span>' +
+          '</div>' +
+          (e.headline
+            ? '<div class="heat-detail__headline">' + _esc(e.headline) + '</div>'
+            : '') +
+          (e.delta
+            ? '<div class="heat-detail__delta">Δ ' + _esc(e.delta) + '</div>'
+            : '') +
+          (e.source_url
+            ? '<div class="heat-detail__source"><a href="' + _esc(e.source_url) +
+              '" target="_blank" rel="noopener">Source →</a></div>'
+            : '') +
+        '</div>';
+
+      detailEl.innerHTML = html;
+      activeIdx = idx;
+
+      var newPill = el.querySelector('[data-heat-idx="' + idx + '"]');
+      if (newPill) { newPill.classList.add('is-active'); newPill.setAttribute('aria-expanded', 'true'); }
+    }
+
+    // Bind click and keyboard
+    el.addEventListener('click', function (ev) {
+      var pill = ev.target.closest('.heat-pill');
+      if (!pill) return;
+      var idx = parseInt(pill.getAttribute('data-heat-idx'), 10);
+      if (!isNaN(idx)) showDetail(idx);
+    });
+    el.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      var pill = ev.target.closest('.heat-pill');
+      if (!pill) return;
+      ev.preventDefault();
+      var idx = parseInt(pill.getAttribute('data-heat-idx'), 10);
+      if (!isNaN(idx)) showDetail(idx);
+    });
+
+    // Auto-expand most critical entity
+    showDetail(0);
+  }
+
+  /* ── Attach to AsymSections ── */
+  if (window.AsymSections) {
+    window.AsymSections.renderEntityHeatStrip = renderEntityHeatStrip;
+  }
+  /* Fallback direct access */
+  window.AsymEntityHeatStrip = renderEntityHeatStrip;
+
+}());

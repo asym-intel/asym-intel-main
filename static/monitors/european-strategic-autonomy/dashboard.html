@@ -169,11 +169,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 'triage-container');
       }
 
-      // Member State Grid Cards
-      var msEl = document.getElementById('member-state-table');
-      if (!memberStates.length) {
-        msEl.innerHTML = '<p class="text-muted">No member state data this issue.</p>';
-      } else {
+      // Member State Heat Strip (shared: renderEntityHeatStrip)
+      if (window.AsymSections && window.AsymSections.renderEntityHeatStrip) {
         var flagMap = {
           'HU':'🇭🇺','SI':'🇸🇮','CZ':'🇨🇿','FR':'🇫🇷','DE':'🇩🇪','PL':'🇵🇱',
           'IT':'🇮🇹','ES':'🇪🇸','GR':'🇬🇷','RO':'🇷🇴','BG':'🇧🇬','SK':'🇸🇰',
@@ -181,50 +178,29 @@ document.addEventListener('DOMContentLoaded', function () {
           'DK':'🇩🇰','EE':'🇪🇪','LV':'🇱🇻','LT':'🇱🇹','IE':'🇮🇪','LU':'🇱🇺',
           'MT':'🇲🇹','CY':'🇨🇾','HR':'🇭🇷','RS':'🇷🇸','GE':'🇬🇪'
         };
-        function getStatusClass(status) {
-          if (!status) return 'stable';
-          var s = status.toLowerCase();
-          if (s.indexOf('critical') !== -1) return 'critical';
-          if (s.indexOf('high') !== -1) return 'high';
-          if (s.indexOf('elevated') !== -1) return 'elevated';
-          if (s.indexOf('watch') !== -1) return 'watch';
-          return 'stable';
-        }
-        function getStatusLabel(status) {
-          if (!status) return 'Unknown';
-          var parts = status.split('—');
-          return parts[0].trim();
-        }
-        var gridHtml = '<div class="member-state-grid">';
-        memberStates.forEach(function(ms) {
-          var code = (ms.country || ms.name || '').toUpperCase();
-          var flag = flagMap[code] || '🏳️';
-          var statusClass = getStatusClass(ms.status);
-          var statusLabel = getStatusLabel(ms.status);
-          var headline = ms.headline || ms.key_development || '';
-          var dev = ms.change_from_last_week || ms.summary || ms.note || '';
-          var statusBadgeStyle = (function(st) {
-            if (!st) return 'background:var(--color-surface-raised);color:var(--color-text-muted)';
-            var su = st.toUpperCase();
-            if (su.indexOf('CRITICAL') !== -1) return 'background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.2)';
-            if (su.indexOf('SUPPORT') !== -1) return 'background:rgba(5,150,105,0.1);color:#059669;border:1px solid rgba(5,150,105,0.2)';
-            return 'background:var(--color-surface-raised);color:var(--color-text-muted)';
-          })(ms.status);
-          gridHtml +=
-            '<div class="ms-card ms-card--' + statusClass + '">' +
-              '<div class="ms-card__header">' +
-                '<span class="ms-card__flag">' + flag + '</span>' +
-                '<span class="ms-card__country">' + escHtml(code) + '</span>' +
-                '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:3px;font-weight:500;' + statusBadgeStyle + '">' + escHtml(ms.status || '') + '</span>' +
-              '</div>' +
-              (headline ? '<div class="ms-card__headline">' + escHtml(headline) + '</div>' : '') +
-              (ms.change_from_last_week
-                ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1);font-style:italic">Δ ' + escHtml(ms.change_from_last_week) + '</div>'
-                : '') +
-            '</div>';
-        });
-        gridHtml += '</div>';
-        msEl.innerHTML = gridHtml;
+        var nameMap = {
+          'HU':'Hungary','SI':'Slovenia','CZ':'Czechia','FR':'France','DE':'Germany',
+          'PL':'Poland','IT':'Italy','ES':'Spain','GR':'Greece','RO':'Romania',
+          'BG':'Bulgaria','SK':'Slovakia','AT':'Austria','BE':'Belgium','NL':'Netherlands',
+          'PT':'Portugal','SE':'Sweden','FI':'Finland','DK':'Denmark','EE':'Estonia',
+          'LV':'Latvia','LT':'Lithuania','IE':'Ireland','LU':'Luxembourg','MT':'Malta',
+          'CY':'Cyprus','HR':'Croatia','RS':'Serbia','GE':'Georgia'
+        };
+        window.AsymSections.renderEntityHeatStrip({
+          entities: memberStates.map(function(ms) {
+            var code = (ms.country || ms.name || '').toUpperCase();
+            return {
+              code: code,
+              name: nameMap[code] || code,
+              icon: flagMap[code] || '',
+              status: ms.status || '',
+              headline: ms.headline || ms.key_development || '',
+              delta: ms.change_from_last_week || ms.summary || ms.note || '',
+              source_url: ms.source_url || ''
+            };
+          }),
+          sortBySeverity: true
+        }, 'member-state-table');
       }
 
       // New AsymSections renders from report-latest.json

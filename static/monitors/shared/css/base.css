@@ -2552,6 +2552,156 @@ body { padding-top: 40px; }
 }
 
 
+/* ─── Entity Heat Strip (cross-monitor: tracked entity pills + detail) ───
+   Promoted from ESA dashboard.html — 14 Apr 2026
+   Horizontal strip of entity pills sorted by severity. Click expands
+   a detail panel below. Compact at rest, interactive for detail.
+   Used for: member states, theatres, platforms, economies — any small
+   set of tracked entities with status + headline + change text.
+
+   .heat-strip                    — flex wrapper for pills
+   .heat-pill                     — individual entity pill
+   .heat-pill--critical           — red severity
+   .heat-pill--elevated / --high  — amber severity
+   .heat-pill--watch              — blue-grey
+   .heat-pill--stable             — green
+   .heat-pill.is-active           — currently expanded
+   .heat-pill__flag               — emoji/icon slot
+   .heat-pill__code               — short entity code
+   .heat-pill__dot                — severity dot indicator
+   .heat-detail                   — expanded detail panel
+   .heat-detail__status           — status badge
+   .heat-detail__headline         — headline text
+   .heat-detail__delta            — change-from-last-week          */
+
+.heat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.heat-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  user-select: none;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.heat-pill:hover {
+  border-color: var(--monitor-accent);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.heat-pill.is-active {
+  border-color: var(--monitor-accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: var(--color-bg-alt);
+}
+.heat-pill__flag {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+.heat-pill__code {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.heat-pill__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.heat-pill--critical .heat-pill__dot { background: #dc2626; box-shadow: 0 0 6px rgba(220,38,38,0.4); }
+.heat-pill--elevated .heat-pill__dot,
+.heat-pill--high .heat-pill__dot     { background: #d97706; box-shadow: 0 0 6px rgba(217,119,6,0.3); }
+.heat-pill--watch .heat-pill__dot    { background: #5b8db0; }
+.heat-pill--stable .heat-pill__dot   { background: #059669; }
+
+.heat-pill--critical { border-left: 3px solid #dc2626; }
+.heat-pill--elevated,
+.heat-pill--high     { border-left: 3px solid #d97706; }
+.heat-pill--watch    { border-left: 3px solid #5b8db0; }
+.heat-pill--stable   { border-left: 3px solid #059669; }
+
+.heat-detail {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin-bottom: var(--space-3);
+  animation: heat-detail-in 0.25s ease;
+}
+@keyframes heat-detail-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.heat-detail__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.heat-detail__flag {
+  font-size: 2rem;
+  line-height: 1;
+}
+.heat-detail__name {
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+.heat-detail__status {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+.heat-detail__status--critical { background: rgba(220,38,38,0.1); color: #dc2626; }
+.heat-detail__status--elevated,
+.heat-detail__status--high     { background: rgba(217,119,6,0.1); color: #d97706; }
+.heat-detail__status--watch    { background: rgba(91,141,176,0.1); color: #5b8db0; }
+.heat-detail__status--stable   { background: rgba(5,150,105,0.1); color: #059669; }
+[data-theme="dark"] .heat-detail__status--critical { background: rgba(220,38,38,0.15); color: #f87171; }
+[data-theme="dark"] .heat-detail__status--elevated,
+[data-theme="dark"] .heat-detail__status--high     { background: rgba(217,119,6,0.15); color: #fbbf24; }
+[data-theme="dark"] .heat-detail__status--watch    { background: rgba(91,141,176,0.15); color: #93c5fd; }
+[data-theme="dark"] .heat-detail__status--stable   { background: rgba(5,150,105,0.15); color: #6ee7b7; }
+.heat-detail__headline {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+.heat-detail__delta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-border);
+}
+.heat-detail__source {
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+}
+.heat-detail__source a {
+  color: var(--monitor-accent);
+  text-decoration: underline;
+}
+@media (max-width: 640px) {
+  .heat-strip { gap: var(--space-2); }
+  .heat-pill { padding: var(--space-2) var(--space-3); }
+  .heat-pill__code { font-size: var(--text-xs); }
+}
+
+
 /* ─── Weekly Brief Card (cross-monitor: brief/prose card) ───────────────
    Promoted from SCEM dashboard.html — Sprint 5
    Generic card for displaying multi-paragraph brief/analysis text.  */
