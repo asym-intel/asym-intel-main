@@ -34,13 +34,6 @@
         <div class="loading-state">Loading triage data…</div>
       </div>
     </section>
-    <section class="module-section" id="section-autonomy-snapshot">
-      <div class="module-header">
-        <div class="module-title">Autonomy Snapshot</div>
-      </div>
-      <div id="autonomy-snapshot-block"><div class="loading-state">Loading&hellip;</div></div>
-    </section>
-
     <section class="module-section" id="section-autonomy-scorecard">
       <div class="module-header">
         <div class="module-title">Strategic Autonomy Scorecard</div>
@@ -102,7 +95,6 @@
     <div class="sidebar-nav__title">Sections</div>
     <ul>
       <li><a href="#section-triage">Triage Strip</a></li>
-      <li><a href="#section-autonomy-snapshot">Autonomy Snapshot</a></li>
       <li><a href="#section-autonomy-scorecard">Strategic Autonomy Scorecard</a></li>
       <li><a href="#section-domain-tracker">Domain Tracker</a></li>
       <li><a href="#section-us-eu-tracker">US-EU Tracker</a></li>
@@ -118,11 +110,6 @@
 <footer class="monitor-footer"></footer>
 <script src="../shared/js/renderer.js"></script>
 <script>
-function escHtml(str) {
-  return String(str == null ? '' : str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
     return String(str == null ? '' : str)
@@ -182,11 +169,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 'triage-container');
       }
 
-      // Member State Grid Cards
-      var msEl = document.getElementById('member-state-table');
-      if (!memberStates.length) {
-        msEl.innerHTML = '<p class="text-muted">No member state data this issue.</p>';
-      } else {
+      // Member State Heat Strip (shared: renderEntityHeatStrip)
+      if (window.AsymSections && window.AsymSections.renderEntityHeatStrip) {
         var flagMap = {
           'HU':'🇭🇺','SI':'🇸🇮','CZ':'🇨🇿','FR':'🇫🇷','DE':'🇩🇪','PL':'🇵🇱',
           'IT':'🇮🇹','ES':'🇪🇸','GR':'🇬🇷','RO':'🇷🇴','BG':'🇧🇬','SK':'🇸🇰',
@@ -194,54 +178,32 @@ document.addEventListener('DOMContentLoaded', function () {
           'DK':'🇩🇰','EE':'🇪🇪','LV':'🇱🇻','LT':'🇱🇹','IE':'🇮🇪','LU':'🇱🇺',
           'MT':'🇲🇹','CY':'🇨🇾','HR':'🇭🇷','RS':'🇷🇸','GE':'🇬🇪'
         };
-        function getStatusClass(status) {
-          if (!status) return 'stable';
-          var s = status.toLowerCase();
-          if (s.indexOf('critical') !== -1) return 'critical';
-          if (s.indexOf('high') !== -1) return 'high';
-          if (s.indexOf('elevated') !== -1) return 'elevated';
-          if (s.indexOf('watch') !== -1) return 'watch';
-          return 'stable';
-        }
-        function getStatusLabel(status) {
-          if (!status) return 'Unknown';
-          var parts = status.split('—');
-          return parts[0].trim();
-        }
-        var gridHtml = '<div class="member-state-grid">';
-        memberStates.forEach(function(ms) {
-          var code = (ms.country || ms.name || '').toUpperCase();
-          var flag = flagMap[code] || '🏳️';
-          var statusClass = getStatusClass(ms.status);
-          var statusLabel = getStatusLabel(ms.status);
-          var headline = ms.headline || ms.key_development || '';
-          var dev = ms.change_from_last_week || ms.summary || ms.note || '';
-          var statusBadgeStyle = (function(st) {
-            if (!st) return 'background:var(--color-surface-raised);color:var(--color-text-muted)';
-            var su = st.toUpperCase();
-            if (su.indexOf('CRITICAL') !== -1) return 'background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.2)';
-            if (su.indexOf('SUPPORT') !== -1) return 'background:rgba(5,150,105,0.1);color:#059669;border:1px solid rgba(5,150,105,0.2)';
-            return 'background:var(--color-surface-raised);color:var(--color-text-muted)';
-          })(ms.status);
-          gridHtml +=
-            '<div class="ms-card ms-card--' + statusClass + '">' +
-              '<div class="ms-card__header">' +
-                '<span class="ms-card__flag">' + flag + '</span>' +
-                '<span class="ms-card__country">' + escHtml(code) + '</span>' +
-                '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:3px;font-weight:500;' + statusBadgeStyle + '">' + escHtml(ms.status || '') + '</span>' +
-              '</div>' +
-              (headline ? '<div class="ms-card__headline">' + escHtml(headline) + '</div>' : '') +
-              (ms.change_from_last_week
-                ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1);font-style:italic">Δ ' + escHtml(ms.change_from_last_week) + '</div>'
-                : '') +
-            '</div>';
-        });
-        gridHtml += '</div>';
-        msEl.innerHTML = gridHtml;
+        var nameMap = {
+          'HU':'Hungary','SI':'Slovenia','CZ':'Czechia','FR':'France','DE':'Germany',
+          'PL':'Poland','IT':'Italy','ES':'Spain','GR':'Greece','RO':'Romania',
+          'BG':'Bulgaria','SK':'Slovakia','AT':'Austria','BE':'Belgium','NL':'Netherlands',
+          'PT':'Portugal','SE':'Sweden','FI':'Finland','DK':'Denmark','EE':'Estonia',
+          'LV':'Latvia','LT':'Lithuania','IE':'Ireland','LU':'Luxembourg','MT':'Malta',
+          'CY':'Cyprus','HR':'Croatia','RS':'Serbia','GE':'Georgia'
+        };
+        window.AsymSections.renderEntityHeatStrip({
+          entities: memberStates.map(function(ms) {
+            var code = (ms.country || ms.name || '').toUpperCase();
+            return {
+              code: code,
+              name: nameMap[code] || code,
+              icon: flagMap[code] || '',
+              status: ms.status || '',
+              headline: ms.headline || ms.key_development || '',
+              delta: ms.change_from_last_week || ms.summary || ms.note || '',
+              source_url: ms.source_url || ''
+            };
+          }),
+          sortBySeverity: true
+        }, 'member-state-table');
       }
 
       // New AsymSections renders from report-latest.json
-      if (d.autonomy_snapshot) AsymSections.renderAutonomySnapshot(d.autonomy_snapshot, 'autonomy-snapshot-block');
       if (d.domain_tracker) AsymSections.renderDomainTracker(d.domain_tracker, 'domain-tracker-block');
       if (d.us_eu_tracker) AsymSections.renderUsEuTracker(d.us_eu_tracker, 'us-eu-tracker-block');
       if (d.key_judgments) AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-block');
@@ -267,122 +229,71 @@ document.addEventListener('DOMContentLoaded', function () {
       var lagDims = kpi.lagrange_point_dimensions || {};
       var lagProgress = kpi.lagrange_point_progress || '';
 
-      // ── Strategic Autonomy Scorecard Arc ─────────
+      // ── Strategic Autonomy Scorecard (Radar Chart) ─────────
       var scEl = document.getElementById('autonomy-scorecard-block');
       if (scEl) {
-        var pct = 35;
-        if (lagProgress) {
-          var m = String(lagProgress).match(/(\d+)/);
-          if (m) pct = parseInt(m[1], 10);
+        var dimOrder = ['energy','defence','technology','finance','materials','institutions'];
+        var dimLabels = {
+          energy: 'Energy Independence',
+          defence: 'Defence Sovereignty',
+          technology: 'Tech/Industrial',
+          finance: 'Financial Autonomy',
+          materials: 'Critical Materials',
+          institutions: 'Institutional Resilience'
+        };
+        if (Object.keys(lagDims).length && typeof AsymSections !== 'undefined' && AsymSections.renderRadarChart) {
+          AsymSections.renderRadarChart({
+            badge: String(lagProgress || '—'),
+            badgeLabel: 'Composite Autonomy Score',
+            accent: '#5b8db0',
+            max: 100,
+            title: 'Strategic Autonomy Radar',
+            dimensions: dimOrder.map(function(dk) {
+              var dim = lagDims[dk] || {};
+              return { label: dimLabels[dk] || dk, score: parseFloat(dim.score || 0), note: dim.note || '' };
+            })
+          }, 'autonomy-scorecard-block');
+        } else {
+          scEl.innerHTML = '<p class="text-muted text-sm">Scorecard data will appear after the next publish cycle.</p>';
         }
-        // SVG arc (half-circle: 0=left, 100=right)
-        var r = 54;
-        var cx = 60; var cy = 60;
-        var startAngle = Math.PI; // left
-        var endAngle = Math.PI + (pct/100) * Math.PI; // partial fill
-        function polar(angle) {
-          return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
-        }
-        var s = polar(startAngle);
-        var e = polar(endAngle);
-        var largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
-        var arcD = 'M ' + s[0].toFixed(1) + ' ' + s[1].toFixed(1) +
-                   ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' +
-                   e[0].toFixed(1) + ' ' + e[1].toFixed(1);
-        var fullD = 'M ' + polar(Math.PI)[0].toFixed(1) + ' ' + polar(Math.PI)[1].toFixed(1) +
-                    ' A ' + r + ' ' + r + ' 0 1 1 ' +
-                    polar(2*Math.PI)[0].toFixed(1) + ' ' + polar(2*Math.PI)[1].toFixed(1);
-        scEl.innerHTML =
-          '<div class="autonomy-scorecard">' +
-            '<div class="autonomy-scorecard__arc-wrap">' +
-              '<svg viewBox="0 0 120 68" aria-hidden="true">' +
-                '<!-- Track -->' +
-                '<path d="M6,60 A54,54 0 0,1 114,60" fill="none" stroke="var(--color-border)" stroke-width="8" stroke-linecap="round"/>' +
-                '<!-- Fill -->' +
-                '<path d="' + arcD + '" fill="none" stroke="#5b8db0" stroke-width="8" stroke-linecap="round"/>' +
-              '</svg>' +
-              '<div class="autonomy-scorecard__arc-score">' + pct + '%</div>' +
-            '</div>' +
-            '<div class="autonomy-scorecard__meta">' +
-              '<div class="autonomy-scorecard__label">Lagrange Point</div>' +
-              '<div class="autonomy-scorecard__title">Strategic Autonomy Progress</div>' +
-              '<div class="autonomy-scorecard__trend autonomy-scorecard__trend--up">' +
-                '↑ Tracking toward strategic independence' +
-              '</div>' +
-            '</div>' +
-          '</div>';
       }
 
-      // ── KPI Trend Bars ────────────────────────────
-      var kpiBarsEl = document.getElementById('kpi-bars-block');
-      if (kpiBarsEl) {
-        var kpiCategories = [
-          {
-            label: 'Defence & Security',
-            items: [
-              { key: 'eu_defence_total_2025',       label: 'EU Defence Total 2025',      maxRef: 500, isText: true },
-              { key: 'eu_defence_spending_real_change', label: 'Defence Spending Change', maxRef: 50, isText: true },
-              { key: 'safe_programme_total',        label: 'SAFE Programme Total',        maxRef: 200, isText: true },
-              { key: 'eu_support_ukraine_total',    label: 'EU Support Ukraine Total',    maxRef: 300, isText: true },
-              { key: 'nato_at_2_percent',           label: 'NATO 2% Target',              maxRef: 32, isText: true },
-            ]
-          },
-          {
-            label: 'Threat Landscape',
-            items: [
-              { key: 'threat_actors_tracked',       label: 'Threat Actors Tracked',       maxRef: 10,  isText: false },
-              { key: 'hybrid_attacks_total',        label: 'Hybrid Attacks Total',         maxRef: 300, isText: false },
-              { key: 'hybrid_attacks_recent',       label: 'Hybrid Attacks (Recent)',      maxRef: 100, isText: false },
-              { key: 'fimi_incidents_eeas',         label: 'FIMI Incidents (EEAS)',        maxRef: 1000,isText: false },
-              { key: 'elections_under_threat',      label: 'Elections Under Threat',       maxRef: 10,  isText: false },
-              { key: 'eu_legislation_targeted',     label: 'EU Legislation Targeted',     maxRef: 30,  isText: false },
-            ]
-          },
-          {
-            label: 'Democratic Health',
-            items: [
-              { key: 'democratic_health_avg',       label: 'Democratic Health Avg',       maxRef: 5,   isText: false },
-              { key: 'vdem_autocratising_europe',   label: 'V-Dem Autocratising',         maxRef: 27,  isText: false },
-              { key: 'freedom_house_consecutive_decline_years', label: 'Freedom Decline Years', maxRef: 25, isText: false },
-            ]
-          }
-        ];
-
-        function kpiBarColor(key, val) {
-          if (/threat|attack|fimi|targeted|autocrat|decline|capture/i.test(key)) return 'negative';
-          if (/health|defence_spending|nato|safe|support_ukraine/i.test(key)) return 'positive';
-          return 'neutral';
-        }
-
-        var barsHtml = '<div class="kpi-trend-grid">';
-        kpiCategories.forEach(function(cat) {
-          barsHtml += '<div class="kpi-trend-category">';
-          barsHtml += '<div class="kpi-trend-category__label">' + escHtml(cat.label) + '</div>';
-          cat.items.forEach(function(item) {
-            var raw = kpi[item.key];
-            if (raw == null) return;
-            var displayVal = String(raw);
-            var numVal = parseFloat(String(raw).replace(/[^0-9.]/g,'')) || 0;
-            var pct2 = item.isText ? 100 : Math.min(100, (numVal / item.maxRef) * 100);
-            var colorClass = kpiBarColor(item.key, numVal);
-            var arrow = '→'; var arrowClass = 'neutral';
-            // Detect trend from value
-            if (colorClass === 'negative') { arrow = '↑'; arrowClass = 'down'; }
-            else if (colorClass === 'positive') { arrow = '↑'; arrowClass = 'up'; }
-            barsHtml +=
-              '<div class="kpi-trend-row">' +
-                '<div class="kpi-trend-row__name">' + escHtml(item.label) + '</div>' +
-                '<div class="kpi-trend-row__value">' + escHtml(displayVal) + '</div>' +
-                '<div class="kpi-trend-row__arrow kpi-trend-row__arrow--' + arrowClass + '">' + arrow + '</div>' +
-                '<div class="kpi-trend-row__bar-wrap">' +
-                  '<div class="kpi-trend-row__bar kpi-trend-row__bar--' + colorClass + '" style="width:' + pct2.toFixed(1) + '%"></div>' +
-                '</div>' +
-              '</div>';
-          });
-          barsHtml += '</div>';
-        });
-        barsHtml += '</div>';
-        kpiBarsEl.innerHTML = barsHtml;
+      // ── KPI Indicator Tiles (shared: renderMetricTileGrid) ──────────
+      if (window.AsymSections && window.AsymSections.renderMetricTileGrid) {
+        window.AsymSections.renderMetricTileGrid({
+          data: kpi,
+          categories: [
+            {
+              label: 'Defence & Security', accent: '#5b8db0',
+              items: [
+                { key: 'eu_defence_total_2025',            label: 'EU Defence Total',    sentiment: 'positive' },
+                { key: 'eu_defence_spending_real_change',   label: 'Spending Change',     sentiment: 'positive' },
+                { key: 'safe_programme_total',              label: 'SAFE Programme',      sentiment: 'positive' },
+                { key: 'eu_support_ukraine_total',          label: 'Ukraine Support',     sentiment: 'positive' },
+                { key: 'nato_at_2_percent',                 label: 'NATO 2% Target',      sentiment: 'positive' },
+              ]
+            },
+            {
+              label: 'Threat Landscape', accent: '#dc2626',
+              items: [
+                { key: 'threat_actors_tracked',       label: 'Threat Actors',         sentiment: 'negative' },
+                { key: 'hybrid_attacks_total',        label: 'Hybrid Attacks',        sentiment: 'negative' },
+                { key: 'hybrid_attacks_recent',       label: 'Recent Attacks',        sentiment: 'negative' },
+                { key: 'fimi_incidents_eeas',         label: 'FIMI Incidents',        sentiment: 'negative' },
+                { key: 'elections_under_threat',      label: 'Elections Threatened',  sentiment: 'negative' },
+                { key: 'eu_legislation_targeted',     label: 'Legislation Targeted',  sentiment: 'negative' },
+              ]
+            },
+            {
+              label: 'Democratic Health', accent: '#3a7d5a',
+              items: [
+                { key: 'democratic_health_avg',                          label: 'Health Average',      sentiment: 'positive' },
+                { key: 'vdem_autocratising_europe',                      label: 'V-Dem Autocratising', sentiment: 'negative' },
+                { key: 'freedom_house_consecutive_decline_years',        label: 'Decline Years',       sentiment: 'negative' },
+              ]
+            }
+          ]
+        }, 'kpi-bars-block');
       }
 
     })
@@ -391,7 +302,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-  // ── Cross-Monitor Flags ───────────────────────────────────────────
 </script>
 </body>
 </html>

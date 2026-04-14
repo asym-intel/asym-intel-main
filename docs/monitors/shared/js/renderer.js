@@ -1614,6 +1614,44 @@ window.AsymSections = (function () {
                   '↳ ' + escHtml(d.policy_response) + '</div>'
               : '') +
 
+            // Dependency score breakdown (3-actor mini bars — enriched from scorecard)
+            (d._dep_us != null || d._dep_ru != null || d._dep_cn != null
+              ? (function() {
+                  var actors = [
+                    { code:'US', score: d._dep_us, colour:'#3b82f6' },
+                    { code:'RU', score: d._dep_ru, colour:'#dc2626' },
+                    { code:'CN', score: d._dep_cn, colour:'#f59e0b' }
+                  ];
+                  var depHtml = '<div style="margin-bottom:var(--space-2)">' +
+                    '<div style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;' +
+                      'color:var(--color-text-muted);margin-bottom:4px">Dependency Exposure</div>';
+                  actors.forEach(function(a) {
+                    if (a.score == null) return;
+                    var pct = Math.round(a.score * 100);
+                    depHtml += '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:2px">' +
+                      '<span style="font-size:var(--text-min);width:1.5rem;color:var(--color-text-muted);font-weight:600">' + a.code + '</span>' +
+                      '<div style="flex:1;height:4px;background:var(--color-border-subtle);border-radius:2px;overflow:hidden">' +
+                        '<div style="width:' + pct + '%;height:100%;background:' + a.colour + ';border-radius:2px"></div>' +
+                      '</div>' +
+                      '<span style="font-size:var(--text-min);color:var(--color-text-muted);width:2rem;text-align:right">' + pct + '%</span>' +
+                    '</div>';
+                  });
+                  depHtml += '</div>';
+                  return depHtml;
+                })()
+              : '') +
+
+            // Persistent context note (enriched from lagrange dimensions)
+            (d._persistent_note && d._persistent_note !== d.key_development
+              ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);' +
+                  'margin-bottom:var(--space-2);line-height:1.4;padding:var(--space-2);' +
+                  'background:rgba(91,141,176,0.05);border-radius:var(--radius-sm);' +
+                  'border-left:2px solid var(--monitor-accent,#5b8db0)">' +
+                  '<span style="font-weight:600;font-size:var(--text-min);text-transform:uppercase;' +
+                    'letter-spacing:0.05em">Persistent ·</span> ' +
+                  escHtml(d._persistent_note) + '</div>'
+              : '') +
+
             // Source link
             (d.source_url
               ? '<div style="margin-top:var(--space-1)">' +
@@ -1662,47 +1700,85 @@ window.AsymSections = (function () {
       if (t === 'deteriorating') return 'var(--critical,#dc2626)';
       return 'var(--monitor-accent)';
     }
+    function trajArrow(traj) {
+      var t = (traj || '').toLowerCase();
+      if (t === 'improving' || t === 'accelerating') return '↑';
+      if (t === 'declining' || t === 'deteriorating') return '↓';
+      return '→';
+    }
+    function decouplingColour(sig) {
+      var s = (sig || '').toLowerCase();
+      if (s === 'none' || s === 'aligned') return 'var(--positive,#4caf7d)';
+      if (s === 'emerging' || s === 'drifting') return 'var(--high,#d97706)';
+      if (s === 'active' || s === 'decoupling') return 'var(--critical,#dc2626)';
+      return 'var(--color-text-muted)';
+    }
 
     var leadDomainRaw = snapshot.lead_domain || '';
     var leadDomainLabel = DOMAIN_LABELS[leadDomainRaw] ||
       leadDomainRaw.replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
 
-    var kpis = [
-      {
-        label: 'Trajectory',
-        value: escHtml(snapshot.overall_trajectory || '—'),
-        style: 'color:' + trajColour(snapshot.overall_trajectory) + ';font-weight:700'
-      },
-      {
-        label: 'Lead Domain',
-        value: escHtml(leadDomainLabel || '—'),
-        style: 'font-size:var(--text-sm);font-weight:700'
-      },
-      {
-        label: 'US Decoupling Signal',
-        value: escHtml(snapshot.us_decoupling_signal || '—'),
-        style: 'font-weight:700'
-      },
-      {
-        label: 'ReArm Europe Status',
-        value: escHtml(snapshot.rearm_europe_status || '—'),
-        style: 'font-size:var(--text-xs);font-weight:600;line-height:1.4'
-      }
-    ];
+    var tCol = trajColour(snapshot.overall_trajectory);
+    var tArrow = trajArrow(snapshot.overall_trajectory);
+    var dCol = decouplingColour(snapshot.us_decoupling_signal);
 
-    var html = '<div class="kpi-row">';
-    kpis.forEach(function (k) {
-      html +=
-        '<div class="kpi-card">' +
-          '<div class="kpi-card__value" style="' + k.style + '">' + k.value + '</div>' +
-          '<div class="kpi-card__label">' + escHtml(k.label) + '</div>' +
-        '</div>';
-    });
-    html += '</div>';
+    var html =
+      '<div style="display:grid;grid-template-columns:auto 1fr;gap:var(--space-6);align-items:start">' +
 
-    if (snapshot.lead_signal) {
-      html += '<div class="snapshot-note">' + escHtml(snapshot.lead_signal) + '</div>';
-    }
+        /* LEFT: trajectory gauge — large arrow + label */
+        '<div style="text-align:center;padding:var(--space-4) var(--space-5);' +
+          'background:var(--color-surface);border:1px solid var(--color-border);' +
+          'border-radius:var(--radius-md);min-width:100px">' +
+          '<div style="font-size:2.5rem;line-height:1;color:' + tCol + '">' + tArrow + '</div>' +
+          '<div style="font-size:var(--text-lg);font-weight:800;color:' + tCol + ';margin-top:var(--space-1)">' +
+            escHtml(snapshot.overall_trajectory || '—') + '</div>' +
+          '<div style="font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.08em;' +
+            'color:var(--color-text-muted);margin-top:var(--space-1)">Trajectory</div>' +
+        '</div>' +
+
+        /* RIGHT: signal + status chips */
+        '<div>' +
+          /* Lead signal callout */
+          (snapshot.lead_signal
+            ? '<div style="font-size:var(--text-base);font-weight:600;color:var(--color-text);' +
+                'line-height:1.45;margin-bottom:var(--space-4);padding-left:var(--space-3);' +
+                'border-left:3px solid var(--monitor-accent)">' +
+                escHtml(snapshot.lead_signal) +
+              '</div>'
+            : '') +
+
+          /* Chip row: Lead Domain + US Decoupling + ReArm */
+          '<div style="display:flex;flex-wrap:wrap;gap:var(--space-3)">' +
+            /* Lead domain chip */
+            '<div style="display:flex;flex-direction:column;gap:2px">' +
+              '<span style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.07em;' +
+                'color:var(--color-text-muted)">Lead Domain</span>' +
+              '<span style="display:inline-block;padding:3px 10px;border-radius:4px;' +
+                'background:var(--monitor-accent);color:#fff;font-size:var(--text-xs);' +
+                'font-weight:700">' + escHtml(leadDomainLabel || '—') + '</span>' +
+            '</div>' +
+
+            /* US decoupling chip */
+            '<div style="display:flex;flex-direction:column;gap:2px">' +
+              '<span style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.07em;' +
+                'color:var(--color-text-muted)">US Decoupling</span>' +
+              '<span style="display:inline-block;padding:3px 10px;border-radius:4px;' +
+                'background:' + dCol + '20;color:' + dCol + ';font-size:var(--text-xs);' +
+                'font-weight:700;border:1px solid ' + dCol + '40">' +
+                escHtml(snapshot.us_decoupling_signal || '—') + '</span>' +
+            '</div>' +
+
+            /* ReArm Europe chip */
+            '<div style="display:flex;flex-direction:column;gap:2px;max-width:240px">' +
+              '<span style="font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.07em;' +
+                'color:var(--color-text-muted)">ReArm Europe</span>' +
+              '<span style="font-size:var(--text-xs);font-weight:600;color:var(--color-text-secondary);' +
+                'line-height:1.35">' + escHtml(snapshot.rearm_europe_status || '—') + '</span>' +
+            '</div>' +
+          '</div>' +
+
+        '</div>' +
+      '</div>';
 
     el.innerHTML = html;
   }
@@ -2276,7 +2352,7 @@ window.AsymSections = (function () {
 
     html +=
       '<div class="asym-radar-wrap">' +
-        '<div class="asym-chart-wrap asym-chart-wrap--square">' +
+        '<div class="asym-chart-wrap asym-chart-wrap--radar-fill">' +
           '<canvas id="' + canvasId + '" aria-label="' + escHtml(config.title || 'Radar Chart') + '" role="img"></canvas>' +
         '</div>' +
         '<div class="asym-radar-dim-list" id="' + dimListId + '"></div>' +
@@ -3016,14 +3092,14 @@ window.AsymSections = (function () {
       if (Array.isArray(r.affected_asset_classes) && r.affected_asset_classes.length) {
         chipsHtml = '<div style="display:flex;flex-wrap:wrap;gap:var(--space-1);margin-top:var(--space-2)">' +
           r.affected_asset_classes.map(function(ac) {
-            return '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);background:var(--surface-3,rgba(255,255,255,0.06));color:var(--color-text-secondary)">' + escHtml(ac) + '</span>';
+            return '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:var(--radius-sm);background:var(--surface-3,rgba(255,255,255,0.06));color:var(--color-text-secondary)">' + escHtml(ac) + '</span>';
           }).join('') + '</div>';
       }
       html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4);border-left:3px solid ' + probColor(prob) + '">' +
         '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">' +
           '<span style="font-weight:600;font-size:var(--text-sm)">' + escHtml(r.label || r.indicator || '') + '</span>' +
-          '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);color:' + typeColor(r.type) + ';border:1px solid ' + typeColor(r.type) + '40">' + escHtml(r.type || '') + '</span>' +
-          '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);background:' + probColor(prob) + '20;color:' + probColor(prob) + ';font-weight:600">' + escHtml(String(prob)) + '</span>' +
+          '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:var(--radius-sm);color:' + typeColor(r.type) + ';border:1px solid ' + typeColor(r.type) + '40">' + escHtml(r.type || '') + '</span>' +
+          '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:var(--radius-sm);background:' + probColor(prob) + '20;color:' + probColor(prob) + ';font-weight:600">' + escHtml(String(prob)) + '</span>' +
         '</div>' +
         '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;margin-bottom:var(--space-2)">' +
           '<strong>Channel:</strong> ' + escHtml(r.transmission_channel || '—') +
@@ -3455,7 +3531,7 @@ window.AsymSections = (function () {
       approaching.forEach(function(item) {
         var tags = (item.tags || []).map(function(t) {
           return '<span style="display:inline-block;background:rgba(220,38,38,0.1);color:' + accent + ';' +
-            'border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600;margin:2px 2px 2px 0">' +
+            'border-radius:3px;padding:1px 7px;font-size:var(--text-xs);font-weight:600;margin:2px 2px 2px 0">' +
             escHtml(t) + '</span>';
         }).join('');
         html +=
@@ -4315,9 +4391,28 @@ window.AsymSections = (function () {
     'agm': 'ai-governance', 'aim': 'ai-governance',
     'erm': 'environmental-risks', 'scem': 'conflict-escalation'
   };
+  /* Reverse map: human-readable display names (from CMF flag data) → slug.
+     Publisher writes full display names in the `monitor` field, not slugs.
+     This map lets _cmfLinkedSlug resolve them to slugs for SVG icons + accent colours. */
+  var _DISPLAY_NAME_TO_SLUG = {
+    'strategic conflict & escalation monitor':        'conflict-escalation',
+    'conflict & escalation monitor':                  'conflict-escalation',
+    'global fimi & cognitive warfare monitor':        'fimi-cognitive-warfare',
+    'fimi & cognitive warfare monitor':               'fimi-cognitive-warfare',
+    'fimi & cognitive warfare':                       'fimi-cognitive-warfare',
+    'democratic integrity monitor':                   'democratic-integrity',
+    'world democracy monitor':                        'democratic-integrity',
+    'ai governance monitor':                          'ai-governance',
+    'environmental risks & planetary boundaries monitor': 'environmental-risks',
+    'environmental risks monitor':                    'environmental-risks',
+    'macro monitor':                                  'macro-monitor',
+    'global macro monitor':                           'macro-monitor',
+    'european strategic autonomy':                    'european-strategic-autonomy',
+    'european strategic autonomy monitor':            'european-strategic-autonomy'
+  };
   function _cmfLinkedSlug(f) {
     /* Extract the linked (target) monitor slug.
-       Priority: source_url path > ID-encoded abbreviation > monitor_slug/monitor/source_monitor */
+       Priority: source_url path > ID-encoded abbreviation > monitor_slug/monitor/source_monitor > display name */
     if (f.source_url) {
       var m = f.source_url.match(/\/monitors\/([^\/]+)\//);
       if (m) return m[1];
@@ -4329,6 +4424,9 @@ window.AsymSections = (function () {
     /* Fallback to explicit monitor slug fields */
     var slug = f.monitor_slug || f.monitor || f.source_monitor || '';
     if (slug && _MONITOR_DISPLAY_NAMES[slug]) return slug;
+    /* Fallback: resolve human-readable display name to slug */
+    var lower = (f.monitor || f.source_monitor || '').toLowerCase().trim();
+    if (lower && _DISPLAY_NAME_TO_SLUG[lower]) return _DISPLAY_NAME_TO_SLUG[lower];
     return '';
   }
   function _cmfMonitor(f) {
@@ -4628,5 +4726,299 @@ window.AsymSections = (function () {
     window.AsymSections.renderFixedSidenav = renderFixedSidenav;
     window.AsymSections.renderSubscribeCTA = renderSubscribeCTA;
   }
+
+}());
+
+
+/* ════════════════════════════════════════════════════════════════
+   SHARED TOOLKIT — Metric Tile Grid
+   Promoted from ESA dashboard.html (14 Apr 2026)
+   Attached to window.AsymSections
+   ════════════════════════════════════════════════════════════════
+
+   AsymSections.renderMetricTileGrid(config, targetId)
+
+   Renders categorised metric tiles into a target element.
+   Each category gets an accent-coloured header and auto-fill tile grid.
+   Tiles show a large value (sentiment-coloured) + label + optional sub.
+
+   config shape:
+   {
+     data: object,  // flat key→value map (e.g. persistent-state kpi_indicators)
+     categories: [
+       {
+         label:  string,          // category heading, e.g. 'Defence & Security'
+         accent: string,          // CSS colour for header + top border
+         items: [
+           {
+             key:       string,   // lookup key in data
+             label:     string,   // display label
+             sentiment: 'positive' | 'negative' | 'neutral',  // drives value colour
+             sub:       string?,  // optional secondary line
+             format:    string?   // optional: 'pct' appends %, 'currency' prepends £
+           }
+         ]
+       }
+     ]
+   }
+
+   CSS classes: .metric-tile-group, .metric-tile-grid, .metric-tile,
+   .metric-tile__value, .metric-tile__label, .metric-tile__sub  (in base.css)
+   ════════════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  function _esc(s) {
+    if (s == null) return '';
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(s)));
+    return d.innerHTML;
+  }
+
+  function _sentimentClass(s) {
+    if (s === 'positive') return 'metric-tile__value--positive';
+    if (s === 'negative') return 'metric-tile__value--negative';
+    return 'metric-tile__value--neutral';
+  }
+
+  function _formatValue(raw, fmt) {
+    if (raw == null) return '—';
+    var v = String(raw);
+    if (fmt === 'pct')      return v + '%';
+    if (fmt === 'currency') return '£' + v;
+    return v;
+  }
+
+  /**
+   * renderMetricTileGrid(config, targetId)
+   *
+   * @param {object} config  - { data, categories[] }
+   * @param {string} targetId - DOM element id to render into
+   */
+  function renderMetricTileGrid(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!config || !config.categories || !config.categories.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No indicator data available.</p>';
+      return;
+    }
+
+    var data = config.data || {};
+    var html = '';
+
+    config.categories.forEach(function (cat) {
+      var accent = cat.accent || 'var(--monitor-accent)';
+
+      html += '<div class="metric-tile-group">' +
+        '<div class="metric-tile-group__header">' +
+          '<span style="color:' + accent + '">' + _esc(cat.label) + '</span>' +
+        '</div>' +
+        '<div class="metric-tile-grid">';
+
+      (cat.items || []).forEach(function (item) {
+        var raw = data[item.key];
+        if (raw == null) return;  // skip missing keys
+        var displayVal = _formatValue(raw, item.format);
+        var valClass = 'metric-tile__value ' + _sentimentClass(item.sentiment);
+
+        html += '<div class="metric-tile" style="border-top:3px solid ' + accent + '">' +
+          '<div class="' + valClass + '">' + _esc(displayVal) + '</div>' +
+          '<div class="metric-tile__label">' + _esc(item.label) + '</div>' +
+          (item.sub ? '<div class="metric-tile__sub">' + _esc(item.sub) + '</div>' : '') +
+        '</div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  /* ── Attach to AsymSections ── */
+  if (window.AsymSections) {
+    window.AsymSections.renderMetricTileGrid = renderMetricTileGrid;
+  }
+  /* Fallback direct access */
+  window.AsymMetricTileGrid = renderMetricTileGrid;
+
+}());
+
+
+/* ════════════════════════════════════════════════════════════════
+   SHARED TOOLKIT — Entity Heat Strip
+   Promoted from ESA dashboard.html (14 Apr 2026)
+   Attached to window.AsymSections
+   ════════════════════════════════════════════════════════════════
+
+   AsymSections.renderEntityHeatStrip(config, targetId)
+
+   Renders a horizontal strip of entity pills sorted by severity.
+   Click/tap expands a detail panel below with headline + delta.
+   Most critical entity auto-expands on load.
+
+   config shape:
+   {
+     entities: [
+       {
+         code:     string,       // short code, e.g. 'HU', 'DE', 'Eastern Europe'
+         name:     string?,      // optional full name for detail panel
+         icon:     string?,      // emoji flag or icon character
+         status:   string,       // e.g. 'CRITICAL — 4 days to election'
+         headline: string?,      // main development text
+         delta:    string?,      // change from last period
+         source_url: string?     // optional source link
+       }
+     ],
+     iconMap:  object?,          // optional { 'HU': '🇭🇺', ... } fallback for icon
+     sortBySeverity: boolean?    // default true — sorts critical first
+   }
+
+   CSS classes: .heat-strip, .heat-pill, .heat-detail  (in base.css)
+   ════════════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  function _esc(s) {
+    if (s == null) return '';
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(s)));
+    return d.innerHTML;
+  }
+
+  var SEV_ORDER = { critical: 0, high: 1, elevated: 2, watch: 3, stable: 4 };
+
+  function _classify(status) {
+    if (!status) return 'stable';
+    var s = status.toLowerCase();
+    if (s.indexOf('critical') !== -1) return 'critical';
+    if (s.indexOf('high') !== -1)     return 'high';
+    if (s.indexOf('elevated') !== -1) return 'elevated';
+    if (s.indexOf('watch') !== -1)    return 'watch';
+    return 'stable';
+  }
+
+  function _statusLabel(status) {
+    if (!status) return 'Unknown';
+    return status.split('—')[0].trim();
+  }
+
+  /**
+   * renderEntityHeatStrip(config, targetId)
+   */
+  function renderEntityHeatStrip(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var entities = (config && config.entities) || [];
+    if (!entities.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No tracked entities this issue.</p>';
+      return;
+    }
+
+    var iconMap = config.iconMap || {};
+
+    // Sort by severity (critical first)
+    if (config.sortBySeverity !== false) {
+      entities = entities.slice().sort(function (a, b) {
+        return (SEV_ORDER[_classify(a.status)] || 4) - (SEV_ORDER[_classify(b.status)] || 4);
+      });
+    }
+
+    // Build pill strip
+    var stripHtml = '<div class="heat-strip">';
+    entities.forEach(function (e, i) {
+      var sev = _classify(e.status);
+      var icon = e.icon || iconMap[e.code] || '';
+      stripHtml +=
+        '<div class="heat-pill heat-pill--' + sev + '" data-heat-idx="' + i + '" ' +
+          'role="button" tabindex="0" aria-expanded="false" ' +
+          'aria-label="' + _esc(e.code) + ' — ' + _esc(_statusLabel(e.status)) + '">' +
+          (icon ? '<span class="heat-pill__flag">' + icon + '</span>' : '') +
+          '<span class="heat-pill__code">' + _esc(e.code) + '</span>' +
+          '<span class="heat-pill__dot"></span>' +
+        '</div>';
+    });
+    stripHtml += '</div>';
+
+    // Detail panel container
+    stripHtml += '<div id="' + targetId + '-detail"></div>';
+    el.innerHTML = stripHtml;
+
+    // Interaction
+    var detailEl = document.getElementById(targetId + '-detail');
+    var activeIdx = -1;
+
+    function showDetail(idx) {
+      if (idx === activeIdx) {
+        // toggle off
+        detailEl.innerHTML = '';
+        var prevPill = el.querySelector('.heat-pill.is-active');
+        if (prevPill) { prevPill.classList.remove('is-active'); prevPill.setAttribute('aria-expanded', 'false'); }
+        activeIdx = -1;
+        return;
+      }
+
+      var prevPill = el.querySelector('.heat-pill.is-active');
+      if (prevPill) { prevPill.classList.remove('is-active'); prevPill.setAttribute('aria-expanded', 'false'); }
+
+      var e = entities[idx];
+      var sev = _classify(e.status);
+      var icon = e.icon || iconMap[e.code] || '';
+      var name = e.name || e.code;
+
+      var html =
+        '<div class="heat-detail">' +
+          '<div class="heat-detail__header">' +
+            (icon ? '<span class="heat-detail__flag">' + icon + '</span>' : '') +
+            '<span class="heat-detail__name">' + _esc(name) + '</span>' +
+            '<span class="heat-detail__status heat-detail__status--' + sev + '">' +
+              _esc(_statusLabel(e.status)) + '</span>' +
+          '</div>' +
+          (e.headline
+            ? '<div class="heat-detail__headline">' + _esc(e.headline) + '</div>'
+            : '') +
+          (e.delta
+            ? '<div class="heat-detail__delta">Δ ' + _esc(e.delta) + '</div>'
+            : '') +
+          (e.source_url
+            ? '<div class="heat-detail__source"><a href="' + _esc(e.source_url) +
+              '" target="_blank" rel="noopener">Source →</a></div>'
+            : '') +
+        '</div>';
+
+      detailEl.innerHTML = html;
+      activeIdx = idx;
+
+      var newPill = el.querySelector('[data-heat-idx="' + idx + '"]');
+      if (newPill) { newPill.classList.add('is-active'); newPill.setAttribute('aria-expanded', 'true'); }
+    }
+
+    // Bind click and keyboard
+    el.addEventListener('click', function (ev) {
+      var pill = ev.target.closest('.heat-pill');
+      if (!pill) return;
+      var idx = parseInt(pill.getAttribute('data-heat-idx'), 10);
+      if (!isNaN(idx)) showDetail(idx);
+    });
+    el.addEventListener('keydown', function (ev) {
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      var pill = ev.target.closest('.heat-pill');
+      if (!pill) return;
+      ev.preventDefault();
+      var idx = parseInt(pill.getAttribute('data-heat-idx'), 10);
+      if (!isNaN(idx)) showDetail(idx);
+    });
+
+    // Auto-expand most critical entity
+    showDetail(0);
+  }
+
+  /* ── Attach to AsymSections ── */
+  if (window.AsymSections) {
+    window.AsymSections.renderEntityHeatStrip = renderEntityHeatStrip;
+  }
+  /* Fallback direct access */
+  window.AsymEntityHeatStrip = renderEntityHeatStrip;
 
 }());
