@@ -27,7 +27,7 @@ The monitor tracks erosion across six lanes:
 
 **Digital civil space** — surveillance technology, platform manipulation, and AI-driven information operations that erode the epistemic commons on which democratic deliberation depends.
 
-**Transnational autocratic networks** — the organised coordination of far-right parties, foreign sponsors (MAGA/Project 2025, Heritage/Atlas Network, Likud, Kremlin-aligned actors), and technology infrastructure companies (X, Palantir, Oracle) acting as political actors rather than neutral platforms. Documented in detail in the [Power Playbook of the Right](https://compossible.asym-intel.info).
+**Transnational autocratic networks** — the organised coordination of far-right parties, foreign sponsors (MAGA/Project 2025, Heritage/Atlas Network, Likud, Kremlin-aligned actors), and technology infrastructure companies (X, Palantir, Oracle) acting as political actors rather than neutral platforms. Documented in detail in the [Power Playbook of the Right](https://compossible.blog/2025/10/14/the-new-playbook-of-power/).
 
 ## The analytical frame
 

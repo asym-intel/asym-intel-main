@@ -31,7 +31,7 @@ The convergence of these actors — particularly the documented overlap between 
 
 ## The analytical frame
 
-The central question for European strategic autonomy is whether Europe can achieve what the [Reckoning series](https://compossible.asym-intel.info) calls the Lagrange Point: a position of sufficient independent capability that the United States and China face genuine uncertainty about where Europe will land in a crisis.
+The central question for European strategic autonomy is whether Europe can achieve what the [Reckoning series](https://compossible.blog/2026/03/10/a-reckoning-european-strategy-for-an-unstable-world/) calls the Lagrange Point: a position of sufficient independent capability that the United States and China face genuine uncertainty about where Europe will land in a crisis.
 
 This requires measuring three things simultaneously:
 - **Capability**: defence spending, industrial output, technology sovereignty
