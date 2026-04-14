@@ -197,8 +197,7 @@
           ? '<div class="cms-flag__monitors">' + flag.monitors_involved.map(esc).join(' · ') + '</div>'
           : '') +
         (flag.body
-          ? '<div class="cms-flag__body cms-flag__body--collapsed">' + esc(flag.body) + '</div>' +
-            '<span class="cms-read-more">Read more →</span>'
+          ? '<div class="cms-flag__body">' + esc(flag.body) + '</div>'
           : '') +
       '</div>';
     });
@@ -448,8 +447,7 @@ window.AsymPersistent = (function () {
           '<span class="severity-badge severity-badge--moderate">' + escHtml(f.status||'Active') + '</span>' +
         '</div>' +
         (f.monitors_involved&&f.monitors_involved.length ? '<div class="cms-flag__monitors">↔ ' + f.monitors_involved.map(escHtml).join(' · ') + '</div>' : '') +
-        '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(f.linkage||f.title||'') + '</div>' +
-        '<span class="cms-read-more" onclick="var b=this.previousElementSibling;b.classList.toggle(\'cms-flag__body--collapsed\');this.textContent=b.classList.contains(\'cms-flag__body--collapsed\')?\'Read more →\':\'Show less ↑\'">Read more →</span>' +
+        '<div class="cms-flag__body">' + escHtml(f.linkage||f.title||'') + '</div>' +
       '</div>';
     }).join('');
   }
@@ -4365,11 +4363,7 @@ window.AsymSections = (function () {
             ? '<div class="cms-flag__monitors">' + monitorHtml + '</div>'
             : '') +
           (body
-            ? '<div class="cms-flag__body cms-flag__body--collapsed">' + _esc(body) + '</div>' +
-              '<span class="cms-read-more" onclick="var b=this.previousElementSibling;' +
-                'b.classList.toggle(\'cms-flag__body--collapsed\');' +
-                'this.textContent=b.classList.contains(\'cms-flag__body--collapsed\')' +
-                '?\'Read more \u2192\':\'Show less \u2191\'">Read more \u2192</span>'
+            ? '<div class="cms-flag__body">' + _esc(body) + '</div>'
             : '') +
           (flag.action
             ? '<div style="margin-top:var(--space-2);font-size:var(--text-xs);font-weight:600;' +
