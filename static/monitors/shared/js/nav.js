@@ -30,13 +30,13 @@
       style.setAttribute('data-asym-nb-styles', '');
       style.textContent = [
         'body{padding-top:' + NB_H + 'px!important}',
-        '.monitor-nav{position:sticky!important;top:' + NB_H + 'px!important}',
-        '.monitor-sidebar{top:calc(' + NB_H + 'px + 52px)!important;height:calc(100vh - ' + NB_H + 'px - 52px)!important}',
-        'nav.sidebar,#sidebar,.sidebar-header{top:' + NB_H + 'px!important}',
-        'nav.sidebar{height:calc(100vh - ' + NB_H + 'px)!important}',
-        '.left-nav{top:' + NB_H + 'px!important;height:calc(100vh - ' + NB_H + 'px)!important}',
-        '.header:not([data-asym-network-bar]){top:' + NB_H + 'px!important}',
-        'nav:not([data-asym-network-bar]):not(.monitor-nav):not(.site-bar){top:' + NB_H + 'px!important}',
+        '.monitor-nav{position:sticky!important;top:' + CHROME_H + 'px!important}',
+        '.monitor-sidebar{top:calc(' + CHROME_H + 'px + 52px)!important;height:calc(100vh - ' + CHROME_H + 'px - 52px)!important}',
+        'nav.sidebar,#sidebar,.sidebar-header{top:' + CHROME_H + 'px!important}',
+        'nav.sidebar{height:calc(100vh - ' + CHROME_H + 'px)!important}',
+        '.left-nav{top:' + CHROME_H + 'px!important;height:calc(100vh - ' + CHROME_H + 'px)!important}',
+        '.header:not([data-asym-network-bar]){top:' + CHROME_H + 'px!important}',
+        'nav:not([data-asym-network-bar]):not(.monitor-nav):not(.site-bar){top:' + CHROME_H + 'px!important}',
         '.nb-links{display:flex}',
         '@media(max-width:640px){.nb-links{display:none}}',
         /* Site bar styles */

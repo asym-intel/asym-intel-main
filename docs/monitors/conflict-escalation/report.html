@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Existing render calls ────────────────────────────────────────
-    renderCrossMonitor(cmf, 'cross-monitor');
+    AsymSections.renderCrossMonitorFlags(cmf, 'cross-monitor');
     renderRosterWatch(rw, 'roster-watch');
   }
 
@@ -723,40 +723,6 @@ document.addEventListener('DOMContentLoaded', function () {
         (detected ? '' : ' <span style="opacity:0.5">(not detected)</span>') +
       '</span>';
     }).join('');
-  }
-
-  function renderCrossMonitor(cmf, targetId) {
-    var flags = cmf.flags || [];
-    var el = document.getElementById(targetId);
-    if (!flags.length) {
-      el.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
-      return;
-    }
-    var html = '<div class="cross-monitor-panel">' +
-      '<div class="cross-monitor-panel__title">Cross-Monitor Flags · Updated ' +
-        escHtml(cmf.updated || '') + '</div>';
-    flags.forEach(function (flag) {
-      html +=
-        '<div class="cms-flag">' +
-          '<div class="cms-flag__header">' +
-            '<div class="cms-flag__id">' + escHtml(flag.flag_id || '') + '</div>' +
-            '<span class="severity-badge severity-badge--' +
-              bandToRowClass(flag.severity || 'moderate') + '">' +
-              escHtml(flag.severity || '') + '</span>' +
-          '</div>' +
-          '<div class="cms-flag__title">' + escHtml(flag.title || flag.signal || '') + '</div>' +
-          '<div class="cms-flag__monitors">' +
-            escHtml(flag.monitor || (flag.monitors || []).join(', ') || '') +
-            (flag.conflict ? ' · ' + escHtml(flag.conflict) : '') +
-          '</div>' +
-          '<div class="cms-flag__body cms-flag__body--collapsed">' +
-            escHtml(flag.summary || flag.detail || '') + '</div>' +
-          '<span class="cms-read-more">Read more →</span>' +
-        '</div>';
-    });
-    html += '</div>';
-    el.innerHTML = html;
-    if (window.AsymNav) AsymNav.init();
   }
 
   function getWorstBand(inds) {

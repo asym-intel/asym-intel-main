@@ -510,12 +510,8 @@
         document.getElementById('model-frontier-content').innerHTML = '<p class="empty-state">Model frontier data will be available when the AIM synthesiser schema includes module_2.models. Currently module_2 tracks regulatory frameworks.</p>';
       }
 
-      // Cross-monitor flags — use shared renderer with correct field mappings
-      if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
-        AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
-      } else {
-        renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
-      }
+      // Cross-monitor flags — shared renderer (SVG icons + monitor accent colours)
+      AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
 
       // Delta strip is rendered via the triage strip below — no standalone call needed
 
@@ -809,36 +805,6 @@
   }
 
   // ── Cross-Monitor Flags ───────────────────────────────────────────
-  function renderCrossMonitor(cmf, targetId) {
-    var flags = (cmf && cmf.flags) ? cmf.flags : [];
-    var el = document.getElementById(targetId);
-    if (!el) return;
-    if (!flags.length) {
-      el.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
-      return;
-    }
-    var html = '<div class="cross-monitor-panel">';
-    if (cmf.updated) {
-      html += '<div style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-3)">Updated ' + escHtml(cmf.updated.slice(0,10)) + '</div>';
-    }
-    flags.forEach(function (flag) {
-      var sev = (flag.severity || flag.type || 'moderate').toLowerCase();
-      var sevClass = sev === 'critical' || sev === 'high' ? 'critical' : sev === 'elevated' || sev === 'amber' ? 'high' : 'moderate';
-      html +=
-        '<div style="padding:var(--space-3);border-left:3px solid var(--color-' + sevClass + ',#94a3b8);background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:var(--space-3)">' +
-          '<div style="display:flex;gap:var(--space-2);align-items:center;margin-bottom:var(--space-1)">' +
-            '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted)">' + escHtml(flag.flag_id || '') + '</span>' +
-            (flag.monitor || flag.source_monitor ? '<span style="font-size:var(--text-xs);color:var(--text-muted)">· ' + escHtml(flag.monitor || flag.source_monitor || '') + '</span>' : '') +
-          '</div>' +
-          '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' + escHtml(flag.title || flag.signal || '') + '</div>' +
-          '<div style="font-size:var(--text-xs);color:var(--text-muted);line-height:1.5">' + escHtml(flag.detail || flag.body || flag.summary || '') + '</div>' +
-          (flag.source_url ? ' ' + AsymRenderer.sourceLink(flag.source_url) : '') +
-        '</div>';
-    });
-    html += '</div>';
-    el.innerHTML = html;
-  }
-
   // ── Key Judgments ───────────────────────────────────────────────
   function renderKeyJudgments(items) {
     var el = document.getElementById('key-judgments-wrap');

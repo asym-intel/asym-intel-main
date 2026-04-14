@@ -1044,60 +1044,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    /* ── Cross-monitor flags (from persistent-state or report-latest) ── */
-    var cmf   = d._report_cmf || d.cross_monitor_flags || {};
-    var flags = cmf.flags || [];
-    var cmEl  = document.getElementById('cross-monitor');
-
-    /* Monitor name → { href, slug } — slug used for SVG icon path */
-    var MONITOR_LINKS = {
-      'FIMI & Cognitive Warfare':                          { href: '../fimi-cognitive-warfare/persistent.html', slug: 'fcw' },
-      'FCW':                                               { href: '../fimi-cognitive-warfare/persistent.html', slug: 'fcw' },
-      'European Geopolitical & Hybrid Threat Monitor':      { href: '../european-strategic-autonomy/persistent.html', slug: 'esa' },
-      'EGHTM':                                             { href: '../european-strategic-autonomy/persistent.html', slug: 'esa' },
-      'ESA':                                               { href: '../european-strategic-autonomy/persistent.html', slug: 'esa' },
-      'Global Environmental Risks & Planetary Boundaries Monitor': { href: '../environmental-risks/persistent.html', slug: 'erm' },
-      'GERP':                                              { href: '../environmental-risks/persistent.html', slug: 'erm' },
-      'ERM':                                               { href: '../environmental-risks/persistent.html', slug: 'erm' },
-      'Macro Monitor':                                     { href: '../macro-monitor/persistent.html', slug: 'gmm' },
-      'GMM':                                               { href: '../macro-monitor/persistent.html', slug: 'gmm' },
-      'World Democratic Integrity Monitor':                 { href: '../democratic-integrity/persistent.html', slug: 'wdm' },
-      'WDM':                                               { href: '../democratic-integrity/persistent.html', slug: 'wdm' },
-      'AI Governance Monitor':                              { href: '../ai-governance/persistent.html', slug: 'agm' },
-      'AIM':                                               { href: '../ai-governance/persistent.html', slug: 'agm' },
-      'Strategic Conflict & Escalation Monitor':            { href: 'persistent.html', slug: 'scem' },
-      'SCEM':                                              { href: 'persistent.html', slug: 'scem' }
-    };
-
-    function monitorLink(name) {
-      var m = MONITOR_LINKS[name];
-      if (!m) return escHtml(name);
-      var icon = '<img src="../../images/monitors/' + m.slug + '.svg" alt="" width="16" height="16" class="cms-flag__icon">';
-      return '<a href="' + m.href + '">' + icon + ' ' + escHtml(name) + '</a>';
-    }
-
-    if (!flags.length) {
-      cmEl.innerHTML = '<p class="text-muted text-sm">Cross-monitor flags are written by the weekly cron task and accumulate here across issues. Flags will appear after the next publish cycle.</p>';
-    } else {
-      var cmHtml = '<div class="cross-monitor-panel">' +
-        '<div class="cross-monitor-panel__title">Accumulating Cross-Monitor Flags · Updated ' + escHtml(cmf.updated || '') + '</div>';
-      flags.forEach(function (flag) {
-        var sc = bandToSeverityClass(flag.severity || '');
-        var monLinks = (flag.monitors || []).map(monitorLink).join(', ');
-        cmHtml +=
-          '<div class="cms-flag">' +
-            '<div class="cms-flag__header">' +
-              '<div class="cms-flag__id">'   + escHtml(flag.flag_id || '') + '</div>' +
-              '<span class="severity-badge severity-badge--' + sc + '">' + escHtml(flag.severity || '') + '</span>' +
-            '</div>' +
-            '<div class="cms-flag__title">'   + escHtml(flag.title   || '') + '</div>' +
-            '<p class="cms-flag__summary">'   + escHtml(flag.summary || '') + '</p>' +
-            '<div class="cms-flag__monitors">Flagged for: ' + monLinks + '</div>' +
-          '</div>';
-      });
-      cmHtml += '</div>';
-      cmEl.innerHTML = cmHtml;
-    }
+    /* ── Cross-monitor flags — shared renderer (SVG icons + monitor accent colours) ── */
+    AsymSections.renderCrossMonitorFlags(
+      d._report_cmf || d.cross_monitor_flags || {},
+      'cross-monitor'
+    );
 
     /* Re-init nav */
     if (window.AsymNav) AsymNav.init();
