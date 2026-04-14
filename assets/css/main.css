@@ -76,7 +76,7 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --color-bg:             #171614;
     --color-surface:        #1c1b19;
     --color-surface-alt:    #201f1d;
@@ -97,6 +97,27 @@
     --erm:  #fdab43;
     --gmm:  #e8af34;
   }
+}
+
+/* Explicit dark theme (toggle) overrides system preference */
+[data-theme="dark"] {
+  --color-bg:             #171614;
+  --color-surface:        #1c1b19;
+  --color-surface-alt:    #201f1d;
+  --color-text:           #cdccca;
+  --color-text-muted:     #797876;
+  --color-text-faint:     #5a5957;
+  --color-primary:        #4f98a3;
+  --color-primary-hover:  #227f8b;
+  --color-border:         rgba(205, 204, 202, 0.10);
+  --color-border-strong:  rgba(205, 204, 202, 0.20);
+  --fcw:  #4f98a3;
+  --scem: #dd6974;
+  --wdm:  #6daa45;
+  --esa:  #5591c7;
+  --agm:  #a86fdf;
+  --erm:  #fdab43;
+  --gmm:  #e8af34;
 }
 
 /* ── Reset ───────────────────────────────────────────────────────────────── */
@@ -519,8 +540,9 @@ a:hover { color: var(--color-primary-hover); }
   border-radius: var(--radius-sm);
 }
 @media (prefers-color-scheme: dark) {
-  .monitor-card-v2__abbr { background: rgba(79, 152, 163, 0.12); }
+  :root:not([data-theme="light"]) .monitor-card-v2__abbr { background: rgba(79, 152, 163, 0.12); }
 }
+[data-theme="dark"] .monitor-card-v2__abbr { background: rgba(79, 152, 163, 0.12); }
 .monitor-card-v2__day {
   font-size: var(--text-xs);
   color: var(--color-text-faint);
@@ -759,8 +781,9 @@ a:hover { color: var(--color-primary-hover); }
   vertical-align: middle;
 }
 @media (prefers-color-scheme: dark) {
-  .post__body code { background: rgba(79, 152, 163, 0.12); }
+  :root:not([data-theme="light"]) .post__body code { background: rgba(79, 152, 163, 0.12); }
 }
+[data-theme="dark"] .post__body code { background: rgba(79, 152, 163, 0.12); }
 
 .post__footer {
   margin-top: var(--space-12);

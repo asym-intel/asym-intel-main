@@ -657,33 +657,60 @@ window.AsymSections = (function () {
       return;
     }
 
-    var kpis = [
-      { key: 'active_theatres',           label: 'Active Theatres',   sub: '',          accent: true },
-      { key: 'new_escalations_this_week', label: 'New Escalations',   sub: 'this week', accent: false },
-      { key: 'de_escalations_this_week',  label: 'De-escalations',    sub: 'this week', accent: false },
-      { key: 'highest_intensity_theatre', label: 'Highest Intensity', sub: '',          accent: false, text: true }
-    ];
+    var accent = getComputedStyle(document.documentElement)
+      .getPropertyValue('--monitor-accent').trim() || '#dc2626';
+    var esc = parseInt(snapshot.new_escalations_this_week) || 0;
+    var deesc = parseInt(snapshot.de_escalations_this_week) || 0;
+    var escCol = esc > 0 ? '#dc2626' : 'var(--color-text-muted,#6b6660)';
+    var deescCol = deesc > 0 ? '#059669' : 'var(--color-text-muted,#6b6660)';
 
-    var html = '<div class="kpi-row">';
-    kpis.forEach(function (def) {
-      var val = snapshot[def.key];
-      if (val === undefined || val === null) return;
-      var valStr = escHtml(String(val));
-      var valClass = 'kpi-card__value' + (def.accent ? ' kpi-card__value--accent' : '');
-      var valStyle = def.text
-        ? ' style="font-size:var(--text-base,1rem);font-weight:700"'
-        : '';
+    /* Row 1: three compact stat pills */
+    var html =
+      '<div style="display:flex;flex-wrap:wrap;gap:var(--space-3);margin-bottom:var(--space-4)">' +
+        '<div style="display:flex;align-items:center;gap:var(--space-2);padding:6px 14px;' +
+          'background:var(--color-surface,#f3f0ec);border-radius:6px;border:1px solid var(--color-border,#d8d4cd)">' +
+          '<span style="font-size:1.4rem;font-weight:800;color:' + accent + ';line-height:1">' +
+            escHtml(String(snapshot.active_theatres || 0)) + '</span>' +
+          '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-weight:600;' +
+            'text-transform:uppercase;letter-spacing:.05em">Active Theatres</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:var(--space-2);padding:6px 14px;' +
+          'background:var(--color-surface,#f3f0ec);border-radius:6px;border:1px solid var(--color-border,#d8d4cd)">' +
+          '<span style="font-size:1.4rem;font-weight:800;color:' + escCol + ';line-height:1">' +
+            (esc > 0 ? '\u25b2 ' : '') + escHtml(String(esc)) + '</span>' +
+          '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-weight:600;' +
+            'text-transform:uppercase;letter-spacing:.05em">Escalations</span>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:var(--space-2);padding:6px 14px;' +
+          'background:var(--color-surface,#f3f0ec);border-radius:6px;border:1px solid var(--color-border,#d8d4cd)">' +
+          '<span style="font-size:1.4rem;font-weight:800;color:' + deescCol + ';line-height:1">' +
+            (deesc > 0 ? '\u25bc ' : '') + escHtml(String(deesc)) + '</span>' +
+          '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-weight:600;' +
+            'text-transform:uppercase;letter-spacing:.05em">De-escalations</span>' +
+        '</div>' +
+      '</div>';
+
+    /* Row 2: highest intensity highlight card */
+    if (snapshot.highest_intensity_theatre) {
       html +=
-        '<div class="kpi-card">' +
-          '<div class="' + valClass + '"' + valStyle + '>' + valStr + '</div>' +
-          '<div class="kpi-card__label">' + escHtml(def.label) + '</div>' +
-          (def.sub ? '<div class="kpi-card__sub">' + escHtml(def.sub) + '</div>' : '') +
+        '<div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);' +
+          'background:linear-gradient(90deg,rgba(220,38,38,0.06),transparent);' +
+          'border-left:3px solid #dc2626;border-radius:var(--radius-sm,4px);margin-bottom:var(--space-3)">' +
+          '<span style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;' +
+            'letter-spacing:.06em;color:var(--color-text-muted);white-space:nowrap">Highest Intensity</span>' +
+          '<span style="font-size:var(--text-sm);font-weight:700;color:var(--color-text)">' +
+            escHtml(snapshot.highest_intensity_theatre) + '</span>' +
         '</div>';
-    });
-    html += '</div>';
+    }
 
-    if (snapshot.lead_signal) {
-      html += '<div class="snapshot-note">' + escHtml(snapshot.lead_signal) + '</div>';
+    /* Row 3: lead signal callout */
+    if (snapshot.lead_signal && snapshot.lead_signal !== 'No dominant signal') {
+      html +=
+        '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.6;' +
+          'font-style:italic;border-left:3px solid var(--color-border,#d8d4cd);' +
+          'padding:var(--space-2) var(--space-3)">' +
+          escHtml(snapshot.lead_signal) +
+        '</div>';
     }
 
     el.innerHTML = html;
@@ -735,82 +762,106 @@ window.AsymSections = (function () {
       return;
     }
 
-    var html = '<div class="theatre-grid">';
-    theatres.forEach(function (t) {
+    function _riskClass(r) {
+      var rl = (r || '').toLowerCase();
+      if (rl === 'critical' || rl === 'high') return 'critical';
+      if (rl === 'medium') return 'high';
+      if (rl === 'low')    return 'positive';
+      return 'moderate';
+    }
+    function _riskColour(r) {
+      var rl = (r || '').toLowerCase();
+      if (rl === 'critical' || rl === 'high') return '#dc2626';
+      if (rl === 'medium') return '#d97706';
+      if (rl === 'low')    return '#059669';
+      return '#94a3b8';
+    }
+
+    /* Compact summary table */
+    var html = '<div class="table-responsive"><table class="data-table" style="width:100%;font-size:var(--text-xs)">';
+    html += '<thead><tr>' +
+      '<th style="width:26px"></th>' +
+      '<th>Theatre</th>' +
+      '<th>Intensity</th>' +
+      '<th>Delta</th>' +
+      '<th>Risk</th>' +
+      '<th style="min-width:200px">Key Development</th>' +
+      '</tr></thead><tbody>';
+
+    theatres.forEach(function (t, idx) {
       var deltaClass = deriveStatusClass(t.intensity_delta || '');
+      var rc = _riskClass(t.escalation_risk);
+      var rCol = _riskColour(t.escalation_risk);
+      var rowId = 'tt-detail-' + idx;
 
-      var actorTags = (t.primary_actors || []).map(function (a) {
-        return '<span class="tag tag--actor">' + escHtml(a) + '</span>';
-      }).join('');
-
-      var hybridTags = (t.hybrid_dimensions || []).map(function (h) {
-        return '<span class="tag tag--hybrid">' + escHtml(h) + '</span>';
-      }).join('');
-
-      var warnTag = t.nuclear_threshold_concern
-        ? '<span class="tag tag--warn">Nuclear Threshold</span>'
-        : '';
-
-      var riskClass = (function () {
-        var r = (t.escalation_risk || '').toLowerCase();
-        if (r === 'critical' || r === 'high') return 'critical';
-        if (r === 'medium')  return 'high';
-        if (r === 'low')     return 'positive';
-        return 'moderate';
-      })();
-
-      /* Only show ACLED stats when non-zero — synthesiser often returns 0 */
-      var hasEventStats = (t.acled_event_count_7d > 0) ||
-                          (t.acled_fatality_count_7d > 0);
-
+      /* Summary row */
       html +=
-        '<div class="theatre-card theatre-card--' + deltaClass + '">' +
-          '<div class="theatre-card__header">' +
-            '<div class="theatre-card__name">' +
-              escHtml(t.theatre_name || t.theatre_id || '') + '</div>' +
-            (t.intensity
-              ? '<span class="theatre-card__intensity">' + escHtml(t.intensity) + '</span>'
-              : '') +
-          '</div>' +
-          (actorTags
-            ? '<div class="theatre-card__tags">' + actorTags + '</div>' : '') +
-          (t.key_development
-            ? '<div class="theatre-card__key-dev">' + escHtml(t.key_development) + '</div>' : '') +
-          '<div class="theatre-card__row">' +
-            (t.intensity_delta
-              ? '<span class="theatre-card__delta theatre-card__delta--' + deltaClass + '">' +
-                  escHtml(t.intensity_delta) + '</span>'
-              : '') +
-            (t.escalation_risk
-              ? '<span class="severity-badge severity-badge--' + riskClass + '">Risk: ' +
-                  escHtml(t.escalation_risk) + '</span>'
-              : '') +
-          '</div>' +
-          (hasEventStats
-            ? '<div class="theatre-card__stats">' +
-                (t.acled_event_count_7d !== undefined
-                  ? '<span>Events 7d: <strong>' +
-                      escHtml(String(t.acled_event_count_7d)) + '</strong></span>'
-                  : '') +
-                (t.acled_fatality_count_7d !== undefined
-                  ? '<span>Fatalities 7d: <strong>' +
-                      escHtml(String(t.acled_fatality_count_7d)) + '</strong></span>'
-                  : '') +
-              '</div>'
-            : '') +
-          ((hybridTags || warnTag)
-            ? '<div class="theatre-card__tags">' + hybridTags + warnTag + '</div>' : '') +
-          '<div class="theatre-card__footer">' +
-            (t.ceasefire_status !== undefined
-              ? '<span>Ceasefire: ' + escHtml(t.ceasefire_status) + '</span>'
-              : '<span></span>') +
-            (t.source
-              ? '<span style="font-size:var(--text-min)">' + escHtml(t.source) + '</span>'
-              : '') +
-          '</div>' +
-        '</div>';
+        '<tr class="theatre-summary-row" style="cursor:pointer" data-tt-toggle="' + rowId + '">' +
+          '<td style="text-align:center;color:var(--color-text-muted)">\u25b8</td>' +
+          '<td style="font-weight:600;white-space:nowrap">' + escHtml(t.theatre_name || t.theatre_id || '') + '</td>' +
+          '<td>' + escHtml(t.intensity || '') + '</td>' +
+          '<td><span class="status-badge status-badge--' + deltaClass + '" style="font-size:var(--text-min)">' +
+            escHtml(t.intensity_delta || '') + '</span></td>' +
+          '<td><span style="display:inline-block;padding:1px 8px;border-radius:3px;font-weight:600;' +
+            'font-size:var(--text-min);color:#fff;background:' + rCol + '">' +
+            escHtml(t.escalation_risk || '') + '</span></td>' +
+          '<td style="color:var(--color-text-secondary);line-height:1.4">' +
+            escHtml(t.key_development || '') + '</td>' +
+        '</tr>';
+
+      /* Expandable detail row (hidden by default) */
+      var actorTags = (t.primary_actors || []).map(function(a) {
+        return '<span class="tag tag--actor">' + escHtml(a) + '</span>';
+      }).join(' ');
+      var hybridTags = (t.hybrid_dimensions || []).map(function(h) {
+        return '<span class="tag tag--hybrid">' + escHtml(h) + '</span>';
+      }).join(' ');
+      var warnTag = t.nuclear_threshold_concern
+        ? '<span class="tag tag--warn">Nuclear Threshold</span>' : '';
+      var hasStats = (t.acled_event_count_7d > 0) || (t.acled_fatality_count_7d > 0);
+
+      var detailCells = '<div style="display:flex;flex-wrap:wrap;gap:var(--space-4);padding:var(--space-3) 0">';
+      if (actorTags) detailCells += '<div><span style="font-size:var(--text-min);font-weight:700;' +
+        'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);' +
+        'display:block;margin-bottom:var(--space-1)">Actors</span>' + actorTags + '</div>';
+      if (hybridTags || warnTag) detailCells += '<div><span style="font-size:var(--text-min);font-weight:700;' +
+        'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);' +
+        'display:block;margin-bottom:var(--space-1)">Dimensions</span>' + hybridTags + ' ' + warnTag + '</div>';
+      if (hasStats) detailCells += '<div><span style="font-size:var(--text-min);font-weight:700;' +
+        'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);' +
+        'display:block;margin-bottom:var(--space-1)">ACLED 7d</span>' +
+        '<span style="font-size:var(--text-xs)">Events: <strong>' + (t.acled_event_count_7d || 0) +
+        '</strong> · Fatalities: <strong>' + (t.acled_fatality_count_7d || 0) + '</strong></span></div>';
+      if (t.ceasefire_status) detailCells += '<div><span style="font-size:var(--text-min);font-weight:700;' +
+        'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);' +
+        'display:block;margin-bottom:var(--space-1)">Ceasefire</span>' +
+        '<span style="font-size:var(--text-xs)">' + escHtml(t.ceasefire_status) + '</span></div>';
+      if (t.internationalisation_risk) detailCells += '<div><span style="font-size:var(--text-min);font-weight:700;' +
+        'text-transform:uppercase;letter-spacing:.05em;color:var(--color-text-muted);' +
+        'display:block;margin-bottom:var(--space-1)">Internationalisation</span>' +
+        '<span style="font-size:var(--text-xs)">' + escHtml(t.internationalisation_risk) + '</span></div>';
+      detailCells += '</div>';
+
+      html += '<tr id="' + rowId + '" style="display:none">' +
+        '<td></td><td colspan="5" style="padding:0 var(--space-3) var(--space-3);' +
+        'border-bottom:2px solid var(--color-border)">' + detailCells + '</td></tr>';
     });
-    html += '</div>';
+
+    html += '</tbody></table></div>';
+
+    /* Toggle script: click summary row to expand/collapse detail */
+    html += '<script>' +
+      'document.querySelectorAll("[data-tt-toggle]").forEach(function(row){' +
+        'row.addEventListener("click",function(){' +
+          'var d=document.getElementById(this.getAttribute("data-tt-toggle"));' +
+          'if(!d)return;' +
+          'var open=d.style.display!=="none";' +
+          'd.style.display=open?"none":"table-row";' +
+          'this.querySelector("td").textContent=open?"\u25b8":"\u25be";' +
+        '});' +
+      '});' +
+    '<\/script>';
+
     el.innerHTML = html;
   }
 
@@ -825,12 +876,41 @@ window.AsymSections = (function () {
       return;
     }
 
-    var html = '';
+    /* ── Conflict selector (one at a time, no "All" dump) ──────── */
+    var filterId = targetId + '-scoring-filter';
+    var filterHtml = '';
+    if (scoring.length > 1) {
+      filterHtml =
+        '<div style="margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)">' +
+          '<label for="' + filterId + '" style="font-size:var(--text-xs);font-weight:600;' +
+            'color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">' +
+            'Conflict:</label>' +
+          '<select id="' + filterId + '" class="indicator-breakdown-select" ' +
+            'style="font-size:var(--text-xs);padding:4px 8px;max-width:280px">';
+      scoring.forEach(function(entity, i) {
+        var name = entity.theatre_name || entity.theatre_id || '';
+        var nElev = (entity.indicators || []).filter(function(ind) {
+          var ll = (ind.level_label || '').toLowerCase();
+          return ll === 'red' || ll === 'amber' || ll === 'elevated' || ll === 'crisis';
+        }).length;
+        var badge = nElev > 0 ? ' \u2022 ' + nElev + ' elevated' : '';
+        filterHtml += '<option value="' + escHtml(entity.theatre_id || name) + '"' +
+          (i === 0 ? ' selected' : '') + '>' +
+          escHtml(name) + badge + '</option>';
+      });
+      filterHtml += '</select>' +
+        '<span style="font-size:var(--text-min);color:var(--color-text-muted);margin-left:var(--space-2)">' +
+          scoring.length + ' conflicts tracked</span>' +
+        '</div>';
+    }
+
+    var html = filterHtml;
     scoring.forEach(function (entity) {
       var indicators = entity.indicators || [];
+      var eid = escHtml(entity.theatre_id || entity.theatre_name || '');
       html +=
-        '<div class="scoring-block">' +
-          '<div class="scoring-block__title">' + escHtml(entity.theatre_id || '') + '</div>' +
+        '<div class="scoring-block" data-scoring-entity="' + eid + '">' +
+          '<div class="scoring-block__title">' + escHtml(entity.theatre_name || entity.theatre_id || '') + '</div>' +
           '<table class="indicator-table">' +
             '<thead><tr>' +
               '<th>Indicator</th>' +
@@ -913,6 +993,25 @@ window.AsymSections = (function () {
       html += '</tbody></table></div>';
     });
     el.innerHTML = html;
+
+    /* Wire filter — show only the selected conflict (default: first) */
+    if (scoring.length > 1) {
+      var sel = document.getElementById(filterId);
+      if (sel) {
+        var blocks = el.querySelectorAll('.scoring-block[data-scoring-entity]');
+        /* Hide all except first on initial render */
+        var firstVal = sel.value;
+        for (var i = 0; i < blocks.length; i++) {
+          blocks[i].style.display = (blocks[i].getAttribute('data-scoring-entity') === firstVal) ? '' : 'none';
+        }
+        sel.addEventListener('change', function() {
+          var v = sel.value;
+          for (var j = 0; j < blocks.length; j++) {
+            blocks[j].style.display = (blocks[j].getAttribute('data-scoring-entity') === v) ? '' : 'none';
+          }
+        });
+      }
+    }
   }
 
   /**
@@ -963,6 +1062,92 @@ window.AsymSections = (function () {
 
       html += '</div></div>';
     });
+    el.innerHTML = html;
+  }
+
+  /**
+   * Generic expandable table — summary rows that click-expand to reveal detail.
+   *
+   * Reusable across any monitor. Callers supply:
+   *   items   — array of data objects
+   *   targetId — DOM id to render into
+   *   opts: {
+   *     columns:  [{ header: 'Name', render: fn(item) → htmlString }]
+   *     detail:   fn(item, idx) → htmlString for expanded panel
+   *     idPrefix: string — unique prefix for data attributes (default 'exp')
+   *     caption:  optional table caption
+   *     autoExpand: index to auto-expand on load (-1 = none, default -1)
+   *     emptyMsg:  message when items is empty
+   *   }
+   */
+  function renderExpandableTable(items, targetId, opts) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    opts = opts || {};
+    var cols    = opts.columns || [];
+    var detail  = opts.detail  || function() { return ''; };
+    var prefix  = opts.idPrefix || 'exp';
+    var autoIdx = opts.autoExpand !== undefined ? opts.autoExpand : -1;
+    var emptyMsg = opts.emptyMsg || 'No data available.';
+
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">' + escHtml(emptyMsg) + '</p>';
+      return;
+    }
+
+    var html = '<div style="overflow-x:auto">' +
+      '<table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">';
+    if (opts.caption) {
+      html += '<caption style="text-align:left;font-size:var(--text-xs);color:var(--color-text-muted);' +
+        'margin-bottom:var(--space-2);caption-side:top">' + escHtml(opts.caption) + '</caption>';
+    }
+
+    /* Header */
+    html += '<thead><tr><th style="width:24px"></th>';
+    cols.forEach(function(c) {
+      html += '<th style="' + (c.style || '') + '">' + escHtml(c.header) + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+
+    /* Rows */
+    items.forEach(function(item, idx) {
+      var rowId = prefix + '-detail-' + idx;
+      var isOpen = (idx === autoIdx);
+
+      /* Summary row */
+      html +=
+        '<tr class="' + prefix + '-summary-row" style="cursor:pointer" data-' + prefix + '-toggle="' + rowId + '">' +
+          '<td style="text-align:center;font-size:var(--text-sm);color:var(--color-text-muted)">' +
+            (isOpen ? '\u25be' : '\u25b8') + '</td>';
+      cols.forEach(function(c) {
+        html += '<td style="' + (c.cellStyle || '') + '">' + (c.render ? c.render(item) : '') + '</td>';
+      });
+      html += '</tr>';
+
+      /* Detail row */
+      html += '<tr id="' + rowId + '" style="display:' + (isOpen ? 'table-row' : 'none') + '">' +
+        '<td></td>' +
+        '<td colspan="' + cols.length + '" style="padding:var(--space-3) var(--space-3) var(--space-4);' +
+          'border-bottom:2px solid var(--color-border);background:var(--color-bg-alt)">' +
+          detail(item, idx) +
+        '</td></tr>';
+    });
+
+    html += '</tbody></table></div>';
+
+    /* Toggle script */
+    html += '<script>' +
+      'document.querySelectorAll("[data-' + prefix + '-toggle]").forEach(function(row){' +
+        'row.addEventListener("click",function(){' +
+          'var d=document.getElementById(this.getAttribute("data-' + prefix + '-toggle"));' +
+          'if(!d)return;' +
+          'var open=d.style.display!=="none";' +
+          'd.style.display=open?"none":"table-row";' +
+          'this.querySelector("td").textContent=open?"\u25b8":"\u25be";' +
+        '});' +
+      '});' +
+    '<\/script>';
+
     el.innerHTML = html;
   }
 
@@ -3338,6 +3523,8 @@ window.AsymSections = (function () {
     renderDefenceProgrammes: renderDefenceProgrammes,
     // Generic reusable chart
     renderRadarChart: renderRadarChart,
+    // Generic reusable expand/collapse table
+    renderExpandableTable: renderExpandableTable,
     // ERM-specific sections (reusable cross-monitor where applicable)
     renderPolicyLawCompliance: renderPolicyLawCompliance,
     renderICJTracker: renderICJTracker,
@@ -3443,28 +3630,61 @@ window.AsymSections = (function () {
       return;
     }
     var maxScore = config.maxScore || 5;
-    var html = '<div style="display:flex;flex-direction:column;gap:6px">';
+
+    function _sevColour(score) {
+      if (score >= 4) return '#dc2626';   /* critical red */
+      if (score >= 3) return '#d97706';   /* amber */
+      if (score >= 2) return '#059669';   /* moderate green */
+      return '#94a3b8';                   /* low grey */
+    }
+    function _sevLabel(score) {
+      if (score >= 4) return 'Critical';
+      if (score >= 3) return 'Elevated';
+      if (score >= 2) return 'Moderate';
+      return 'Low';
+    }
+    /* Trajectory arrows */
+    var _trajArrow = { 'Escalating':'\u2191', 'De-escalating':'\u2193', 'Stable':'\u2192' };
+
+    var html = '<div style="display:flex;flex-direction:column;gap:8px">';
     items.forEach(function(item) {
-      var col = item.trajectoryColour || '#94a3b8';
+      var col = _sevColour(item.score);
       var pct = Math.max(6, Math.round((item.score / maxScore) * 100));
+      var arrow = _trajArrow[item.trajectory] || '';
+      var trajCol = item.trajectoryColour || 'var(--color-text-muted)';
       html +=
         '<div style="display:flex;align-items:center;gap:var(--space-3)">' +
+          /* Name with severity accent border */
           '<div style="width:180px;font-size:var(--text-xs);color:var(--color-text-secondary);' +
-            'flex-shrink:0;text-align:right;line-height:1.2">' +
+            'flex-shrink:0;text-align:right;line-height:1.2;padding-right:var(--space-2);' +
+            'border-right:3px solid ' + col + '">' +
             escHtml(item.name) +
             (item.sub ? '<br><span style="font-size:var(--text-min);opacity:0.6">' +
               escHtml(item.sub) + '</span>' : '') +
           '</div>' +
-          '<div style="flex:1;height:22px;background:rgba(100,116,139,0.08);border-radius:3px;overflow:hidden">' +
-            '<div style="width:' + pct + '%;height:100%;background:' + col + ';opacity:0.75;border-radius:3px"></div>' +
+          /* Bar coloured by severity */
+          '<div style="flex:1;height:24px;background:rgba(100,116,139,0.06);border-radius:4px;overflow:hidden;position:relative">' +
+            '<div style="width:' + pct + '%;height:100%;background:' + col + ';opacity:0.18;border-radius:4px"></div>' +
+            '<div style="position:absolute;top:0;left:0;width:' + pct + '%;height:100%;' +
+              'border-radius:4px;border:1.5px solid ' + col + ';box-sizing:border-box"></div>' +
           '</div>' +
-          '<div style="width:36px;text-align:right;font-size:var(--text-xs);font-weight:700;' +
-            'color:var(--color-text-muted);flex-shrink:0">' + item.score + '/' + maxScore + '</div>' +
+          /* Score + severity label */
+          '<div style="width:90px;display:flex;align-items:center;gap:var(--space-1);flex-shrink:0;justify-content:flex-end">' +
+            '<span style="font-size:var(--text-xs);font-weight:700;color:' + col + '">' +
+              item.score + '/' + maxScore + '</span>' +
+            '<span style="font-size:var(--text-min);color:' + col + ';font-weight:600">' +
+              _sevLabel(item.score) + '</span>' +
+          '</div>' +
+          /* Trajectory indicator */
+          (arrow
+            ? '<div style="width:20px;text-align:center;font-size:var(--text-sm);color:' + trajCol + ';' +
+                'flex-shrink:0" title="' + escHtml(item.trajectory || '') + '">' + arrow + '</div>'
+            : '<div style="width:20px;flex-shrink:0"></div>') +
         '</div>';
     });
     html += '</div>';
     if (config.footer) {
-      html += '<p style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted);' +
+      html += '<p style="margin-top:var(--space-3);font-size:var(--text-min);color:var(--color-text-muted);' +
         'font-style:italic">' + escHtml(config.footer) + '</p>';
     }
     el.innerHTML = html;
@@ -3474,8 +3694,10 @@ window.AsymSections = (function () {
    * renderEntityRoster — generic roster table for any monitor.
    *
    * @param {Object}  config
-   *   .columns  {Array}  [{key, label, render(row)}] — render returns html string
-   *   .rows     {Array}  data objects
+   *   .columns   {Array}   [{key, label, render(row)}] — render returns html string
+   *   .rows      {Array}   data objects
+   *   .groupKey  {string=} optional row property to group by (adds a filter dropdown)
+   *   .groupLabel{string=} dropdown label, default "Show:"
    * @param {string}  targetId
    */
   function renderEntityRoster(config, targetId) {
@@ -3487,12 +3709,44 @@ window.AsymSections = (function () {
       el.innerHTML = '<p class="text-muted text-sm">No roster data available.</p>';
       return;
     }
-    var html = '<table class="heatmap-table"><thead><tr>';
+
+    var groupKey = config.groupKey || '';
+    var groupLabel = config.groupLabel || 'Show:';
+    var groups = [];
+    var filterId = targetId + '-roster-filter';
+    var html = '';
+
+    /* Build filter dropdown when groupKey is provided */
+    if (groupKey) {
+      var seen = {};
+      rows.forEach(function(r) {
+        var g = String(r[groupKey] || '');
+        if (g && !seen[g]) { seen[g] = true; groups.push(g); }
+      });
+      if (groups.length > 1) {
+        html += '<div style="margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)">' +
+          '<label for="' + filterId + '" style="font-size:var(--text-xs);font-weight:600;' +
+            'color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">' +
+            escHtml(groupLabel) + '</label>' +
+          '<select id="' + filterId + '" class="indicator-breakdown-select" ' +
+            'style="font-size:var(--text-xs);padding:4px 8px;max-width:260px">' +
+            '<option value="__all">All (' + rows.length + ')</option>';
+        groups.forEach(function(g) {
+          var cnt = rows.filter(function(r) { return String(r[groupKey] || '') === g; }).length;
+          html += '<option value="' + escHtml(g) + '">' + escHtml(g) + ' (' + cnt + ')</option>';
+        });
+        html += '</select></div>';
+      }
+    }
+
+    html += '<table class="heatmap-table"><thead><tr>';
     cols.forEach(function(c) { html += '<th>' + escHtml(c.label) + '</th>'; });
     html += '</tr></thead><tbody>';
     rows.forEach(function(row, i) {
       var rowCls = row._rowClass || (i % 2 === 0 ? '' : 'alt');
-      html += '<tr' + (rowCls ? ' class="heatmap-row--' + rowCls + '"' : '') + '>';
+      var gVal = groupKey ? escHtml(String(row[groupKey] || '')) : '';
+      html += '<tr' + (rowCls ? ' class="heatmap-row--' + rowCls + '"' : '') +
+        (gVal ? ' data-roster-group="' + gVal + '"' : '') + '>';
       cols.forEach(function(c) {
         html += '<td>' + (c.render ? c.render(row) : escHtml(String(row[c.key] || ''))) + '</td>';
       });
@@ -3500,6 +3754,20 @@ window.AsymSections = (function () {
     });
     html += '</tbody></table>';
     el.innerHTML = html;
+
+    /* Wire filter */
+    if (groupKey && groups.length > 1) {
+      var sel = document.getElementById(filterId);
+      if (sel) {
+        sel.addEventListener('change', function() {
+          var v = sel.value;
+          var trs = el.querySelectorAll('tbody tr[data-roster-group]');
+          for (var i = 0; i < trs.length; i++) {
+            trs[i].style.display = (v === '__all' || trs[i].getAttribute('data-roster-group') === v) ? '' : 'none';
+          }
+        });
+      }
+    }
   }
 
   /**
@@ -3608,20 +3876,67 @@ window.AsymSections = (function () {
     if (!selectEl || !canvasEl || !entities.length) return;
 
     var BAND_COLOURS = {
-      'Red': '#dc2626', 'ANOMALOUS': '#dc2626',
-      'Amber': '#d97706', 'ELEVATED': '#d97706',
-      'Green': '#059669', 'NORMAL': '#059669',
+      'Red': '#dc2626', 'ANOMALOUS': '#dc2626', 'Crisis': '#dc2626',
+      'Amber': '#d97706', 'ELEVATED': '#d97706', 'Elevated': '#d97706',
+      'Green': '#059669', 'NORMAL': '#059669', 'Normal': '#059669',
       'CONTESTED': '#94a3b8'
     };
 
-    /* Populate select */
+    /* Detect whether deviation_band is useful (all-same = baselines not set) */
+    var _allBands = {};
+    entities.forEach(function(e) {
+      var inds = e.indicators || {};
+      keys.forEach(function(k) { var b = (inds[k] || {}).band || ''; if (b) _allBands[b] = true; });
+    });
+    var _useLevelLabel = Object.keys(_allBands).length <= 1; /* all same band → fall back to level_label */
+
+    /* Derive level_label from level value if not present in data */
+    function _deriveLevelLabel(ind) {
+      if (ind.level_label) return ind.level_label;
+      var lv = ind.level || 0;
+      if (lv >= 4) return 'Red';
+      if (lv >= 3) return 'Amber';
+      if (lv >= 1) return 'Green';
+      return 'CONTESTED';
+    }
+
+    /* Helper: worst band for an entity */
+    function _worstBand(entity) {
+      var inds = entity.indicators || {};
+      var worst = 'CONTESTED', worstRank = 0;
+      var RANK = { 'Red':3, 'ANOMALOUS':3, 'Crisis':3, 'Amber':2, 'ELEVATED':2, 'Elevated':2, 'Green':1, 'NORMAL':1, 'Normal':1 };
+      keys.forEach(function(k) {
+        var ind = inds[k] || {};
+        var b = _useLevelLabel ? _deriveLevelLabel(ind) : (ind.band || '');
+        if ((RANK[b] || 0) > worstRank) { worst = b; worstRank = RANK[b]; }
+      });
+      return worst;
+    }
+    function _bandDot(band) {
+      var col = BAND_COLOURS[band] || '#94a3b8';
+      return '\u25CF';  /* used with colour styling */
+    }
+
+    /* Populate select with band colour indicators */
     selectEl.innerHTML = '';
     entities.forEach(function(e, i) {
       var opt = document.createElement('option');
       opt.value = i;
-      opt.textContent = e.name || e.id;
+      var wb = _worstBand(e);
+      var dot = wb === 'Red' || wb === 'ANOMALOUS' ? '\ud83d\udd34 '
+              : wb === 'Amber' || wb === 'ELEVATED' ? '\ud83d\udfe1 '
+              : wb === 'Green' || wb === 'NORMAL' ? '\ud83d\udfe2 '
+              : '\u26aa ';
+      opt.textContent = dot + (e.name || e.id);
       selectEl.appendChild(opt);
     });
+
+    /* Summary strip element (injected above chart) */
+    var summaryEl = document.createElement('div');
+    summaryEl.style.cssText = 'font-size:var(--text-xs);padding:var(--space-2) var(--space-3);' +
+      'margin-bottom:var(--space-2);border-radius:4px;background:var(--color-surface,#f3f0ec);' +
+      'border:1px solid var(--color-border,#d8d4cd);display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap';
+    canvasEl.parentNode.insertBefore(summaryEl, canvasEl);
 
     var chart = null;
     function renderChart(idx) {
@@ -3640,7 +3955,9 @@ window.AsymSections = (function () {
         var ind = inds[k] || {};
         levels.push(ind.level || 0);
         baselines.push(ind.baseline || 0);
-        var col = BAND_COLOURS[ind.band] || '#94a3b8';
+        /* Use level_label for colour when deviation_band doesn't differentiate */
+        var bandKey = _useLevelLabel ? _deriveLevelLabel(ind) : (ind.band || '');
+        var col = BAND_COLOURS[bandKey] || '#94a3b8';
         barColours.push(col + '33');
         borderColours.push(col);
       });
@@ -3706,17 +4023,45 @@ window.AsymSections = (function () {
         }
       });
 
-      /* Legend */
+      /* Summary strip */
+      var wb = _worstBand(entity);
+      var wbCol = BAND_COLOURS[wb] || '#94a3b8';
+      var elevCount = 0;
+      keys.forEach(function(k) {
+        var ind = inds[k] || {};
+        var b = _useLevelLabel ? _deriveLevelLabel(ind) : (ind.band || '');
+        if (b === 'Red' || b === 'ANOMALOUS' || b === 'Crisis' || b === 'Amber' || b === 'ELEVATED' || b === 'Elevated') elevCount++;
+      });
+      summaryEl.innerHTML =
+        '<strong style="color:var(--color-text)">' + escHtml(entity.name || entity.id) + '</strong>' +
+        '<span>Worst band: <span style="color:' + wbCol + ';font-weight:700">' + escHtml(wb) + '</span></span>' +
+        (elevCount > 0
+          ? '<span style="color:#d97706;font-weight:600">' + elevCount + ' indicator' +
+            (elevCount > 1 ? 's' : '') + ' elevated</span>'
+          : '<span style="color:#059669">All within baseline</span>');
+
+      /* Legend with band colours */
       if (legendEl) {
-        var legHtml = '<div class="indicator-breakdown-legend-item">' +
-          '<div class="indicator-breakdown-legend-swatch" style="background:#94a3b833;border:1px solid #94a3b8"></div>Level (1–5)</div>';
+        var legHtml =
+          '<div class="indicator-breakdown-legend-item">' +
+            '<div class="indicator-breakdown-legend-swatch" style="background:#dc262633;border:1px solid #dc2626"></div>' +
+            '<span style="color:#dc2626;font-weight:600">Red</span></div>' +
+          '<div class="indicator-breakdown-legend-item">' +
+            '<div class="indicator-breakdown-legend-swatch" style="background:#d9770633;border:1px solid #d97706"></div>' +
+            '<span style="color:#d97706;font-weight:600">Amber</span></div>' +
+          '<div class="indicator-breakdown-legend-item">' +
+            '<div class="indicator-breakdown-legend-swatch" style="background:#05966933;border:1px solid #059669"></div>' +
+            '<span style="color:#059669;font-weight:600">Green</span></div>' +
+          '<div class="indicator-breakdown-legend-item">' +
+            '<div class="indicator-breakdown-legend-swatch" style="background:#94a3b833;border:1px solid #94a3b8"></div>' +
+            '<span style="color:#94a3b8;font-weight:600">Contested</span></div>';
         if (!allContested) {
           legHtml += '<div class="indicator-breakdown-legend-item">' +
             '<div class="indicator-breakdown-legend-swatch" style="background:transparent;border:2px dashed rgba(100,116,139,0.5)"></div>Baseline</div>';
         }
         legHtml += '<div class="indicator-breakdown-legend-item" style="margin-left:auto;font-style:italic;color:var(--color-text-muted)">' +
           (allContested
-            ? (config.contestedMsg || 'Baselines not yet established — showing levels only.')
+            ? (config.contestedMsg || 'Baselines not yet established \u2014 showing levels only.')
             : 'Click a bar to see the indicator note.') +
           '</div>';
         legendEl.innerHTML = legHtml;

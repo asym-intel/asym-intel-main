@@ -286,16 +286,6 @@
       </div>
     </section>
 
-    <!-- 9. F-Flag Matrix -->
-    <section class="module-section" id="section-fflag-matrix">
-      <div class="module-header">
-        <div class="module-title">F-Flag Matrix</div>
-      </div>
-      <div id="fflag-matrix-content">
-        <div class="loading-state">Loading…</div>
-      </div>
-    </section>
-
     <!-- 10. ACLED Reference -->
     <section class="module-section" id="section-acled-reference">
       <div class="module-header">
@@ -361,7 +351,6 @@
       <li><a href="#section-hybrid-warfare">Hybrid Warfare</a></li>
       <li><a href="#section-indicator-scoring">Indicator Scoring</a></li>
       <li><a href="#section-conflicts">Conflicts</a></li>
-      <li><a href="#section-fflag-matrix">F-Flag Matrix</a></li>
       <li><a href="#section-acled-reference">ACLED Reference</a></li>
       <li><a href="#section-key-judgments">Key Judgments</a></li>
       <li><a href="#section-cross-monitor-candidates">Cross-Monitor Candidates</a></li>
@@ -492,14 +481,7 @@ document.addEventListener('DOMContentLoaded', function () {
           : '') +
       '</div>';
 
-    // ── Sidebar: inject per-conflict sub-links after "Conflicts" ─────
-    var conflictSubLinks = '';
-    roster.forEach(function (c) {
-      var id = conflictId(c.conflict);
-      conflictSubLinks +=
-        '<li style="padding-left:var(--space-2)"><a href="#conflict-' + id +
-        '" style="font-size:var(--text-xs)">' + escHtml(c.conflict) + '</a></li>';
-    });
+    // ── Sidebar ─────────────────────────────────────────────────────
     document.getElementById('sidebar-links').innerHTML =
       '<li><a href="#section-header">Issue Header</a></li>' +
       '<li><a href="#section-escalation-indicators">Escalation Indicators</a></li>' +
@@ -510,68 +492,73 @@ document.addEventListener('DOMContentLoaded', function () {
       '<li><a href="#section-hybrid-warfare">Hybrid Warfare</a></li>' +
       '<li><a href="#section-indicator-scoring">Indicator Scoring</a></li>' +
       '<li><a href="#section-conflicts">Conflicts</a></li>' +
-      conflictSubLinks +
-      '<li><a href="#section-fflag-matrix">F-Flag Matrix</a></li>' +
       '<li><a href="#section-acled-reference">ACLED Reference</a></li>' +
       '<li><a href="#section-key-judgments">Key Judgments</a></li>' +
       '<li><a href="#section-cross-monitor-candidates">Cross-Monitor Candidates</a></li>' +
       '<li><a href="#section-roster-watch">Roster Watch</a></li>' +
       '<li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>';
 
-    // ── Conflict Roster ──────────────────────────────────────────────
-    var conflictsHtml = '';
-    roster.forEach(function (c) {
-      var id = conflictId(c.conflict);
-      var flags = c.f_flags || [];
-      var inds  = c.indicators || {};
-      var worst = getWorstBand(inds);
-      var rowClass = bandToRowClass(worst.band);
-      var statusText  = c.status || c.trajectory || 'Active';
-      var statusClass = deriveStatusClass(statusText);
-      var statusBadge = buildStatusBadge(statusText, statusClass);
-      var trajectoryBadge = c.trajectory
-        ? buildStatusBadge(c.trajectory, deriveStatusClass(c.trajectory))
-        : '';
-
-      conflictsHtml +=
-        '<div class="conflict-section module-section conflict-section--' + statusClass +
-          '" id="conflict-' + id + '">' +
-          '<div class="conflict-section__header">' +
-            '<div class="conflict-section__name">' + escHtml(c.conflict) + '</div>' +
-            '<div class="conflict-section__meta">' +
-              '<span>' + escHtml(c.theatre) + '</span>' +
-              '<span>' + statusBadge + '</span>' +
-              (c.trajectory && c.trajectory !== statusText
-                ? '<span>' + trajectoryBadge + '</span>' : '') +
-              '<span><span class="severity-badge severity-badge--' + rowClass + '">' +
-                escHtml(worst.band||'') + '</span></span>' +
-              '<span>' + escHtml(c.baseline_status||'Contested') + '</span>' +
-            '</div>' +
-          '</div>' +
+    // ── Conflict Roster (expand/collapse table) ─────────────────────
+    AsymSections.renderExpandableTable(roster, 'conflict-sections', {
+      idPrefix: 'cr',
+      emptyMsg: 'No conflict roster data available.',
+      columns: [
+        { header: 'Conflict', render: function(c) {
+            return '<strong>' + escHtml(c.conflict) + '</strong>' +
+              '<br><span style="font-size:var(--text-min);color:var(--color-text-muted)">' +
+                escHtml(c.theatre || '') + '</span>';
+          }
+        },
+        { header: 'Status', render: function(c) {
+            var st = c.status || c.trajectory || 'Active';
+            return buildStatusBadge(st, deriveStatusClass(st));
+          }
+        },
+        { header: 'Trajectory', render: function(c) {
+            return c.trajectory
+              ? buildStatusBadge(c.trajectory, deriveStatusClass(c.trajectory))
+              : '\u2014';
+          }
+        },
+        { header: 'Severity', render: function(c) {
+            var worst = getWorstBand(c.indicators || {});
+            return '<span class="severity-badge severity-badge--' + bandToRowClass(worst.band) + '">' +
+              escHtml(worst.band || '') + '</span>';
+          }
+        },
+        { header: 'Baseline', render: function(c) {
+            return escHtml(c.baseline_status || 'Contested');
+          }, cellStyle: 'font-size:var(--text-xs)'
+        }
+      ],
+      detail: function(c) {
+        var flags = c.f_flags || [];
+        var inds  = c.indicators || {};
+        var html =
           '<table class="indicator-table">' +
             '<thead><tr><th>Indicator</th><th>Level</th><th>Baseline</th>' +
               '<th>Deviation</th><th>Band</th><th>Confidence</th><th>Note</th></tr></thead>' +
             '<tbody>' + renderIndicatorRows(inds) + '</tbody>' +
-          '</table>' +
-          (flags.length
-            ? '<div style="margin-top:var(--space-3)"><div class="section-label">F-Flags</div>' +
-                '<div class="f-flags-list">' + renderFFlags(flags) + '</div></div>'
-            : '') +
-          (c.lead_development
-            ? '<div class="lead-dev-box"><strong>Lead Development:</strong> ' +
-                escHtml(c.lead_development) + '</div>'
-            : '') +
-          (c.summary
-            ? '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.65;' +
-                'margin-top:var(--space-3)">' + escHtml(c.summary) + '</p>'
-            : '') +
-          (c.source_url
-            ? '<p style="margin-top:var(--space-3)"><a class="source-link" href="' +
-                escHtml(c.source_url) + '" target="_blank" rel="noopener">Primary source →</a></p>'
-            : '') +
-        '</div>';
+          '</table>';
+        if (flags.length) {
+          html += '<div style="margin-top:var(--space-3)"><div class="section-label">F-Flags</div>' +
+            '<div class="f-flags-list">' + renderFFlags(flags) + '</div></div>';
+        }
+        if (c.lead_development) {
+          html += '<div class="lead-dev-box"><strong>Lead Development:</strong> ' +
+            escHtml(c.lead_development) + '</div>';
+        }
+        if (c.summary) {
+          html += '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.65;' +
+            'margin-top:var(--space-3)">' + escHtml(c.summary) + '</p>';
+        }
+        if (c.source_url) {
+          html += '<p style="margin-top:var(--space-3)"><a class="source-link" href="' +
+            escHtml(c.source_url) + '" target="_blank" rel="noopener">Primary source \u2192</a></p>';
+        }
+        return html;
+      }
     });
-    document.getElementById('conflict-sections').innerHTML = conflictsHtml;
 
     // ── Call all new generic render functions (via shared AsymSections library) ──
     if (window.AsymSections) {
@@ -583,7 +570,6 @@ document.addEventListener('DOMContentLoaded', function () {
       AsymSections.renderHybridWarfareLayer(d.hybrid_warfare_layer || [], 'hybrid-warfare-content',
         document.getElementById('section-hybrid-warfare'));
       AsymSections.renderIndicatorScoring(d.indicator_scoring || [], 'indicator-scoring-content');
-      AsymSections.renderFlagMatrix(d.f_flag_matrix || [], 'fflag-matrix-content');
       AsymSections.renderACLEDReference(d.acled_reference || {}, 'acled-reference-content');
       AsymSections.renderKeyJudgments(d.key_judgments || [], 'key-judgments-content');
       AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates || [],
@@ -591,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Existing render calls ────────────────────────────────────────
-    renderCrossMonitor(cmf, 'cross-monitor');
+    AsymSections.renderCrossMonitorFlags(cmf, 'cross-monitor');
     renderRosterWatch(rw, 'roster-watch');
   }
 
@@ -723,40 +709,6 @@ document.addEventListener('DOMContentLoaded', function () {
         (detected ? '' : ' <span style="opacity:0.5">(not detected)</span>') +
       '</span>';
     }).join('');
-  }
-
-  function renderCrossMonitor(cmf, targetId) {
-    var flags = cmf.flags || [];
-    var el = document.getElementById(targetId);
-    if (!flags.length) {
-      el.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
-      return;
-    }
-    var html = '<div class="cross-monitor-panel">' +
-      '<div class="cross-monitor-panel__title">Cross-Monitor Flags · Updated ' +
-        escHtml(cmf.updated || '') + '</div>';
-    flags.forEach(function (flag) {
-      html +=
-        '<div class="cms-flag">' +
-          '<div class="cms-flag__header">' +
-            '<div class="cms-flag__id">' + escHtml(flag.flag_id || '') + '</div>' +
-            '<span class="severity-badge severity-badge--' +
-              bandToRowClass(flag.severity || 'moderate') + '">' +
-              escHtml(flag.severity || '') + '</span>' +
-          '</div>' +
-          '<div class="cms-flag__title">' + escHtml(flag.title || flag.signal || '') + '</div>' +
-          '<div class="cms-flag__monitors">' +
-            escHtml(flag.monitor || (flag.monitors || []).join(', ') || '') +
-            (flag.conflict ? ' · ' + escHtml(flag.conflict) : '') +
-          '</div>' +
-          '<div class="cms-flag__body cms-flag__body--collapsed">' +
-            escHtml(flag.summary || flag.detail || '') + '</div>' +
-          '<span class="cms-read-more">Read more →</span>' +
-        '</div>';
-    });
-    html += '</div>';
-    el.innerHTML = html;
-    if (window.AsymNav) AsymNav.init();
   }
 
   function getWorstBand(inds) {
