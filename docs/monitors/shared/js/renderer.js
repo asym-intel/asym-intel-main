@@ -4728,3 +4728,118 @@ window.AsymSections = (function () {
   }
 
 }());
+
+
+/* ════════════════════════════════════════════════════════════════
+   SHARED TOOLKIT — Metric Tile Grid
+   Promoted from ESA dashboard.html (14 Apr 2026)
+   Attached to window.AsymSections
+   ════════════════════════════════════════════════════════════════
+
+   AsymSections.renderMetricTileGrid(config, targetId)
+
+   Renders categorised metric tiles into a target element.
+   Each category gets an accent-coloured header and auto-fill tile grid.
+   Tiles show a large value (sentiment-coloured) + label + optional sub.
+
+   config shape:
+   {
+     data: object,  // flat key→value map (e.g. persistent-state kpi_indicators)
+     categories: [
+       {
+         label:  string,          // category heading, e.g. 'Defence & Security'
+         accent: string,          // CSS colour for header + top border
+         items: [
+           {
+             key:       string,   // lookup key in data
+             label:     string,   // display label
+             sentiment: 'positive' | 'negative' | 'neutral',  // drives value colour
+             sub:       string?,  // optional secondary line
+             format:    string?   // optional: 'pct' appends %, 'currency' prepends £
+           }
+         ]
+       }
+     ]
+   }
+
+   CSS classes: .metric-tile-group, .metric-tile-grid, .metric-tile,
+   .metric-tile__value, .metric-tile__label, .metric-tile__sub  (in base.css)
+   ════════════════════════════════════════════════════════════════ */
+
+(function () {
+  'use strict';
+
+  function _esc(s) {
+    if (s == null) return '';
+    var d = document.createElement('div');
+    d.appendChild(document.createTextNode(String(s)));
+    return d.innerHTML;
+  }
+
+  function _sentimentClass(s) {
+    if (s === 'positive') return 'metric-tile__value--positive';
+    if (s === 'negative') return 'metric-tile__value--negative';
+    return 'metric-tile__value--neutral';
+  }
+
+  function _formatValue(raw, fmt) {
+    if (raw == null) return '—';
+    var v = String(raw);
+    if (fmt === 'pct')      return v + '%';
+    if (fmt === 'currency') return '£' + v;
+    return v;
+  }
+
+  /**
+   * renderMetricTileGrid(config, targetId)
+   *
+   * @param {object} config  - { data, categories[] }
+   * @param {string} targetId - DOM element id to render into
+   */
+  function renderMetricTileGrid(config, targetId) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    if (!config || !config.categories || !config.categories.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No indicator data available.</p>';
+      return;
+    }
+
+    var data = config.data || {};
+    var html = '';
+
+    config.categories.forEach(function (cat) {
+      var accent = cat.accent || 'var(--monitor-accent)';
+
+      html += '<div class="metric-tile-group">' +
+        '<div class="metric-tile-group__header">' +
+          '<span style="color:' + accent + '">' + _esc(cat.label) + '</span>' +
+        '</div>' +
+        '<div class="metric-tile-grid">';
+
+      (cat.items || []).forEach(function (item) {
+        var raw = data[item.key];
+        if (raw == null) return;  // skip missing keys
+        var displayVal = _formatValue(raw, item.format);
+        var valClass = 'metric-tile__value ' + _sentimentClass(item.sentiment);
+
+        html += '<div class="metric-tile" style="border-top:3px solid ' + accent + '">' +
+          '<div class="' + valClass + '">' + _esc(displayVal) + '</div>' +
+          '<div class="metric-tile__label">' + _esc(item.label) + '</div>' +
+          (item.sub ? '<div class="metric-tile__sub">' + _esc(item.sub) + '</div>' : '') +
+        '</div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  /* ── Attach to AsymSections ── */
+  if (window.AsymSections) {
+    window.AsymSections.renderMetricTileGrid = renderMetricTileGrid;
+  }
+  /* Fallback direct access */
+  window.AsymMetricTileGrid = renderMetricTileGrid;
+
+}());
