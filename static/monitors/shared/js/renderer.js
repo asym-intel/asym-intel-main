@@ -1066,6 +1066,92 @@ window.AsymSections = (function () {
   }
 
   /**
+   * Generic expandable table — summary rows that click-expand to reveal detail.
+   *
+   * Reusable across any monitor. Callers supply:
+   *   items   — array of data objects
+   *   targetId — DOM id to render into
+   *   opts: {
+   *     columns:  [{ header: 'Name', render: fn(item) → htmlString }]
+   *     detail:   fn(item, idx) → htmlString for expanded panel
+   *     idPrefix: string — unique prefix for data attributes (default 'exp')
+   *     caption:  optional table caption
+   *     autoExpand: index to auto-expand on load (-1 = none, default -1)
+   *     emptyMsg:  message when items is empty
+   *   }
+   */
+  function renderExpandableTable(items, targetId, opts) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    opts = opts || {};
+    var cols    = opts.columns || [];
+    var detail  = opts.detail  || function() { return ''; };
+    var prefix  = opts.idPrefix || 'exp';
+    var autoIdx = opts.autoExpand !== undefined ? opts.autoExpand : -1;
+    var emptyMsg = opts.emptyMsg || 'No data available.';
+
+    if (!items || !items.length) {
+      el.innerHTML = '<p class="text-muted text-sm">' + escHtml(emptyMsg) + '</p>';
+      return;
+    }
+
+    var html = '<div style="overflow-x:auto">' +
+      '<table style="width:100%;font-size:var(--text-sm);border-collapse:collapse">';
+    if (opts.caption) {
+      html += '<caption style="text-align:left;font-size:var(--text-xs);color:var(--color-text-muted);' +
+        'margin-bottom:var(--space-2);caption-side:top">' + escHtml(opts.caption) + '</caption>';
+    }
+
+    /* Header */
+    html += '<thead><tr><th style="width:24px"></th>';
+    cols.forEach(function(c) {
+      html += '<th style="' + (c.style || '') + '">' + escHtml(c.header) + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+
+    /* Rows */
+    items.forEach(function(item, idx) {
+      var rowId = prefix + '-detail-' + idx;
+      var isOpen = (idx === autoIdx);
+
+      /* Summary row */
+      html +=
+        '<tr class="' + prefix + '-summary-row" style="cursor:pointer" data-' + prefix + '-toggle="' + rowId + '">' +
+          '<td style="text-align:center;font-size:var(--text-sm);color:var(--color-text-muted)">' +
+            (isOpen ? '\u25be' : '\u25b8') + '</td>';
+      cols.forEach(function(c) {
+        html += '<td style="' + (c.cellStyle || '') + '">' + (c.render ? c.render(item) : '') + '</td>';
+      });
+      html += '</tr>';
+
+      /* Detail row */
+      html += '<tr id="' + rowId + '" style="display:' + (isOpen ? 'table-row' : 'none') + '">' +
+        '<td></td>' +
+        '<td colspan="' + cols.length + '" style="padding:var(--space-3) var(--space-3) var(--space-4);' +
+          'border-bottom:2px solid var(--color-border);background:var(--color-bg-alt)">' +
+          detail(item, idx) +
+        '</td></tr>';
+    });
+
+    html += '</tbody></table></div>';
+
+    /* Toggle script */
+    html += '<script>' +
+      'document.querySelectorAll("[data-' + prefix + '-toggle]").forEach(function(row){' +
+        'row.addEventListener("click",function(){' +
+          'var d=document.getElementById(this.getAttribute("data-' + prefix + '-toggle"));' +
+          'if(!d)return;' +
+          'var open=d.style.display!=="none";' +
+          'd.style.display=open?"none":"table-row";' +
+          'this.querySelector("td").textContent=open?"\u25b8":"\u25be";' +
+        '});' +
+      '});' +
+    '<\/script>';
+
+    el.innerHTML = html;
+  }
+
+  /**
    * ACLED reference — alignment table + global top-N.
    * Accepts both `scem_theatre_id`/`scem_tracked` and generic
    * `monitor_theatre_id`/`monitor_tracked` field names.
@@ -3437,6 +3523,8 @@ window.AsymSections = (function () {
     renderDefenceProgrammes: renderDefenceProgrammes,
     // Generic reusable chart
     renderRadarChart: renderRadarChart,
+    // Generic reusable expand/collapse table
+    renderExpandableTable: renderExpandableTable,
     // ERM-specific sections (reusable cross-monitor where applicable)
     renderPolicyLawCompliance: renderPolicyLawCompliance,
     renderICJTracker: renderICJTracker,
