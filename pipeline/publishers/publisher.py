@@ -1429,6 +1429,101 @@ monitor: "{MONITOR_SLUG}"
 """
 
 
+# ── AI-readable markdown ─────────────────────────────────────────────
+
+def build_report_markdown(report: dict, config: dict) -> str:
+    """Generate a clean AI-readable markdown version of the report.
+    This is served at /monitors/{slug}/data/report-latest.md and linked
+    via <link rel="alternate" type="text/markdown"> for AI search discovery."""
+    meta = report.get("meta", {})
+    signal = report.get("signal", {})
+    kj_list = report.get("key_judgments", [])
+
+    lines = []
+    lines.append(f"# {config['title']} — Issue {meta.get('issue', '?')}")
+    lines.append(f"")
+    lines.append(f"**{meta.get('week_label', '')}** | Published {meta.get('published', '')}")
+    lines.append(f"")
+    lines.append(f"Publisher: Asymmetric Intelligence — <https://asym-intel.info>")
+    lines.append(f"")
+    lines.append(f"License: CC BY 4.0")
+    lines.append(f"")
+    lines.append(f"Schema version: {meta.get('schema_version', '2.0')}")
+    lines.append(f"")
+    lines.append(f"---")
+    lines.append(f"")
+
+    # Signal
+    if isinstance(signal, dict) and signal.get("headline"):
+        lines.append(f"## Lead Signal")
+        lines.append(f"")
+        lines.append(f"**{signal['headline']}**")
+        lines.append(f"")
+        if signal.get("confidence"):
+            lines.append(f"Confidence: {signal['confidence']}")
+        if signal.get("actor"):
+            lines.append(f"Actor: {signal['actor']}")
+        if signal.get("system_stress_label"):
+            lines.append(f"System stress: {signal['system_stress_label']}")
+            lines.append(f"Direction: {signal.get('system_stress_direction', '')}")
+        if signal.get("source_url"):
+            lines.append(f"Source: {signal['source_url']}")
+        lines.append(f"")
+
+    # Key judgments
+    if kj_list:
+        lines.append(f"## Key Judgments")
+        lines.append(f"")
+        for i, kj in enumerate(kj_list, 1):
+            if not isinstance(kj, dict):
+                continue
+            text = kj.get("judgment", kj.get("text", ""))
+            conf = kj.get("confidence", kj.get("confidence_preliminary", ""))
+            lines.append(f"{i}. **{text}**")
+            if conf:
+                lines.append(f"   - Confidence: {conf}")
+            if kj.get("trajectory"):
+                lines.append(f"   - Trajectory: {kj['trajectory']}")
+            if kj.get("source_url"):
+                lines.append(f"   - Source: {kj['source_url']}")
+            lines.append(f"")
+
+    # Weekly brief
+    brief = report.get("weekly_brief", "")
+    if brief:
+        lines.append(f"## Weekly Brief")
+        lines.append(f"")
+        lines.append(brief)
+        lines.append(f"")
+
+    # Cross-monitor flags
+    cmf = report.get("cross_monitor_flags", {})
+    flags = cmf.get("flags", []) if isinstance(cmf, dict) else cmf if isinstance(cmf, list) else []
+    if flags:
+        lines.append(f"## Cross-Monitor Flags")
+        lines.append(f"")
+        for flag in flags:
+            if not isinstance(flag, dict):
+                continue
+            lines.append(f"- **{flag.get('headline', '')}** ({flag.get('monitor', '')}) — {flag.get('status', '')}")
+        lines.append(f"")
+
+    # Data links
+    slug = MONITOR_SLUG
+    lines.append(f"---")
+    lines.append(f"")
+    lines.append(f"## Data")
+    lines.append(f"")
+    lines.append(f"- Full report JSON: <{SITE_URL}/monitors/{slug}/data/report-latest.json>")
+    lines.append(f"- Living Knowledge: <{SITE_URL}/monitors/{slug}/data/persistent-state.json>")
+    lines.append(f"- Archive: <{SITE_URL}/monitors/{slug}/data/archive.json>")
+    lines.append(f"- Dashboard: <{SITE_URL}/monitors/{slug}/dashboard.html>")
+    lines.append(f"- Methodology: <{SITE_URL}/monitors/{slug}/methodology.html>")
+    lines.append(f"")
+
+    return "\n".join(lines)
+
+
 # ── Last run status ──────────────────────────────────────────────────────
 
 def build_last_run_status(synthesis: dict, config: dict, issues: list = None) -> dict:
@@ -1611,6 +1706,9 @@ def main():
     # Hugo brief
     hugo_brief = build_hugo_brief(meta, synthesis, config)
 
+    # AI-readable markdown (served at /monitors/{slug}/data/report-latest.md)
+    report_md = build_report_markdown(report, config)
+
     # Write outputs
     print("\n[6/6] Writing outputs...")
     dated_report_path = data_dir / f"report-{publish_date}.json"
@@ -1620,8 +1718,10 @@ def main():
         write_json(persistent_path, persistent)
     write_json(archive_path, archive)
     write_text(brief_dir / f"{publish_date}-weekly-brief.md", hugo_brief)
+    write_text(data_dir / "report-latest.md", report_md)
     write_json(docs_data_dir / f"report-{publish_date}.json", report)
     write_json(docs_data_dir / "report-latest.json", report)
+    write_text(docs_data_dir / "report-latest.md", report_md)
 
     print(f"\n{'=' * 50}")
     print(f"{config['abbr']} Issue {meta['issue']} ({meta['week_label']}) published.")

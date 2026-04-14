@@ -61,6 +61,20 @@
 
 {{/* ── JSON-LD Structured Data ── */}}
 
+{{/* Organization — homepage only */}}
+{{ if .IsHome -}}
+{{- $org := dict
+    "@context" "https://schema.org"
+    "@type"    "Organization"
+    "name"     "Asymmetric Intelligence"
+    "url"      "https://asym-intel.info"
+    "logo"     (dict "@type" "ImageObject" "url" "https://asym-intel.info/favicon-32x32.png")
+    "description" "Open-source geopolitical intelligence platform publishing weekly early-warning monitors across democracy, macro, FIMI, AI governance, environment, conflict, and European strategic autonomy."
+    "sameAs"   (slice)
+-}}
+{{ printf `<script type="application/ld+json">%s</script>` ($org | jsonify) | safeHTML }}
+{{ end }}
+
 {{/* BreadcrumbList — all non-home pages */}}
 {{ if not .IsHome -}}
 {{- $crumbs := slice (dict "@type" "ListItem" "position" 1 "name" "Home" "item" .Site.BaseURL) -}}
@@ -99,4 +113,19 @@
   {{- $dataset = merge $dataset (dict "dateModified" (.Format "2006-01-02")) -}}
 {{- end -}}
 {{ printf `<script type="application/ld+json">%s</script>` ($dataset | jsonify) | safeHTML }}
+{{ end }}
+
+{{/* FAQPage — monitor section landing pages with FAQ data */}}
+{{ if and .IsSection (hasPrefix .RelPermalink "/monitors/") -}}
+{{- $slug := path.Base .RelPermalink -}}
+{{- $allFaqs := site.Data.monitor_faqs -}}
+{{- $faqs := index $allFaqs $slug -}}
+{{- if $faqs -}}
+  {{- $entities := slice -}}
+  {{- range $faqs -}}
+    {{- $entities = $entities | append (dict "@type" "Question" "name" .question "acceptedAnswer" (dict "@type" "Answer" "text" .answer)) -}}
+  {{- end -}}
+  {{- $faqLD := dict "@context" "https://schema.org" "@type" "FAQPage" "mainEntity" $entities -}}
+  {{ printf `<script type="application/ld+json">%s</script>` ($faqLD | jsonify) | safeHTML }}
+{{- end -}}
 {{ end }}
