@@ -217,36 +217,31 @@ def check_chatter_schedules(r: Results):
 
 
 def check_collector_schedules(r: Results):
-    """Verify all 7 collectors are daily with correct stagger."""
+    """Verify per-monitor collector workflow files exist with workflow_dispatch trigger.
+
+    Collectors are dispatched by the Cloudflare Worker (pipeline-dispatcher)
+    since Apr 2026 — individual workflows no longer need cron schedule blocks.
+    """
     wf_dir = REPO_ROOT / ".github" / "workflows"
 
-    for abbr, expected_minute in COLLECTOR_STAGGER.items():
+    for abbr in COLLECTOR_STAGGER:
         wf_file = wf_dir / f"{abbr}-collector.yml"
         if not wf_file.exists():
             r.fail(f"COLLECTOR-EXISTS:{abbr}", f"{abbr}-collector.yml not found")
             continue
 
         content = wf_file.read_text()
-        cron_match = re.search(r'cron:\s*"([^"]+)"', content)
-        if not cron_match:
-            r.fail(f"COLLECTOR-CRON:{abbr}", "No cron expression found")
-            continue
 
-        cron_expr = cron_match.group(1)
-        parts = cron_expr.split()
-
-        if parts[4] != "*":
-            r.fail(f"COLLECTOR-DAILY:{abbr}",
-                   f"Not daily — day-of-week is '{parts[4]}'. Cron: {cron_expr}")
+        # Must have workflow_dispatch trigger (Cloudflare Worker dispatches these)
+        if "workflow_dispatch" in content:
+            r.ok(f"COLLECTOR-DISPATCH:{abbr}", f"{abbr}-collector.yml has workflow_dispatch")
         else:
-            r.ok(f"COLLECTOR-DAILY:{abbr}", f"Daily schedule confirmed: {cron_expr}")
+            r.fail(f"COLLECTOR-DISPATCH:{abbr}", f"{abbr}-collector.yml missing workflow_dispatch trigger")
 
-        actual_minute = int(parts[0]) if parts[0].isdigit() else -1
-        if actual_minute != expected_minute:
-            r.warn(f"COLLECTOR-STAGGER:{abbr}",
-                   f"Minute is {actual_minute}, expected {expected_minute}. Cron: {cron_expr}")
-        else:
-            r.ok(f"COLLECTOR-STAGGER:{abbr}", f"Stagger correct: minute {actual_minute}")
+        # Warn if legacy cron block is still present (should have been removed)
+        if re.search(r'cron:\s*"', content):
+            r.warn(f"COLLECTOR-LEGACY-CRON:{abbr}",
+                   f"{abbr}-collector.yml still has cron block — remove (Cloudflare Worker dispatches)")
 
 
 def check_python_scripts(r: Results):
