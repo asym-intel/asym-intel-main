@@ -747,10 +747,25 @@ TIPPING_ALIASES = {
     "arctic sea ice": "Arctic Sea Ice",
 }
 
+# Attribution gap case aliases
+ATTRIBUTION_GAP_ALIASES = {
+    "novel entities": "Novel Entities \u2014 Synthetic Chemicals",
+    "novel entities \u2014 synthetic chemicals": "Novel Entities \u2014 Synthetic Chemicals",
+    "deep-sea mining": "Deep-Sea Mining \u2014 ISA Governance Void",
+    "deep-sea mining \u2014 isa governance void": "Deep-Sea Mining \u2014 ISA Governance Void",
+    "aerosol loading": "Atmospheric Aerosol Loading \u2014 Shipping Fuel Transition",
+    "atmospheric aerosol loading": "Atmospheric Aerosol Loading \u2014 Shipping Fuel Transition",
+    "atmospheric aerosol loading \u2014 shipping fuel transition": "Atmospheric Aerosol Loading \u2014 Shipping Fuel Transition",
+    "coral reef bleaching": "Coral Reef Bleaching \u2014 No International Liability Framework",
+    "coral reef bleaching \u2014 no international liability framework": "Coral Reef Bleaching \u2014 No International Liability Framework",
+    "coral bleaching": "Coral Reef Bleaching \u2014 No International Liability Framework",
+}
+
 # Which persistent-state keys use which alias map
 ALIAS_MAPS = {
     "boundary": BOUNDARY_ALIASES,
     "system": TIPPING_ALIASES,
+    "case": ATTRIBUTION_GAP_ALIASES,
 }
 
 
