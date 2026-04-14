@@ -3016,14 +3016,14 @@ window.AsymSections = (function () {
       if (Array.isArray(r.affected_asset_classes) && r.affected_asset_classes.length) {
         chipsHtml = '<div style="display:flex;flex-wrap:wrap;gap:var(--space-1);margin-top:var(--space-2)">' +
           r.affected_asset_classes.map(function(ac) {
-            return '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);background:var(--surface-3,rgba(255,255,255,0.06));color:var(--color-text-secondary)">' + escHtml(ac) + '</span>';
+            return '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:var(--radius-sm);background:var(--surface-3,rgba(255,255,255,0.06));color:var(--color-text-secondary)">' + escHtml(ac) + '</span>';
           }).join('') + '</div>';
       }
       html += '<div style="background:var(--surface-2);border-radius:var(--radius-md);padding:var(--space-4);border-left:3px solid ' + probColor(prob) + '">' +
         '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-2)">' +
           '<span style="font-weight:600;font-size:var(--text-sm)">' + escHtml(r.label || r.indicator || '') + '</span>' +
-          '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);color:' + typeColor(r.type) + ';border:1px solid ' + typeColor(r.type) + '40">' + escHtml(r.type || '') + '</span>' +
-          '<span style="font-size:10px;padding:1px 6px;border-radius:var(--radius-sm);background:' + probColor(prob) + '20;color:' + probColor(prob) + ';font-weight:600">' + escHtml(String(prob)) + '</span>' +
+          '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:var(--radius-sm);color:' + typeColor(r.type) + ';border:1px solid ' + typeColor(r.type) + '40">' + escHtml(r.type || '') + '</span>' +
+          '<span style="font-size:var(--text-xs);padding:1px 6px;border-radius:var(--radius-sm);background:' + probColor(prob) + '20;color:' + probColor(prob) + ';font-weight:600">' + escHtml(String(prob)) + '</span>' +
         '</div>' +
         '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5;margin-bottom:var(--space-2)">' +
           '<strong>Channel:</strong> ' + escHtml(r.transmission_channel || '—') +
@@ -3455,7 +3455,7 @@ window.AsymSections = (function () {
       approaching.forEach(function(item) {
         var tags = (item.tags || []).map(function(t) {
           return '<span style="display:inline-block;background:rgba(220,38,38,0.1);color:' + accent + ';' +
-            'border-radius:3px;padding:1px 7px;font-size:10px;font-weight:600;margin:2px 2px 2px 0">' +
+            'border-radius:3px;padding:1px 7px;font-size:var(--text-xs);font-weight:600;margin:2px 2px 2px 0">' +
             escHtml(t) + '</span>';
         }).join('');
         html +=
@@ -4315,9 +4315,28 @@ window.AsymSections = (function () {
     'agm': 'ai-governance', 'aim': 'ai-governance',
     'erm': 'environmental-risks', 'scem': 'conflict-escalation'
   };
+  /* Reverse map: human-readable display names (from CMF flag data) → slug.
+     Publisher writes full display names in the `monitor` field, not slugs.
+     This map lets _cmfLinkedSlug resolve them to slugs for SVG icons + accent colours. */
+  var _DISPLAY_NAME_TO_SLUG = {
+    'strategic conflict & escalation monitor':        'conflict-escalation',
+    'conflict & escalation monitor':                  'conflict-escalation',
+    'global fimi & cognitive warfare monitor':        'fimi-cognitive-warfare',
+    'fimi & cognitive warfare monitor':               'fimi-cognitive-warfare',
+    'fimi & cognitive warfare':                       'fimi-cognitive-warfare',
+    'democratic integrity monitor':                   'democratic-integrity',
+    'world democracy monitor':                        'democratic-integrity',
+    'ai governance monitor':                          'ai-governance',
+    'environmental risks & planetary boundaries monitor': 'environmental-risks',
+    'environmental risks monitor':                    'environmental-risks',
+    'macro monitor':                                  'macro-monitor',
+    'global macro monitor':                           'macro-monitor',
+    'european strategic autonomy':                    'european-strategic-autonomy',
+    'european strategic autonomy monitor':            'european-strategic-autonomy'
+  };
   function _cmfLinkedSlug(f) {
     /* Extract the linked (target) monitor slug.
-       Priority: source_url path > ID-encoded abbreviation > monitor_slug/monitor/source_monitor */
+       Priority: source_url path > ID-encoded abbreviation > monitor_slug/monitor/source_monitor > display name */
     if (f.source_url) {
       var m = f.source_url.match(/\/monitors\/([^\/]+)\//);
       if (m) return m[1];
@@ -4329,6 +4348,9 @@ window.AsymSections = (function () {
     /* Fallback to explicit monitor slug fields */
     var slug = f.monitor_slug || f.monitor || f.source_monitor || '';
     if (slug && _MONITOR_DISPLAY_NAMES[slug]) return slug;
+    /* Fallback: resolve human-readable display name to slug */
+    var lower = (f.monitor || f.source_monitor || '').toLowerCase().trim();
+    if (lower && _DISPLAY_NAME_TO_SLUG[lower]) return _DISPLAY_NAME_TO_SLUG[lower];
     return '';
   }
   function _cmfMonitor(f) {

@@ -262,50 +262,33 @@ document.addEventListener('DOMContentLoaded', function () {
       var lagDims = kpi.lagrange_point_dimensions || {};
       var lagProgress = kpi.lagrange_point_progress || '';
 
-      // ── Strategic Autonomy Scorecard Arc ─────────
+      // ── Strategic Autonomy Scorecard (Radar Chart) ─────────
       var scEl = document.getElementById('autonomy-scorecard-block');
       if (scEl) {
-        var pct = 35;
-        if (lagProgress) {
-          var m = String(lagProgress).match(/(\d+)/);
-          if (m) pct = parseInt(m[1], 10);
+        var dimOrder = ['energy','defence','technology','finance','materials','institutions'];
+        var dimLabels = {
+          energy: 'Energy Independence',
+          defence: 'Defence Sovereignty',
+          technology: 'Tech/Industrial',
+          finance: 'Financial Autonomy',
+          materials: 'Critical Materials',
+          institutions: 'Institutional Resilience'
+        };
+        if (Object.keys(lagDims).length && typeof AsymSections !== 'undefined' && AsymSections.renderRadarChart) {
+          AsymSections.renderRadarChart({
+            badge: String(lagProgress || '—'),
+            badgeLabel: 'Composite Autonomy Score',
+            accent: '#5b8db0',
+            max: 100,
+            title: 'Strategic Autonomy Radar',
+            dimensions: dimOrder.map(function(dk) {
+              var dim = lagDims[dk] || {};
+              return { label: dimLabels[dk] || dk, score: parseFloat(dim.score || 0), note: dim.note || '' };
+            })
+          }, 'autonomy-scorecard-block');
+        } else {
+          scEl.innerHTML = '<p class="text-muted text-sm">Scorecard data will appear after the next publish cycle.</p>';
         }
-        // SVG arc (half-circle: 0=left, 100=right)
-        var r = 54;
-        var cx = 60; var cy = 60;
-        var startAngle = Math.PI; // left
-        var endAngle = Math.PI + (pct/100) * Math.PI; // partial fill
-        function polar(angle) {
-          return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
-        }
-        var s = polar(startAngle);
-        var e = polar(endAngle);
-        var largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
-        var arcD = 'M ' + s[0].toFixed(1) + ' ' + s[1].toFixed(1) +
-                   ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' +
-                   e[0].toFixed(1) + ' ' + e[1].toFixed(1);
-        var fullD = 'M ' + polar(Math.PI)[0].toFixed(1) + ' ' + polar(Math.PI)[1].toFixed(1) +
-                    ' A ' + r + ' ' + r + ' 0 1 1 ' +
-                    polar(2*Math.PI)[0].toFixed(1) + ' ' + polar(2*Math.PI)[1].toFixed(1);
-        scEl.innerHTML =
-          '<div class="autonomy-scorecard">' +
-            '<div class="autonomy-scorecard__arc-wrap">' +
-              '<svg viewBox="0 0 120 68" aria-hidden="true">' +
-                '<!-- Track -->' +
-                '<path d="M6,60 A54,54 0 0,1 114,60" fill="none" stroke="var(--color-border)" stroke-width="8" stroke-linecap="round"/>' +
-                '<!-- Fill -->' +
-                '<path d="' + arcD + '" fill="none" stroke="#5b8db0" stroke-width="8" stroke-linecap="round"/>' +
-              '</svg>' +
-              '<div class="autonomy-scorecard__arc-score">' + pct + '%</div>' +
-            '</div>' +
-            '<div class="autonomy-scorecard__meta">' +
-              '<div class="autonomy-scorecard__label">Lagrange Point</div>' +
-              '<div class="autonomy-scorecard__title">Strategic Autonomy Progress</div>' +
-              '<div class="autonomy-scorecard__trend autonomy-scorecard__trend--up">' +
-                '↑ Tracking toward strategic independence' +
-              '</div>' +
-            '</div>' +
-          '</div>';
       }
 
       // ── KPI Trend Bars ────────────────────────────

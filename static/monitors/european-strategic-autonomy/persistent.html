@@ -384,25 +384,95 @@ document.addEventListener('DOMContentLoaded', function () {
       /* ── 03 Active Elections ── */
       renderList(d.active_elections || [], 'elections-list', 'name', 'key_facts', ['country','date','severity','interference_actors']);
 
-      /* ── 04 State Capture Cases ── */
+      /* ── 04 State Capture Cases (compact table) ── */
       var cases = d.state_capture_cases || [];
-      var scHtml = '';
-      cases.forEach(function (c) {
-        var sevLabel = c.severity >= 4.5 ? 'critical' : c.severity >= 3.5 ? 'high' : 'moderate';
-        scHtml += '<div class="card">' +
-          '<div class="card__title">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? (AsymRenderer.flag(c.country||'')||'') + (AsymRenderer.flag(c.country||'') ? '\u00a0' : '') : '') + escHtml(c.country || '') + ' <span class="severity-badge severity-badge--' + sevLabel + '">' + escHtml(String(c.severity || '')) + '</span></div>' +
-          '<div class="card__body">' + escHtml(c.status || '') + '</div>' +
-          '<div class="card__footer"><span>' + escHtml(c.key_indicator || '') + '</span></div>' +
-          '</div>';
-      });
-      document.getElementById('capture-list').innerHTML = scHtml || '<p class="text-muted">No state capture cases.</p>';
+      var capEl = document.getElementById('capture-list');
+      if (!cases.length) {
+        capEl.innerHTML = '<p class="text-muted">No state capture cases.</p>';
+      } else {
+        /* Sort by severity descending */
+        cases.sort(function(a,b) { return (b.severity||0) - (a.severity||0); });
+        function sevColor(s) {
+          if (s >= 4.5) return 'var(--critical,#dc2626)';
+          if (s >= 3.5) return 'var(--high,#d97706)';
+          if (s >= 2.5) return '#f59e0b';
+          return 'var(--positive,#4caf7d)';
+        }
+        function sevLabel(s) {
+          if (s >= 4.5) return 'critical';
+          if (s >= 3.5) return 'high';
+          if (s >= 2.5) return 'moderate';
+          return 'low';
+        }
+        var scHtml = '<div style="overflow-x:auto"><table class="data-table" style="width:100%;font-size:var(--text-sm);border-collapse:collapse">' +
+          '<thead><tr>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3)">Country</th>' +
+            '<th style="text-align:center;padding:var(--space-2) var(--space-3)">Risk</th>' +
+            '<th style="text-align:center;padding:var(--space-2) var(--space-3)">Δ</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3)">Status</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3)">Key Indicator</th>' +
+          '</tr></thead><tbody>';
+        cases.forEach(function(c) {
+          var flag = (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag) ? (AsymRenderer.flag(c.country||'')||'') : '';
+          var barWidth = Math.min(100, ((c.severity||0) / 5) * 100);
+          scHtml += '<tr style="border-bottom:1px solid var(--color-border-subtle)">' +
+            '<td style="padding:var(--space-2) var(--space-3);white-space:nowrap;font-weight:600">' +
+              (flag ? flag + '\u00a0' : '') + escHtml(c.country || '') +
+            '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3);text-align:center">' +
+              '<div style="display:flex;align-items:center;gap:var(--space-2);justify-content:center">' +
+                '<div style="width:40px;height:6px;border-radius:3px;background:var(--color-border-subtle);overflow:hidden">' +
+                  '<div style="width:' + barWidth + '%;height:100%;background:' + sevColor(c.severity||0) + ';border-radius:3px"></div>' +
+                '</div>' +
+                '<span class="severity-badge severity-badge--' + sevLabel(c.severity||0) + '" style="font-size:var(--text-xs);min-width:2rem;text-align:center">' + escHtml(String(c.severity||'')) + '</span>' +
+              '</div>' +
+            '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3);text-align:center;font-size:var(--text-sm)">' + escHtml(c.arrow || '→') + '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3);font-size:var(--text-xs);color:var(--color-text-secondary);max-width:200px">' + escHtml(c.status || '') + '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted);max-width:250px">' + escHtml(c.key_indicator || '') + '</td>' +
+          '</tr>';
+        });
+        scHtml += '</tbody></table></div>';
+        capEl.innerHTML = scHtml;
+      }
 
-      /* ── 05 EU Legislation Tracker ── */
+      /* ── 05 EU Legislation Tracker (compact table) ── */
       var legis = d.eu_legislation_tracker || [];
       if (!Array.isArray(legis)) {
         legis = Object.keys(legis).map(function (k) { var item = legis[k]; item.name = k; return item; });
       }
-      renderList(legis, 'legislation-list', 'name', 'summary', ['status','stage']);
+      var legEl = document.getElementById('legislation-list');
+      if (!legis.length) {
+        legEl.innerHTML = '<p class="text-muted">No legislation tracked.</p>';
+      } else {
+        function legStatusColor(st) {
+          if (!st) return 'moderate';
+          var s = st.toLowerCase();
+          if (s.indexOf('force') !== -1 || s.indexOf('renewed') !== -1 || s.indexOf('disbursement') !== -1) return 'low';
+          if (s.indexOf('proposed') !== -1 || s.indexOf('debate') !== -1) return 'moderate';
+          return 'moderate';
+        }
+        var legHtml = '<div style="overflow-x:auto"><table class="data-table" style="width:100%;font-size:var(--text-sm);border-collapse:collapse">' +
+          '<thead><tr>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3)">Legislation</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3)">Status</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3)">Updated</th>' +
+            '<th style="text-align:center;padding:var(--space-2) var(--space-3)">Source</th>' +
+          '</tr></thead><tbody>';
+        legis.forEach(function(l) {
+          var sCls = legStatusColor(l.status);
+          legHtml += '<tr style="border-bottom:1px solid var(--color-border-subtle)">' +
+            '<td style="padding:var(--space-2) var(--space-3);font-weight:600">' + escHtml(l.name || '') + '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3)"><span class="severity-badge severity-badge--' + sCls + '" style="font-size:var(--text-xs)">' + escHtml(l.status || '—') + '</span></td>' +
+            '<td style="padding:var(--space-2) var(--space-3);font-size:var(--text-xs);color:var(--color-text-muted);white-space:nowrap">' + escHtml(l.last_update || '') + '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3);text-align:center">' +
+              (l.source_url ? '<a href="' + escHtml(l.source_url) + '" target="_blank" rel="noopener" style="color:var(--monitor-accent);font-size:var(--text-xs);text-decoration:none">→</a>' : '—') +
+            '</td>' +
+          '</tr>';
+        });
+        legHtml += '</tbody></table></div>';
+        legEl.innerHTML = legHtml;
+      }
 
       /* ── 06 Actor Campaigns (independent of CMF) ── */
       var camps = d.active_actor_campaigns || {};
