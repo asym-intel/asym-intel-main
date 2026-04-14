@@ -1136,14 +1136,19 @@
         mfHtml += '<a class="more-link" href="report.html#module-2" style="margin-top:var(--space-3);display:inline-block">Full model frontier in report →</a>';
         document.getElementById('model-frontier-content').innerHTML = mfHtml;
       } else {
-        document.getElementById('model-frontier-content').innerHTML = '<p class="empty-state">No model data available.</p>';
+        /* module_2 currently tracks regulatory frameworks, not models.
+           Model frontier data will be available when the AIM synthesiser schema includes module_2.models. */
+        document.getElementById('model-frontier-content').innerHTML = '<p class="empty-state">Model frontier data will be available when the AIM synthesiser schema includes module_2.models. Currently module_2 tracks regulatory frameworks.</p>';
       }
 
-      // Cross-monitor flags
-      renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
+      // Cross-monitor flags — use shared renderer with correct field mappings
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
+        AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
+      } else {
+        renderCrossMonitor(d.cross_monitor_flags || {}, 'cross-monitor-content');
+      }
 
-      // New module sections
-      renderDeltaStrip(d.delta_strip || []);
+      // Delta strip is rendered via the triage strip below — no standalone call needed
 
       /* ── Triage Strip ── */
       if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
