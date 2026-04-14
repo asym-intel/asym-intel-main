@@ -12,14 +12,15 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="../shared/js/charts.js"></script>
   <style>
-  /* ── CONVICTION SPARKLINE ── */
-  .conviction-sparkline-wrap {
+  /* ── CONVICTION CHART ── */
+  .conviction-chart-wrap {
     position: relative;
-    height: 200px;
+    height: 280px;
     width: 100%;
     margin-bottom: var(--space-4);
   }
-  .conviction-sparkline-empty {
+  @media (max-width: 600px) { .conviction-chart-wrap { height: 220px; } }
+  .conviction-chart-empty {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -28,16 +29,17 @@
     font-size: var(--text-sm);
   }
 
-  /* ── REGIME TIMELINE ── */
+  /* ── REGIME TIMELINE (compact) ── */
   .regime-timeline {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-3);
+    gap: var(--space-2);
     margin-top: var(--space-4);
-    padding: var(--space-4);
+    padding: var(--space-3) var(--space-4);
     background: var(--color-bg-alt);
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border-subtle);
+    align-items: center;
   }
   [data-theme="dark"] .regime-timeline {
     background: rgba(255,255,255,0.03);
@@ -50,13 +52,13 @@
     text-transform: uppercase;
     color: var(--color-text-muted);
     width: 100%;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-1);
   }
   .regime-timeline__item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
   }
   .regime-timeline__badge {
     display: inline-flex;
@@ -67,14 +69,12 @@
     font-weight: 800;
     letter-spacing: 0.07em;
     text-transform: uppercase;
-    padding: 0.3em 0.7em;
+    padding: 0.25em 0.6em;
     border-radius: var(--radius-sm);
     line-height: 1;
     white-space: nowrap;
   }
-  .regime-timeline__badge--same {
-    opacity: 0.55;
-  }
+  .regime-timeline__badge--same { opacity: 0.55; }
   .regime-timeline__date {
     font-size: var(--text-min);
     color: var(--color-text-muted);
@@ -91,8 +91,79 @@
     padding: 0 2px;
     color: var(--color-text-muted);
     font-size: 0.85rem;
-    margin-top: 10px;
+    margin-top: 8px;
   }
+
+  /* ── BASELINE TABLE (compact P2) ── */
+  .baseline-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+  }
+  .baseline-tbl th {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    text-align: left;
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+  }
+  .baseline-tbl td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-border-subtle);
+    vertical-align: top;
+  }
+  .baseline-tbl tr:last-child td { border-bottom: none; }
+  .baseline-tbl__name {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .baseline-tbl__dir {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+  .baseline-tbl__spark {
+    width: 100px;
+    height: 28px;
+  }
+  .baseline-tbl__history {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  .baseline-tbl__history li {
+    padding: 2px 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .baseline-tbl__history li:last-child { border-bottom: none; }
+  .baseline-tbl__history-date {
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+  details.baseline-versions {
+    margin-top: 4px;
+  }
+  details.baseline-versions summary {
+    font-size: var(--text-xs);
+    color: var(--monitor-accent);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  details.baseline-versions summary:hover { text-decoration: underline; }
+
+  /* ── BASELINE HEATMAP CHART ── */
+  .baseline-heatmap-wrap {
+    position: relative;
+    height: 220px;
+    width: 100%;
+    margin-bottom: var(--space-6);
+  }
+  @media (max-width: 600px) { .baseline-heatmap-wrap { height: 180px; } }
 </style>
 </head>
 
@@ -127,12 +198,11 @@
         <div class="module-num-large">01</div>
         <h2 class="module-title">Asset Class Baseline</h2>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Rolling baseline scores for each asset class. Current score, flag, and version history from the inaugural scoring run.</p>
-      <div style="margin-bottom:var(--space-6)">
-        <div style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:var(--space-3)">Asset Class Score Trends</div>
-        <canvas id="baseline-chart" style="max-height:240px;width:100%"></canvas>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-4)">Rolling baseline scores for each asset class, with trend sparklines and version history inline.</p>
+      <div class="baseline-heatmap-wrap">
+        <canvas id="baseline-grouped-chart"></canvas>
       </div>
-      <div id="ps-baseline" class="baseline-grid"><div class="loading-state">Loading…</div></div>
+      <div id="ps-baseline"><div class="loading-state">Loading…</div></div>
     </section>
 
     <!-- Active Tactical Alerts -->
@@ -151,15 +221,12 @@
         <div class="module-num-large">03</div>
         <h2 class="module-title">Conviction History</h2>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Historical log of regime and stress label conviction changes across issues. System average score plotted over time with regime badges.</p>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-4)">System average score plotted over time with regime badges. Score bands indicate stress thresholds.</p>
 
-      <!-- Conviction Sparkline -->
-      <div style="margin-bottom:var(--space-4)">
-        <div style="font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:var(--space-3)">System Average Score — History</div>
-        <div class="conviction-sparkline-wrap" id="conviction-sparkline-wrap">
-          <canvas id="conviction-chart"></canvas>
-          <div class="conviction-sparkline-empty" id="conviction-sparkline-empty" style="display:none">Insufficient data for chart (need 2+ data points)</div>
-        </div>
+      <!-- Conviction Chart (P1 — improved) -->
+      <div class="conviction-chart-wrap" id="conviction-chart-wrap">
+        <canvas id="conviction-chart"></canvas>
+        <div class="conviction-chart-empty" id="conviction-chart-empty" style="display:none">Insufficient data for chart (need 2+ data points)</div>
       </div>
 
       <!-- Regime Timeline -->
@@ -187,12 +254,73 @@
       <div id="ps-blind-spots"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- Tariff Escalation Protocol -->
+    <section class="module-section" id="section-tariff-protocol">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">06</div>
+        <h2 class="section-title" style="margin:0">Tariff Escalation Protocol</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Active tariff escalation protocol status. Tracks rung level, effective rate, retaliators, and WTO filings.</p>
+      <div id="ps-tariff-protocol"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- US Decoupling Index -->
+    <section class="module-section" id="section-decoupling">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">07</div>
+        <h2 class="section-title" style="margin:0">US Decoupling Index</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Structural US decoupling across trade, technology, security, and platform domains.</p>
+      <div id="ps-decoupling"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- AI Capex Watch -->
+    <section class="module-section" id="section-ai-capex">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">08</div>
+        <h2 class="section-title" style="margin:0">AI Capex Watch</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Hyperscaler capital expenditure tracking and grid constraint risk.</p>
+      <div id="ps-ai-capex"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- IMF WEO Status -->
+    <section class="module-section" id="section-imf-weo">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">09</div>
+        <h2 class="section-title" style="margin:0">IMF WEO Status</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Integration status of IMF World Economic Outlook data into GMM indicators.</p>
+      <div id="ps-imf-weo"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Blind Spots (analytical guardrails) -->
+    <section class="module-section" id="section-blind-spots-register">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">10</div>
+        <h2 class="section-title" style="margin:0">Blind Spots Register</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Known analytical blind spots and guardrails that shape how indicators are interpreted.</p>
+      <div id="ps-blind-spots-register"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Calibration Log -->
+    <section class="module-section" id="section-calibration">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">11</div>
+        <h2 class="section-title" style="margin:0">Calibration Log</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Audit trail of methodology updates and calibration changes applied to the GMM scoring model.</p>
+      <div id="ps-calibration"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Cross-Monitor Flags -->
     <section class="module-section" id="section-cmf">
       <div class="module-header">
-        <div class="module-num-large">04</div>
+        <div class="module-num-large">12</div>
         <h2 class="module-title">Cross-Monitor Flags</h2>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Persistent cross-monitor intelligence from sister monitors. Loaded from the latest report's cross_monitor_flags object.</p>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Persistent cross-monitor intelligence from sister monitors, updated with each weekly issue.</p>
       <div id="ps-cmf"><div class="loading-state">Loading…</div></div>
     </section>
 
@@ -206,7 +334,13 @@
       <li><a href="#section-conviction"><span class="sidebar-num">03</span> Conviction</a></li>
       <li><a href="#section-oil"><span class="sidebar-num">04</span> Oil Shock Driver</a></li>
       <li><a href="#section-blind-spots"><span class="sidebar-num">05</span> Blind Spot Overrides</a></li>
-      <li><a href="#section-cmf"><span class="sidebar-num">04</span> Cross-Monitor</a></li>
+      <li><a href="#section-tariff-protocol"><span class="sidebar-num">06</span> Tariff Protocol</a></li>
+      <li><a href="#section-decoupling"><span class="sidebar-num">07</span> Decoupling Index</a></li>
+      <li><a href="#section-ai-capex"><span class="sidebar-num">08</span> AI Capex Watch</a></li>
+      <li><a href="#section-imf-weo"><span class="sidebar-num">09</span> IMF WEO</a></li>
+      <li><a href="#section-blind-spots-register"><span class="sidebar-num">10</span> Blind Spots</a></li>
+      <li><a href="#section-calibration"><span class="sidebar-num">11</span> Calibration Log</a></li>
+      <li><a href="#section-cmf"><span class="sidebar-num">12</span> Cross-Monitor</a></li>
     </ul>
   </nav>
 </div>
@@ -237,13 +371,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'neutral';
   }
 
-  function cmfStatusClass(status) {
-    var s = String(status || '').toLowerCase();
-    if (s === 'active') return 'warning';
-    if (s === 'nosignal') return 'green';
-    return 'elevated';
-  }
-
   // Load persistent-state.json
   var psPromise = fetch('data/persistent-state.json')
     .then(function (r) { return r.json(); });
@@ -269,44 +396,80 @@ document.addEventListener('DOMContentLoaded', function () {
       '<span>Last issue: ' + esc(meta.last_issue || '—') + '</span>' +
       '<span>Schema v' + esc(meta.schema_version || '—') + '</span>';
 
-    // Asset Class Baseline
+    // Asset Class Baseline (P2 — compact table with inline version history)
     var baselines = ps.asset_class_baseline || [];
     var bEl = document.getElementById('ps-baseline');
     if (!baselines.length) {
       bEl.innerHTML = '<p class="text-muted text-sm">No baseline data.</p>';
     } else {
-      var bHtml = '';
-      baselines.forEach(function (b) {
+      var bHtml = '<div style="overflow-x:auto"><table class="baseline-tbl"><thead><tr>' +
+        '<th>Asset Class</th><th>Score</th><th>Flag</th><th>Trend</th><th>Δ vs Baseline</th><th>History</th>' +
+        '</tr></thead><tbody>';
+      baselines.forEach(function (b, bi) {
         var scorePos = parseFloat(b.current_score || 0) >= 0;
         var delta = b.current_score != null && b.baseline_score != null ?
-          (parseFloat(b.current_score) - parseFloat(b.baseline_score)).toFixed(2) : null;
-        bHtml += '<div class="baseline-item">' +
-          '<div>' +
-            '<div class="baseline-item__name">' + esc(b.asset_class) + '</div>' +
-            '<div class="baseline-item__dir">' + esc(b.current_direction || '') + ' · Baseline ' + esc(b.baseline_date || '') + '</div>' +
-          '</div>' +
-          '<span class="flag-badge flag-badge--' + flagClass(b.current_flag) + '">' + esc(b.current_flag) + '</span>' +
-          '<div style="text-align:right">' +
-            '<span class="score-chip score-chip--' + (scorePos?'pos':'neg') + '">' + (parseFloat(b.current_score||0)>0?'+':'') + esc(b.current_score) + '</span>' +
-            (delta !== null ? '<div style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:2px">Δ ' + (parseFloat(delta)>0?'+':'') + delta + '</div>' : '') +
-          '</div>' +
-        '</div>';
-        // Version history toggle
-        if (b.version_history && b.version_history.length) {
-          bHtml += '<div style="padding:0 var(--space-4) var(--space-4);background:var(--color-surface);border:1px solid var(--color-border-subtle);border-top:none;border-radius:0 0 var(--radius-md) var(--radius-md);margin-top:-4px">' +
-            '<button class="version-history__toggle">Version history →</button>' +
-            '<div class="version-history">';
-          b.version_history.forEach(function (v) {
-            bHtml += '<div class="conviction-row">' +
-              '<span class="conviction-row__date">' + esc(v.date || '') + '</span>' +
-              '<span class="conviction-row__change">' + esc(v.change || '') + '</span>' +
-              '<span class="conviction-row__reason">' + esc(v.reason || '') + '</span>' +
-            '</div>';
+          (parseFloat(b.current_score) - parseFloat(b.baseline_score)).toFixed(3) : null;
+        var vh = b.version_history || [];
+        bHtml += '<tr>' +
+          '<td><div class="baseline-tbl__name">' + esc(b.asset_class) + '</div>' +
+            '<div class="baseline-tbl__dir">' + esc(b.current_direction || '') + '</div></td>' +
+          '<td><span class="score-chip score-chip--' + (scorePos?'pos':'neg') + '">' + (parseFloat(b.current_score||0)>0?'+':'') + esc(b.current_score) + '</span></td>' +
+          '<td><span class="flag-badge flag-badge--' + flagClass(b.current_flag) + '">' + esc(b.current_flag) + '</span></td>' +
+          '<td><canvas class="baseline-tbl__spark" id="spark-' + bi + '"></canvas></td>' +
+          '<td style="font-size:var(--text-xs);color:var(--color-text-secondary);white-space:nowrap">' +
+            (delta !== null ? (parseFloat(delta)>0?'+':'') + delta : '—') +
+          '</td>' +
+          '<td>';
+        if (vh.length) {
+          bHtml += '<details class="baseline-versions"><summary>' + vh.length + ' update' + (vh.length > 1 ? 's' : '') + '</summary>' +
+            '<ul class="baseline-tbl__history">';
+          vh.slice().reverse().forEach(function(v) {
+            bHtml += '<li><span class="baseline-tbl__history-date">' + esc(v.date||'') + '</span> ' + esc(v.change||'') + '</li>';
           });
-          bHtml += '</div></div>';
+          bHtml += '</ul></details>';
+        } else {
+          bHtml += '<span class="text-muted" style="font-size:var(--text-xs)">—</span>';
         }
+        bHtml += '</td></tr>';
       });
+      bHtml += '</tbody></table></div>';
       bEl.innerHTML = bHtml;
+
+      // Draw inline sparklines
+      baselines.forEach(function(b, bi) {
+        var canvas = document.getElementById('spark-' + bi);
+        if (!canvas) return;
+        var vh = b.version_history || [];
+        var scores = [];
+        vh.forEach(function(v) {
+          if (v.prior_value != null) scores.push(parseFloat(v.prior_value));
+        });
+        if (b.current_score != null) scores.push(parseFloat(b.current_score));
+        if (scores.length < 2) { canvas.style.display = 'none'; return; }
+        var ctx = canvas.getContext('2d');
+        var w = canvas.width = 100;
+        var h = canvas.height = 28;
+        var mn = Math.min.apply(null, scores);
+        var mx = Math.max.apply(null, scores);
+        var range = mx - mn || 0.1;
+        var pad = 3;
+        ctx.beginPath();
+        scores.forEach(function(s, i) {
+          var x = pad + (i / (scores.length - 1)) * (w - 2*pad);
+          var y = h - pad - ((s - mn) / range) * (h - 2*pad);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#22a0aa';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // End dot
+        var lastX = w - pad;
+        var lastY = h - pad - ((scores[scores.length-1] - mn) / range) * (h - 2*pad);
+        ctx.beginPath();
+        ctx.arc(lastX, lastY, 2.5, 0, Math.PI*2);
+        ctx.fillStyle = parseFloat(b.current_score) < parseFloat(b.baseline_score) ? '#dc2626' : '#059669';
+        ctx.fill();
+      });
     }
 
     // Active Tactical Alerts
@@ -353,34 +516,8 @@ document.addEventListener('DOMContentLoaded', function () {
     renderConvictionSparkline(conviction);
     renderRegimeTimeline(conviction);
 
-    // Asset class score trend chart
-    var baselines2 = ps.asset_class_baseline || [];
-    var allDates = [];
-    baselines2.forEach(function(b){
-      (b.version_history||[]).forEach(function(h){
-        if (allDates.indexOf(h.date) === -1) allDates.push(h.date);
-      });
-    });
-    allDates.sort();
-    if (typeof AsymCharts !== 'undefined' && allDates.length >= 2) {
-      var assetColours = ['#3a7d5a','#dc2626','#2563eb','#d97706','#7c3aed','#0891b2','#be185d','#65a30d'];
-      var datasets = baselines2.map(function(b, i){
-        var data = allDates.map(function(dt, di){
-          var entry = (b.version_history||[]).find(function(h){ return h.date === dt; });
-          if (!entry) return null;
-          return di === allDates.length - 1
-            ? (b.current_score != null ? parseFloat(b.current_score) : null)
-            : (entry.prior_value != null ? parseFloat(entry.prior_value) : null);
-        });
-        return { label: b.asset_class, data: data,
-                 borderColor: assetColours[i % assetColours.length],
-                 backgroundColor: 'transparent', tension: 0.2, pointRadius: 3, spanGaps: true };
-      });
-      AsymCharts.line('baseline-chart', allDates, datasets, {
-        scales: { y: { title: { display: true, text: 'Score' } } },
-        plugins: { legend: { labels: { font: { size: 10 } } } }
-      });
-    }
+    // Baseline grouped bar chart (P2 — current vs baseline, sorted by severity)
+    renderBaselineGroupedChart(baselines);
 
     // Oil Supply Shock Driver
     var oilEl = document.getElementById('ps-oil');
@@ -424,38 +561,140 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // Cross-Monitor Flags (from latest report)
-    var cmf = report.cross_monitor_flags || {};
-    var flags = cmf.flags || [];
-    var cmfEl = document.getElementById('ps-cmf');
-    if (!flags.length) {
-      cmfEl.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags available.</p>';
-    } else {
-      var cmfMeta = cmf.updated ? '<div class="section-label" style="margin-bottom:var(--space-3)">Updated: ' + esc(fmtDate(cmf.updated)) + '</div>' : '';
-      var cmfHtml = cmfMeta;
-      flags.forEach(function (flag) {
-        cmfHtml += '<div class="cmf-item">' +
-          '<div class="cmf-item__header"><div>' +
-            '<div class="cmf-item__source">' + esc(flag.monitor || '') + ' · ' + esc(flag.type || '') + '</div>' +
-            '<div class="cmf-item__title">' + esc(flag.title || '') + '</div>' +
-          '</div>' +
-          '<span class="flag-badge flag-badge--' + cmfStatusClass(flag.status) + '">' + esc(flag.status || '') + '</span></div>' +
-          '<div class="cmf-item__body cmf-item__body--collapsed">' + esc(flag.body || '') + '</div>' +
-          '<button class="cms-read-more">Read more →</button>' +
-          (flag.macro_indicators_affected && flag.macro_indicators_affected.length ?
-            '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Affects: ' + flag.macro_indicators_affected.map(function(x){return esc(x);}).join(', ') + '</div>' : '') +
-          (flag.source_url ? '<a href="' + esc(flag.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
-        '</div>';
-      });
-      cmfEl.innerHTML = cmfHtml;
+    // ── Tariff Escalation Protocol (G4) ──────────────────────────────────
+    var tepEl = document.getElementById('ps-tariff-protocol');
+    if (tepEl) {
+      var tep = ps.tariff_escalation_protocol || {};
+      if (tep.active) {
+        var retaliators = (tep.active_retaliators || []).map(function(r){ return esc(r); }).join(', ');
+        tepEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label" style="color:var(--critical,#ef4444);font-weight:700">ACTIVE · Since ' + esc(tep.activation_date || '') + '</div>' +
+            '<div class="card__title">Rung ' + esc(String(tep.current_rung || '')) + ' — Effective rate ≈' + esc(String(tep.effective_tariff_rate_approx || '')) + '%</div>' +
+            '<div class="card__body">' + esc(tep.activation_reason || '') + '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-3)">' +
+              '<strong>Basis:</strong> ' + esc(tep.current_rung_basis || '') +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)">' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:rgba(239,68,68,0.1);color:var(--color-text-secondary)">Retaliators: ' + retaliators + '</span>' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:rgba(239,68,68,0.1);color:var(--color-text-secondary)">WTO filings: ' + esc(String(tep.wto_filings || 0)) + '</span>' +
+            '</div>' +
+          '</div>';
+      } else {
+        tepEl.innerHTML = '<div class="card"><p class="text-muted text-sm">Tariff escalation protocol is not active.</p></div>';
+      }
+    }
+
+    // ── US Decoupling Index (G4) ──────────────────────────────────────────
+    var decEl = document.getElementById('ps-decoupling');
+    if (decEl) {
+      var dec = ps.us_decoupling_index || {};
+      if (dec.direction) {
+        var domains = (dec.active_domains || []).map(function(d){ return esc(d); }).join(', ');
+        decEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label">Baseline ' + esc(dec.baseline_date || '') + '</div>' +
+            '<div class="card__title">' + esc(dec.direction) + '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)">' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-bg-alt);color:var(--color-text-secondary)">Active domains: ' + domains + '</span>' +
+            '</div>' +
+            (dec.matt_divergence ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-3)"><strong>MATT divergence:</strong> ' + esc(dec.matt_divergence) + '</div>' : '') +
+          '</div>';
+      } else {
+        decEl.innerHTML = '<p class="text-muted text-sm">No decoupling index data.</p>';
+      }
+    }
+
+    // ── AI Capex Watch (G4) ───────────────────────────────────────────────
+    var aiEl = document.getElementById('ps-ai-capex');
+    if (aiEl) {
+      var ai = ps.ai_capex_watch || {};
+      if (ai.hyperscaler_combined_capex_annual_bn) {
+        aiEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label">Baseline ' + esc(ai.baseline_date || '') + '</div>' +
+            '<div class="card__title">$' + esc(String(ai.hyperscaler_combined_capex_annual_bn)) + 'B annual capex · ' + esc(ai.direction || '') + '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)">' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-bg-alt);color:var(--color-text-secondary)">Grid constraint risk: ' + esc(ai.grid_constraint_risk || '—') + '</span>' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-bg-alt);color:var(--color-text-secondary)">Cross-monitor flag: ' + (ai.crossmonitorflag ? 'Yes' : 'No') + '</span>' +
+            '</div>' +
+          '</div>';
+      } else {
+        aiEl.innerHTML = '<p class="text-muted text-sm">No AI capex data.</p>';
+      }
+    }
+
+    // ── IMF WEO Status (G4) ──────────────────────────────────────────────
+    var imfEl = document.getElementById('ps-imf-weo');
+    if (imfEl) {
+      var imf = ps.imf_weo_status || {};
+      if (imf.last_version) {
+        var pendingClass = !imf.integration_complete ? 'color:var(--critical,#ef4444);font-weight:700' : 'color:var(--positive,#22c55e);font-weight:700';
+        imfEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label">Last version: ' + esc(imf.last_version) + '</div>' +
+            '<div class="card__title">Next expected: ' + esc(imf.next_expected || '—') + '</div>' +
+            '<div style="margin-top:var(--space-3);font-size:var(--text-sm)">' +
+              '<span style="' + pendingClass + '">' + (imf.integration_complete ? '✓ Integrated' : '⏳ Pending integration') + '</span>' +
+            '</div>' +
+            (imf.note ? '<div class="card__body" style="margin-top:var(--space-3)">' + esc(imf.note) + '</div>' : '') +
+          '</div>';
+      } else {
+        imfEl.innerHTML = '<p class="text-muted text-sm">No IMF WEO status data.</p>';
+      }
+    }
+
+    // ── Blind Spots Register (G4) ────────────────────────────────────────
+    var bsrEl = document.getElementById('ps-blind-spots-register');
+    if (bsrEl) {
+      var bsList = ps.blind_spots || [];
+      if (!bsList.length) {
+        bsrEl.innerHTML = '<p class="text-muted text-sm">No blind spots registered.</p>';
+      } else {
+        bsrEl.innerHTML = bsList.map(function(bs) {
+          return '<div class="card" style="margin-bottom:var(--space-3)">' +
+            '<div class="card__label">' + esc(bs.id || '') + '</div>' +
+            '<div class="card__title">' + esc(bs.name || '') + '</div>' +
+            '<div class="card__body">' + esc(bs.description || '') + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // ── Calibration Log (G4) ─────────────────────────────────────────────
+    var calEl = document.getElementById('ps-calibration');
+    if (calEl) {
+      var calLog = ps.calibration_log || [];
+      if (!calLog.length) {
+        calEl.innerHTML = '<p class="text-muted text-sm">No calibration entries recorded.</p>';
+      } else {
+        var calHtml = '<div class="card" style="padding:0">';
+        calLog.slice().reverse().forEach(function(c) {
+          calHtml += '<div style="display:grid;grid-template-columns:7rem 1fr;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);font-size:var(--text-sm)">' +
+            '<span style="color:var(--color-text-muted);white-space:nowrap">' + esc(c.date || '') + '</span>' +
+            '<div>' +
+              '<div style="font-weight:600">' + esc(c.source || '') + '</div>' +
+              '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:2px">' + esc(c.summary || '') + '</div>' +
+              (c.applied_by ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px">Applied by: ' + esc(c.applied_by) + '</div>' : '') +
+            '</div>' +
+          '</div>';
+        });
+        calHtml += '</div>';
+        calEl.innerHTML = calHtml;
+      }
+    }
+
+    // ── Cross-Monitor Flags (shared library — G3) ────────────────────────
+    if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
+      AsymSections.renderCrossMonitorFlags(report.cross_monitor_flags || {}, 'ps-cmf');
     }
   }
 
-  // ── Conviction Sparkline ─────────────────────────────────────────────────
+  // ── Conviction Chart (P1 — improved: auto-scale, gradient, zero line, score labels) ────
   var _convictionChart = null;
   function renderConvictionSparkline(conviction) {
-    var wrapEl = document.getElementById('conviction-sparkline-wrap');
-    var emptyEl = document.getElementById('conviction-sparkline-empty');
+    var wrapEl = document.getElementById('conviction-chart-wrap');
+    var emptyEl = document.getElementById('conviction-chart-empty');
     var canvasEl = document.getElementById('conviction-chart');
     if (!wrapEl || !canvasEl) return;
 
@@ -469,15 +708,19 @@ document.addEventListener('DOMContentLoaded', function () {
     var gridColour = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
     var tickColour = isDark ? '#a09e9a' : '#6b6660';
     var accentColour = '#22a0aa';
-    var fillColour   = isDark ? 'rgba(34,160,170,0.15)' : 'rgba(34,160,170,0.12)';
 
     var labels = conviction.map(function(c){ return c.date || ''; });
     var scores = conviction.map(function(c){ return parseFloat(c.system_average); });
 
-    // Point colours: red if negative, green if positive
-    var pointColours = scores.map(function(s){
-      return s < 0 ? 'rgba(193,68,14,0.9)' : 'rgba(5,150,105,0.9)';
-    });
+    // Auto-scale: pad 15% above max and below min, always include 0
+    var minScore = Math.min.apply(null, scores.concat([0]));
+    var maxScore = Math.max.apply(null, scores.concat([0]));
+    var range = maxScore - minScore || 0.5;
+    var yMin = Math.floor((minScore - range * 0.15) * 10) / 10;
+    var yMax = Math.ceil((maxScore + range * 0.15) * 10) / 10;
+
+    var pointColours = scores.map(function(s){ return s < 0 ? '#dc2626' : '#059669'; });
+    var pointBorders = scores.map(function(s){ return s < 0 ? '#991b1b' : '#065f46'; });
 
     if (_convictionChart) { _convictionChart.destroy(); _convictionChart = null; }
 
@@ -489,37 +732,54 @@ document.addEventListener('DOMContentLoaded', function () {
           label: 'System Avg Score',
           data: scores,
           borderColor: accentColour,
-          backgroundColor: fillColour,
+          backgroundColor: function(ctx) {
+            var chart = ctx.chart;
+            var area = chart.chartArea;
+            if (!area) return 'rgba(34,160,170,0.12)';
+            var gradient = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+            gradient.addColorStop(0, isDark ? 'rgba(34,160,170,0.25)' : 'rgba(34,160,170,0.18)');
+            gradient.addColorStop(1, isDark ? 'rgba(34,160,170,0.02)' : 'rgba(34,160,170,0.02)');
+            return gradient;
+          },
           borderWidth: 2.5,
           fill: true,
-          tension: 0.35,
-          pointRadius: 6,
-          pointHoverRadius: 8,
+          tension: 0.3,
+          pointRadius: 7,
+          pointHoverRadius: 10,
           pointBackgroundColor: pointColours,
-          pointBorderColor: pointColours,
+          pointBorderColor: pointBorders,
+          pointBorderWidth: 2,
           spanGaps: true
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
         plugins: {
           legend: { display: false },
           tooltip: {
+            backgroundColor: isDark ? '#1e1e1e' : '#fff',
+            titleColor: isDark ? '#e5e5e5' : '#1a1a1a',
+            bodyColor: isDark ? '#a0a0a0' : '#555',
+            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+            borderWidth: 1,
+            padding: 12,
             callbacks: {
+              title: function(ctx) { return ctx[0].label; },
               label: function(ctx2) {
                 var v = ctx2.raw;
-                return 'Score: ' + (v > 0 ? '+' : '') + v.toFixed(3);
+                return 'System Average: ' + (v > 0 ? '+' : '') + v.toFixed(3);
               },
               afterBody: function(items) {
                 var idx = items[0] ? items[0].dataIndex : -1;
                 if (idx < 0 || !conviction[idx]) return [];
                 var c = conviction[idx];
                 var lines = [];
-                if (c.regime)           lines.push('Regime: ' + c.regime);
-                if (c.regime_conviction) lines.push('Conviction: ' + c.regime_conviction);
-                if (c.conviction)        lines.push('Overall: ' + c.conviction);
-                if (c.rationale)         lines.push(c.rationale.slice(0, 80) + (c.rationale.length > 80 ? '…' : ''));
+                if (c.regime)            lines.push('Regime: ' + c.regime);
+                if (c.regime_conviction) lines.push('Regime conviction: ' + c.regime_conviction);
+                if (c.conviction)        lines.push('Overall conviction: ' + c.conviction);
+                if (c.rationale)         lines.push(c.rationale.slice(0, 100) + (c.rationale.length > 100 ? '…' : ''));
                 return lines;
               }
             }
@@ -528,17 +788,129 @@ document.addEventListener('DOMContentLoaded', function () {
         scales: {
           x: {
             grid: { color: gridColour },
-            ticks: { color: tickColour, font: { size: 11 } }
+            ticks: { color: tickColour, font: { size: 11, weight: 600 } }
           },
           y: {
-            min: -1, max: 0.5,
-            grid: { color: gridColour },
+            min: yMin,
+            max: yMax,
+            grid: {
+              color: function(ctx) {
+                return ctx.tick.value === 0 ? (isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)') : gridColour;
+              },
+              lineWidth: function(ctx) { return ctx.tick.value === 0 ? 2 : 1; }
+            },
             ticks: {
               color: tickColour,
               font: { size: 11 },
               callback: function(v) { return (v > 0 ? '+' : '') + v.toFixed(1); }
             },
             border: { dash: [3, 3] }
+          }
+        }
+      },
+      plugins: [{
+        // Score labels above each point
+        afterDatasetsDraw: function(chart) {
+          var ctx2 = chart.ctx;
+          var meta = chart.getDatasetMeta(0);
+          ctx2.save();
+          ctx2.font = '600 11px system-ui, sans-serif';
+          ctx2.textAlign = 'center';
+          meta.data.forEach(function(pt, i) {
+            var v = scores[i];
+            ctx2.fillStyle = pointColours[i];
+            ctx2.fillText((v > 0 ? '+' : '') + v.toFixed(3), pt.x, pt.y - 14);
+          });
+          ctx2.restore();
+        }
+      }]
+    });
+  }
+
+  // ── Baseline Grouped Bar Chart (P2) ─────────────────────────────────────────
+  var _baselineChart = null;
+  function renderBaselineGroupedChart(baselines) {
+    var canvas = document.getElementById('baseline-grouped-chart');
+    if (!canvas || !baselines || !baselines.length) return;
+
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var gridColour = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    var tickColour = isDark ? '#a09e9a' : '#6b6660';
+
+    // Sort by current score (worst first)
+    var sorted = baselines.slice().sort(function(a, b) {
+      return parseFloat(a.current_score || 0) - parseFloat(b.current_score || 0);
+    });
+
+    var labels = sorted.map(function(b) { return b.asset_class; });
+    var currentScores = sorted.map(function(b) { return parseFloat(b.current_score || 0); });
+    var baselineScores = sorted.map(function(b) { return parseFloat(b.baseline_score || 0); });
+
+    if (_baselineChart) { _baselineChart.destroy(); _baselineChart = null; }
+
+    _baselineChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Current Score',
+            data: currentScores,
+            backgroundColor: currentScores.map(function(s) {
+              if (s <= -0.5) return '#dc262699';
+              if (s <= -0.3) return '#f59e0b99';
+              return '#05966999';
+            }),
+            borderColor: currentScores.map(function(s) {
+              if (s <= -0.5) return '#dc2626';
+              if (s <= -0.3) return '#f59e0b';
+              return '#059669';
+            }),
+            borderWidth: 1,
+            borderRadius: 3
+          },
+          {
+            label: 'Baseline',
+            data: baselineScores,
+            backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+            borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)',
+            borderWidth: 1,
+            borderRadius: 3
+          }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'start',
+            labels: { font: { size: 10, weight: 600 }, boxWidth: 12, padding: 12, color: tickColour }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                var v = ctx.raw;
+                return ctx.dataset.label + ': ' + (v > 0 ? '+' : '') + v.toFixed(3);
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              color: function(ctx) {
+                return ctx.tick.value === 0 ? (isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)') : gridColour;
+              },
+              lineWidth: function(ctx) { return ctx.tick.value === 0 ? 2 : 1; }
+            },
+            ticks: { color: tickColour, font: { size: 10 } }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: tickColour, font: { size: 11, weight: 600 } }
           }
         }
       }

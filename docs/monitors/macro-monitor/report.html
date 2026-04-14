@@ -9,6 +9,54 @@
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
+  <style>
+  /* ── Domain Indicator Visual ── */
+  .domain-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .domain-select {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+  .domain-view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .domain-view-toggle__btn {
+    padding: 5px 12px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    background: transparent;
+    color: var(--color-text-muted);
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .domain-view-toggle__btn.active {
+    background: var(--monitor-accent);
+    color: #fff;
+  }
+  .domain-chart-wrap {
+    position: relative;
+    height: 260px;
+    width: 100%;
+    margin-bottom: var(--space-4);
+  }
+  @media (max-width: 600px) { .domain-chart-wrap { height: 220px; } }
+  </style>
 </head>
 
 <body>
@@ -48,117 +96,109 @@
       <div id="m-signal"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M01 — Debt Dynamics -->
-    <section class="module-section" id="section-debt">
+    <!-- M01 — Domain Indicators (combined 6 domains with chart + dropdown + table) -->
+    <section class="module-section" id="section-domains">
       <div class="module-header">
         <div class="module-num-large">01</div>
-        <h2 class="module-title">Debt Dynamics</h2>
+        <h2 class="module-title">Domain Indicators</h2>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Domain 1: Sovereign debt, deficit trajectories, JGB yields, EM sovereign distress, custody migration, and gold-reserve ratios.</p>
-      <div id="m-debt"><div class="loading-state">Loading…</div></div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-4)">27 indicators across 6 systemic risk domains. Select a domain to explore, or view all.</p>
+      <div class="domain-controls">
+        <select class="domain-select" id="domain-selector">
+          <option value="all">All Domains</option>
+        </select>
+        <div class="domain-view-toggle">
+          <button class="domain-view-toggle__btn active" data-view="chart">Chart</button>
+          <button class="domain-view-toggle__btn" data-view="table">Table</button>
+        </div>
+      </div>
+      <div class="domain-chart-wrap" id="domain-chart-wrap">
+        <canvas id="domain-bar-chart"></canvas>
+      </div>
+      <div id="domain-table-wrap" style="display:none"></div>
     </section>
 
-    <!-- M02 — Credit Stress -->
-    <section class="module-section" id="section-credit">
-      <div class="module-header">
-        <div class="module-num-large">02</div>
-        <h2 class="module-title">Credit Stress</h2>
-      </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Domain 2: Banking and credit — SLOOS tightening, CRE delinquency, G-SIB capital, and private credit gate risk.</p>
-      <div id="m-credit"><div class="loading-state">Loading…</div></div>
-    </section>
-
-    <!-- M03 — Systemic Risk -->
-    <section class="module-section" id="section-systemic">
-      <div class="module-header">
-        <div class="module-num-large">03</div>
-        <h2 class="module-title">Systemic Risk</h2>
-      </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Domain 3: Market structure — VIX term structure, Treasury liquidity, margin debt, FX swap basis, and real M2.</p>
-      <div id="m-systemic"><div class="loading-state">Loading…</div></div>
-    </section>
-
-    <!-- M04 — Asset Outlook -->
+    <!-- M02 — Asset Outlook -->
     <section class="module-section" id="section-asset-outlook">
       <div class="module-header">
-        <div class="module-num-large">04</div>
+        <div class="module-num-large">02</div>
         <h2 class="module-title">Asset Outlook</h2>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Eight asset classes scored. Domain 4 (real economy) + Domain 5 (composite indices) inform forward scores.</p>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Eight asset classes scored. Real economy and composite indices inform forward scores.</p>
       <div id="m-assets"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M05 — Amplifiers -->
+    <!-- M03 — Amplifiers -->
     <section class="module-section" id="section-amplifiers">
       <div class="module-header">
-        <div class="module-num-large">05</div>
+        <div class="module-num-large">03</div>
         <h2 class="module-title">Systemic Amplifiers</h2>
       </div>
-      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Domain 6: Geopolitical and structural amplifiers — tariff escalation, oil supply shocks, dollar weaponisation, and AI infrastructure debt.</p>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Geopolitical and structural amplifiers — tariff escalation, oil supply shocks, dollar weaponisation, and AI infrastructure debt.</p>
       <div id="m-amplifiers"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M06 — Safe Haven -->
+    <!-- M04 — Safe Haven -->
     <section class="module-section" id="section-safe-haven">
       <div class="module-header">
-        <div class="module-num-large">06</div>
+        <div class="module-num-large">04</div>
         <h2 class="module-title">Safe Haven &amp; Positioning</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Sentiment overlay, risk appetite, Fed funds path, BofA FMS positioning, and blind spot overrides.</p>
       <div id="m-safe-haven"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M07 — Scenario Framework -->
+    <!-- M05 — Scenario Framework -->
     <section class="module-section" id="section-scenarios">
       <div class="module-header">
-        <div class="module-num-large">07</div>
+        <div class="module-num-large">05</div>
         <h2 class="module-title">Scenario Framework</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Three macro scenarios with probability weights, triggers, and affected asset classes.</p>
       <div id="m-scenarios"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M08 — Positioning Overlay -->
+    <!-- M06 — Positioning Overlay -->
     <section class="module-section" id="section-positioning">
       <div class="module-header">
-        <div class="module-num-large">08</div>
+        <div class="module-num-large">06</div>
         <h2 class="module-title">Positioning Overlay</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">MATT framework: market agreement to our themes, contrarian positioning, and Fed funds futures.</p>
       <div id="m-positioning"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M09 — Key Judgments -->
+    <!-- M07 — Key Judgments -->
     <section class="module-section" id="section-key-judgments">
       <div class="module-header">
-        <div class="module-num-large">09</div>
+        <div class="module-num-large">07</div>
         <h2 class="module-title">Key Judgments</h2>
       </div>
       <div id="m-key-judgments"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M10 — Central Bank Tracker -->
+    <!-- M08 — Central Bank Tracker -->
     <section class="module-section" id="section-central-bank">
       <div class="module-header">
-        <div class="module-num-large">10</div>
+        <div class="module-num-large">08</div>
         <h2 class="module-title">Central Bank Tracker</h2>
       </div>
       <div id="m-central-bank"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M11 — Tariff Tracker -->
+    <!-- M09 — Tariff Tracker -->
     <section class="module-section" id="section-tariff">
       <div class="module-header">
-        <div class="module-num-large">11</div>
+        <div class="module-num-large">09</div>
         <h2 class="module-title">Tariff Tracker</h2>
       </div>
       <div id="m-tariff"><div class="loading-state">Loading…</div></div>
     </section>
 
-    <!-- M12 — Cross-Monitor Flags -->
+    <!-- M10 — Cross-Monitor Flags -->
     <section class="module-section" id="section-cross-monitor">
       <div class="module-header">
-        <div class="module-num-large">12</div>
+        <div class="module-num-large">10</div>
         <h2 class="module-title">Cross-Monitor Flags</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Intelligence from sister monitors that materially affects GMM indicators. Updated weekly alongside the full report.</p>
@@ -171,18 +211,16 @@
     <div class="sidebar-nav__title">Modules</div>
     <ul>
       <li><a href="#section-signal"><span class="sidebar-num">00</span> Signal</a></li>
-      <li><a href="#section-debt"><span class="sidebar-num">01</span> Debt Dynamics</a></li>
-      <li><a href="#section-credit"><span class="sidebar-num">02</span> Credit Stress</a></li>
-      <li><a href="#section-systemic"><span class="sidebar-num">03</span> Systemic Risk</a></li>
-      <li><a href="#section-asset-outlook"><span class="sidebar-num">04</span> Asset Outlook</a></li>
-      <li><a href="#section-amplifiers"><span class="sidebar-num">05</span> Amplifiers</a></li>
-      <li><a href="#section-safe-haven"><span class="sidebar-num">06</span> Safe Haven</a></li>
-      <li><a href="#section-scenarios"><span class="sidebar-num">07</span> Scenarios</a></li>
-      <li><a href="#section-positioning"><span class="sidebar-num">08</span> Positioning</a></li>
-      <li><a href="#section-key-judgments"><span class="sidebar-num">09</span> Key Judgments</a></li>
-      <li><a href="#section-central-bank"><span class="sidebar-num">10</span> Central Banks</a></li>
-      <li><a href="#section-tariff"><span class="sidebar-num">11</span> Tariff Tracker</a></li>
-      <li><a href="#section-cross-monitor"><span class="sidebar-num">12</span> Cross-Monitor</a></li>
+      <li><a href="#section-domains"><span class="sidebar-num">01</span> Domain Indicators</a></li>
+      <li><a href="#section-asset-outlook"><span class="sidebar-num">02</span> Asset Outlook</a></li>
+      <li><a href="#section-amplifiers"><span class="sidebar-num">03</span> Amplifiers</a></li>
+      <li><a href="#section-safe-haven"><span class="sidebar-num">04</span> Safe Haven</a></li>
+      <li><a href="#section-scenarios"><span class="sidebar-num">05</span> Scenarios</a></li>
+      <li><a href="#section-positioning"><span class="sidebar-num">06</span> Positioning</a></li>
+      <li><a href="#section-key-judgments"><span class="sidebar-num">07</span> Key Judgments</a></li>
+      <li><a href="#section-central-bank"><span class="sidebar-num">08</span> Central Banks</a></li>
+      <li><a href="#section-tariff"><span class="sidebar-num">09</span> Tariff Tracker</a></li>
+      <li><a href="#section-cross-monitor"><span class="sidebar-num">10</span> Cross-Monitor</a></li>
     </ul>
   </nav>
 </div>
@@ -195,13 +233,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function esc(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-
   function fmtDate(str) {
     if (!str) return '';
     try { return new Date(str).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}); }
     catch(e) { return str; }
   }
-
   function flagClass(flag) {
     if (!flag) return 'neutral';
     var f = String(flag).toUpperCase();
@@ -212,81 +248,228 @@ document.addEventListener('DOMContentLoaded', function () {
     if (f.indexOf('MILD') !== -1) return 'mild-neg';
     return 'neutral';
   }
-
-  function cmfStatusClass(status) {
-    if (!status) return 'neutral';
-    var s = String(status).toLowerCase();
-    if (s === 'active') return 'warning';
-    if (s === 'nosignal') return 'green';
-    return 'elevated';
+  function flagColour(flag) {
+    var f = String(flag || '').toUpperCase();
+    if (f === 'WARNING')  return '#dc2626';
+    if (f === 'ELEVATED') return '#f59e0b';
+    if (f === 'GREEN')    return '#059669';
+    return '#94a3b8';
   }
 
-  function directionArrow(dir) {
-    if (!dir) return '';
-    var d = dir.toLowerCase();
-    var isDown = d.indexOf('deteriorat') > -1 || d.indexOf('escalat') > -1 ||
-                 d.indexOf('erosion') > -1 || d.indexOf('tighten') > -1 ||
-                 d.indexOf('contract') > -1;
-    var isUp   = d.indexOf('improv') > -1 || d.indexOf('recover') > -1 ||
-                 d.indexOf('positive') > -1;
-    var isAccel = d.indexOf('accelerat') > -1 || d.indexOf('structural increase') > -1;
-    var isStable = d.indexOf('stable') > -1;
-
-    if (isDown) {
-      return '<span class="dir-arrow dir-arrow--down" title="' + esc(dir) + '">' +
-        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-        '<path d="M7 2v10M3 8l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
-    }
-    if (isUp) {
-      return '<span class="dir-arrow dir-arrow--up" title="' + esc(dir) + '">' +
-        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-        '<path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
-    }
-    if (isAccel) {
-      return '<span class="dir-arrow dir-arrow--accel" title="' + esc(dir) + '">' +
-        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-        '<path d="M7 12V2M3 6l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
-    }
-    if (isStable) {
-      return '<span class="dir-arrow dir-arrow--stable" title="' + esc(dir) + '">' +
-        '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
-        '<path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '</svg>' +
-        '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
-    }
-    // Fallback: show text only
-    return '<span class="dir-arrow dir-arrow--neutral" title="' + esc(dir) + '">' +
-      '<span class="dir-arrow__label">' + esc(dir) + '</span></span>';
+  /* ── Indicator name humaniser (R3) ────────────────────────────────── */
+  var INDICATOR_NAMES = {
+    us_debt_deficit:            'US Debt & Deficit',
+    japan_jgb_yields:           'Japan JGB Yields',
+    em_sovereign_distress:      'EM Sovereign Distress',
+    custody_migration:          'Custody Migration',
+    gold_reserve_ratio_em:      'Gold Reserve Ratio (EM)',
+    fed_sloos:                  'Fed SLOOS',
+    cre_delinquency:            'CRE Delinquency',
+    gsib_capital:               'G-SIB Capital',
+    private_credit_nbfi:        'Private Credit / NBFI',
+    vix_term_structure:         'VIX Term Structure',
+    treasury_market_liquidity:  'Treasury Liquidity',
+    margin_debt:                'Margin Debt',
+    fx_swap_basis:              'FX Swap Basis',
+    m2_money_supply:            'M2 Money Supply',
+    ism_pmi:                    'ISM PMI',
+    jobless_claims:             'Jobless Claims',
+    cass_freight:               'Cass Freight Index',
+    consumer_confidence:        'Consumer Confidence',
+    earnings_revisions:         'Earnings Revisions',
+    stlfsi:                     'St. Louis FSI',
+    nfci:                       'Chicago NFCI',
+    iif_global_debt:            'IIF Global Debt',
+    zero_dte_volume:            '0-DTE Options Volume',
+    trump_tariffs:              'Tariff Escalation',
+    oil_supply_shock:           'Oil Supply Shock',
+    dollar_weaponization:       'Dollar Weaponisation',
+    ai_infra_debt:              'AI Infrastructure Debt'
+  };
+  function humanName(key) {
+    return INDICATOR_NAMES[key] || key.replace(/_/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
   }
 
+  var DOMAIN_LABELS = {
+    domain_1_debt_sovereign:   'Debt & Sovereign',
+    domain_2_banking_credit:   'Banking & Credit',
+    domain_3_market_structure: 'Market Structure',
+    domain_4_real_economy:     'Real Economy',
+    domain_5_composite_indices:'Composite Indices',
+    domain_6_amplifiers:       'Amplifiers'
+  };
+
+  /* ── Domain indicator chart + table (R2) ──────────────────────────── */
+  var _domainChart = null;
+  var _allDomainData = {};
+
+  function flattenIndicators(domains, filterKey) {
+    var items = [];
+    var keys = filterKey === 'all' ? Object.keys(domains) : [filterKey];
+    keys.forEach(function(k) {
+      var arr = domains[k];
+      if (!Array.isArray(arr)) return;
+      arr.forEach(function(ind) {
+        items.push({ name: humanName(ind.indicator), flag: ind.flag || '', direction: ind.direction || '', value: ind.value || ind.reading || '', source: ind.source || '', domain: DOMAIN_LABELS[k] || k });
+      });
+    });
+    return items;
+  }
+
+  function renderDomainChart(items) {
+    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    var gridColour = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    var tickColour = isDark ? '#a09e9a' : '#6b6660';
+
+    var labels = items.map(function(i) { return i.name; });
+    var colours = items.map(function(i) { return flagColour(i.flag); });
+
+    // Map flags to numeric values for bar height: WARNING=3, ELEVATED=2, GREEN=1, other=0.5
+    var values = items.map(function(i) {
+      var f = String(i.flag).toUpperCase();
+      if (f === 'WARNING') return 3;
+      if (f === 'ELEVATED') return 2;
+      if (f === 'GREEN') return 1;
+      return 0.5;
+    });
+
+    var chartWrap = document.getElementById('domain-chart-wrap');
+    var canvas = document.getElementById('domain-bar-chart');
+    chartWrap.style.display = 'block';
+
+    if (_domainChart) { _domainChart.destroy(); _domainChart = null; }
+
+    _domainChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colours.map(function(c) { return c + 'cc'; }),
+          borderColor: colours,
+          borderWidth: 1,
+          borderRadius: 3,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: function(ctx) { return ctx[0].label; },
+              label: function(ctx) {
+                var item = items[ctx.dataIndex];
+                return item.flag + (item.value ? ' — ' + item.value : '');
+              },
+              afterLabel: function(ctx) {
+                var item = items[ctx.dataIndex];
+                return item.direction ? 'Direction: ' + item.direction : '';
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            display: false,
+            min: 0, max: 3.5
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: tickColour, font: { size: 11 } }
+          }
+        }
+      }
+    });
+  }
+
+  function renderDomainTable(items) {
+    var tableWrap = document.getElementById('domain-table-wrap');
+    if (!items.length) {
+      tableWrap.innerHTML = '<p class="text-muted" style="font-size:var(--text-sm)">No indicator data.</p>';
+      return;
+    }
+    var html = '<div style="overflow-x:auto"><table class="asset-table"><thead><tr>' +
+      '<th>Indicator</th><th>Domain</th><th>Flag</th><th>Direction</th><th>Reading</th><th>Source</th>' +
+      '</tr></thead><tbody>';
+    items.forEach(function(i) {
+      html += '<tr>' +
+        '<td style="font-size:var(--text-sm);font-weight:600">' + esc(i.name) + '</td>' +
+        '<td style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(i.domain) + '</td>' +
+        '<td><span class="flag-badge flag-badge--' + flagClass(i.flag) + '">' + esc(i.flag || '—') + '</span></td>' +
+        '<td style="font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(i.direction || '—') + '</td>' +
+        '<td style="font-size:var(--text-xs)">' + esc(i.value || '—') + '</td>' +
+        '<td style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(i.source || '') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    tableWrap.innerHTML = html;
+  }
+
+  function setupDomainControls(domains) {
+    _allDomainData = domains;
+    var selector = document.getElementById('domain-selector');
+    Object.keys(domains).forEach(function(k) {
+      if (!Array.isArray(domains[k]) || !domains[k].length) return;
+      var opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = DOMAIN_LABELS[k] || k;
+      selector.appendChild(opt);
+    });
+
+    var currentView = 'chart';
+    var currentDomain = 'all';
+
+    function refresh() {
+      var items = flattenIndicators(_allDomainData, currentDomain);
+      var chartWrap = document.getElementById('domain-chart-wrap');
+      var tableWrap = document.getElementById('domain-table-wrap');
+      // Resize chart height based on number of items
+      chartWrap.style.height = Math.max(180, items.length * 28 + 40) + 'px';
+      if (currentView === 'chart') {
+        chartWrap.style.display = 'block';
+        tableWrap.style.display = 'none';
+        renderDomainChart(items);
+      } else {
+        chartWrap.style.display = 'none';
+        tableWrap.style.display = 'block';
+        renderDomainTable(items);
+      }
+    }
+
+    selector.addEventListener('change', function() {
+      currentDomain = this.value;
+      refresh();
+    });
+
+    document.querySelectorAll('.domain-view-toggle__btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.domain-view-toggle__btn').forEach(function(b) { b.classList.remove('active'); });
+        this.classList.add('active');
+        currentView = this.getAttribute('data-view');
+        refresh();
+      });
+    });
+
+    refresh();
+  }
+
+  /* ── Amplifier indicator renderer (uses humanised names) ───────────── */
   function renderIndicatorDomain(arr) {
-    if (!arr || !arr.length) return '<p class="text-muted text-sm">No data.</p>';
+    if (!arr || !arr.length) return '<p class="text-muted" style="font-size:var(--text-sm)">No data.</p>';
     var html = '<div>';
     arr.forEach(function (ind) {
-      var scoreVal = parseFloat(ind.score || 0);
-      var scorePos = scoreVal >= 0;
-      var updateHtml = ind.update_this_week
-        ? '<div class="indicator-row__update">' + esc(ind.update_this_week) + '</div>'
-        : '';
       html += '<div class="indicator-row">' +
         '<div class="indicator-row__body">' +
-          '<div class="indicator-row__name">' + esc(ind.indicator) + '</div>' +
-          '<div class="indicator-row__reading">' + esc(ind.reading || '') + '</div>' +
-          updateHtml +
-          (ind.crisis_threshold ? '<div class="indicator-row__threshold">Crisis threshold: ' + esc(ind.crisis_threshold) + '</div>' : '') +
-          (ind.blind_spot_rule ? '<div class="indicator-row__blind-spot">⚠ ' + esc(ind.blind_spot_rule) + '</div>' : '') +
-          (ind.source_url ? AsymRenderer.sourceLink(ind.source_url) : '') +
+          '<div class="indicator-row__name" style="font-size:var(--text-sm);font-weight:600">' + esc(humanName(ind.indicator)) + '</div>' +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(ind.value || ind.reading || '') + '</div>' +
         '</div>' +
-        '<div class="indicator-row__signals">' +
-          directionArrow(ind.direction) +
+        '<div class="indicator-row__signals" style="display:flex;align-items:center;gap:var(--space-2)">' +
+          '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(ind.direction || '') + '</span>' +
           '<span class="flag-badge flag-badge--' + flagClass(ind.flag) + '">' + esc(ind.flag || '—') + '</span>' +
-          '<span class="score-chip score-chip--' + (scorePos ? 'pos' : 'neg') + '">' + (scoreVal > 0 ? '+' : '') + esc(ind.score) + '</span>' +
         '</div>' +
       '</div>';
     });
@@ -294,6 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return html;
   }
 
+  /* ── Main fetch & render ────────────────────────────────────────── */
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) { renderReport(d); })
@@ -302,10 +486,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
   function renderReport(d) {
-    var meta     = d.meta || {};
+    var meta      = d.meta || {};
     var signalObj = d.signal || {};
-    // Remap: JSON stores stress/regime inside signal; domain data in flat arrays
-    var eb       = d.executive_briefing || {
+    var eb        = d.executive_briefing || {
       system_stress_label:     signalObj.system_stress_label     || '',
       system_stress_direction: signalObj.system_stress_direction || '',
       system_average_score:    signalObj.system_average_score,
@@ -314,10 +497,8 @@ document.addEventListener('DOMContentLoaded', function () {
       summary:                 signalObj.headline                || '',
       delta_vs_prior:          signalObj.delta_vs_prior
     };
-    var signal    = signalObj.headline || eb.system_stress_label || '';
     var signalBody = signalObj.system_stress_label || signalObj.regime || eb.summary || '';
-    // domain_indicators fallback: build from flat arrays
-    var domains  = d.domain_indicators || {};
+    var domains    = d.domain_indicators || {};
     if (!Object.keys(domains).length) {
       domains = {
         domain_1_debt_sovereign:   d.debt_dynamics  || [],
@@ -326,10 +507,8 @@ document.addEventListener('DOMContentLoaded', function () {
         domain_6_amplifiers:       []
       };
     }
-    var assets   = d.asset_class_scores || d.asset_outlook || [];
-    var sentiment= d.sentiment_overlay  || {};
-    var cmf      = d.cross_monitor_flags || {};
-    var blindSpots = d.blind_spot_overrides || [];
+    var assets = d.asset_class_scores || d.asset_outlook || [];
+    var cmf    = d.cross_monitor_flags || {};
 
     // Page header
     document.getElementById('report-title').textContent = 'GMM — ' + (meta.week_label || 'Latest Issue');
@@ -338,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<span>Published ' + fmtDate(meta.published) + '</span>' +
       (meta.editor ? '<span>Editor: ' + esc(meta.editor) + '</span>' : '');
 
-    // Delta strip from archive / delta items
+    // Tactical Alerts
     var deltaWrap = document.getElementById('delta-strip-wrap');
     var tacticalAlerts = d.tactical_alerts || (signalObj.no_tactical_alerts ? [] : []);
     if (tacticalAlerts.length) {
@@ -348,8 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '<span class="delta-item__rank">' + (i+1) + '</span>' +
           '<div><div class="delta-item__title">' + esc(a.title || a.headline || '') + '</div>' +
           '<div class="delta-item__line">' + esc(a.body || a.summary || '') + '</div></div>' +
-          '<span class="flag-badge flag-badge--warning">ALERT</span>' +
-          '</li>';
+          '<span class="flag-badge flag-badge--warning">ALERT</span></li>';
       });
       dHtml += '</ul>';
       deltaWrap.innerHTML = dHtml;
@@ -362,10 +540,10 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('m-signal').innerHTML =
       '<div class="signal-block">' +
         '<div class="signal-block__label">Weekly Signal — GMM</div>' +
-        '<h2 class="signal-block__headline">' + esc(eb_stress) + '</h2>' +
+        '<h2 class="signal-block__title">' + esc(eb_stress) + '</h2>' +
         '<p class="signal-block__body">' + esc(eb_body) + '</p>' +
-        (eb.one_number_to_watch ? '<p style="margin-top:var(--space-4);font-size:var(--text-sm);color:var(--color-text)"><strong>One number to watch:</strong> ' + esc(eb.one_number_to_watch) + '</p>' : '') +
-        (eb.one_indicator_lying ? '<p style="margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text)"><strong>One indicator that may be lying:</strong> ' + esc(eb.one_indicator_lying) + '</p>' : '') +
+        (eb.one_number_to_watch ? '<p style="margin-top:var(--space-4);font-size:var(--text-sm)"><strong>One number to watch:</strong> ' + esc(eb.one_number_to_watch) + '</p>' : '') +
+        (eb.one_indicator_lying ? '<p style="margin-top:var(--space-3);font-size:var(--text-sm)"><strong>One indicator that may be lying:</strong> ' + esc(eb.one_indicator_lying) + '</p>' : '') +
         '<div class="signal-block__meta">' +
           '<span class="regime-badge">' + esc(eb_regime) + ' · ' + esc(eb.regime_conviction || signalObj.regime_conviction || '') + ' conviction</span>' +
           (eb.base_case_label ? '<span style="font-size:var(--text-xs);color:var(--monitor-accent)">Base case: ' + esc(eb.base_case_label) + ' (' + Math.round((eb.base_case_probability||0)*100) + '%)</span>' : '') +
@@ -373,94 +551,39 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>' +
       '</div>';
 
-    // M01 — Debt Dynamics (domain_1_debt_sovereign)
-    document.getElementById('m-debt').innerHTML = renderIndicatorDomain(domains.domain_1_debt_sovereign);
+    // M01 — Domain Indicators (combined chart + dropdown + table)
+    setupDomainControls(domains);
 
-    // M02 — Credit Stress (domain_2_banking_credit)
-    document.getElementById('m-credit').innerHTML = renderIndicatorDomain(domains.domain_2_banking_credit);
-
-    // M03 — Systemic Risk (domain_3_market_structure)
-    document.getElementById('m-systemic').innerHTML = renderIndicatorDomain(domains.domain_3_market_structure);
-
-    // M04 — Asset Outlook
+    // M02 — Asset Outlook
     var assetHtml = '';
     if (assets.length) {
       assetHtml += '<table class="asset-table"><thead><tr><th>Asset Class</th><th>Score</th><th>Flag</th><th>Direction</th><th>Key Driver</th></tr></thead><tbody>';
       assets.forEach(function (a) {
         var pos = parseFloat(a.score||0) >= 0;
         assetHtml += '<tr>' +
-          '<td class="asset-table__name">' + esc(a.asset_class) + '</td>' +
+          '<td style="font-size:var(--text-sm);font-weight:600">' + esc(a.asset_class) + '</td>' +
           '<td><span class="score-chip score-chip--' + (pos?'pos':'neg') + '">' + (parseFloat(a.score||0)>0?'+':'') + esc(a.score) + '</span></td>' +
           '<td><span class="flag-badge flag-badge--' + flagClass(a.flag) + '">' + esc(a.flag) + '</span></td>' +
           '<td style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(a.direction||'—') + '</td>' +
-          '<td><div class="asset-table__driver">' + esc(a.key_driver||'') + '</div></td>' +
+          '<td style="font-size:var(--text-sm)">' + esc(a.key_driver||'') + '</td>' +
           '</tr>';
       });
       assetHtml += '</tbody></table>';
     }
-    // Include domain_4 and domain_5 indicators below table
-    assetHtml += '<div style="margin-top:var(--space-8)"><div class="section-label">Domain 4 — Real Economy</div>' + renderIndicatorDomain(domains.domain_4_real_economy) + '</div>';
-    assetHtml += '<div style="margin-top:var(--space-6)"><div class="section-label">Domain 5 — Composite Indices</div>' + renderIndicatorDomain(domains.domain_5_composite_indices) + '</div>';
     document.getElementById('m-assets').innerHTML = assetHtml;
 
-    // M05 — Amplifiers (domain_6_amplifiers)
+    // M03 — Amplifiers (domain_6_amplifiers)
     document.getElementById('m-amplifiers').innerHTML = renderIndicatorDomain(domains.domain_6_amplifiers);
 
-    // M06 — Safe Haven & Positioning — now handled by AsymSections.renderSafeHavenV2 below
-
-    // M07 — Cross-Monitor Flags
-    var flags = (cmf.flags || []);
-    if (!flags.length) {
-      document.getElementById('m-cross-monitor').innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
-    } else {
-      var cmfHtml = '<div class="section-label" style="margin-bottom:var(--space-3)">Updated: ' + esc(fmtDate(cmf.updated)) + '</div>';
-      flags.forEach(function (flag) {
-        cmfHtml += '<div class="cmf-item">' +
-          '<div class="cmf-item__header"><div>' +
-            '<div class="cmf-item__source">' + esc(flag.monitor || '') + ' · ' + esc(flag.type || '') + '</div>' +
-            '<div class="cmf-item__title">' + esc(flag.title || '') + '</div>' +
-          '</div>' +
-          '<span class="flag-badge flag-badge--' + cmfStatusClass(flag.status) + '">' + esc(flag.status || '') + '</span>' +
-          '</div>' +
-          '<div class="cmf-item__body cmf-item__body--collapsed">' + esc(flag.body || '') + '</div>' +
-          '<button class="cms-read-more">Read more →</button>' +
-          (flag.macro_indicators_affected && flag.macro_indicators_affected.length ?
-            '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Affects: ' + flag.macro_indicators_affected.map(function(x){return esc(x);}).join(', ') + '</div>'
-            : '') +
-          (flag.source_url ? AsymRenderer.sourceLink(flag.source_url) : '') +
-        '</div>';
-      });
-      document.getElementById('m-cross-monitor').innerHTML = cmfHtml;
-    }
-
-    // Scenario Framework (v2)
-    if (window.AsymSections && window.AsymSections.renderScenarioFramework) {
-      AsymSections.renderScenarioFramework(d.scenario_framework || [], 'm-scenarios');
-    }
-
-    // Positioning Overlay (MATT)
-    if (window.AsymSections && window.AsymSections.renderPositioningOverlay) {
-      AsymSections.renderPositioningOverlay(d.positioning_overlay || {}, 'm-positioning');
-    }
-
-    // Key Judgments
-    if (window.AsymSections && window.AsymSections.renderKeyJudgments) {
-      AsymSections.renderKeyJudgments(d.key_judgments || [], 'm-key-judgments');
-    }
-
-    // Central Bank Tracker
-    if (window.AsymSections && window.AsymSections.renderCentralBankTracker) {
-      AsymSections.renderCentralBankTracker(d.central_bank_tracker || [], 'm-central-bank');
-    }
-
-    // Tariff Tracker
-    if (window.AsymSections && window.AsymSections.renderTariffTracker) {
-      AsymSections.renderTariffTracker(d.tariff_tracker || [], 'm-tariff');
-    }
-
-    // Safe Haven (v2 format)
-    if (window.AsymSections && window.AsymSections.renderSafeHavenV2) {
-      AsymSections.renderSafeHavenV2(d.safe_haven || {}, 'm-safe-haven');
+    // Shared library sections
+    if (window.AsymSections) {
+      if (AsymSections.renderCrossMonitorFlags) AsymSections.renderCrossMonitorFlags(cmf, 'm-cross-monitor');
+      if (AsymSections.renderScenarioFramework) AsymSections.renderScenarioFramework(d.scenario_framework || [], 'm-scenarios');
+      if (AsymSections.renderPositioningOverlay) AsymSections.renderPositioningOverlay(d.positioning_overlay || {}, 'm-positioning');
+      if (AsymSections.renderKeyJudgments) AsymSections.renderKeyJudgments(d.key_judgments || [], 'm-key-judgments');
+      if (AsymSections.renderCentralBankTracker) AsymSections.renderCentralBankTracker(d.central_bank_tracker || [], 'm-central-bank');
+      if (AsymSections.renderTariffTracker) AsymSections.renderTariffTracker(d.tariff_tracker || [], 'm-tariff');
+      if (AsymSections.renderSafeHavenV2) AsymSections.renderSafeHavenV2(d.safe_haven || {}, 'm-safe-haven');
     }
   }
 });
