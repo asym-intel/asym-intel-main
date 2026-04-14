@@ -363,6 +363,16 @@ def check_monitor_completeness(r: Results):
             else:
                 r.warn(f"COMPLETENESS:{abbr}/{prompt}", "Missing")
 
+        # Check Hugo _index.md has description (required for Dataset JSON-LD)
+        index_md = REPO_ROOT / "content" / "monitors" / slug / "_index.md"
+        if index_md.exists():
+            fm = index_md.read_text()
+            if "description:" in fm:
+                r.ok(f"COMPLETENESS:{abbr}/_index.md:description", "Has description (Dataset JSON-LD)")
+            else:
+                r.fail(f"COMPLETENESS:{abbr}/_index.md:description", "Missing description — breaks Dataset structured data for GSC")
+        else:
+            r.fail(f"COMPLETENESS:{abbr}/_index.md", "Missing _index.md — no Hugo section page")
 
 
 def check_frontend_patterns(r: Results):

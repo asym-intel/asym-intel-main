@@ -15,7 +15,7 @@
     "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
 -}}
 {{- if .Parent -}}
-  {{- $ld = merge $ld (dict "isPartOf" (dict "@type" "Dataset" "name" (printf "%s — Asymmetric Intelligence" .Parent.Title) "url" .Parent.Permalink)) -}}
+  {{- $ld = merge $ld (dict "isPartOf" (dict "@type" "Dataset" "name" (printf "%s — Asymmetric Intelligence" .Parent.Title) "url" .Parent.Permalink "description" .Parent.Description "creator" (dict "@type" "Person" "name" "Peter Howitt") "license" "https://creativecommons.org/licenses/by/4.0/")) -}}
 {{- end -}}
 {{ printf `<script type="application/ld+json">%s</script>` ($ld | jsonify) | safeHTML }}
 <main class="single">
