@@ -29,6 +29,8 @@
       var style = document.createElement('style');
       style.setAttribute('data-asym-nb-styles', '');
       style.textContent = [
+        'html{scrollbar-gutter:stable}',
+        'html.no-scrollbar-gutter{scrollbar-gutter:auto}',
         'body{padding-top:' + NB_H + 'px!important}',
         '.monitor-nav{position:sticky!important;top:' + CHROME_H + 'px!important}',
         '.monitor-sidebar{top:calc(' + CHROME_H + 'px + 52px)!important;height:calc(100vh - ' + CHROME_H + 'px - 52px)!important}',
@@ -134,6 +136,15 @@
   // Run immediately so bar appears before any other paint
   injectNetworkBar();
 
+  // Map and Network pages use overflow:hidden (no scrollbar) — opt out of
+  // scrollbar-gutter so they don't get an empty gap on the right.
+  (function () {
+    var p = window.location.pathname;
+    if (p.indexOf('/map/') !== -1 || p.indexOf('/network/') !== -1) {
+      document.documentElement.classList.add('no-scrollbar-gutter');
+    }
+  })();
+
 
   /* ── Site Bar Injection ──────────────────────────────────────
      About | Search | [theme toggle] | Subscribe
@@ -186,6 +197,14 @@
       } else {
         document.body.appendChild(bar);
       }
+    }
+
+    // Hide theme toggle on Map/Network pages (toggle doesn't work there;
+    // full light mode for those pages is a future task)
+    var p = window.location.pathname;
+    if (p.indexOf('/map/') !== -1 || p.indexOf('/network/') !== -1) {
+      var toggleBtn = bar.querySelector('.theme-toggle');
+      if (toggleBtn) toggleBtn.style.display = 'none';
     }
 
     // Wire theme toggle
