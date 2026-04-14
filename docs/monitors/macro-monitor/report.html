@@ -213,14 +213,6 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'neutral';
   }
 
-  function cmfStatusClass(status) {
-    if (!status) return 'neutral';
-    var s = String(status).toLowerCase();
-    if (s === 'active') return 'warning';
-    if (s === 'nosignal') return 'green';
-    return 'elevated';
-  }
-
   function directionArrow(dir) {
     if (!dir) return '';
     var d = dir.toLowerCase();
@@ -408,29 +400,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // M06 — Safe Haven & Positioning — now handled by AsymSections.renderSafeHavenV2 below
 
-    // M07 — Cross-Monitor Flags
-    var flags = (cmf.flags || []);
-    if (!flags.length) {
-      document.getElementById('m-cross-monitor').innerHTML = '<p class="text-muted text-sm">No cross-monitor flags this issue.</p>';
-    } else {
-      var cmfHtml = '<div class="section-label" style="margin-bottom:var(--space-3)">Updated: ' + esc(fmtDate(cmf.updated)) + '</div>';
-      flags.forEach(function (flag) {
-        cmfHtml += '<div class="cmf-item">' +
-          '<div class="cmf-item__header"><div>' +
-            '<div class="cmf-item__source">' + esc(flag.monitor || '') + ' · ' + esc(flag.type || '') + '</div>' +
-            '<div class="cmf-item__title">' + esc(flag.title || '') + '</div>' +
-          '</div>' +
-          '<span class="flag-badge flag-badge--' + cmfStatusClass(flag.status) + '">' + esc(flag.status || '') + '</span>' +
-          '</div>' +
-          '<div class="cmf-item__body cmf-item__body--collapsed">' + esc(flag.body || '') + '</div>' +
-          '<button class="cms-read-more">Read more →</button>' +
-          (flag.macro_indicators_affected && flag.macro_indicators_affected.length ?
-            '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Affects: ' + flag.macro_indicators_affected.map(function(x){return esc(x);}).join(', ') + '</div>'
-            : '') +
-          (flag.source_url ? AsymRenderer.sourceLink(flag.source_url) : '') +
-        '</div>';
-      });
-      document.getElementById('m-cross-monitor').innerHTML = cmfHtml;
+    // M07 — Cross-Monitor Flags (shared library)
+    if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
+      AsymSections.renderCrossMonitorFlags(cmf, 'm-cross-monitor');
     }
 
     // Scenario Framework (v2)

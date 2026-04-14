@@ -187,9 +187,70 @@
       <div id="ps-blind-spots"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- Tariff Escalation Protocol -->
+    <section class="module-section" id="section-tariff-protocol">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">06</div>
+        <h2 class="section-title" style="margin:0">Tariff Escalation Protocol</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Active tariff escalation protocol status. Tracks rung level, effective rate, retaliators, and WTO filings.</p>
+      <div id="ps-tariff-protocol"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- US Decoupling Index -->
+    <section class="module-section" id="section-decoupling">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">07</div>
+        <h2 class="section-title" style="margin:0">US Decoupling Index</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Structural US decoupling across trade, technology, security, and platform domains.</p>
+      <div id="ps-decoupling"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- AI Capex Watch -->
+    <section class="module-section" id="section-ai-capex">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">08</div>
+        <h2 class="section-title" style="margin:0">AI Capex Watch</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Hyperscaler capital expenditure tracking and grid constraint risk.</p>
+      <div id="ps-ai-capex"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- IMF WEO Status -->
+    <section class="module-section" id="section-imf-weo">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">09</div>
+        <h2 class="section-title" style="margin:0">IMF WEO Status</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Integration status of IMF World Economic Outlook data into GMM indicators.</p>
+      <div id="ps-imf-weo"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Blind Spots (analytical guardrails) -->
+    <section class="module-section" id="section-blind-spots-register">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">10</div>
+        <h2 class="section-title" style="margin:0">Blind Spots Register</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Known analytical blind spots and guardrails that shape how indicators are interpreted.</p>
+      <div id="ps-blind-spots-register"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Calibration Log -->
+    <section class="module-section" id="section-calibration">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">11</div>
+        <h2 class="section-title" style="margin:0">Calibration Log</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Audit trail of methodology updates and calibration changes applied to the GMM scoring model.</p>
+      <div id="ps-calibration"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- Cross-Monitor Flags -->
     <section class="module-section" id="section-cmf">
       <div class="module-header">
-        <div class="module-num-large">04</div>
+        <div class="module-num-large">12</div>
         <h2 class="module-title">Cross-Monitor Flags</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Persistent cross-monitor intelligence from sister monitors. Loaded from the latest report's cross_monitor_flags object.</p>
@@ -206,7 +267,13 @@
       <li><a href="#section-conviction"><span class="sidebar-num">03</span> Conviction</a></li>
       <li><a href="#section-oil"><span class="sidebar-num">04</span> Oil Shock Driver</a></li>
       <li><a href="#section-blind-spots"><span class="sidebar-num">05</span> Blind Spot Overrides</a></li>
-      <li><a href="#section-cmf"><span class="sidebar-num">04</span> Cross-Monitor</a></li>
+      <li><a href="#section-tariff-protocol"><span class="sidebar-num">06</span> Tariff Protocol</a></li>
+      <li><a href="#section-decoupling"><span class="sidebar-num">07</span> Decoupling Index</a></li>
+      <li><a href="#section-ai-capex"><span class="sidebar-num">08</span> AI Capex Watch</a></li>
+      <li><a href="#section-imf-weo"><span class="sidebar-num">09</span> IMF WEO</a></li>
+      <li><a href="#section-blind-spots-register"><span class="sidebar-num">10</span> Blind Spots</a></li>
+      <li><a href="#section-calibration"><span class="sidebar-num">11</span> Calibration Log</a></li>
+      <li><a href="#section-cmf"><span class="sidebar-num">12</span> Cross-Monitor</a></li>
     </ul>
   </nav>
 </div>
@@ -235,13 +302,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (f.indexOf('BEARISH') !== -1) return 'bearish';
     if (f.indexOf('MILD') !== -1) return 'mild-neg';
     return 'neutral';
-  }
-
-  function cmfStatusClass(status) {
-    var s = String(status || '').toLowerCase();
-    if (s === 'active') return 'warning';
-    if (s === 'nosignal') return 'green';
-    return 'elevated';
   }
 
   // Load persistent-state.json
@@ -424,30 +484,132 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    // Cross-Monitor Flags (from latest report)
-    var cmf = report.cross_monitor_flags || {};
-    var flags = cmf.flags || [];
-    var cmfEl = document.getElementById('ps-cmf');
-    if (!flags.length) {
-      cmfEl.innerHTML = '<p class="text-muted text-sm">No cross-monitor flags available.</p>';
-    } else {
-      var cmfMeta = cmf.updated ? '<div class="section-label" style="margin-bottom:var(--space-3)">Updated: ' + esc(fmtDate(cmf.updated)) + '</div>' : '';
-      var cmfHtml = cmfMeta;
-      flags.forEach(function (flag) {
-        cmfHtml += '<div class="cmf-item">' +
-          '<div class="cmf-item__header"><div>' +
-            '<div class="cmf-item__source">' + esc(flag.monitor || '') + ' · ' + esc(flag.type || '') + '</div>' +
-            '<div class="cmf-item__title">' + esc(flag.title || '') + '</div>' +
-          '</div>' +
-          '<span class="flag-badge flag-badge--' + cmfStatusClass(flag.status) + '">' + esc(flag.status || '') + '</span></div>' +
-          '<div class="cmf-item__body cmf-item__body--collapsed">' + esc(flag.body || '') + '</div>' +
-          '<button class="cms-read-more">Read more →</button>' +
-          (flag.macro_indicators_affected && flag.macro_indicators_affected.length ?
-            '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Affects: ' + flag.macro_indicators_affected.map(function(x){return esc(x);}).join(', ') + '</div>' : '') +
-          (flag.source_url ? '<a href="' + esc(flag.source_url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--monitor-accent);margin-top:var(--space-2);display:inline-block">Source →</a>' : '') +
-        '</div>';
-      });
-      cmfEl.innerHTML = cmfHtml;
+    // ── Tariff Escalation Protocol (G4) ──────────────────────────────────
+    var tepEl = document.getElementById('ps-tariff-protocol');
+    if (tepEl) {
+      var tep = ps.tariff_escalation_protocol || {};
+      if (tep.active) {
+        var retaliators = (tep.active_retaliators || []).map(function(r){ return esc(r); }).join(', ');
+        tepEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label" style="color:var(--critical,#ef4444);font-weight:700">ACTIVE · Since ' + esc(tep.activation_date || '') + '</div>' +
+            '<div class="card__title">Rung ' + esc(String(tep.current_rung || '')) + ' — Effective rate ≈' + esc(String(tep.effective_tariff_rate_approx || '')) + '%</div>' +
+            '<div class="card__body">' + esc(tep.activation_reason || '') + '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-3)">' +
+              '<strong>Basis:</strong> ' + esc(tep.current_rung_basis || '') +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)">' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:rgba(239,68,68,0.1);color:var(--color-text-secondary)">Retaliators: ' + retaliators + '</span>' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:rgba(239,68,68,0.1);color:var(--color-text-secondary)">WTO filings: ' + esc(String(tep.wto_filings || 0)) + '</span>' +
+            '</div>' +
+          '</div>';
+      } else {
+        tepEl.innerHTML = '<div class="card"><p class="text-muted text-sm">Tariff escalation protocol is not active.</p></div>';
+      }
+    }
+
+    // ── US Decoupling Index (G4) ──────────────────────────────────────────
+    var decEl = document.getElementById('ps-decoupling');
+    if (decEl) {
+      var dec = ps.us_decoupling_index || {};
+      if (dec.direction) {
+        var domains = (dec.active_domains || []).map(function(d){ return esc(d); }).join(', ');
+        decEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label">Baseline ' + esc(dec.baseline_date || '') + '</div>' +
+            '<div class="card__title">' + esc(dec.direction) + '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)">' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-bg-alt);color:var(--color-text-secondary)">Active domains: ' + domains + '</span>' +
+            '</div>' +
+            (dec.matt_divergence ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-3)"><strong>MATT divergence:</strong> ' + esc(dec.matt_divergence) + '</div>' : '') +
+          '</div>';
+      } else {
+        decEl.innerHTML = '<p class="text-muted text-sm">No decoupling index data.</p>';
+      }
+    }
+
+    // ── AI Capex Watch (G4) ───────────────────────────────────────────────
+    var aiEl = document.getElementById('ps-ai-capex');
+    if (aiEl) {
+      var ai = ps.ai_capex_watch || {};
+      if (ai.hyperscaler_combined_capex_annual_bn) {
+        aiEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label">Baseline ' + esc(ai.baseline_date || '') + '</div>' +
+            '<div class="card__title">$' + esc(String(ai.hyperscaler_combined_capex_annual_bn)) + 'B annual capex · ' + esc(ai.direction || '') + '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-3)">' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-bg-alt);color:var(--color-text-secondary)">Grid constraint risk: ' + esc(ai.grid_constraint_risk || '—') + '</span>' +
+              '<span style="font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-bg-alt);color:var(--color-text-secondary)">Cross-monitor flag: ' + (ai.crossmonitorflag ? 'Yes' : 'No') + '</span>' +
+            '</div>' +
+          '</div>';
+      } else {
+        aiEl.innerHTML = '<p class="text-muted text-sm">No AI capex data.</p>';
+      }
+    }
+
+    // ── IMF WEO Status (G4) ──────────────────────────────────────────────
+    var imfEl = document.getElementById('ps-imf-weo');
+    if (imfEl) {
+      var imf = ps.imf_weo_status || {};
+      if (imf.last_version) {
+        var pendingClass = !imf.integration_complete ? 'color:var(--critical,#ef4444);font-weight:700' : 'color:var(--positive,#22c55e);font-weight:700';
+        imfEl.innerHTML =
+          '<div class="card">' +
+            '<div class="card__label">Last version: ' + esc(imf.last_version) + '</div>' +
+            '<div class="card__title">Next expected: ' + esc(imf.next_expected || '—') + '</div>' +
+            '<div style="margin-top:var(--space-3);font-size:var(--text-sm)">' +
+              '<span style="' + pendingClass + '">' + (imf.integration_complete ? '✓ Integrated' : '⏳ Pending integration') + '</span>' +
+            '</div>' +
+            (imf.note ? '<div class="card__body" style="margin-top:var(--space-3)">' + esc(imf.note) + '</div>' : '') +
+          '</div>';
+      } else {
+        imfEl.innerHTML = '<p class="text-muted text-sm">No IMF WEO status data.</p>';
+      }
+    }
+
+    // ── Blind Spots Register (G4) ────────────────────────────────────────
+    var bsrEl = document.getElementById('ps-blind-spots-register');
+    if (bsrEl) {
+      var bsList = ps.blind_spots || [];
+      if (!bsList.length) {
+        bsrEl.innerHTML = '<p class="text-muted text-sm">No blind spots registered.</p>';
+      } else {
+        bsrEl.innerHTML = bsList.map(function(bs) {
+          return '<div class="card" style="margin-bottom:var(--space-3)">' +
+            '<div class="card__label">' + esc(bs.id || '') + '</div>' +
+            '<div class="card__title">' + esc(bs.name || '') + '</div>' +
+            '<div class="card__body">' + esc(bs.description || '') + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // ── Calibration Log (G4) ─────────────────────────────────────────────
+    var calEl = document.getElementById('ps-calibration');
+    if (calEl) {
+      var calLog = ps.calibration_log || [];
+      if (!calLog.length) {
+        calEl.innerHTML = '<p class="text-muted text-sm">No calibration entries recorded.</p>';
+      } else {
+        var calHtml = '<div class="card" style="padding:0">';
+        calLog.slice().reverse().forEach(function(c) {
+          calHtml += '<div style="display:grid;grid-template-columns:7rem 1fr;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-border);font-size:var(--text-sm)">' +
+            '<span style="color:var(--color-text-muted);white-space:nowrap">' + esc(c.date || '') + '</span>' +
+            '<div>' +
+              '<div style="font-weight:600">' + esc(c.source || '') + '</div>' +
+              '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:2px">' + esc(c.summary || '') + '</div>' +
+              (c.applied_by ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px">Applied by: ' + esc(c.applied_by) + '</div>' : '') +
+            '</div>' +
+          '</div>';
+        });
+        calHtml += '</div>';
+        calEl.innerHTML = calHtml;
+      }
+    }
+
+    // ── Cross-Monitor Flags (shared library — G3) ────────────────────────
+    if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
+      AsymSections.renderCrossMonitorFlags(report.cross_monitor_flags || {}, 'ps-cmf');
     }
   }
 
