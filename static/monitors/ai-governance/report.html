@@ -530,7 +530,9 @@
           });
           document.getElementById('m2-content').innerHTML = m2html;
         } else {
-          document.getElementById('m2-content').innerHTML = empty();
+          /* module_2 currently tracks regulatory frameworks, not models.
+             Model frontier data will be available when the AIM synthesiser schema includes module_2.models. */
+          document.getElementById('m2-content').innerHTML = '<p class="empty-state">Model frontier data will be available when the AIM synthesiser schema includes module_2.models. Currently module_2 tracks regulatory frameworks.</p>';
         }
 
         // M03 — Investment & M&A
@@ -549,7 +551,10 @@
         if (strategicDeals.length) {
           m3html += '<h3 class="subsection-title">Strategic Deals</h3>' + renderIntelItems(strategicDeals, ['title','summary','asymmetric']);
         }
-        if (energyWall && typeof energyWall === 'object' && Object.keys(energyWall).length) {
+        if (Array.isArray(energyWall) && energyWall.length) {
+          m3html += '<h3 class="subsection-title">Energy Wall</h3>' +
+            renderIntelItems(energyWall, ['deal','signal','analysis']);
+        } else if (energyWall && typeof energyWall === 'object' && Object.keys(energyWall).length) {
           m3html += '<h3 class="subsection-title">Energy Wall</h3>' +
             '<div class="intel-item"><div class="intel-item__body">' + renderObj(energyWall) + '</div></div>';
         }
@@ -771,8 +776,13 @@
         document.getElementById('m15-content').innerHTML = m15html || empty();
 
         // Cross-Monitor Flags
+        // Cross-monitor flags — use shared renderer with correct field mappings
         var cmf = d.cross_monitor_flags || {};
-        document.getElementById('cross-monitor-content').innerHTML = renderCrossMonitor(cmf);
+        if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
+          AsymSections.renderCrossMonitorFlags(cmf, 'cross-monitor-content');
+        } else {
+          document.getElementById('cross-monitor-content').innerHTML = renderCrossMonitor(cmf);
+        }
 
         // Sprint 4: Key Judgments
         var kjs = d.key_judgments || [];
