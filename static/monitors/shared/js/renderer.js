@@ -1064,33 +1064,43 @@ window.AsymSections = (function () {
       return;
     }
 
-    var html = '<div class="kj-list">';
-    judgments.forEach(function (kj) {
+    var html = '<div class="key-judgment-cards">';
+    judgments.forEach(function (kj, idx) {
       var trajClass = kj.trajectory ? deriveStatusClass(kj.trajectory) : '';
       var trajBadge = kj.trajectory ? buildStatusBadge(kj.trajectory, trajClass) : '';
 
-      var confClass = (function () {
-        var c = (kj.confidence_preliminary || '').toLowerCase();
-        if (c === 'confirmed') return 'positive';
-        if (c === 'high')      return 'high';
-        return 'moderate';
+      /* confidence field — synthesisers use 'confidence', legacy used 'confidence_preliminary' */
+      var confRaw = kj.confidence || kj.confidence_preliminary || '';
+      var confBadgeClass = (function () {
+        var c = confRaw.toLowerCase();
+        if (c === 'confirmed') return 'kj-confidence-badge--confirmed';
+        if (c === 'high')      return 'kj-confidence-badge--high';
+        if (c === 'assessed' || c === 'moderate') return 'kj-confidence-badge--assessed';
+        return 'kj-confidence-badge--low';
       })();
 
+      /* ID badge: turn 'kj-001' into ordinal 'KJ 1', or use index+1 as fallback */
+      var idNum = (kj.id || '').replace(/^kj-0*/i, '');
+      var idLabel = idNum ? 'KJ ' + idNum : 'KJ ' + (idx + 1);
+
+      /* Context field — each monitor uses a different name */
+      var context = kj.theatre || kj.domain || kj.stress_domain ||
+                    kj.boundary_or_element || kj.framework_affected ||
+                    kj.countries_affected || '';
+
       html +=
-        '<div class="kj-card">' +
-          '<div class="kj-card__id">' + escHtml(kj.id || '') + '</div>' +
-          '<div class="kj-card__body">' +
-            '<div class="kj-card__text">' + escHtml(kj.judgment || '') + '</div>' +
-            '<div class="kj-card__meta">' +
-              (kj.theatre
-                ? '<span class="kj-card__context">' + escHtml(kj.theatre) + '</span>'
-                : '') +
-              (kj.confidence_preliminary
-                ? '<span class="severity-badge severity-badge--' + confClass + '">' +
-                    escHtml(kj.confidence_preliminary) + '</span>'
-                : '') +
-              (trajBadge ? trajBadge : '') +
-            '</div>' +
+        '<div class="key-judgment-card">' +
+          '<div class="key-judgment-card__id">' + escHtml(idLabel) + '</div>' +
+          '<div class="key-judgment-card__text">' + escHtml(kj.judgment || '') + '</div>' +
+          '<div class="key-judgment-card__footer">' +
+            (context
+              ? '<span class="key-judgment-card__theatre">' + escHtml(context) + '</span>'
+              : '') +
+            (confRaw
+              ? '<span class="kj-confidence-badge ' + confBadgeClass + '">' +
+                  escHtml(confRaw) + '</span>'
+              : '') +
+            (trajBadge ? trajBadge : '') +
           '</div>' +
         '</div>';
     });
@@ -1109,19 +1119,48 @@ window.AsymSections = (function () {
       return;
     }
 
+    /* Monitor slug → display name lookup */
+    var MONITOR_NAMES = {
+      'conflict-escalation': 'Conflict Escalation',
+      'democratic-integrity': 'Democratic Integrity',
+      'macro-monitor': 'Global Macro',
+      'fimi-cognitive-warfare': 'FIMI & Cognitive Warfare',
+      'european-strategic-autonomy': 'European Strategic Autonomy',
+      'ai-governance': 'AI Governance',
+      'environmental-risks': 'Environmental Risks'
+    };
+
     var html = '<div class="cmc-list">';
     candidates.forEach(function (c) {
+      var slug = c.target_monitor || '';
+      var displayName = MONITOR_NAMES[slug] || slug;
+      var confRaw = c.confidence || c.confidence_preliminary || '';
+      var confClass = confRaw.toLowerCase() === 'high' ? 'positive' : 'moderate';
+
+      /* Monitor icon (16×16px inline SVG) */
+      var iconHtml = slug
+        ? '<img src="../../images/monitors/' + escHtml(slug) + '.svg" ' +
+          'alt="" width="16" height="16" style="vertical-align:-3px;margin-right:4px" ' +
+          'onerror="this.style.display=\'none\'">'
+        : '';
+
       html +=
         '<div class="cmc-item">' +
-          '<div class="cmc-item__target">' + escHtml(c.target_monitor || '') + '</div>' +
+          '<div class="cmc-item__target">' +
+            iconHtml +
+            '<a href="../../monitors/' + escHtml(slug) + '/dashboard.html" class="cmc-item__link">' +
+              escHtml(displayName) +
+            '</a>' +
+          '</div>' +
           '<div class="cmc-item__body">' +
             '<div class="cmc-item__signal">' + escHtml(c.signal || '') + '</div>' +
             '<div class="cmc-item__meta">' +
               (c.type
-                ? '<span>' + escHtml(c.type) + '</span>'
+                ? '<span class="cmc-item__type">' + escHtml(c.type) + '</span>'
                 : '') +
-              (c.confidence_preliminary
-                ? '<span>Confidence: ' + escHtml(c.confidence_preliminary) + '</span>'
+              (confRaw
+                ? '<span class="severity-badge severity-badge--' + confClass + '">' +
+                    escHtml(confRaw) + '</span>'
                 : '') +
             '</div>' +
           '</div>' +

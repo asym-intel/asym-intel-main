@@ -2712,6 +2712,67 @@ body { padding-top: 40px; }
 [data-theme="dark"] .kj-confidence-badge--low       { background: rgba(220,38,38,0.2);   color: #f87171; }
 
 
+/* ─── Cross-Monitor Candidates (cmc-*) ──────────────────────────────────
+   Rendered by AsymSections.renderCrossMonitorCandidates in renderer.js.
+   Grid of cards showing signals flagged for other monitors.
+   ──────────────────────────────────────────────────────────────────────── */
+.cmc-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.cmc-item {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  align-items: flex-start;
+}
+.cmc-item__target {
+  flex-shrink: 0;
+  min-width: 140px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-accent, var(--color-text));
+  padding-top: 2px;
+}
+.cmc-item__link {
+  color: inherit;
+  text-decoration: none;
+}
+.cmc-item__link:hover {
+  text-decoration: underline;
+}
+.cmc-item__body {
+  flex: 1;
+  min-width: 0;
+}
+.cmc-item__signal {
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+.cmc-item__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.cmc-item__type {
+  font-size: var(--text-min);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+@media (max-width: 640px) {
+  .cmc-item { flex-direction: column; gap: var(--space-2); }
+  .cmc-item__target { min-width: 0; }
+}
+
 /* ─── Risk Rating Badge (cross-monitor: solid-fill severity pill) ────────
    Promoted from AGM dashboard.html — Sprint 6
    Solid-colour fill variant (white text) — contrasts with .severity-badge
