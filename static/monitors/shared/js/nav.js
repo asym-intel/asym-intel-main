@@ -71,8 +71,8 @@
         '@media(max-width:640px){.site-bar__actions{display:none}}',
         /* ── Light-mode overrides for standalone pages (Map, Network etc.) ──── */
         /* These pages hardcode dark `:root` colours; this layer makes toggle work */
-        '[data-theme="light"] body{background:#f7f6f2!important;color:#28251d!important}',
-        '[data-theme="light"] .controls{background:rgba(247,246,242,0.95)!important;border-color:rgba(40,37,29,0.10)!important}',
+        '[data-theme="light"] body{background:#f9f8f6!important;color:#28251d!important}',
+        '[data-theme="light"] .controls{background:rgba(249,248,246,0.95)!important;border-color:rgba(40,37,29,0.10)!important}',
         '[data-theme="light"] .controls__label,[data-theme="light"] .filter-btn{color:#7a7974!important}',
         '[data-theme="light"] .filter-btn.active,[data-theme="light"] .filter-btn:hover{background:rgba(40,37,29,0.08)!important;color:#28251d!important}',
         '[data-theme="light"] .info-panel,[data-theme="light"] .panel{background:#f3f0ec!important;border-color:rgba(40,37,29,0.10)!important;color:#28251d!important}',
