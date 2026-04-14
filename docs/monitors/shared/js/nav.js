@@ -1,10 +1,11 @@
 /* ============================================================
-   Asymmetric Intelligence Monitor — nav.js  v1.4
+   Asymmetric Intelligence Monitor — nav.js  v1.5
    Intersection Observer scroll-spy for .module-section[id]
    Updates active state on .monitor-nav a, .monitor-sidebar a,
    and .module-nav-strip a matching href="#id".
    Mobile: hamburger toggle for sidebar.
-   Network bar: auto-injected if absent (Blueprint standard).
+   Network bar + site bar: auto-injected if absent (Blueprint standard).
+   Site bar: About | Search | theme toggle | Subscribe — all pages.
    Exposes window.AsymNav.init()
    ============================================================ */
 (function () {
@@ -19,20 +20,55 @@
 
     // Offset styles — injected into <head> so they apply before paint
     // Offset styles — fallback for pages without base.css
+    /* Heights: network bar 40px, site bar 44px = 84px combined */
+    var NB_H = 40;
+    var SB_H = 44;
+    var CHROME_H = NB_H + SB_H; /* 84px */
+
     if (!document.querySelector('[data-asym-nb-styles]')) {
       var style = document.createElement('style');
       style.setAttribute('data-asym-nb-styles', '');
       style.textContent = [
-        'body{padding-top:40px!important}',
-        '.monitor-nav{position:sticky!important;top:40px!important}',
-        '.monitor-sidebar{top:calc(40px + 52px)!important;height:calc(100vh - 40px - 52px)!important}',
-        'nav.sidebar,#sidebar,.sidebar-header{top:40px!important}',
-        'nav.sidebar{height:calc(100vh - 40px)!important}',
-        '.left-nav{top:40px!important;height:calc(100vh - 40px)!important}',
-        '.header:not([data-asym-network-bar]){top:40px!important}',
-        'nav:not([data-asym-network-bar]):not(.monitor-nav){top:40px!important}',
+        'body{padding-top:' + NB_H + 'px!important}',
+        '.monitor-nav{position:sticky!important;top:' + NB_H + 'px!important}',
+        '.monitor-sidebar{top:calc(' + NB_H + 'px + 52px)!important;height:calc(100vh - ' + NB_H + 'px - 52px)!important}',
+        'nav.sidebar,#sidebar,.sidebar-header{top:' + NB_H + 'px!important}',
+        'nav.sidebar{height:calc(100vh - ' + NB_H + 'px)!important}',
+        '.left-nav{top:' + NB_H + 'px!important;height:calc(100vh - ' + NB_H + 'px)!important}',
+        '.header:not([data-asym-network-bar]){top:' + NB_H + 'px!important}',
+        'nav:not([data-asym-network-bar]):not(.monitor-nav):not(.site-bar){top:' + NB_H + 'px!important}',
         '.nb-links{display:flex}',
-        '@media(max-width:640px){.nb-links{display:none}}'
+        '@media(max-width:640px){.nb-links{display:none}}',
+        /* Site bar styles */
+        '.site-bar{position:sticky;top:' + NB_H + 'px;z-index:100;height:' + SB_H + 'px;',
+          'display:flex;align-items:center;padding:0 clamp(1rem,4vw,2rem);gap:1.5rem;',
+          'border-bottom:1px solid var(--color-border,rgba(40,37,29,0.10));',
+          'background:var(--color-bg,#f9f8f6);',
+          "font-family:'Satoshi','Inter',sans-serif}",
+        '.site-bar__spacer{flex:1}',
+        '.site-bar__links{display:flex;align-items:center;gap:0;list-style:none;padding:0;margin:0;margin-left:auto}',
+        '.site-bar__links a{font-size:0.8rem;font-weight:500;color:var(--color-text-muted,#6b6660);',
+          'text-transform:uppercase;letter-spacing:0.06em;padding:0.25rem 0.75rem;border-radius:4px;',
+          'text-decoration:none;transition:color 0.15s,background 0.15s;white-space:nowrap}',
+        '.site-bar__links a:hover{color:var(--color-text,#1a1917);',
+          'background:color-mix(in srgb,var(--color-text,#1a1917) 8%,transparent)}',
+        '.site-bar__actions{display:flex;align-items:center;gap:0.75rem}',
+        '.site-bar__subscribe{display:inline-flex;align-items:center;padding:5px 14px;',
+          'font-size:0.85rem;font-weight:700;color:var(--color-primary,#01696f);',
+          'border:1.5px solid var(--color-primary,#01696f);border-radius:6px;',
+          'text-decoration:none;transition:background 0.15s,color 0.15s;',
+          'letter-spacing:0.01em;white-space:nowrap}',
+        '.site-bar__subscribe:hover{background:var(--color-primary,#01696f);color:#fff}',
+        '.site-bar .theme-toggle{background:none;border:1px solid var(--color-border,#d8d4cd);',
+          'border-radius:4px;width:32px;height:32px;display:flex;align-items:center;',
+          'justify-content:center;cursor:pointer;color:var(--color-text-muted,#6b6660);',
+          'transition:border-color 0.15s,color 0.15s}',
+        '.site-bar .theme-toggle:hover{border-color:var(--color-text,#1a1917);color:var(--color-text,#1a1917)}',
+        '.site-bar .theme-toggle .icon-sun,.site-bar .theme-toggle .icon-moon{width:15px;height:15px}',
+        '[data-theme="dark"] .site-bar .icon-sun{display:none}',
+        '[data-theme="light"] .site-bar .icon-moon,:not([data-theme]) .site-bar .icon-moon{display:none}',
+        '[data-theme="dark"] .site-bar .icon-moon{display:block}',
+        '@media(max-width:640px){.site-bar__actions{display:none}}'
       ].join('');
       document.head.appendChild(style);
     }
@@ -79,6 +115,82 @@
 
   // Run immediately so bar appears before any other paint
   injectNetworkBar();
+
+
+  /* ── Site Bar Injection ──────────────────────────────────────
+     About | Search | [theme toggle] | Subscribe
+     Injected on ALL pages below the network bar.
+     Replaces Hugo site-header.html partial on Hugo pages.
+     On monitor pages, sits between network bar and monitor strip.
+     ──────────────────────────────────────────────────────────── */
+  function injectSiteBar() {
+    // Skip if already present (idempotent)
+    if (document.querySelector('.site-bar')) return;
+
+    // Hide Hugo site-header if it exists (nav.js now owns this bar)
+    var hugoSiteNav = document.querySelector('.site-nav');
+    if (hugoSiteNav) hugoSiteNav.style.display = 'none';
+
+    var bar = document.createElement('nav');
+    bar.className = 'site-bar';
+    bar.setAttribute('aria-label', 'Site navigation');
+
+    bar.innerHTML = [
+      '<div class="site-bar__spacer"></div>',
+      '<ul class="site-bar__links" role="list">',
+        '<li><a href="/about/">About</a></li>',
+        '<li><a href="/search/">Search</a></li>',
+      '</ul>',
+      '<div class="site-bar__actions">',
+        '<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">',
+          '<svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">',
+            '<circle cx="7.5" cy="7.5" r="3"/>',
+            '<line x1="7.5" y1="1" x2="7.5" y2="2.5"/><line x1="7.5" y1="12.5" x2="7.5" y2="14"/>',
+            '<line x1="1" y1="7.5" x2="2.5" y2="7.5"/><line x1="12.5" y1="7.5" x2="14" y2="7.5"/>',
+          '</svg>',
+          '<svg class="icon-moon" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">',
+            '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 12A5.5 5.5 0 1 1 11.7 3.8 6.5 6.5 0 0 0 7.5 13z"/>',
+          '</svg>',
+        '</button>',
+        '<a class="site-bar__subscribe" href="/subscribe/">Subscribe</a>',
+      '</div>'
+    ].join('');
+
+    // Insert after network bar
+    var nb = document.querySelector('[data-asym-network-bar]');
+    if (nb && nb.nextSibling) {
+      nb.parentNode.insertBefore(bar, nb.nextSibling);
+    } else if (document.body) {
+      // Fallback: insert as second child of body
+      var first = document.body.firstChild;
+      if (first && first.nextSibling) {
+        document.body.insertBefore(bar, first.nextSibling);
+      } else {
+        document.body.appendChild(bar);
+      }
+    }
+
+    // Wire theme toggle
+    if (window.AsymTheme && window.AsymTheme._wire) {
+      window.AsymTheme._wire();
+    }
+
+    // Highlight active link
+    var path = window.location.pathname;
+    bar.querySelectorAll('.site-bar__links a').forEach(function (a) {
+      if (path.indexOf(a.getAttribute('href')) === 0) {
+        a.style.color = 'var(--color-text, #1a1917)';
+        a.style.background = 'color-mix(in srgb, var(--color-text, #1a1917) 8%, transparent)';
+      }
+    });
+  }
+
+  // Inject site bar at parse time (same as network bar)
+  if (document.body) {
+    injectSiteBar();
+  } else {
+    document.addEventListener('DOMContentLoaded', injectSiteBar);
+  }
 
 
   /* ── Cross-Monitor Strip Injection ──────────────────────────
@@ -130,15 +242,15 @@
       monitorNav.parentNode.insertBefore(strip, monitorNav);
     }
 
-    // Adjust monitor-nav sticky top: 40 (nb) + 50 (strip) = 90px
+    // Adjust monitor-nav sticky top: 40 (nb) + 44 (site bar) + 50 (strip) = 134px
     if (monitorNav) {
-      monitorNav.style.setProperty('top', '90px', 'important');
+      monitorNav.style.setProperty('top', '134px', 'important');
     }
     // Adjust sidebar offset too
     var sidebar = document.querySelector('.monitor-sidebar');
     if (sidebar) {
-      sidebar.style.setProperty('top', 'calc(90px + 52px)', 'important');
-      sidebar.style.setProperty('height', 'calc(100vh - 90px - 52px)', 'important');
+      sidebar.style.setProperty('top', 'calc(134px + 52px)', 'important');
+      sidebar.style.setProperty('height', 'calc(100vh - 134px - 52px)', 'important');
     }
   }
 
@@ -243,31 +355,11 @@
   }
 
   /* ── Theme toggle injection ──────────────────────────────────
-     Injects the standard theme toggle button into .monitor-nav__actions
-     if it is not already present. Idempotent. */
+     Theme toggle now lives in the site bar (injected by injectSiteBar).
+     This function is kept as a no-op for backward compatibility. */
   function injectThemeToggle() {
-    var actions = document.querySelector('.monitor-nav__actions');
-    if (!actions) return;
-    if (actions.querySelector('.theme-toggle')) return; // already present
-
-    var btn = document.createElement('button');
-    btn.className = 'theme-toggle';
-    btn.id = 'theme-toggle';
-    btn.setAttribute('aria-label', 'Toggle theme');
-    btn.innerHTML =
-      '<svg class="icon-sun" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">' +
-        '<circle cx="7.5" cy="7.5" r="3"/>' +
-        '<line x1="7.5" y1="1" x2="7.5" y2="2.5"/><line x1="7.5" y1="12.5" x2="7.5" y2="14"/>' +
-        '<line x1="1" y1="7.5" x2="2.5" y2="7.5"/><line x1="12.5" y1="7.5" x2="14" y2="7.5"/>' +
-      '</svg>' +
-      '<svg class="icon-moon" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">' +
-        '<path d="M7.5 1a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 7.5 1zm0 12A5.5 5.5 0 1 1 11.7 3.8 6.5 6.5 0 0 0 7.5 13z"/>' +
-      '</svg>';
-    actions.insertBefore(btn, actions.firstChild);
-
-    // Re-run theme.js wireButton now that button exists in the DOM.
-    // theme.js fires wireButton on DOMContentLoaded which may run
-    // before nav.js injects this button — so we re-trigger it here.
+    // Theme toggle is now in the site bar — no monitor-nav injection needed.
+    // Re-wire in case site bar was injected after theme.js DOMContentLoaded.
     if (window.AsymTheme && window.AsymTheme._wire) {
       window.AsymTheme._wire();
     }
