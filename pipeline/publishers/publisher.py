@@ -590,6 +590,35 @@ def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict
         if isinstance(kj, dict) and "confidence_preliminary" in kj:
             kj["confidence"] = kj.pop("confidence_preliminary")
 
+    # ── Confidence auto-downgrade (Housekeeping check 21) ────────────
+    # "Confirmed" requires a verifiable source. Without one, the LLM is
+    # asserting certainty it cannot back — downgrade to "Assessed".
+    downgraded = []
+    for kj in report.get("key_judgments", []):
+        if not isinstance(kj, dict):
+            continue
+        conf = kj.get("confidence", "")
+        if conf == "Confirmed":
+            has_source = bool(kj.get("source_url"))
+            has_evidence = bool(kj.get("supporting_evidence") or kj.get("basis"))
+            if not has_source:
+                kj["confidence"] = "Assessed"
+                kj["confidence_downgrade_reason"] = "auto: Confirmed without source_url"
+                label = kj.get("id", kj.get("judgment", "?")[:40])
+                downgraded.append(label)
+    if downgraded:
+        print(f"  ⚠ Confidence auto-downgrade: {len(downgraded)} key_judgment(s) "
+              f"Confirmed→Assessed (no source_url): {', '.join(downgraded)}")
+
+    # Signal-level: strip _preliminary and auto-downgrade
+    sig = report.get("signal", {})
+    if isinstance(sig, dict):
+        if "confidence_preliminary" in sig:
+            sig["confidence"] = sig.pop("confidence_preliminary")
+        if sig.get("confidence") == "Confirmed" and not sig.get("source_url"):
+            sig["confidence"] = "Assessed"
+            print("  ⚠ Signal confidence Confirmed→Assessed (no source_url)")
+
     return report
 
 
