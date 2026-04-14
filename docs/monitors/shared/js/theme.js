@@ -10,7 +10,13 @@
   var STORAGE_KEY = 'asym-monitor-theme';
   var html = document.documentElement;
 
+  // Map and Network pages are dark-only (no light CSS for canvas/content).
+  // Force dark and ignore stored preference on those paths.
+  var path = window.location.pathname;
+  var FORCE_DARK = (path.indexOf('/map/') !== -1 || path.indexOf('/network/') !== -1);
+
   function getInitialTheme() {
+    if (FORCE_DARK) return 'dark';
     var stored = null;
     try { stored = localStorage.getItem(STORAGE_KEY); } catch (e) {}
     if (stored === 'dark' || stored === 'light') return stored;
@@ -26,7 +32,10 @@
   function applyTheme(theme) {
     current = theme;
     html.setAttribute('data-theme', theme);
-    try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+    // Don't persist forced-dark pages to localStorage — would overwrite user's real preference
+    if (!FORCE_DARK) {
+      try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+    }
     // Update toggle button icons if present
     var btn = document.getElementById('theme-toggle');
     if (btn) {
