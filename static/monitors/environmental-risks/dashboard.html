@@ -13,83 +13,50 @@
   <script src="../shared/js/charts.js"></script>
   <style>
 
-    /* ── Cascade Chain Heatmap ── */
-    .cascade-heatmap {
+    /* ── Cascade Chain Cards ── */
+    .cascade-cards {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-1);
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-3);
     }
-    @media (max-width: 640px) {
-      .cascade-heatmap { grid-template-columns: 1fr; }
+    .cascade-card {
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--color-accent, #4caf7d);
     }
-    .cascade-heatmap__header {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--space-1);
-      margin-bottom: var(--space-2);
-    }
-    @media (max-width: 640px) {
-      .cascade-heatmap__header { display: none; }
-    }
-    .cascade-col-label {
-      font-size: var(--text-min);
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: var(--space-2) var(--space-3);
-      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      text-align: center;
-    }
-    .cascade-col-label--physical  { background: rgba(37,99,235,0.10); color: #2563eb; }
-    .cascade-col-label--human     { background: rgba(217,119,6,0.10); color: #b45309; }
-    .cascade-col-label--political { background: rgba(193,68,14,0.10); color: #c1440e; }
-    [data-theme="dark"] .cascade-col-label--physical  { background: rgba(37,99,235,0.16); color: #60a5fa; }
-    [data-theme="dark"] .cascade-col-label--human     { background: rgba(217,119,6,0.16); color: #fbbf24; }
-    [data-theme="dark"] .cascade-col-label--political { background: rgba(193,68,14,0.16); color: #f87171; }
-
-    .cascade-chain-row {
-      display: contents; /* lets children participate in the parent grid */
-    }
-    .cascade-cell {
-      padding: var(--space-3);
-      font-size: var(--text-xs);
-      line-height: 1.5;
-      border-radius: var(--radius-sm);
-      margin-bottom: var(--space-2);
-    }
-    .cascade-cell--physical  { background: rgba(37,99,235,0.05); border-left: 2px solid rgba(37,99,235,0.35); }
-    .cascade-cell--human     { background: rgba(217,119,6,0.06); border-left: 2px solid rgba(217,119,6,0.35); }
-    .cascade-cell--political { background: rgba(193,68,14,0.06); border-left: 2px solid rgba(193,68,14,0.35); }
-    [data-theme="dark"] .cascade-cell--physical  { background: rgba(37,99,235,0.10); }
-    [data-theme="dark"] .cascade-cell--human     { background: rgba(217,119,6,0.10); }
-    [data-theme="dark"] .cascade-cell--political { background: rgba(193,68,14,0.10); }
-    .cascade-cell__region {
+    .cascade-card__region {
       font-size: var(--text-min);
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--color-text-muted);
-      margin-bottom: var(--space-1);
+      margin-bottom: var(--space-2);
     }
-    .cascade-row-divider {
-      grid-column: 1 / -1;
-      border: none;
-      border-top: 1px solid var(--color-border-subtle);
-      margin: var(--space-1) 0 var(--space-2);
+    .cascade-card__severity {
+      display: inline-block;
+      font-size: var(--text-min);
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-bottom: var(--space-2);
+    }
+    .cascade-card__severity--Severe,
+    .cascade-card__severity--Critical { background: rgba(220,38,38,0.10); color: #f87171; }
+    .cascade-card__severity--Moderate { background: rgba(217,119,6,0.10); color: #fbbf24; }
+    .cascade-card__severity--Emerging { background: rgba(37,99,235,0.10); color: #60a5fa; }
+    .cascade-card__body {
+      font-size: var(--text-xs);
+      line-height: 1.55;
+      color: var(--color-text-secondary);
+    }
+    .cascade-card__label {
+      font-size: var(--text-min);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-top: var(--space-2);
     }
 
-    /* ── M02 Boundary Summary Row ── */
-    .boundary-summary-row {
-      font-size: var(--text-xs);
-      color: var(--color-text-secondary);
-      line-height: 1.5;
-      padding: var(--space-2) var(--space-3) var(--space-3);
-    }
-    .boundary-summary-row td {
-      padding-top: 0 !important;
-      padding-bottom: var(--space-3) !important;
-      border-bottom: 1px solid var(--color-border-subtle);
-    }
     /* ── Planetary Boundary Chart ── */
     .pb-chart-wrap {
       position: relative;
@@ -175,22 +142,10 @@
       border-radius: 3px;
       margin-bottom: var(--space-2);
     }
-    .tipping-cell__status--critical {
-      background: rgba(193,68,14,0.12);
-      color: #c1440e;
-    }
-    .tipping-cell__status--high {
-      background: rgba(217,119,6,0.12);
-      color: #b45309;
-    }
-    .tipping-cell__status--elevated {
-      background: rgba(37,99,235,0.10);
-      color: #2563eb;
-    }
-    .tipping-cell__status--monitoring {
-      background: rgba(107,102,96,0.10);
-      color: #6b6660;
-    }
+    .tipping-cell__status--critical { background: rgba(193,68,14,0.12); color: #c1440e; }
+    .tipping-cell__status--high { background: rgba(217,119,6,0.12); color: #b45309; }
+    .tipping-cell__status--elevated { background: rgba(37,99,235,0.10); color: #2563eb; }
+    .tipping-cell__status--monitoring { background: rgba(107,102,96,0.10); color: #6b6660; }
     [data-theme="dark"] .tipping-cell__status--critical { background: rgba(193,68,14,0.20); color: #f87171; }
     [data-theme="dark"] .tipping-cell__status--high     { background: rgba(217,119,6,0.20); color: #fbbf24; }
     [data-theme="dark"] .tipping-cell__status--elevated { background: rgba(37,99,235,0.18); color: #60a5fa; }
@@ -243,8 +198,14 @@
       color: var(--color-text-muted);
       opacity: 0.7;
     }
+
+    /* ── M02 Boundary Summary Row ── */
+    .boundary-summary-row td {
+      padding-top: 0 !important;
+      padding-bottom: var(--space-3) !important;
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
   </style>
-  <!-- Chart.js for planetary boundary visualisation -->
 </head>
 
 <body>
@@ -262,22 +223,24 @@
 <div class="monitor-layout">
   <main class="monitor-main" id="main-content">
 
-    
+    <!-- 1. Triage / At a Glance -->
     <section class="module-section" id="section-triage">
       <div id="triage-container">
         <div class="loading-state">Loading triage data…</div>
       </div>
     </section>
+
+    <!-- 2. Executive Insight -->
     <section class="module-section" id="section-exec-insight">
       <div class="module-header">
-        <div class="module-title">M01 — Executive Insight</div>
+        <div class="module-title">Executive Insight</div>
       </div>
       <div id="exec-insight-block">
         <div class="loading-state">Loading executive insight…</div>
       </div>
     </section>
 
-    <!-- ── PLANETARY BOUNDARY STATUS CHART ── -->
+    <!-- 3. Planetary Boundary Chart -->
     <section class="module-section" id="section-pb-chart">
       <div class="module-header">
         <div class="module-title">Planetary Boundary Status</div>
@@ -295,8 +258,7 @@
       </div>
     </section>
 
-    <!-- ── TIPPING SYSTEM FLAGS ── -->
-    <!-- Tipping Point Proximity Bars -->
+    <!-- 4. Tipping Point Proximity -->
     <section class="module-section" id="section-tipping-proximity">
       <div class="module-header">
         <div class="module-title">Tipping Point Proximity</div>
@@ -305,6 +267,7 @@
       <div id="tipping-proximity-wrap"></div>
     </section>
 
+    <!-- 5. Tipping System Flags -->
     <section class="module-section" id="section-tipping">
       <div class="module-header">
         <div class="module-title">Tipping System Flags</div>
@@ -315,15 +278,15 @@
       </div>
     </section>
 
-    <!-- ── CASCADE CHAIN HEATMAP ── -->
-    <section class="module-section" id="section-cascade-heatmap">
+    <!-- 6. Climate-Security Nexus (was Cascade Heatmap) -->
+    <section class="module-section" id="section-climate-security">
       <div class="module-header">
-        <div class="module-title">Active Cascade Chains — M03 Heatmap</div>
+        <div class="module-title">Climate-Security Nexus</div>
       </div>
-      <div id="cascade-heatmap-loading" class="loading-state">Loading cascade chain data…</div>
-      <div id="cascade-heatmap-wrap" style="display:none"></div>
+      <div id="climate-security-content"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- 7. Boundary Detail Table -->
     <section class="module-section" id="section-boundaries">
       <div class="module-header">
         <div class="module-title">Boundary Detail Table</div>
@@ -333,139 +296,63 @@
       </div>
     </section>
 
-      <!-- Cross-Monitor Flags -->
-      <section class="module-section" id="section-cross-monitor">
-        <div class="module-header">
-          <div class="module-title">Cross-Monitor Flags</div>
-        </div>
-        <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
-      </section>
+    <!-- 8. Extreme Events Log -->
+    <section class="module-section" id="section-extreme-events">
+      <div class="module-header">
+        <div class="module-title">Extreme Events Log</div>
+      </div>
+      <div id="extreme-events-content"><div class="loading-state">Loading…</div></div>
+    </section>
 
-      <!-- ── NEW SYNTHESIS SECTIONS ── -->
+    <!-- 9. ICJ Climate Advisory Opinion -->
+    <section class="module-section" id="section-icj-tracker">
+      <div class="module-header">
+        <div class="module-title">ICJ Climate Advisory Opinion</div>
+      </div>
+      <div id="icj-tracker-content"><div class="loading-state">Loading…</div></div>
+    </section>
 
-      <section class="module-section" id="section-planetary-snapshot">
-        <div class="module-header">
-          <h2 class="module-title">Planetary Status Snapshot</h2>
-        </div>
-        <div id="planetary-snapshot-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
+    <!-- 10. Loss & Damage Finance -->
+    <section class="module-section" id="section-loss-damage">
+      <div class="module-header">
+        <div class="module-title">Loss &amp; Damage Finance Mechanism</div>
+      </div>
+      <div id="loss-damage-content"><div class="loading-state">Loading…</div></div>
+    </section>
 
-      <section class="module-section" id="section-extreme-events">
-        <div class="module-header">
-          <h2 class="module-title">Extreme Events Log</h2>
-        </div>
-        <div id="extreme-events-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
+    <!-- 11. Weekly Brief -->
+    <section class="module-section" id="section-weekly-brief">
+      <div class="module-header">
+        <div class="module-title">Weekly Brief</div>
+      </div>
+      <div id="weekly-brief-content"><div class="loading-state">Loading…</div></div>
+    </section>
 
-      <section class="module-section" id="section-climate-security">
-        <div class="module-header">
-          <h2 class="module-title">Climate-Security Nexus</h2>
-        </div>
-        <div id="climate-security-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-policy-law">
-        <div class="module-header">
-          <h2 class="module-title">Policy, Law &amp; Compliance</h2>
-        </div>
-        <div id="policy-law-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-icj-tracker">
-        <div class="module-header">
-          <h2 class="module-title">ICJ Climate Advisory Opinion</h2>
-        </div>
-        <div id="icj-tracker-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-loss-damage">
-        <div class="module-header">
-          <h2 class="module-title">Loss &amp; Damage Finance Mechanism</h2>
-        </div>
-        <div id="loss-damage-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-attribution-gap">
-        <div class="module-header">
-          <h2 class="module-title">Attribution Gap Cases</h2>
-        </div>
-        <div id="attribution-gap-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-reverse-cascade">
-        <div class="module-header">
-          <h2 class="module-title">Reverse Cascade Check</h2>
-        </div>
-        <div id="reverse-cascade-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-regional-coverage">
-        <div class="module-header">
-          <h2 class="module-title">Regional Coverage</h2>
-        </div>
-        <div id="regional-coverage-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-key-judgments">
-        <div class="module-header">
-          <h2 class="module-title">Key Judgments</h2>
-        </div>
-        <div id="key-judgments-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
-
-      <section class="module-section" id="section-cross-monitor-candidates">
-        <div class="module-header">
-          <h2 class="module-title">Cross-Monitor Intelligence</h2>
-        </div>
-        <div id="cross-monitor-candidates-content">
-          <p class="text-muted text-sm">Loading...</p>
-        </div>
-      </section>
+    <!-- 12. Cross-Monitor Flags -->
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Flags</div>
+      </div>
+      <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
+    </section>
 
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
     <div class="sidebar-nav__title">Sections</div>
     <ul>
-      <li><a href="#section-triage">Triage Strip</a></li>
+      <li><a href="#section-triage">At a Glance</a></li>
       <li><a href="#section-exec-insight">Executive Insight</a></li>
       <li><a href="#section-pb-chart">Boundary Chart</a></li>
       <li><a href="#section-tipping-proximity">Tipping Proximity</a></li>
       <li><a href="#section-tipping">Tipping Flags</a></li>
-      <li><a href="#section-cascade-heatmap">Cascade Heatmap</a></li>
-      <li><a href="#section-boundaries">Boundary Table</a></li>
-      <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
-      <li><a href="#section-planetary-snapshot">Planetary Snapshot</a></li>
-      <li><a href="#section-extreme-events">Extreme Events</a></li>
       <li><a href="#section-climate-security">Climate-Security</a></li>
-      <li><a href="#section-policy-law">Policy &amp; Law</a></li>
+      <li><a href="#section-boundaries">Boundary Table</a></li>
+      <li><a href="#section-extreme-events">Extreme Events</a></li>
       <li><a href="#section-icj-tracker">ICJ Opinion</a></li>
       <li><a href="#section-loss-damage">Loss &amp; Damage</a></li>
-      <li><a href="#section-attribution-gap">Attribution Gap</a></li>
-      <li><a href="#section-reverse-cascade">Reverse Cascade</a></li>
-      <li><a href="#section-regional-coverage">Regional Coverage</a></li>
-      <li><a href="#section-key-judgments">Key Judgments</a></li>
-      <li><a href="#section-cross-monitor-candidates">Cross-Monitor Intel</a></li>
+      <li><a href="#section-weekly-brief">Weekly Brief</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
     </ul>
   </nav>
 </div>
@@ -473,42 +360,13 @@
 <footer class="monitor-footer"></footer>
 <script src="../shared/js/renderer.js"></script>
 <script>
-function escHtml(str) {
-  return String(str == null ? '' : str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
 document.addEventListener('DOMContentLoaded', function () {
   function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str == null ? '' : str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  function formatDate(iso) {
-    if (!iso) return '—';
-    try { return new Date(iso).toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}); }
-    catch(e) { return iso; }
-  }
-
-  function statusBadgeClass(status) {
-    switch (status) {
-      case 'Transgressed':    return 'severity-badge--critical';
-      case 'High Risk':       return 'severity-badge--high';
-      case 'Increasing Risk': return 'severity-badge--moderate';
-      case 'Safe':            return 'severity-badge--positive';
-      default:                return 'severity-badge--moderate';
-    }
-  }
-
-  function trendBadgeClass(trend) {
-    switch (trend) {
-      case 'Worsening':  return 'severity-badge--critical';
-      case 'Stable':     return 'severity-badge--moderate';
-      case 'Improving':  return 'severity-badge--positive';
-      default:           return 'severity-badge--moderate';
-    }
-  }
-
-  // ── Detect dark mode ──
+  /* ── Detect dark mode ── */
   function isDark() {
     return document.documentElement.getAttribute('data-theme') === 'dark';
   }
@@ -519,18 +377,27 @@ document.addEventListener('DOMContentLoaded', function () {
     return isDark() ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
   }
 
-  // ── Planetary boundary bar colour ──
+  /* ── Planetary boundary bar colour ── */
   function pbBarColor(status) {
-    switch (status) {
-      case 'Safe':                 return '#4caf7d';
-      case 'Zone of Uncertainty':  return '#d97706';
-      case 'Transgressed':         return '#c1440e';
-      case 'Increasing Risk':      return '#f59e0b';
-      default:                     return '#6b6660';
-    }
+    var s = (status || '').toLowerCase();
+    if (s === 'safe' || s === 'within_safe_zone')          return '#4caf7d';
+    if (s === 'zone of uncertainty' || s === 'approaching_boundary' || s === 'increasing risk') return '#d97706';
+    if (s === 'transgressed' || s === 'beyond boundary')   return '#c1440e';
+    if (s.indexOf('uncertain') >= 0)                       return '#f59e0b';
+    return '#6b6660';
   }
 
-  // ── Tipping cell class by status ──
+  /* ── Status badge classes ── */
+  function statusBadgeClass(status) {
+    var s = (status || '').toLowerCase();
+    if (s === 'transgressed' || s === 'beyond boundary')     return 'severity-badge--critical';
+    if (s === 'high risk' || s === 'worsening')              return 'severity-badge--high';
+    if (s === 'increasing risk' || s === 'stable')           return 'severity-badge--moderate';
+    if (s === 'safe' || s === 'improving')                   return 'severity-badge--positive';
+    return 'severity-badge--moderate';
+  }
+
+  /* ── Tipping cell class by status ── */
   function tippingCellClass(status) {
     switch (status) {
       case 'Critical':  return 'critical';
@@ -548,93 +415,66 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // ── Main report data fetch ──
+  /* ══════════════════════════════════════════════════════════════
+     REPORT DATA — report-latest.json
+     ══════════════════════════════════════════════════════════════ */
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
-      var meta       = d.meta || {};
-      var signal     = d.planetary_status_snapshot || d.m00_the_signal || {};
-      var m02        = d.planetary_boundary_tracker || d.m02_planetary_boundaries || {};
-      var boundaries = m02.boundaries || [];
-      var tipping    = m02.tipping_systems || [];
+      var meta = d.meta || {};
 
-      /* Header + KPIs — fed via triage strip below */
-      var transgressed = boundaries.filter(function (b) { return b.status === 'Transgressed'; }).length;
-      var signalTitle = signal.title || '—';
-      var signalShort = signalTitle.split(' ').slice(0, 4).join(' ') + (signalTitle.split(' ').length > 4 ? '…' : '');
+      /* ── Signal data: flatten from multiple possible locations ── */
+      var snapshot = d.planetary_status_snapshot || d.m00_the_signal || {};
+      var leadSignal = snapshot.lead_signal || '';
+      var statusDelta = snapshot.status_delta_this_week || 'Stable';
 
-      // Cascade Chain Heatmap — from M03 data
-      var m03Chains = (d.climate_security_nexus && d.climate_security_nexus.chains) || d.m03_threat_multiplier || [];
-      if (m03Chains.length) {
-        document.getElementById('cascade-heatmap-loading').style.display = 'none';
-        document.getElementById('cascade-heatmap-wrap').style.display = 'block';
+      /* ── Boundaries: flat array at m02_planetary_boundaries or planetary_boundary_tracker ── */
+      var boundaries = d.planetary_boundary_tracker || d.m02_planetary_boundaries || [];
 
-        var hmHtml =
-          '<div class="cascade-heatmap__header">' +
-            '<div class="cascade-col-label cascade-col-label--physical">Physical</div>' +
-            '<div class="cascade-col-label cascade-col-label--human">Human</div>' +
-            '<div class="cascade-col-label cascade-col-label--political">Political</div>' +
-          '</div>' +
-          '<div class="cascade-heatmap" id="cascade-heatmap-grid">';
+      /* ── Boundary counts from snapshot (already computed by synthesiser) ── */
+      var transgressed = snapshot.boundaries_exceeded || 0;
+      var highRisk     = snapshot.boundaries_high_risk || 0;
+      var increasing   = snapshot.boundaries_increasing_risk || 0;
+      var safe         = snapshot.boundaries_safe || 0;
 
-        m03Chains.forEach(function (chain, idx) {
-          if (idx > 0) {
-            hmHtml += '<hr class="cascade-row-divider">';
-          }
-          var regionTag = chain.region ? '<div class="cascade-cell__region">' + escHtml(chain.region) + '</div>' : '';
-          hmHtml +=
-            '<div class="cascade-cell cascade-cell--physical">' +
-              regionTag +
-              escHtml(chain.tier_1_physical || '—') +
-            '</div>' +
-            '<div class="cascade-cell cascade-cell--human">' +
-              escHtml(chain.tier_2_human || '—') +
-            '</div>' +
-            '<div class="cascade-cell cascade-cell--political">' +
-              escHtml(chain.tier_3_political || '—') +
-            '</div>' +
-            (chain.reverse_cascade_check ? '<div class="cascade-cell cascade-cell--reverse" style="grid-column:1/-1;font-size:var(--text-xs);color:var(--text-muted);border-top:1px dashed var(--border);padding:var(--space-2) var(--space-3);font-style:italic">' +
-              '<strong style="font-weight:600;color:var(--text-body)">Reverse cascade: </strong>' + escHtml(chain.reverse_cascade_check) +
-            '</div>' : '');
-        });
+      /* ── Tipping data from report (tipping_point_tracker) ── */
+      var tippingReport = d.tipping_point_tracker || [];
 
-        hmHtml += '</div>';
-        document.getElementById('cascade-heatmap-wrap').innerHTML = hmHtml;
+      /* ── M03 threat multiplier / climate-security nexus ── */
+      var m03 = d.climate_security_nexus || d.m03_threat_multiplier || [];
 
-      } else {
-        document.getElementById('cascade-heatmap-loading').textContent = 'No cascade chain data available.';
-      }
-
-      /* Signal block + delta strip — fed via triage strip below */
-
-      // Delta strip — from archive.json latest issue
+      /* ── Triage strip (fetches archive for delta) ── */
       fetch('data/archive.json')
         .then(function (r) { return r.json(); })
         .then(function (issues) {
           var latest = issues[issues.length - 1] || {};
           var deltas = (latest.delta_strip || []).slice(0, 5);
 
-          /* ── Triage Strip ── */
           if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+            /* ── Truncated signal for KPI card ── */
+            var signalWords = leadSignal.split(' ');
+            var signalShort = signalWords.slice(0, 6).join(' ') + (signalWords.length > 6 ? '…' : '');
+
             AsymSections.renderTriageStrip({
               kpis: [
                 { label: 'Boundaries Transgressed', value: transgressed || '—', sub: 'Of 9 planetary boundaries', accent: transgressed >= 6 },
-                { label: 'Tipping Flags',           value: tipping.length || '—', sub: 'Active tipping systems' },
-                { label: 'Lead Signal',             value: signalShort || '—', sub: signalTitle || '' },
+                { label: 'Tipping Flags',           value: tippingReport.length || '—', sub: 'Active tipping systems' },
+                { label: 'Status',                  value: statusDelta || 'Stable', sub: 'Week-on-week change' },
                 { label: 'Issue',                   value: meta.week_label || '—', sub: 'Issue ' + (meta.issue || '—') }
               ],
               signal: {
                 label:      'Lead Signal · ERM',
-                title:      signal.title || '',
-                body:       signal.body  || '',
-                source_url: signal.source_url || d.source_url || ''
+                title:      leadSignal || 'No lead signal this issue',
+                body:       '',
+                source_url: d.source_url || ''
               },
               structural: {
                 label:    'Planetary Status Snapshot',
                 targetId: 'triage-planetary',
                 renderFn: function(id) {
-                  AsymSections.renderPlanetaryStatusSnapshot(
-                    d.planetary_status_snapshot || d.m00_the_signal, id);
+                  if (AsymSections.renderPlanetaryStatusSnapshot) {
+                    AsymSections.renderPlanetaryStatusSnapshot(snapshot, id);
+                  }
                 }
               },
               delta: { label: 'Delta Strip', items: deltas }
@@ -645,50 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
           console.error('Delta strip fetch failed:', err);
         });
 
-      // Boundary detail table (with summary rows)
-      var tableHtml =
-        '<div style="overflow-x:auto"><table class="heatmap-table">' +
-          '<thead><tr>' +
-            '<th>Boundary</th>' +
-            '<th>Status</th>' +
-            '<th>Trend</th>' +
-            '<th>Tier</th>' +
-            '<th>Headline</th>' +
-            '<th>Updated</th>' +
-          '</tr></thead>' +
-          '<tbody>';
-      boundaries.forEach(function (b) {
-        var tierBadgeHtml = '';
-        if (b.tier) {
-          var tierBadgeStyle = b.tier === 'Tier 1'
-            ? 'background:var(--color-accent,#5b8db0);color:#fff'
-            : 'background:var(--color-surface-raised);color:var(--color-text-muted)';
-          tierBadgeHtml = ' <span style="font-size:var(--text-xs);padding:1px 5px;border-radius:2px;' + tierBadgeStyle + '">' + escHtml(b.tier) + '</span>';
-        }
-        tableHtml +=
-          '<tr>' +
-            '<td><strong>' + escHtml(b.boundary) + '</strong>' + tierBadgeHtml + '</td>' +
-            '<td><span class="severity-badge ' + statusBadgeClass(b.status) + '">' + escHtml(b.status) + '</span></td>' +
-            '<td><span class="severity-badge ' + trendBadgeClass(b.trend) + '">' + escHtml(b.trend) + '</span></td>' +
-            '<td>' + escHtml(b.tier || '') + '</td>' +
-            '<td style="font-size:var(--text-xs)">' + escHtml(b.headline || '') + '</td>' +
-            '<td>' + (b.last_updated ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Updated ' + escHtml(b.last_updated) + '</span>' : '') + '</td>' +
-          '</tr>';
-        // Summary expansion row — show analytical summary beneath each boundary
-        if (b.summary) {
-          tableHtml +=
-            '<tr class="boundary-summary-row">' +
-              '<td colspan="6" style="padding-top:0;padding-bottom:var(--space-3);font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55;border-bottom:1px solid var(--color-border-subtle)">' +
-                '<em>' + escHtml(b.summary) + '</em>' +
-                (b.source_url ? ' <a href="' + escHtml(b.source_url) + '" target="_blank" rel="noopener" class="source-link" style="font-size:var(--text-min)">Source →</a>' : '') +
-              '</td>' +
-            '</tr>';
-        }
-      });
-      tableHtml += '</tbody></table></div>';
-      document.getElementById('boundary-table-wrap').innerHTML = tableHtml;
-
-      // Executive insight items
+      /* ── Executive Insight ── */
       var m01 = d.m01_executive_insight || {};
       var insightItems = m01.items || [];
       var eiEl = document.getElementById('exec-insight-block');
@@ -705,10 +502,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 : 'background:var(--color-surface-raised);color:var(--color-text-muted)';
               tierBadge = '<span style="font-size:var(--text-xs);padding:1px 5px;border-radius:2px;' + tierStyle + ';margin-left:var(--space-2);vertical-align:middle">' + escHtml(item.tier) + '</span>';
             }
+            var filterBadge = '';
+            if (item.filter_tag) {
+              filterBadge = '<span style="font-size:var(--text-min);padding:1px 5px;border-radius:2px;background:rgba(239,68,68,0.1);color:#f87171;font-family:var(--font-mono);margin-left:var(--space-1)">' + escHtml(item.filter_tag) + '</span>';
+            }
             eiHtml +=
               '<div style="padding:var(--space-3) var(--space-4);background:var(--color-surface);border:1px solid var(--color-border-subtle);border-radius:var(--radius-md)">' +
                 '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-2)">' +
-                  escHtml(item.headline || '') + tierBadge +
+                  escHtml(item.headline || '') + tierBadge + filterBadge +
                 '</div>' +
                 (item.summary ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55">' + escHtml(item.summary) + '</div>' : '') +
                 (item.source_url ? '<div style="margin-top:var(--space-2)"><a class="source-link" style="font-size:var(--text-min)" href="' + escHtml(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
@@ -719,22 +520,87 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      // Cross-monitor flags (legacy inline render for cross_monitor_flags structure)
-      AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
+      /* ── Climate-Security Nexus (reworked from cascade heatmap) ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderClimateSecurityNexus) {
+        AsymSections.renderClimateSecurityNexus(m03, 'climate-security-content');
+      }
 
-      // ── New synthesis section renders ──
-      if (typeof AsymSections !== 'undefined') {
-        AsymSections.renderPlanetaryStatusSnapshot(d.planetary_status_snapshot || d.m00_the_signal, 'planetary-snapshot-content');
-        AsymSections.renderClimateSecurityNexus(d.climate_security_nexus || d.m03_threat_multiplier, 'climate-security-content');
+      /* ── Boundary Detail Table ──
+           Field mapping: report uses status_delta (not trend),
+           key_indicator (not headline), data_source, week_development.
+           No tier/last_updated/summary in report — those live in persistent-state. */
+      if (boundaries.length) {
+        var tableHtml =
+          '<div style="overflow-x:auto"><table class="heatmap-table">' +
+            '<thead><tr>' +
+              '<th>Boundary</th>' +
+              '<th>Status</th>' +
+              '<th>Delta</th>' +
+              '<th>Key Indicator</th>' +
+              '<th>Source</th>' +
+            '</tr></thead>' +
+            '<tbody>';
+        boundaries.forEach(function (b) {
+          var filterBadges = '';
+          if (b.filter_tags && b.filter_tags.length) {
+            b.filter_tags.forEach(function(ft) {
+              if (ft) filterBadges += ' <span style="font-size:var(--text-min);padding:1px 5px;border-radius:2px;background:rgba(239,68,68,0.1);color:#f87171;font-family:var(--font-mono)">' + escHtml(ft) + '</span>';
+            });
+          }
+          tableHtml +=
+            '<tr>' +
+              '<td><strong>' + escHtml(b.boundary) + '</strong>' + filterBadges + '</td>' +
+              '<td><span class="severity-badge ' + statusBadgeClass(b.status) + '">' + escHtml(b.status) + '</span></td>' +
+              '<td><span class="severity-badge ' + statusBadgeClass(b.status_delta) + '">' + escHtml(b.status_delta || 'Stable') + '</span></td>' +
+              '<td style="font-size:var(--text-xs);max-width:300px">' + escHtml(b.key_indicator || b.headline || '') + '</td>' +
+              '<td style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(b.data_source || '') + '</td>' +
+            '</tr>';
+          /* Week development row if present */
+          if (b.week_development) {
+            tableHtml +=
+              '<tr class="boundary-summary-row">' +
+                '<td colspan="5" style="padding-top:0;padding-bottom:var(--space-3);font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.55;border-bottom:1px solid var(--color-border-subtle)">' +
+                  '<em>This week: </em>' + escHtml(b.week_development) +
+                '</td>' +
+              '</tr>';
+          }
+        });
+        tableHtml += '</tbody></table></div>';
+        document.getElementById('boundary-table-wrap').innerHTML = tableHtml;
+      } else {
+        document.getElementById('boundary-table-wrap').innerHTML = '<p class="text-muted text-sm">No boundary data available this issue.</p>';
+      }
+
+      /* ── Extreme Events Log ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderExtremeEventsLog) {
         AsymSections.renderExtremeEventsLog(d.extreme_events_log, 'extreme-events-content');
-        AsymSections.renderPolicyLawCompliance(d.policy_law_compliance, 'policy-law-content');
+      }
+
+      /* ── ICJ Tracker ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderICJTracker) {
         AsymSections.renderICJTracker(d.icj_tracker, 'icj-tracker-content');
+      }
+
+      /* ── Loss & Damage ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderLossDamageTracker) {
         AsymSections.renderLossDamageTracker(d.loss_damage_tracker, 'loss-damage-content');
-        AsymSections.renderAttributionGapCases(d.attribution_gap_cases, 'attribution-gap-content');
-        AsymSections.renderReverseCascadeCheck(d.reverse_cascade_check, 'reverse-cascade-content');
-        AsymSections.renderRegionalCoverage(d.regional_coverage, 'regional-coverage-content');
-        AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-content');
-        AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates, 'cross-monitor-candidates-content');
+      }
+
+      /* ── Weekly Brief ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderWeeklyBrief) {
+        AsymSections.renderWeeklyBrief(d.weekly_brief, 'weekly-brief-content');
+      } else {
+        var wbEl = document.getElementById('weekly-brief-content');
+        if (wbEl && d.weekly_brief) {
+          wbEl.innerHTML = '<div style="font-size:var(--text-xs);line-height:1.7;color:var(--color-text-secondary)">' + escHtml(d.weekly_brief) + '</div>';
+        } else if (wbEl) {
+          wbEl.innerHTML = '<p class="text-muted text-sm">No weekly brief available.</p>';
+        }
+      }
+
+      /* ── Cross-Monitor Flags ── */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
+        AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
       }
     })
     .catch(function (e) {
@@ -743,43 +609,53 @@ document.addEventListener('DOMContentLoaded', function () {
       if (tc) tc.innerHTML = '<div class="error-state">Failed to load dashboard data: ' + e.message + '</div>';
     });
 
-  // ── Persistent state: boundary chart + tipping board ──
+  /* ══════════════════════════════════════════════════════════════
+     PERSISTENT STATE — persistent-state.json
+     ══════════════════════════════════════════════════════════════ */
   fetch('data/persistent-state.json')
     .then(function (r) { return r.json(); })
     .then(function (ps) {
       var boundaries = ps.planetary_boundary_status || [];
       var tipping    = ps.tipping_system_flags || [];
 
-      // ── Planetary Boundary Horizontal Bar Chart ──
+      /* ── Planetary Boundary Horizontal Bar Chart ── */
       if (boundaries.length) {
         document.getElementById('pb-chart-loading').style.display = 'none';
         document.getElementById('pb-chart-container').style.display = 'block';
 
         var labels = boundaries.map(function (b) {
-          // Shorten labels for readability in chart
           return b.boundary
             .replace('Biogeochemical Flows', 'Biogeochem. Flows')
-            .replace('Atmospheric Aerosol Loading', 'Aerosol Loading')
-            .replace('Stratospheric Ozone', 'Stratospheric Ozone')
-            .replace('Land System Change', 'Land System Change')
-            .replace('Freshwater Change', 'Freshwater Change')
-            .replace('Biosphere Integrity', 'Biosphere Integrity')
-            .replace('Novel Entities', 'Novel Entities')
-            .replace('Ocean Acidification', 'Ocean Acidification')
-            .replace('Climate Change', 'Climate Change');
+            .replace('Atmospheric Aerosol Loading', 'Aerosol Loading');
         });
 
-        // Status → numeric severity score for bar length
+        /* Status → numeric severity score for bar length */
         var statusScore = {
-          'Safe': 1,
-          'Zone of Uncertainty': 2,
+          'Safe': 1, 'Within Safe Zone': 1,
+          'Zone of Uncertainty': 2, 'Approaching Boundary': 2,
           'Increasing Risk': 2.5,
-          'Transgressed': 3
+          'Transgressed': 3, 'Beyond Boundary': 3
         };
-        var scores  = boundaries.map(function (b) { return statusScore[b.status] != null ? statusScore[b.status] : 1.5; });
+        /* Normalise status labels for lookup */
+        function normaliseStatus(s) {
+          var map = {
+            'transgressed': 'Transgressed',
+            'beyond boundary': 'Transgressed',
+            'within_safe_zone': 'Safe',
+            'safe': 'Safe',
+            'approaching_boundary': 'Zone of Uncertainty',
+            'uncertain_regional_transgression': 'Zone of Uncertainty',
+            'increasing risk': 'Increasing Risk'
+          };
+          return map[(s || '').toLowerCase()] || s;
+        }
+
+        var scores  = boundaries.map(function (b) {
+          var norm = normaliseStatus(b.status);
+          return statusScore[norm] != null ? statusScore[norm] : 1.5;
+        });
         var colours = boundaries.map(function (b) { return pbBarColor(b.status); });
         var bgColours = colours.map(function (c) {
-          // Parse hex to rgba for bar backgrounds
           var r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), bl = parseInt(c.slice(5,7),16);
           return 'rgba(' + r + ',' + g + ',' + bl + ',0.75)';
         });
@@ -814,7 +690,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   callbacks: {
                     label: function (ctx2) {
                       var b = boundaries[ctx2.dataIndex];
-                      return b ? b.status + (b.trend ? '  ·  Trend: ' + b.trend : '') : '';
+                      return b ? normaliseStatus(b.status) + (b.trend ? '  ·  Trend: ' + b.trend : '') : '';
                     }
                   }
                 }
@@ -849,19 +725,18 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('pb-chart-loading').textContent = 'No planetary boundary data available.';
       }
 
-      // ── Tipping System Alarm Board ──
+      /* ── Tipping System Alarm Board ── */
       if (tipping.length) {
         document.getElementById('tipping-board-loading').style.display = 'none';
         document.getElementById('tipping-board').style.display = 'block';
 
-        // Tipping Point Proximity bars
+        /* Tipping Point Proximity bars */
         renderTippingProximity(tipping);
 
         var gridHtml = '';
         tipping.forEach(function (t) {
           var cls    = tippingCellClass(t.status);
           var label  = tippingStatusLabel(t.status);
-          // Use proxy_value as the descriptor, capped for display
           var proxyText = t.proxy_value || t.description || '';
           if (proxyText.length > 120) proxyText = proxyText.slice(0, 117) + '…';
 
@@ -887,14 +762,15 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('tipping-board-loading').innerHTML = '<div class="error-state">Failed to load tipping system data.</div>';
     });
 
+  /* ── Tipping Proximity Bar Renderer ── */
   function renderTippingProximity(systems) {
     var wrap = document.getElementById('tipping-proximity-wrap');
     if (!wrap || !systems || !systems.length) return;
-    // Derive proximity from status since proximity_score not yet in schema
-    // Transgressed=0.90, At Risk=0.65, Elevated=0.45, Monitoring=0.20
     var STATUS_PROXIMITY = {
       'Transgressed': 0.90, 'transgressed': 0.90,
       'At Risk': 0.65, 'at risk': 0.65, 'At risk': 0.65,
+      'Critical': 0.80, 'critical': 0.80,
+      'High': 0.65, 'high': 0.65,
       'Elevated': 0.45, 'elevated': 0.45,
       'Monitoring': 0.20, 'monitoring': 0.20,
       'Safe': 0.05, 'safe': 0.05
@@ -902,17 +778,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var STATUS_COLOURS = {
       'Transgressed': '#dc2626', 'transgressed': '#dc2626',
       'At Risk': '#c1440e', 'at risk': '#c1440e', 'At risk': '#c1440e',
-      'Elevated': '#d97706', 'elevated': '#d97706',
-      'Monitoring': '#2563eb', 'monitoring': '#2563eb',
+      'Critical': '#dc2626', 'critical': '#dc2626',
+      'High': '#d97706', 'high': '#d97706',
+      'Elevated': '#2563eb', 'elevated': '#2563eb',
+      'Monitoring': '#6b6660', 'monitoring': '#6b6660',
       'Safe': '#059669', 'safe': '#059669'
     };
-    // Sort by proximity descending
     var sorted = systems.slice().sort(function(a, b) {
       return (STATUS_PROXIMITY[b.status] || 0) - (STATUS_PROXIMITY[a.status] || 0);
     });
     var html = '<div style="display:flex;flex-direction:column;gap:8px">';
     sorted.forEach(function(t) {
-      // Use proximity_score if present, otherwise derive from status
       var prox = t.proximity_score != null
         ? parseFloat(t.proximity_score)
         : (STATUS_PROXIMITY[t.status] || 0.10);
@@ -933,8 +809,6 @@ document.addEventListener('DOMContentLoaded', function () {
     wrap.innerHTML = html;
   }
 });
-
-  // renderCrossMonitor removed — now handled by AsymSections.renderCrossMonitorFlags
 </script>
 </body>
 </html>

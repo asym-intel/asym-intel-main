@@ -178,6 +178,50 @@
   }
 
   /* ── Cross-monitor flags panel ── */
+  /* Accent colours per monitor — used so cross-links render in
+     the target monitor's brand colour, not the host page's accent. */
+  var MONITOR_ACCENT_COLORS = {
+    'democratic-integrity':       '#61a5d2',
+    'macro-monitor':             '#22a0aa',
+    'european-strategic-autonomy':'#5b8db0',
+    'fimi-cognitive-warfare':    '#38bdf8',
+    'ai-governance':             '#3a7d5a',
+    'environmental-risks':       '#4caf7d',
+    'conflict-escalation':       '#dc2626'
+  };
+  var MONITOR_DISPLAY_NAMES = {
+    'democratic-integrity':       'World Democracy Monitor',
+    'macro-monitor':             'Global Macro Monitor',
+    'european-strategic-autonomy':'European Strategic Autonomy',
+    'fimi-cognitive-warfare':    'FIMI & Cognitive Warfare',
+    'ai-governance':             'AI Governance Monitor',
+    'environmental-risks':       'Environmental Risks Monitor',
+    'conflict-escalation':       'Conflict & Escalation Monitor'
+  };
+  function monitorDisplayName(slug) {
+    return MONITOR_DISPLAY_NAMES[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  }
+  var MONITOR_SLUG_TO_ABBR = {
+    'democratic-integrity':       'wdm',
+    'macro-monitor':             'gmm',
+    'european-strategic-autonomy':'esa',
+    'fimi-cognitive-warfare':    'fcw',
+    'ai-governance':             'agm',
+    'environmental-risks':       'erm',
+    'conflict-escalation':       'scem'
+  };
+  function renderMonitorLink(slug) {
+    var name  = monitorDisplayName(slug);
+    var color = MONITOR_ACCENT_COLORS[slug] || 'var(--color-text-secondary)';
+    var href  = '/monitors/' + escHtml(slug) + '/dashboard.html';
+    var abbr  = MONITOR_SLUG_TO_ABBR[slug] || slug;
+    var icon  = '<img src="/images/monitors/' + escHtml(abbr) + '.svg" ' +
+                'width="24" height="24" alt="" ' +
+                'style="vertical-align:-5px;margin-right:4px;display:inline">';
+    return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap;display:inline-flex;align-items:center;gap:4px">' +
+      icon + escHtml(name) + '</a>';
+  }
+
   function renderCrossMonitorFlags(cmf) {
     if (!cmf || !cmf.flags || !cmf.flags.length) return '';
     var html = '<div class="cross-monitor-panel">' +
@@ -187,18 +231,22 @@
 
     cmf.flags.forEach(function (flag) {
       var statusClass = flag.status === 'Active' ? 'badge--accent' : 'badge';
+      var monitorHtml = '';
+      if (flag.monitors_involved && flag.monitors_involved.length) {
+        monitorHtml = flag.monitors_involved.map(renderMonitorLink)
+          .join(' <span style="color:var(--color-text-muted)">·</span> ');
+      }
       html += '<div class="cms-flag">' +
         '<div class="cms-flag__header">' +
           '<span class="cms-flag__id">' + esc(flag.id) + '</span>' +
           '<span class="badge ' + statusClass + '">' + esc(flag.status || '') + '</span>' +
         '</div>' +
         '<div class="cms-flag__title">' + esc(flag.title) + '</div>' +
-        (flag.monitors_involved && flag.monitors_involved.length
-          ? '<div class="cms-flag__monitors">' + flag.monitors_involved.map(esc).join(' · ') + '</div>'
+        (monitorHtml
+          ? '<div class="cms-flag__monitors">' + monitorHtml + '</div>'
           : '') +
         (flag.body
-          ? '<div class="cms-flag__body cms-flag__body--collapsed">' + esc(flag.body) + '</div>' +
-            '<span class="cms-read-more">Read more →</span>'
+          ? '<div class="cms-flag__body">' + esc(flag.body) + '</div>'
           : '') +
       '</div>';
     });
@@ -448,8 +496,7 @@ window.AsymPersistent = (function () {
           '<span class="severity-badge severity-badge--moderate">' + escHtml(f.status||'Active') + '</span>' +
         '</div>' +
         (f.monitors_involved&&f.monitors_involved.length ? '<div class="cms-flag__monitors">↔ ' + f.monitors_involved.map(escHtml).join(' · ') + '</div>' : '') +
-        '<div class="cms-flag__body cms-flag__body--collapsed">' + escHtml(f.linkage||f.title||'') + '</div>' +
-        '<span class="cms-read-more" onclick="var b=this.previousElementSibling;b.classList.toggle(\'cms-flag__body--collapsed\');this.textContent=b.classList.contains(\'cms-flag__body--collapsed\')?\'Read more →\':\'Show less ↑\'">Read more →</span>' +
+        '<div class="cms-flag__body">' + escHtml(f.linkage||f.title||'') + '</div>' +
       '</div>';
     }).join('');
   }
@@ -1064,33 +1111,43 @@ window.AsymSections = (function () {
       return;
     }
 
-    var html = '<div class="kj-list">';
-    judgments.forEach(function (kj) {
+    var html = '<div class="key-judgment-cards">';
+    judgments.forEach(function (kj, idx) {
       var trajClass = kj.trajectory ? deriveStatusClass(kj.trajectory) : '';
       var trajBadge = kj.trajectory ? buildStatusBadge(kj.trajectory, trajClass) : '';
 
-      var confClass = (function () {
-        var c = (kj.confidence_preliminary || '').toLowerCase();
-        if (c === 'confirmed') return 'positive';
-        if (c === 'high')      return 'high';
-        return 'moderate';
+      /* confidence field — synthesisers use 'confidence', legacy used 'confidence_preliminary' */
+      var confRaw = kj.confidence || kj.confidence_preliminary || '';
+      var confBadgeClass = (function () {
+        var c = confRaw.toLowerCase();
+        if (c === 'confirmed') return 'kj-confidence-badge--confirmed';
+        if (c === 'high')      return 'kj-confidence-badge--high';
+        if (c === 'assessed' || c === 'moderate') return 'kj-confidence-badge--assessed';
+        return 'kj-confidence-badge--low';
       })();
 
+      /* ID badge: turn 'kj-001' into ordinal 'KJ 1', or use index+1 as fallback */
+      var idNum = (kj.id || '').replace(/^kj-0*/i, '');
+      var idLabel = idNum ? 'KJ ' + idNum : 'KJ ' + (idx + 1);
+
+      /* Context field — each monitor uses a different name */
+      var context = kj.theatre || kj.domain || kj.stress_domain ||
+                    kj.boundary_or_element || kj.framework_affected ||
+                    kj.countries_affected || '';
+
       html +=
-        '<div class="kj-card">' +
-          '<div class="kj-card__id">' + escHtml(kj.id || '') + '</div>' +
-          '<div class="kj-card__body">' +
-            '<div class="kj-card__text">' + escHtml(kj.judgment || '') + '</div>' +
-            '<div class="kj-card__meta">' +
-              (kj.theatre
-                ? '<span class="kj-card__context">' + escHtml(kj.theatre) + '</span>'
-                : '') +
-              (kj.confidence_preliminary
-                ? '<span class="severity-badge severity-badge--' + confClass + '">' +
-                    escHtml(kj.confidence_preliminary) + '</span>'
-                : '') +
-              (trajBadge ? trajBadge : '') +
-            '</div>' +
+        '<div class="key-judgment-card">' +
+          '<div class="key-judgment-card__id">' + escHtml(idLabel) + '</div>' +
+          '<div class="key-judgment-card__text">' + escHtml(kj.judgment || '') + '</div>' +
+          '<div class="key-judgment-card__footer">' +
+            (context
+              ? '<span class="key-judgment-card__theatre">' + escHtml(context) + '</span>'
+              : '') +
+            (confRaw
+              ? '<span class="kj-confidence-badge ' + confBadgeClass + '">' +
+                  escHtml(confRaw) + '</span>'
+              : '') +
+            (trajBadge ? trajBadge : '') +
           '</div>' +
         '</div>';
     });
@@ -1109,19 +1166,48 @@ window.AsymSections = (function () {
       return;
     }
 
+    /* Monitor slug → display name lookup */
+    var MONITOR_NAMES = {
+      'conflict-escalation': 'Conflict Escalation',
+      'democratic-integrity': 'Democratic Integrity',
+      'macro-monitor': 'Global Macro',
+      'fimi-cognitive-warfare': 'FIMI & Cognitive Warfare',
+      'european-strategic-autonomy': 'European Strategic Autonomy',
+      'ai-governance': 'AI Governance',
+      'environmental-risks': 'Environmental Risks'
+    };
+
     var html = '<div class="cmc-list">';
     candidates.forEach(function (c) {
+      var slug = c.target_monitor || '';
+      var displayName = MONITOR_NAMES[slug] || slug;
+      var confRaw = c.confidence || c.confidence_preliminary || '';
+      var confClass = confRaw.toLowerCase() === 'high' ? 'positive' : 'moderate';
+
+      /* Monitor icon (16×16px inline SVG) */
+      var iconHtml = slug
+        ? '<img src="../../images/monitors/' + escHtml(slug) + '.svg" ' +
+          'alt="" width="16" height="16" style="vertical-align:-3px;margin-right:4px" ' +
+          'onerror="this.style.display=\'none\'">'
+        : '';
+
       html +=
         '<div class="cmc-item">' +
-          '<div class="cmc-item__target">' + escHtml(c.target_monitor || '') + '</div>' +
+          '<div class="cmc-item__target">' +
+            iconHtml +
+            '<a href="../../monitors/' + escHtml(slug) + '/dashboard.html" class="cmc-item__link">' +
+              escHtml(displayName) +
+            '</a>' +
+          '</div>' +
           '<div class="cmc-item__body">' +
             '<div class="cmc-item__signal">' + escHtml(c.signal || '') + '</div>' +
             '<div class="cmc-item__meta">' +
               (c.type
-                ? '<span>' + escHtml(c.type) + '</span>'
+                ? '<span class="cmc-item__type">' + escHtml(c.type) + '</span>'
                 : '') +
-              (c.confidence_preliminary
-                ? '<span>Confidence: ' + escHtml(c.confidence_preliminary) + '</span>'
+              (confRaw
+                ? '<span class="severity-badge severity-badge--' + confClass + '">' +
+                    escHtml(confRaw) + '</span>'
                 : '') +
             '</div>' +
           '</div>' +
@@ -4193,6 +4279,29 @@ window.AsymSections = (function () {
     'conflict-escalation':       'Conflict & Escalation Monitor'
   };
 
+  /* Each monitor's own accent colour — used so cross-links show
+     the target monitor's brand, not the host page's --monitor-accent. */
+  var _MONITOR_ACCENT_COLORS = {
+    'democratic-integrity':       '#61a5d2',
+    'macro-monitor':             '#22a0aa',
+    'european-strategic-autonomy':'#5b8db0',
+    'fimi-cognitive-warfare':    '#38bdf8',
+    'ai-governance':             '#3a7d5a',
+    'environmental-risks':       '#4caf7d',
+    'conflict-escalation':       '#dc2626'
+  };
+
+  /* Slug → SVG filename abbreviation (icons are /images/monitors/{abbr}.svg) */
+  var _SLUG_TO_ABBR = {
+    'democratic-integrity':       'wdm',
+    'macro-monitor':             'gmm',
+    'european-strategic-autonomy':'esa',
+    'fimi-cognitive-warfare':    'fcw',
+    'ai-governance':             'agm',
+    'environmental-risks':       'erm',
+    'conflict-escalation':       'scem'
+  };
+
   function _cmfTitle(f) {
     return f.headline || f.title || f.signal || f.summary || '';
   }
@@ -4207,8 +4316,8 @@ window.AsymSections = (function () {
     'erm': 'environmental-risks', 'scem': 'conflict-escalation'
   };
   function _cmfLinkedSlug(f) {
-    /* Extract the linked (target) monitor slug — not the host monitor.
-       Priority: source_url path > ID-encoded abbreviation > monitor field */
+    /* Extract the linked (target) monitor slug.
+       Priority: source_url path > ID-encoded abbreviation > monitor_slug/monitor/source_monitor */
     if (f.source_url) {
       var m = f.source_url.match(/\/monitors\/([^\/]+)\//);
       if (m) return m[1];
@@ -4217,6 +4326,9 @@ window.AsymSections = (function () {
     var parts = id.split('-');
     /* Pattern: host-target-seq, e.g. wdm-fcw-001 → target = parts[1] */
     if (parts.length >= 3 && _ABBR_TO_SLUG[parts[1]]) return _ABBR_TO_SLUG[parts[1]];
+    /* Fallback to explicit monitor slug fields */
+    var slug = f.monitor_slug || f.monitor || f.source_monitor || '';
+    if (slug && _MONITOR_DISPLAY_NAMES[slug]) return slug;
     return '';
   }
   function _cmfMonitor(f) {
@@ -4288,17 +4400,23 @@ window.AsymSections = (function () {
       var firstFlagged = flag.first_flagged || flag.first_raised || '';
       var updated = flag.updated || flag.last_updated || '';
 
-      /* Monitor display names — linked to source URL */
+      /* Monitor display names — each in its own accent colour with SVG icon */
       var monitorHtml = '';
       if (slugs.length) {
-        var names = slugs.map(function(s) { return _slugToName(s); });
-        if (url) {
-          monitorHtml = '<a href="' + _esc(url) + '" style="color:var(--monitor-accent);text-decoration:underline;font-size:var(--text-xs)">' +
-            _esc(names.join(' · ')) + '</a>';
-        } else {
-          monitorHtml = '<span style="font-size:var(--text-xs);color:var(--text-muted)">' +
-            _esc(names.join(' · ')) + '</span>';
-        }
+        var parts = slugs.map(function(s) {
+          var name  = _slugToName(s);
+          var color = _MONITOR_ACCENT_COLORS[s] || 'var(--color-text-secondary)';
+          var href  = '/monitors/' + _esc(s) + '/dashboard.html';
+          var abbr  = _SLUG_TO_ABBR[s] || s;
+          var icon  = '<img src="/images/monitors/' + _esc(abbr) + '.svg" ' +
+                      'width="24" height="24" alt="" ' +
+                      'style="vertical-align:-5px;margin-right:4px;display:inline">';
+          return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap;display:inline-flex;align-items:center;gap:4px">' +
+            icon + _esc(name) + '</a>';
+        });
+        monitorHtml = '<span style="font-size:var(--text-xs)">' +
+          parts.join(' <span style="color:var(--color-text-muted)">·</span> ') +
+          '</span>';
       }
 
       /* Badges row */
@@ -4326,11 +4444,7 @@ window.AsymSections = (function () {
             ? '<div class="cms-flag__monitors">' + monitorHtml + '</div>'
             : '') +
           (body
-            ? '<div class="cms-flag__body cms-flag__body--collapsed">' + _esc(body) + '</div>' +
-              '<span class="cms-read-more" onclick="var b=this.previousElementSibling;' +
-                'b.classList.toggle(\'cms-flag__body--collapsed\');' +
-                'this.textContent=b.classList.contains(\'cms-flag__body--collapsed\')' +
-                '?\'Read more \u2192\':\'Show less \u2191\'">Read more \u2192</span>'
+            ? '<div class="cms-flag__body">' + _esc(body) + '</div>'
             : '') +
           (flag.action
             ? '<div style="margin-top:var(--space-2);font-size:var(--text-xs);font-weight:600;' +
