@@ -1297,7 +1297,16 @@ document.addEventListener('DOMContentLoaded', function () {
           '<td><strong>' + escHtml(c.theatre_name || c.theatre_id || '') + '</strong>' +
             (c.current_phase_start ? '<br><span style="font-size:var(--text-min);color:var(--color-text-muted)">Since ' + escHtml(c.current_phase_start) + '</span>' : '') +
           '</td>' +
-          '<td><span style="font-size:var(--text-xs)">' + escHtml(c.conflict_type || '\u2014') + '</span></td>' +
+          '<td>' + (function(ct) {
+            if (!ct) return '\u2014';
+            var labelMap = { high_intensity: 'High', medium_intensity: 'Medium', low_intensity: 'Low', deterrence: 'Deterrence' };
+            var colorMap = { high_intensity: 'var(--critical,#dc2626)', medium_intensity: 'var(--high,#d97706)', low_intensity: 'var(--moderate,#2563eb)', deterrence: 'var(--color-text-muted,#6b7280)' };
+            var label = labelMap[ct] || ct.replace(/_/g, ' ');
+            var color = colorMap[ct] || 'var(--color-text-muted)';
+            return '<span style="display:inline-block;font-size:var(--text-min);font-weight:600;' +
+              'padding:2px 8px;border-radius:9999px;border:1.5px solid ' + color + ';color:' + color + ';' +
+              'text-transform:uppercase;letter-spacing:.04em;white-space:nowrap">' + escHtml(label) + '</span>';
+          })(c.conflict_type) + '</td>' +
           '<td style="font-size:var(--text-xs)">' + escHtml(shortCasualty(hc.casualties)) + '</td>' +
           '<td style="font-size:var(--text-xs)">' + escHtml(shortDisplaced(hc.displacement)) + '</td>' +
           '<td><span class="delta-badge ' + trajClass + '" style="font-size:var(--text-min)">' + escHtml(trajText || '\u2014') + '</span></td>' +

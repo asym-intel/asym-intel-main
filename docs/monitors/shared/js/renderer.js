@@ -876,7 +876,7 @@ window.AsymSections = (function () {
       return;
     }
 
-    /* ── Filter dropdown (shows one conflict at a time) ────────── */
+    /* ── Conflict selector (one at a time, no "All" dump) ──────── */
     var filterId = targetId + '-scoring-filter';
     var filterHtml = '';
     if (scoring.length > 1) {
@@ -884,21 +884,24 @@ window.AsymSections = (function () {
         '<div style="margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)">' +
           '<label for="' + filterId + '" style="font-size:var(--text-xs);font-weight:600;' +
             'color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">' +
-            'Filter by conflict:</label>' +
+            'Conflict:</label>' +
           '<select id="' + filterId + '" class="indicator-breakdown-select" ' +
-            'style="font-size:var(--text-xs);padding:4px 8px;max-width:280px">' +
-            '<option value="__all">All conflicts (' + scoring.length + ')</option>';
-      scoring.forEach(function(entity) {
+            'style="font-size:var(--text-xs);padding:4px 8px;max-width:280px">';
+      scoring.forEach(function(entity, i) {
         var name = entity.theatre_name || entity.theatre_id || '';
         var nElev = (entity.indicators || []).filter(function(ind) {
           var ll = (ind.level_label || '').toLowerCase();
           return ll === 'red' || ll === 'amber' || ll === 'elevated' || ll === 'crisis';
         }).length;
         var badge = nElev > 0 ? ' \u2022 ' + nElev + ' elevated' : '';
-        filterHtml += '<option value="' + escHtml(entity.theatre_id || name) + '">' +
+        filterHtml += '<option value="' + escHtml(entity.theatre_id || name) + '"' +
+          (i === 0 ? ' selected' : '') + '>' +
           escHtml(name) + badge + '</option>';
       });
-      filterHtml += '</select></div>';
+      filterHtml += '</select>' +
+        '<span style="font-size:var(--text-min);color:var(--color-text-muted);margin-left:var(--space-2)">' +
+          scoring.length + ' conflicts tracked</span>' +
+        '</div>';
     }
 
     var html = filterHtml;
@@ -991,15 +994,20 @@ window.AsymSections = (function () {
     });
     el.innerHTML = html;
 
-    /* Wire filter */
+    /* Wire filter — show only the selected conflict (default: first) */
     if (scoring.length > 1) {
       var sel = document.getElementById(filterId);
       if (sel) {
+        var blocks = el.querySelectorAll('.scoring-block[data-scoring-entity]');
+        /* Hide all except first on initial render */
+        var firstVal = sel.value;
+        for (var i = 0; i < blocks.length; i++) {
+          blocks[i].style.display = (blocks[i].getAttribute('data-scoring-entity') === firstVal) ? '' : 'none';
+        }
         sel.addEventListener('change', function() {
           var v = sel.value;
-          var blocks = el.querySelectorAll('.scoring-block[data-scoring-entity]');
-          for (var i = 0; i < blocks.length; i++) {
-            blocks[i].style.display = (v === '__all' || blocks[i].getAttribute('data-scoring-entity') === v) ? '' : 'none';
+          for (var j = 0; j < blocks.length; j++) {
+            blocks[j].style.display = (blocks[j].getAttribute('data-scoring-entity') === v) ? '' : 'none';
           }
         });
       }
