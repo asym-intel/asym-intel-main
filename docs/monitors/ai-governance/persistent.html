@@ -282,6 +282,26 @@
           if (Array.isArray(v) && v.length && typeof v[0] === 'string') {
             return '<div class="intel-item__field"><strong>' + esc(k.replace(/_/g,' ')) + ':</strong> ' + v.map(esc).join(', ') + '</div>';
           }
+          if (Array.isArray(v) && v.length && typeof v[0] === 'object') {
+            // version_history and similar arrays of objects
+            if (k === 'version_history' && typeof window.AsymEntityCards !== 'undefined' && window.AsymEntityCards.renderVersionHistory) {
+              return window.AsymEntityCards.renderVersionHistory(v);
+            }
+            var rows = v.map(function(entry) {
+              var cells = Object.keys(entry).map(function(ek) {
+                var ev = entry[ek];
+                return ev != null ? '<td>' + esc(String(ev)) + '</td>' : '<td></td>';
+              }).join('');
+              return '<tr>' + cells + '</tr>';
+            }).join('');
+            var headers = '<tr>' + Object.keys(v[0]).map(function(ek) {
+              return '<th>' + esc(ek.replace(/_/g,' ')) + '</th>';
+            }).join('') + '</tr>';
+            return '<div class="intel-item__field"><strong>' + esc(k.replace(/_/g,' ')) + ':</strong>' +
+              '<table class="intel-subtable" style="width:100%;margin-top:var(--space-2);font-size:var(--text-xs);border-collapse:collapse">' +
+              '<thead style="text-align:left;border-bottom:1px solid var(--color-border)">' + headers + '</thead>' +
+              '<tbody>' + rows + '</tbody></table></div>';
+          }
           return '';
         }).join('') +
         '</div>';
