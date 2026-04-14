@@ -330,20 +330,30 @@
     var el = document.getElementById(targetId);
     if (!el) return;
     if (!flags.length) { el.innerHTML = '<p class="text-muted text-sm">No integrity flags this issue.</p>'; return; }
+    /* D1+D2: Map actual JSON fields (signal_type, development) and severity values */
+    var sevMap = { 'critical':'critical', 'alert':'high', 'high':'critical', 'medium':'moderate' };
     var html = '';
     flags.forEach(function(f){
-      var sevCls = (f.severity || '').toLowerCase() === 'high' ? 'critical' : 'moderate';
+      var sevRaw = (f.severity || '').toLowerCase();
+      var sevCls = sevMap[sevRaw] || 'moderate';
+      var flagLabel = f.signal_type || f.flag_type || '';
+      var title = f.signal_type || f.headline || '';
+      var body  = f.development || f.summary || '';
+      var pillars = f.pillars_under_attack || [];
       html +=
         '<div class="card" style="margin-bottom:var(--space-3)">' +
           '<div class="card__label">' +
-            (f.flag_type ? escHtml(f.flag_type) : '') +
+            (flagLabel ? escHtml(flagLabel) : '') +
             (f.country ? ' \u00b7 ' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.flag ? AsymRenderer.flag(f.country) + ' ' : '') + escHtml(f.country) : '') +
           '</div>' +
-          '<div class="card__title">' + escHtml(f.headline || '') + '</div>' +
-          '<div class="card__body">'  + escHtml(f.summary  || '') + '</div>' +
+          '<div class="card__title">' + escHtml(title) + '</div>' +
+          '<div class="card__body">'  + escHtml(body) + '</div>' +
           '<div style="margin-top:var(--space-2);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
             (f.severity ? '<span class="severity-badge severity-badge--' + sevCls + '">' + escHtml(f.severity) + '</span>' : '') +
+            (f.confidence ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + escHtml(f.confidence) + '</span>' : '') +
           '</div>' +
+          (pillars.length ? '<div style="margin-top:var(--space-1);display:flex;flex-wrap:wrap;gap:var(--space-1)">' + pillars.map(function(p){ return '<span class="card__tag">' + escHtml(p.replace(/_/g,' ')) + '</span>'; }).join('') + '</div>' : '') +
+          (f.week ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Week: ' + escHtml(f.week) + '</div>' : '') +
           (f.lead_time  ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">\u23f1 Lead time: ' + escHtml(f.lead_time) + '</div>' : '') +
           (f.source_url ? '<div style="margin-top:var(--space-1)">' + (typeof AsymRenderer !== 'undefined' ? AsymRenderer.sourceLink(f.source_url) : '') + '</div>' : '') +
           (f.source && !f.source_url ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(f.source) + '</div>' : '') +
@@ -446,8 +456,8 @@
             },
             {
               label: 'Mimicry Chains',
-              value: (d.mimicry_chain_update && d.mimicry_chain_update.active_chains != null) ? d.mimicry_chain_update.active_chains : '',
-              sub:   'Active legislative patterns'
+              value: (d.mimicry_chain_update && Array.isArray(d.mimicry_chain_update.active_chains)) ? d.mimicry_chain_update.active_chains.length : (d.mimicry_chain_update && d.mimicry_chain_update.active_chains != null ? d.mimicry_chain_update.active_chains : '—'),
+              sub:   (d.mimicry_chain_update && d.mimicry_chain_update.new_mimicry_detected === false && Array.isArray(d.mimicry_chain_update.active_chains) && d.mimicry_chain_update.active_chains.length === 0) ? 'No new mimicry detected' : 'Active legislative patterns'
             }
           ],
           signal: {
@@ -488,18 +498,22 @@
           AsymSections.renderTriageStrip(triageConfig, 'triage-container');
         }
 
-        /* ── Weekly brief ── */
+        /* ── Weekly brief (D4: prefer shared renderer for ## headers) ── */
         var briefEl = document.getElementById('weekly-brief-content');
         if (briefEl) {
           var brief = d.weekly_brief || '';
-          if (brief && typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
+          if (brief && typeof AsymSections !== 'undefined' && AsymSections.renderWeeklyBrief) {
+            AsymSections.renderWeeklyBrief(brief, 'weekly-brief-content');
+          } else if (brief && typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
             briefEl.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + AsymRenderer.renderMarkdown(brief) + '</div>';
           } else if (brief) {
             var briefHtml = brief
+              .replace(/^## (.+)$/gm, '</p><h3 style="margin-top:var(--space-4);margin-bottom:var(--space-2);font-size:var(--text-base);font-weight:700">$1</h3><p>')
               .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
               .replace(/\n\n/g, '</p><p>')
               .replace(/\n/g, ' ')
-              .replace(/^/, '<p>').replace(/$/, '</p>');
+              .replace(/^/, '<p>').replace(/$/, '</p>')
+              .replace(/<p><\/p>/g, '');
             briefEl.innerHTML = '<div style="line-height:1.75;font-size:var(--text-sm)">' + briefHtml + '</div>';
           } else {
             briefEl.innerHTML = '<p class="text-muted text-sm">Weekly brief will appear after the next publish cycle.</p>';

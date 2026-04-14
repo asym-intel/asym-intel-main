@@ -570,6 +570,16 @@ def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict
         if synth_value:  # only overlay non-empty values
             report[report_key] = synth_value
 
+    # ── Shape guards ────────────────────────────────────────────────────
+    # AIM module_2 must be {models: [...]} not a flat array.
+    # Protects against synthesis regressions where module_2 outputs a
+    # regulatory-framework list instead of the expected models dict.
+    m2 = report.get("module_2")
+    if isinstance(m2, list):
+        log(f"WARN: module_2 is a list ({len(m2)} items), not {{models: [...]}}. "
+            "Preserving previous report module_2.")
+        report["module_2"] = prev_report.get("module_2", {"models": []})
+
     # Map weekly_brief_draft → weekly_brief in report JSON
     brief = synthesis.get("weekly_brief_draft")
     if brief:

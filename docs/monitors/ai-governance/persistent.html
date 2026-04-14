@@ -320,6 +320,12 @@
         <div id="aisi-pipeline-content"><p class="loading-state">Loading…</p></div>
       </section>
 
+      <!-- GPAI Compliance Tracker -->
+      <section id="gpai-compliance" aria-labelledby="gpai-heading">
+        <h2 class="section-label" id="gpai-heading">GPAI Compliance Tracker</h2>
+        <div id="gpai-compliance-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
       <!-- Standards Vacuum -->
       <section id="standards-vacuum" aria-labelledby="sv-heading">
         <h2 class="section-label" id="sv-heading">Standards Vacuum (M05 / M09)</h2>
@@ -355,6 +361,7 @@
           <li><a href="#eu-ai-act">EU AI Act Tracker</a></li>
           <li><a href="#concentration">Concentration Index</a></li>
           <li><a href="#aisi-pipeline">AISI Pipeline</a></li>
+          <li><a href="#gpai-compliance">GPAI Compliance</a></li>
           <li><a href="#standards-vacuum">Standards Vacuum</a></li>
           <li><a href="#ciyuan">Ciyuan Watch</a></li>
           <li><a href="#lab-postures">Lab Postures</a></li>
@@ -378,18 +385,15 @@
   <script>
   document.addEventListener('DOMContentLoaded', function () {
     Promise.all([
-    fetch('data/persistent-state.json').then(function(r){return r.json();}),
-    fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
-  ]).then(function(results){
-    var d = results[0];
-    var report = results[1];
-    if (!d.cross_monitor_flags && report.cross_monitor_flags) {
-      d.cross_monitor_flags = report.cross_monitor_flags;
-    }
-  }).catch(function(){});
-  fetch('data/persistent-state.json')
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
+      fetch('data/persistent-state.json').then(function(r){return r.json();}),
+      fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
+    ]).then(function(results){
+      var d = results[0];
+      var report = results[1];
+      // Merge CMF from report if persistent has none
+      if (!d.cross_monitor_flags && report.cross_monitor_flags) {
+        d.cross_monitor_flags = report.cross_monitor_flags;
+      }
         // Risk Vectors
         var rv = Array.isArray(d.module_7_risk_vectors) ? d.module_7_risk_vectors : [];
         document.getElementById('risk-vectors-content').innerHTML =
@@ -403,9 +407,44 @@
         var ci = d.module_14_concentration_index || {};
         document.getElementById('concentration-content').innerHTML = renderConcentrationVisual(ci);
 
-        // AISI Pipeline
+        // AISI Pipeline — show base fields + watch_list cards
         var aisi = d.module_15_aisi_pipeline || {};
-        document.getElementById('aisi-pipeline-content').innerHTML = renderEntityObj(aisi);
+        var aisiHtml = renderEntityObj(aisi);
+        if (Array.isArray(aisi.watch_list) && aisi.watch_list.length) {
+          aisiHtml += '<h3 class="subsection-title" style="margin-top:var(--space-5)">Watch List</h3>';
+          aisiHtml += '<div class="intel-list">';
+          aisi.watch_list.forEach(function(inst) {
+            aisiHtml += '<div class="intel-item">' +
+              '<div class="intel-item__title">' + esc(inst.institution || inst.name || '') + '</div>' +
+              (inst.status ? '<div class="intel-item__field"><strong>Status:</strong> ' + esc(inst.status) + '</div>' : '') +
+              (inst.last_checked ? '<div class="intel-item__field"><em>Last checked: ' + esc(inst.last_checked) + '</em></div>' : '') +
+            '</div>';
+          });
+          aisiHtml += '</div>';
+        }
+        document.getElementById('aisi-pipeline-content').innerHTML = aisiHtml;
+
+        // GPAI Compliance Tracker
+        var gpai = d.gpai_compliance || {};
+        var gpaiLabs = Array.isArray(gpai.labs) ? gpai.labs : [];
+        if (gpaiLabs.length) {
+          var gpaiHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">';
+          gpaiHtml += '<thead><tr><th>Lab</th><th>Signatory</th><th>Transparency Report</th><th>Compute Disclosure</th><th>Assessment</th></tr></thead><tbody>';
+          gpaiLabs.forEach(function(lab) {
+            gpaiHtml += '<tr>' +
+              '<td style="font-weight:600">' + esc(lab.lab || lab.name || '') + '</td>' +
+              '<td>' + esc(lab.signatory != null ? (lab.signatory ? 'Yes' : 'No') : '') + '</td>' +
+              '<td>' + esc(lab.transparency_report || '') + '</td>' +
+              '<td>' + esc(lab.compute_disclosure || '') + '</td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(lab.assessment || '') + '</td>' +
+            '</tr>';
+          });
+          gpaiHtml += '</tbody></table></div>';
+          if (gpai.last_updated) gpaiHtml += '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-top:var(--space-3)">Last updated: ' + esc(gpai.last_updated) + '</div>';
+          document.getElementById('gpai-compliance-content').innerHTML = gpaiHtml;
+        } else {
+          document.getElementById('gpai-compliance-content').innerHTML = '<p class="empty-state">No GPAI compliance data available.</p>';
+        }
 
         // Standards Vacuum
         var sv = d.module_5_standards_vacuum || {};
@@ -415,18 +454,39 @@
         var ciyuan = d.module_5_ciyuan || {};
         document.getElementById('ciyuan-content').innerHTML = renderEntityObj(ciyuan);
 
-        // Lab Postures
+        // Lab Postures — table with rich fields
         var postures = Array.isArray(d.ongoing_lab_postures) ? d.ongoing_lab_postures : [];
-        document.getElementById('lab-postures-content').innerHTML =
-          renderEntityList(postures, ['actor', 'posture']);
+        if (postures.length) {
+          var postureClass = { 'Leading': 'signal', 'Adequate': 'muted', 'Lagging': 'amber', 'Opaque': 'critical' };
+          var lpHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">';
+          lpHtml += '<thead><tr><th>Lab</th><th>Safety Posture</th><th>Transparency</th><th>Regulatory Engagement</th><th>Trajectory</th></tr></thead><tbody>';
+          postures.forEach(function(row) {
+            var cls = postureClass[row.safety_posture] || 'muted';
+            lpHtml += '<tr>' +
+              '<td style="font-weight:600">' + esc(row.actor || row.lab || '') + '</td>' +
+              '<td><span class="badge badge--' + cls + '">' + esc(row.safety_posture || row.posture || '') + '</span></td>' +
+              '<td><span class="badge badge--muted">' + esc(row.transparency || '') + '</span></td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(row.regulatory_engagement || '') + '</td>' +
+              '<td style="font-size:var(--text-xs)">' + esc(row.trajectory || '') + '</td>' +
+            '</tr>';
+          });
+          lpHtml += '</tbody></table></div>';
+          document.getElementById('lab-postures-content').innerHTML = lpHtml;
+        } else {
+          document.getElementById('lab-postures-content').innerHTML = '<p class="empty-state">No lab posture data.</p>';
+        }
 
-        // Cross-Monitor Flags (from report if available, or persistent)
+        // Cross-Monitor Flags — use shared renderer (from report if available, or persistent)
         var cmf = d.cross_monitor_flags || {};
-        document.getElementById('cross-monitor-content').innerHTML = renderCrossMonitor(cmf);
+        if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
+          AsymSections.renderCrossMonitorFlags(cmf, 'cross-monitor-content');
+        } else {
+          document.getElementById('cross-monitor-content').innerHTML = renderCrossMonitor(cmf);
+        }
       })
       .catch(function () {
         ['risk-vectors-content','eu-ai-act-content','concentration-content','aisi-pipeline-content',
-         'standards-vacuum-content','ciyuan-content','lab-postures-content','cross-monitor-content'].forEach(function (id) {
+         'gpai-compliance-content','standards-vacuum-content','ciyuan-content','lab-postures-content','cross-monitor-content'].forEach(function (id) {
           var el = document.getElementById(id);
           if (el) el.innerHTML = '<p class="error-state">Could not load data.</p>';
         });

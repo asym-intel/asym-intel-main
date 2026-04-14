@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/monitor.css">
   <script src="../shared/js/theme.js"></script>
   <script src="../shared/js/nav.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -253,14 +254,18 @@ document.addEventListener('DOMContentLoaded', function () {
       var signal  = signalObj.headline || signalObj.title || '';
       var signalBody = signalObj.body || signalObj.summary || '';
       var heatmap = d.heatmap || {};
-      /* Handle flat-array heatmap: bin countries by health_status */
+      /* Handle flat-array heatmap: bin countries by health_status (R7: use WDM tier names) */
       if (Array.isArray(heatmap)) {
-        var _hm = {deteriorating:[], constrained:[], stable:[]};
+        var _hm = {rapid_decay:[], watchlist:[], recovery:[]};
         heatmap.forEach(function(c) {
           var st = (c.health_status || '').toLowerCase().replace(/[\s-]+/g, '_');
-          if (st === 'backsliding' || st === 'rapid_decay' || st === 'crisis') _hm.deteriorating.push(c);
-          else if (st === 'constrained') _hm.constrained.push(c);
-          else _hm.stable.push(c); /* consolidated, recovery, improving, etc. */
+          var delta = (c.health_delta || c.direction || '').toLowerCase();
+          if (st === 'crisis') _hm.rapid_decay.push(c);
+          else if (st === 'backsliding' && delta.indexOf('declin') > -1) _hm.rapid_decay.push(c);
+          else if (st === 'backsliding') _hm.watchlist.push(c);
+          else if (st === 'constrained' && delta.indexOf('declin') > -1) _hm.watchlist.push(c);
+          else if (st === 'constrained' || st === 'consolidated') _hm.recovery.push(c);
+          else _hm.watchlist.push(c);
         });
         heatmap = _hm;
       }
@@ -344,37 +349,41 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      /* Weekly Brief */
-
-      function renderMarkdown(md) {
-        if (!md) return '';
-        return md
-          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-          
-          .replace(/\n\n/g, '</p><p>')
-          .replace(/\n/g, ' ')
-          .replace(/^/, '<p>').replace(/$/, '</p>');
-      }
+      /* Weekly Brief (R5: prefer shared renderers that handle ## headers) */
       var wbEl = document.getElementById('weekly-brief-block');
       if (wb) {
-        wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + renderMarkdown(wb) + '</div>';
+        if (typeof AsymSections !== 'undefined' && AsymSections.renderWeeklyBrief) {
+          AsymSections.renderWeeklyBrief(wb, 'weekly-brief-block');
+        } else if (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
+          wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + AsymRenderer.renderMarkdown(wb) + '</div>';
+        } else {
+          var briefHtml = wb
+            .replace(/^## (.+)$/gm, '</p><h3 style="margin-top:var(--space-4);margin-bottom:var(--space-2);font-size:var(--text-base);font-weight:700">$1</h3><p>')
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, ' ')
+            .replace(/^/, '<p>').replace(/$/, '</p>')
+            .replace(/<p><\/p>/g, '');
+          wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + briefHtml + '</div>';
+        }
       } else {
         wbEl.innerHTML = '<p class="text-muted">Weekly brief not available for this issue.</p>';
       }
 
       /* Heatmap — tabbed by health status */
-      var det = heatmap.deteriorating || [];
-      var con = heatmap.constrained   || [];
-      var stb = heatmap.stable        || [];
+      /* R7: Use WDM tier names — Rapid Decay / Watchlist / Recovery */
+      var det = heatmap.rapid_decay || heatmap.deteriorating || [];
+      var con = heatmap.watchlist   || heatmap.constrained   || [];
+      var stb = heatmap.recovery    || heatmap.stable        || [];
       document.getElementById('heatmap-tabs').innerHTML =
         '<div class="tabs">' +
-          '<button class="tab-btn active" data-tab="deteriorating">Deteriorating (' + det.length + ')</button>' +
-          '<button class="tab-btn" data-tab="constrained">Constrained (' + con.length + ')</button>' +
-          '<button class="tab-btn" data-tab="stable">Stable (' + stb.length + ')</button>' +
+          '<button class="tab-btn active" data-tab="rapid-decay">Rapid Decay (' + det.length + ')</button>' +
+          '<button class="tab-btn" data-tab="watchlist">Watchlist (' + con.length + ')</button>' +
+          '<button class="tab-btn" data-tab="recovery">Recovery (' + stb.length + ')</button>' +
         '</div>' +
-        '<div class="tab-panel active" id="tab-deteriorating">' + renderHeatmapTable(det, 'critical') + '</div>' +
-        '<div class="tab-panel" id="tab-constrained">'         + renderHeatmapTable(con, 'high')     + '</div>' +
-        '<div class="tab-panel" id="tab-stable">'              + renderHeatmapTable(stb, 'positive') + '</div>';
+        '<div class="tab-panel active" id="tab-rapid-decay">' + renderHeatmapTable(det, 'critical') + '</div>' +
+        '<div class="tab-panel" id="tab-watchlist">'          + renderHeatmapTable(con, 'high')     + '</div>' +
+        '<div class="tab-panel" id="tab-recovery">'           + renderHeatmapTable(stb, 'positive') + '</div>';
 
       document.querySelectorAll('.tab-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -386,47 +395,60 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       });
 
-      /* Intelligence items */
+      /* Intelligence items (R1: fix field mapping — alert_type, development, vdem_dimension_affected, source) */
+      var sevMapIntel = { 'critical':'critical', 'alert':'high', 'high':'critical', 'watch':'moderate', 'medium':'moderate' };
       var intelHtml = '';
-      intel.forEach(function (item) {
+      intel.forEach(function (item, idx) {
+        var sevRaw = (item.severity || '').toLowerCase();
+        var sevCls = sevMapIntel[sevRaw] || 'moderate';
         intelHtml +=
           '<div class="intel-item">' +
             '<div class="intel-item__header">' +
-              '<div class="intel-item__rank">' + esc(item.rank || '') + '</div>' +
+              '<div class="intel-item__rank">' + (idx + 1) + '</div>' +
               '<div class="intel-item__meta">' +
                 '<div class="intel-item__country">' + flag(item.country||'') + ' ' + esc(item.country || '') + '</div>' +
-                '<div class="intel-item__headline">' + esc(item.headline || '') + '</div>' +
+                '<div class="intel-item__headline">' + esc(item.alert_type || item.headline || '') + '</div>' +
               '</div>' +
-              (item.severity ? '<span class="severity-badge severity-badge--' + (item.severity === 'High' ? 'critical' : 'moderate') + '">' + esc(item.severity) + '</span>' : '') +
+              (item.severity ? '<span class="severity-badge severity-badge--' + sevCls + '">' + esc(item.severity) + '</span>' : '') +
             '</div>' +
-            '<div class="intel-item__summary">' + esc(item.summary || '') + '</div>' +
+            '<div class="intel-item__summary">' + esc(item.development || item.summary || '') + '</div>' +
+            '<div style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:var(--space-2);align-items:center">' +
+              (item.vdem_dimension_affected ? '<span class="card__tag">V-Dem: ' + esc(item.vdem_dimension_affected) + '</span>' : '') +
+              (item.source ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(item.source) + '</span>' : '') +
+            '</div>' +
             (item.source_url && typeof AsymRenderer !== 'undefined' && AsymRenderer.sourceLink ? AsymRenderer.sourceLink(item.source_url) : '') +
           '</div>';
       });
       document.getElementById('intel-items').innerHTML = intelHtml || '<p class="text-muted">No intelligence items.</p>';
 
-      /* Institutional integrity flags */
+      /* Institutional integrity flags (R2: fix field mapping — signal_type, development, pillars, confidence, week) */
+      var sevMapFlags = { 'critical':'critical', 'alert':'high', 'high':'critical', 'medium':'moderate' };
       var flagsHtml = '';
       flags.forEach(function (f) {
+        var sevRaw = (f.severity || '').toLowerCase();
+        var sevCls = sevMapFlags[sevRaw] || 'moderate';
+        var pillars = f.pillars_under_attack || [];
         flagsHtml +=
           '<div class="card">' +
             '<div class="card__label">' +
-              esc(f.institution || '') +
-              (f.country ? ' · ' + flag(f.country) + ' ' + esc(f.country) : '') +
-              (f.flag_type ? ' <span class="severity-badge severity-badge--high">' + esc(f.flag_type) + '</span>' : '') +
+              esc(f.signal_type || f.institution || '') +
+              (f.country ? ' \u00b7 ' + flag(f.country) + ' ' + esc(f.country) : '') +
+              (f.severity ? ' <span class="severity-badge severity-badge--' + sevCls + '">' + esc(f.severity) + '</span>' : '') +
             '</div>' +
-            '<div class="card__title">' + esc(f.headline || '') + '</div>' +
-            '<div class="card__body">' + esc(f.detail || '') + '</div>' +
+            '<div class="card__title">' + esc(f.signal_type || f.headline || '') + '</div>' +
+            '<div class="card__body">' + esc(f.development || f.detail || '') + '</div>' +
+            (pillars.length ? '<div style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:var(--space-1)">' + pillars.map(function(p){ return '<span class="card__tag">' + esc(p.replace(/_/g,' ')) + '</span>'; }).join('') + '</div>' : '') +
             '<div class="card__footer">' +
-              (f.first_raised ? '<span>First raised: ' + esc(f.first_raised) + '</span>' : '') +
-              (f.unchanged_since ? '<span>Unchanged since: ' + esc(f.unchanged_since) + '</span>' : '') +
+              (f.confidence ? '<span>Confidence: ' + esc(f.confidence) + '</span>' : '') +
+              (f.week ? '<span>Week: ' + esc(f.week) + '</span>' : '') +
+              (f.source && !f.source_url ? '<span>' + esc(f.source) + '</span>' : '') +
               (f.source_url && typeof AsymRenderer !== 'undefined' && AsymRenderer.sourceLink ? AsymRenderer.sourceLink(f.source_url) : '') +
             '</div>' +
           '</div>';
       });
       document.getElementById('integrity-flags').innerHTML = flagsHtml || '<p class="text-muted">No integrity flags this issue.</p>';
 
-      /* Electoral Watch */
+      /* Electoral Watch (R3: fix field names, handle long FIMI risk text, surface ODIHR/source) */
       var ewRaw = d.electoral_watch || d.electoral_calendar_watch || null;
       var ewHtml = '';
       if (ewRaw) {
@@ -435,17 +457,32 @@ document.addEventListener('DOMContentLoaded', function () {
         var timeline = ewData.timeline || [];
         if (timeline.length) {
           ewHtml += '<div class="section-label" style="margin-bottom:var(--space-3)">Upcoming Electoral Events</div>';
-          ewHtml += '<table class="heatmap-table"><thead><tr><th>Date</th><th>Country</th><th>Type</th><th>Risk</th><th>Note</th></tr></thead><tbody>';
+          ewHtml += '<div style="display:grid;gap:var(--space-4)">';
           timeline.forEach(function(ev) {
-            ewHtml += '<tr>' +
-              '<td>' + esc(ev.date || ev.election_date || '') + '</td>' +
-              '<td>' + flag(ev.country) + ' ' + esc(ev.country || '') + '</td>' +
-              '<td>' + esc(ev.election_type || ev.event || ev.type || '') + '</td>' +
-              '<td>' + severityTextBadge(ev.fimi_risk || ev.risk_level || ev.risk || '') + '</td>' +
-              '<td>' + esc(ev.integrity_concern || ev.wdm_significance || ev.note || ev.summary || '') + '</td>' +
-            '</tr>';
+            var daysText = ev.days_away != null ? (ev.days_away === 0 ? 'Today' : ev.days_away + ' days away') : '';
+            /* Determine FIMI risk severity label for badge */
+            var fimi = ev.fimi_risk || '';
+            var fimiLabel = fimi.length > 40 ? fimi.split(' ')[0].replace(/\u2014/g,'').trim() : fimi;
+            var fimiCls = /^critical/i.test(fimiLabel) ? 'critical' : /^high/i.test(fimiLabel) ? 'high' : /^medium/i.test(fimiLabel) ? 'moderate' : 'positive';
+            ewHtml += '<div class="card">' +
+              '<div class="card__label">' +
+                flag(ev.country) + ' ' + esc(ev.country || '') +
+                (ev.date ? ' \u00b7 ' + esc(ev.date) : '') +
+                (daysText ? ' \u00b7 <strong>' + esc(daysText) + '</strong>' : '') +
+                (ev.environment ? ' <span class="severity-badge severity-badge--' + (ev.environment === 'HIGH_RISK' ? 'critical' : 'moderate') + '">' + esc(ev.environment) + '</span>' : '') +
+              '</div>' +
+              '<div class="card__title">' + esc(ev.event || ev.election_type || ev.type || '') + '</div>' +
+              (ev.wdm_significance || ev.integrity_concern ? '<div class="card__body">' + esc(ev.wdm_significance || ev.integrity_concern || '') + '</div>' : '') +
+              (fimi && fimi !== 'Low' ? '<div style="margin-top:var(--space-2)"><span class="severity-badge severity-badge--' + fimiCls + '" style="font-size:var(--text-xs)">FIMI: ' + esc(fimiLabel) + '</span>' +
+                (fimi.length > 40 ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1);line-height:1.5">' + esc(fimi) + '</div>' : '') +
+              '</div>' : '') +
+              '<div class="card__footer" style="margin-top:var(--space-2)">' +
+                (ev.odihr_deployed != null ? '<span>' + (ev.odihr_deployed ? '\u2705 ODIHR deployed' : '\u274c ODIHR not deployed') + '</span>' : '') +
+                (ev.source_url ? (typeof AsymRenderer !== 'undefined' && AsymRenderer.sourceLink ? AsymRenderer.sourceLink(ev.source_url) : '<a class="source-link" href="' + esc(ev.source_url) + '" target="_blank" rel="noopener">Source \u2192</a>') : '') +
+              '</div>' +
+            '</div>';
           });
-          ewHtml += '</tbody></table>';
+          ewHtml += '</div>';
         }
         var env = ewData.environment || [];
         if (env.length) {
@@ -495,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         }
       }
-      document.getElementById('digital-civil').innerHTML = dcHtml || '<p class="text-muted">No digital/civil space entries this issue.</p>';
+      document.getElementById('digital-civil').innerHTML = dcHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Autocratic Export */
       var aeData = d.autocratic_export || null;
@@ -527,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         }
       }
-      document.getElementById('autocratic-export').innerHTML = aeHtml || '<p class="text-muted">No autocratic export entries this issue.</p>';
+      document.getElementById('autocratic-export').innerHTML = aeHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* State & Media Capture */
       var scData = d.state_capture || null;
@@ -559,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
         }
       }
-      document.getElementById('state-capture').innerHTML = scHtml || '<p class="text-muted">No state/media capture entries this issue.</p>';
+      document.getElementById('state-capture').innerHTML = scHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Institutional Pulse */
       var ipData = d.institutional_pulse || null;
@@ -587,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>';
         });
       }
-      document.getElementById('institutional-pulse').innerHTML = ipHtml || '<p class="text-muted">No institutional pulse data this issue.</p>';
+      document.getElementById('institutional-pulse').innerHTML = ipHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Legislative Watch */
       var lwData = d.legislative_watch || d.legislative_watch_entries || null;
@@ -608,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function () {
           lwHtml += '</tbody></table>';
         }
       }
-      document.getElementById('legislative-watch').innerHTML = lwHtml || '<p class="text-muted">No legislative watch entries this issue.</p>';
+      document.getElementById('legislative-watch').innerHTML = lwHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Mimicry chains — handles both v2 (chain_name/adopting_countries) and legacy (template_law/nodes) */
       var mimicryHtml = '';
@@ -669,10 +706,15 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>';
         });
       }
-      document.getElementById('friction-notes').innerHTML = fnHtml || '<p class="text-muted">No friction notes this issue.</p>';
+      document.getElementById('friction-notes').innerHTML = fnHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
-      /* Cross-monitor flags — shared renderer */
-      AsymSections.renderCrossMonitorFlags(cross, 'cross-monitor');
+      /* Cross-monitor flags — shared renderer (R6: guard against missing AsymSections) */
+      if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
+        AsymSections.renderCrossMonitorFlags(cross, 'cross-monitor');
+      } else {
+        var cmEl = document.getElementById('cross-monitor');
+        if (cmEl) cmEl.innerHTML = '<p class="text-muted">Cross-monitor flags renderer not available.</p>';
+      }
     })
     .catch(function (err) {
       console.error(err);
