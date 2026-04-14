@@ -206,9 +206,9 @@
     var color = MONITOR_ACCENT_COLORS[slug] || 'var(--color-text-secondary)';
     var href  = '/monitors/' + escHtml(slug) + '/dashboard.html';
     var icon  = '<img src="/images/monitors/' + escHtml(slug) + '.svg" ' +
-                'width="16" height="16" alt="" ' +
-                'style="vertical-align:-3px;margin-right:3px">';
-    return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs)">' +
+                'width="24" height="24" alt="" ' +
+                'style="vertical-align:-5px;margin-right:4px">';
+    return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap">' +
       icon + escHtml(name) + '</a>';
   }
 
@@ -4387,9 +4387,9 @@ window.AsymSections = (function () {
           var color = _MONITOR_ACCENT_COLORS[s] || 'var(--color-text-secondary)';
           var href  = '/monitors/' + _esc(s) + '/dashboard.html';
           var icon  = '<img src="/images/monitors/' + _esc(s) + '.svg" ' +
-                      'width="16" height="16" alt="" ' +
-                      'style="vertical-align:-3px;margin-right:3px">';
-          return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs)">' +
+                      'width="24" height="24" alt="" ' +
+                      'style="vertical-align:-5px;margin-right:4px">';
+          return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap">' +
             icon + _esc(name) + '</a>';
         });
         monitorHtml = '<span style="font-size:var(--text-xs)">' +
