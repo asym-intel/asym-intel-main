@@ -3780,19 +3780,38 @@ window.AsymSections = (function () {
     if (!selectEl || !canvasEl || !entities.length) return;
 
     var BAND_COLOURS = {
-      'Red': '#dc2626', 'ANOMALOUS': '#dc2626',
-      'Amber': '#d97706', 'ELEVATED': '#d97706',
-      'Green': '#059669', 'NORMAL': '#059669',
+      'Red': '#dc2626', 'ANOMALOUS': '#dc2626', 'Crisis': '#dc2626',
+      'Amber': '#d97706', 'ELEVATED': '#d97706', 'Elevated': '#d97706',
+      'Green': '#059669', 'NORMAL': '#059669', 'Normal': '#059669',
       'CONTESTED': '#94a3b8'
     };
+
+    /* Detect whether deviation_band is useful (all-same = baselines not set) */
+    var _allBands = {};
+    entities.forEach(function(e) {
+      var inds = e.indicators || {};
+      keys.forEach(function(k) { var b = (inds[k] || {}).band || ''; if (b) _allBands[b] = true; });
+    });
+    var _useLevelLabel = Object.keys(_allBands).length <= 1; /* all same band → fall back to level_label */
+
+    /* Derive level_label from level value if not present in data */
+    function _deriveLevelLabel(ind) {
+      if (ind.level_label) return ind.level_label;
+      var lv = ind.level || 0;
+      if (lv >= 4) return 'Red';
+      if (lv >= 3) return 'Amber';
+      if (lv >= 1) return 'Green';
+      return 'CONTESTED';
+    }
 
     /* Helper: worst band for an entity */
     function _worstBand(entity) {
       var inds = entity.indicators || {};
       var worst = 'CONTESTED', worstRank = 0;
-      var RANK = { 'Red':3, 'ANOMALOUS':3, 'Amber':2, 'ELEVATED':2, 'Green':1, 'NORMAL':1 };
+      var RANK = { 'Red':3, 'ANOMALOUS':3, 'Crisis':3, 'Amber':2, 'ELEVATED':2, 'Elevated':2, 'Green':1, 'NORMAL':1, 'Normal':1 };
       keys.forEach(function(k) {
-        var b = (inds[k] || {}).band || '';
+        var ind = inds[k] || {};
+        var b = _useLevelLabel ? _deriveLevelLabel(ind) : (ind.band || '');
         if ((RANK[b] || 0) > worstRank) { worst = b; worstRank = RANK[b]; }
       });
       return worst;
@@ -3840,7 +3859,9 @@ window.AsymSections = (function () {
         var ind = inds[k] || {};
         levels.push(ind.level || 0);
         baselines.push(ind.baseline || 0);
-        var col = BAND_COLOURS[ind.band] || '#94a3b8';
+        /* Use level_label for colour when deviation_band doesn't differentiate */
+        var bandKey = _useLevelLabel ? _deriveLevelLabel(ind) : (ind.band || '');
+        var col = BAND_COLOURS[bandKey] || '#94a3b8';
         barColours.push(col + '33');
         borderColours.push(col);
       });
@@ -3911,8 +3932,9 @@ window.AsymSections = (function () {
       var wbCol = BAND_COLOURS[wb] || '#94a3b8';
       var elevCount = 0;
       keys.forEach(function(k) {
-        var b = (inds[k] || {}).band || '';
-        if (b === 'Red' || b === 'ANOMALOUS' || b === 'Amber' || b === 'ELEVATED') elevCount++;
+        var ind = inds[k] || {};
+        var b = _useLevelLabel ? _deriveLevelLabel(ind) : (ind.band || '');
+        if (b === 'Red' || b === 'ANOMALOUS' || b === 'Crisis' || b === 'Amber' || b === 'ELEVATED' || b === 'Elevated') elevCount++;
       });
       summaryEl.innerHTML =
         '<strong style="color:var(--color-text)">' + escHtml(entity.name || entity.id) + '</strong>' +

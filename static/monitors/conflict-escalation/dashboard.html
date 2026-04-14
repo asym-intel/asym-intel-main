@@ -406,11 +406,12 @@ document.addEventListener('DOMContentLoaded', function () {
           'I5': 'I5_diplomatic', 'I6': 'I6_displacement'
         }[shortKey] || shortKey;
         obj[fullKey] = {
-          level:     ind.level != null ? ind.level : 0,
-          baseline:  ind.baseline != null ? ind.baseline : 0,
-          deviation: ind.deviation != null ? ind.deviation : 0,
-          band:      ind.deviation_band || 'CONTESTED',
-          note:      ind.note || ''
+          level:       ind.level != null ? ind.level : 0,
+          baseline:    ind.baseline != null ? ind.baseline : 0,
+          deviation:   ind.deviation != null ? ind.deviation : 0,
+          band:        ind.deviation_band || 'CONTESTED',
+          level_label: ind.level_label || '',
+          note:        ind.note || ''
         };
       });
       indMap[entry.theatre_id] = obj;
