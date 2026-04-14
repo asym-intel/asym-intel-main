@@ -1419,16 +1419,7 @@ a.intel-item__source {
 }
 .asym-chart-wrap--square { aspect-ratio: 1 / 1; overflow: visible; }
 .asym-chart-wrap--radar-fill {
-  min-height: 280px;
-  height: 100%;
   overflow: visible;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.asym-chart-wrap--radar-fill canvas {
-  width: 100% !important;
-  height: 100% !important;
 }
 .asym-chart-wrap--wide   { aspect-ratio: 16 / 7; }
 .asym-chart-wrap--tall   { aspect-ratio: 4 / 3; }
@@ -1439,8 +1430,16 @@ a.intel-item__source {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-6);
-  align-items: stretch;
+  align-items: start;
+  height: 480px;          /* fixed container — radar fills left, dim list scrolls right */
   overflow: visible;
+}
+.asym-radar-wrap > .asym-chart-wrap--radar-fill {
+  height: 100%;
+}
+.asym-radar-wrap > .asym-radar-dim-list {
+  max-height: 480px;
+  overflow-y: auto;
 }
 .asym-radar-badge {
   text-align: center;

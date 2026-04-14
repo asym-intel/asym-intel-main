@@ -2445,18 +2445,6 @@ window.AsymSections = (function () {
       }
     });
 
-    // Sync chart container height to dimension list height
-    var chartWrap = radarCanvas.parentElement;
-    if (chartWrap && dimListEl) {
-      requestAnimationFrame(function() {
-        var listH = dimListEl.offsetHeight;
-        if (listH > 280) {
-          chartWrap.style.height = listH + 'px';
-          chart.resize();
-        }
-      });
-    }
-
     // Theme toggle listener
     var themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {

@@ -282,76 +282,74 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
 
-      // ── KPI Trend Bars ────────────────────────────
+      // ── KPI Indicator Tiles ──────────────────────────
       var kpiBarsEl = document.getElementById('kpi-bars-block');
       if (kpiBarsEl) {
         var kpiCategories = [
           {
-            label: 'Defence & Security',
+            label: 'Defence & Security', accent: '#5b8db0',
             items: [
-              { key: 'eu_defence_total_2025',       label: 'EU Defence Total 2025',      maxRef: 500, isText: true },
-              { key: 'eu_defence_spending_real_change', label: 'Defence Spending Change', maxRef: 50, isText: true },
-              { key: 'safe_programme_total',        label: 'SAFE Programme Total',        maxRef: 200, isText: true },
-              { key: 'eu_support_ukraine_total',    label: 'EU Support Ukraine Total',    maxRef: 300, isText: true },
-              { key: 'nato_at_2_percent',           label: 'NATO 2% Target',              maxRef: 32, isText: true },
+              { key: 'eu_defence_total_2025',            label: 'EU Defence Total',    sentiment: 'positive' },
+              { key: 'eu_defence_spending_real_change',   label: 'Spending Change',     sentiment: 'positive' },
+              { key: 'safe_programme_total',              label: 'SAFE Programme',      sentiment: 'positive' },
+              { key: 'eu_support_ukraine_total',          label: 'Ukraine Support',     sentiment: 'positive' },
+              { key: 'nato_at_2_percent',                 label: 'NATO 2% Target',      sentiment: 'positive' },
             ]
           },
           {
-            label: 'Threat Landscape',
+            label: 'Threat Landscape', accent: '#dc2626',
             items: [
-              { key: 'threat_actors_tracked',       label: 'Threat Actors Tracked',       maxRef: 10,  isText: false },
-              { key: 'hybrid_attacks_total',        label: 'Hybrid Attacks Total',         maxRef: 300, isText: false },
-              { key: 'hybrid_attacks_recent',       label: 'Hybrid Attacks (Recent)',      maxRef: 100, isText: false },
-              { key: 'fimi_incidents_eeas',         label: 'FIMI Incidents (EEAS)',        maxRef: 1000,isText: false },
-              { key: 'elections_under_threat',      label: 'Elections Under Threat',       maxRef: 10,  isText: false },
-              { key: 'eu_legislation_targeted',     label: 'EU Legislation Targeted',     maxRef: 30,  isText: false },
+              { key: 'threat_actors_tracked',       label: 'Threat Actors',         sentiment: 'negative' },
+              { key: 'hybrid_attacks_total',        label: 'Hybrid Attacks',        sentiment: 'negative' },
+              { key: 'hybrid_attacks_recent',       label: 'Recent Attacks',        sentiment: 'negative' },
+              { key: 'fimi_incidents_eeas',         label: 'FIMI Incidents',        sentiment: 'negative' },
+              { key: 'elections_under_threat',      label: 'Elections Threatened',  sentiment: 'negative' },
+              { key: 'eu_legislation_targeted',     label: 'Legislation Targeted',  sentiment: 'negative' },
             ]
           },
           {
-            label: 'Democratic Health',
+            label: 'Democratic Health', accent: '#3a7d5a',
             items: [
-              { key: 'democratic_health_avg',       label: 'Democratic Health Avg',       maxRef: 5,   isText: false },
-              { key: 'vdem_autocratising_europe',   label: 'V-Dem Autocratising',         maxRef: 27,  isText: false },
-              { key: 'freedom_house_consecutive_decline_years', label: 'Freedom Decline Years', maxRef: 25, isText: false },
+              { key: 'democratic_health_avg',                          label: 'Health Average',      sentiment: 'positive' },
+              { key: 'vdem_autocratising_europe',                      label: 'V-Dem Autocratising', sentiment: 'negative' },
+              { key: 'freedom_house_consecutive_decline_years',        label: 'Decline Years',       sentiment: 'negative' },
             ]
           }
         ];
 
-        function kpiBarColor(key, val) {
-          if (/threat|attack|fimi|targeted|autocrat|decline|capture/i.test(key)) return 'negative';
-          if (/health|defence_spending|nato|safe|support_ukraine/i.test(key)) return 'positive';
-          return 'neutral';
+        function sentimentColour(s) {
+          if (s === 'negative') return 'var(--critical,#dc2626)';
+          if (s === 'positive') return 'color-mix(in srgb, var(--monitor-accent) 65%, #000)';
+          return 'var(--color-text-muted)';
         }
 
-        var barsHtml = '<div class="kpi-trend-grid">';
+        var html = '';
         kpiCategories.forEach(function(cat) {
-          barsHtml += '<div class="kpi-trend-category">';
-          barsHtml += '<div class="kpi-trend-category__label">' + escHtml(cat.label) + '</div>';
+          html +=
+            '<div style="margin-bottom:var(--space-6)">' +
+              '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3)">' +
+                '<span style="font-size:var(--text-xs);font-weight:700;text-transform:uppercase;' +
+                  'letter-spacing:0.08em;color:' + cat.accent + '">' + escHtml(cat.label) + '</span>' +
+              '</div>' +
+              '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:var(--space-3)">';
           cat.items.forEach(function(item) {
             var raw = kpi[item.key];
             if (raw == null) return;
             var displayVal = String(raw);
-            var numVal = parseFloat(String(raw).replace(/[^0-9.]/g,'')) || 0;
-            var pct2 = item.isText ? 100 : Math.min(100, (numVal / item.maxRef) * 100);
-            var colorClass = kpiBarColor(item.key, numVal);
-            var arrow = '→'; var arrowClass = 'neutral';
-            // Detect trend from value
-            if (colorClass === 'negative') { arrow = '↑'; arrowClass = 'down'; }
-            else if (colorClass === 'positive') { arrow = '↑'; arrowClass = 'up'; }
-            barsHtml +=
-              '<div class="kpi-trend-row">' +
-                '<div class="kpi-trend-row__name">' + escHtml(item.label) + '</div>' +
-                '<div class="kpi-trend-row__value">' + escHtml(displayVal) + '</div>' +
-                '<div class="kpi-trend-row__arrow kpi-trend-row__arrow--' + arrowClass + '">' + arrow + '</div>' +
-                '<div class="kpi-trend-row__bar-wrap">' +
-                  '<div class="kpi-trend-row__bar kpi-trend-row__bar--' + colorClass + '" style="width:' + pct2.toFixed(1) + '%"></div>' +
-                '</div>' +
+            var sCol = sentimentColour(item.sentiment);
+            html +=
+              '<div style="background:var(--color-surface);border:1px solid var(--color-border);' +
+                'border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);' +
+                'border-top:3px solid ' + cat.accent + '">' +
+                '<div style="font-size:var(--text-xl);font-weight:800;color:' + sCol + ';' +
+                  'line-height:1;letter-spacing:-0.02em">' + escHtml(displayVal) + '</div>' +
+                '<div style="font-size:var(--text-xs);font-weight:500;color:var(--color-text-muted);' +
+                  'margin-top:var(--space-2)">' + escHtml(item.label) + '</div>' +
               '</div>';
           });
-          barsHtml += '</div>';
+          html += '</div></div>';
         });
-        barsHtml += '</div>';
-        kpiBarsEl.innerHTML = barsHtml;
+        kpiBarsEl.innerHTML = html;
       }
 
     })
