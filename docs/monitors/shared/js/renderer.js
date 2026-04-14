@@ -178,6 +178,40 @@
   }
 
   /* ── Cross-monitor flags panel ── */
+  /* Accent colours per monitor — used so cross-links render in
+     the target monitor's brand colour, not the host page's accent. */
+  var MONITOR_ACCENT_COLORS = {
+    'democratic-integrity':       '#61a5d2',
+    'macro-monitor':             '#22a0aa',
+    'european-strategic-autonomy':'#5b8db0',
+    'fimi-cognitive-warfare':    '#38bdf8',
+    'ai-governance':             '#3a7d5a',
+    'environmental-risks':       '#4caf7d',
+    'conflict-escalation':       '#dc2626'
+  };
+  var MONITOR_DISPLAY_NAMES = {
+    'democratic-integrity':       'World Democracy Monitor',
+    'macro-monitor':             'Global Macro Monitor',
+    'european-strategic-autonomy':'European Strategic Autonomy',
+    'fimi-cognitive-warfare':    'FIMI & Cognitive Warfare',
+    'ai-governance':             'AI Governance Monitor',
+    'environmental-risks':       'Environmental Risks Monitor',
+    'conflict-escalation':       'Conflict & Escalation Monitor'
+  };
+  function monitorDisplayName(slug) {
+    return MONITOR_DISPLAY_NAMES[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  }
+  function renderMonitorLink(slug) {
+    var name  = monitorDisplayName(slug);
+    var color = MONITOR_ACCENT_COLORS[slug] || 'var(--color-text-secondary)';
+    var href  = '/monitors/' + escHtml(slug) + '/dashboard.html';
+    var icon  = '<img src="/images/monitors/' + escHtml(slug) + '.svg" ' +
+                'width="16" height="16" alt="" ' +
+                'style="vertical-align:-3px;margin-right:3px">';
+    return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs)">' +
+      icon + escHtml(name) + '</a>';
+  }
+
   function renderCrossMonitorFlags(cmf) {
     if (!cmf || !cmf.flags || !cmf.flags.length) return '';
     var html = '<div class="cross-monitor-panel">' +
@@ -187,14 +221,19 @@
 
     cmf.flags.forEach(function (flag) {
       var statusClass = flag.status === 'Active' ? 'badge--accent' : 'badge';
+      var monitorHtml = '';
+      if (flag.monitors_involved && flag.monitors_involved.length) {
+        monitorHtml = flag.monitors_involved.map(renderMonitorLink)
+          .join(' <span style="color:var(--color-text-muted)">·</span> ');
+      }
       html += '<div class="cms-flag">' +
         '<div class="cms-flag__header">' +
           '<span class="cms-flag__id">' + esc(flag.id) + '</span>' +
           '<span class="badge ' + statusClass + '">' + esc(flag.status || '') + '</span>' +
         '</div>' +
         '<div class="cms-flag__title">' + esc(flag.title) + '</div>' +
-        (flag.monitors_involved && flag.monitors_involved.length
-          ? '<div class="cms-flag__monitors">' + flag.monitors_involved.map(esc).join(' · ') + '</div>'
+        (monitorHtml
+          ? '<div class="cms-flag__monitors">' + monitorHtml + '</div>'
           : '') +
         (flag.body
           ? '<div class="cms-flag__body">' + esc(flag.body) + '</div>'
@@ -4230,6 +4269,18 @@ window.AsymSections = (function () {
     'conflict-escalation':       'Conflict & Escalation Monitor'
   };
 
+  /* Each monitor's own accent colour — used so cross-links show
+     the target monitor's brand, not the host page's --monitor-accent. */
+  var _MONITOR_ACCENT_COLORS = {
+    'democratic-integrity':       '#61a5d2',
+    'macro-monitor':             '#22a0aa',
+    'european-strategic-autonomy':'#5b8db0',
+    'fimi-cognitive-warfare':    '#38bdf8',
+    'ai-governance':             '#3a7d5a',
+    'environmental-risks':       '#4caf7d',
+    'conflict-escalation':       '#dc2626'
+  };
+
   function _cmfTitle(f) {
     return f.headline || f.title || f.signal || f.summary || '';
   }
@@ -4325,17 +4376,22 @@ window.AsymSections = (function () {
       var firstFlagged = flag.first_flagged || flag.first_raised || '';
       var updated = flag.updated || flag.last_updated || '';
 
-      /* Monitor display names — linked to source URL */
+      /* Monitor display names — each in its own accent colour with SVG icon */
       var monitorHtml = '';
       if (slugs.length) {
-        var names = slugs.map(function(s) { return _slugToName(s); });
-        if (url) {
-          monitorHtml = '<a href="' + _esc(url) + '" style="color:var(--monitor-accent);text-decoration:underline;font-size:var(--text-xs)">' +
-            _esc(names.join(' · ')) + '</a>';
-        } else {
-          monitorHtml = '<span style="font-size:var(--text-xs);color:var(--text-muted)">' +
-            _esc(names.join(' · ')) + '</span>';
-        }
+        var parts = slugs.map(function(s) {
+          var name  = _slugToName(s);
+          var color = _MONITOR_ACCENT_COLORS[s] || 'var(--color-text-secondary)';
+          var href  = '/monitors/' + _esc(s) + '/dashboard.html';
+          var icon  = '<img src="/images/monitors/' + _esc(s) + '.svg" ' +
+                      'width="16" height="16" alt="" ' +
+                      'style="vertical-align:-3px;margin-right:3px">';
+          return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs)">' +
+            icon + _esc(name) + '</a>';
+        });
+        monitorHtml = '<span style="font-size:var(--text-xs)">' +
+          parts.join(' <span style="color:var(--color-text-muted)">·</span> ') +
+          '</span>';
       }
 
       /* Badges row */
