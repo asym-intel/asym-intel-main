@@ -201,14 +201,24 @@
   function monitorDisplayName(slug) {
     return MONITOR_DISPLAY_NAMES[slug] || slug.replace(/-/g, ' ').replace(/\b\w/g, function(c) { return c.toUpperCase(); });
   }
+  var MONITOR_SLUG_TO_ABBR = {
+    'democratic-integrity':       'wdm',
+    'macro-monitor':             'gmm',
+    'european-strategic-autonomy':'esa',
+    'fimi-cognitive-warfare':    'fcw',
+    'ai-governance':             'agm',
+    'environmental-risks':       'erm',
+    'conflict-escalation':       'scem'
+  };
   function renderMonitorLink(slug) {
     var name  = monitorDisplayName(slug);
     var color = MONITOR_ACCENT_COLORS[slug] || 'var(--color-text-secondary)';
     var href  = '/monitors/' + escHtml(slug) + '/dashboard.html';
-    var icon  = '<img src="/images/monitors/' + escHtml(slug) + '.svg" ' +
+    var abbr  = MONITOR_SLUG_TO_ABBR[slug] || slug;
+    var icon  = '<img src="/images/monitors/' + escHtml(abbr) + '.svg" ' +
                 'width="24" height="24" alt="" ' +
-                'style="vertical-align:-5px;margin-right:4px">';
-    return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap">' +
+                'style="vertical-align:-5px;margin-right:4px;display:inline">';
+    return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap;display:inline-flex;align-items:center;gap:4px">' +
       icon + escHtml(name) + '</a>';
   }
 
@@ -4281,6 +4291,17 @@ window.AsymSections = (function () {
     'conflict-escalation':       '#dc2626'
   };
 
+  /* Slug → SVG filename abbreviation (icons are /images/monitors/{abbr}.svg) */
+  var _SLUG_TO_ABBR = {
+    'democratic-integrity':       'wdm',
+    'macro-monitor':             'gmm',
+    'european-strategic-autonomy':'esa',
+    'fimi-cognitive-warfare':    'fcw',
+    'ai-governance':             'agm',
+    'environmental-risks':       'erm',
+    'conflict-escalation':       'scem'
+  };
+
   function _cmfTitle(f) {
     return f.headline || f.title || f.signal || f.summary || '';
   }
@@ -4386,10 +4407,11 @@ window.AsymSections = (function () {
           var name  = _slugToName(s);
           var color = _MONITOR_ACCENT_COLORS[s] || 'var(--color-text-secondary)';
           var href  = '/monitors/' + _esc(s) + '/dashboard.html';
-          var icon  = '<img src="/images/monitors/' + _esc(s) + '.svg" ' +
+          var abbr  = _SLUG_TO_ABBR[s] || s;
+          var icon  = '<img src="/images/monitors/' + _esc(abbr) + '.svg" ' +
                       'width="24" height="24" alt="" ' +
-                      'style="vertical-align:-5px;margin-right:4px">';
-          return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap">' +
+                      'style="vertical-align:-5px;margin-right:4px;display:inline">';
+          return '<a href="' + href + '" style="color:' + color + ';text-decoration:underline;font-size:var(--text-xs);white-space:nowrap;display:inline-flex;align-items:center;gap:4px">' +
             icon + _esc(name) + '</a>';
         });
         monitorHtml = '<span style="font-size:var(--text-xs)">' +
