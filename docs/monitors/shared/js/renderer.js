@@ -4295,8 +4295,8 @@ window.AsymSections = (function () {
     'erm': 'environmental-risks', 'scem': 'conflict-escalation'
   };
   function _cmfLinkedSlug(f) {
-    /* Extract the linked (target) monitor slug — not the host monitor.
-       Priority: source_url path > ID-encoded abbreviation > monitor field */
+    /* Extract the linked (target) monitor slug.
+       Priority: source_url path > ID-encoded abbreviation > monitor_slug/monitor/source_monitor */
     if (f.source_url) {
       var m = f.source_url.match(/\/monitors\/([^\/]+)\//);
       if (m) return m[1];
@@ -4305,6 +4305,9 @@ window.AsymSections = (function () {
     var parts = id.split('-');
     /* Pattern: host-target-seq, e.g. wdm-fcw-001 → target = parts[1] */
     if (parts.length >= 3 && _ABBR_TO_SLUG[parts[1]]) return _ABBR_TO_SLUG[parts[1]];
+    /* Fallback to explicit monitor slug fields */
+    var slug = f.monitor_slug || f.monitor || f.source_monitor || '';
+    if (slug && _MONITOR_DISPLAY_NAMES[slug]) return slug;
     return '';
   }
   function _cmfMonitor(f) {
