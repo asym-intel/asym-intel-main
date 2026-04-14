@@ -481,14 +481,7 @@ document.addEventListener('DOMContentLoaded', function () {
           : '') +
       '</div>';
 
-    // ── Sidebar: inject per-conflict sub-links after "Conflicts" ─────
-    var conflictSubLinks = '';
-    roster.forEach(function (c) {
-      var id = conflictId(c.conflict);
-      conflictSubLinks +=
-        '<li style="padding-left:var(--space-2)"><a href="#conflict-' + id +
-        '" style="font-size:var(--text-xs)">' + escHtml(c.conflict) + '</a></li>';
-    });
+    // ── Sidebar ─────────────────────────────────────────────────────
     document.getElementById('sidebar-links').innerHTML =
       '<li><a href="#section-header">Issue Header</a></li>' +
       '<li><a href="#section-escalation-indicators">Escalation Indicators</a></li>' +
@@ -499,7 +492,6 @@ document.addEventListener('DOMContentLoaded', function () {
       '<li><a href="#section-hybrid-warfare">Hybrid Warfare</a></li>' +
       '<li><a href="#section-indicator-scoring">Indicator Scoring</a></li>' +
       '<li><a href="#section-conflicts">Conflicts</a></li>' +
-      conflictSubLinks +
       '<li><a href="#section-acled-reference">ACLED Reference</a></li>' +
       '<li><a href="#section-key-judgments">Key Judgments</a></li>' +
       '<li><a href="#section-cross-monitor-candidates">Cross-Monitor Candidates</a></li>' +
