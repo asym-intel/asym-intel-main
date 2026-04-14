@@ -548,6 +548,7 @@
 <!-- /graph-wrap -->
 
 <!-- force-graph CDN -->
+<script src="https://cdn.jsdelivr.net/npm/d3-force@3"></script>
 <script src="https://cdn.jsdelivr.net/npm/force-graph@1.49.0/dist/force-graph.min.js"></script>
 
 <script>
@@ -829,8 +830,11 @@
     .d3VelocityDecay(0.25)
     .onEngineStop(() => {
       if (!window._Graph) return;
-      // Fit graph to viewport with smooth animation
-      window._Graph.zoomToFit(1000, 80);
+      // Only fit on first settle — not on every reheat after interaction
+      if (!window._graphSettled) {
+        window._graphSettled = true;
+        window._Graph.zoomToFit(800, 40);
+      }
     });
 
   window._Graph = Graph;
@@ -842,6 +846,10 @@
     return -120;
   });
   // Link distances: reports tight to parent, monitors spread apart
+  // Weak gravity keeps nodes from drifting away on reheat
+  Graph.d3Force('x', d3.forceX(0).strength(0.03));
+  Graph.d3Force('y', d3.forceY(0).strength(0.03));
+
   Graph.d3Force('link')
     .distance(link => {
       const src = typeof link.source === 'object' ? link.source : null;
