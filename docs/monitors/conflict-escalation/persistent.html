@@ -1233,6 +1233,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ── SCEM-specific: Conflict Impact Profiles (F6) ──────────────── */
+  /* Summary table with expandable detail rows — replaces tall card scroll */
   function renderImpactProfiles(impactData, roster, theatreMap) {
     var el = document.getElementById('impact-panel');
     if (!impactData || !impactData.conflicts || !impactData.conflicts.length) {
@@ -1244,12 +1245,36 @@ document.addEventListener('DOMContentLoaded', function () {
     var rosterMap = {};
     roster.forEach(function(r) { rosterMap[r.conflict] = r; });
 
-    var html = '';
-    impactData.conflicts.forEach(function(c) {
+    /* Helper: short casualty headline from long string */
+    function shortCasualty(str) {
+      if (!str) return '\u2014';
+      /* Grab first number-with-context chunk */
+      var m = str.match(/([\d,.]+ (?:killed|dead|KIA))/i);
+      return m ? m[1] : (str.length > 60 ? str.substring(0, 57) + '\u2026' : str);
+    }
+    function shortDisplaced(str) {
+      if (!str) return '\u2014';
+      var m = str.match(/([~\d,.]+\s*(?:million|M|k)?)/i);
+      return m ? m[1] : (str.length > 40 ? str.substring(0, 37) + '\u2026' : str);
+    }
+
+    /* Build summary table */
+    var html =
+      '<table class="heatmap-table" style="width:100%">' +
+        '<thead><tr>' +
+          '<th style="width:30px"></th>' +
+          '<th>Conflict</th>' +
+          '<th>Type</th>' +
+          '<th>Casualties (headline)</th>' +
+          '<th>Displaced</th>' +
+          '<th>Trajectory</th>' +
+        '</tr></thead>' +
+        '<tbody>';
+
+    impactData.conflicts.forEach(function(c, idx) {
       var hc  = c.human_cost || {};
       var mil = c.military_situation || {};
       var leg = c.international_legal || {};
-      var tl  = c.timeline || {};
       var rEntry = null;
 
       /* Find matching roster entry */
@@ -1259,61 +1284,82 @@ document.addEventListener('DOMContentLoaded', function () {
           rEntry = rosterMap[k];
         }
       });
-      /* Also try direct theatre_id match via theatreMap */
       var tData = theatreMap[c.theatre_id] || {};
       var trajText = rEntry ? rEntry.trajectory : (tData.intensity_delta || '');
       var trajClass = (trajText || '').toLowerCase().indexOf('escalat') !== -1 ? 'delta-badge--escalating'
         : (trajText || '').toLowerCase().indexOf('de-escalat') !== -1 ? 'delta-badge--de-escalating'
         : 'delta-badge--stable';
 
-      /* Narrative summary — the story a journalist would read */
-      var narrative = hc.casualties || '';
-      if (hc.displacement) narrative += ' ' + hc.displacement;
+      /* Summary row */
+      html +=
+        '<tr class="impact-summary-row" data-impact-idx="' + idx + '" style="cursor:pointer" title="Click to expand">' +
+          '<td style="text-align:center;font-size:var(--text-sm);color:var(--color-text-muted)">\u25b8</td>' +
+          '<td><strong>' + escHtml(c.theatre_name || c.theatre_id || '') + '</strong>' +
+            (c.current_phase_start ? '<br><span style="font-size:var(--text-min);color:var(--color-text-muted)">Since ' + escHtml(c.current_phase_start) + '</span>' : '') +
+          '</td>' +
+          '<td><span style="font-size:var(--text-xs)">' + escHtml(c.conflict_type || '\u2014') + '</span></td>' +
+          '<td style="font-size:var(--text-xs)">' + escHtml(shortCasualty(hc.casualties)) + '</td>' +
+          '<td style="font-size:var(--text-xs)">' + escHtml(shortDisplaced(hc.displacement)) + '</td>' +
+          '<td><span class="delta-badge ' + trajClass + '" style="font-size:var(--text-min)">' + escHtml(trajText || '\u2014') + '</span></td>' +
+        '</tr>';
 
-      /* Key figures cards */
-      var figuresHtml = '<div class="impact-figures">';
+      /* Expanded detail row (hidden by default) */
+      html += '<tr class="impact-detail-row" data-impact-idx="' + idx + '" style="display:none">' +
+        '<td colspan="6" style="padding:var(--space-4) var(--space-5);background:var(--color-bg-alt);border:none">';
 
-      if (hc.casualties) {
-        figuresHtml += '<div class="impact-fig"><div class="impact-fig__label">Casualties</div>' +
-          '<div class="impact-fig__val">' + escHtml(hc.casualties) + '</div></div>';
-      }
-      if (hc.displacement) {
-        figuresHtml += '<div class="impact-fig"><div class="impact-fig__label">Displaced</div>' +
-          '<div class="impact-fig__val">' + escHtml(hc.displacement) + '</div></div>';
-      }
-      if (hc.people_in_need) {
-        figuresHtml += '<div class="impact-fig"><div class="impact-fig__label">People in need</div>' +
-          '<div class="impact-fig__val">' + escHtml(hc.people_in_need) + '</div></div>';
-      }
-      if (hc.food_insecurity) {
-        figuresHtml += '<div class="impact-fig"><div class="impact-fig__label">Food insecurity</div>' +
-          '<div class="impact-fig__val">' + escHtml(hc.food_insecurity) + '</div></div>';
-      }
-      if (hc.humanitarian_access) {
-        figuresHtml += '<div class="impact-fig"><div class="impact-fig__label">Humanitarian access</div>' +
-          '<div class="impact-fig__val">' + escHtml(hc.humanitarian_access) + '</div></div>';
-      }
-      figuresHtml += '</div>';
+      /* Key figures grid */
+      var figures = [];
+      if (hc.casualties)         figures.push({ label: 'Casualties', val: hc.casualties });
+      if (hc.military)           figures.push({ label: 'Military', val: hc.military });
+      if (hc.displacement)       figures.push({ label: 'Displaced', val: hc.displacement });
+      if (hc.refugees)           figures.push({ label: 'Refugees', val: hc.refugees });
+      if (hc.people_in_need)     figures.push({ label: 'People in need', val: hc.people_in_need });
+      if (hc.food_insecurity)    figures.push({ label: 'Food insecurity', val: hc.food_insecurity });
+      if (hc.humanitarian_access)figures.push({ label: 'Humanitarian access', val: hc.humanitarian_access });
+      if (hc.aid_funding_gap)    figures.push({ label: 'Aid funding gap', val: hc.aid_funding_gap });
 
-      /* Structured detail (collapsible — for analysts) */
-      var detailHtml = '';
-      if (mil.weapons_deployed || mil.external_suppliers || mil.arms_embargoes || leg.icc || leg.icj || leg.ceasefire_status) {
-        detailHtml += '<button class="version-history__toggle impact-detail-toggle" type="button">Analyst detail \u25b8</button>';
-        detailHtml += '<div class="version-history impact-detail-panel">';
-        if (mil.weapons_deployed)   detailHtml += '<div class="ctx-datapoint"><span class="ctx-dp__label">Weapons</span><span class="ctx-dp__value" style="font-weight:500;font-size:var(--text-xs)">' + escHtml(mil.weapons_deployed) + '</span></div>';
-        if (mil.external_suppliers) detailHtml += '<div class="ctx-datapoint"><span class="ctx-dp__label">Suppliers</span><span class="ctx-dp__value" style="font-weight:500;font-size:var(--text-xs)">' + escHtml(mil.external_suppliers) + '</span></div>';
-        if (mil.arms_embargoes)     detailHtml += '<div class="ctx-datapoint"><span class="ctx-dp__label">Embargoes</span><span class="ctx-dp__value" style="font-weight:500;font-size:var(--text-xs)">' + escHtml(mil.arms_embargoes) + '</span></div>';
-        if (leg.icc)            detailHtml += '<div class="ctx-datapoint"><span class="ctx-dp__label">ICC</span><span class="ctx-dp__value" style="font-weight:500;font-size:var(--text-xs)">' + escHtml(leg.icc) + '</span></div>';
-        if (leg.icj)            detailHtml += '<div class="ctx-datapoint"><span class="ctx-dp__label">ICJ</span><span class="ctx-dp__value" style="font-weight:500;font-size:var(--text-xs)">' + escHtml(leg.icj) + '</span></div>';
-        if (leg.ceasefire_status) detailHtml += '<div class="ctx-datapoint"><span class="ctx-dp__label">Ceasefire</span><span class="ctx-dp__value" style="font-weight:500;font-size:var(--text-xs)">' + escHtml(leg.ceasefire_status) + '</span></div>';
-        detailHtml += '</div>';
+      if (figures.length) {
+        html += '<div class="impact-figures" style="margin-bottom:var(--space-3)">';
+        figures.forEach(function(f) {
+          html += '<div class="impact-fig">' +
+            '<div class="impact-fig__label">' + escHtml(f.label) + '</div>' +
+            '<div class="impact-fig__val">' + escHtml(f.val) + '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+
+      /* Recent rate callout */
+      if (hc.recent_rate) {
+        html += '<p style="font-size:var(--text-xs);color:var(--monitor-accent);font-weight:600;' +
+          'margin-bottom:var(--space-3);line-height:1.5">' + escHtml(hc.recent_rate) + '</p>';
+      }
+
+      /* Military + legal detail */
+      var detailItems = [];
+      if (mil.weapons_deployed)   detailItems.push({ l: 'Weapons', v: mil.weapons_deployed });
+      if (mil.external_suppliers) detailItems.push({ l: 'Suppliers', v: mil.external_suppliers });
+      if (mil.arms_embargoes)     detailItems.push({ l: 'Embargoes', v: mil.arms_embargoes });
+      if (leg.icc)                detailItems.push({ l: 'ICC', v: leg.icc });
+      if (leg.icj)                detailItems.push({ l: 'ICJ', v: leg.icj });
+      if (leg.ceasefire_status)   detailItems.push({ l: 'Ceasefire', v: leg.ceasefire_status });
+
+      if (detailItems.length) {
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));' +
+          'gap:var(--space-2);margin-bottom:var(--space-3)">';
+        detailItems.forEach(function(d) {
+          html += '<div class="ctx-datapoint">' +
+            '<span class="ctx-dp__label">' + escHtml(d.l) + '</span>' +
+            '<span class="ctx-dp__value" style="font-weight:500;font-size:var(--text-xs)">' + escHtml(d.v) + '</span>' +
+          '</div>';
+        });
+        html += '</div>';
       }
 
       /* Sources */
-      var srcHtml = '';
       var srcs = c.sources || [];
       if (srcs.length) {
-        srcHtml = '<div class="impact-sources">' +
+        html += '<div class="impact-sources">' +
           srcs.map(function(s) {
             return s.url
               ? '<a href="' + escHtml(s.url) + '" target="_blank" rel="noopener" class="impact-src-link">' + escHtml(s.name || 'Source') + '</a>'
@@ -1322,25 +1368,24 @@ document.addEventListener('DOMContentLoaded', function () {
         '</div>';
       }
 
-      html +=
-        '<div class="impact-card">' +
-          '<div class="impact-card__header">' +
-            '<div class="impact-card__name">' + escHtml(c.theatre_name || c.theatre_id || '') + '</div>' +
-            '<div class="impact-card__badges">' +
-              '<span class="delta-badge ' + trajClass + '">' + escHtml(trajText || c.conflict_type || '') + '</span>' +
-              (c.current_phase_start ? '<span style="font-size:var(--text-min);color:var(--color-text-muted)">Since ' + escHtml(c.current_phase_start) + '</span>' : '') +
-            '</div>' +
-          '</div>' +
-          (hc.recent_rate
-            ? '<p class="impact-card__lede">' + escHtml(hc.recent_rate) + '</p>'
-            : '') +
-          figuresHtml +
-          detailHtml +
-          srcHtml +
-        '</div>';
+      html += '</td></tr>';
     });
 
+    html += '</tbody></table>';
     el.innerHTML = html || '<p class="text-muted text-sm">No impact data available.</p>';
+
+    /* Wire expand/collapse on summary rows */
+    el.querySelectorAll('.impact-summary-row').forEach(function(row) {
+      row.addEventListener('click', function() {
+        var idx = row.getAttribute('data-impact-idx');
+        var detail = el.querySelector('.impact-detail-row[data-impact-idx="' + idx + '"]');
+        if (!detail) return;
+        var isOpen = detail.style.display !== 'none';
+        detail.style.display = isOpen ? 'none' : 'table-row';
+        var arrow = row.querySelector('td:first-child');
+        if (arrow) arrow.textContent = isOpen ? '\u25b8' : '\u25be';
+      });
+    });
   }
 
 

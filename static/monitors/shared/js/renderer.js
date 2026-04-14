@@ -876,12 +876,38 @@ window.AsymSections = (function () {
       return;
     }
 
-    var html = '';
+    /* ── Filter dropdown (shows one conflict at a time) ────────── */
+    var filterId = targetId + '-scoring-filter';
+    var filterHtml = '';
+    if (scoring.length > 1) {
+      filterHtml =
+        '<div style="margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2)">' +
+          '<label for="' + filterId + '" style="font-size:var(--text-xs);font-weight:600;' +
+            'color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em">' +
+            'Filter by conflict:</label>' +
+          '<select id="' + filterId + '" class="indicator-breakdown-select" ' +
+            'style="font-size:var(--text-xs);padding:4px 8px;max-width:280px">' +
+            '<option value="__all">All conflicts (' + scoring.length + ')</option>';
+      scoring.forEach(function(entity) {
+        var name = entity.theatre_name || entity.theatre_id || '';
+        var nElev = (entity.indicators || []).filter(function(ind) {
+          var ll = (ind.level_label || '').toLowerCase();
+          return ll === 'red' || ll === 'amber' || ll === 'elevated' || ll === 'crisis';
+        }).length;
+        var badge = nElev > 0 ? ' \u2022 ' + nElev + ' elevated' : '';
+        filterHtml += '<option value="' + escHtml(entity.theatre_id || name) + '">' +
+          escHtml(name) + badge + '</option>';
+      });
+      filterHtml += '</select></div>';
+    }
+
+    var html = filterHtml;
     scoring.forEach(function (entity) {
       var indicators = entity.indicators || [];
+      var eid = escHtml(entity.theatre_id || entity.theatre_name || '');
       html +=
-        '<div class="scoring-block">' +
-          '<div class="scoring-block__title">' + escHtml(entity.theatre_id || '') + '</div>' +
+        '<div class="scoring-block" data-scoring-entity="' + eid + '">' +
+          '<div class="scoring-block__title">' + escHtml(entity.theatre_name || entity.theatre_id || '') + '</div>' +
           '<table class="indicator-table">' +
             '<thead><tr>' +
               '<th>Indicator</th>' +
@@ -964,6 +990,20 @@ window.AsymSections = (function () {
       html += '</tbody></table></div>';
     });
     el.innerHTML = html;
+
+    /* Wire filter */
+    if (scoring.length > 1) {
+      var sel = document.getElementById(filterId);
+      if (sel) {
+        sel.addEventListener('change', function() {
+          var v = sel.value;
+          var blocks = el.querySelectorAll('.scoring-block[data-scoring-entity]');
+          for (var i = 0; i < blocks.length; i++) {
+            blocks[i].style.display = (v === '__all' || blocks[i].getAttribute('data-scoring-entity') === v) ? '' : 'none';
+          }
+        });
+      }
+    }
   }
 
   /**
