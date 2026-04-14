@@ -576,8 +576,8 @@ def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict
     # regulatory-framework list instead of the expected models dict.
     m2 = report.get("module_2")
     if isinstance(m2, list):
-        log(f"WARN: module_2 is a list ({len(m2)} items), not {{models: [...]}}. "
-            "Preserving previous report module_2.")
+        print(f"  ⚠ WARN: module_2 is a list ({len(m2)} items), not {{models: [...]}}. "
+              "Preserving previous report module_2.")
         report["module_2"] = prev_report.get("module_2", {"models": []})
 
     # Map weekly_brief_draft → weekly_brief in report JSON
@@ -624,27 +624,723 @@ def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict
 
 # ── Persistent state ─────────────────────────────────────────────────────
 
+# Per-monitor extraction config:
+#   synthesis_key  → which field in synthesis-latest.json to read
+#   persistent_key → which field in persistent-state.json to write
+#   mode           → "replace" | "merge_list" | "merge_dict"
+#   match_key      → (merge_list only) key to match existing items for update
+#
+# Notes:
+# - "replace": overwrites persistent field with synthesis value
+# - "merge_list": updates existing items by match_key, appends new ones
+# - "merge_dict": shallow-merges synthesis dict into persistent dict
+# - Items with version_history get automatic history entries on change
+# - _meta is always updated (handled outside this config)
+# - FCW campaigns are handled by dedicated logic (has_campaigns flag)
+
+PERSISTENT_STATE_EXTRACTORS = {
+    "democratic-integrity": [
+        {"synthesis_key": "country_heatmap", "persistent_key": "heatmap_countries",
+         "mode": "custom", "handler": "wdm_heatmap"},
+        {"synthesis_key": "mimicry_chain_update", "persistent_key": "mimicry_chains",
+         "mode": "custom", "handler": "wdm_mimicry"},
+        {"synthesis_key": "institutional_integrity_flags", "persistent_key": "institutional_integrity_active_flags",
+         "mode": "merge_list", "match_key": "country"},
+    ],
+    "macro-monitor": [
+        {"synthesis_key": "asset_outlook", "persistent_key": "asset_class_baseline",
+         "mode": "custom", "handler": "gmm_asset_baseline"},
+        {"synthesis_key": "stress_regime_preliminary", "persistent_key": "conviction_history",
+         "mode": "custom", "handler": "gmm_conviction"},
+        {"synthesis_key": "tariff_tracker", "persistent_key": "tariff_escalation_protocol",
+         "mode": "custom", "handler": "gmm_tariff"},
+    ],
+    "european-strategic-autonomy": [
+        {"synthesis_key": "domain_tracker", "persistent_key": "kpi_state",
+         "mode": "custom", "handler": "esa_kpi_state"},
+        {"synthesis_key": "election_threat_assessment", "persistent_key": "active_elections",
+         "mode": "merge_list", "match_key": "country"},
+        {"synthesis_key": "lagrange_point_scores", "persistent_key": "lagrange_scoring_2026",
+         "mode": "custom", "handler": "esa_lagrange"},
+        {"synthesis_key": "hybrid_threats", "persistent_key": "timeline_events",
+         "mode": "custom", "handler": "esa_timeline"},
+    ],
+    "fimi-cognitive-warfare": [
+        {"synthesis_key": "actor_tracker", "persistent_key": "actor_profiles",
+         "mode": "custom", "handler": "fcw_actor_profiles"},
+        {"synthesis_key": "platform_responses", "persistent_key": "platform_enforcement_tracker",
+         "mode": "merge_list", "match_key": "id"},
+    ],
+    "ai-governance": [
+        {"synthesis_key": "module_7", "persistent_key": "module_7_risk_vectors",
+         "mode": "custom", "handler": "aim_risk_vectors"},
+        {"synthesis_key": "module_9", "persistent_key": "module_9_eu_ai_act_tracker",
+         "mode": "custom", "handler": "aim_eu_ai_act"},
+        {"synthesis_key": "module_14", "persistent_key": "module_14_concentration_index",
+         "mode": "custom", "handler": "aim_concentration"},
+        {"synthesis_key": "module_15", "persistent_key": "module_15_aisi_pipeline",
+         "mode": "custom", "handler": "aim_aisi"},
+        {"synthesis_key": "lab_posture_scorecard", "persistent_key": "ongoing_lab_postures",
+         "mode": "merge_list", "match_key": "lab"},
+    ],
+    "environmental-risks": [
+        {"synthesis_key": "planetary_boundary_tracker", "persistent_key": "planetary_boundary_status",
+         "mode": "merge_list", "match_key": "boundary"},
+        {"synthesis_key": "tipping_point_tracker", "persistent_key": "tipping_system_flags",
+         "mode": "custom", "handler": "erm_tipping"},
+        {"synthesis_key": "attribution_gap_cases", "persistent_key": "active_attribution_gap_cases",
+         "mode": "merge_list", "match_key": "case"},
+        {"synthesis_key": "reverse_cascade_check", "persistent_key": "regional_cascade_chains",
+         "mode": "custom", "handler": "erm_cascade"},
+        {"synthesis_key": "icj_tracker", "persistent_key": "standing_trackers",
+         "mode": "custom", "handler": "erm_standing_trackers"},
+        {"synthesis_key": "loss_damage_tracker", "persistent_key": "standing_trackers",
+         "mode": "custom", "handler": "erm_loss_damage"},
+    ],
+    "conflict-escalation": [
+        {"synthesis_key": "conflict_roster", "persistent_key": "conflict_baselines",
+         "mode": "custom", "handler": "scem_baselines"},
+        {"synthesis_key": "f_flag_matrix", "persistent_key": "f_flag_history",
+         "mode": "custom", "handler": "scem_f_flags"},
+        {"synthesis_key": "conflict_roster", "persistent_key": "roster_status",
+         "mode": "merge_list", "match_key": "conflict"},
+        {"synthesis_key": "roster_watch", "persistent_key": "roster_watch",
+         "mode": "replace"},
+    ],
+}
+
+
+# Normalisation maps for fuzzy matching of synthesis ↔ persistent field values.
+# Synthesis LLMs produce varying abbreviations; persistent-state uses canonical names.
+BOUNDARY_ALIASES = {
+    "climate": "Climate Change", "climate change": "Climate Change",
+    "biodiversity": "Biosphere Integrity", "biosphere integrity": "Biosphere Integrity",
+    "biosphere": "Biosphere Integrity",
+    "land system": "Land System Change", "land system change": "Land System Change",
+    "land-system change": "Land System Change", "land use": "Land System Change",
+    "freshwater": "Freshwater Change", "freshwater change": "Freshwater Change",
+    "biogeochemical": "Biogeochemical Flows", "biogeochemical flows": "Biogeochemical Flows",
+    "nitrogen": "Biogeochemical Flows", "phosphorus": "Biogeochemical Flows",
+    "novel entities": "Novel Entities", "chemical pollution": "Novel Entities",
+    "ocean acidification": "Ocean Acidification",
+    "atmospheric aerosols": "Atmospheric Aerosol Loading",
+    "atmospheric aerosol loading": "Atmospheric Aerosol Loading",
+    "aerosol": "Atmospheric Aerosol Loading",
+    "stratospheric ozone": "Stratospheric Ozone", "ozone": "Stratospheric Ozone",
+}
+
+# Tipping system aliases
+TIPPING_ALIASES = {
+    "amoc": "AMOC / Atlantic Circulation", "amoc / atlantic circulation": "AMOC / Atlantic Circulation",
+    "atlantic overturning": "AMOC / Atlantic Circulation",
+    "amazon": "Amazon Dieback", "amazon dieback": "Amazon Dieback",
+    "amazon rainforest": "Amazon Dieback",
+    "coral": "Coral Reef Collapse", "coral reef collapse": "Coral Reef Collapse",
+    "coral reefs": "Coral Reef Collapse",
+    "permafrost": "Permafrost Methane Release", "permafrost methane release": "Permafrost Methane Release",
+    "arctic permafrost": "Permafrost Methane Release",
+    "greenland": "Greenland Ice Sheet", "greenland ice sheet": "Greenland Ice Sheet",
+    "west antarctic": "West Antarctic Ice Sheet / Thwaites",
+    "west antarctic ice sheet": "West Antarctic Ice Sheet / Thwaites",
+    "west antarctic ice sheet / thwaites": "West Antarctic Ice Sheet / Thwaites",
+    "wais": "West Antarctic Ice Sheet / Thwaites", "thwaites": "West Antarctic Ice Sheet / Thwaites",
+    "arctic sea ice": "Arctic Sea Ice",
+}
+
+# Which persistent-state keys use which alias map
+ALIAS_MAPS = {
+    "boundary": BOUNDARY_ALIASES,
+    "system": TIPPING_ALIASES,
+}
+
+
+def _normalise_match_value(value: str, match_key: str) -> str:
+    """Normalise a match value using alias maps if available."""
+    alias_map = ALIAS_MAPS.get(match_key)
+    if alias_map:
+        canonical = alias_map.get(value.lower().strip())
+        if canonical:
+            return canonical
+    return value
+
+
+def _merge_list(persistent_list: list, synthesis_list: list, match_key: str, publish_date: str) -> list:
+    """Update existing items by match_key, append new ones. Tracks version_history."""
+    existing_map = {}
+    for i, item in enumerate(persistent_list):
+        k = item.get(match_key, "")
+        if k:
+            existing_map[_normalise_match_value(k, match_key)] = i
+
+    updated = 0
+    appended = 0
+    for synth_item in synthesis_list:
+        if not isinstance(synth_item, dict):
+            continue
+        raw_key = synth_item.get(match_key, "")
+        if not raw_key:
+            continue
+        key_val = _normalise_match_value(raw_key, match_key)
+        # Write canonical name back to synthesis item
+        if key_val != raw_key:
+            synth_item[match_key] = key_val
+
+        if key_val in existing_map:
+            idx = existing_map[key_val]
+            old = persistent_list[idx]
+            # Detect meaningful changes (ignore version_history, last_updated)
+            old_compare = {k: v for k, v in old.items() if k not in ("version_history", "last_updated")}
+            new_compare = {k: v for k, v in synth_item.items() if k not in ("version_history", "last_updated")}
+            if old_compare != new_compare:
+                # Preserve version_history, append change record
+                history = list(old.get("version_history", []))
+                # Build a concise change summary
+                changes = []
+                for field in synth_item:
+                    if field in ("version_history", "last_updated", match_key):
+                        continue
+                    if synth_item.get(field) != old.get(field):
+                        changes.append(field)
+                if changes:
+                    history.append({
+                        "date": publish_date,
+                        "fields_changed": changes,
+                        "source": "publisher-auto",
+                    })
+                merged = dict(old)
+                merged.update(synth_item)
+                merged["version_history"] = history
+                merged["last_updated"] = publish_date
+                persistent_list[idx] = merged
+                updated += 1
+        else:
+            # New item
+            synth_item.setdefault("last_updated", publish_date)
+            synth_item.setdefault("version_history", [{"date": publish_date, "source": "publisher-auto", "note": "first entry"}])
+            persistent_list.append(synth_item)
+            existing_map[key_val] = len(persistent_list) - 1
+            appended += 1
+
+    if updated or appended:
+        print(f"    merge_list: {updated} updated, {appended} appended")
+    return persistent_list
+
+
+# ── Custom handlers ──────────────────────────────────────────────────────
+# Each handler receives (persistent, synthesis_value, publish_date) and
+# updates persistent in-place.
+
+def _handle_wdm_heatmap(persistent: dict, synth_val, publish_date: str):
+    """WDM: synthesis country_heatmap is a list of country statuses.
+    Persistent heatmap_countries is {rapid_decay: [], recovery: [], watchlist: []}."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    buckets = {"rapid_decay": [], "recovery": [], "watchlist": []}
+    for c in synth_val:
+        status = (c.get("health_status") or c.get("health_delta") or "").lower()
+        country = c.get("country_name") or c.get("country", "")
+        entry = {"country": country, "severity_score": c.get("severity_score"),
+                 "last_updated": publish_date}
+        if "decay" in status or "decline" in status:
+            buckets["rapid_decay"].append(entry)
+        elif "recovery" in status or "improv" in status:
+            buckets["recovery"].append(entry)
+        else:
+            buckets["watchlist"].append(entry)
+    # Merge with existing (don't lose countries not in this week's synthesis)
+    existing = persistent.get("heatmap_countries", {})
+    for bucket_name, new_entries in buckets.items():
+        old = existing.get(bucket_name, [])
+        old_countries = {e.get("country", "") for e in old if isinstance(e, dict)}
+        for entry in new_entries:
+            if entry["country"] not in old_countries:
+                old.append(entry)
+            else:
+                # Update existing
+                for i, o in enumerate(old):
+                    if o.get("country") == entry["country"]:
+                        old[i].update(entry)
+                        break
+        existing[bucket_name] = old
+    persistent["heatmap_countries"] = existing
+    print(f"    wdm_heatmap: updated {sum(len(v) for v in buckets.values())} countries")
+
+
+def _handle_wdm_mimicry(persistent: dict, synth_val, publish_date: str):
+    """WDM: mimicry_chain_update has {active_chains, new_mimicry_detected, note}."""
+    if not isinstance(synth_val, dict):
+        return
+    if synth_val.get("new_mimicry_detected") and synth_val.get("active_chains"):
+        existing = persistent.get("mimicry_chains", [])
+        existing_ids = {c.get("chain_id") for c in existing}
+        for chain in synth_val["active_chains"]:
+            if isinstance(chain, dict) and chain.get("chain_id") not in existing_ids:
+                chain.setdefault("first_documented", publish_date)
+                existing.append(chain)
+        persistent["mimicry_chains"] = existing
+        print(f"    wdm_mimicry: {len(existing)} chains total")
+
+
+def _handle_gmm_asset_baseline(persistent: dict, synth_val, publish_date: str):
+    """GMM: synthesis asset_outlook → persistent asset_class_baseline.
+    Updates current scores but preserves baseline anchors."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    existing = persistent.get("asset_class_baseline", [])
+    existing_map = {e.get("asset_class", ""): i for i, e in enumerate(existing)}
+    updated = 0
+    for outlook in synth_val:
+        ac = outlook.get("asset_class", "")
+        if not ac:
+            continue
+        if ac in existing_map:
+            idx = existing_map[ac]
+            old = existing[idx]
+            new_score = outlook.get("score", outlook.get("current_score"))
+            new_flag = outlook.get("outlook_label", outlook.get("current_flag", ""))
+            new_dir = outlook.get("conviction", outlook.get("current_direction", ""))
+            if new_score is not None and new_score != old.get("current_score"):
+                history = list(old.get("version_history", []))
+                history.append({"date": publish_date, "old_score": old.get("current_score"),
+                                "new_score": new_score, "source": "publisher-auto"})
+                old["current_score"] = new_score
+                old["current_flag"] = new_flag
+                old["current_direction"] = new_dir
+                old["version_history"] = history
+                updated += 1
+        else:
+            existing.append({
+                "asset_class": ac, "current_score": outlook.get("score"),
+                "current_flag": outlook.get("outlook_label", ""),
+                "current_direction": outlook.get("conviction", ""),
+                "baseline_score": outlook.get("score"), "baseline_date": publish_date,
+                "version_history": [{"date": publish_date, "source": "publisher-auto", "note": "first entry"}],
+            })
+            updated += 1
+    persistent["asset_class_baseline"] = existing
+    if updated:
+        print(f"    gmm_asset_baseline: {updated} asset classes updated")
+
+
+def _handle_gmm_conviction(persistent: dict, synth_val, publish_date: str):
+    """GMM: stress_regime_preliminary → append to conviction_history."""
+    if not isinstance(synth_val, dict):
+        return
+    history = persistent.get("conviction_history", [])
+    # Don't duplicate for same date
+    if history and history[-1].get("date") == publish_date:
+        return
+    entry = {
+        "date": publish_date,
+        "system_average": synth_val.get("system_average"),
+        "conviction": synth_val.get("conviction", ""),
+        "regime": synth_val.get("regime", ""),
+        "regime_conviction": synth_val.get("conviction", ""),
+        "rationale": synth_val.get("rationale", synth_val.get("regime_delta", "")),
+    }
+    history.append(entry)
+    # Keep last 52 weeks
+    persistent["conviction_history"] = history[-52:]
+    print(f"    gmm_conviction: appended (total {len(persistent['conviction_history'])} entries)")
+
+
+def _handle_gmm_tariff(persistent: dict, synth_val, publish_date: str):
+    """GMM: tariff_tracker list → update tariff_escalation_protocol."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    protocol = persistent.get("tariff_escalation_protocol", {})
+    if not protocol.get("active"):
+        return  # Don't activate protocol from synthesis alone
+    # Count active retaliators from tariff_tracker
+    retaliators = set()
+    wto = []
+    for t in synth_val:
+        if t.get("status", "").lower() in ("active", "in force", "announced"):
+            target = t.get("target", "")
+            if target:
+                retaliators.add(target)
+        if "wto" in t.get("measure", "").lower():
+            wto.append(t.get("measure", "")[:80])
+    if retaliators:
+        protocol["active_retaliators"] = sorted(retaliators)
+    if wto:
+        protocol["wto_filings"] = wto
+    persistent["tariff_escalation_protocol"] = protocol
+    print(f"    gmm_tariff: {len(retaliators)} retaliators, {len(wto)} WTO filings")
+
+
+def _handle_esa_kpi_state(persistent: dict, synth_val, publish_date: str):
+    """ESA: domain_tracker list → update kpi_state dict."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    kpi = persistent.get("kpi_state", {})
+    for domain in synth_val:
+        # Map domain fields to KPI fields where applicable
+        dep_risk = domain.get("dependency_risk", "")
+        dep_actor = domain.get("dependency_actor", "")
+        if dep_risk and dep_actor:
+            # Track as a hybrid metric
+            pass  # kpi_state fields are manually curated — only update counts
+    # Update hybrid_attacks from domain_tracker if available
+    hybrid_count = sum(1 for d in synth_val if "hybrid" in d.get("domain", "").lower())
+    if hybrid_count:
+        kpi["hybrid_attacks_recent"] = hybrid_count
+    persistent["kpi_state"] = kpi
+
+
+def _handle_esa_lagrange(persistent: dict, synth_val, publish_date: str):
+    """ESA: lagrange_point_scores → update lagrange_scoring_2026.pillar_directions."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    scoring = persistent.get("lagrange_scoring_2026", {})
+    directions = scoring.get("pillar_directions", {})
+    for score in synth_val:
+        vector = score.get("vector", "")
+        progress = score.get("progress_preliminary", score.get("progress", ""))
+        if vector and progress:
+            directions[vector] = {"progress": progress, "last_updated": publish_date,
+                                  "key_metric": score.get("key_metric", ""),
+                                  "blocker": score.get("blocker", "")}
+    scoring["pillar_directions"] = directions
+    persistent["lagrange_scoring_2026"] = scoring
+    print(f"    esa_lagrange: {len(directions)} pillar directions updated")
+
+
+def _handle_esa_timeline(persistent: dict, synth_val, publish_date: str):
+    """ESA: hybrid_threats → append to timeline_events."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    events = persistent.get("timeline_events", [])
+    existing_headlines = {e.get("event", "").lower() for e in events}
+    added = 0
+    for threat in synth_val:
+        headline = threat.get("headline", "")
+        if headline.lower() not in existing_headlines:
+            events.append({"date": publish_date, "event": headline,
+                           "module": threat.get("threat_type", "hybrid")})
+            existing_headlines.add(headline.lower())
+            added += 1
+    persistent["timeline_events"] = events
+    if added:
+        print(f"    esa_timeline: {added} events appended (total {len(events)})")
+
+
+def _handle_fcw_actor_profiles(persistent: dict, synth_val, publish_date: str):
+    """FCW: actor_tracker list → update actor_profiles dict."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    profiles = persistent.get("actor_profiles", {})
+    updated = 0
+    for actor in synth_val:
+        key = (actor.get("actor", "") or "").upper()
+        if not key:
+            continue
+        existing = profiles.get(key, {})
+        # Update posture/status fields
+        new_posture = actor.get("posture", actor.get("status", ""))
+        if new_posture and new_posture != existing.get("posture"):
+            existing["posture"] = new_posture
+            existing["last_updated"] = publish_date
+            updated += 1
+        doctrine = actor.get("doctrine_note", actor.get("doctrine", ""))
+        if doctrine:
+            existing["doctrine_note"] = doctrine
+        if actor.get("capability_change"):
+            existing["capability_change"] = actor["capability_change"]
+        profiles[key] = existing
+    persistent["actor_profiles"] = profiles
+    if updated:
+        print(f"    fcw_actor_profiles: {updated} actors updated")
+
+
+def _handle_aim_risk_vectors(persistent: dict, synth_val, publish_date: str):
+    """AIM: module_7 has {vectors: [...]} → update module_7_risk_vectors."""
+    vectors = synth_val.get("vectors", []) if isinstance(synth_val, dict) else []
+    if not vectors:
+        return
+    existing = persistent.get("module_7_risk_vectors", [])
+    _merge_list(existing, vectors, "vector", publish_date)
+    persistent["module_7_risk_vectors"] = existing
+
+
+def _handle_aim_eu_ai_act(persistent: dict, synth_val, publish_date: str):
+    """AIM: module_9 → update module_9_eu_ai_act_tracker."""
+    if not isinstance(synth_val, dict):
+        return
+    tracker = persistent.get("module_9_eu_ai_act_tracker", {})
+    # Update law/standards highlights
+    for field in ["law_highlights", "standards_highlights", "litigation_highlights", "digest_note"]:
+        if synth_val.get(field):
+            tracker[field] = synth_val[field]
+    # Update standards_vacuum if synthesis mentions it
+    if synth_val.get("standards_highlights"):
+        tracker["last_updated"] = publish_date
+    # Recalculate days to deadline if date is set
+    deadline = tracker.get("general_application_date", "")
+    if deadline:
+        try:
+            d = datetime.strptime(deadline, "%Y-%m-%d")
+            days_left = (d - datetime.strptime(publish_date, "%Y-%m-%d")).days
+            tracker["current_days_to_deadline"] = max(days_left, 0)
+        except ValueError:
+            pass
+    persistent["module_9_eu_ai_act_tracker"] = tracker
+    print(f"    aim_eu_ai_act: tracker updated")
+
+
+def _handle_aim_concentration(persistent: dict, synth_val, publish_date: str):
+    """AIM: module_14 has {concentration_index: {...}} → update module_14_concentration_index."""
+    if not isinstance(synth_val, dict):
+        return
+    ci = synth_val.get("concentration_index", {})
+    if not ci:
+        return
+    existing = persistent.get("module_14_concentration_index", {})
+    if isinstance(ci, dict):
+        existing["domains"] = ci.get("domains", existing.get("domains", {}))
+        existing["last_updated"] = publish_date
+    persistent["module_14_concentration_index"] = existing
+    print(f"    aim_concentration: index updated")
+
+
+def _handle_aim_aisi(persistent: dict, synth_val, publish_date: str):
+    """AIM: module_15 → update module_15_aisi_pipeline."""
+    if not isinstance(synth_val, dict):
+        return
+    tracker = persistent.get("module_15_aisi_pipeline", {})
+    for field in ["lab_movements", "government_ai_bodies", "revolving_door"]:
+        if synth_val.get(field):
+            tracker[field] = synth_val[field]
+            tracker["last_updated"] = publish_date
+    persistent["module_15_aisi_pipeline"] = tracker
+    print(f"    aim_aisi: pipeline updated")
+
+
+def _handle_erm_tipping(persistent: dict, synth_val, publish_date: str):
+    """ERM: tipping_point_tracker → update tipping_system_flags.
+    Synthesis uses 'tipping_element' as key; persistent uses 'system'."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    # Rename tipping_element → system for merge
+    normalised = []
+    for item in synth_val:
+        if not isinstance(item, dict):
+            continue
+        entry = dict(item)
+        # Map tipping_element to system
+        te = entry.pop("tipping_element", "")
+        if te and not entry.get("system"):
+            entry["system"] = te
+        normalised.append(entry)
+    existing = persistent.get("tipping_system_flags", [])
+    _merge_list(existing, normalised, "system", publish_date)
+    persistent["tipping_system_flags"] = existing
+
+
+def _handle_erm_cascade(persistent: dict, synth_val, publish_date: str):
+    """ERM: reverse_cascade_check → update regional_cascade_chains."""
+    if not isinstance(synth_val, dict) or not synth_val.get("checked"):
+        return
+    if not synth_val.get("accelerates_boundary"):
+        return  # No cascade detected this week
+    chains = persistent.get("regional_cascade_chains", [])
+    existing_regions = {c.get("region", "").lower() for c in chains}
+    region = synth_val.get("affected_boundary", synth_val.get("geopolitical_event", ""))
+    if region and region.lower() not in existing_regions:
+        chains.append({
+            "region": region,
+            "chain": synth_val.get("cascade_description", ""),
+            "status": "active",
+            "current_stage": synth_val.get("geopolitical_event", ""),
+            "reverse_cascade": True,
+            "first_recorded": publish_date,
+            "version_history": [{"date": publish_date, "source": "publisher-auto", "note": "detected"}],
+        })
+        persistent["regional_cascade_chains"] = chains
+        print(f"    erm_cascade: new chain added ({region})")
+
+
+def _handle_erm_standing_trackers(persistent: dict, synth_val, publish_date: str):
+    """ERM: icj_tracker → update standing_trackers.icj_climate_advisory."""
+    if not isinstance(synth_val, dict):
+        return
+    trackers = persistent.get("standing_trackers", {})
+    existing = trackers.get("icj_climate_advisory", {})
+    for field in ["status", "last_development", "last_development_date", "next_milestone", "significance"]:
+        if synth_val.get(field):
+            existing[field] = synth_val[field]
+    existing["last_updated"] = publish_date
+    trackers["icj_climate_advisory"] = existing
+    persistent["standing_trackers"] = trackers
+    print(f"    erm_standing_trackers: ICJ advisory updated")
+
+
+def _handle_erm_loss_damage(persistent: dict, synth_val, publish_date: str):
+    """ERM: loss_damage_tracker → update standing_trackers.loss_damage_finance."""
+    if not isinstance(synth_val, dict):
+        return
+    trackers = persistent.get("standing_trackers", {})
+    existing = trackers.get("loss_damage_finance", {})
+    for field in ["mechanism_status", "committed_usd", "disbursed_usd",
+                  "disbursement_ratio", "compliance_cycle", "key_development"]:
+        if synth_val.get(field):
+            existing[field] = synth_val[field]
+    existing["last_updated"] = publish_date
+    trackers["loss_damage_finance"] = existing
+    persistent["standing_trackers"] = trackers
+    print(f"    erm_standing_trackers: loss & damage updated")
+
+
+def _handle_scem_baselines(persistent: dict, synth_val, publish_date: str):
+    """SCEM: conflict_roster → update conflict_baselines."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    existing = persistent.get("conflict_baselines", [])
+    existing_map = {e.get("conflict", e.get("theatre_id", "")): i for i, e in enumerate(existing)}
+    updated = 0
+    for conflict in synth_val:
+        theatre_id = conflict.get("theatre_id", conflict.get("theatre_name", ""))
+        if not theatre_id:
+            continue
+        status = conflict.get("status", conflict.get("overall_band", ""))
+        if theatre_id in existing_map:
+            idx = existing_map[theatre_id]
+            old = existing[idx]
+            if status and status != old.get("baseline_status"):
+                old["baseline_status"] = status
+                old["week_count"] = old.get("week_count", 0) + 1
+                history = list(old.get("version_history", []))
+                history.append({"date": publish_date, "status": status, "source": "publisher-auto"})
+                old["version_history"] = history
+                updated += 1
+            else:
+                old["week_count"] = old.get("week_count", 0) + 1
+        else:
+            existing.append({
+                "conflict": theatre_id, "theatre": conflict.get("theatre_name", theatre_id),
+                "baseline_status": status, "week_count": 1,
+                "baseline_locks_at_week": 4, "first_observed": publish_date,
+                "version_history": [{"date": publish_date, "source": "publisher-auto", "note": "first entry"}],
+            })
+            updated += 1
+    persistent["conflict_baselines"] = existing
+    if updated:
+        print(f"    scem_baselines: {updated} conflicts updated")
+
+
+def _handle_scem_f_flags(persistent: dict, synth_val, publish_date: str):
+    """SCEM: f_flag_matrix → append new F-flags to f_flag_history."""
+    if not isinstance(synth_val, list) or not synth_val:
+        return
+    history = persistent.get("f_flag_history", [])
+    existing_keys = {(f.get("flag", ""), f.get("conflict", "")) for f in history}
+    added = 0
+    for entry in synth_val:
+        theatre = entry.get("theatre_id", "")
+        for flag in entry.get("f_flags_detected", []):
+            flag_name = flag if isinstance(flag, str) else flag.get("flag", "")
+            if (flag_name, theatre) not in existing_keys:
+                history.append({
+                    "flag": flag_name, "conflict": theatre,
+                    "indicator": "", "detail": "",
+                    "applied": publish_date, "status": "active",
+                    "version_history": [{"date": publish_date, "source": "publisher-auto"}],
+                })
+                existing_keys.add((flag_name, theatre))
+                added += 1
+    persistent["f_flag_history"] = history
+    if added:
+        print(f"    scem_f_flags: {added} new flags added (total {len(history)})")
+
+
+# Handler registry
+CUSTOM_HANDLERS = {
+    "wdm_heatmap": _handle_wdm_heatmap,
+    "wdm_mimicry": _handle_wdm_mimicry,
+    "gmm_asset_baseline": _handle_gmm_asset_baseline,
+    "gmm_conviction": _handle_gmm_conviction,
+    "gmm_tariff": _handle_gmm_tariff,
+    "esa_kpi_state": _handle_esa_kpi_state,
+    "esa_lagrange": _handle_esa_lagrange,
+    "esa_timeline": _handle_esa_timeline,
+    "fcw_actor_profiles": _handle_fcw_actor_profiles,
+    "aim_risk_vectors": _handle_aim_risk_vectors,
+    "aim_eu_ai_act": _handle_aim_eu_ai_act,
+    "aim_concentration": _handle_aim_concentration,
+    "aim_aisi": _handle_aim_aisi,
+    "erm_tipping": _handle_erm_tipping,
+    "erm_cascade": _handle_erm_cascade,
+    "erm_standing_trackers": _handle_erm_standing_trackers,
+    "erm_loss_damage": _handle_erm_loss_damage,
+    "scem_baselines": _handle_scem_baselines,
+    "scem_f_flags": _handle_scem_f_flags,
+}
+
+
 def update_persistent_state(persistent: dict, synthesis: dict, meta: dict, config: dict) -> dict:
+    publish_date = meta.get("slug", datetime.now(timezone.utc).strftime("%Y-%m-%d"))
+
     persistent.setdefault("_meta", {})
     persistent["_meta"]["last_updated"] = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     persistent["_meta"]["last_issue"] = meta["issue"]
 
+    # FCW campaign handling (preserved from original)
     if config.get("has_campaigns"):
         delta = synthesis.get("delta_strip", {})
-        for new_camp in delta.get("new_campaigns", []):
-            actor = new_camp.get("actor", "UNATTRIBUTED").upper()
-            persistent.setdefault("active_campaigns", {}).setdefault(actor, [])
-            bucket = persistent["active_campaigns"][actor]
-            if isinstance(bucket, list):
-                bucket.append(new_camp)
-        for change in delta.get("status_changes", []):
-            cid = change.get("campaign_id", "")
-            for actor_key, camps in persistent.get("active_campaigns", {}).items():
-                if isinstance(camps, list):
-                    for camp in camps:
-                        if camp.get("id") == cid or camp.get("campaign_id") == cid:
-                            if "new_status" in change:
-                                camp["status"] = change["new_status"]
+        if isinstance(delta, dict):
+            for new_camp in delta.get("new_campaigns", []):
+                actor = new_camp.get("actor", "UNATTRIBUTED").upper()
+                persistent.setdefault("active_campaigns", {}).setdefault(actor, [])
+                bucket = persistent["active_campaigns"][actor]
+                if isinstance(bucket, list):
+                    bucket.append(new_camp)
+            for change in delta.get("status_changes", []):
+                cid = change.get("campaign_id", "")
+                for actor_key, camps in persistent.get("active_campaigns", {}).items():
+                    if isinstance(camps, list):
+                        for camp in camps:
+                            if camp.get("id") == cid or camp.get("campaign_id") == cid:
+                                if "new_status" in change:
+                                    camp["status"] = change["new_status"]
+
+    # Per-monitor extraction
+    extractors = PERSISTENT_STATE_EXTRACTORS.get(MONITOR_SLUG, [])
+    if extractors:
+        print(f"  Extracting persistent state ({len(extractors)} extractors)...")
+    for ext in extractors:
+        synth_key = ext["synthesis_key"]
+        persist_key = ext["persistent_key"]
+        mode = ext["mode"]
+        synth_val = synthesis.get(synth_key)
+
+        if synth_val is None:
+            continue  # Field not in this week's synthesis
+
+        if mode == "replace":
+            persistent[persist_key] = synth_val
+            print(f"    {persist_key}: replaced")
+
+        elif mode == "merge_list":
+            match_key = ext.get("match_key", "id")
+            existing = persistent.get(persist_key, [])
+            if isinstance(existing, list) and isinstance(synth_val, list):
+                _merge_list(existing, synth_val, match_key, publish_date)
+                persistent[persist_key] = existing
+
+        elif mode == "merge_dict":
+            existing = persistent.get(persist_key, {})
+            if isinstance(existing, dict) and isinstance(synth_val, dict):
+                existing.update(synth_val)
+                persistent[persist_key] = existing
+                print(f"    {persist_key}: merged")
+
+        elif mode == "custom":
+            handler_name = ext.get("handler", "")
+            handler = CUSTOM_HANDLERS.get(handler_name)
+            if handler:
+                handler(persistent, synth_val, publish_date)
+            else:
+                print(f"    ⚠ unknown handler: {handler_name}")
 
     return persistent
 
