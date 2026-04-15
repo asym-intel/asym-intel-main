@@ -1,0 +1,45 @@
+name: FIM Publisher — Weekly Report
+
+on:
+  # Schedule: Monday 18:00 UTC (after synthesiser completes)
+  workflow_dispatch:          # manual trigger for testing
+
+jobs:
+  publish:
+    name: Publish FIM Weekly Report
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run FIM Publisher
+        env:
+          REPO_ROOT: ${{ github.workspace }}
+          MONITOR_SLUG: financial-integrity
+        run: python3 pipeline/publishers/publisher.py
+
+      - name: Commit published report
+        run: |
+          git config user.name "FIM Publisher Bot"
+          git config user.email "fim-publisher@asym-intel.info"
+          git add static/monitors/financial-integrity/data/
+          git add docs/monitors/financial-integrity/data/
+          git add content/monitors/financial-integrity/
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "data(fim): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/financial-integrity/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by FIM Publisher Bot"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done

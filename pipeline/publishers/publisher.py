@@ -45,6 +45,7 @@ ALL_MONITORS = [
     "ai-governance",
     "environmental-risks",
     "conflict-escalation",
+    "financial-integrity",
 ]
 
 MONITOR_CONFIGS = {
@@ -128,6 +129,17 @@ MONITOR_CONFIGS = {
     "conflict-escalation": {
         "title": "Strategic Conflict & Escalation Monitor",
         "abbr": "SCEM",
+        "publish_time": "T18:00:00Z",
+        "signal_key": "lead_signal",
+        "has_campaigns": False,
+        "has_actor_tracker": False,
+        "has_cognitive_warfare": False,
+        "has_platform_responses": False,
+        "field_map": {},
+    },
+    "financial-integrity": {
+        "title": "Financial Integrity Monitor",
+        "abbr": "FIM",
         "publish_time": "T18:00:00Z",
         "signal_key": "lead_signal",
         "has_campaigns": False,
@@ -707,6 +719,22 @@ PERSISTENT_STATE_EXTRACTORS = {
         {"synthesis_key": "roster_watch", "persistent_key": "roster_watch",
          "mode": "replace"},
     ],
+    "financial-integrity": [
+        {"synthesis_key": "jurisdiction_risk_tracker", "persistent_key": "jurisdiction_baselines",
+         "mode": "merge_list", "match_key": "jurisdiction"},
+        {"synthesis_key": "tooling_outputs", "persistent_key": "scheme_inventory",
+         "mode": "custom", "handler": "fim_scheme_inventory"},
+        {"synthesis_key": "tooling_outputs", "persistent_key": "enforcement_gap_log",
+         "mode": "custom", "handler": "fim_enforcement_gaps"},
+        {"synthesis_key": "tooling_outputs", "persistent_key": "regulatory_horizon",
+         "mode": "custom", "handler": "fim_regulatory_horizon"},
+        {"synthesis_key": "tooling_outputs", "persistent_key": "ctf_cpf_flags",
+         "mode": "custom", "handler": "fim_ctf_cpf"},
+        {"synthesis_key": "standing_tracker_synthesis", "persistent_key": "standing_trackers",
+         "mode": "merge_list", "match_key": "tracker"},
+        {"synthesis_key": "cross_monitor_candidates", "persistent_key": "cross_monitor_flags",
+         "mode": "replace"},
+    ],
 }
 
 
@@ -1268,6 +1296,93 @@ def _handle_scem_f_flags(persistent: dict, synth_val, publish_date: str):
         print(f"    scem_f_flags: {added} new flags added (total {len(history)})")
 
 
+# ── FIM custom handlers ───────────────────────────────────────────────────
+
+def _handle_fim_scheme_inventory(persistent: dict, synth_val, publish_date: str):
+    """FIM: tooling_outputs → update scheme_inventory from active_scheme_inventory."""
+    if not isinstance(synth_val, dict):
+        return
+    schemes = synth_val.get("active_scheme_inventory", [])
+    if not schemes:
+        return
+    existing = persistent.get("scheme_inventory", [])
+    existing_map = {e.get("scheme_name", ""): i for i, e in enumerate(existing)}
+    updated = 0
+    for scheme in schemes:
+        name = scheme.get("scheme_name", "")
+        if not name:
+            continue
+        if name in existing_map:
+            idx = existing_map[name]
+            existing[idx].update(scheme)
+            existing[idx]["last_updated"] = publish_date
+        else:
+            scheme["first_observed"] = publish_date
+            scheme["last_updated"] = publish_date
+            existing.append(scheme)
+        updated += 1
+    persistent["scheme_inventory"] = existing
+    if updated:
+        print(f"    fim_scheme_inventory: {updated} schemes updated (total {len(existing)})")
+
+
+def _handle_fim_enforcement_gaps(persistent: dict, synth_val, publish_date: str):
+    """FIM: tooling_outputs → append enforcement_gap_signals to log."""
+    if not isinstance(synth_val, dict):
+        return
+    gaps = synth_val.get("enforcement_gap_signals", [])
+    if not gaps:
+        return
+    log = persistent.get("enforcement_gap_log", [])
+    existing_keys = {(g.get("jurisdiction", ""), g.get("gap_description", "")[:50]) for g in log}
+    added = 0
+    for gap in gaps:
+        key = (gap.get("jurisdiction", ""), gap.get("gap_description", "")[:50])
+        if key not in existing_keys:
+            gap["first_flagged"] = publish_date
+            gap["status"] = "active"
+            log.append(gap)
+            existing_keys.add(key)
+            added += 1
+    persistent["enforcement_gap_log"] = log
+    if added:
+        print(f"    fim_enforcement_gaps: {added} new gaps (total {len(log)})")
+
+
+def _handle_fim_regulatory_horizon(persistent: dict, synth_val, publish_date: str):
+    """FIM: tooling_outputs → update regulatory_horizon."""
+    if not isinstance(synth_val, dict):
+        return
+    horizon = synth_val.get("regulatory_horizon", [])
+    if not horizon:
+        return
+    persistent["regulatory_horizon"] = horizon
+    print(f"    fim_regulatory_horizon: {len(horizon)} items replaced")
+
+
+def _handle_fim_ctf_cpf(persistent: dict, synth_val, publish_date: str):
+    """FIM: tooling_outputs → append CTF/CPF flags."""
+    if not isinstance(synth_val, dict):
+        return
+    flags = synth_val.get("ctf_cpf_flags", [])
+    if not flags:
+        return
+    existing = persistent.get("ctf_cpf_flags", [])
+    existing_keys = {(f.get("pillar", ""), f.get("jurisdiction", ""), f.get("signal", "")[:50]) for f in existing}
+    added = 0
+    for flag in flags:
+        key = (flag.get("pillar", ""), flag.get("jurisdiction", ""), flag.get("signal", "")[:50])
+        if key not in existing_keys:
+            flag["first_flagged"] = publish_date
+            flag["status"] = "active"
+            existing.append(flag)
+            existing_keys.add(key)
+            added += 1
+    persistent["ctf_cpf_flags"] = existing
+    if added:
+        print(f"    fim_ctf_cpf: {added} new CTF/CPF flags (total {len(existing)})")
+
+
 # Handler registry
 CUSTOM_HANDLERS = {
     "wdm_heatmap": _handle_wdm_heatmap,
@@ -1289,6 +1404,10 @@ CUSTOM_HANDLERS = {
     "erm_loss_damage": _handle_erm_loss_damage,
     "scem_baselines": _handle_scem_baselines,
     "scem_f_flags": _handle_scem_f_flags,
+    "fim_scheme_inventory": _handle_fim_scheme_inventory,
+    "fim_enforcement_gaps": _handle_fim_enforcement_gaps,
+    "fim_regulatory_horizon": _handle_fim_regulatory_horizon,
+    "fim_ctf_cpf": _handle_fim_ctf_cpf,
 }
 
 
