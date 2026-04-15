@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Financial Integrity Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Live dashboard for the Financial Integrity Monitor. Jurisdiction risk, domain tracker, standing trackers, scheme inventory, enforcement gaps, and key judgments.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/nav.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" integrity="sha384-NrKB+u6Ts6AtkIhwPixiKTzgSKNblyhlk0Sohlgar9UHUBzai/sgnNNWWd291xqt" crossorigin="anonymous"></script>
+  <script src="../shared/js/charts.js"></script>
+  <style>
+    /* ── JURISDICTION RISK GRID ────────────────────────────────────── */
+    .jurisdiction-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--space-4);
+    }
+    .jurisdiction-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: var(--space-4);
+    }
+    .jurisdiction-card--worsening { border-left: 3px solid #dc2626; }
+    .jurisdiction-card--stable    { border-left: 3px solid #64748b; }
+    .jurisdiction-card--improving { border-left: 3px solid #059669; }
+
+    /* ── DOMAIN TRACKER CARDS ──────────────────────────────────────── */
+    .domain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-4);
+    }
+    .domain-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-4) var(--space-5);
+    }
+    .domain-card__id {
+      font-size: var(--text-min);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-1);
+    }
+    .domain-card__name {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+      line-height: 1.3;
+    }
+    .domain-card__trajectory {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+    .domain-card__dev {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.45;
+    }
+
+    /* ── PILLAR BADGE ──────────────────────────────────────────────── */
+    .pillar-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 1px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    .pillar-badge--aml { background: rgba(139,0,0,0.12); color: #8b0000; }
+    .pillar-badge--ctf { background: rgba(217,119,6,0.12); color: #b45309; }
+    .pillar-badge--cpf { background: rgba(126,34,206,0.12); color: #7e22ce; }
+    [data-theme="dark"] .pillar-badge--aml { background: rgba(205,92,92,0.2); color: #cd5c5c; }
+    [data-theme="dark"] .pillar-badge--ctf { background: rgba(251,191,36,0.2); color: #fbbf24; }
+    [data-theme="dark"] .pillar-badge--cpf { background: rgba(192,132,252,0.2); color: #c084fc; }
+
+    /* ── FILTER BADGE ──────────────────────────────────────────────── */
+    .filter-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin: 1px 2px 1px 0;
+      background: rgba(139,0,0,0.08);
+      color: var(--monitor-accent);
+    }
+    [data-theme="dark"] .filter-badge {
+      background: rgba(205,92,92,0.15);
+    }
+
+    /* ── SEVERITY SCALE ────────────────────────────────────────────── */
+    .severity-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+    .severity-dot--critical { background: #dc2626; }
+    .severity-dot--high     { background: #d97706; }
+    .severity-dot--moderate { background: #2563eb; }
+    .severity-dot--low      { background: #059669; }
+  </style>
+  <!-- SEO: JSON-LD structured data -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://asym-intel.info/"},{"@type":"ListItem","position":2,"name":"Financial Integrity Monitor","item":"https://asym-intel.info/monitors/financial-integrity/"},{"@type":"ListItem","position":3,"name":"Dashboard","item":"https://asym-intel.info/monitors/financial-integrity/dashboard.html"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Dashboard — Financial Integrity Monitor","url":"https://asym-intel.info/monitors/financial-integrity/dashboard.html","description":"Live dashboard for the Financial Integrity Monitor. Jurisdiction risk, domain tracker, standing trackers, scheme inventory, enforcement gaps, and key judgments.","isPartOf":{"@type":"Dataset","name":"Financial Integrity Monitor — Asymmetric Intelligence","url":"https://asym-intel.info/monitors/financial-integrity/","creator":{"@type":"Person","name":"Peter Howitt"},"license":"https://creativecommons.org/licenses/by/4.0/"},"publisher":{"@type":"Organization","name":"Asymmetric Intelligence","url":"https://asym-intel.info"}}</script>
+  <!-- AI discoverability -->
+  <link rel="alternate" type="text/plain" title="LLM Site Index" href="/llms.txt">
+</head>
+
+<body>
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html"></a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list"></ul>
+  <div class="monitor-nav__actions"></div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <!-- § 1  AT A GLANCE — triage strip with KPIs + signal + delta -->
+    <section class="module-section" id="section-triage">
+      <div id="triage-container">
+        <div class="loading-state">Loading triage data…</div>
+      </div>
+    </section>
+
+    <!-- § 2  WEEKLY BRIEF — narrative executive summary -->
+    <section class="module-section" id="section-weekly-brief">
+      <div class="module-header">
+        <div class="module-title">Weekly Brief</div>
+      </div>
+      <div id="weekly-brief-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 3  DOMAIN TRACKER — D1–D5 analytical domains -->
+    <section class="module-section" id="section-domain-tracker">
+      <div class="module-header">
+        <div class="module-title">Domain Tracker</div>
+        <div class="module-subtitle">Five analytical domains covering AML, CTF, and CPF pillars</div>
+      </div>
+      <div id="domain-tracker-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 4  JURISDICTION RISK TRACKER — risk direction per jurisdiction -->
+    <section class="module-section" id="section-jurisdiction-risk">
+      <div class="module-header">
+        <div class="module-title">Jurisdiction Risk Tracker</div>
+        <div class="module-subtitle">Enforcement-vs-enablement balance across tracked jurisdictions</div>
+      </div>
+      <div id="jurisdiction-risk-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 5  STANDING TRACKERS — T1–T5 structural themes -->
+    <section class="module-section" id="section-standing-trackers">
+      <div class="module-header">
+        <div class="module-title">Standing Trackers</div>
+      </div>
+      <div id="standing-trackers-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 6  SEVERITY REVIEWS — architecture-over-incident assessments -->
+    <section class="module-section" id="section-severity-reviews">
+      <div class="module-header">
+        <div class="module-title">Severity Reviews</div>
+        <div class="module-subtitle">Architecture-over-incident severity assessments</div>
+      </div>
+      <div id="severity-reviews-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 7  TOOLING OUTPUTS — scheme inventory, enforcement gaps, regulatory horizon, CTF/CPF -->
+    <section class="module-section" id="section-tooling">
+      <div class="module-header">
+        <div class="module-title">Tooling Outputs</div>
+        <div class="module-subtitle">Structured intelligence for compliance teams</div>
+      </div>
+      <div id="tooling-outputs-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 8  KEY JUDGMENTS — analyst judgment cards -->
+    <section class="module-section" id="section-key-judgments">
+      <div class="module-header">
+        <div class="module-title">Key Judgments</div>
+      </div>
+      <div id="key-judgments-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 9  CROSS-MONITOR CANDIDATES — signals for adjacent monitors -->
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Signals</div>
+      </div>
+      <div id="cross-monitor-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+  </main>
+
+  <!-- SIDEBAR NAV — consolidated 9 sections -->
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-triage">At a Glance</a></li>
+      <li><a href="#section-weekly-brief">Weekly Brief</a></li>
+      <li><a href="#section-domain-tracker">Domain Tracker</a></li>
+      <li><a href="#section-jurisdiction-risk">Jurisdiction Risk</a></li>
+      <li><a href="#section-standing-trackers">Standing Trackers</a></li>
+      <li><a href="#section-severity-reviews">Severity Reviews</a></li>
+      <li><a href="#section-tooling">Tooling Outputs</a></li>
+      <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor Signals</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer"></footer>
+<script src="../shared/js/renderer.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   FIM Dashboard — 9-section layout
+   Renders report-latest.json + persistent-state.json
+   Uses shared AsymSections templates where available, FIM-specific
+   render helpers for domain-specific sections.
+   ══════════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function () {
+
+  /* ── FIM Domain Config ────────────────────────────────────────────── */
+  var DOMAIN_NAMES = {
+    'D1': 'AML Architecture & Enforcement',
+    'D2': 'Sanctions & Embargo Compliance',
+    'D3': 'Enabler & Gatekeeper Networks',
+    'D4': 'Dark Finance & Digital Assets',
+    'D5': 'Counter-Terrorism & Proliferation Finance'
+  };
+
+  var TRAJECTORY_COLOURS = {
+    'Worsening': '#dc2626', 'Deteriorating': '#dc2626',
+    'Stable': '#64748b',
+    'Improving': '#059669'
+  };
+
+  var FILTER_NAMES = {
+    'F1': 'State Capture', 'f1_state_capture': 'F1 State Capture',
+    'F2': 'Sanctions Architecture', 'f2_sanctions_architecture': 'F2 Sanctions',
+    'F3': 'Enabler Jurisdiction', 'f3_enabler_jurisdiction': 'F3 Enabler',
+    'F4': 'Conflict Finance', 'f4_conflict_finance': 'F4 Conflict Finance'
+  };
+
+  /* ── Utility ──────────────────────────────────────────────────────── */
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function trajectoryArrow(t) {
+    if (!t) return '→';
+    var tl = t.toLowerCase();
+    if (tl.indexOf('worsen') >= 0 || tl.indexOf('deterior') >= 0) return '↑';
+    if (tl.indexOf('improv') >= 0) return '↓';
+    return '→';
+  }
+
+  function trajectoryColour(t) {
+    if (!t) return '#64748b';
+    var tl = t.toLowerCase();
+    if (tl.indexOf('worsen') >= 0 || tl.indexOf('deterior') >= 0) return '#dc2626';
+    if (tl.indexOf('improv') >= 0) return '#059669';
+    return '#64748b';
+  }
+
+  function severityDot(sev) {
+    var sl = (sev || '').toLowerCase();
+    if (sl.indexOf('critical') >= 0) return '<span class="severity-dot severity-dot--critical"></span>';
+    if (sl.indexOf('high') >= 0) return '<span class="severity-dot severity-dot--high"></span>';
+    if (sl.indexOf('moderate') >= 0 || sl.indexOf('medium') >= 0) return '<span class="severity-dot severity-dot--moderate"></span>';
+    return '<span class="severity-dot severity-dot--low"></span>';
+  }
+
+  function pillarBadge(pillar) {
+    if (!pillar) return '';
+    var pl = pillar.toUpperCase();
+    if (pl.indexOf('AML') >= 0) return '<span class="pillar-badge pillar-badge--aml">AML</span>';
+    if (pl.indexOf('CTF') >= 0) return '<span class="pillar-badge pillar-badge--ctf">CTF</span>';
+    if (pl.indexOf('CPF') >= 0) return '<span class="pillar-badge pillar-badge--cpf">CPF</span>';
+    return '<span class="pillar-badge">' + esc(pillar) + '</span>';
+  }
+
+  function filterBadges(filters) {
+    if (!filters) return '';
+    var html = '';
+    Object.keys(filters).forEach(function(k) {
+      if (filters[k]) {
+        var label = FILTER_NAMES[k] || k.replace(/_/g, ' ');
+        html += '<span class="filter-badge" title="' + esc(filters[k]) + '">' + esc(label) + '</span>';
+      }
+    });
+    return html;
+  }
+
+  function confBadge(conf) {
+    if (!conf) return '';
+    var cl = (conf || '').toLowerCase();
+    var cls = cl.indexOf('confirm') >= 0 ? 'positive' : cl.indexOf('assess') >= 0 ? 'moderate' : 'info';
+    return '<span class="severity-badge severity-badge--' + cls + '">' + esc(conf) + '</span>';
+  }
+
+  /* ── Data Load ────────────────────────────────────────────────────── */
+  Promise.all([
+    fetch('data/report-latest.json').then(function(r){ return r.json(); }),
+    fetch('data/persistent-state.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
+  ]).then(function(results) {
+    renderDashboard(results[0], results[1]);
+  }).catch(function (e) {
+    console.error('FIM dashboard data load failed:', e);
+    var tc = document.getElementById('triage-container');
+    if (tc) tc.innerHTML = '<div class="error-state">Failed to load dashboard data. The monitor has not yet published its first report.</div>';
+  });
+
+
+  /* ══════════════════════════════════════════════════════════════════
+     RENDER DASHBOARD — orchestrates all 9 sections
+     ══════════════════════════════════════════════════════════════════ */
+  function renderDashboard(d, ps) {
+    var meta = d._meta || {};
+    var gis  = d.global_integrity_snapshot || {};
+    var ls   = d.lead_signal || {};
+
+    /* ─── § 1  AT A GLANCE — Triage Strip ──────────────────────────── */
+    if (typeof AsymSections !== 'undefined' && AsymSections.renderTriageStrip) {
+      AsymSections.renderTriageStrip({
+        kpis: [
+          { label: 'Jurisdictions Tracked', value: gis.active_jurisdictions_tracked || '—', sub: 'Active this issue' },
+          { label: 'Enforcement Actions',   value: gis.new_enforcement_actions_this_week != null ? gis.new_enforcement_actions_this_week : '—', sub: 'This week' },
+          { label: 'Architecture Findings',  value: gis.new_architecture_findings_this_week != null ? gis.new_architecture_findings_this_week : '—', sub: 'This week' }
+        ],
+        signal: {
+          label:      'Lead Signal · FIM',
+          title:      ls.headline || gis.lead_signal || '',
+          body:       ls.summary || '',
+          source_url: ls.source_url || ''
+        },
+        structural: {
+          label:    'Global Integrity Snapshot',
+          targetId: 'triage-snapshot',
+          renderFn: function(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var items = [];
+            if (gis.highest_risk_jurisdiction) items.push('<strong>Highest risk:</strong> ' + esc(gis.highest_risk_jurisdiction));
+            if (ls.domain) items.push('<strong>Lead domain:</strong> ' + esc(ls.domain));
+            if (ls.pillar) items.push('<strong>Pillar:</strong> ' + pillarBadge(ls.pillar));
+            if (ls.severity_preliminary) items.push('<strong>Severity:</strong> ' + severityDot(ls.severity_preliminary) + esc(ls.severity_preliminary));
+            if (ls.architecture_vs_incident) items.push('<strong>Type:</strong> ' + esc(ls.architecture_vs_incident));
+            el.innerHTML = items.length ? '<div style="display:flex;flex-wrap:wrap;gap:var(--space-3) var(--space-6);font-size:var(--text-xs);color:var(--color-text-secondary)">' + items.map(function(i){ return '<div>' + i + '</div>'; }).join('') + '</div>' : '<div class="empty-state">Awaiting first synthesis</div>';
+          }
+        },
+        delta: {
+          label: 'Top Developments This Issue',
+          items: (d.domain_tracker || []).slice(0, 5).map(function(dom) {
+            return { title: dom.domain_name || dom.domain || '', one_line: dom.key_development || '', source_url: '' };
+          })
+        }
+      }, 'triage-container');
+    }
+
+    /* ─── § 2  WEEKLY BRIEF ────────────────────────────────────────── */
+    if (window.AsymSections) {
+      AsymSections.renderWeeklyBrief(d.weekly_brief_draft, 'weekly-brief-wrap');
+    }
+
+    /* ─── § 3  DOMAIN TRACKER — D1–D5 grid cards ───────────────────── */
+    renderDomainTrackerGrid(d.domain_tracker || []);
+
+    /* ─── § 4  JURISDICTION RISK TRACKER — grid cards ──────────────── */
+    renderJurisdictionRiskGrid(d.jurisdiction_risk_tracker || []);
+
+    /* ─── § 5  STANDING TRACKERS — T1–T5 cards ─────────────────────── */
+    renderStandingTrackers(d.standing_tracker_synthesis || []);
+
+    /* ─── § 6  SEVERITY REVIEWS ────────────────────────────────────── */
+    renderSeverityReviews(d.severity_reviews || []);
+
+    /* ─── § 7  TOOLING OUTPUTS ─────────────────────────────────────── */
+    renderToolingOutputs(d.tooling_outputs || {});
+
+    /* ─── § 8  KEY JUDGMENTS (shared template) ─────────────────────── */
+    if (window.AsymSections) {
+      AsymSections.renderKeyJudgments(d.key_judgments, 'key-judgments-wrap');
+    }
+
+    /* ─── § 9  CROSS-MONITOR CANDIDATES (shared template) ─────────── */
+    if (window.AsymSections) {
+      AsymSections.renderCrossMonitorCandidates(d.cross_monitor_candidates, 'cross-monitor-wrap');
+    }
+  }
+
+
+  /* ══════════════════════════════════════════════════════════════════
+     FIM-SPECIFIC RENDER HELPERS
+     ══════════════════════════════════════════════════════════════════ */
+
+  /* ── § 3: Domain Tracker Grid ────────────────────────────────────── */
+  function renderDomainTrackerGrid(domains) {
+    var wrap = document.getElementById('domain-tracker-wrap');
+    if (!wrap) return;
+    if (!domains.length) { wrap.innerHTML = '<div class="empty-state">No domain data this issue</div>'; return; }
+
+    var html = '<div class="domain-grid">';
+    domains.forEach(function(dom) {
+      var col = trajectoryColour(dom.trajectory);
+      var arrow = trajectoryArrow(dom.trajectory);
+      html +=
+        '<div class="domain-card">' +
+          '<div class="domain-card__id">' + esc(dom.domain) + '</div>' +
+          '<div class="domain-card__name">' + esc(dom.domain_name || DOMAIN_NAMES[dom.domain] || dom.domain) + '</div>' +
+          '<div class="domain-card__trajectory" style="color:' + col + '">' +
+            '<span style="font-size:1.2em;vertical-align:-1px">' + arrow + '</span> ' + esc(dom.trajectory || 'Stable') +
+          '</div>' +
+          (dom.pillar ? '<div style="margin-bottom:var(--space-2)">' + pillarBadge(dom.pillar) + '</div>' : '') +
+          (dom.architecture_vs_incident ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-bottom:var(--space-2)">' + esc(dom.architecture_vs_incident) + '</div>' : '') +
+          '<div class="domain-card__dev">' + esc(dom.key_development) + '</div>' +
+          (dom.key_jurisdiction ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-top:var(--space-2)">Key jurisdiction: ' + esc(dom.key_jurisdiction) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+
+    /* Nested developments detail (expandable under the grid) */
+    var detailHtml = '';
+    domains.forEach(function(dom) {
+      if (!dom.developments || !dom.developments.length) return;
+      detailHtml +=
+        '<details style="margin-top:var(--space-4)">' +
+          '<summary style="font-size:var(--text-sm);font-weight:600;cursor:pointer;color:var(--color-text)">' +
+            esc(dom.domain) + ': ' + esc(dom.domain_name || '') + ' — ' + dom.developments.length + ' development' + (dom.developments.length !== 1 ? 's' : '') +
+          '</summary>' +
+          '<div style="margin-top:var(--space-3)">';
+      dom.developments.forEach(function(dev) {
+        detailHtml +=
+          '<div style="padding:var(--space-3) var(--space-4);border-left:2px solid var(--monitor-accent-bg);margin-bottom:var(--space-3)">' +
+            '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)">' + esc(dev.title) + '</div>' +
+            '<div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-2)">' +
+              (dev.jurisdiction ? '<span style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(dev.jurisdiction) + '</span>' : '') +
+              (dev.pillar ? pillarBadge(dev.pillar) : '') +
+              (dev.severity_preliminary ? '<span style="font-size:var(--text-min)">' + severityDot(dev.severity_preliminary) + esc(dev.severity_preliminary) + '</span>' : '') +
+              (dev.confidence_preliminary ? confBadge(dev.confidence_preliminary) : '') +
+            '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5">' + esc(dev.summary) + '</div>' +
+            (dev.source_name || dev.source_url ? '<div style="font-size:var(--text-min);margin-top:var(--space-1)">' + (dev.source_url ? '<a href="' + esc(dev.source_url) + '" target="_blank" rel="noopener" class="source-link">' + esc(dev.source_name || 'Source') + ' →</a>' : esc(dev.source_name || '')) + (dev.source_tier ? ' <span style="color:var(--color-text-muted)">(Tier ' + esc(dev.source_tier) + ')</span>' : '') + '</div>' : '') +
+            filterBadges(dev.filters_applied) +
+          '</div>';
+      });
+      detailHtml += '</div></details>';
+    });
+
+    wrap.innerHTML = html + detailHtml;
+  }
+
+
+  /* ── § 4: Jurisdiction Risk Grid ─────────────────────────────────── */
+  function renderJurisdictionRiskGrid(jurisdictions) {
+    var wrap = document.getElementById('jurisdiction-risk-wrap');
+    if (!wrap) return;
+    if (!jurisdictions.length) { wrap.innerHTML = '<div class="empty-state">No jurisdiction data this issue</div>'; return; }
+
+    /* Sort: worsening first, then stable, then improving */
+    var order = { 'worsening': 0, 'deteriorating': 0, 'stable': 1, 'improving': 2 };
+    jurisdictions.sort(function(a, b) {
+      var oa = order[(a.risk_direction || '').toLowerCase()] != null ? order[(a.risk_direction || '').toLowerCase()] : 1;
+      var ob = order[(b.risk_direction || '').toLowerCase()] != null ? order[(b.risk_direction || '').toLowerCase()] : 1;
+      return oa - ob;
+    });
+
+    var html = '<div class="jurisdiction-grid">';
+    jurisdictions.forEach(function(j) {
+      var dir = (j.risk_direction || 'Stable').toLowerCase();
+      var cardClass = dir.indexOf('worsen') >= 0 || dir.indexOf('deterior') >= 0 ? 'jurisdiction-card--worsening' : dir.indexOf('improv') >= 0 ? 'jurisdiction-card--improving' : 'jurisdiction-card--stable';
+      var col = trajectoryColour(j.risk_direction);
+      var arrow = trajectoryArrow(j.risk_direction);
+
+      html +=
+        '<div class="jurisdiction-card ' + cardClass + '">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-2)">' +
+            '<div style="font-size:var(--text-sm);font-weight:700">' + esc(j.jurisdiction) + '</div>' +
+            (j.tier ? '<span style="font-size:var(--text-min);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:0.06em">Tier ' + esc(j.tier) + '</span>' : '') +
+          '</div>' +
+          '<div style="font-size:var(--text-xs);color:' + col + ';font-weight:600;margin-bottom:var(--space-2)">' + arrow + ' ' + esc(j.risk_direction || 'Stable') + '</div>' +
+          (j.enforcement_vs_enablement ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-bottom:var(--space-2)">E/E: ' + esc(j.enforcement_vs_enablement) + '</div>' : '') +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.45">' + esc(j.key_finding) + '</div>' +
+          (j.domains_driving && j.domains_driving.length ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-top:var(--space-2)">Domains: ' + j.domains_driving.map(function(d){ return esc(d); }).join(', ') + '</div>' : '') +
+          (j.confidence_preliminary ? '<div style="margin-top:var(--space-2)">' + confBadge(j.confidence_preliminary) + '</div>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+    wrap.innerHTML = html;
+  }
+
+
+  /* ── § 5: Standing Trackers ──────────────────────────────────────── */
+  function renderStandingTrackers(trackers) {
+    var wrap = document.getElementById('standing-trackers-wrap');
+    if (!wrap) return;
+    if (!trackers.length) { wrap.innerHTML = '<div class="empty-state">No standing tracker data this issue</div>'; return; }
+
+    if (window.AsymSections && AsymSections.renderExpandableTable) {
+      AsymSections.renderExpandableTable(trackers, 'standing-trackers-wrap', {
+        idPrefix: 'st',
+        columns: [
+          { header: 'Tracker', render: function(t) {
+            return '<strong>' + esc(t.tracker) + '</strong><br><span style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(t.tracker_name) + '</span>';
+          }},
+          { header: 'Trajectory', render: function(t) {
+            var col = trajectoryColour(t.trajectory);
+            return '<span style="color:' + col + ';font-weight:600">' + trajectoryArrow(t.trajectory) + ' ' + esc(t.trajectory) + '</span>';
+          }},
+          { header: 'Status', render: function(t) {
+            return esc(t.status);
+          }}
+        ],
+        detail: function(t) {
+          var html = '<div style="padding:var(--space-3) var(--space-4)">';
+          html += '<div style="font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-2)">' + esc(t.key_development) + '</div>';
+          if (t.reasoning) html += '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5">' + esc(t.reasoning) + '</div>';
+          html += '</div>';
+          return html;
+        },
+        autoExpand: 0,
+        emptyMsg: 'No standing tracker data'
+      });
+    } else {
+      /* Fallback: simple cards */
+      var html = '';
+      trackers.forEach(function(t) {
+        var col = trajectoryColour(t.trajectory);
+        html +=
+          '<div style="padding:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-md);margin-bottom:var(--space-3);background:var(--color-surface)">' +
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-2)">' +
+              '<div><strong>' + esc(t.tracker) + '</strong> — ' + esc(t.tracker_name) + '</div>' +
+              '<span style="color:' + col + ';font-weight:600;font-size:var(--text-xs)">' + trajectoryArrow(t.trajectory) + ' ' + esc(t.trajectory) + '</span>' +
+            '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--space-1)">' + esc(t.status) + '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.45">' + esc(t.key_development) + '</div>' +
+          '</div>';
+      });
+      wrap.innerHTML = html;
+    }
+  }
+
+
+  /* ── § 6: Severity Reviews ───────────────────────────────────────── */
+  function renderSeverityReviews(reviews) {
+    var wrap = document.getElementById('severity-reviews-wrap');
+    if (!wrap) return;
+    if (!reviews.length) { wrap.innerHTML = '<div class="empty-state">No severity reviews this issue</div>'; return; }
+
+    if (window.AsymSections && AsymSections.renderExpandableTable) {
+      AsymSections.renderExpandableTable(reviews, 'severity-reviews-wrap', {
+        idPrefix: 'sr',
+        columns: [
+          { header: 'Scheme / Development', render: function(r) {
+            return '<strong>' + esc(r.scheme_or_development) + '</strong>' +
+              (r.jurisdiction ? '<br><span style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(r.jurisdiction) + '</span>' : '');
+          }},
+          { header: 'Current → Recommended', render: function(r) {
+            return severityDot(r.current_severity) + esc(r.current_severity) +
+              (r.change_warranted ? ' → ' + severityDot(r.recommended_severity) + '<strong>' + esc(r.recommended_severity) + '</strong>' : ' (no change)');
+          }},
+          { header: 'Type', render: function(r) {
+            return esc(r.architecture_vs_incident || '');
+          }},
+          { header: 'Pillar', render: function(r) {
+            return r.pillar ? pillarBadge(r.pillar) : '';
+          }}
+        ],
+        detail: function(r) {
+          return '<div style="padding:var(--space-3) var(--space-4);font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5">' + esc(r.reasoning) + '</div>';
+        },
+        autoExpand: -1,
+        emptyMsg: 'No severity reviews'
+      });
+    } else {
+      var html = '';
+      reviews.forEach(function(r) {
+        html +=
+          '<div style="padding:var(--space-3) var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-md);margin-bottom:var(--space-3);background:var(--color-surface)">' +
+            '<div style="font-size:var(--text-sm);font-weight:600">' + esc(r.scheme_or_development) + '</div>' +
+            '<div style="font-size:var(--text-xs);margin-top:var(--space-1)">' + severityDot(r.current_severity) + esc(r.current_severity) + ' → ' + severityDot(r.recommended_severity) + esc(r.recommended_severity) + '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2);line-height:1.45">' + esc(r.reasoning) + '</div>' +
+          '</div>';
+      });
+      wrap.innerHTML = html;
+    }
+  }
+
+
+  /* ── § 7: Tooling Outputs ────────────────────────────────────────── */
+  function renderToolingOutputs(tooling) {
+    var wrap = document.getElementById('tooling-outputs-wrap');
+    if (!wrap) return;
+
+    var html = '';
+
+    /* 7a: Scheme Inventory */
+    var schemes = tooling.active_scheme_inventory || [];
+    html += '<div class="module-header" style="margin-top:var(--space-4)"><div class="module-title" style="font-size:var(--text-sm)">Active Scheme Inventory</div></div>';
+    if (schemes.length) {
+      html += '<div style="overflow-x:auto"><table class="data-table" style="width:100%;border-collapse:collapse;font-size:var(--text-xs)">';
+      html += '<thead><tr><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Scheme</th><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Severity</th><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Pillar</th><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Jurisdictions</th><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Type</th></tr></thead>';
+      html += '<tbody>';
+      schemes.forEach(function(s) {
+        html += '<tr>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle);font-weight:600">' + esc(s.scheme_name) + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle)">' + severityDot(s.severity) + esc(s.severity) + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle)">' + (s.pillar ? pillarBadge(s.pillar) : '') + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle)">' + (s.jurisdictions || []).map(function(j){ return esc(j); }).join(', ') + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle)">' + esc(s.scheme_type || '') + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table></div>';
+    } else {
+      html += '<div class="empty-state">No active schemes this issue</div>';
+    }
+
+    /* 7b: Enforcement Gap Signals */
+    var gaps = tooling.enforcement_gap_signals || [];
+    html += '<div class="module-header" style="margin-top:var(--space-6)"><div class="module-title" style="font-size:var(--text-sm)">Enforcement Gap Signals</div></div>';
+    if (gaps.length) {
+      gaps.forEach(function(g) {
+        html +=
+          '<div style="padding:var(--space-3) var(--space-4);border-left:2px solid var(--monitor-accent-bg);margin-bottom:var(--space-3)">' +
+            '<div style="font-size:var(--text-sm);font-weight:600">' + esc(g.jurisdiction) + '</div>' +
+            '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-1);line-height:1.45">' + esc(g.gap_description) + '</div>' +
+            (g.significance ? '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-top:var(--space-1)">' + esc(g.significance) + '</div>' : '') +
+          '</div>';
+      });
+    } else {
+      html += '<div class="empty-state">No enforcement gaps this issue</div>';
+    }
+
+    /* 7c: Regulatory Horizon */
+    var horizon = tooling.regulatory_horizon || [];
+    html += '<div class="module-header" style="margin-top:var(--space-6)"><div class="module-title" style="font-size:var(--text-sm)">Regulatory Horizon</div></div>';
+    if (horizon.length) {
+      html += '<div style="overflow-x:auto"><table class="data-table" style="width:100%;border-collapse:collapse;font-size:var(--text-xs)">';
+      html += '<thead><tr><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Development</th><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Stage</th><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Impact Date</th><th style="text-align:left;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border);font-size:var(--text-min);text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted)">Affected</th></tr></thead>';
+      html += '<tbody>';
+      horizon.forEach(function(h) {
+        html += '<tr>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle);font-weight:600">' + esc(h.development) + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle)">' + esc(h.stage) + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle)">' + esc(h.estimated_impact_date || '—') + '</td>' +
+          '<td style="padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-border-subtle)">' + esc(h.affected_entities || '') + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table></div>';
+    } else {
+      html += '<div class="empty-state">No regulatory horizon items</div>';
+    }
+
+    /* 7d: CTF/CPF Flags */
+    var flags = tooling.ctf_cpf_flags || [];
+    html += '<div class="module-header" style="margin-top:var(--space-6)"><div class="module-title" style="font-size:var(--text-sm)">CTF/CPF Flags</div></div>';
+    if (flags.length) {
+      flags.forEach(function(f) {
+        html +=
+          '<div style="display:flex;gap:var(--space-3);align-items:baseline;padding:var(--space-2) 0;border-bottom:1px solid var(--color-border-subtle)">' +
+            '<div>' + pillarBadge(f.pillar) + '</div>' +
+            '<div style="flex:1;font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(f.signal) + '</div>' +
+            '<div style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(f.jurisdiction) + '</div>' +
+            (f.confidence ? '<div>' + confBadge(f.confidence) + '</div>' : '') +
+          '</div>';
+      });
+    } else {
+      html += '<div class="empty-state">No CTF/CPF flags this issue</div>';
+    }
+
+    /* 7e: Jurisdiction Risk Movements (from tooling) */
+    var moves = tooling.jurisdiction_risk_movements || [];
+    if (moves.length) {
+      html += '<div class="module-header" style="margin-top:var(--space-6)"><div class="module-title" style="font-size:var(--text-sm)">Jurisdiction Risk Movements</div></div>';
+      moves.forEach(function(m) {
+        var col = trajectoryColour(m.direction);
+        html +=
+          '<div style="display:flex;gap:var(--space-3);align-items:baseline;padding:var(--space-2) 0;border-bottom:1px solid var(--color-border-subtle)">' +
+            '<div style="font-size:var(--text-sm);font-weight:600">' + esc(m.jurisdiction) + '</div>' +
+            '<div style="color:' + col + ';font-weight:600;font-size:var(--text-xs)">' + trajectoryArrow(m.direction) + ' ' + esc(m.direction) + '</div>' +
+            '<div style="flex:1;font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(m.basis) + '</div>' +
+            (m.confidence ? '<div>' + confBadge(m.confidence) + '</div>' : '') +
+          '</div>';
+      });
+    }
+
+    wrap.innerHTML = html;
+  }
+
+});
+</script>
+</body>
+</html>

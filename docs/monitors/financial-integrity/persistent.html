@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Persistent State — Financial Integrity Monitor · Asymmetric Intelligence</title>
+  <meta name="description" content="Persistent state tracker for the Financial Integrity Monitor. Accumulated jurisdiction baselines, scheme inventory, enforcement gap log, regulatory horizon, CTF/CPF flags, and standing trackers.">
+  <link rel="stylesheet" href="../shared/css/base.css">
+  <link rel="stylesheet" href="assets/monitor.css">
+  <script src="../shared/js/theme.js"></script>
+  <script src="../shared/js/nav.js"></script>
+  <style>
+    /* ── PILLAR BADGE ──────────────────────────────────────────────── */
+    .pillar-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.06em; padding: 1px 6px; border-radius: 3px; text-transform: uppercase;
+    }
+    .pillar-badge--aml { background: rgba(139,0,0,0.12); color: #8b0000; }
+    .pillar-badge--ctf { background: rgba(217,119,6,0.12); color: #b45309; }
+    .pillar-badge--cpf { background: rgba(126,34,206,0.12); color: #7e22ce; }
+    [data-theme="dark"] .pillar-badge--aml { background: rgba(205,92,92,0.2); color: #cd5c5c; }
+    [data-theme="dark"] .pillar-badge--ctf { background: rgba(251,191,36,0.2); color: #fbbf24; }
+    [data-theme="dark"] .pillar-badge--cpf { background: rgba(192,132,252,0.2); color: #c084fc; }
+
+    .severity-dot {
+      display: inline-block; width: 8px; height: 8px;
+      border-radius: 50%; margin-right: 4px; vertical-align: middle;
+    }
+    .severity-dot--critical { background: #dc2626; }
+    .severity-dot--high     { background: #d97706; }
+    .severity-dot--moderate { background: #2563eb; }
+    .severity-dot--low      { background: #059669; }
+
+    .ps-table { width: 100%; border-collapse: collapse; font-size: var(--text-xs); }
+    .ps-table th {
+      font-size: var(--text-min); text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--color-text-muted); background: var(--color-bg-alt);
+      padding: var(--space-2) var(--space-3); text-align: left;
+      border-bottom: 1px solid var(--color-border); white-space: nowrap;
+    }
+    .ps-table td {
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border-subtle);
+      vertical-align: top;
+    }
+    .ps-table tr:hover td { background: var(--color-bg-alt); }
+
+    .ps-count-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; border-radius: 10px;
+      font-size: var(--text-min); font-weight: 700;
+      background: var(--monitor-accent-bg); color: var(--monitor-accent);
+      padding: 0 6px;
+    }
+  </style>
+  <!-- SEO: JSON-LD structured data -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://asym-intel.info/"},{"@type":"ListItem","position":2,"name":"Financial Integrity Monitor","item":"https://asym-intel.info/monitors/financial-integrity/"},{"@type":"ListItem","position":3,"name":"Persistent State","item":"https://asym-intel.info/monitors/financial-integrity/persistent.html"}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Persistent State — Financial Integrity Monitor","url":"https://asym-intel.info/monitors/financial-integrity/persistent.html","description":"Persistent state tracker for the Financial Integrity Monitor.","isPartOf":{"@type":"Dataset","name":"Financial Integrity Monitor — Asymmetric Intelligence","url":"https://asym-intel.info/monitors/financial-integrity/","creator":{"@type":"Person","name":"Peter Howitt"},"license":"https://creativecommons.org/licenses/by/4.0/"},"publisher":{"@type":"Organization","name":"Asymmetric Intelligence","url":"https://asym-intel.info"}}</script>
+  <link rel="alternate" type="text/plain" title="LLM Site Index" href="/llms.txt">
+</head>
+
+<body>
+<nav class="monitor-nav" aria-label="Monitor navigation">
+  <a class="monitor-nav__brand" href="dashboard.html"></a>
+  <button class="monitor-nav__hamburger" aria-label="Toggle menu" aria-expanded="false">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+  <ul class="monitor-nav__links" role="list"></ul>
+  <div class="monitor-nav__actions"></div>
+</nav>
+
+<div class="monitor-layout">
+  <main class="monitor-main" id="main-content">
+
+    <!-- § 1  HEADER -->
+    <section class="module-section" id="section-header">
+      <div id="ps-header"><div class="loading-state">Loading persistent state…</div></div>
+    </section>
+
+    <!-- § 2  JURISDICTION BASELINES -->
+    <section class="module-section" id="section-jurisdiction-baselines">
+      <div class="module-header">
+        <div class="module-title">Jurisdiction Baselines</div>
+        <div class="module-subtitle">Accumulated risk baselines per jurisdiction</div>
+      </div>
+      <div id="jurisdiction-baselines-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 3  SCHEME INVENTORY -->
+    <section class="module-section" id="section-scheme-inventory">
+      <div class="module-header">
+        <div class="module-title">Scheme Inventory</div>
+        <div class="module-subtitle">Persistent record of tracked financial crime schemes</div>
+      </div>
+      <div id="scheme-inventory-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 4  ENFORCEMENT GAP LOG -->
+    <section class="module-section" id="section-enforcement-gaps">
+      <div class="module-header">
+        <div class="module-title">Enforcement Gap Log</div>
+      </div>
+      <div id="enforcement-gaps-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 5  REGULATORY HORIZON -->
+    <section class="module-section" id="section-regulatory-horizon">
+      <div class="module-header">
+        <div class="module-title">Regulatory Horizon</div>
+      </div>
+      <div id="regulatory-horizon-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 6  CTF/CPF FLAGS -->
+    <section class="module-section" id="section-ctf-cpf">
+      <div class="module-header">
+        <div class="module-title">CTF/CPF Flags</div>
+        <div class="module-subtitle">Counter-terrorism and counter-proliferation finance signals</div>
+      </div>
+      <div id="ctf-cpf-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 7  STANDING TRACKERS -->
+    <section class="module-section" id="section-standing-trackers">
+      <div class="module-header">
+        <div class="module-title">Standing Trackers</div>
+      </div>
+      <div id="standing-trackers-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- § 8  CROSS-MONITOR FLAGS -->
+    <section class="module-section" id="section-cross-monitor">
+      <div class="module-header">
+        <div class="module-title">Cross-Monitor Flags</div>
+      </div>
+      <div id="cross-monitor-wrap"><div class="loading-state">Loading…</div></div>
+    </section>
+
+  </main>
+
+  <nav class="monitor-sidebar" aria-label="Page sections">
+    <div class="sidebar-nav__title">Sections</div>
+    <ul>
+      <li><a href="#section-header">Overview</a></li>
+      <li><a href="#section-jurisdiction-baselines">Jurisdiction Baselines</a></li>
+      <li><a href="#section-scheme-inventory">Scheme Inventory</a></li>
+      <li><a href="#section-enforcement-gaps">Enforcement Gaps</a></li>
+      <li><a href="#section-regulatory-horizon">Regulatory Horizon</a></li>
+      <li><a href="#section-ctf-cpf">CTF/CPF Flags</a></li>
+      <li><a href="#section-standing-trackers">Standing Trackers</a></li>
+      <li><a href="#section-cross-monitor">Cross-Monitor</a></li>
+    </ul>
+  </nav>
+</div>
+
+<footer class="monitor-footer"></footer>
+<script src="../shared/js/renderer.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════════════
+   FIM Persistent State — Accumulated intelligence state
+   Renders persistent-state.json (and optionally report-latest.json)
+   ══════════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function () {
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function trajectoryColour(t) {
+    if (!t) return '#64748b';
+    var tl = t.toLowerCase();
+    if (tl.indexOf('worsen') >= 0 || tl.indexOf('deterior') >= 0) return '#dc2626';
+    if (tl.indexOf('improv') >= 0) return '#059669';
+    return '#64748b';
+  }
+  function trajectoryArrow(t) {
+    if (!t) return '→'; var tl = t.toLowerCase();
+    if (tl.indexOf('worsen') >= 0 || tl.indexOf('deterior') >= 0) return '↑';
+    if (tl.indexOf('improv') >= 0) return '↓'; return '→';
+  }
+  function severityDot(sev) {
+    var sl = (sev || '').toLowerCase();
+    if (sl.indexOf('critical') >= 0) return '<span class="severity-dot severity-dot--critical"></span>';
+    if (sl.indexOf('high') >= 0) return '<span class="severity-dot severity-dot--high"></span>';
+    if (sl.indexOf('moderate') >= 0 || sl.indexOf('medium') >= 0) return '<span class="severity-dot severity-dot--moderate"></span>';
+    return '<span class="severity-dot severity-dot--low"></span>';
+  }
+  function pillarBadge(pillar) {
+    if (!pillar) return '';
+    var pl = pillar.toUpperCase();
+    if (pl.indexOf('AML') >= 0) return '<span class="pillar-badge pillar-badge--aml">AML</span>';
+    if (pl.indexOf('CTF') >= 0) return '<span class="pillar-badge pillar-badge--ctf">CTF</span>';
+    if (pl.indexOf('CPF') >= 0) return '<span class="pillar-badge pillar-badge--cpf">CPF</span>';
+    return '<span class="pillar-badge">' + esc(pillar) + '</span>';
+  }
+  function confBadge(conf) {
+    if (!conf) return '';
+    var cl = (conf || '').toLowerCase();
+    var cls = cl.indexOf('confirm') >= 0 ? 'positive' : cl.indexOf('assess') >= 0 ? 'moderate' : 'info';
+    return '<span class="severity-badge severity-badge--' + cls + '">' + esc(conf) + '</span>';
+  }
+
+  /* ── Data Load ────────────────────────────────────────────────────── */
+  fetch('data/persistent-state.json')
+    .then(function(r){ return r.json(); })
+    .then(function(ps){ renderPersistent(ps); })
+    .catch(function(e){
+      document.getElementById('ps-header').innerHTML =
+        '<div class="error-state">Failed to load persistent state. The monitor has not yet accumulated state data.</div>';
+    });
+
+
+  function renderPersistent(ps) {
+    var sv = ps.schema_version || '2.0';
+
+    /* § 1 — Header */
+    var hdr = document.getElementById('ps-header');
+    var counts = {
+      jurisdictions: Array.isArray(ps.jurisdiction_baselines) ? ps.jurisdiction_baselines.length : 0,
+      schemes: Array.isArray(ps.scheme_inventory) ? ps.scheme_inventory.length : 0,
+      gaps: Array.isArray(ps.enforcement_gap_log) ? ps.enforcement_gap_log.length : 0,
+      horizon: Array.isArray(ps.regulatory_horizon) ? ps.regulatory_horizon.length : 0,
+      ctfcpf: Array.isArray(ps.ctf_cpf_flags) ? ps.ctf_cpf_flags.length : 0,
+      trackers: Array.isArray(ps.standing_trackers) ? ps.standing_trackers.length : 0,
+      cmf: Array.isArray(ps.cross_monitor_flags) ? ps.cross_monitor_flags.length : 0
+    };
+
+    hdr.innerHTML =
+      '<h1 class="page-title" style="font-size:var(--text-xl);margin-bottom:var(--space-3)">Financial Integrity Monitor — Persistent State</h1>' +
+      '<div style="display:flex;gap:var(--space-4);flex-wrap:wrap;font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-4)">' +
+        '<span>Schema: ' + esc(sv) + '</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:var(--space-4);flex-wrap:wrap">' +
+        summaryBadge('Jurisdictions', counts.jurisdictions) +
+        summaryBadge('Schemes', counts.schemes) +
+        summaryBadge('Gaps', counts.gaps) +
+        summaryBadge('Horizon', counts.horizon) +
+        summaryBadge('CTF/CPF', counts.ctfcpf) +
+        summaryBadge('Trackers', counts.trackers) +
+        summaryBadge('Cross-Monitor', counts.cmf) +
+      '</div>';
+
+    /* § 2 — Jurisdiction Baselines */
+    renderJurisdictionBaselines(ps.jurisdiction_baselines || []);
+
+    /* § 3 — Scheme Inventory */
+    renderSchemeInventory(ps.scheme_inventory || []);
+
+    /* § 4 — Enforcement Gaps */
+    renderEnforcementGaps(ps.enforcement_gap_log || []);
+
+    /* § 5 — Regulatory Horizon */
+    renderRegulatoryHorizon(ps.regulatory_horizon || []);
+
+    /* § 6 — CTF/CPF Flags */
+    renderCtfCpfFlags(ps.ctf_cpf_flags || []);
+
+    /* § 7 — Standing Trackers */
+    renderStandingTrackers(ps.standing_trackers || []);
+
+    /* § 8 — Cross-Monitor Flags */
+    if (window.AsymSections) {
+      AsymSections.renderCrossMonitorCandidates(ps.cross_monitor_flags, 'cross-monitor-wrap');
+    } else {
+      renderSimpleList(ps.cross_monitor_flags || [], 'cross-monitor-wrap', function(f) {
+        return '<strong>' + esc(f.target_monitor || '') + '</strong>: ' + esc(f.signal || '') + ' (' + esc(f.type || '') + ')';
+      });
+    }
+  }
+
+
+  function summaryBadge(label, count) {
+    return '<div style="text-align:center">' +
+      '<div class="ps-count-badge">' + count + '</div>' +
+      '<div style="font-size:var(--text-min);color:var(--color-text-muted);margin-top:var(--space-1)">' + esc(label) + '</div>' +
+    '</div>';
+  }
+
+
+  /* ── § 2: Jurisdiction Baselines ─────────────────────────────────── */
+  function renderJurisdictionBaselines(baselines) {
+    var wrap = document.getElementById('jurisdiction-baselines-wrap');
+    if (!wrap) return;
+    if (!baselines.length) { wrap.innerHTML = '<div class="empty-state">No jurisdiction baselines accumulated yet</div>'; return; }
+
+    var html = '<div style="overflow-x:auto"><table class="ps-table"><thead><tr>' +
+      '<th>Jurisdiction</th><th>Tier</th><th>Direction</th><th>Key Finding</th><th>E/E Balance</th><th>Domains</th>' +
+      '</tr></thead><tbody>';
+    baselines.forEach(function(j) {
+      var col = trajectoryColour(j.risk_direction);
+      html += '<tr>' +
+        '<td style="font-weight:600">' + esc(j.jurisdiction) + '</td>' +
+        '<td>' + esc(j.tier || '') + '</td>' +
+        '<td style="color:' + col + ';font-weight:600">' + trajectoryArrow(j.risk_direction) + ' ' + esc(j.risk_direction || 'Stable') + '</td>' +
+        '<td>' + esc(j.key_finding || '') + '</td>' +
+        '<td>' + esc(j.enforcement_vs_enablement || '') + '</td>' +
+        '<td>' + (j.domains_driving || []).join(', ') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+
+  /* ── § 3: Scheme Inventory ───────────────────────────────────────── */
+  function renderSchemeInventory(schemes) {
+    var wrap = document.getElementById('scheme-inventory-wrap');
+    if (!wrap) return;
+    if (!schemes.length) { wrap.innerHTML = '<div class="empty-state">No schemes tracked yet</div>'; return; }
+
+    var html = '<div style="overflow-x:auto"><table class="ps-table"><thead><tr>' +
+      '<th>Scheme</th><th>Severity</th><th>Pillar</th><th>Type</th><th>Jurisdictions</th><th>Confidence</th><th>Last Updated</th>' +
+      '</tr></thead><tbody>';
+    schemes.forEach(function(s) {
+      html += '<tr>' +
+        '<td style="font-weight:600">' + esc(s.scheme_name) + '</td>' +
+        '<td>' + severityDot(s.severity) + esc(s.severity) + '</td>' +
+        '<td>' + (s.pillar ? pillarBadge(s.pillar) : '') + '</td>' +
+        '<td>' + esc(s.scheme_type || '') + '</td>' +
+        '<td>' + (s.jurisdictions || []).join(', ') + '</td>' +
+        '<td>' + (s.confidence ? confBadge(s.confidence) : '') + '</td>' +
+        '<td style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(s.last_updated || '') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+
+  /* ── § 4: Enforcement Gap Log ────────────────────────────────────── */
+  function renderEnforcementGaps(gaps) {
+    var wrap = document.getElementById('enforcement-gaps-wrap');
+    if (!wrap) return;
+    if (!gaps.length) { wrap.innerHTML = '<div class="empty-state">No enforcement gaps logged yet</div>'; return; }
+
+    var html = '<div style="overflow-x:auto"><table class="ps-table"><thead><tr>' +
+      '<th>Jurisdiction</th><th>Gap</th><th>Significance</th><th>First Logged</th>' +
+      '</tr></thead><tbody>';
+    gaps.forEach(function(g) {
+      html += '<tr>' +
+        '<td style="font-weight:600">' + esc(g.jurisdiction) + '</td>' +
+        '<td>' + esc(g.gap_description) + '</td>' +
+        '<td>' + esc(g.significance || '') + '</td>' +
+        '<td style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(g.first_logged || g.logged_at || '') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+
+  /* ── § 5: Regulatory Horizon ─────────────────────────────────────── */
+  function renderRegulatoryHorizon(horizon) {
+    var wrap = document.getElementById('regulatory-horizon-wrap');
+    if (!wrap) return;
+    if (!horizon.length) { wrap.innerHTML = '<div class="empty-state">No regulatory horizon items</div>'; return; }
+
+    var html = '<div style="overflow-x:auto"><table class="ps-table"><thead><tr>' +
+      '<th>Development</th><th>Stage</th><th>Impact Date</th><th>Affected</th>' +
+      '</tr></thead><tbody>';
+    horizon.forEach(function(h) {
+      html += '<tr>' +
+        '<td style="font-weight:600">' + esc(h.development) + '</td>' +
+        '<td>' + esc(h.stage) + '</td>' +
+        '<td>' + esc(h.estimated_impact_date || '—') + '</td>' +
+        '<td>' + esc(h.affected_entities || '') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+
+  /* ── § 6: CTF/CPF Flags ──────────────────────────────────────────── */
+  function renderCtfCpfFlags(flags) {
+    var wrap = document.getElementById('ctf-cpf-wrap');
+    if (!wrap) return;
+    if (!flags.length) { wrap.innerHTML = '<div class="empty-state">No CTF/CPF flags accumulated</div>'; return; }
+
+    var html = '<div style="overflow-x:auto"><table class="ps-table"><thead><tr>' +
+      '<th>Pillar</th><th>Signal</th><th>Jurisdiction</th><th>Confidence</th><th>First Logged</th>' +
+      '</tr></thead><tbody>';
+    flags.forEach(function(f) {
+      html += '<tr>' +
+        '<td>' + pillarBadge(f.pillar) + '</td>' +
+        '<td>' + esc(f.signal) + '</td>' +
+        '<td>' + esc(f.jurisdiction) + '</td>' +
+        '<td>' + (f.confidence ? confBadge(f.confidence) : '') + '</td>' +
+        '<td style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(f.first_logged || f.logged_at || '') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  }
+
+
+  /* ── § 7: Standing Trackers ──────────────────────────────────────── */
+  function renderStandingTrackers(trackers) {
+    var wrap = document.getElementById('standing-trackers-wrap');
+    if (!wrap) return;
+    if (!trackers.length) { wrap.innerHTML = '<div class="empty-state">No standing tracker state</div>'; return; }
+
+    var html = '';
+    trackers.forEach(function(t) {
+      var col = trajectoryColour(t.trajectory);
+      html +=
+        '<div style="padding:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-md);margin-bottom:var(--space-3);background:var(--color-surface)">' +
+          '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:var(--space-2)">' +
+            '<div style="font-weight:700;font-size:var(--text-sm)">' + esc(t.tracker) + ': ' + esc(t.tracker_name) + '</div>' +
+            '<span style="color:' + col + ';font-weight:600;font-size:var(--text-xs)">' + trajectoryArrow(t.trajectory) + ' ' + esc(t.trajectory) + '</span>' +
+          '</div>' +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-1)">Status: ' + esc(t.status) + '</div>' +
+          '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);line-height:1.5">' + esc(t.key_development) + '</div>' +
+        '</div>';
+    });
+    wrap.innerHTML = html;
+  }
+
+
+  /* ── Generic list fallback ───────────────────────────────────────── */
+  function renderSimpleList(items, targetId, renderFn) {
+    var wrap = document.getElementById(targetId);
+    if (!wrap) return;
+    if (!items.length) { wrap.innerHTML = '<div class="empty-state">No data</div>'; return; }
+    var html = '<ul style="list-style:none;padding:0;margin:0">';
+    items.forEach(function(item) {
+      html += '<li style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border-subtle);font-size:var(--text-xs)">' + renderFn(item) + '</li>';
+    });
+    html += '</ul>';
+    wrap.innerHTML = html;
+  }
+
+});
+</script>
+</body>
+</html>
