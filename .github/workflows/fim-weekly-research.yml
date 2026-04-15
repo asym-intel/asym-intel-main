@@ -1,0 +1,38 @@
+name: FIM Weekly Deep Research
+
+on:
+  workflow_dispatch:        # allow manual trigger from Actions tab
+
+jobs:
+  research:
+    name: FIM Weekly Deep Research (sonar-pro)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run weekly deep research
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/financial-integrity/weekly-research.py
+
+      - name: Commit research output
+        run: |
+          git config user.name  "FIM Research Bot"
+          git config user.email "fim-research@asym-intel.info"
+          git add pipeline/monitors/financial-integrity/weekly/
+          git diff --staged --quiet && echo "No research output to commit" && exit 0
+          git commit -m "data(fim-research): weekly deep research — $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push
