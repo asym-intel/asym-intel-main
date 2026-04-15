@@ -1,0 +1,50 @@
+name: "Financial Integrity Monitor Synthesiser"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  synthesise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+
+      - name: Fetch identity card from internal repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          mkdir -p docs/identity
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-FIM.md" \
+            -o docs/identity/fim-identity.md \
+            && echo "Identity card fetched ($(wc -c < docs/identity/fim-identity.md) bytes)" \
+            || echo "WARNING: Identity card not found — continuing without it"
+
+      - name: Run FIM synthesiser
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          REPO_ROOT: ${{ github.workspace }}
+        run: |
+          python pipeline/synthesisers/fim/financial-integrity-synthesiser.py
+
+      - name: Commit synthesis output
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/financial-integrity/synthesised/
+          git diff --cached --quiet || git commit -m "chore(fim): synthesiser run $(date -u +%Y-%m-%d)"
+          git pull --rebase origin main
+          git push

@@ -1,0 +1,261 @@
+{
+  "type": "object",
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": {"type": "string"},
+        "research_model": {"type": "string"},
+        "monitor_slug": {"type": "string"},
+        "synthesised_at": {"type": "string"},
+        "week_ending": {"type": "string"},
+        "null_signal_week": {"type": "boolean"},
+        "null_signal_reason": {"type": ["string", "null"]}
+      },
+      "required": ["schema_version", "monitor_slug", "synthesised_at", "week_ending", "null_signal_week"]
+    },
+    "global_integrity_snapshot": {
+      "type": "object",
+      "properties": {
+        "active_jurisdictions_tracked": {"type": "integer"},
+        "new_enforcement_actions_this_week": {"type": "integer"},
+        "new_architecture_findings_this_week": {"type": "integer"},
+        "highest_risk_jurisdiction": {"type": "string"},
+        "lead_signal": {"type": "string"}
+      },
+      "required": ["active_jurisdictions_tracked", "highest_risk_jurisdiction", "lead_signal"]
+    },
+    "lead_signal": {
+      "type": "object",
+      "properties": {
+        "jurisdiction": {"type": "string"},
+        "headline": {"type": "string"},
+        "domain": {"type": "string"},
+        "pillar": {"type": "string"},
+        "severity_preliminary": {"type": "string"},
+        "architecture_vs_incident": {"type": "string"},
+        "summary": {"type": "string"}
+      },
+      "required": ["jurisdiction", "headline", "domain", "pillar", "severity_preliminary", "summary"]
+    },
+    "domain_tracker": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "domain": {"type": "string"},
+          "domain_name": {"type": "string"},
+          "trajectory": {"type": "string"},
+          "architecture_vs_incident": {"type": "string"},
+          "key_development": {"type": "string"},
+          "key_jurisdiction": {"type": "string"},
+          "pillar": {"type": "string"},
+          "developments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {"type": "string"},
+                "jurisdiction": {"type": "string"},
+                "pillar": {"type": "string"},
+                "actor_category": {"type": "string"},
+                "severity_preliminary": {"type": "string"},
+                "architecture_vs_incident": {"type": "string"},
+                "summary": {"type": "string"},
+                "source_name": {"type": "string"},
+                "source_url": {"type": "string"},
+                "source_tier": {"type": "string"},
+                "confidence_preliminary": {"type": "string"},
+                "filters_applied": {
+                  "type": "object",
+                  "properties": {
+                    "f1_state_capture": {"type": ["string", "null"]},
+                    "f2_sanctions_architecture": {"type": ["string", "null"]},
+                    "f3_enabler_jurisdiction": {"type": ["string", "null"]},
+                    "f4_conflict_finance": {"type": ["string", "null"]}
+                  }
+                }
+              },
+              "required": ["title", "jurisdiction", "severity_preliminary", "summary"]
+            }
+          }
+        },
+        "required": ["domain", "domain_name", "trajectory", "key_development"]
+      }
+    },
+    "jurisdiction_risk_tracker": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "jurisdiction": {"type": "string"},
+          "tier": {"type": "string"},
+          "risk_direction": {"type": "string"},
+          "risk_basis": {"type": "string"},
+          "domains_driving": {"type": "array", "items": {"type": "string"}},
+          "enforcement_vs_enablement": {"type": "string"},
+          "key_finding": {"type": "string"},
+          "confidence_preliminary": {"type": "string"}
+        },
+        "required": ["jurisdiction", "tier", "risk_direction", "key_finding"]
+      }
+    },
+    "standing_tracker_synthesis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tracker": {"type": "string"},
+          "tracker_name": {"type": "string"},
+          "trajectory": {"type": "string"},
+          "status": {"type": "string"},
+          "key_development": {"type": "string"},
+          "reasoning": {"type": "string"}
+        },
+        "required": ["tracker", "tracker_name", "trajectory", "status", "key_development"]
+      }
+    },
+    "severity_reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scheme_or_development": {"type": "string"},
+          "jurisdiction": {"type": "string"},
+          "current_severity": {"type": "string"},
+          "recommended_severity": {"type": "string"},
+          "change_warranted": {"type": "boolean"},
+          "architecture_vs_incident": {"type": "string"},
+          "pillar": {"type": "string"},
+          "reasoning": {"type": "string"}
+        },
+        "required": ["scheme_or_development", "current_severity", "recommended_severity", "architecture_vs_incident", "reasoning"]
+      }
+    },
+    "filter_review": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "filter": {"type": "string"},
+          "finding_reference": {"type": "string"},
+          "assessment": {"type": "string"},
+          "correction": {"type": ["string", "null"]}
+        },
+        "required": ["filter", "finding_reference", "assessment"]
+      }
+    },
+    "tooling_outputs": {
+      "type": "object",
+      "properties": {
+        "jurisdiction_risk_movements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "jurisdiction": {"type": "string"},
+              "direction": {"type": "string"},
+              "basis": {"type": "string"},
+              "confidence": {"type": "string"}
+            },
+            "required": ["jurisdiction", "direction", "basis"]
+          }
+        },
+        "active_scheme_inventory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "scheme_name": {"type": "string"},
+              "severity": {"type": "string"},
+              "jurisdictions": {"type": "array", "items": {"type": "string"}},
+              "pillar": {"type": "string"},
+              "scheme_type": {"type": "string"},
+              "confidence": {"type": "string"}
+            },
+            "required": ["scheme_name", "severity", "jurisdictions", "pillar"]
+          }
+        },
+        "enforcement_gap_signals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "jurisdiction": {"type": "string"},
+              "gap_description": {"type": "string"},
+              "significance": {"type": "string"}
+            },
+            "required": ["jurisdiction", "gap_description"]
+          }
+        },
+        "regulatory_horizon": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "development": {"type": "string"},
+              "stage": {"type": "string"},
+              "estimated_impact_date": {"type": "string"},
+              "affected_entities": {"type": "string"}
+            },
+            "required": ["development", "stage"]
+          }
+        },
+        "ctf_cpf_flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pillar": {"type": "string"},
+              "signal": {"type": "string"},
+              "jurisdiction": {"type": "string"},
+              "confidence": {"type": "string"}
+            },
+            "required": ["pillar", "signal", "jurisdiction"]
+          }
+        }
+      },
+      "required": ["jurisdiction_risk_movements", "active_scheme_inventory", "enforcement_gap_signals", "regulatory_horizon", "ctf_cpf_flags"]
+    },
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "judgment": {"type": "string"},
+          "confidence_preliminary": {"type": "string"},
+          "domain": {"type": "string"},
+          "trajectory": {"type": "string"}
+        },
+        "required": ["id", "judgment", "confidence_preliminary", "domain"]
+      }
+    },
+    "weekly_brief_draft": {"type": "string"},
+    "cross_monitor_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_monitor": {"type": "string"},
+          "signal": {"type": "string"},
+          "type": {"type": "string"},
+          "confidence_preliminary": {"type": "string"}
+        },
+        "required": ["target_monitor", "signal", "type"]
+      }
+    }
+  },
+  "required": [
+    "_meta",
+    "global_integrity_snapshot",
+    "lead_signal",
+    "domain_tracker",
+    "jurisdiction_risk_tracker",
+    "standing_tracker_synthesis",
+    "tooling_outputs",
+    "key_judgments",
+    "weekly_brief_draft",
+    "cross_monitor_candidates"
+  ]
+}
