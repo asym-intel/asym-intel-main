@@ -117,10 +117,23 @@ if raw_content is None:
 # Strip markdown code fences if model wrapped the JSON despite instructions
 clean = raw_content.strip()
 if clean.startswith("```"):
-    clean = clean.split("```", 2)[-1]          # remove opening fence
-    clean = clean.rsplit("```", 1)[0].strip()  # remove closing fence
-    if clean.startswith("json"):
-        clean = clean[4:].strip()
+    # split on first fence: ["", "json\n{...}\n", ""] — take index 1, not -1
+    parts = clean.split("```")
+    inner = parts[1] if len(parts) > 1 else clean
+    inner = inner.strip()
+    if inner.startswith("json"):
+        inner = inner[4:].strip()
+    clean = inner.rsplit("```", 1)[0].strip()  # remove any trailing fence
+
+# Fallback: extract outermost { } in case of surrounding prose
+if not clean.startswith('{'):
+    brace = clean.find('{')
+    if brace != -1:
+        clean = clean[brace:]
+if not clean.endswith('}'):
+    brace = clean.rfind('}')
+    if brace != -1:
+        clean = clean[:brace + 1]
 
 try:
     data = json.loads(clean)
