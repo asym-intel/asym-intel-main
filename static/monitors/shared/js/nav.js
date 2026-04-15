@@ -402,7 +402,27 @@
     }
   }
 
-  /* ── Footer injection ────────────────────────────────────────
+  /* ── Canonical powered-by block ─────────────────────────────
+     Single source of truth for logo + brand name + link.
+     Every footer on every powered-by site uses this.
+     To change the logo or text, edit ONLY here. */
+  var ASYM_LOGO_SVG =
+    '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+      '<rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/>' +
+      '<rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/>' +
+      '<rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/>' +
+    '</svg>';
+
+  var ASYM_BRAND_NAME = 'Asymmetric Intelligence';
+  var ASYM_COMMERCIAL_URL = 'https://asym-intel.info/commercial/';
+
+  var POWERED_BY_HTML =
+    '<a href="' + ASYM_COMMERCIAL_URL + '" style="display:inline-flex;align-items:center;gap:0.35rem;text-decoration:none;color:inherit">' +
+      ASYM_LOGO_SVG +
+      ' Powered by ' + ASYM_BRAND_NAME +
+    '</a>';
+
+  /* ── Footer injection (monitors) ────────────────────────────
      Normalises .monitor-footer markup to canonical form.
      No-ops if footer absent. */
   function injectMonitorFooter() {
@@ -411,21 +431,63 @@
 
     footer.innerHTML =
       '<div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-bottom:0.5rem">' +
-        '<a href="https://asym-intel.info/commercial/" style="display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;color:inherit">' +
-          '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
-            '<rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/>' +
-            '<rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/>' +
-            '<rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/>' +
-          '</svg>' +
-          '<span style="font-weight:500">Asymmetric Intelligence</span>' +
+        '<a href="' + ASYM_COMMERCIAL_URL + '" style="display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;color:inherit">' +
+          ASYM_LOGO_SVG.replace('width="16"','width="18"').replace('height="16"','height="18"') +
+          '<span style="font-weight:500">' + ASYM_BRAND_NAME + '</span>' +
         '</a>' +
       '</div>' +
       '<span>' +
-        '&copy; 2026 Asymmetric Intelligence. ' +
+        '&copy; ' + new Date().getFullYear() + ' ' + ASYM_BRAND_NAME + '. ' +
         'Published by <a href="https://ramparts.gi/people/peter-howitt/">Peter Howitt</a>. ' +
         'Content is published under <a href="https://creativecommons.org/licenses/by/4.0/" rel="license">CC BY 4.0</a>. ' +
         '<a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Produced with Perplexity Computer</a>.' +
       '</span>';
+  }
+
+  /* ── Shared footer for powered-by sites ─────────────────────
+     Called by external sites: AsymNav.footer({ ... })
+     Finds .site-footer (or opts.target selector) and renders
+     site-specific content PLUS the canonical powered-by block.
+
+     opts.brand     — site brand name, e.g. 'ADVENNT' (required)
+     opts.tagline   — one-line description (optional)
+     opts.legal     — legal/disclaimer HTML string (optional)
+     opts.extras    — array of additional HTML lines (optional)
+     opts.target    — CSS selector for footer element (default '.site-footer')
+  */
+  function renderFooter(opts) {
+    if (!opts || !opts.brand) return;
+    var sel = opts.target || '.site-footer';
+    var footer = document.querySelector(sel);
+    if (!footer) return;
+
+    var html = '<div style="text-align:center;padding:40px 24px">';
+
+    // Site brand
+    html += '<div style="font-weight:700;font-size:15px;letter-spacing:0.03em">' + opts.brand + '</div>';
+
+    // Tagline
+    if (opts.tagline) {
+      html += '<div style="font-size:13px;opacity:0.6;margin-top:8px">' + opts.tagline + '</div>';
+    }
+
+    // Legal
+    if (opts.legal) {
+      html += '<div style="font-size:11px;opacity:0.5;margin-top:12px;max-width:640px;margin-left:auto;margin-right:auto;line-height:1.5">' + opts.legal + '</div>';
+    }
+
+    // Extras (e.g. 'Member of Gibraltar Finance Centre Council')
+    if (opts.extras && opts.extras.length) {
+      for (var i = 0; i < opts.extras.length; i++) {
+        html += '<div style="font-size:11px;opacity:0.5;margin-top:6px">' + opts.extras[i] + '</div>';
+      }
+    }
+
+    // Canonical powered-by — always last, never omittable
+    html += '<div style="font-size:11px;letter-spacing:0.04em;margin-top:12px;opacity:0.6">' + POWERED_BY_HTML + '</div>';
+
+    html += '</div>';
+    footer.innerHTML = html;
   }
 
   /* ── AI discovery link tag ──────────────────────────────────
@@ -687,5 +749,5 @@
   }
 
   // Public API
-  window.AsymNav = { init: init, injectNetworkBar: injectNetworkBar };
+  window.AsymNav = { init: init, injectNetworkBar: injectNetworkBar, footer: renderFooter };
 })();
