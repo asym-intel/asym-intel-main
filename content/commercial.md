@@ -97,4 +97,4 @@ For enquiries about commercial intelligence products, custom analysis, or the en
 Founder, Asymmetric Intelligence
 [peter@asym-intel.info](mailto:peter@asym-intel.info)
 
-Asymmetric Intelligence is operated by [Ramparts](https://ramparts.gi), a Gibraltar-based legal and technology firm.
+Peter Howitt is the founder of [Ramparts](https://ramparts.gi), a Gibraltar law firm and [Resilience Group](https://resiliencegroup.gi), a Gibraltar fiduciary business.
