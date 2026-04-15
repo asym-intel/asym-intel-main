@@ -410,6 +410,16 @@
     if (!footer) return;
 
     footer.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-bottom:0.5rem">' +
+        '<a href="https://asym-intel.info/commercial/" style="display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;color:inherit">' +
+          '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">' +
+            '<rect x="2" y="4" width="10" height="2.5" rx="1.25" fill="#4f98a3"/>' +
+            '<rect x="6" y="9" width="12" height="2.5" rx="1.25" fill="#4f98a3" opacity=".65"/>' +
+            '<rect x="2" y="14" width="7" height="2.5" rx="1.25" fill="#4f98a3" opacity=".35"/>' +
+          '</svg>' +
+          '<span style="font-weight:500">Asymmetric Intelligence</span>' +
+        '</a>' +
+      '</div>' +
       '<span>' +
         '&copy; 2026 Asymmetric Intelligence. ' +
         'Published by <a href="https://ramparts.gi/people/peter-howitt/">Peter Howitt</a>. ' +
