@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Unified Chatter — Daily Signal (all 7 monitors)
-One Perplexity sonar call surfaces up to 5 items per domain across all 7 monitors.
+Unified Chatter — Daily Signal (all 8 monitors)
+One Perplexity sonar call surfaces up to 5 items per domain across all 8 monitors.
 Splits output into per-monitor chatter-latest.json files.
 
 Replaces 7 individual {abbr}-chatter.py scripts (11 Apr 2026).
@@ -22,6 +22,7 @@ MONITORS = [
     {"abbr": "agm",  "slug": "ai-governance"},
     {"abbr": "erm",  "slug": "environmental-risks"},
     {"abbr": "scem", "slug": "conflict-escalation"},
+    {"abbr": "fim",  "slug": "financial-integrity"},
 ]
 
 PROMPT_FILE = pathlib.Path("pipeline/chatter/unified-chatter-api-prompt.txt")
@@ -189,4 +190,4 @@ for m in MONITORS:
     for item in filtered[:3]:
         print(f"   [{item.get('source_tier','?')}] {item.get('title','')[:70]}")
 
-print(f"\n✅ Unified Chatter complete: {total_items} items across 7 monitors")
+print(f"\n✅ Unified Chatter complete: {total_items} items across {len(MONITORS)} monitors")

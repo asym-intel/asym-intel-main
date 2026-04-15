@@ -1,0 +1,42 @@
+name: FIM Collector — Tier 0 daily financial integrity pre-verification
+
+on:
+  workflow_dispatch:        # Cloudflare Worker dispatches; also allows manual trigger
+
+jobs:
+  collect:
+    name: FIM Tier 0 Collection
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # required to commit pipeline/ output back to repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run FIM Collector
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+        run: python pipeline/monitors/financial-integrity/collect.py
+
+      - name: Commit Collector output
+        run: |
+          git config user.name  "FIM Collector Bot"
+          git config user.email "fim-collector@asym-intel.info"
+          git add pipeline/monitors/financial-integrity/daily/
+          git diff --staged --quiet && echo "No new findings to commit" && exit 0
+          git commit -m "data(fim-collector): Tier 0 daily pre-verification — $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
