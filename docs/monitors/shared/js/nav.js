@@ -118,6 +118,7 @@
         '<a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a>',
         '<a href="https://asym-intel.info/network/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Network</a>',
         '<a href="https://asym-intel.info/map/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">World Map</a>',
+        '<a href="https://asym-intel.info/commercial/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Commercial</a>',
       '</nav>'
     ].join('');
 
