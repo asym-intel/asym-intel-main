@@ -83,8 +83,10 @@ for slug in MONITOR_SLUGS:
         except json.JSONDecodeError as e:
             fail(f"{jf} — invalid JSON: {e}")
 
-# ── Check 7: report-latest.json has schema_version 2.0 ───────────────────
-print("Check 7: report-latest.json schema_version == 2.0")
+# ── Check 7: report-latest.json has accepted schema_version ──────────────
+# Accepted: "2.0" (legacy), "report-v2.1" (Phase 1 ops-metrics), "cms-v1.0" (cross-monitor synthesis)
+ACCEPTED_SCHEMA_VERSIONS = {"2.0", "report-v2.1", "cms-v1.0"}
+print("Check 7: report-latest.json schema_version in accepted set")
 for slug in MONITOR_SLUGS:
     path = f"{MONITORS_DIR}/{slug}/data/report-latest.json"
     if not os.path.exists(path):
@@ -94,8 +96,8 @@ for slug in MONITOR_SLUGS:
         try: d = json.load(f)
         except: continue
     sv = d.get("meta", {}).get("schema_version") or d.get("_meta", {}).get("schema_version")
-    if sv != "2.0":
-        warn(f"{slug}/data/report-latest.json — schema_version is '{sv}' (expected 2.0)")
+    if sv not in ACCEPTED_SCHEMA_VERSIONS:
+        warn(f"{slug}/data/report-latest.json — schema_version is '{sv}' (accepted: {sorted(ACCEPTED_SCHEMA_VERSIONS)})")
 
 # ── Check 8: No stale inline network bar HTML ─────────────────────────────
 print("Check 8: No stale inline network bar HTML")
@@ -287,5 +289,29 @@ for slug in MONITOR_SLUGS:
             for ind in _d['domain_indicators'][dk]:
                 if ind.get('source_url', 'x') == '':
                     warn(f"{slug} — empty source_url on {dk}/{ind.get('indicator','?')}")
+    except Exception:
+        pass
+
+
+# ── Check 19: confidence field values are canonical (WARN) ──────────────────
+# Canonical main-signal tiers: Confirmed | High | Assessed | Possible
+# key_judgments: High | Assessed | Possible
+# cross_monitor tiers: Low | Medium | High
+# Deprecated labels: Probable, Reported — flag if found
+import json as _json19
+DEPRECATED_CONFIDENCE = {"Probable", "Reported"}
+VALID_MAIN_CONFIDENCE = {"Confirmed", "High", "Assessed", "Possible"}
+print("Check 19: confidence field values are canonical (WARN on deprecated labels)")
+for slug in MONITOR_SLUGS:
+    _data_path = f"{MONITORS_DIR}/{slug}/data/report-latest.json"
+    if not os.path.exists(_data_path): continue
+    try:
+        with open(_data_path) as _f:
+            raw = _f.read()
+        # Quick string scan for deprecated labels in confidence fields
+        for dep_label in ["Probable", "Reported"]:
+            # Check for deprecated label as a confidence value
+            if f'"confidence": "{dep_label}"' in raw or f'"confidence_preliminary": "{dep_label}"' in raw:
+                warn(f"{slug} — deprecated confidence label \'{dep_label}\' found in report-latest.json (use canonical tiers: Confirmed|High|Assessed|Possible)")
     except Exception:
         pass
