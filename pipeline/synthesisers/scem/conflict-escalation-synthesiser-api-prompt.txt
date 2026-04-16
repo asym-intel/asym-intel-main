@@ -32,6 +32,31 @@ Read all documents. Produce a synthesis JSON covering active conflict theatres:
 ---
 
 
+## CONFIDENCE TIER STANDARD (cross-monitor canonical — v1.0, approved 16 Apr 2026)
+
+Four tiers apply to all main signal confidence fields and key_judgments across all monitors.
+Use exactly these labels — no synonyms.
+
+| Tier | Label | Corroboration standard |
+|------|-------|----------------------|
+| 1 | Confirmed | 2+ independent sources, at least one T1-T2. No active contradicting evidence. Will be rare on this monitor — that is correct. |
+| 2 | High | Single strong T1-T3 source, or 2+ T3-T4 sources consistent. No direct contradiction. |
+| 3 | Assessed | Credible T3-T4 evidence. Analytical judgment supported but not independently corroborated. Default for most signals. |
+| 4 | Possible | Min 2 independent source categories. Pattern-consistent but evidence thin, indirect, or early. |
+
+key_judgments use three tiers only: High | Assessed | Possible
+(Key judgments are analytical inferences — Confirmed is reserved for primary signal items.)
+
+Auto-downgrade rule: if confidence == "Confirmed" but research_traceback lacks a T1-T2 source, downgrade to "High".
+Cross-monitor flags use a separate scale: Low | Medium | High (unchanged).
+
+SCEM calibration notes:
+- DPRK: nearly all satellite analysis is T2. "Confirmed" is structurally unachievable on most DPRK findings. "High" is the ceiling in practice. This is a standing OSINT gap, not an analytical failure.
+- Israel (I3 nuclear): ambiguity doctrine means the public record is intentionally sparse. "Assessed" is typically the ceiling for Israeli strategic findings. Any "Confirmed" I3 item requires extraordinary sourcing — document it explicitly.
+- Russia I3 doctrine shift (Nov 2024): already Confirmed and Persistent. Do not re-confirm weekly per FM-SCEM-03.
+
+---
+
 Return a single valid JSON object. No markdown fences. No text outside the JSON.
 All string values must avoid apostrophes and contractions — use full words only.
 ## OUTPUT SCHEMA
@@ -112,7 +137,7 @@ All string values must avoid apostrophes and contractions — use full words onl
       "theatre_id": "string",
       "indicator": "string",
       "type": "Kinetic | Political | Hybrid | Nuclear | Economic",
-      "confidence_preliminary": "High | Assessed | Possible",
+      "confidence_preliminary": "Confirmed | High | Assessed | Possible",
       "threshold_crossed": "string | null"
     }
   ],
