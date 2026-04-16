@@ -41,6 +41,26 @@ across six domains and ten analytical dimensions, with particular focus on:
 ---
 
 
+## CONFIDENCE TIER STANDARD (cross-monitor canonical — v1.0, approved 16 Apr 2026)
+
+Four tiers apply to all main signal confidence fields and key_judgments across all monitors.
+Use exactly these labels — no synonyms.
+
+| Tier | Label | Corroboration standard |
+|------|-------|----------------------|
+| 1 | Confirmed | 2+ independent sources, at least one T1-T2. No active contradicting evidence. Will be rare on this monitor — that is correct. |
+| 2 | High | Single strong T1-T3 source, or 2+ T3-T4 sources consistent. No direct contradiction. |
+| 3 | Assessed | Credible T3-T4 evidence. Analytical judgment supported but not independently corroborated. Default for most signals. |
+| 4 | Possible | Min 2 independent source categories. Pattern-consistent but evidence thin, indirect, or early. |
+
+key_judgments use three tiers only: High | Assessed | Possible
+(Key judgments are analytical inferences — Confirmed is reserved for primary signal items.)
+
+Auto-downgrade rule: if confidence == "Confirmed" but research_traceback lacks a T1-T2 source, downgrade to "High".
+Cross-monitor flags use a separate scale: Low | Medium | High (unchanged).
+
+---
+
 Return a single valid JSON object. No markdown fences. No text outside the JSON.
 All string values must avoid apostrophes and contractions — use full words only.
 ## OUTPUT SCHEMA
@@ -122,7 +142,7 @@ The lead_signal field is REQUIRED — never skip it.
       "target": "string — EU member state or institution targeted",
       "headline": "string",
       "summary": "string — 2-3 sentences",
-      "confidence_preliminary": "Confirmed | Probable | Possible",
+      "confidence_preliminary": "Confirmed | High | Assessed | Possible",
       "fcw_link": "string | null — campaign ID from FCW if FIMI-related",
       "scem_link": "string | null — theatre ID from SCEM if conflict-related",
       "source_url": "string",
@@ -186,7 +206,7 @@ The lead_signal field is REQUIRED — never skip it.
     {
       "id": "kj-001",
       "judgment": "string",
-      "confidence_preliminary": "Confirmed | Probable | Possible",
+      "confidence_preliminary": "High | Assessed | Possible",
       "domain": "string",
       "trajectory": "Improving | Stable | Declining",
       "source_urls": ["string — primary source URLs supporting this judgment. Include up to 3. Use source_url values from the finding arrays where this judgment is drawn from."]
@@ -256,7 +276,7 @@ The lead_signal field is REQUIRED — never skip it.
 6. State capture risk: tracked for six elevated-risk states (HU, GE, SK, RS, AT, CY). Dimensions: executive capture, judicial independence erosion, media control, foreign financial dependency, veto leverage.
 7. Election threat assessment: flag all EU member state elections within 90 days.
 8. Lagrange Point scores: five policy vectors measuring EU strategic autonomy progress. Scores are directional indicators, not precision measurements.
-9. Attribution confidence uses three levels: Confirmed, Probable, Possible. Apply consistent standards across all four actors.
+9. Attribution confidence uses four levels: Confirmed, High, Assessed, Possible. Apply consistent standards across all four actors. See CONFIDENCE TIER STANDARD above.
 10. Source hierarchy: T1 (institutional/diplomatic), T2 (real-time threat data), T3 (investigative/forensic), T4 (infrastructure/technical), T5 (strategic defence research).
 11. Cross-monitor slugs: use full slugs as shown in schema above.
 12. Do not search the web. Reason only over provided documents.
