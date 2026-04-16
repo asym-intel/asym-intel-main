@@ -290,8 +290,8 @@
       if (wb) {
         if (typeof AsymSections !== 'undefined' && AsymSections.renderWeeklyBrief) {
           AsymSections.renderWeeklyBrief(wb, 'weekly-brief-content');
-        } else if (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
-          wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + AsymRenderer.renderMarkdown(wb) + '</div>';
+        } else if (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderWithSources) {
+          wbEl.innerHTML = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + AsymRenderer.renderWithSources(wb, report.weekly_brief_sources || []) + '</div>';
         } else {
           var briefHtml = wb
             .replace(/^## (.+)$/gm, '</p><h3 style="margin-top:var(--space-4);margin-bottom:var(--space-2);font-size:var(--text-base);font-weight:700">$1</h3><p>')
