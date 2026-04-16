@@ -6,6 +6,10 @@ on:
     tags: ["**"]
   delete:
 
+concurrency:
+  group: gitlab-mirror
+  cancel-in-progress: true
+
 jobs:
   mirror:
     name: Push mirror to GitLab

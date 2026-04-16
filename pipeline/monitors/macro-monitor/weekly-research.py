@@ -15,6 +15,8 @@ import json
 import datetime
 import pathlib
 import requests
+import subprocess
+import base64
 import sys
 
 # ── Configuration ──────────────────────────────────────────────────────────────
