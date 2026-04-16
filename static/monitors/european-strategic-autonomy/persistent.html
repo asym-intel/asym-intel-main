@@ -363,10 +363,14 @@ document.addEventListener('DOMContentLoaded', function () {
             /* ReArm Europe + US vector if present */
             if (lag2026.rearm_europe) {
               var re = lag2026.rearm_europe;
+              var reStatus = re.score_status || re.status || '';
+              var reTriggers = re.score_triggers || [];
+              var reNote = re.note || '';
               pdHtml += '<div style="margin-top:var(--space-4);font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-muted);margin-bottom:var(--space-2)">ReArm Europe</div>' +
                 '<div class="card" style="padding:var(--space-3)">' +
-                  (re.status ? '<div style="font-size:var(--text-sm);font-weight:600">' + escHtml(re.status) + '</div>' : '') +
-                  (re.note ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(re.note) + '</div>' : '') +
+                  (reStatus ? '<div style="font-size:var(--text-sm);font-weight:600">' + escHtml(reStatus.replace(/_/g, ' ')) + '</div>' : '') +
+                  (reNote ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(reNote) + '</div>' : '') +
+                  (reTriggers.length ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)"><span style="font-weight:600">Score triggers:</span> ' + reTriggers.map(function(t){ return escHtml(t); }).join(' · ') + '</div>' : '') +
                 '</div>';
             }
             if (lag2026.us_vector_status) {

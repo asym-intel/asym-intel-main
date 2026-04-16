@@ -1733,8 +1733,12 @@ window.AsymSections = (function () {
       var colour = DOMAIN_COLOURS[key] || 'var(--monitor-accent)';
       var label  = DOMAIN_LABELS[key] || escHtml(key.replace(/_/g, ' '));
       var score  = d.autonomy_score_preliminary;
+      // Score is on a 1–5 scale; normalise to 0–100% for the bar
       var pct    = (score !== undefined && score !== null)
-                   ? Math.round(Number(score) * 100) : null;
+                   ? Math.round((Number(score) / 5) * 100) : null;
+      var scoreLabel = (score !== undefined && score !== null)
+                   ? (Number(score) % 1 === 0 ? Number(score).toFixed(0) : Number(score).toFixed(1)) + '/5'
+                   : null;
 
       html +=
         '<div class="domain-card" style="border-radius:var(--radius-md,6px);' +
@@ -1764,7 +1768,7 @@ window.AsymSections = (function () {
                     '</div>' +
                     '<span style="font-size:var(--text-xs);color:var(--color-text-muted);' +
                       'white-space:nowrap;min-width:2.5rem;text-align:right">' +
-                      pct + '%' +
+                      scoreLabel +
                     '</span>' +
                   '</div>' +
                 '</div>'
