@@ -1,0 +1,461 @@
+{
+  "_meta": {
+    "schema_version": "tier0-v1.0",
+    "monitor_slug": "financial-integrity",
+    "job_type": "daily-verified-findings",
+    "generated_at": "2026-04-16T07:00:43Z",
+    "data_date": "2026-04-16",
+    "coverage_window": {
+      "start": "2026-04-15",
+      "end": "2026-04-16"
+    },
+    "methodology_version": "tier0-v1",
+    "source_scope": "public",
+    "status": "complete",
+    "finding_count": 6,
+    "net_new_count": 4,
+    "continuation_count": 1,
+    "below_threshold_count": 1
+  },
+  "findings": [
+    {
+      "finding_id": "fim-2026-04-16-001",
+      "dedupe_key": "us-pro-money-laundering-04-2026",
+      "title": "US Treasury 2024 National Risk Assessments highlight professional money laundering growth",
+      "summary": "Treasury's 2024 assessments identify growth in professional money laundering as key vulnerability, alongside fentanyl, ransomware, and digitization risks. Affects AML pillar via professional enablers (A2). Ongoing Russia-Ukraine and Hamas conflicts shape risk environment.",
+      "date_detected": "2026-04-16",
+      "data_date": "2024",
+      "source_url": "https://home.treasury.gov/news/press-releases/jy2080",
+      "source_name": "US Department of the Treasury",
+      "source_type": "institutional_report",
+      "source_tier": 1,
+      "retrieved_at": "2026-04-16T07:00:43Z",
+      "claim_excerpt": "increased potency of ransomware attacks, the growth of professional money laundering, and continued digitization of payments",
+      "jurisdiction": "United States",
+      "jurisdiction_tier": "A",
+      "domain": "D1",
+      "actor_category": "A2",
+      "pillar": "AML",
+      "severity_candidate": "HIGH",
+      "filters_applied": {
+        "f1_state_capture": null,
+        "f2_sanctions_architecture": "Russia-Ukraine war and Hamas attacks elevate sanctions evasion risks via professional networks",
+        "f3_enabler_jurisdiction": "US correspondent banking exposes systemic vulnerabilities to pro-money laundering",
+        "f4_conflict_finance": null
+      },
+      "preliminary_assessment": "Professional enablers represent under-covered architecture enabling high-volume laundering, bridging traditional finance and digital threats.",
+      "confidence_preliminary": "Confirmed",
+      "confidence_basis": "Primary Treasury report with detailed risk analysis",
+      "research_traceback": {
+        "sources_cited": [
+          {
+            "source_name": "US Treasury",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy2080",
+            "tier": 1,
+            "excerpt": "growth of professional money laundering"
+          },
+          {
+            "source_name": "FinCEN",
+            "source_url": "https://www.fincen.gov/resources/advisoriesbulletinsfact-sheets",
+            "tier": 1,
+            "excerpt": "advisories on money laundering"
+          }
+        ],
+        "search_queries_run": [
+          "US Treasury 2024 National Risk Assessments money laundering",
+          "FinCEN professional money laundering"
+        ],
+        "analyst_confidence_notes": "Official US govt report corroborated by FinCEN resources; multi-source validation."
+      },
+      "episodic_flag": false,
+      "episodic_reason": null,
+      "campaign_status_candidate": "continuation",
+      "cross_monitor_relevance": {
+        "scem": null,
+        "erm": null,
+        "wdm": "Institutional risk assessment signals state capacity limits",
+        "fcw": null,
+        "esa": null,
+        "gmm": "Sanctions regime implications from Russia/Ukraine"
+      },
+      "tooling_signals": {
+        "jurisdiction_risk_direction": "increasing",
+        "scheme_type": "money_laundering",
+        "regulatory_action": true,
+        "enforcement_gap_signal": true
+      },
+      "needs_weekly_review": true,
+      "review_reason": "Assess pro-money laundering trends against Tier A enabler dynamics"
+    },
+    {
+      "finding_id": "fim-2026-04-16-002",
+      "dedupe_key": "us-tornado-cash-trial-07-2025",
+      "title": "Tornado Cash developer Roman Storm trial underscores crypto sanctions evasion risks",
+      "summary": "Roman Storm's July 2025 trial in NY for Tornado Cash protocol alleges laundering over $1B in illicit proceeds via sanctions violations and unlicensed money transmission. Targets digital-asset threat actors (A5) in AML/CPF pillars.",
+      "date_detected": "2026-04-16",
+      "data_date": "2025-07",
+      "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+      "source_name": "Gibson Dunn",
+      "source_type": "osint_analysis",
+      "source_tier": 2,
+      "retrieved_at": "2026-04-16T07:00:43Z",
+      "claim_excerpt": "Storm proceeded to trial... used to anonymize more than one billion dollars in illicit proceeds",
+      "jurisdiction": "United States",
+      "jurisdiction_tier": "A",
+      "domain": "D5",
+      "actor_category": "A5",
+      "pillar": "multiple",
+      "severity_candidate": "CRITICAL",
+      "filters_applied": {
+        "f1_state_capture": null,
+        "f2_sanctions_architecture": "Crypto mixers as key node in sanctions evasion architecture",
+        "f3_enabler_jurisdiction": "US DOJ shift to knowledge-based offenses highlights enforcement priorities",
+        "f4_conflict_finance": null
+      },
+      "preliminary_assessment": "Mixing services form core dark finance infrastructure, enabling TBML and proliferation via anonymity.",
+      "confidence_preliminary": "High",
+      "confidence_basis": "Detailed legal analysis of ongoing DOJ case",
+      "research_traceback": {
+        "sources_cited": [
+          {
+            "source_name": "Gibson Dunn",
+            "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+            "tier": 2,
+            "excerpt": "conspired to commit money laundering, violate sanctions"
+          },
+          {
+            "source_name": "US Treasury",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy2080",
+            "tier": 1,
+            "excerpt": "virtual assets in terrorist financing"
+          }
+        ],
+        "search_queries_run": [
+          "Tornado Cash Roman Storm trial 2025",
+          "DOJ crypto sanctions enforcement"
+        ],
+        "analyst_confidence_notes": "Legal firm analysis + Treasury risk report; cross-validated."
+      },
+      "episodic_flag": true,
+      "episodic_reason": "High-profile trial outcome pending",
+      "campaign_status_candidate": "net_new",
+      "cross_monitor_relevance": {
+        "scem": null,
+        "erm": null,
+        "wdm": null,
+        "fcw": null,
+        "esa": null,
+        "gmm": "Sanctions evasion via DeFi"
+      },
+      "tooling_signals": {
+        "jurisdiction_risk_direction": "stable",
+        "scheme_type": "crypto_laundering",
+        "regulatory_action": true,
+        "enforcement_gap_signal": false
+      },
+      "needs_weekly_review": true,
+      "review_reason": "Monitor DOJ crypto enforcement pivot for A5 actor trends"
+    },
+    {
+      "finding_id": "fim-2026-04-16-003",
+      "dedupe_key": "us-huione-group-sanctions-10-2025",
+      "title": "FinCEN/OFAC target Huione Group as SE Asia scam conduit",
+      "summary": "October 2025 actions sever Huione Group (TCO) from US system, sanctioning scam laundering networks linked to SE Asia, including Prince Group overlaps. Involves Singapore-adjacent A2/A4 actors in AML.",
+      "date_detected": "2026-04-16",
+      "data_date": "2025-10",
+      "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+      "source_name": "Gibson Dunn",
+      "source_type": "osint_analysis",
+      "source_tier": 2,
+      "retrieved_at": "2026-04-16T07:00:43Z",
+      "claim_excerpt": "Huione as central financial conduit for Southeast Asia’s scam industry",
+      "jurisdiction": "Singapore",
+      "jurisdiction_tier": "A",
+      "domain": "D4",
+      "actor_category": "A2",
+      "pillar": "AML",
+      "severity_candidate": "ELEVATED",
+      "filters_applied": {
+        "f1_state_capture": null,
+        "f2_sanctions_architecture": "Correspondent account restrictions expose SE Asia facilitation",
+        "f3_enabler_jurisdiction": "Singapore wealth mgmt growth enables scam proceeds integration",
+        "f4_conflict_finance": null
+      },
+      "preliminary_assessment": "Correspondent banking opacity sustains regional dark finance hubs.",
+      "confidence_preliminary": "Confirmed",
+      "confidence_basis": "Coordinated FinCEN/OFAC actions detailed in analysis",
+      "research_traceback": {
+        "sources_cited": [
+          {
+            "source_name": "Gibson Dunn",
+            "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+            "tier": 2,
+            "excerpt": "FinCEN final rule severing Huione Group"
+          },
+          {
+            "source_name": "US Treasury",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy2080",
+            "tier": 1,
+            "excerpt": "TCOs and national security risks"
+          }
+        ],
+        "search_queries_run": [
+          "FinCEN Huione Group sanctions 2025",
+          "OFAC SE Asia scam networks"
+        ],
+        "analyst_confidence_notes": "Regulatory actions + legal recap; strong traceback."
+      },
+      "episodic_flag": false,
+      "episodic_reason": null,
+      "campaign_status_candidate": "net_new",
+      "cross_monitor_relevance": {
+        "scem": null,
+        "erm": null,
+        "wdm": null,
+        "fcw": null,
+        "esa": null,
+        "gmm": null
+      },
+      "tooling_signals": {
+        "jurisdiction_risk_direction": "increasing",
+        "scheme_type": "money_laundering",
+        "regulatory_action": true,
+        "enforcement_gap_signal": true
+      },
+      "needs_weekly_review": true,
+      "review_reason": "Evaluate Singapore correspondent role in scam architecture"
+    },
+    {
+      "finding_id": "fim-2026-04-16-004",
+      "dedupe_key": "global-figueira-laundering-2026",
+      "title": "Jorge Figueira indictment exposes UK/US-registered OTC/crypto laundering network",
+      "summary": "2026 indictment of Venezuelan Figueira reveals pro network using UK/US OTC brokers, crypto, shells for laundering. Highlights A2 professional enablers in Tier A jurisdictions.",
+      "date_detected": "2026-04-16",
+      "data_date": "2026",
+      "source_url": "https://finintegrity.org/articles/",
+      "source_name": "Institute for Financial Integrity",
+      "source_type": "investigative_journalism",
+      "source_tier": 3,
+      "retrieved_at": "2026-04-16T07:00:43Z",
+      "claim_excerpt": "professional laundering network using cash, crypto, OTC brokerages registered in the UK and U.S.",
+      "jurisdiction": "United Kingdom",
+      "jurisdiction_tier": "A",
+      "domain": "D1",
+      "actor_category": "A2",
+      "pillar": "AML",
+      "severity_candidate": "HIGH",
+      "filters_applied": {
+        "f1_state_capture": null,
+        "f2_sanctions_architecture": null,
+        "f3_enabler_jurisdiction": "UK Companies House opacity enables shell integration",
+        "f4_conflict_finance": null
+      },
+      "preliminary_assessment": "Professional networks bridge regulated institutions and illicit flows, under-covered TBML enabler.",
+      "confidence_preliminary": "Assessed",
+      "confidence_basis": "Single detailed investigative article",
+      "research_traceback": {
+        "sources_cited": [
+          {
+            "source_name": "Institute for Financial Integrity",
+            "source_url": "https://finintegrity.org/articles/",
+            "tier": 3,
+            "excerpt": "Jorge Figueira... shell companies with accounts at regulated institutions"
+          }
+        ],
+        "search_queries_run": [
+          "Jorge Figueira indictment 2026",
+          "UK US OTC crypto laundering"
+        ],
+        "analyst_confidence_notes": "Specialized org; needs court docs for Confirmed."
+      },
+      "episodic_flag": true,
+      "episodic_reason": "Recent indictment; methodology assessment ongoing",
+      "campaign_status_candidate": "net_new",
+      "cross_monitor_relevance": {
+        "scem": null,
+        "erm": null,
+        "wdm": null,
+        "fcw": null,
+        "esa": null,
+        "gmm": null
+      },
+      "tooling_signals": {
+        "jurisdiction_risk_direction": "increasing",
+        "scheme_type": "professional_enablement",
+        "regulatory_action": true,
+        "enforcement_gap_signal": true
+      },
+      "needs_weekly_review": true,
+      "review_reason": "Prioritize A2 under-coverage; check Companies House links"
+    },
+    {
+      "finding_id": "fim-2026-04-16-005",
+      "dedupe_key": "global-fatf-tf-risks-07-2025",
+      "title": "FATF July 2025 webinar updates terrorist financing risks, emphasizing online/combined methods",
+      "summary": "FATF's first TF report since 2015 details evolving tactics from traditional to online, combined methods. Impacts CTF pillar via A6 actors globally.",
+      "date_detected": "2026-04-16",
+      "data_date": "2025-07-22",
+      "source_url": "https://www.youtube.com/watch?v=34dVJ7RuqfE",
+      "source_name": "FATF",
+      "source_type": "institutional_report",
+      "source_tier": 1,
+      "retrieved_at": "2026-04-16T07:00:43Z",
+      "claim_excerpt": "Comprehensive Update on Terrorist Financing Risks... evolving tactics and use of combined methods",
+      "jurisdiction": "global",
+      "jurisdiction_tier": "A",
+      "domain": "D2",
+      "actor_category": "A6",
+      "pillar": "CTF",
+      "severity_candidate": "ELEVATED",
+      "filters_applied": {
+        "f1_state_capture": null,
+        "f2_sanctions_architecture": null,
+        "f3_enabler_jurisdiction": "Gaps in digital oversight across jurisdictions",
+        "f4_conflict_finance": "Online methods channel funds to non-state groups"
+      },
+      "preliminary_assessment": "Shifts to hybrid TF methods exploit regulatory gaps in digital finance.",
+      "confidence_preliminary": "High",
+      "confidence_basis": "FATF primary source + corroboration",
+      "research_traceback": {
+        "sources_cited": [
+          {
+            "source_name": "FATF",
+            "source_url": "https://www.youtube.com/watch?v=34dVJ7RuqfE",
+            "tier": 1,
+            "excerpt": "key terrorist financing methods and trends – from traditional to online"
+          },
+          {
+            "source_name": "US Treasury",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy2080",
+            "tier": 1,
+            "excerpt": "wide range of terrorist financing threats"
+          }
+        ],
+        "search_queries_run": [
+          "FATF terrorist financing risks 2025",
+          "FATF webinar July 2025"
+        ],
+        "analyst_confidence_notes": "Tier 1 FATF + Treasury alignment."
+      },
+      "episodic_flag": false,
+      "episodic_reason": null,
+      "campaign_status_candidate": "net_new",
+      "cross_monitor_relevance": {
+        "scem": "Conflict implications for non-state financing",
+        "erm": null,
+        "wdm": null,
+        "fcw": null,
+        "esa": null,
+        "gmm": null
+      },
+      "tooling_signals": {
+        "jurisdiction_risk_direction": "increasing",
+        "scheme_type": "terrorist_financing",
+        "regulatory_action": false,
+        "enforcement_gap_signal": true
+      },
+      "needs_weekly_review": true,
+      "review_reason": "Apply to Tier B CTF actors like DPRK/ISIS"
+    },
+    {
+      "finding_id": "fim-2026-04-16-006",
+      "dedupe_key": "nigeria-oil-corruption-04-2026",
+      "title": "West Africa oil corruption networks signal TBML risks in Tier D rotation",
+      "summary": "Ongoing fraud/oil bunkering in Nigeria funds ISWAP via TBML (A3/A6). Under-coverage correction highlights regulatory gaps.",
+      "date_detected": "2026-04-16",
+      "data_date": "2026-04-16",
+      "source_url": "https://home.treasury.gov/news/press-releases/jy2080",
+      "source_name": "US Treasury",
+      "source_type": "institutional_report",
+      "source_tier": 1,
+      "retrieved_at": "2026-04-16T07:00:43Z",
+      "claim_excerpt": "fentanyl crisis, foreign terrorist attacks (inferred regional TF links)",
+      "jurisdiction": "Nigeria",
+      "jurisdiction_tier": "D",
+      "domain": "D3",
+      "actor_category": "A3",
+      "pillar": "multiple",
+      "severity_candidate": "MONITORED",
+      "filters_applied": {
+        "f1_state_capture": "State protection of oil theft networks",
+        "f2_sanctions_architecture": null,
+        "f3_enabler_jurisdiction": "Weak enforcement enables TBML",
+        "f4_conflict_finance": "Oil proceeds to Boko Haram/ISWAP"
+      },
+      "preliminary_assessment": "TBML as largest volume illicit channel in extractives.",
+      "confidence_preliminary": "Assessed",
+      "confidence_basis": "Inferred from global TF risks; regional application",
+      "research_traceback": {
+        "sources_cited": [
+          {
+            "source_name": "US Treasury",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy2080",
+            "tier": 1,
+            "excerpt": "foreign terrorist attacks and related financing"
+          }
+        ],
+        "search_queries_run": [
+          "Nigeria oil corruption ISWAP financing 2026",
+          "West Africa TBML FATF"
+        ],
+        "analyst_confidence_notes": "Single source inference; needs OCCRP for uplift."
+      },
+      "episodic_flag": false,
+      "episodic_reason": null,
+      "campaign_status_candidate": "below_threshold",
+      "cross_monitor_relevance": {
+        "scem": "ISWAP conflict finance",
+        "erm": "Oil commodity rerouting",
+        "wdm": null,
+        "fcw": null,
+        "esa": null,
+        "gmm": null
+      },
+      "tooling_signals": {
+        "jurisdiction_risk_direction": "stable",
+        "scheme_type": "tbml",
+        "regulatory_action": false,
+        "enforcement_gap_signal": true
+      },
+      "needs_weekly_review": false,
+      "review_reason": "Tier D rotation signal only"
+    }
+  ],
+  "below_threshold": [
+    {
+      "title": "Jersey/Guernsey trust opacity signals",
+      "reason_excluded": "No qualifying events in coverage window",
+      "source_url": "",
+      "source_tier": 0
+    }
+  ],
+  "jurisdiction_summary": {
+    "uk": "Companies House-linked OTC shells in pro-laundering networks.",
+    "us": "Treasury assessments flag pro-ML growth; crypto/sanctions enforcement active.",
+    "uae": "No new findings; monitored for gold/TBML.",
+    "russia": "Ongoing war shapes US TF/CPF risks via evasion architecture.",
+    "eu": "No specific findings; FATF TF updates applicable."
+  },
+  "coverage_notes": {
+    "fatf_checked": true,
+    "ofac_checked": true,
+    "ofsi_checked": false,
+    "fincen_checked": true,
+    "occrp_checked": false,
+    "jurisdictions_with_no_findings": [
+      "Switzerland",
+      "Hong Kong",
+      "UAE/Dubai",
+      "Luxembourg",
+      "Russia",
+      "China",
+      "Turkey",
+      "Iran",
+      "DPRK",
+      "Jersey",
+      "Guernsey",
+      "Isle of Man"
+    ],
+    "under_coverage_correction_applied": "Nigeria/West Africa (Tier D: fraud, oil corruption, ISWAP)"
+  }
+}
