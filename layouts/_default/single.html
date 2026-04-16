@@ -44,6 +44,18 @@
       {{ .Content }}
     </div>
 
+      {{ with .Params.brief_sources }}
+      <div class="post__sources" style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--color-border-subtle,#e2e0dc)">
+        <span style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-text-muted,#9e9690);margin-right:0.5rem">Sources</span>
+        {{ range . }}
+        <a href="{{ .url }}" target="_blank" rel="noopener noreferrer"
+           style="display:inline-block;margin:2px 4px 2px 0;padding:2px 8px;border:1px solid var(--color-border-subtle,#e2e0dc);border-radius:3px;font-size:0.7rem;color:var(--color-text-secondary,#6b6459);text-decoration:none;background:var(--color-surface-raised,#f5f3f0)">
+          {{ if .label }}{{ .label }}{{ else }}{{ .url | replaceRE "https?://(?:www\\.)?([^/]+).*" "$1" }}{{ end }} →{{ if .tier }} <span style="opacity:0.6">{{ .tier }}</span>{{ end }}
+        </a>
+        {{ end }}
+      </div>
+      {{ end }}
+
     <footer class="post__footer">
       <div class="post__footer-links">
         <a class="post__back" href="{{ .Parent.RelPermalink }}">← All {{ .Parent.Title }} briefings</a>
