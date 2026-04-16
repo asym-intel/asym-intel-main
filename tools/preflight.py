@@ -95,7 +95,9 @@ def check_workflows(r: Results):
         # Skip non-pipeline workflows
         if name in ("build.yml", "staging-deploy.yml", "compress-images.yml",
                      "inject-network-bar.yml", "generate-triage-strip.yml",
-                     "engine-preflight.yml"):  # script fetched from internal repo at runtime
+                     "engine-preflight.yml",  # script fetched from internal repo at runtime
+                     "engine-post-deploy-smoke.yml",  # Layer B — script from internal repo
+                     "engine-runtime-audit.yml"):  # Layer C — script from internal repo
             continue
 
         content = wf_file.read_text()
