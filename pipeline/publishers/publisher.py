@@ -283,6 +283,7 @@ def build_signal(synthesis: dict, prev_report: dict, config: dict) -> dict | Non
             "confidence": ls.get("confidence", "N/A"),
             "f_flags": ls.get("mf_flags", ls.get("f_flags", [])),
             "note": ls.get("note", ""),
+            "source_url": ls.get("source_url", ""),
         }
     # Carry forward from previous report
     return prev_report.get("signal", prev_report.get("lead_signal"))

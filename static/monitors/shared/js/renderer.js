@@ -73,9 +73,20 @@
   /* ── Signal Block ── */
   function renderSignal(signal) {
     if (!signal) return '';
+    /* Handle both string and object forms of signal */
+    var headline = '';
+    var sourceUrl = '';
+    if (typeof signal === 'object') {
+      headline = signal.headline || signal.title || '';
+      sourceUrl = signal.source_url || '';
+    } else {
+      headline = signal;
+    }
+    if (!headline) return '';
     return '<div class="signal-block">' +
-      '<div class="signal-block__label">Lead Signal — M00</div>' +
-      '<p>' + esc(signal) + '</p>' +
+      '<div class="signal-block__label">Lead Signal</div>' +
+      '<p>' + esc(headline) + '</p>' +
+      (sourceUrl && typeof window.AsymRenderer !== 'undefined' && window.AsymRenderer.sourceLink ? '<div style="margin-top:var(--space-2)">' + window.AsymRenderer.sourceLink(sourceUrl) + '</div>' : '') +
     '</div>';
   }
 
