@@ -36,6 +36,14 @@ REPO_ROOT = Path(os.environ.get("REPO_ROOT", "."))
 MONITOR_SLUG = os.environ.get("MONITOR_SLUG", "")
 SITE_URL = "https://asym-intel.info"
 
+# ── Pipeline incident logging (engine-level) ──────────────────────────────────
+try:
+    sys.path.insert(0, str(Path(os.environ.get("REPO_ROOT", ".")) / "pipeline"))
+    from incident_log import log_incident
+except ImportError:
+    def log_incident(**kw): pass  # graceful fallback
+
+
 # All monitors except the current one, for cross-monitor verification
 ALL_MONITORS = [
     "democratic-integrity",
@@ -190,11 +198,15 @@ def check_synthesis_freshness(synthesis: dict, max_age_days: int = 8) -> bool:
             pass
 
     if ref_date is None:
+        log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="publisher_skip",
+                     severity="warning", detail="Synthesis has no generated_at or week_ending")
         print("  ⚠ synthesis has no generated_at or week_ending — cannot assess freshness, skipping")
         return False
 
     age = datetime.now(timezone.utc) - ref_date
     if age.days > max_age_days:
+        log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="publisher_skip",
+                     severity="warning", detail=f"Synthesis is {age.days} days old (max {max_age_days}) — STALE")
         print(f"  ⚠ synthesis is {age.days} days old (max {max_age_days}) — STALE, skipping publish")
         return False
     print(f"  ✓ synthesis age: {age.days} day(s)")
@@ -205,9 +217,13 @@ def check_synthesis_valid(synthesis: dict) -> bool:
     """Check synthesis isn't a stub / raw fallback."""
     keys = set(synthesis.keys()) - {"_meta"}
     if not keys:
+        log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="publisher_skip",
+                     severity="error", detail="Synthesis is a stub (only _meta, no content)")
         print("  ⚠ synthesis has no content keys (only _meta) — STUB, skipping publish")
         return False
     if keys == {"_raw_fallback"}:
+        log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="quality_failure",
+                     severity="error", detail="Synthesis is raw fallback only (LLM output unparseable)")
         print("  ⚠ synthesis is raw fallback only — skipping publish")
         return False
     return True
@@ -1721,6 +1737,8 @@ def main():
     # Load inputs
     print("\n[1/6] Loading inputs...")
     if not synthesis_path.exists():
+        log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="input_missing",
+                     severity="error", detail=f"synthesis-latest.json not found at {synthesis_path}")
         print(f"  ✗ synthesis-latest.json not found at {synthesis_path}")
         sys.exit(1)
 
@@ -1801,6 +1819,9 @@ def main():
     blocking = [e for e in errors if e.startswith("ROSTER DROP")]
     warnings = [e for e in errors if e not in blocking]
     if blocking:
+        log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="schema_violation",
+                     severity="critical", detail=f"Blocking validation: {len(blocking)} error(s)",
+                     errors=blocking)
         print("  ✗ BLOCKING validation errors:")
         for e in blocking:
             print(f"    - {e}")

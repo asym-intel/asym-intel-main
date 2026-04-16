@@ -14,6 +14,15 @@ import time
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from synth_utils import parse_llm_json
 
+# ── Pipeline incident logging (engine-level) ──────────────────────────────────
+try:
+    _il_root = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.insert(0, str(_il_root / "pipeline"))
+    from incident_log import log_incident
+except ImportError:
+    def log_incident(**kw): pass  # graceful fallback
+
+
 REPO_ROOT   = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
 MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "environmental-risks"
 SYNTH_DIR   = MONITOR_DIR / "synthesised"
@@ -132,8 +141,13 @@ try:
     synthesis, was_repaired = parse_llm_json(raw, "ERM")
     if was_repaired:
         print("[ERM] JSON repaired successfully")
+        log_incident(monitor="environmental-risks", stage="synthesiser", incident_type="json_repaired",
+                     severity="info", detail="JSON required repair before parsing")
 except json.JSONDecodeError as e:
     print(f"[ERM] JSON parse error: {e}. Writing fallback stub.")
+    log_incident(monitor="environmental-risks", stage="synthesiser", incident_type="json_parse_error",
+                 severity="error", detail=f"JSON parse error: {e}. Fallback stub written.",
+                 raw_snippet=raw[:500] if raw else "")
     synthesis = {
         "_meta": {
             "schema_version": "environmental-risks-synthesis-v1.0",

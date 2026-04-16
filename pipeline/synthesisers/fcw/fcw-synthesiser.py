@@ -33,6 +33,15 @@ import re
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from synth_utils import parse_llm_json
 
+# ── Pipeline incident logging (engine-level) ──────────────────────────────────
+try:
+    _il_root = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.insert(0, str(_il_root / "pipeline"))
+    from incident_log import log_incident
+except ImportError:
+    def log_incident(**kw): pass  # graceful fallback
+
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
@@ -185,6 +194,8 @@ try:
     data, was_repaired = parse_llm_json(raw_content, "FCW")
     if was_repaired:
         print("[FCW] JSON repaired successfully")
+        log_incident(monitor="unknown", stage="synthesiser", incident_type="json_repaired",
+                     severity="info", detail="JSON required repair before parsing")
 except json.JSONDecodeError as e:
     print(f"ERROR: Failed to parse JSON after all repair attempts: {e}")
     print("Raw output (first 500 chars):", raw_content[:500])

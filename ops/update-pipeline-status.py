@@ -13,10 +13,18 @@ Environment variables required:
 
 import json
 import os
+import pathlib
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
+
+# Incident logging — graceful fallback if unavailable
+try:
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "pipeline"))
+    from incident_log import log_incident
+except Exception:
+    def log_incident(**kw): pass
 
 # ─── Configuration ──────────────────────────────────────────────
 
@@ -31,12 +39,16 @@ MONITORS = {
     "AIM": {"accent": "#3a7d5a", "day": "Fri", "cron_time": "Fri 09:00 UTC"},
     "ERM": {"accent": "#4caf7d", "day": "Sat", "cron_time": "Sat 05:00 UTC"},
     "SCEM": {"accent": "#dc2626", "day": "Sun", "cron_time": "Sun 18:00 UTC"},
+    "FIM":  {"accent": "#e6a817", "day": "Tue", "cron_time": "Tue 16:00 UTC"},
 }
+
+# Day-of-week index for schedule matching (Mon=0 .. Sun=6)
+DAY_INDEX = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 6}
 
 # Map (monitor_abbr, stage) -> workflow filename in asym-intel-main
 WORKFLOW_FILES = {}
 for abbr, ga_abbr in [("WDM","wdm"), ("GMM","gmm"), ("ESA","esa"), ("FCW","fcw"),
-                       ("AIM","agm"), ("ERM","erm"), ("SCEM","scem")]:
+                       ("AIM","agm"), ("ERM","erm"), ("SCEM","scem"), ("FIM","fim")]:
     for stage in ["collector", "weekly-research", "reasoner", "synthesiser"]:
         WORKFLOW_FILES[(abbr, stage)] = f"{ga_abbr}-{stage}.yml"
     # Chatter is now unified — one workflow for all monitors (13 Apr 2026)
@@ -51,6 +63,7 @@ PUBLISH_PATTERNS = {
     "AIM": ["data(agm)", "data(aim)", "ai-governance", "content(agm)"],
     "ERM": ["data(erm)", "environmental-risks", "content(erm)"],
     "SCEM": ["data(scem)", "conflict-escalation", "content(scem)"],
+    "FIM":  ["data(fim)", "financial-integrity", "content(fim)"],
 }
 
 # ─── GitHub API helpers ─────────────────────────────────────────
@@ -133,7 +146,7 @@ def find_publish_commit(commits, patterns):
 
 def generate_status():
     """Generate full pipeline-status.json from GitHub Actions API."""
-    print("Fetching workflow runs for all 7 monitors × 5 stages...")
+    print("Fetching workflow runs for all 8 monitors × 5 stages...")
     commits = get_recent_commits(100)
 
     status = {}
@@ -249,6 +262,107 @@ def commit_to_internal(filepath, content, message):
     return True
 
 
+# ─── No-show detection ──────────────────────────────────────────
+
+def detect_no_shows(status):
+    """Detect monitors whose pipeline stages didn't fire when expected.
+
+    Each monitor has a designated publish day. On that day the collector
+    should run by ~07:00 UTC and the cascade (research → reasoner →
+    synthesiser) should complete within a few hours. If this script runs
+    on or after the expected day and the last_run for a stage is older
+    than the start of that day, the stage is a no-show.
+
+    FIM is special: runs on Tuesdays but on a later cron (16:00 UTC).
+    For FIM we only flag no-show if checking after 18:00 UTC on Tuesday.
+
+    Logs one incident per missing stage via log_incident().
+    Returns the number of no-shows found.
+    """
+    now = datetime.now(timezone.utc)
+    today_dow = now.weekday()  # Mon=0 .. Sun=6
+    no_show_count = 0
+
+    # Stages that should fire on publish day (in order)
+    expected_stages = ["collector", "weekly-research", "reasoner", "synthesiser"]
+
+    for abbr, meta in MONITORS.items():
+        expected_dow = DAY_INDEX.get(meta["day"])
+        if expected_dow is None:
+            continue
+
+        # Only check on the monitor's publish day (or the day after, to catch
+        # late-night runs). We check today and yesterday.
+        yesterday_dow = (today_dow - 1) % 7
+        if expected_dow not in (today_dow, yesterday_dow):
+            continue
+
+        # Determine the start of the expected run day
+        if expected_dow == today_dow:
+            day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        else:
+            day_start = (now - timedelta(days=1)).replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
+
+        # FIM special case: later cron, only flag after 18:00 UTC on Tue
+        if abbr == "FIM" and expected_dow == today_dow and now.hour < 18:
+            continue
+
+        # Grace period: don't flag until at least 2 hours after the cron_time
+        # Parse hour from cron_time string like "Tue 08:00 UTC"
+        try:
+            cron_hour = int(meta["cron_time"].split()[1].split(":")[0])
+        except (IndexError, ValueError):
+            cron_hour = 7  # default fallback
+        grace_cutoff = day_start.replace(hour=min(cron_hour + 2, 23))
+        if expected_dow == today_dow and now < grace_cutoff:
+            continue  # Too early to declare a no-show
+
+        stations = status.get(abbr, {}).get("stations", {})
+
+        for stage in expected_stages:
+            station = stations.get(stage, {})
+            last_run = station.get("last_run")
+
+            if last_run:
+                # Parse ISO timestamp and check if it's from the expected day
+                try:
+                    run_dt = datetime.fromisoformat(last_run.replace("Z", "+00:00"))
+                    if run_dt >= day_start:
+                        continue  # Ran on time — no issue
+                except (ValueError, TypeError):
+                    pass  # Can't parse — treat as no-show
+
+            # No-show detected
+            no_show_count += 1
+            slug_map = {
+                "WDM": "democratic-integrity", "GMM": "macro-monitor",
+                "ESA": "european-strategic-autonomy", "FCW": "fimi-cognitive-warfare",
+                "AIM": "ai-governance", "ERM": "environmental-risks",
+                "SCEM": "conflict-escalation", "FIM": "financial-integrity",
+            }
+            log_incident(
+                monitor=slug_map.get(abbr, abbr.lower()),
+                stage="watchdog",
+                incident_type="no_show",
+                severity="error",
+                detail=(
+                    f"{abbr} {stage} did not fire on expected day "
+                    f"({meta['day']}). Last run: {last_run or 'never'}"
+                ),
+                repo_root=pathlib.Path(__file__).resolve().parent.parent,
+            )
+            print(f"  🚫 NO-SHOW: {abbr} {stage} — expected {meta['cron_time']}, last run: {last_run or 'never'}")
+
+    if no_show_count == 0:
+        print("  ✅ No no-shows detected")
+    else:
+        print(f"  ⚠ {no_show_count} no-show(s) detected and logged")
+
+    return no_show_count
+
+
 # ─── Main ───────────────────────────────────────────────────────
 
 def main():
@@ -267,6 +381,9 @@ def main():
     if html:
         Path("pipeline-dashboard.html").write_text(html)
         print(f"  Generated pipeline-dashboard.html ({len(html)} bytes)")
+
+    # Detect no-shows and log incidents
+    detect_no_shows(status)
 
     # Commit to internal repo
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")

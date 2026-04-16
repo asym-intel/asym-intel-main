@@ -30,6 +30,15 @@ import requests
 import sys
 import re
 
+# ── Pipeline incident logging (engine-level) ──────────────────────────────────
+try:
+    _il_root = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.insert(0, str(_il_root / "pipeline"))
+    from incident_log import log_incident
+except ImportError:
+    def log_incident(**kw): pass  # graceful fallback
+
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
@@ -200,6 +209,9 @@ if brace_start != -1 and brace_end != -1 and brace_end > brace_start:
 try:
     data = json.loads(clean)
 except json.JSONDecodeError as e:
+    log_incident(monitor="environmental-risks", stage="reasoner", incident_type="json_parse_error",
+                 detail=f"Failed to parse JSON: {e}",
+                 raw_snippet=raw_content[:500] if raw_content else "")
     print(f"ERROR: Failed to parse JSON: {e}")
     print("Raw output (first 500 chars):", raw_content[:500])
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -216,6 +228,9 @@ if not data.get("analyst_briefing"):
     errors.append("analyst_briefing missing")
 
 if errors:
+    log_incident(monitor="environmental-risks", stage="reasoner", incident_type="schema_violation",
+                 severity="error", detail=f"Validation failed: {len(errors)} error(s)",
+                 errors=errors)
     print(f"VALIDATION FAILED: {errors}")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     (OUT_DIR / f"debug-{TODAY_STR}.json").write_text(json.dumps(data, indent=2), encoding="utf-8")

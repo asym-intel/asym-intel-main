@@ -20,6 +20,15 @@ import subprocess
 import base64
 import re as _re
 
+# ── Pipeline incident logging (engine-level) ──────────────────────────────────
+try:
+    _il_root = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.insert(0, str(_il_root / "pipeline"))
+    from incident_log import log_incident
+except ImportError:
+    def log_incident(**kw): pass  # graceful fallback
+
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY     = os.environ["PPLX_API_KEY"]
@@ -138,6 +147,9 @@ if not clean.endswith('}'):
 try:
     data = json.loads(clean)
 except json.JSONDecodeError as e:
+    log_incident(monitor="environmental-risks", stage="weekly-research", incident_type="json_parse_error",
+                 detail=f"Failed to parse JSON: {e}",
+                 raw_snippet=raw_content[:500] if raw_content else "")
     print(f"ERROR: Failed to parse JSON: {e}")
     print("Raw output (first 500 chars):", raw_content[:500])
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -200,6 +212,9 @@ elif len(data["weekly_brief_narrative"]) < 200:
     warnings.append(f"weekly_brief_narrative is very short ({len(data['weekly_brief_narrative'])} chars) — expected 400-600 words")
 
 if errors:
+    log_incident(monitor="environmental-risks", stage="weekly-research", incident_type="schema_violation",
+                 severity="error", detail=f"Schema validation failed: {len(errors)} error(s)",
+                 errors=errors, warnings=warnings)
     print(f"SCHEMA VALIDATION FAILED — {len(errors)} error(s):")
     for e in errors:
         print(f"  ✗ {e}")
