@@ -37,3 +37,10 @@ jobs:
           git commit -m "data(gmm-research): weekly deep research — $(date -u +%Y-%m-%d)"
           git pull --rebase origin main
           git push
+
+      - name: Archive prompt exchanges to internal repo
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: python tools/commit_exchange_log.py
