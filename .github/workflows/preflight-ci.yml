@@ -9,6 +9,9 @@ on:
       - 'static/monitors/*/data/*.json'
       - 'docs/crons/**'
       - 'tools/preflight.py'
+      - 'tools/preflight_engine_chrome.py'
+      - 'layouts/partials/footer.html'
+      - 'content/commercial.md'
   workflow_dispatch:
 
 jobs:
@@ -23,5 +26,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Run preflight
+      - name: Run pipeline preflight
         run: python3 tools/preflight.py --verbose
+
+      - name: Run engine-chrome preflight (footer + chip specs)
+        run: python3 tools/preflight_engine_chrome.py
