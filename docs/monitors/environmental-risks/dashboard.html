@@ -609,7 +609,7 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         var wbEl = document.getElementById('weekly-brief-content');
         if (wbEl && d.weekly_brief) {
-          wbEl.innerHTML = '<div style="font-size:var(--text-xs);line-height:1.7;color:var(--color-text-secondary)">' + escHtml(d.weekly_brief) + '</div>';
+          wbEl.innerHTML = '<div style="font-size:var(--text-xs);line-height:1.7;color:var(--color-text-secondary)">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderWithSources ? AsymRenderer.renderWithSources(d.weekly_brief, d.weekly_brief_sources || []) : escHtml(d.weekly_brief)) + '</div>';
         } else if (wbEl) {
           wbEl.innerHTML = '<p class="text-muted text-sm">No weekly brief available.</p>';
         }
