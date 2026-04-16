@@ -1,37 +1,10 @@
-# European Strategic Autonomy Monitor — Issue 6
-
-**W/E 16 April 2026** | Published 2026-04-16T19:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**EU Commission awards first ReArm Europe EDIP contracts worth 500 million euros for joint ammunition production.**
-
-Confidence: N/A
-Actor: N/A
-
-## Key Judgments
-
-1. **US economic coercion via tariffs constrains EU trade autonomy and diverts resources from defence investments.**
-   - Confidence: Assessed
-   - Trajectory: Declining
-
-2. **Russian FIMI targeting German elections signals sustained effort to fragment EU political consensus.**
-   - Confidence: Assessed
-   - Trajectory: Declining
-
-3. **EU Council shift to offensive hybrid strategy marks doctrinal progress toward cost-imposition capability.**
-   - Confidence: Probable
-   - Trajectory: Improving
-
-## Weekly Brief
+title: "European Strategic Autonomy Monitor — W/E 16 April 2026"
+date: 2026-04-16T19:00:00Z
+summary: "EU Commission awards first ReArm Europe EDIP contracts worth 500 million euros for joint ammunition production."
+draft: false
+monitor: "european-strategic-autonomy"
+---
 
 ## Lead Signal
 EU Commission advanced ReArm Europe with first EDIP contracts worth 500 million euros for joint ammunition production by Rheinmetall and Nexter. This structural milestone reduces reliance on US stockpiles amid Ukraine sustainment demands and signals defence integration momentum per ECFR calibration. Domain scores reflect incremental progress in defence_security at 3.0 stable while financial_economic declines to 1.0 due to US tariff escalation.
@@ -54,27 +27,3 @@ Russian FIMI campaign ru-fimi-20260412 flags fimi-cognitive-warfare for Telegram
 
 ## Outlook
 Monitor EDIP Q2 disbursements and ReArm Europe political blockers for defence trajectory confirmation. Watch German election FIMI response and Italian China pushback for cohesion signals. US auto tariff developments and EU raw materials implementation will shape decoupling and dependency scores next week.
-
-## Cross-Monitor Flags
-
-- **** (Strategic Conflict & Escalation Monitor) — Active
-- **** (Global FIMI & Cognitive Warfare Monitor) — Active
-- **** (Democratic Integrity Monitor) — Active
-- **** (Global FIMI & Cognitive Warfare Monitor) — Active
-- **** (AI Governance Monitor) — Monitoring
-- **** (Environmental Risks & Planetary Boundaries Monitor) — Active
-- **** (Macro Monitor) — Active
-- **Russian hybrid escalation includes FIMI components** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 4)
-- **Russian FIMI targeting German elections via Telegram.** (fimi-cognitive-warfare) — Active — NEW
-- **Chinese influence operations in Italian media environment.** (democratic-integrity) — Active — NEW
-- **Belarusian drone probes on Polish infrastructure.** (conflict-escalation) — Active — NEW
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/european-strategic-autonomy/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/european-strategic-autonomy/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/european-strategic-autonomy/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/european-strategic-autonomy/methodology.html>
