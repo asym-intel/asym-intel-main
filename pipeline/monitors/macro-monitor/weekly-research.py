@@ -19,6 +19,14 @@ import subprocess
 import base64
 import sys
 
+# ── Exchange logger (record every API call — success or failure) ──────────────
+try:
+    _repo_root = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.insert(0, str(_repo_root / "pipeline" / "shared"))
+    from prompt_exchange_log import log_exchange
+except ImportError:
+    def log_exchange(**kw): pass  # graceful fallback
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY     = os.environ["PPLX_API_KEY"]
@@ -115,8 +123,18 @@ response.raise_for_status()
 api_response = response.json()
 raw_content  = api_response["choices"][0]["message"]["content"]
 citations    = api_response.get("citations", [])
+_tokens      = api_response.get("usage", {}).get("total_tokens")
 
-print(f"API response received. Tokens: {api_response.get('usage', {}).get('total_tokens', 'unknown')}")
+print(f"API response received. Tokens: {_tokens if _tokens is not None else 'unknown'}")
+
+# ── Log exchange (before any parsing — captures success AND failure) ──────────
+log_exchange(
+    monitor="macro-monitor", stage="weekly-research", model=MODEL,
+    prompt_text=prompt, prompt_file=str(PROMPT_FILE),
+    raw_response=raw_content, parsed_ok=False,
+    tokens=_tokens if isinstance(_tokens, int) else None,
+    citations=len(citations),
+)
 
 # ── Parse JSON output ──────────────────────────────────────────────────────────
 
