@@ -22,6 +22,15 @@ try:
 except ImportError:
     def log_incident(**kw): pass  # graceful fallback
 
+# ── Token Intensity Monitor ──────────────────────────────────────────────────
+try:
+    sys.path.insert(0, str(pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))))
+    from pipeline.shared.Token_Intensity_Monitor import monitor_metabolic_load as _tim_monitor
+    _TIM_AVAILABLE = True
+except ImportError:
+    _TIM_AVAILABLE = False
+    def _tim_monitor(*a, **kw): return {}  # graceful fallback
+
 
 REPO_ROOT   = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
 MONITOR_DIR = REPO_ROOT / "pipeline" / "monitors" / "macro-monitor"
@@ -166,6 +175,24 @@ if "_meta" in synthesis:
         datetime.datetime.now(datetime.timezone.utc).isoformat()
     )
     synthesis["_meta"]["research_model"] = MODEL
+
+# ── Token Intensity Monitor hook ─────────────────────────────────────────────
+
+if _TIM_AVAILABLE:
+    _api_json = resp.json()
+    _usage = _api_json.get("usage", {})
+    _usage["citations"] = 0       # synthesisers don't do web search
+    _usage["unique_domains"] = 0
+    try:
+        _tim_result = _tim_monitor(
+            "macro-monitor",
+            _usage,
+            "pipeline/monitors/macro-monitor/ops/ops-metrics.json",
+        )
+        print(f"TIM: intensity={_tim_result.get('analytical_intensity')}, cascade={_tim_result.get('cascade_state')}, alerts={_tim_result.get('alerts', [])}")
+    except Exception as _tim_e:
+        print(f"TIM hook failed (non-blocking): {_tim_e}")
+
 
 SYNTH_DIR.mkdir(parents=True, exist_ok=True)
 (SYNTH_DIR / f"debug-{TODAY_STR}.json").write_text(json.dumps(synthesis, indent=2), encoding="utf-8")

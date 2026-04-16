@@ -23,6 +23,15 @@ try:
 except ImportError:
     def log_incident(**kw): pass  # graceful fallback
 
+# ── Token Intensity Monitor ──────────────────────────────────────────────────
+try:
+    sys.path.insert(0, str(pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))))
+    from pipeline.shared.Token_Intensity_Monitor import monitor_metabolic_load as _tim_monitor
+    _TIM_AVAILABLE = True
+except ImportError:
+    _TIM_AVAILABLE = False
+    def _tim_monitor(*a, **kw): return {}  # graceful fallback
+
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
@@ -265,6 +274,26 @@ data["_meta"]["finding_count"]        = len(findings)
 data["_meta"]["net_new_count"]        = sum(1 for f in findings if f.get("campaign_status_candidate") == "net_new")
 data["_meta"]["continuation_count"]   = sum(1 for f in findings if f.get("campaign_status_candidate") == "continuation")
 data["_meta"]["below_threshold_count"] = len(data.get("below_threshold", []))
+
+# ── Token Intensity Monitor hook ─────────────────────────────────────────────
+
+if _TIM_AVAILABLE:
+    _usage = api_response.get("usage", {})
+    _usage["citations"] = len(citations)
+    _usage["unique_domains"] = len(set(
+        c.split("/")[2] if "/" in c else c
+        for c in citations
+    ))
+    try:
+        _tim_result = _tim_monitor(
+            "financial-integrity",
+            _usage,
+            "pipeline/monitors/financial-integrity/ops/ops-metrics.json",
+        )
+        print(f"TIM: intensity={_tim_result.get('analytical_intensity')}, cascade={_tim_result.get('cascade_state')}, alerts={_tim_result.get('alerts', [])}")
+    except Exception as _tim_e:
+        print(f"TIM hook failed (non-blocking): {_tim_e}")
+
 
 # ── Write output files ─────────────────────────────────────────────────────────
 
