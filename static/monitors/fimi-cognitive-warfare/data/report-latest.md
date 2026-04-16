@@ -1,6 +1,6 @@
-# FIMI & Cognitive Warfare Monitor — Issue 4
+# FIMI & Cognitive Warfare Monitor — Issue 5
 
-**W/E 12 April 2026** | Published 2026-04-12T09:00:00Z
+**W/E 16 April 2026** | Published 2026-04-16T09:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -16,6 +16,7 @@ Schema version: 2.0
 
 Confidence: Assessed
 Actor: UNKNOWN
+Source: https://asym-intel.info/monitors/fimi-cognitive-warfare/methodology/
 
 ## Key Judgments
 
@@ -39,11 +40,11 @@ This week's null signal reflects both genuine operational lull and detection met
 
 ## Cross-Monitor Flags
 
-- **FIMI as constitutive mechanism of democratic erosion — Hungary election FIMI density at critical level** (Democratic Integrity Monitor) — Active — verified (adjacent Issue 4)
-- **Cognitive warfare as operational preparation for European strategic paralysis — Hungary election as test case** (European Strategic Autonomy Monitor (EGHTM)) — Active — verified (adjacent Issue 4)
+- **FIMI as constitutive mechanism of democratic erosion — Hungary election FIMI density at critical level** (Democratic Integrity Monitor) — Active — verified (adjacent Issue 9)
+- **Cognitive warfare as operational preparation for European strategic paralysis — Hungary election as test case** (European Strategic Autonomy Monitor (EGHTM)) — Active — verified (adjacent Issue 6)
 - **AI-generated YouTube network (1.8B views) as operational proof of AI-FIMI convergence at scale** (AI Governance Monitor) — Active — verified (adjacent Issue 3)
-- **Post-election FIMI lull following Slovenia parliamentary elections (March 22, 2026) may precede escalation cycle targeting upcoming EU member state elections. Recommend forward-looking monitoring for FIMI activity targeting 2026-2027 electoral cycles.** (democratic-integrity) — Active — NEW
-- **Iranian FIMI operations targeting Israel-Palestine narratives remain active at baseline. No escalation detected this week, but recommend continued monitoring for FIMI activity correlated with Middle East conflict escalation events.** (conflict-escalation) — Active — NEW
+- **Post-election FIMI lull following Slovenia parliamentary elections (March 22, 2026) may precede escalation cycle targeting upcoming EU member state elections. Recommend forward-looking monitoring for FIMI activity targeting 2026-2027 electoral cycles.** (democratic-integrity) — Active — verified (adjacent Issue 9)
+- **Iranian FIMI operations targeting Israel-Palestine narratives remain active at baseline. No escalation detected this week, but recommend continued monitoring for FIMI activity correlated with Middle East conflict escalation events.** (conflict-escalation) — Active — verified (adjacent Issue 6)
 
 ---
 
