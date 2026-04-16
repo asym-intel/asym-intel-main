@@ -561,6 +561,63 @@ def build_cognitive_warfare(synthesis: dict, prev_report: dict) -> list:
     return existing
 
 
+# ── Weekly brief sources (Source Surfacing Principle, ENGINE-RULES §14) ─────
+
+def build_weekly_brief_sources(synthesis: dict, prev_report: dict) -> list:
+    """
+    Collect verified source URLs from all structured finding arrays to attach
+    to the weekly_brief narrative. Publisher-side JOIN — no synthesiser change needed.
+    Implements Source Surfacing Principle (ENGINE-RULES Section 14).
+    """
+    sources = []
+    seen_urls = set()
+
+    def add_source(url, label=None, tier=None):
+        if not url or url in seen_urls:
+            return
+        if not url.startswith(("http://", "https://")):
+            return
+        seen_urls.add(url)
+        sources.append({"url": url, "label": label, "tier": tier})
+
+    # Pull from synthesis first (freshest data)
+    for field in [
+        "defence_developments", "hybrid_threat_incidents", "institutional_developments",
+        "domain_developments", "findings", "items", "threat_incidents",
+        "weekly_findings", "domain_updates", "developments",
+        "standing_tracker_updates", "jurisdiction_risk_movements",
+    ]:
+        items = synthesis.get(field, [])
+        if isinstance(items, list):
+            for item in items:
+                if isinstance(item, dict):
+                    add_source(
+                        item.get("source_url"),
+                        label=None,
+                        tier=item.get("source_tier"),
+                    )
+
+    # Lead signal source
+    for sig_key in ["lead_signal", "signal"]:
+        sig = synthesis.get(sig_key, {})
+        if isinstance(sig, dict):
+            add_source(sig.get("source_url"), tier=sig.get("source_tier"))
+
+    # Also pull from domain_tracker if present
+    for d in synthesis.get("domain_tracker", {}).values() if isinstance(synthesis.get("domain_tracker"), dict) else synthesis.get("domain_tracker", []) if isinstance(synthesis.get("domain_tracker"), list) else []:
+        if isinstance(d, dict):
+            add_source(d.get("source_url"), tier=d.get("source_tier"))
+
+    # Fallback: prev_report structured fields
+    if not sources:
+        for field in ["defence_developments", "hybrid_threats", "institutional_developments"]:
+            for item in prev_report.get(field, []):
+                if isinstance(item, dict):
+                    add_source(item.get("source_url"), tier=item.get("source_tier"))
+
+    return sources[:12]  # cap at 12 — renderer caps display at 8
+
+
 # ── Merge synthesis into report ──────────────────────────────────────────
 
 def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict) -> dict:
@@ -1840,6 +1897,7 @@ def main():
         synthesis, prev_report, publish_date, MONITOR_SLUG)
 
     report["source_url"] = f"{SITE_URL}/monitors/{MONITOR_SLUG}/{publish_date}-weekly-brief/"
+    report["weekly_brief_sources"] = build_weekly_brief_sources(synthesis, prev_report)
     report["_meta"] = {"last_run_status": build_last_run_status(synthesis, config)}
 
     # Normalise: all monitors use "signal" — remove legacy "lead_signal" if carried forward
