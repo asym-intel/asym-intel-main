@@ -1740,6 +1740,43 @@ def build_report_markdown(report: dict, config: dict) -> str:
 
 # ── Last run status ──────────────────────────────────────────────────────
 
+
+def sanitise_for_public(report: dict) -> dict:
+    """Return a deep copy of report with internal fields stripped (ENGINE-RULES §16).
+
+    Removes:
+      - _meta (pipeline telemetry — not reader output)
+      - _meta.correction subfields except correction.reason (kept as public note)
+      - cross_monitor_candidates (internal routing table)
+      - Any key ending in _preliminary (internal staging label — value already published
+        under the canonical key by publisher normalisation; where not yet normalised,
+        the _preliminary value is the best available and should be published without
+        the internal suffix)
+    """
+    import copy, re
+    r = copy.deepcopy(report)
+
+    # Strip _meta entirely (pipeline telemetry belongs in pipeline-status.json, not reports)
+    r.pop("_meta", None)
+
+    # Strip cross_monitor_candidates (internal routing — not published output)
+    r.pop("cross_monitor_candidates", None)
+
+    def strip_preliminary_keys(obj):
+        """Recursively rename keys ending in _preliminary → canonical name."""
+        if isinstance(obj, dict):
+            new = {}
+            for k, v in obj.items():
+                canonical = re.sub(r"_preliminary$", "", k)
+                new[canonical] = strip_preliminary_keys(v)
+            return new
+        elif isinstance(obj, list):
+            return [strip_preliminary_keys(i) for i in obj]
+        return obj
+
+    r = strip_preliminary_keys(r)
+    return r
+
 def build_last_run_status(synthesis: dict, config: dict, issues: list = None) -> dict:
     inputs = synthesis.get("_meta", {}).get("inputs_used", {})
     return {
@@ -1962,16 +1999,18 @@ def main():
 
     # Write outputs
     print("\n[6/6] Writing outputs...")
+    # Sanitise before any public write (ENGINE-RULES §16 — strip _meta, _preliminary, internal fields)
+    public_report = sanitise_for_public(report)
     dated_report_path = data_dir / f"report-{publish_date}.json"
-    write_json(dated_report_path, report)
-    write_json(data_dir / "report-latest.json", report)
+    write_json(dated_report_path, public_report)
+    write_json(data_dir / "report-latest.json", public_report)
     if persistent:
         write_json(persistent_path, persistent)
     write_json(archive_path, archive)
     write_text(brief_dir / f"{publish_date}-weekly-brief.md", hugo_brief)
     write_text(data_dir / "report-latest.md", report_md)
-    write_json(docs_data_dir / f"report-{publish_date}.json", report)
-    write_json(docs_data_dir / "report-latest.json", report)
+    write_json(docs_data_dir / f"report-{publish_date}.json", public_report)
+    write_json(docs_data_dir / "report-latest.json", public_report)
     write_text(docs_data_dir / "report-latest.md", report_md)
 
     print(f"\n{'=' * 50}")
