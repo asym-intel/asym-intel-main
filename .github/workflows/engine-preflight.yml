@@ -1,0 +1,49 @@
+name: "Engine Preflight — Layer A"
+
+# Layer A of the Engine Audit Control Plane.
+# Validates structural schema conformance of published report JSON.
+# Logic lives in asym-intel-internal/ops/engine_preflight.py (per §15 IP boundary).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'static/monitors/*/data/report-latest.json'
+      - 'static/monitors/*/data/report-*.json'
+  workflow_dispatch:
+    inputs:
+      monitor_slug:
+        description: 'Monitor slug to check (empty = all monitors)'
+        required: false
+        default: ''
+
+jobs:
+  preflight:
+    name: Engine schema preflight
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout public repo
+        uses: actions/checkout@v5
+
+      - name: Fetch preflight script from internal repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          mkdir -p ops
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/ops/engine_preflight.py" \
+            -o ops/engine_preflight.py \
+            && echo "✓ Preflight script fetched ($(wc -c < ops/engine_preflight.py) bytes)" \
+            || { echo "✗ Failed to fetch preflight script"; exit 1; }
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run preflight
+        env:
+          REPO_ROOT: ${{ github.workspace }}
+          MONITOR_SLUG: ${{ github.event.inputs.monitor_slug || '' }}
+        run: python3 ops/engine_preflight.py
