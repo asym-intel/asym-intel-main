@@ -119,6 +119,47 @@ except json.JSONDecodeError as e:
     (OUT_DIR / f"debug-{TODAY_STR}.txt").write_text(raw_content, encoding="utf-8")
     sys.exit(1)
 
+
+# ── R1+R2: Source verification (ENGINE-RULES Section 13) ─────────────────────
+try:
+    _vr_root = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
+    import sys as _sys
+    _sys.path.insert(0, str(_vr_root / "pipeline" / "tools"))
+    from verify_sources import verify_item_sources, log_verification_summary, emit_verification_record
+    
+    # Collect all items with source_url across all finding arrays
+    _all_items = []
+    for _field in ["findings", "lead_signal", "domain_developments", "hybrid_threat_incidents",
+                   "institutional_developments", "items", "domain_updates", "developments",
+                   "threat_incidents", "weekly_findings", "standing_tracker_updates"]:
+        _val = data.get(_field)
+        if isinstance(_val, list):
+            _all_items.extend(_val)
+        elif isinstance(_val, dict) and _val.get("source_url"):
+            _all_items.append(_val)
+    
+    if _all_items:
+        _all_items, _vstats = verify_item_sources(
+            _all_items,
+            monitor_slug=data.get("_meta", {}).get("monitor_slug", "unknown"),
+            stage="weekly-research",
+            log_incident_fn=log_incident,
+        )
+        log_verification_summary(_vstats, "weekly-research",
+                                 data.get("_meta", {}).get("monitor_slug", "unknown"))
+        # Embed verification record for epistemic dashboard
+        data["_verification"] = emit_verification_record(
+            _all_items, _vstats,
+            monitor_slug=data.get("_meta", {}).get("monitor_slug", "unknown"),
+            stage="weekly-research",
+            run_date=TODAY_STR,
+        )
+        print(f"   Source verification: {_vstats['verified']}/{_vstats['total']} verified")
+except ImportError:
+    print("  ⚠ verify_sources not available — skipping R1/R2 checks")
+except Exception as _ve:
+    print(f"  ⚠ Source verification error (non-fatal): {_ve}")
+
 # ── Validate schema ───────────────────────────────────────────────────────────
 
 REQUIRED_META = ["schema_version", "monitor_slug", "job_type", "week_ending", "status"]
