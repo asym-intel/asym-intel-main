@@ -842,7 +842,7 @@
             (traj ? '<span style="font-size:var(--text-xs);color:var(--text-muted)">' + escHtml(traj) + '</span>' : '') +
             (kj.framework_affected ? '<span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted)">' + escHtml(kj.framework_affected) + '</span>' : '') +
           '</div>' +
-          '<div style="font-size:var(--text-sm);line-height:1.6">' + escHtml(kj.judgment || kj.text || '') + '</div>' +
+          '<div style="font-size:var(--text-sm);line-height:1.6">' + (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderKeyJudgmentWithSources ? AsymRenderer.renderKeyJudgmentWithSources(kj) : escHtml(kj.judgment || kj.text || '')) + '</div>' +
         '</div>';
     });
     html += '</div>';
