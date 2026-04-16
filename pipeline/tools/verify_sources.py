@@ -36,6 +36,9 @@ Usage:
 
   # R4: Publisher gate — check lead signal source before publishing
   ok, result = check_lead_signal_gate(signal_dict, monitor_slug, log_fn)
+
+  # R4-ext: Check all key judgment sources (warn-only, does not block)
+  results, summary = check_key_judgment_sources(report_dict, monitor_slug, log_fn)
 """
 
 import datetime
@@ -341,6 +344,106 @@ def check_lead_signal_gate(
         )
 
     return False, result  # Allow publish
+
+
+# ── R4-ext: Key judgment source verification ────────────────────────────────────
+
+def check_key_judgment_sources(
+    report: dict,
+    monitor_slug: str,
+    log_incident_fn: Callable | None = None,
+) -> tuple[list[dict], dict]:
+    """
+    R4 extension: HEAD-check all source_urls in key_judgments[*].
+
+    Behaviour (per Engine Audit Control Plane spec):
+      - 404/410 on a secondary source: log WARNING (does NOT block publish)
+      - Missing source_urls array: log info, skip (graceful — field populates
+        after first post-R1 weekly run, w/e 20 Apr 2026)
+      - Lead source is already gated by check_lead_signal_gate(); this covers
+        the remaining key judgment sources only.
+
+    Args:
+        report:           The assembled report dict (after build_signal).
+        monitor_slug:     Monitor slug for incident logging.
+        log_incident_fn:  Callable matching incident_log.log_incident.
+
+    Returns:
+        (results: list[dict], summary: dict)
+        Each result: {"kj_id": str, "url": str, **verify_url_result}
+        summary: {"total_urls": int, "verified": int, "unverified": int,
+                  "unreachable": int, "skipped_no_urls": int}
+    """
+    if log_incident_fn is None:
+        log_incident_fn = _noop_log
+
+    key_judgments = report.get("key_judgments", [])
+    results = []
+    summary = {
+        "total_urls": 0,
+        "verified": 0,
+        "unverified": 0,
+        "unreachable": 0,
+        "skipped_no_urls": 0,
+    }
+
+    if not key_judgments:
+        return results, summary
+
+    for kj in key_judgments:
+        if not isinstance(kj, dict):
+            continue
+        kj_id = kj.get("id", kj.get("judgment", "?")[:40])
+        source_urls = kj.get("source_urls", [])
+
+        if not source_urls:
+            summary["skipped_no_urls"] += 1
+            continue
+
+        if isinstance(source_urls, str):
+            source_urls = [source_urls]  # normalise single URL to list
+
+        for url in source_urls:
+            if not url or not isinstance(url, str):
+                continue
+            summary["total_urls"] += 1
+            result = verify_url(url)
+            result["kj_id"] = kj_id
+            results.append(result)
+
+            if result["source_verified"]:
+                summary["verified"] += 1
+            else:
+                summary["unverified"] += 1
+                if result["http_status"] in UNREACHABLE_STATUS_CODES:
+                    summary["unreachable"] += 1
+                    # Log warning for unreachable secondary source
+                    log_incident_fn(
+                        monitor=monitor_slug,
+                        stage="publisher",
+                        incident_type="secondary_source_unreachable",
+                        severity="warning",
+                        detail=(
+                            f"R4-ext: key_judgment source_url returned "
+                            f"HTTP {result['http_status']}. "
+                            f"KJ: {kj_id}. URL: {url}. "
+                            f"Warning only — does not block publish."
+                        ),
+                    )
+                elif not result["source_verified"]:
+                    log_incident_fn(
+                        monitor=monitor_slug,
+                        stage="publisher",
+                        incident_type="secondary_source_unverified",
+                        severity="info",
+                        detail=(
+                            f"R4-ext: key_judgment source_url unverified "
+                            f"(HTTP {result['http_status']} | {result['error']}). "
+                            f"KJ: {kj_id}. URL: {url}."
+                        ),
+                    )
+
+    return results, summary
 
 
 # ── Reporting helpers ─────────────────────────────────────────────────────────
