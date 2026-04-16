@@ -1598,7 +1598,7 @@ def build_archive_entry(meta: dict, signal: dict | None, synthesis: dict) -> dic
 
 # ── Hugo brief ────────────────────────────────────────────────────────────
 
-def build_hugo_brief(meta: dict, synthesis: dict, config: dict) -> str:
+def build_hugo_brief(meta: dict, synthesis: dict, config: dict, brief_sources: list | None = None) -> str:
     brief_body = synthesis.get("weekly_brief_draft", "No brief available this week.")
     signal_headline = ""
     signal_key = config.get("signal_key")
@@ -1610,12 +1610,33 @@ def build_hugo_brief(meta: dict, synthesis: dict, config: dict) -> str:
     # Escape quotes in summary
     summary = signal_headline.replace('"', '\\"')[:200]
 
+    # Build brief_sources YAML list for Hugo front-matter
+    sources_yaml = ""
+    if brief_sources:
+        items = []
+        for s in brief_sources[:12]:
+            if isinstance(s, dict):
+                url = s.get("url", "")
+                label = s.get("label", "")
+                tier = s.get("tier", "")
+                if url:
+                    item = f'  - url: "{url}"'
+                    if label:
+                        item += f'\n    label: "{label}"'
+                    if tier:
+                        item += f'\n    tier: "{tier}"'
+                    items.append(item)
+            elif isinstance(s, str) and s.startswith("http"):
+                items.append(f'  - url: "{s}"')
+        if items:
+            sources_yaml = "\nbrief_sources:\n" + "\n".join(items)
+
     return f"""---
 title: "{config['title']} — {meta['week_label']}"
 date: {meta['published']}
 summary: "{summary}"
 draft: false
-monitor: "{MONITOR_SLUG}"
+monitor: "{MONITOR_SLUG}"{sources_yaml}
 ---
 
 {brief_body}
@@ -1934,7 +1955,7 @@ def main():
     archive.append(build_archive_entry(meta, signal, synthesis))
 
     # Hugo brief
-    hugo_brief = build_hugo_brief(meta, synthesis, config)
+    hugo_brief = build_hugo_brief(meta, synthesis, config, brief_sources=report.get("weekly_brief_sources", []))
 
     # AI-readable markdown (served at /monitors/{slug}/data/report-latest.md)
     report_md = build_report_markdown(report, config)
