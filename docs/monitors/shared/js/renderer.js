@@ -1330,7 +1330,20 @@ window.AsymSections = (function () {
       html +=
         '<div class="key-judgment-card">' +
           '<div class="key-judgment-card__id">' + escHtml(idLabel) + '</div>' +
-          '<div class="key-judgment-card__text">' + escHtml(kj.judgment || '') + '</div>' +
+          '<div class="key-judgment-card__text">' + escHtml(kj.judgment || kj.text || '') + '</div>' +
+          (kj.source_urls && kj.source_urls.length
+            ? '<div class="narrative-sources" style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:4px">' +
+              (kj.source_urls || []).slice(0,4).map(function(u) {
+                var url = typeof u === 'string' ? u : (u.url || '');
+                if (!url) return '';
+                var lbl = (typeof window.AsymRenderer !== 'undefined' && window.AsymRenderer.sourceLabel)
+                  ? window.AsymRenderer.sourceLabel(url) : 'Source';
+                return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" ' +
+                  'style="font-size:var(--text-xs,0.7rem);color:var(--color-text-secondary);text-decoration:none;' +
+                  'border:1px solid var(--color-border-subtle);padding:1px 6px;border-radius:3px;' +
+                  'background:var(--color-surface-raised)">' + lbl + ' →</a>';
+              }).join(' ') + '</div>'
+            : '') +
           '<div class="key-judgment-card__footer">' +
             (context
               ? '<span class="key-judgment-card__theatre">' + escHtml(context) + '</span>'
@@ -4281,6 +4294,154 @@ window.AsymSections = (function () {
     window.AsymRenderer.renderMarkdown = renderMarkdown;
   }
   window.AsymRenderMarkdown = renderMarkdown; // fallback direct access
+}());
+
+/* ── AsymRenderer.renderWithSources(text, sources, opts) ────────────────────
+ * Renders synthesised narrative text followed by a compact source attribution
+ * block. Implements the Source Surfacing Principle (ENGINE-RULES Section 14):
+ * every synthesised narrative visible to a reader must be traceable to a
+ * primary source on the same page.
+ *
+ * Args:
+ *   text    — narrative string (markdown supported, passed through renderMarkdown)
+ *   sources — array of source objects OR array of URL strings:
+ *             [{url, label?, tier?}, ...] or ["https://...", ...]
+ *   opts    — optional config:
+ *             opts.label      — heading label (default: "Sources")
+ *             opts.inline     — true = chip row; false = block list (default: chip row)
+ *             opts.tier_filter — only show sources at this tier or above
+ *                               e.g. "T2" shows T1 and T2 only
+ *             opts.max        — max sources to show (default: 8)
+ *             opts.note       — optional correction/caveat note string
+ *
+ * Usage:
+ *   el.innerHTML = AsymRenderer.renderWithSources(d.weekly_brief, d.weekly_brief_sources);
+ *   el.innerHTML = AsymRenderer.renderWithSources(kj.judgment, kj.source_urls, {label: 'Evidence'});
+ *   el.innerHTML = AsymRenderer.renderWithSources(text, [], {note: 'Sources pending verification'});
+ * ─────────────────────────────────────────────────────────────────────────── */
+(function () {
+  var TIER_ORDER = { 'T1': 1, 'T2': 2, 'T3': 3, 'T4': 4 };
+
+  function normaliseSources(sources) {
+    if (!sources || !Array.isArray(sources)) return [];
+    return sources
+      .filter(function (s) { return s; })
+      .map(function (s) {
+        if (typeof s === 'string') return { url: s, label: null, tier: null };
+        return { url: s.url || s.source_url || '', label: s.label || s.name || null, tier: s.tier || s.source_tier || null };
+      })
+      .filter(function (s) { return s.url && s.url.indexOf('http') === 0; });
+  }
+
+  function filterByTier(sources, tierFilter) {
+    if (!tierFilter) return sources;
+    var maxTier = TIER_ORDER[tierFilter] || 99;
+    return sources.filter(function (s) {
+      var t = TIER_ORDER[s.tier];
+      return !t || t <= maxTier;
+    });
+  }
+
+  function renderSourceChip(s) {
+    var label = s.label;
+    if (!label && typeof window.AsymRenderer !== 'undefined' && window.AsymRenderer.sourceLabel) {
+      label = window.AsymRenderer.sourceLabel(s.url);
+    }
+    if (!label) {
+      try { label = new URL(s.url).hostname.replace(/^www\./, ''); } catch (e) { label = 'Source'; }
+    }
+    var tierBadge = s.tier
+      ? '<span style="font-size:0.65rem;opacity:0.7;margin-left:2px">' + s.tier + '</span>'
+      : '';
+    return '<a class="source-chip" href="' + s.url + '" target="_blank" rel="noopener noreferrer" ' +
+      'style="display:inline-flex;align-items:center;gap:2px;padding:2px 7px;' +
+      'border-radius:3px;border:1px solid var(--color-border-subtle,#e2e0dc);' +
+      'font-size:var(--text-xs,0.7rem);color:var(--color-text-secondary,#6b6459);' +
+      'text-decoration:none;background:var(--color-surface-raised,#f5f3f0);' +
+      'transition:border-color 0.15s">' +
+      label + ' \u2192' + tierBadge +
+      '</a>';
+  }
+
+  function renderWithSources(text, sources, opts) {
+    opts = opts || {};
+    var label    = opts.label || 'Sources';
+    var maxShow  = opts.max   || 8;
+    var note     = opts.note  || null;
+
+    // Render narrative text
+    var narrativeHtml = '';
+    if (text) {
+      if (typeof window.AsymRenderer !== 'undefined' && window.AsymRenderer.renderMarkdown) {
+        narrativeHtml = window.AsymRenderer.renderMarkdown(text);
+      } else if (typeof window.AsymRenderMarkdown === 'function') {
+        narrativeHtml = window.AsymRenderMarkdown(text);
+      } else {
+        narrativeHtml = '<p>' + String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</p>';
+      }
+    }
+
+    // Correction/caveat note (e.g. for corrected reports)
+    var noteHtml = '';
+    if (note) {
+      noteHtml = '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);' +
+        'border-left:3px solid var(--color-amber,#f59e0b);background:var(--color-surface-raised,#f5f3f0);' +
+        'font-size:var(--text-xs,0.7rem);color:var(--color-text-secondary,#6b6459);line-height:1.5">' +
+        '<strong>Note:</strong> ' +
+        String(note).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+        '</div>';
+    }
+
+    // Build source block
+    var normSources = normaliseSources(sources);
+    if (opts.tier_filter) normSources = filterByTier(normSources, opts.tier_filter);
+    // Deduplicate by URL
+    var seen = {};
+    normSources = normSources.filter(function (s) {
+      if (seen[s.url]) return false;
+      seen[s.url] = true;
+      return true;
+    });
+    var displayed = normSources.slice(0, maxShow);
+    var overflow  = normSources.length - displayed.length;
+
+    var sourcesHtml = '';
+    if (displayed.length > 0) {
+      var chips = displayed.map(renderSourceChip).join(' ');
+      var overflowNote = overflow > 0
+        ? '<span style="font-size:var(--text-xs,0.7rem);color:var(--color-text-muted,#9e9690);margin-left:4px">+' + overflow + ' more</span>'
+        : '';
+      sourcesHtml =
+        '<div class="narrative-sources" style="margin-top:var(--space-4);padding-top:var(--space-3);' +
+        'border-top:1px solid var(--color-border-subtle,#e2e0dc)">' +
+        '<span style="font-size:var(--text-xs,0.7rem);font-weight:600;color:var(--color-text-muted,#9e9690);' +
+        'text-transform:uppercase;letter-spacing:0.05em;margin-right:var(--space-2)">' + label + '</span>' +
+        chips + overflowNote +
+        '</div>';
+    } else if (!text) {
+      sourcesHtml = '<p class="text-muted text-sm">No content available.</p>';
+    }
+
+    return narrativeHtml + noteHtml + sourcesHtml;
+  }
+
+  // Also export a standalone renderKeyJudgmentWithSources for use in key_judgments renders
+  function renderKeyJudgmentWithSources(kj, opts) {
+    opts = opts || {};
+    var sourceUrls = kj.source_urls || kj.sources || [];
+    var sources = Array.isArray(sourceUrls)
+      ? sourceUrls.map(function (u) { return typeof u === 'string' ? { url: u } : u; })
+      : [];
+    var text = kj.judgment || kj.text || '';
+    return renderWithSources(text, sources, Object.assign({ label: 'Evidence', max: 4 }, opts));
+  }
+
+  if (window.AsymRenderer) {
+    window.AsymRenderer.renderWithSources            = renderWithSources;
+    window.AsymRenderer.renderKeyJudgmentWithSources = renderKeyJudgmentWithSources;
+  }
+  window.AsymRenderWithSources            = renderWithSources;
+  window.AsymRenderKeyJudgmentWithSources = renderKeyJudgmentWithSources;
 }());
 
 /* ── AsymRenderer.sourceLabel(url) ──────────────────────────────────────────
