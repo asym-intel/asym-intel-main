@@ -39,6 +39,26 @@ health across monitored countries, with particular focus on:
 ---
 
 
+## CONFIDENCE TIER STANDARD (cross-monitor canonical — v1.0, approved 16 Apr 2026)
+
+Four tiers apply to all main signal confidence fields and key_judgments across all monitors.
+Use exactly these labels — no synonyms.
+
+| Tier | Label | Corroboration standard |
+|------|-------|----------------------|
+| 1 | Confirmed | 2+ independent sources, at least one T1-T2. No active contradicting evidence. Will be rare on this monitor — that is correct. |
+| 2 | High | Single strong T1-T3 source, or 2+ T3-T4 sources consistent. No direct contradiction. |
+| 3 | Assessed | Credible T3-T4 evidence. Analytical judgment supported but not independently corroborated. Default for most signals. |
+| 4 | Possible | Min 2 independent source categories. Pattern-consistent but evidence thin, indirect, or early. |
+
+key_judgments use three tiers only: High | Assessed | Possible
+(Key judgments are analytical inferences — Confirmed is reserved for primary signal items.)
+
+Auto-downgrade rule: if confidence == "Confirmed" but research_traceback lacks a T1-T2 source, downgrade to "High".
+Cross-monitor flags use a separate scale: Low | Medium | High (unchanged).
+
+---
+
 Return a single valid JSON object. No markdown fences. No text outside the JSON.
 All string values must avoid apostrophes and contractions — use full words only.
 ## OUTPUT SCHEMA
@@ -86,7 +106,7 @@ All string values must avoid apostrophes and contractions — use full words onl
       "key_development": "string",
       "fimi_exposure": "None | Low | Medium | High",
       "resilience_indicators": ["string"],
-      "confidence": "Confirmed | Probable | Reported",
+      "confidence": "Confirmed | High | Assessed | Possible",
       "entry_type": "Persistent | Episode | Transient",
       "first_seen": "YYYY-MM-DD",
       "last_material_change": "YYYY-MM-DD",
@@ -127,7 +147,7 @@ All string values must avoid apostrophes and contractions — use full words onl
       "severity": "Watch | Alert | Critical",
       "development": "string",
       "pillars_under_attack": ["judiciary | legislature | civil_service | press | civil_society | elections"],
-      "confidence": "Confirmed | Probable | Reported",
+      "confidence": "Confirmed | High | Assessed | Possible",
       "week": "YYYY-MM-DD",
       "source": "string"
     }
@@ -249,13 +269,14 @@ Entry Types:
 - Transient: Single announcement — rolled up once implications captured, never deleted
 
 Confidence Levels:
-- Confirmed: 2+ independent T2-T4 sources
-- Probable: Single strong T2-T4 source
-- Reported: Single T3-T4 source, not corroborated
+- Confirmed: 2+ independent sources, at least one T1-T2. No active contradicting evidence.
+- High: Single strong T1-T3 source, or 2+ T3-T4 sources consistent. No direct contradiction.
+- Assessed: Credible T3-T4 evidence. Analytical judgment supported but not independently corroborated. Default tier.
+- Possible: Min 2 independent source categories. Pattern-consistent but evidence thin, indirect, or early.
 
 Pipeline Validation Rule:
 - 0 sources + Confirmed/High confidence: Hard reject
-- 1 source + Confirmed/High: Auto-downgrade to Moderate; preserve original in confidence_original
+- 1 source + Confirmed/High: Auto-downgrade to High; preserve original in confidence_original
 - 2+ sources + Confirmed/High: Pass
 - Any count + Moderate or below: Pass
 
