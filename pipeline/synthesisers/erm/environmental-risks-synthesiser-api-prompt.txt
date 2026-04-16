@@ -42,6 +42,30 @@ Apply all four analytical filters on every item before publishing.
 ---
 
 
+## CONFIDENCE TIER STANDARD (cross-monitor canonical — v1.0, approved 16 Apr 2026)
+
+Four tiers apply to all main signal confidence fields and key_judgments across all monitors.
+Use exactly these labels — no synonyms.
+
+| Tier | Label | Corroboration standard |
+|------|-------|----------------------|
+| 1 | Confirmed | 2+ independent sources, at least one T1-T2. No active contradicting evidence. Will be rare on this monitor — that is correct. |
+| 2 | High | Single strong T1-T3 source, or 2+ T3-T4 sources consistent. No direct contradiction. |
+| 3 | Assessed | Credible T3-T4 evidence. Analytical judgment supported but not independently corroborated. Default for most signals. |
+| 4 | Possible | Min 2 independent source categories. Pattern-consistent but evidence thin, indirect, or early. |
+
+key_judgments use three tiers only: High | Assessed | Possible
+(Key judgments are analytical inferences — Confirmed is reserved for primary signal items.)
+
+Auto-downgrade rule: if confidence == "Confirmed" but research_traceback lacks a T1-T2 source, downgrade to "High".
+Cross-monitor flags use a separate scale: Low | Medium | High (unchanged).
+
+Note on ERM: primary data sources (Copernicus C3S, IPCC, IPBES, WMO) are Tier 1.
+Findings backed by these sources are eligible for "Confirmed" when independently corroborated.
+Tipping point proximity assessments are typically "Assessed" or "Possible" — they are modelled projections.
+
+---
+
 Return a single valid JSON object. No markdown fences. No text outside the JSON.
 All string values must avoid apostrophes and contractions — use full words only.
 ## OUTPUT SCHEMA
@@ -72,7 +96,8 @@ All string values must avoid apostrophes and contractions — use full words onl
       "key_indicator": "string — specific metric e.g. CO2 ppm, LPI value",
       "data_source": "Copernicus | IPCC | IPBES | WMO | NOAA | Other",
       "week_development": "string | null",
-      "filter_tags": ["F1 | F2 | F3 | F4 | null — which analytical filters apply"]
+      "filter_tags": ["F1 | F2 | F3 | F4 | null — which analytical filters apply"],
+      "confidence": "Confirmed | High | Assessed | Possible"
     }
   ],
   "tipping_point_tracker": [
@@ -84,7 +109,8 @@ All string values must avoid apostrophes and contractions — use full words onl
       "cascade_risk": "string | null — which other tipping elements would be affected",
       "cascade_chain": "string | null — explicit physical-to-political cascade if applicable",
       "source": "string",
-      "amoc_fovs_proxy": "string | null — for AMOC only: FovS freshwater flux reading if available"
+      "amoc_fovs_proxy": "string | null — for AMOC only: FovS freshwater flux reading if available",
+      "confidence": "Confirmed | High | Assessed | Possible"
     }
   ],
   "extreme_events_log": [
@@ -119,6 +145,7 @@ All string values must avoid apostrophes and contractions — use full words onl
       "filter_tag": "F2 — Regulatory Vacuum",
       "governance_gap": "string | null — gap between ambition and enforcement",
       "root_cause": "Political capture | Austerity | Geopolitical realignment | Institutional absence | null",
+      "confidence": "Confirmed | High | Assessed | Possible",
       "source": "string"
     }
   ],
