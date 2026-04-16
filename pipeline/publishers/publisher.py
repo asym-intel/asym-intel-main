@@ -1779,6 +1779,37 @@ def main():
     # Override explicit fields
     report["meta"] = meta
     signal = build_signal(synthesis, prev_report, config)
+
+    # ── R4: Publisher source gate (ENGINE-RULES Section 13) ──────────────────
+    try:
+        import sys as _pub_sys
+        _pub_sys.path.insert(0, str(REPO_ROOT / "pipeline" / "tools"))
+        from verify_sources import check_lead_signal_gate
+        if signal and isinstance(signal, dict):
+            _gate_block, _gate_result = check_lead_signal_gate(
+                signal,
+                monitor_slug=MONITOR_SLUG,
+                log_incident_fn=log_incident,
+            )
+            if _gate_block:
+                print(f"🚫 R4 PUBLISHER GATE: Lead signal source unreachable — BLOCKING PUBLISH")
+                print(f"   URL: {signal.get('source_url', 'none')}")
+                print(f"   HTTP: {_gate_result.get('http_status')}")
+                print(f"   This prevents publishing hallucinated or fabricated lead signals.")
+                print(f"   Fix: correct the lead signal source_url in the synthesis output.")
+                log_incident(
+                    monitor=MONITOR_SLUG, stage="publisher",
+                    incident_type="source_gate_block", severity="critical",
+                    detail=f"R4 gate blocked publish. Signal: {signal.get('headline','')[:80]}",
+                )
+                sys.exit(1)
+            else:
+                print(f"   R4 gate: lead source {'verified' if _gate_result.get('reachable') else 'unverified (warning only)'}")
+    except ImportError:
+        print("  ⚠ verify_sources not available — R4 gate skipped")
+    except Exception as _r4e:
+        print(f"  ⚠ R4 gate error (non-fatal): {_r4e}")
+
     if signal:
         report_signal_key = config["field_map"].get(config.get("signal_key", ""), "signal")
         report[report_signal_key] = signal
