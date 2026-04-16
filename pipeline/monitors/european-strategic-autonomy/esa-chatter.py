@@ -10,6 +10,14 @@ exclusion list into the prompt. Post-filters items older than 48h.
 """
 import os, json, requests, datetime, re, pathlib, sys
 
+# ── Exchange logger (record every API call — success or failure) ──────────────
+try:
+    _repo_root = pathlib.Path(os.environ.get("REPO_ROOT", pathlib.Path(__file__).resolve().parents[3]))
+    sys.path.insert(0, str(_repo_root / "pipeline" / "shared"))
+    from prompt_exchange_log import log_exchange
+except ImportError:
+    def log_exchange(**kw): pass  # graceful fallback
+
 API_KEY   = os.environ["PPLX_API_KEY"]
 TODAY     = datetime.date.today()
 TODAY_STR = TODAY.isoformat()
@@ -83,6 +91,15 @@ raw       = api_resp["choices"][0]["message"]["content"]
 citations = api_resp.get("citations", [])
 tokens    = api_resp.get("usage", {}).get("total_tokens", "?")
 print(f"Response received. Tokens: {tokens} | Citations: {len(citations)}")
+
+# ── Log exchange (before any parsing — captures success AND failure) ──────────
+log_exchange(
+    monitor=SLUG, stage="chatter", model="sonar",
+    prompt_text=prompt, prompt_file=str(PROMPT_FILE),
+    raw_response=raw, parsed_ok=False,
+    tokens=tokens if isinstance(tokens, int) else None,
+    citations=len(citations),
+)
 
 # ── Parse JSON ────────────────────────────────────────────────────────────────
 
