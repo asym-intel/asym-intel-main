@@ -14,6 +14,7 @@ Checks:
   6. Python script imports (required imports present)
   7. JSON data integrity (schema_version, no future dates)
   8. Cron prompt file existence (every analyst cron references a file that exists)
+  9. ENGINE-MAP coverage (every monitor + synthesiser dir referenced; no stale public-repo paths)
 
 Usage:
   python3 tools/preflight.py                    # run from repo root
@@ -451,6 +452,106 @@ def check_frontend_patterns(r: Results):
 
 # ─── Main ───────────────────────────────────────────────────────
 
+def check_engine_map(r: Results):
+    """Verify ENGINE-MAP.md (internal repo) covers monitor dirs and has no stale public-repo paths.
+
+    The map itself lives in asym-intel-internal/ops/ENGINE-MAP.md. Preflight runs in the public
+    repo, so we:
+      - Try to read ENGINE-MAP.md from a sibling checkout at ../asym-intel-internal/ops/ENGINE-MAP.md
+        if available (e.g. in a local dev env with both repos cloned side-by-side).
+      - If the map isn't locally available, skip with a warning (not a failure).
+      - If the map IS available, verify every pipeline/monitors/{slug} and pipeline/synthesisers/{abbr}
+        directory is mentioned by name, and every concrete public-repo path (static/, docs/,
+        pipeline/, .github/workflows/) quoted in the map resolves to a real file.
+
+    In CI, the map is not in the public repo, so this check will warn — that's expected.
+    Locally, if both repos are cloned side-by-side, the check becomes active.
+    """
+    # Try the standard sibling checkout location
+    map_candidates = [
+        REPO_ROOT.parent / "asym-intel-internal" / "ops" / "ENGINE-MAP.md",
+        REPO_ROOT / ".." / "asym-intel-internal" / "ops" / "ENGINE-MAP.md",
+    ]
+    map_path = None
+    for candidate in map_candidates:
+        if candidate.exists():
+            map_path = candidate.resolve()
+            break
+
+    if map_path is None:
+        r.warn("MAP-000:map-not-local",
+               "ENGINE-MAP.md not found in sibling asym-intel-internal checkout — skipping coverage check "
+               "(this is expected in CI; clone both repos side-by-side to run this check locally)")
+        return
+
+    try:
+        map_text = map_path.read_text(encoding="utf-8")
+    except Exception as e:
+        r.fail("MAP-000:map-read-error", f"Could not read {map_path}: {e}")
+        return
+
+    # Check 1: every monitors/{slug} dir in the tree must be mentioned by slug in the map
+    monitors_dir = REPO_ROOT / "pipeline" / "monitors"
+    if monitors_dir.exists():
+        missing_slugs = []
+        for slug_dir in sorted(monitors_dir.iterdir()):
+            if not slug_dir.is_dir():
+                continue
+            slug = slug_dir.name
+            if slug not in map_text:
+                missing_slugs.append(slug)
+        if missing_slugs:
+            for s in missing_slugs:
+                r.fail("MAP-001:missing-monitor",
+                       f"pipeline/monitors/{s}/ exists but slug '{s}' is not mentioned in ENGINE-MAP.md")
+        else:
+            r.ok("MAP-001:monitor-coverage", "All monitor slugs referenced in ENGINE-MAP.md")
+
+    # Check 2: every synthesisers/{abbr} dir in the tree must be mentioned by abbr in the map
+    synth_dir = REPO_ROOT / "pipeline" / "synthesisers"
+    if synth_dir.exists():
+        missing = []
+        for abbr_dir in sorted(synth_dir.iterdir()):
+            if not abbr_dir.is_dir() or abbr_dir.name.startswith("_") or abbr_dir.name.startswith("."):
+                continue
+            abbr = abbr_dir.name
+            # Abbr may appear lowercase (filenames) or uppercase (tables). Check both.
+            if abbr not in map_text and abbr.upper() not in map_text:
+                missing.append(abbr)
+        if missing:
+            r.fail("MAP-002:missing-synthesiser",
+                   f"pipeline/synthesisers/ subdirs not in ENGINE-MAP: {', '.join(missing)}")
+        else:
+            r.ok("MAP-002:synthesiser-coverage", "All synthesiser abbrs referenced in ENGINE-MAP.md")
+
+    # Check 3: any concrete public-repo path quoted in the map (backticks) must resolve to a real file.
+    # ONLY validate unambiguous public-repo prefixes. docs/ and .github/workflows/ exist in both repos
+    # with different contents, so they're excluded — those get coverage via other checks.
+    # Generated data files (static/ops/*.json and docs/ops/*.json) are cron outputs — not source-of-
+    # truth, not committed; excluded from freshness check.
+    PUBLIC_PREFIXES = ("static/", "pipeline/", "tools/", "assets/", "content/", "layouts/")
+    path_pattern = re.compile(r"`([A-Za-z0-9_./-]+/[A-Za-z0-9_./-]+)`")
+    stale = []
+    for match in path_pattern.finditer(map_text):
+        rel = match.group(1)
+        if not rel.startswith(PUBLIC_PREFIXES):
+            continue
+        # Skip placeholder or wildcard patterns
+        if "{" in rel or "}" in rel or "*" in rel or rel.endswith("/"):
+            continue
+        # Skip generated data files (cron outputs). Source-of-truth paths under static/ still checked.
+        if rel.startswith("static/ops/") and rel.endswith(".json"):
+            continue
+        target = REPO_ROOT / rel
+        if not target.exists():
+            stale.append(rel)
+    if stale:
+        for s in sorted(set(stale)):
+            r.fail("MAP-003:stale-path", f"ENGINE-MAP references '{s}' but it does not exist in this repo")
+    else:
+        r.ok("MAP-003:path-freshness", "All concrete public-repo paths in ENGINE-MAP resolve")
+
+
 CHECK_GROUPS = {
     "workflows": check_workflows,
     "preambles": check_prompt_preambles,
@@ -462,6 +563,7 @@ CHECK_GROUPS = {
     "crons": check_cron_prompts,
     "completeness": check_monitor_completeness,
     "frontend": check_frontend_patterns,
+    "engine_map": check_engine_map,
 }
 
 
