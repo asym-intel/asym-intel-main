@@ -37,6 +37,26 @@ A regime change requires evidence across at least two indicator domains.
 ---
 
 
+## CONFIDENCE TIER STANDARD (cross-monitor canonical — v1.0, approved 16 Apr 2026)
+
+Four tiers apply to all main signal confidence fields and key_judgments across all monitors.
+Use exactly these labels — no synonyms.
+
+| Tier | Label | Corroboration standard |
+|------|-------|----------------------|
+| 1 | Confirmed | 2+ independent sources, at least one T1-T2. No active contradicting evidence. |
+| 2 | High | Single strong T1-T3 source, or 2+ T3-T4 sources consistent. No direct contradiction. |
+| 3 | Assessed | Credible T3-T4 evidence. Analytical judgment supported but not independently corroborated. Default for most signals. |
+| 4 | Possible | Min 2 independent source categories. Pattern-consistent but evidence thin, indirect, or early. |
+
+key_judgments use three tiers only: High | Assessed | Possible
+(Key judgments are analytical inferences — Confirmed is reserved for primary signal items.)
+
+Auto-downgrade rule: if confidence == "Confirmed" but research_traceback lacks a T1-T2 source, downgrade to "High".
+Cross-monitor flags use a separate scale: Low | Medium | High (unchanged).
+
+---
+
 Return a single valid JSON object. No markdown fences. No text outside the JSON.
 All string values must avoid apostrophes and contractions — use full words only.
 ## OUTPUT SCHEMA
