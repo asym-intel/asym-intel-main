@@ -1925,6 +1925,24 @@ def main():
     except Exception as _r4e:
         print(f"  ⚠ R4 gate error (non-fatal): {_r4e}")
 
+    # ── R4-ext: Check all key judgment source_urls (warn-only) ─────────────
+    try:
+        from verify_sources import check_key_judgment_sources
+        _kj_results, _kj_summary = check_key_judgment_sources(
+            report, monitor_slug=MONITOR_SLUG, log_incident_fn=log_incident,
+        )
+        if _kj_summary["total_urls"] > 0:
+            print(f"   R4-ext: {_kj_summary['verified']}/{_kj_summary['total_urls']} "
+                  f"key judgment source(s) verified "
+                  f"({_kj_summary['unreachable']} unreachable)")
+        elif _kj_summary["skipped_no_urls"] > 0:
+            print(f"   R4-ext: {_kj_summary['skipped_no_urls']} key judgment(s) "
+                  f"have no source_urls yet (field populates after next weekly run)")
+    except ImportError:
+        pass  # verify_sources already warned above
+    except Exception as _r4ext_e:
+        print(f"  ⚠ R4-ext error (non-fatal): {_r4ext_e}")
+
     if signal:
         report_signal_key = config["field_map"].get(config.get("signal_key", ""), "signal")
         report[report_signal_key] = signal
