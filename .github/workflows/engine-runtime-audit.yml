@@ -2,7 +2,8 @@ name: "Engine Runtime Audit — Layer C"
 
 # Layer C of the Engine Audit Control Plane.
 # Weekly cross-engine sweep: all monitors + sister sites.
-# Logic lives in asym-intel-internal/ops/engine_runtime_audit.py (per §15 IP boundary).
+# After audit, compiles consolidated audit-status.json.
+# Logic lives in asym-intel-internal/ops/ (per §15 IP boundary).
 
 on:
   schedule:
@@ -13,22 +14,27 @@ jobs:
   audit:
     name: Weekly runtime audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout public repo
         uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
-      - name: Fetch runtime audit script from internal repo
+      - name: Fetch audit scripts from internal repo
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           mkdir -p ops
-          # Fetch runtime audit script
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/ops/engine_runtime_audit.py" \
-            -o ops/engine_runtime_audit.py \
-            && echo "✓ Runtime audit script fetched ($(wc -c < ops/engine_runtime_audit.py) bytes)" \
-            || { echo "✗ Failed to fetch runtime audit script"; exit 1; }
+          for script in engine_runtime_audit.py compile_audit_status.py; do
+            curl -sf -H "Authorization: token ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github.v3.raw" \
+              "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/ops/${script}" \
+              -o "ops/${script}" \
+              && echo "✓ ${script} fetched ($(wc -c < ops/${script}) bytes)" \
+              || { echo "✗ Failed to fetch ${script}"; exit 1; }
+          done
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -43,3 +49,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: python3 ops/engine_runtime_audit.py
+
+      - name: Compile audit status
+        env:
+          REPO_ROOT: ${{ github.workspace }}
+        run: python3 ops/compile_audit_status.py
+
+      - name: Commit audit-status.json
+        run: |
+          git config user.name "Engine Audit Bot"
+          git config user.email "audit@asym-intel.info"
+          git add static/ops/audit-status.json
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "ops(audit): update audit-status.json — Layer C runtime audit"
+          git push origin main
