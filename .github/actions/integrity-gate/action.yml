@@ -1,0 +1,36 @@
+name: 'Pre-Publication Integrity Gate'
+description: |
+  Runs integrity_sweep.py --local against the staged monitor data on the GA runner filesystem.
+  Hard-fails on C1-C6, C10. Warn-only on C7, C9. Skips C8.
+  Exit code 1 blocks the calling workflow's subsequent commit step.
+
+  The sweep script is fetched from asym-intel-internal at runtime to preserve the
+  engine IP boundary (ENGINE-RULES §15): verification logic never lives in the public repo.
+
+inputs:
+  monitor-slug:
+    description: 'Canonical monitor slug (e.g. macro-monitor, fimi-cognitive-warfare)'
+    required: true
+  gh-token:
+    description: 'GitHub token with read access to asym-intel-internal'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Fetch integrity_sweep.py from internal repo
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.gh-token }}
+      run: |
+        gh api /repos/asym-intel/asym-intel-internal/contents/ops/integrity_sweep.py \
+          --jq '.content' | base64 -d > /tmp/integrity_sweep.py
+        test -s /tmp/integrity_sweep.py || { echo "integrity_sweep.py fetch failed"; exit 1; }
+
+    - name: Run pre-publication integrity sweep
+      shell: bash
+      run: |
+        python3 /tmp/integrity_sweep.py \
+          --local "$GITHUB_WORKSPACE" \
+          --monitor "${{ inputs.monitor-slug }}" \
+          --output /tmp/integrity-sweeps
