@@ -45,13 +45,62 @@ RX_HARDCODED_ABBR_PATH = re.compile(
     re.IGNORECASE,
 )
 
-# Regex 3: string concatenation that looks like monitor URL construction.
-# Common shapes: "asym-intel.info/monitors/" + slug, `/monitors/${slug}`, etc.
+# Regex 3: string concatenation that builds a CANONICAL monitor URL.
+#
+# Scope (ENGINE-RULES §17): the canonical monitor URL is the registry
+# `url` field — `https://asym-intel.info/monitors/{slug}/`. The tonight-bug
+# class was code that built that exact value by string concat instead of
+# reading from the registry. The wrong-overview.html shape is a sub-class:
+# `/monitors/{slug}/overview.html` was historically used as the canonical
+# landing URL and is now banned in favour of trailing-slash.
+#
+# What this regex MUST flag:
+#   '/monitors/' + slug                       (canonical, no suffix)
+#   '/monitors/' + slug + '/'                 (canonical, trailing slash)
+#   '/monitors/' + slug + '/overview.html'    (banned legacy canonical)
+#   `/monitors/${slug}/`                      (template-literal canonical)
+#   `/monitors/${slug}/overview.html`         (template-literal banned)
+#
+# What this regex MUST NOT flag (sub-paths — not registry-governed):
+#   '/monitors/' + slug + '/dashboard.html'
+#   '/monitors/' + slug + '/data/report-latest.json'
+#   `/monitors/${slug}/data/chatter-latest.json`
+#
+# A sub-path migration sweep (SCOPE-2026-04-17-002) will add a
+# monitor_path(abbr, subpath) resolver and migrate those callsites; until
+# then they pass preflight.
+# Variable/expression token allowed inside the concat. Wrapped in an atomic
+# group (?>...) so the regex engine cannot backtrack and truncate the
+# identifier just to satisfy a later negative lookahead — a real bug we hit
+# building this regex (logged in KNOWHOW: regex-design-pitfalls).
+# Alternation order is longest-first (function-call → dotted → bare → parens)
+# so the FIRST match is the longest legal token at this position.
+# Examples: slug, m.slug, f.monitor_slug, escHtml(slug), _esc(s), (slug || '').
+# Requires Python 3.11+ for atomic groups; CI runs 3.12.
+_VAR = (
+    r'''(?>'''
+    r'''[A-Za-z_$][\w.$]*\([^)]*\)'''   # function call (longest — must come first)
+    r'''|[A-Za-z_$][\w.$]+'''            # dotted identifier (e.g. m.slug)
+    r'''|[A-Za-z_$]\w*'''                # bare identifier
+    r'''|\([^)]*\)'''                    # parenthesised expression
+    r''')'''
+)
+
 RX_CONCAT = re.compile(
-    r'''["'`](?:https?://)?asym-intel\.info/monitors/["'`]\s*[+]|'''
-    r'''["'`]/monitors/["'`]\s*[+]|'''
-    r'''`/monitors/\$\{[^}]+\}`|'''
-    r'''`https?://asym-intel\.info/monitors/\$\{''',
+    # JS/Python concat shape:
+    #   "<prefix>/monitors/" + <var> [ + "/[overview.html]" ]   end
+    # The trailing-literal group is OPTIONAL but must be exactly "/" or
+    # "/overview.html" — anything else ("/dashboard.html", "/data/...") means
+    # this is a sub-path concat, which is out of scope. We use a negative
+    # lookahead to rule out a following `+ '/sub...'` segment.
+    r'''["'`](?:https?://asym-intel\.info)?/monitors/["'`]\s*\+\s*'''
+    + _VAR +
+    r'''(?:\s*\+\s*["'`]/(?:overview\.html)?["'`])?'''
+    r'''(?!\s*\+\s*["'`]/)'''      # NOT followed by `+ '/sub...'` (sub-path — out of scope)
+    r'''|'''
+    # JS template literal: `/monitors/${slug}` or `${slug}/` or `${slug}/overview.html` ONLY.
+    # Sub-path template literals (e.g. `/monitors/${slug}/data/...`) are out of scope.
+    r'''`(?:https?://asym-intel\.info)?/monitors/\$\{[^}]+\}(?:/(?:overview\.html)?)?`''',
 )
 
 
@@ -89,7 +138,7 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
     for i, line in enumerate(lines, start=1):
         if RX_HARDCODED_ABBR_PATH.search(line):
             # Allow in this very file and the registry itself.
-            if path.name in ("preflight_monitor_links.py", "monitor-registry.json"):
+            if path.name in ("preflight_monitor_links.py", "test_preflight_monitor_links.py", "monitor-registry.json"):
                 continue
             violations.append(
                 (i, "HARDCODED_ABBR_PATH",
@@ -99,7 +148,7 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
     # Check string concatenation.
     for i, line in enumerate(lines, start=1):
         if RX_CONCAT.search(line):
-            if path.name in ("preflight_monitor_links.py",):
+            if path.name in ("preflight_monitor_links.py", "test_preflight_monitor_links.py"):
                 continue
             violations.append(
                 (i, "URL_CONCAT",

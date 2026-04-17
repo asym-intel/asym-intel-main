@@ -33,27 +33,59 @@ END = "/* END @REGISTRY_INLINE */"
 
 
 def build_literal(registry: dict) -> str:
-    """Produce a 2-space-indented JS object literal from the registry."""
-    # Shape: slug -> {abbr, name, accent, svg_url, url, viewbox, accent_2}
-    # nav.js needs abbr, name, accent, svg (URL or inline), vb for backwards compat.
-    # We switch to svg_url (img-loaded) instead of inline svg string. nav.js
-    # rendering code will need a one-line change to prefer m.svg_url if present.
+    """Produce a 2-space-indented JS literal block from the registry.
+
+    Emits two top-level constants:
+      - MONITOR_REGISTRY: slug -> {abbr, name, accent, url, svg_url, vb,
+                                   strip_label, accent_2?}
+      - MONITOR_TRIAGE_ORDER: array of abbrs in canonical triage sequence,
+                              used by injectMonitorStrip().
+    nav.js consumes both: nav rendering uses MONITOR_REGISTRY by slug;
+    the cross-monitor strip iterates MONITOR_TRIAGE_ORDER and resolves
+    each abbr against MONITOR_REGISTRY (+ a slug-by-abbr map below).
+    Adding/reordering monitors = edit monitor-registry.json only.
+    """
+    # --- MONITOR_REGISTRY (slug-keyed) ---
     lines = ["var MONITOR_REGISTRY = {"]
     for m in registry["monitors"]:
         slug = m["slug"]
         entry = {
-            "abbr":    m["abbr"],
-            "name":    m["name"],
-            "accent":  m["accent"],
-            "url":     m["url"],
-            "svg_url": m["svg_url"],
-            "vb":      m["svg_viewbox"],
+            "abbr":        m["abbr"],
+            "name":        m["name"],
+            "accent":      m["accent"],
+            "url":         m["url"],
+            "svg_url":     m["svg_url"],
+            "vb":          m["svg_viewbox"],
+            "strip_label": m["strip_label"],
         }
         if m.get("accent_2"):
             entry["accent_2"] = m["accent_2"]
         line = f"    {json.dumps(slug)}: {json.dumps(entry, separators=(', ', ': '))},"
         lines.append(line)
     lines.append("  };")
+
+    # --- MONITOR_TRIAGE_ORDER (abbr array) ---
+    if "triage_order" not in registry:
+        raise KeyError(
+            "monitor-registry.json missing required 'triage_order' array "
+            "(used by nav.js injectMonitorStrip)."
+        )
+    triage = registry["triage_order"]
+    abbrs = {m["abbr"] for m in registry["monitors"]}
+    unknown = [a for a in triage if a not in abbrs]
+    if unknown:
+        raise ValueError(
+            f"triage_order contains unknown abbrs: {unknown}"
+        )
+    missing = sorted(abbrs - set(triage))
+    if missing:
+        raise ValueError(
+            f"triage_order missing abbrs present in monitors[]: {missing}"
+        )
+    triage_js = json.dumps(triage, separators=(", ", ": "))
+    lines.append("")
+    lines.append(f"  var MONITOR_TRIAGE_ORDER = {triage_js};")
+
     return "\n".join(lines)
 
 

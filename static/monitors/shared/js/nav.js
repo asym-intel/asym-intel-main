@@ -118,7 +118,7 @@
         '<a href="https://asym-intel.info/monitors/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Monitors</a>',
         '<a href="https://asym-intel.info/network/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Network</a>',
         '<a href="https://asym-intel.info/map/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">World Map</a>',
-        '<a href="https://asym-intel.info/commercial/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Commercial</a>',
+        '<a href="https://a-i.gi/" style="color:#a8a7a4;text-decoration:none;transition:color 0.15s">Commercial</a>',
       '</nav>'
     ].join('');
 
@@ -232,39 +232,53 @@
 
 
   /* ── Cross-Monitor Strip Injection ──────────────────────────
-     Single source of truth for the cross-monitor navigation strip.
-     Generated at runtime by nav.js — same pattern as the network bar.
-     Edit monitor names/order here; changes propagate to all pages.
+     Single source of truth for the cross-monitor navigation strip:
+     MONITOR_REGISTRY (slug-keyed) + MONITOR_TRIAGE_ORDER (abbr array)
+     are inlined from monitor-registry.json by
+     tools/inline_registry_into_navjs.py at build/commit time.
+     ENGINE-RULES §17: never construct monitor URLs by string concat —
+     every pill href = registry `url` field, resolved through the abbr.
+     Adding/reordering monitors = edit monitor-registry.json only.
      Hierarchy: network bar (40px) → strip (50px) → monitor nav (52px)
      ──────────────────────────────────────────────────────────── */
-  var MONITOR_STRIP_ORDER = [
-    { slug: 'macro-monitor',              name: 'Global Macro',              accent: '#22a0aa', icon: 'gmm'  },
-    { slug: 'conflict-escalation',        name: 'Strategic Conflict',        accent: '#dc2626', icon: 'scem' },
-    { slug: 'fimi-cognitive-warfare',     name: 'FIMI \x26 Cognitive Warfare', accent: '#38bdf8', icon: 'fcw'  },
-    { slug: 'ai-governance',              name: 'Artificial Intelligence',   accent: '#3a7d5a', icon: 'agm'  },
-    { slug: 'democratic-integrity',       name: 'World Democracy',           accent: '#61a5d2', icon: 'wdm'  },
-    { slug: 'european-strategic-autonomy', name: 'Strategic Autonomy',        accent: '#5b8db0', icon: 'esa'  },
-    { slug: 'environmental-risks',        name: 'Environmental Risks',       accent: '#4caf7d', icon: 'erm'  },
-  ];
 
   function injectMonitorStrip() {
     // Only on monitor pages
     if (window.location.pathname.indexOf('/monitors/') === -1) return;
     // Skip if already present
     if (document.querySelector('.monitor-strip')) return;
+    // Defensive: registry+triage must be available (inliner has run)
+    if (typeof MONITOR_REGISTRY === 'undefined' ||
+        typeof MONITOR_TRIAGE_ORDER === 'undefined') {
+      return;
+    }
+
+    // Build {abbr -> slug} index over MONITOR_REGISTRY for triage_order resolution.
+    var slugByAbbr = {};
+    for (var s in MONITOR_REGISTRY) {
+      if (Object.prototype.hasOwnProperty.call(MONITOR_REGISTRY, s)) {
+        slugByAbbr[MONITOR_REGISTRY[s].abbr] = s;
+      }
+    }
 
     var currentSlug = getMonitorSlug();
-
     var pills = '';
-    MONITOR_STRIP_ORDER.forEach(function (m) {
-      var active = (m.slug === currentSlug) ? ' monitor-strip__pill--active' : '';
+
+    MONITOR_TRIAGE_ORDER.forEach(function (abbr) {
+      var slug = slugByAbbr[abbr];
+      if (!slug) return;                  // abbr not in registry — skip silently
+      var m = MONITOR_REGISTRY[slug];
+      if (!m) return;
+      var active = (slug === currentSlug) ? ' monitor-strip__pill--active' : '';
+      // href = canonical registry URL — NEVER concatenate (ENGINE-RULES §17)
       pills +=
         '<a class="monitor-strip__pill' + active + '"' +
-        ' href="/monitors/' + m.slug + '/overview.html"' +
+        ' href="' + m.url + '"' +
+        ' data-monitor="' + m.abbr + '"' +
         ' style="--pill-accent:' + m.accent + '">' +
-          '<img class="monitor-strip__icon" src="/images/monitors/' + m.icon + '.svg"' +
+          '<img class="monitor-strip__icon" src="' + m.svg_url + '"' +
           ' alt="" width="24" height="24" aria-hidden="true">' +
-          '<span>' + m.name + '</span>' +
+          '<span>' + m.strip_label + '</span>' +
         '</a>';
     });
 
@@ -292,12 +306,9 @@
     }
   }
 
-  // Inject strip at parse time for immediate render (same as network bar)
-  if (document.body) {
-    injectMonitorStrip();
-  } else {
-    document.addEventListener('DOMContentLoaded', injectMonitorStrip);
-  }
+  // Strip injection deferred until AFTER MONITOR_REGISTRY is defined below.
+  // (See bottom-of-file binding — injectMonitorStrip() now depends on the
+  // inlined registry, which is declared further down in this IIFE.)
 
 
   /* ── Monitor Nav Injection ───────────────────────────────────
@@ -315,16 +326,26 @@
      ──────────────────────────────────────────────────────────── */
   /* BEGIN @REGISTRY_INLINE */
   var MONITOR_REGISTRY = {
-    "democratic-integrity": {"abbr": "WDM", "name": "World Democracy Monitor", "accent": "#61a5d2", "url": "https://asym-intel.info/monitors/democratic-integrity/", "svg_url": "https://asym-intel.info/images/monitors/wdm.svg", "vb": "0 0 32 32"},
-    "macro-monitor": {"abbr": "GMM", "name": "Global Macro Monitor", "accent": "#22a0aa", "url": "https://asym-intel.info/monitors/macro-monitor/", "svg_url": "https://asym-intel.info/images/monitors/gmm.svg", "vb": "0 0 38 38", "accent_2": "#e87040"},
-    "financial-integrity": {"abbr": "FIM", "name": "Financial Integrity Monitor", "accent": "#e6a817", "url": "https://asym-intel.info/monitors/financial-integrity/", "svg_url": "https://asym-intel.info/images/monitors/fim.svg", "vb": "0 0 36 36"},
-    "european-strategic-autonomy": {"abbr": "ESA", "name": "European Strategic Autonomy Monitor", "accent": "#5b8db0", "url": "https://asym-intel.info/monitors/european-strategic-autonomy/", "svg_url": "https://asym-intel.info/images/monitors/esa.svg", "vb": "0 0 36 36"},
-    "fimi-cognitive-warfare": {"abbr": "FCW", "name": "FIMI & Cognitive Warfare Monitor", "accent": "#38bdf8", "url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/", "svg_url": "https://asym-intel.info/images/monitors/fcw.svg", "vb": "0 0 36 36", "accent_2": "#dc2626"},
-    "ai-governance": {"abbr": "AIM", "name": "AI Governance Monitor", "accent": "#3a7d5a", "url": "https://asym-intel.info/monitors/ai-governance/", "svg_url": "https://asym-intel.info/images/monitors/aim.svg", "vb": "0 0 36 36"},
-    "environmental-risks": {"abbr": "ERM", "name": "Environmental Risks Monitor", "accent": "#4caf7d", "url": "https://asym-intel.info/monitors/environmental-risks/", "svg_url": "https://asym-intel.info/images/monitors/erm.svg", "vb": "0 0 36 36"},
-    "conflict-escalation": {"abbr": "SCEM", "name": "Strategic Conflict & Escalation Monitor", "accent": "#dc2626", "url": "https://asym-intel.info/monitors/conflict-escalation/", "svg_url": "https://asym-intel.info/images/monitors/scem.svg", "vb": "0 0 36 36"},
+    "democratic-integrity": {"abbr": "WDM", "name": "World Democracy Monitor", "accent": "#61a5d2", "url": "https://asym-intel.info/monitors/democratic-integrity/", "svg_url": "https://asym-intel.info/images/monitors/wdm.svg", "vb": "0 0 32 32", "strip_label": "World Democracy"},
+    "macro-monitor": {"abbr": "GMM", "name": "Global Macro Monitor", "accent": "#22a0aa", "url": "https://asym-intel.info/monitors/macro-monitor/", "svg_url": "https://asym-intel.info/images/monitors/gmm.svg", "vb": "0 0 38 38", "strip_label": "Global Macro", "accent_2": "#e87040"},
+    "financial-integrity": {"abbr": "FIM", "name": "Financial Integrity Monitor", "accent": "#e6a817", "url": "https://asym-intel.info/monitors/financial-integrity/", "svg_url": "https://asym-intel.info/images/monitors/fim.svg", "vb": "0 0 36 36", "strip_label": "Financial Integrity"},
+    "european-strategic-autonomy": {"abbr": "ESA", "name": "European Strategic Autonomy Monitor", "accent": "#5b8db0", "url": "https://asym-intel.info/monitors/european-strategic-autonomy/", "svg_url": "https://asym-intel.info/images/monitors/esa.svg", "vb": "0 0 36 36", "strip_label": "Strategic Autonomy"},
+    "fimi-cognitive-warfare": {"abbr": "FCW", "name": "FIMI & Cognitive Warfare Monitor", "accent": "#38bdf8", "url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/", "svg_url": "https://asym-intel.info/images/monitors/fcw.svg", "vb": "0 0 36 36", "strip_label": "FIMI & Cognitive Warfare", "accent_2": "#dc2626"},
+    "ai-governance": {"abbr": "AIM", "name": "AI Governance Monitor", "accent": "#3a7d5a", "url": "https://asym-intel.info/monitors/ai-governance/", "svg_url": "https://asym-intel.info/images/monitors/aim.svg", "vb": "0 0 36 36", "strip_label": "Artificial Intelligence"},
+    "environmental-risks": {"abbr": "ERM", "name": "Environmental Risks Monitor", "accent": "#4caf7d", "url": "https://asym-intel.info/monitors/environmental-risks/", "svg_url": "https://asym-intel.info/images/monitors/erm.svg", "vb": "0 0 36 36", "strip_label": "Environmental Risks"},
+    "conflict-escalation": {"abbr": "SCEM", "name": "Strategic Conflict & Escalation Monitor", "accent": "#dc2626", "url": "https://asym-intel.info/monitors/conflict-escalation/", "svg_url": "https://asym-intel.info/images/monitors/scem.svg", "vb": "0 0 36 36", "strip_label": "Strategic Conflict"},
   };
+
+  var MONITOR_TRIAGE_ORDER = ["GMM", "SCEM", "FCW", "AIM", "WDM", "ESA", "FIM", "ERM"];
   /* END @REGISTRY_INLINE */
+
+  // Inject strip at parse time for immediate render (same as network bar).
+  // MUST be after MONITOR_REGISTRY + MONITOR_TRIAGE_ORDER are defined above.
+  if (document.body) {
+    injectMonitorStrip();
+  } else {
+    document.addEventListener('DOMContentLoaded', injectMonitorStrip);
+  }
 
   /* Derive monitor slug from URL path: /monitors/{slug}/{page}.html */
   function getMonitorSlug() {
@@ -374,7 +395,7 @@
     '</svg>';
 
   var ASYM_BRAND_NAME = 'Asymmetric Intelligence';
-  var ASYM_COMMERCIAL_URL = 'https://asym-intel.info/commercial/';
+  var ASYM_COMMERCIAL_URL = 'https://a-i.gi/';
 
   var POWERED_BY_HTML =
     '<a href="' + ASYM_COMMERCIAL_URL + '" style="display:inline-flex;align-items:center;gap:0.35rem;text-decoration:none;color:inherit">' +
