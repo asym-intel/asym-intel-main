@@ -23,10 +23,14 @@ jobs:
           python-version: "3.12"
 
       - name: Run WDM Publisher
+        id: run_publisher
         env:
           REPO_ROOT: ${{ github.workspace }}
           MONITOR_SLUG: democratic-integrity
-        run: python3 pipeline/publishers/publisher.py
+        run: |
+          python3 pipeline/publishers/publisher.py
+          ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/democratic-integrity/data/report-latest.json"))["meta"]["issue"])')
+          echo "issue_number=$ISSUE" >> $GITHUB_OUTPUT
 
       - name: Commit published report
         run: |
@@ -36,7 +40,7 @@ jobs:
           git add docs/monitors/democratic-integrity/data/
           git add content/monitors/democratic-integrity/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(wdm): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/democratic-integrity/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by WDM Publisher Bot"
+          git commit -m "data(wdm): Issue ${{ steps.run_publisher.outputs.issue_number }} published by WDM Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
