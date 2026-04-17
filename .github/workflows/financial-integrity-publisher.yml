@@ -32,6 +32,12 @@ jobs:
           ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/financial-integrity/data/report-latest.json"))["meta"]["issue"])')
           echo "issue_number=$ISSUE" >> $GITHUB_OUTPUT
 
+      - name: Pre-publication integrity gate
+        uses: ./.github/actions/integrity-gate
+        with:
+          monitor-slug: financial-integrity
+          gh-token: ${{ secrets.GH_TOKEN }}
+
       - name: Commit published report
         run: |
           git config user.name "FIM Publisher Bot"
