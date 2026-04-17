@@ -17,10 +17,13 @@ Requires: `gh` CLI authenticated for the asym-intel org.
 
 Exit codes:
     0 — all gates pass, wrap may proceed
-    1 — thinning gate failed (notes file >12KB and no archive commit this session)
+    1 — thinning gate failed (notes file >12KB — HARD limit, no margin as of 17 Apr 2026)
     2 — staging gate failed (staging ahead of main, must merge before wrap)
     3 — script error (gh CLI missing, network failure, unknown project)
     4 — bug-log gate failed (bug-signal commits this session with no BUG-LOG entry) — hard from 2026-05-01
+
+Version: 2.0 — 17 Apr 2026. v1 allowed a 20% margin (14.4KB soft ceiling); removed
+after six consecutive non-compliant wraps on 17 Apr. See wrap-enforcement session log.
 """
 from __future__ import annotations
 
@@ -70,8 +73,10 @@ PROJECTS = {
     },
 }
 
-SIZE_TARGET_BYTES = 12 * 1024          # 12 KB (ENGINE-RULES §5.3c)
-SIZE_MARGIN_FRAC = 0.20                 # allow 20% slack before failing the gate
+SIZE_TARGET_BYTES = 12 * 1024          # 12 KB (ENGINE-RULES §5.3c) — HARD limit, no margin
+# Note: the 20% margin that existed in v1 was removed on 17 Apr 2026 after sessions
+# consistently landed in the 12–14.4 KB "grace band" and never returned to target.
+# ENGINE-RULES §5.3 is now a cliff, not a slope. See wrap-enforcement session log.
 SESSION_WINDOW_HOURS = 12               # "this session" = commits in last 12h
 
 # ENGINE-RULES §1e — Bug Discovery Protocol
@@ -223,11 +228,9 @@ def gate_thinning(project: dict) -> tuple[CheckResult, dict]:
         archive_dt = datetime.fromisoformat(archive_last.replace("Z", "+00:00"))
         archive_this_session = archive_dt >= session_cutoff
 
-    hard_limit = int(SIZE_TARGET_BYTES * (1 + SIZE_MARGIN_FRAC))  # 14.4 KB
-
     detail = (
         f"{path}: {size} bytes / {lines} lines "
-        f"(target ≤{SIZE_TARGET_BYTES}, hard limit {hard_limit}). "
+        f"(HARD limit {SIZE_TARGET_BYTES} bytes = 12 KB). "
         f"Archive {archive_path} last commit: "
         f"{archive_last or 'never'} "
         f"({'this session' if archive_this_session else 'not this session'})."
@@ -235,33 +238,16 @@ def gate_thinning(project: dict) -> tuple[CheckResult, dict]:
 
     if size <= SIZE_TARGET_BYTES:
         return (
-            CheckResult("thinning", True, detail + " Verdict: PASS (under target)."),
-            {"size": size, "lines": lines, "archive_this_session": archive_this_session},
-        )
-    if size <= hard_limit and archive_this_session:
-        return (
-            CheckResult(
-                "thinning", True,
-                detail + " Verdict: PASS (within margin, thinning this session).",
-            ),
-            {"size": size, "lines": lines, "archive_this_session": archive_this_session},
-        )
-    if size <= hard_limit and not archive_this_session:
-        return (
-            CheckResult(
-                "thinning", False,
-                detail
-                + " Verdict: FAIL — within margin but no thinning this session. "
-                "Re-run §5.3 (3a measure → 3b reread → 3c gate → 3d verify).",
-            ),
+            CheckResult("thinning", True, detail + " Verdict: PASS."),
             {"size": size, "lines": lines, "archive_this_session": archive_this_session},
         )
     return (
         CheckResult(
             "thinning", False,
             detail
-            + " Verdict: FAIL — exceeds hard limit. "
-            "Thin the file before proceeding.",
+            + f" Verdict: FAIL — {size - SIZE_TARGET_BYTES} bytes over hard limit. "
+            "Thin the file before wrap completes. Commit-time gate "
+            "(.github/workflows/notes-size-gate.yml) will also block push.",
         ),
         {"size": size, "lines": lines, "archive_this_session": archive_this_session},
     )
