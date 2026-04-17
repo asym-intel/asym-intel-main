@@ -132,7 +132,7 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   transition: background 0.2s, color 0.2s;
-  overflow-x: hidden;
+  overflow-x: clip; /* R-MV-002 / engine rule: clip not hidden — preserves position:sticky children */
   /* Network bar offset is injected via .style in network-bar.html */
 }
 a { color: var(--monitor-accent); text-decoration: none; }
@@ -1686,7 +1686,18 @@ body { padding-top: 40px; }
   /* Cross-monitor panel full width */
   .cross-monitor-panel { padding: var(--space-4); }
   /* Sprint 1 SL — responsive */
-  .asym-radar-wrap { grid-template-columns: 1fr; }
+  /* LOG-2026-04-17-001: fixed 480px height on .asym-radar-wrap caused the dim
+     list to overflow into the next module-section when the grid stacked to 1fr,
+     producing the ESA "Critical Materials / Domain Tracker" visual merge.
+     Fix: let the stacked layout size itself; remove the dim list cap. */
+  .asym-radar-wrap {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .asym-radar-wrap > .asym-radar-dim-list {
+    max-height: none;
+    overflow-y: visible;
+  }
   .card-grid, .card-grid--two { grid-template-columns: 1fr; }
   .card-grid--four { grid-template-columns: repeat(2, 1fr); }
   .triage-section--threshold { padding-left: var(--space-4); }
