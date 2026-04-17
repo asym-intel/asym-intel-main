@@ -48,7 +48,7 @@ RX_HARDCODED_ABBR_PATH = re.compile(
 # Regex 3: string concatenation that looks like monitor URL construction.
 # Common shapes: "asym-intel.info/monitors/" + slug, `/monitors/${slug}`, etc.
 RX_CONCAT = re.compile(
-    r'''["'`]asym-intel\.info/monitors/["'`]\s*[+]|'''
+    r'''["'`](?:https?://)?asym-intel\.info/monitors/["'`]\s*[+]|'''
     r'''["'`]/monitors/["'`]\s*[+]|'''
     r'''`/monitors/\$\{[^}]+\}`|'''
     r'''`https?://asym-intel\.info/monitors/\$\{''',
