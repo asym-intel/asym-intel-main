@@ -1,26 +1,26 @@
 {{/*
   monitor-strip.html — Cross-monitor navigation bar
-  Horizontal pill strip below site header. SVG icons from /images/monitors/.
-  Accent colours from MONITOR_REGISTRY (nav.js).
-  Triage order: GMM · SCEM · FCW · AGM · WDM · ESA · ERM
+  Horizontal pill strip below site header. Data source: canonical monitor-registry.json.
+  ENGINE-RULES §17: URLs and accents come from the registry, never hardcoded.
+
+  Triage order (different from publish order): GMM · SCEM · FCW · AIM · WDM · ESA · FIM · ERM.
+  When the registry grows a `triage_order` field this can be rewritten to sort by it.
 */}}
-{{ $monitors := slice
-  (dict "slug" "macro-monitor"              "abbr" "GMM"  "name" "Global Macro"                   "accent" "#22a0aa" "icon" "gmm")
-  (dict "slug" "conflict-escalation"        "abbr" "SCEM" "name" "Strategic Conflict"              "accent" "#dc2626" "icon" "scem")
-  (dict "slug" "fimi-cognitive-warfare"     "abbr" "FCW"  "name" "FIMI & Cognitive Warfare"  "accent" "#38bdf8" "icon" "fcw")
-  (dict "slug" "ai-governance"              "abbr" "AGM"  "name" "Artificial Intelligence"          "accent" "#3a7d5a" "icon" "agm")
-  (dict "slug" "democratic-integrity"       "abbr" "WDM"  "name" "World Democracy"                 "accent" "#61a5d2" "icon" "wdm")
-  (dict "slug" "european-strategic-autonomy" "abbr" "ESA" "name" "Strategic Autonomy"              "accent" "#5b8db0" "icon" "esa")
-  (dict "slug" "environmental-risks"        "abbr" "ERM"  "name" "Environmental Risks"             "accent" "#4caf7d" "icon" "erm")
-}}
+{{ $registry := getJSON "static/monitors/monitor-registry.json" }}
+{{ $triage := slice "GMM" "SCEM" "FCW" "AIM" "WDM" "ESA" "FIM" "ERM" }}
 <nav class="monitor-strip" role="navigation" aria-label="Monitor navigation">
   <span class="monitor-strip__label">Monitors</span>
-  {{ range $monitors }}
-  <a class="monitor-strip__pill" href="/monitors/{{ .slug }}/overview.html"
+  {{ range $triage }}
+    {{ $abbr := . }}
+    {{ range $registry.monitors }}
+      {{ if eq .abbr $abbr }}
+  <a class="monitor-strip__pill" data-monitor="{{ .abbr }}" href="{{ .url }}"
      style="--pill-accent: {{ .accent }}">
-    <img class="monitor-strip__icon" src="/images/monitors/{{ .icon }}.svg"
+    <img class="monitor-strip__icon" src="{{ .svg_url }}"
          alt="" width="16" height="16" aria-hidden="true">
-    <span>{{ .name }}</span>
+    <span>{{ .short_name }}</span>
   </a>
+      {{ end }}
+    {{ end }}
   {{ end }}
 </nav>

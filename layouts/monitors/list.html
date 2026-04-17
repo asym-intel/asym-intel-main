@@ -2,147 +2,33 @@
 
 {{/*
   Monitors section index — /monitors/
-  7 active monitors in a wide grid.
+  Data source: canonical monitor-registry.json (ENGINE-RULES §17).
 */}}
 
-{{ $allMonitors := slice
-  (dict
-    "slug"        "european-strategic-autonomy"
-    "title"       "European Strategic Autonomy"
-    "day"         "Wednesday"
-    "description" "Hybrid threats, European defence, and the geopolitical contest over European strategic independence."
-    "abbr"        "ESA"
-    "icon"        "esa"
-    "dashboard"   "/monitors/european-strategic-autonomy/dashboard.html"
-    "methodology" ""
-  )
-  (dict
-    "slug"        "democratic-integrity"
-    "title"       "Democratic Integrity"
-    "day"         "Tuesday"
-    "description" "Weekly early-warning radar on democratic erosion, resilience, and state capture."
-    "abbr"        "WDM"
-    "icon"        "wdm"
-    "dashboard"   "/monitors/democratic-integrity/dashboard.html"
-    "methodology" ""
-  )
-  (dict
-    "slug"        "macro-monitor"
-    "title"       "Macro Monitor"
-    "day"         "Monday"
-    "description" "Financial crisis early-warning system tracking debt, credit, market structure, and systemic risk."
-    "abbr"        "GMM"
-    "icon"        "gmm"
-    "dashboard"   "/monitors/macro-monitor/dashboard.html"
-    "methodology" ""
-  )
-  (dict
-    "slug"        "ai-governance"
-    "title"       "AI Governance"
-    "day"         "Friday"
-    "description" "AI capability developments, regulatory frameworks, investment, and the governance contest over artificial intelligence."
-    "abbr"        "AGM"
-    "icon"        "agm"
-    "dashboard"   "/monitors/ai-governance/dashboard.html"
-    "methodology" ""
-  )
-  (dict
-    "slug"        "fimi-cognitive-warfare"
-    "title"       "Global FIMI & Cognitive Warfare"
-    "day"         "Thursday"
-    "description" "Foreign information manipulation, influence operations, and cognitive warfare targeting democratic societies — traced to state and non-state actors."
-    "abbr"        "FCW"
-    "icon"        "fcw"
-    "dashboard"   "/monitors/fimi-cognitive-warfare/dashboard.html"
-    "methodology" ""
-  )
-  (dict
-    "slug"        "environmental-risks"
-    "title"       "Environmental Risks & Planetary Boundaries"
-    "day"         "Saturday"
-    "description" "Earth system risk, planetary boundary status, tipping points, and geopolitical cascades from environmental stress."
-    "abbr"        "ERM"
-    "icon"        "erm"
-    "dashboard"   "/monitors/environmental-risks/dashboard.html"
-    "methodology" ""
-  )
-  (dict
-    "slug"        "conflict-escalation"
-    "title"       "Strategic Conflict & Escalation"
-    "day"         "Sunday"
-    "description" "Armed conflict trajectories, military escalation risks, and the geopolitical conditions driving them — tracked across 8 active theatres."
-    "abbr"        "SCEM"
-    "icon"        "scem"
-    "dashboard"   "/monitors/conflict-escalation/dashboard.html"
-    "methodology" ""
-  )
-}}
+{{ $registry := getJSON "static/monitors/monitor-registry.json" }}
 
-<section class="monitors-index">
-  <div class="container container--wide">
+<div class="page-container">
+  <header class="page-header">
+    <h1>Monitors</h1>
+    <p>Weekly intelligence across {{ len $registry.monitors }} thematic domains. Each monitor runs an autonomous collector / reasoner / synthesiser / publisher pipeline and publishes a dated brief on its scheduled day.</p>
+  </header>
 
-    <header class="monitors-index__header monitors-index__header--compact">
-      <p class="monitors-index__tagline">
-        Seven monitors. One structured briefing each, published weekly across geopolitics, finance, and institutional risk.
-      </p>
-    </header>
-
-    <div class="monitor-directory monitor-directory--wide">
-      {{ range $allMonitors }}
-      {{ $section := site.GetPage (printf "/monitors/%s" .slug) }}
-      {{ $latestPost := "" }}
-      {{ if $section }}
-        {{ with ((where $section.Pages "Type" "ne" "methodology").ByDate.Reverse | first 1) }}
-          {{ $latestPost = index . 0 }}
-        {{ end }}
-      {{ end }}
-
-      <article class="monitor-card-v2">
-        <div class="monitor-card-v2__top">
-          {{ if .icon }}
-          <div class="monitor-card-v2__logo" aria-hidden="true">
-            <img src="/images/monitors/{{ .icon }}.svg" alt="" width="28" height="28">
+  <div class="monitors-grid">
+    {{ range $registry.monitors }}
+    <article class="monitor-card" data-monitor="{{ .abbr }}" style="--card-accent: {{ .accent }}">
+      <a href="{{ .url }}" class="monitor-card__link" aria-label="Open {{ .name }}">
+        <div class="monitor-card__header">
+          <img class="monitor-card__icon" src="{{ .svg_url }}" alt="" width="32" height="32" aria-hidden="true">
+          <div>
+            <h2 class="monitor-card__title">{{ .short_name }}</h2>
+            <p class="monitor-card__meta">{{ .abbr }} · {{ .publish_day }} {{ .publish_time_utc }} UTC</p>
           </div>
-          {{ else }}
-          <div class="monitor-card-v2__abbr">{{ .abbr }}</div>
-          {{ end }}
-          <div class="monitor-card-v2__day">{{ .day }}</div>
         </div>
-
-        <h2 class="monitor-card-v2__title">
-          <a href="/monitors/{{ .slug }}/">{{ .title }}</a>
-        </h2>
-
-        <p class="monitor-card-v2__description">{{ .description }}</p>
-
-        {{ if $latestPost }}
-        <div class="monitor-card-v2__latest">
-          <span class="monitor-card-v2__latest-label">Latest</span>
-          <a class="monitor-card-v2__latest-link" href="{{ $latestPost.RelPermalink }}">
-            {{ $latestPost.Date.Format "2 Jan 2006" }}
-          </a>
-        </div>
-        {{ end }}
-
-        <div class="monitor-card-v2__actions">
-          <a class="monitor-card-v2__btn monitor-card-v2__btn--primary"
-             href="/monitors/{{ .slug }}/">Briefings</a>
-          {{ if .dashboard }}
-          <a class="monitor-card-v2__btn monitor-card-v2__btn--secondary"
-             href="{{ .dashboard }}">Live dashboard →</a>
-          {{ end }}
-          {{ if .methodology }}
-          <a class="monitor-card-v2__btn monitor-card-v2__btn--tertiary"
-             href="{{ .methodology }}">Methodology</a>
-          {{ end }}
-          <a class="monitor-card-v2__btn monitor-card-v2__btn--subscribe"
-             href="/subscribe/">Subscribe</a>
-        </div>
-      </article>
-      {{ end }}
-    </div>
-
+        <p class="monitor-card__desc">{{ .description }}</p>
+      </a>
+    </article>
+    {{ end }}
   </div>
-</section>
+</div>
 
 {{ end }}

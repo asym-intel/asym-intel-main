@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/*.yml'
       - 'pipeline/**'
-      - 'static/monitors/*/data/*.json'
+      - 'static/monitors/**'
       - 'docs/crons/**'
       - 'tools/preflight.py'
       - 'tools/preflight_engine_chrome.py'
@@ -15,8 +15,15 @@ on:
       - 'static/**/*.html'
       - 'assets/**/*.css'
       - 'layouts/**/*.html'
+      - 'tools/preflight_monitor_links.py'
+      - 'tools/test_preflight_monitor_links.py'
+      - 'tools/inline_registry_into_navjs.py'
       - 'layouts/partials/footer.html'
+      - 'layouts/partials/monitor-strip.html'
+      - 'layouts/monitors/list.html'
       - 'content/commercial.md'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -44,3 +51,20 @@ jobs:
         # removing `continue-on-error` or running without `|| true`.
         continue-on-error: true
         run: python3 tools/preflight_mobile.py
+
+      - name: Test monitor-links preflight regex (RX_CONCAT fixture suite)
+        run: python3 tools/test_preflight_monitor_links.py
+
+      - name: Run monitor-links preflight (ENGINE-RULES §17 — URL registry)
+        run: python3 tools/preflight_monitor_links.py
+
+      - name: Verify nav.js MONITOR_REGISTRY in sync with monitor-registry.json
+        run: |
+          python3 tools/inline_registry_into_navjs.py
+          if ! git diff --quiet static/monitors/shared/js/nav.js; then
+            echo "::error::nav.js MONITOR_REGISTRY drifted from monitor-registry.json"
+            echo "Run: python3 tools/inline_registry_into_navjs.py and commit the result."
+            git diff static/monitors/shared/js/nav.js
+            exit 1
+          fi
+          echo "✓ nav.js MONITOR_REGISTRY in sync"
