@@ -131,6 +131,17 @@ if not daily:
 if not reasoner:
     print("NOTE: reasoner-latest.json absent — synthesising from weekly + daily only.")
 
+# Guard: empty weekly-research — synthesise from daily + reasoner with null_signal hint
+# This prevents hard-fail on quiet weeks where weekly-research returned 0 campaigns.
+# The synthesiser prompt supports null_signal_week=true — synthesiser should fire that path.
+_empty_weekly = (weekly_count == 0)
+if _empty_weekly:
+    print("NOTE: weekly-latest.json has 0 campaigns — quiet week or weekly-research returned no data.")
+    print("      Synthesising from daily + reasoner only. Null-signal week is expected output.")
+    if not daily and not reasoner:
+        print("ERROR: No input data available (daily, weekly, and reasoner are all empty/absent). Cannot synthesise.")
+        sys.exit(1)
+
 # ── Build context JSON ─────────────────────────────────────────────────────────
 
 context = {
