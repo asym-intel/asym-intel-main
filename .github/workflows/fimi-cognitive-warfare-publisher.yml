@@ -23,10 +23,14 @@ jobs:
           python-version: "3.12"
 
       - name: Run FCW Publisher
+        id: run_publisher
         env:
           REPO_ROOT: ${{ github.workspace }}
           MONITOR_SLUG: fimi-cognitive-warfare
-        run: python3 pipeline/publishers/publisher.py
+        run: |
+          python3 pipeline/publishers/publisher.py
+          ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/fimi-cognitive-warfare/data/report-latest.json"))["meta"]["issue"])')
+          echo "issue_number=$ISSUE" >> $GITHUB_OUTPUT
 
       - name: Commit published report
         run: |
@@ -36,7 +40,7 @@ jobs:
           git add docs/monitors/fimi-cognitive-warfare/data/
           git add content/monitors/fimi-cognitive-warfare/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(fcw): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/fimi-cognitive-warfare/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by FCW Publisher Bot"
+          git commit -m "data(fcw): Issue ${{ steps.run_publisher.outputs.issue_number }} published by FCW Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
