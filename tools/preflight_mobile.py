@@ -90,11 +90,30 @@ def check_radar_wrap_fixed_height(css_files: list[Path]) -> None:
         )
         if not fixed_height:
             continue
-        # Look for an override: @media (max-width: 768px) { .asym-radar-wrap { height: auto } }
-        override = re.search(
-            r'@media[^{]*max-width\s*:\s*(768|1024)px[^{]*\{[^{}]*\.asym-radar-wrap[^{}]*\{[^}]*height\s*:\s*auto',
-            text, re.I | re.DOTALL,
-        )
+        # Look for an override inside any max-width: 768px or 1024px media query:
+        # `.asym-radar-wrap { ... height: auto ... }`.
+        # Using a simpler two-step check because nested brace regex is fragile.
+        override = False
+        for m in re.finditer(r'@media[^{]*max-width\s*:\s*(768|1024)px[^{]*\{', text, re.I):
+            # Find the balanced closing brace of this @media block (simple scan).
+            start = m.end()
+            depth = 1
+            i = start
+            while i < len(text) and depth > 0:
+                if text[i] == '{':
+                    depth += 1
+                elif text[i] == '}':
+                    depth -= 1
+                i += 1
+            block = text[start:i]
+            # Inside the media block, look for .asym-radar-wrap { ... height: auto ... }
+            wrap_rules = re.finditer(r'\.asym-radar-wrap\s*\{([^}]*)\}', block, re.I)
+            for wr in wrap_rules:
+                if re.search(r'height\s*:\s*auto', wr.group(1), re.I):
+                    override = True
+                    break
+            if override:
+                break
         if fixed_height and not override:
             FAILURES.append(
                 f"R-MV-003 [radar-fixed-height]: {path.relative_to(REPO_ROOT)} — "
