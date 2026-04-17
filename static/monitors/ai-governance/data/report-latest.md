@@ -1,6 +1,6 @@
-# Artificial Intelligence Monitor — Issue 3
+# Artificial Intelligence Monitor — Issue 4
 
-**W/E 10 April 2026** | Published 2026-04-10T09:00:00Z
+**W/E 17 April 2026** | Published 2026-04-17T09:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -18,7 +18,21 @@ Schema version: 2.0
 
 ## Weekly Brief
 
-The persistent EU AI Act Standards Vacuum defines this weeks signal, with no harmonised standards in the Official Journal ahead of high-risk obligations in August 2026. CEN-CENELEC JTC 21 drafts progress slowly, leaving providers in a compliance limbo that risks fragmented enforcement across Member States and definitional gaps for GPAI models. The first release of the GPAI Code of Practice offers interim transparency guidance, set for full finalisation in Q2 2026, but does little to close the vacuum for high-risk systems. EDPS designation as market surveillance authority for EU institutions adds internal oversight capacity, yet highlights resource strains in the multi-level system comprising national MSAs, the AI Office, and the European AI Board. Risk indicators hold steady, with Standards Vacuum at HIGH due to arbitrage potential, Regulatory Implementation Lag at ELEVATED from coordination challenges, and Global Fragmentation at HIGH as extraterritorial rules test US labs. No new model releases, investments, or science breakthroughs register, underscoring a quiet week focused on regulatory plumbing. Sector penetration remains structural, with prohibited practices banned since February 2025 reshaping societal uses. Power concentrates in EU bodies like the AI Office, while lab postures show Anthropic leading in proactive engagement as GPAI signatory. Governance health composite at 0.45 reflects standards drag, stable absent acute shifts. Jurisdiction matrix flags EU at ELEVATED risk from vacuum, US at HIGH dependency without binding rules. Key judgment: vacuum enables arbitrage until deadline. Watch CEN-CENELEC milestones and GPAI systemic-risk designations for capability-governance friction.
+## Lead Signal
+EU AI Act standards vacuum remains the weeks dominant governance signal, with no harmonised standards published despite approaching high-risk obligations in August 2026. EU AI Office confirms drafts at CEN-CENELEC but Official Journal silence creates compliance friction for providers. Governance health composite holds at 0.5, dragged by standards readiness at 0.3 while regulatory coverage stable at 0.6.
+
+## Other Developments
+**Frontier Labs Stable.** No model releases or capability jumps across Anthropic, OpenAI, Google DeepMind per Tier 1 sources; benchmark saturation persists reducing immediate governance pressure.
+
+**Safety Posture Quiet.** Absence of incidents or misuse maintains low escalation risk, with lab postures stable.
+
+**Jurisdiction Risks.** EU elevated risk from standards gap; US, UK, China on track with no changes.
+
+## Cross-Monitor Connections
+ESA links via EU standards vacuum impacting tech sovereignty (MEDIUM urgency). ERM stable on energy with no capex signals (LOW).
+
+## Outlook
+Monitor CEN-CENELEC progress and delegated acts; flat capability tempo eases pressure but vacuum risks cascade to deployment.
 
 ## Cross-Monitor Flags
 
@@ -28,7 +42,8 @@ The persistent EU AI Act Standards Vacuum defines this weeks signal, with no har
 - **** () — Active
 - **** () — Active
 - **** () — Active
-- **EU AI Act standards vacuum risks tech sovereignty in high-risk compliance** (european-strategic-autonomy) — Active — NEW
+- **EU AI Act standards vacuum risks tech sovereignty in high-risk compliance** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
+- **EU AI Act standards vacuum** (european-strategic-autonomy) — Active — NEW
 
 ---
 
