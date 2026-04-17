@@ -1,46 +1,12 @@
-# Global Macro Monitor — Issue 6
-
-**W/E 17 April 2026** | Published 2026-04-17T08:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**Iran war closure of Strait of Hormuz has disrupted 20% of global oil supply, triggering the largest supply disruption in oil market history**
-
-System stress: CRISIS
-Direction: Deteriorating
-Source: https://en.wikipedia.org/wiki/2026_Iran_war_fuel_crisis
-
-## Key Judgments
-
-1. **The Iran war and closure of the Strait of Hormuz represents the most significant supply shock to the global oil market in history, with 20% of global supply disrupted**
-   - Confidence: High
-   - Trajectory: Deteriorating
-
-2. **US tariff policy has created a structural shift in global trade with the effective tariff rate reaching 11.0%, the highest since 1943**
-   - Confidence: High
-   - Trajectory: Deteriorating
-
-3. **Private credit sector stress represents a growing systemic risk with potential for NBFI contagion**
-   - Confidence: Assessed
-   - Trajectory: Deteriorating
-
-4. **Central banks are accelerating the shift from dollar reserves to gold, with gold now exceeding Treasuries as the primary reserve asset**
-   - Confidence: High
-   - Trajectory: Deteriorating
-
-5. **The global economy is entering a crisis regime driven by confluence of energy shock, tariff escalation, and financial stability concerns**
-   - Confidence: High
-   - Trajectory: Deteriorating
-
-## Weekly Brief
+title: "Global Macro Monitor — W/E 17 April 2026"
+date: 2026-04-17T08:00:00Z
+summary: "The Iran war and closure of the Strait of Hormuz represents the most significant supply shock to the global oil market in history, with 20% of global supply disrupted"
+draft: false
+monitor: "macro-monitor"
+brief_sources:
+  - url: "https://en.wikipedia.org/wiki/2026_Iran_war_fuel_crisis"
+---
 
 ## Lead Signal
 The closure of the Strait of Hormuz due to the Iran war has disrupted 20% of global oil supply, representing what the International Energy Agency has characterized as the largest supply disruption in the history of the global oil market. This unprecedented energy shock has triggered acute supply shortages, significant price increases, and heightened risks of stagflation and recession globally. Brent crude oil prices surged to around $80-82 per barrel by early March 2026 and have continued to climb, with daily prices reaching nearly $128 on April 2, 2026, according to the US Energy Information Administration. The head of the IEA described the situation as the greatest global energy security challenge in history, with the conflict causing the restriction of nearly all traffic through this critical maritime chokepoint. Even after Iran and the United States announced a ceasefire on April 8, ship traffic through the Strait of Hormuz remained far below pre-war levels, indicating the persistent nature of this supply disruption.
@@ -61,35 +27,3 @@ The current macro environment shows strong connections to other monitoring domai
 
 ## Outlook
 Looking ahead, several key developments warrant close monitoring. The trajectory of the Iran conflict and the reopening of the Strait of Hormuz will be critical determinants of global energy markets, with potential for further escalation or de-escalation. The expiration or extension of Section 122 tariffs in the US will significantly impact inflation trajectories and consumer purchasing power, with permanent tariffs potentially increasing household costs by over $1,300 annually. The private credit sector's ability to manage redemption pressures without triggering broader financial instability will be crucial, particularly given the significant bank exposure to non-bank financial institutions. Central bank policy divergence may intensify, with the Fed potentially maintaining rates while other central banks adjust to regional economic conditions. The continued shift toward gold reserves by central banks represents a structural change in the global financial architecture that could accelerate if geopolitical tensions persist. Finally, the AI infrastructure spending boom will need to demonstrate tangible productivity gains to justify the massive capital allocation, with potential implications for technology sector valuations if returns fail to materialize as expected.
-
-## Cross-Monitor Flags
-
-- **** (AI Governance Monitor) — Active — verified (adjacent Issue 4)
-- **** (AI Governance Monitor) — Active — verified (adjacent Issue 4)
-- **** (Environmental Risks Monitor) — Active — verified (adjacent Issue 7)
-- **** (Strategic Conflict & Escalation Monitor) — Active — verified (adjacent Issue 6)
-- **** (FIMI & Cognitive Warfare Monitor) — NoSignal — verified (adjacent Issue 5)
-- **** (Democratic Integrity Monitor) — Watch — verified (adjacent Issue 9)
-- **** (European Strategic Autonomy Monitor) — Active — verified (adjacent Issue 6)
-- **US visa restrictions on EU digital regulation officials** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
-- **Tariff escalation used to influence domestic policies in partner countries** (democratic-integrity) — Active — verified (adjacent Issue 9)
-- **Strait of Hormuz closure as escalation of US-Iran conflict** (conflict-escalation) — Active — verified (adjacent Issue 6)
-- **EU dependency on Middle Eastern commodities for agriculture** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **US using trade leverage to prevent spread of digital regulation** (ai-governance) — Active — verified (adjacent Issue 4)
-- **Energy supply shock impacting green transition commodities** (environmental-risks) — Active — verified (adjacent Issue 7)
-- **Tariff escalation as economic coercion tool** (fimi-cognitive-warfare) — Active — NEW
-- **Energy crisis impacting political stability** (democratic-integrity) — Active — NEW
-- **Iran-US conflict driving energy supply shock** (conflict-escalation) — Active — NEW
-- **EU energy security concerns driving strategic autonomy** (european-strategic-autonomy) — Active — NEW
-- **AI infrastructure spending boom requiring governance frameworks** (ai-governance) — Active — NEW
-- **Energy crisis accelerating clean energy transition** (environmental-risks) — Active — NEW
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/macro-monitor/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/macro-monitor/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/macro-monitor/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/macro-monitor/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/macro-monitor/methodology.html>
