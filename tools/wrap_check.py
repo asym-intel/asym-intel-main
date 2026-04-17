@@ -1,0 +1,335 @@
+#!/usr/bin/env python3
+"""
+wrap_check.py — mechanical gate for ENGINE-RULES §5 wrap protocol.
+
+Computer MUST run this as the first action on any "wrap" trigger, for any engine
+project (asym-intel, resilience, payments-gi, asymmetric-investor). The script
+inspects repo state and emits the canonical wrap-summary template with
+machine-measured fields pre-filled so Computer cannot self-report them.
+
+Usage:
+    python tools/wrap_check.py --project asym-intel
+    python tools/wrap_check.py --project resilience
+    python tools/wrap_check.py --project payments-gi
+    python tools/wrap_check.py --project asymmetric-investor
+
+Requires: `gh` CLI authenticated for the asym-intel org.
+
+Exit codes:
+    0 — all gates pass, wrap may proceed
+    1 — thinning gate failed (notes file >12KB and no archive commit this session)
+    2 — staging gate failed (staging ahead of main, must merge before wrap)
+    3 — script error (gh CLI missing, network failure, unknown project)
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import subprocess
+import sys
+from dataclasses import dataclass
+from datetime import datetime, timezone, timedelta
+
+# -------------------------------------------------------------------
+# Project registry — where notes-for-computer.md lives for each project
+# -------------------------------------------------------------------
+PROJECTS = {
+    "asym-intel": {
+        "notes_repo": "asym-intel/asym-intel-internal",
+        "notes_path": "notes-for-computer.md",
+        "archive_path_fmt": "ops/notes-archive-{yyyy_mm}.md",
+        "code_repo": "asym-intel/asym-intel-main",
+        "staging_branch": "staging",
+        "next_session_phrase": "Computer: asym-intel.info",
+    },
+    "resilience": {
+        "notes_repo": "asym-intel/resilience",
+        "notes_path": "ops/notes-for-computer.md",
+        "archive_path_fmt": "ops/notes-archive-{yyyy_mm}.md",
+        "code_repo": "asym-intel/resilience",
+        "staging_branch": "staging",
+        "next_session_phrase": "Computer: Resilience",
+    },
+    "payments-gi": {
+        "notes_repo": "asym-intel/payments-gi",
+        "notes_path": "ops/notes-for-computer.md",
+        "archive_path_fmt": "ops/notes-archive-{yyyy_mm}.md",
+        "code_repo": "asym-intel/payments-gi",
+        "staging_branch": None,  # per COMPUTER-core.md — direct to main
+        "next_session_phrase": "Computer: Payments",
+    },
+    "asymmetric-investor": {
+        # Commercial product; session state lives in asym-intel-internal/commercial
+        "notes_repo": "asym-intel/asym-intel-internal",
+        "notes_path": "commercial/notes-for-computer-asymmetric-investor.md",
+        "archive_path_fmt": "commercial/notes-archive-{yyyy_mm}.md",
+        "code_repo": "asym-intel/asym-intel-internal",
+        "staging_branch": None,
+        "next_session_phrase": "Computer: Asymmetric Investor",
+    },
+}
+
+SIZE_TARGET_BYTES = 12 * 1024          # 12 KB (ENGINE-RULES §5.3c)
+SIZE_MARGIN_FRAC = 0.20                 # allow 20% slack before failing the gate
+SESSION_WINDOW_HOURS = 12               # "this session" = commits in last 12h
+
+
+# -------------------------------------------------------------------
+# Helpers
+# -------------------------------------------------------------------
+@dataclass
+class CheckResult:
+    name: str
+    passed: bool
+    detail: str
+
+
+def gh(args: list[str]) -> str:
+    """Run `gh` with args, return stdout as str. Raise on non-zero."""
+    result = subprocess.run(
+        ["gh", *args], capture_output=True, text=True, check=False
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"gh failed: {' '.join(args)}\nstderr: {result.stderr.strip()}"
+        )
+    return result.stdout
+
+
+def file_size_bytes(repo: str, path: str) -> int:
+    """Return file size in bytes from GitHub Contents API."""
+    out = gh(["api", f"/repos/{repo}/contents/{path}", "--jq", ".size"])
+    return int(out.strip())
+
+
+def file_line_count(repo: str, path: str) -> int:
+    """Count lines in a file via raw download."""
+    out = gh(["api", f"/repos/{repo}/contents/{path}", "--jq", ".content"])
+    import base64
+    decoded = base64.b64decode(out.strip()).decode("utf-8", errors="replace")
+    return decoded.count("\n") + (0 if decoded.endswith("\n") else 1)
+
+
+def last_commit_iso(repo: str, path: str) -> str | None:
+    """Return ISO timestamp of last commit touching path, or None if file absent."""
+    try:
+        out = gh(
+            [
+                "api",
+                f"/repos/{repo}/commits",
+                "-X", "GET",
+                "-f", f"path={path}",
+                "-f", "per_page=1",
+                "--jq", ".[0].commit.committer.date",
+            ]
+        )
+        out = out.strip()
+        return out if out else None
+    except RuntimeError:
+        return None
+
+
+def compare_branches(repo: str, base: str, head: str) -> dict:
+    """Return {ahead, behind, status} from GitHub compare API."""
+    out = gh(
+        [
+            "api",
+            f"/repos/{repo}/compare/{base}...{head}",
+            "--jq", "{ahead: .ahead_by, behind: .behind_by, status: .status}",
+        ]
+    )
+    return json.loads(out)
+
+
+def open_prs(repo: str) -> list[dict]:
+    out = gh(
+        [
+            "pr", "list",
+            "--repo", repo,
+            "--state", "open",
+            "--json", "number,title,headRefName",
+        ]
+    )
+    return json.loads(out)
+
+
+# -------------------------------------------------------------------
+# Gates
+# -------------------------------------------------------------------
+def gate_thinning(project: dict) -> tuple[CheckResult, dict]:
+    """§5.3 — thinning gate. Fails if notes >12KB and no archive commit this session."""
+    repo = project["notes_repo"]
+    path = project["notes_path"]
+    try:
+        size = file_size_bytes(repo, path)
+        lines = file_line_count(repo, path)
+    except RuntimeError as e:
+        return (
+            CheckResult("thinning", False, f"Could not fetch notes: {e}"),
+            {"size": None, "lines": None},
+        )
+
+    now = datetime.now(timezone.utc)
+    yyyy_mm = now.strftime("%Y-%m")
+    archive_path = project["archive_path_fmt"].format(yyyy_mm=yyyy_mm)
+    archive_last = last_commit_iso(repo, archive_path)
+
+    session_cutoff = now - timedelta(hours=SESSION_WINDOW_HOURS)
+    archive_this_session = False
+    if archive_last:
+        archive_dt = datetime.fromisoformat(archive_last.replace("Z", "+00:00"))
+        archive_this_session = archive_dt >= session_cutoff
+
+    hard_limit = int(SIZE_TARGET_BYTES * (1 + SIZE_MARGIN_FRAC))  # 14.4 KB
+
+    detail = (
+        f"{path}: {size} bytes / {lines} lines "
+        f"(target ≤{SIZE_TARGET_BYTES}, hard limit {hard_limit}). "
+        f"Archive {archive_path} last commit: "
+        f"{archive_last or 'never'} "
+        f"({'this session' if archive_this_session else 'not this session'})."
+    )
+
+    if size <= SIZE_TARGET_BYTES:
+        return (
+            CheckResult("thinning", True, detail + " Verdict: PASS (under target)."),
+            {"size": size, "lines": lines, "archive_this_session": archive_this_session},
+        )
+    if size <= hard_limit and archive_this_session:
+        return (
+            CheckResult(
+                "thinning", True,
+                detail + " Verdict: PASS (within margin, thinning this session).",
+            ),
+            {"size": size, "lines": lines, "archive_this_session": archive_this_session},
+        )
+    if size <= hard_limit and not archive_this_session:
+        return (
+            CheckResult(
+                "thinning", False,
+                detail
+                + " Verdict: FAIL — within margin but no thinning this session. "
+                "Re-run §5.3 (3a measure → 3b reread → 3c gate → 3d verify).",
+            ),
+            {"size": size, "lines": lines, "archive_this_session": archive_this_session},
+        )
+    return (
+        CheckResult(
+            "thinning", False,
+            detail
+            + " Verdict: FAIL — exceeds hard limit. "
+            "Thin the file before proceeding.",
+        ),
+        {"size": size, "lines": lines, "archive_this_session": archive_this_session},
+    )
+
+
+def gate_staging(project: dict) -> CheckResult:
+    """§5.4 — staging must be identical to or behind main."""
+    if not project["staging_branch"]:
+        return CheckResult(
+            "staging", True, "No staging branch configured (per project policy)."
+        )
+    try:
+        cmp = compare_branches(
+            project["code_repo"], "main", project["staging_branch"]
+        )
+    except RuntimeError as e:
+        return CheckResult("staging", False, f"Could not compare branches: {e}")
+    if cmp["ahead"] == 0:
+        return CheckResult(
+            "staging", True,
+            f"main...{project['staging_branch']}: {cmp['status']} "
+            f"(ahead 0, behind {cmp['behind']}).",
+        )
+    return CheckResult(
+        "staging", False,
+        f"staging is ahead of main by {cmp['ahead']} commits. "
+        f"Merge before wrap.",
+    )
+
+
+def gate_open_prs(project: dict) -> CheckResult:
+    """Advisory — lists open PRs for awareness, never fails."""
+    try:
+        prs = open_prs(project["code_repo"])
+    except RuntimeError as e:
+        return CheckResult("open_prs", True, f"Could not list PRs: {e}")
+    if not prs:
+        return CheckResult("open_prs", True, "No open PRs.")
+    lines = [
+        f"  #{p['number']} ({p['headRefName']}): {p['title']}" for p in prs
+    ]
+    return CheckResult(
+        "open_prs", True,
+        f"{len(prs)} open PR(s) — confirm intent to carry:\n" + "\n".join(lines),
+    )
+
+
+# -------------------------------------------------------------------
+# Main
+# -------------------------------------------------------------------
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--project", required=True, choices=sorted(PROJECTS.keys()),
+        help="Engine project being wrapped",
+    )
+    args = parser.parse_args()
+    project = PROJECTS[args.project]
+
+    now = datetime.now(timezone.utc)
+    header = f"=== WRAP CHECK — {now.isoformat(timespec='seconds')} — {args.project} ==="
+
+    # Run gates
+    thin_result, thin_data = gate_thinning(project)
+    staging_result = gate_staging(project)
+    prs_result = gate_open_prs(project)
+
+    print(header)
+    print(f"\n[§5.3 Thinning] {'PASS' if thin_result.passed else 'FAIL'}")
+    print(f"  {thin_result.detail}")
+    print(f"\n[§5.4 Staging] {'PASS' if staging_result.passed else 'FAIL'}")
+    print(f"  {staging_result.detail}")
+    print(f"\n[Open PRs] advisory")
+    print(f"  {prs_result.detail}")
+
+    # Emit the canonical wrap-summary template
+    size_str = f"{thin_data['size']}" if thin_data['size'] is not None else "?"
+    lines_str = f"{thin_data['lines']}" if thin_data['lines'] is not None else "?"
+    thin_line = (
+        f"Thinning (§5.3): <before> → {size_str} bytes "
+        f"(<before_lines> → {lines_str} lines). "
+        f"Moved: <FILL blocks>. Promoted: <FILL follow-ups>."
+    )
+    if not thin_result.passed:
+        thin_line = "Thinning (§5.3): FAIL — re-run §5.3 3a→3d then re-invoke wrap_check"
+
+    print("\n--- Required wrap-summary (paste verbatim, fill <FILL> fields) ---")
+    print("Incomplete work: <FILL — none | list>")
+    print("This session shipped: <FILL — one line>")
+    print(thin_line)
+    staging_label = (
+        "identical" if staging_result.passed and project["staging_branch"]
+        else "n/a" if not project["staging_branch"]
+        else "FAIL"
+    )
+    print(f"Staging: {staging_label}")
+    print(f"next-session.md updated — start next session with: {project['next_session_phrase']}")
+    print("--- End wrap-summary ---")
+    print(f"\n=== END WRAP CHECK ===")
+
+    # Exit code
+    if not thin_result.passed:
+        return 1
+    if not staging_result.passed:
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except RuntimeError as e:
+        print(f"[wrap_check error] {e}", file=sys.stderr)
+        sys.exit(3)
