@@ -32,6 +32,21 @@ jobs:
           ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/fimi-cognitive-warfare/data/report-latest.json"))["meta"]["issue"])')
           echo "issue_number=$ISSUE" >> $GITHUB_OUTPUT
 
+
+      - name: Pre-publication integrity gate
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          # Fetch integrity_sweep.py from internal repo (engine IP boundary — tool stays internal)
+          gh api /repos/asym-intel/asym-intel-internal/contents/ops/integrity_sweep.py \
+            --jq '.content' | base64 -d > /tmp/integrity_sweep.py
+          # Run pre-publication gate — hard-fail on C1,C2,C3,C4,C5,C6,C10; warn on C7,C9; skip C8
+          python3 /tmp/integrity_sweep.py \
+            --local $GITHUB_WORKSPACE \
+            --monitor fimi-cognitive-warfare \
+            --output /tmp/integrity-sweeps
+          # Exit code 1 blocks the commit step below
+
       - name: Commit published report
         run: |
           git config user.name "FCW Publisher Bot"
