@@ -1,0 +1,68 @@
+name: Notes Size Gate
+
+# Commit-time enforcement of ENGINE-RULES §5.3 — notes-for-computer.md ≤ 12288 bytes.
+#
+# Why this exists: §5.3 was a procedural requirement (wrap_check.py) for months.
+# Sessions consistently landed notes-for-computer.md at 20–32 KB and self-reported
+# "thinning done" without running the check. On 17 Apr 2026 notes hit 31.8 KB —
+# 2.6× over target — across six wraps in a single day. Procedural gates failed.
+#
+# This workflow is the cliff: if the commit pushes notes-for-computer.md over
+# 12 KB (12288 bytes, ENGINE-RULES §5.3c), the workflow fails and the commit
+# is flagged via required-status-check. Same enforcement applied to any
+# notes-for-computer.md / ops/notes-for-computer.md across all engine repos.
+#
+# Override path: if the size limit is legitimately wrong, amend ENGINE-RULES §5.3
+# and update SIZE_LIMIT_BYTES below in the same commit. This workflow is canonical.
+
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - 'notes-for-computer.md'
+      - 'ops/notes-for-computer.md'
+      - 'commercial/notes-for-computer-*.md'
+  pull_request:
+    paths:
+      - 'notes-for-computer.md'
+      - 'ops/notes-for-computer.md'
+      - 'commercial/notes-for-computer-*.md'
+
+jobs:
+  size-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enforce ENGINE-RULES §5.3 — notes file ≤ 12 KB
+        run: |
+          SIZE_LIMIT_BYTES=12288
+          FAIL=0
+
+          check_file() {
+            local f="$1"
+            if [ -f "$f" ]; then
+              local size
+              size=$(wc -c <"$f")
+              local lines
+              lines=$(wc -l <"$f")
+              echo "[$f] size=${size} bytes, lines=${lines}"
+              if [ "$size" -gt "$SIZE_LIMIT_BYTES" ]; then
+                local over=$((size - SIZE_LIMIT_BYTES))
+                echo "::error file=$f::ENGINE-RULES §5.3 violation — $f is $size bytes, over the ${SIZE_LIMIT_BYTES}-byte (12 KB) hard limit by $over bytes. Thin the file (move completed-sprint narrative to ops/notes-archive-YYYY-MM.md, promote live follow-ups to 'Open known issues', migrate reusable know-how to the right KNOWHOW file per ops/KNOWHOW-INDEX.md) before re-committing. See §5.3 3a→3d procedure."
+                FAIL=1
+              fi
+            fi
+          }
+
+          # All known notes-file locations across engine repos.
+          check_file "notes-for-computer.md"
+          check_file "ops/notes-for-computer.md"
+          for f in commercial/notes-for-computer-*.md; do
+            check_file "$f"
+          done
+
+          if [ "$FAIL" -eq 1 ]; then
+            exit 1
+          fi
+          echo "OK — all notes files within ${SIZE_LIMIT_BYTES}-byte limit."
