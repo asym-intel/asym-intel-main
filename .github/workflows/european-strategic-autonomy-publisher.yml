@@ -23,10 +23,14 @@ jobs:
           python-version: "3.12"
 
       - name: Run ESA Publisher
+        id: run_publisher
         env:
           REPO_ROOT: ${{ github.workspace }}
           MONITOR_SLUG: european-strategic-autonomy
-        run: python3 pipeline/publishers/publisher.py
+        run: |
+          python3 pipeline/publishers/publisher.py
+          ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/european-strategic-autonomy/data/report-latest.json"))["meta"]["issue"])')
+          echo "issue_number=$ISSUE" >> $GITHUB_OUTPUT
 
       - name: Commit published report
         run: |
@@ -36,7 +40,7 @@ jobs:
           git add docs/monitors/european-strategic-autonomy/data/
           git add content/monitors/european-strategic-autonomy/
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(esa): Issue $(python3 -c 'import json; print(json.load(open(\"static/monitors/european-strategic-autonomy/data/report-latest.json\"))[\"meta\"][\"issue\"])') published by ESA Publisher Bot"
+          git commit -m "data(esa): Issue ${{ steps.run_publisher.outputs.issue_number }} published by ESA Publisher Bot"
           for attempt in 1 2 3; do
             git pull --rebase origin main
             git push && break
