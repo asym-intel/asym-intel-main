@@ -34,19 +34,10 @@ jobs:
 
 
       - name: Pre-publication integrity gate
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          # Fetch integrity_sweep.py from internal repo (engine IP boundary — tool stays internal)
-          gh api /repos/asym-intel/asym-intel-internal/contents/ops/integrity_sweep.py \
-            --jq '.content' | base64 -d > /tmp/integrity_sweep.py
-          # Run pre-publication gate — hard-fail on C1,C2,C3,C4,C5,C6,C10; warn on C7,C9; skip C8
-          python3 /tmp/integrity_sweep.py \
-            --local $GITHUB_WORKSPACE \
-            --monitor macro-monitor \
-            --output /tmp/integrity-sweeps
-          # Exit code 1 blocks the commit step below
-
+        uses: ./.github/actions/integrity-gate
+        with:
+          monitor-slug: macro-monitor
+          gh-token: ${{ secrets.GH_TOKEN }}
       - name: Commit published report
         run: |
           git config user.name "GMM Publisher Bot"
