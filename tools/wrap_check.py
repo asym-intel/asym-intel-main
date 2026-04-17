@@ -20,6 +20,7 @@ Exit codes:
     1 — thinning gate failed (notes file >12KB and no archive commit this session)
     2 — staging gate failed (staging ahead of main, must merge before wrap)
     3 — script error (gh CLI missing, network failure, unknown project)
+    4 — bug-log gate failed (bug-signal commits this session with no BUG-LOG entry) — hard from 2026-05-01
 """
 from __future__ import annotations
 
@@ -72,6 +73,20 @@ PROJECTS = {
 SIZE_TARGET_BYTES = 12 * 1024          # 12 KB (ENGINE-RULES §5.3c)
 SIZE_MARGIN_FRAC = 0.20                 # allow 20% slack before failing the gate
 SESSION_WINDOW_HOURS = 12               # "this session" = commits in last 12h
+
+# ENGINE-RULES §1e — Bug Discovery Protocol
+# Advisory from 2026-04-17 to 2026-04-30. Hard enforcement from 2026-05-01.
+BUG_LOG_REPO = "asym-intel/asym-intel-internal"
+BUG_LOG_PATH = "ops/BUG-LOG.md"
+BUG_LOG_ENFORCEMENT_DATE = datetime(2026, 5, 1, tzinfo=timezone.utc)
+
+# Phrases in commit messages that signal bug work. Lowercased match.
+BUG_SIGNAL_PATTERNS = [
+    r"\bfix:", r"\bbug:", r"\bbugfix\b", r"\bregression\b", r"\bresolves? #",
+    r"\bfixes? #", r"\bclose[sd]? #", r"\bparse_error\b", r"\bbroken\b",
+    r"\bfailing\b", r"\bnot publishing\b", r"\bnot working\b", r"\broot cause\b",
+    r"\bschema mismatch\b", r"\bcrash\b", r"\bmis[- ]label\b",
+]
 
 
 # -------------------------------------------------------------------
@@ -139,6 +154,34 @@ def compare_branches(repo: str, base: str, head: str) -> dict:
         ]
     )
     return json.loads(out)
+
+
+def recent_commits(repo: str, hours: int) -> list[dict]:
+    """Return commits on default branch from the last `hours` hours."""
+    since_dt = datetime.now(timezone.utc) - timedelta(hours=hours)
+    since_iso = since_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    out = gh([
+        "api", f"/repos/{repo}/commits",
+        "-X", "GET",
+        "-f", f"since={since_iso}",
+        "-f", "per_page=100",
+        "--jq", "[.[] | {sha: .sha[0:7], msg: .commit.message, date: .commit.committer.date}]",
+    ])
+    return json.loads(out or "[]")
+
+
+def bug_log_entries_today(repo: str, path: str) -> list[str]:
+    """Return list of BUG-LOG entry IDs dated today (UTC)."""
+    try:
+        out = gh(["api", f"/repos/{repo}/contents/{path}", "--jq", ".content"])
+    except RuntimeError:
+        return []
+    import base64, re as _re
+    content = base64.b64decode(out.strip()).decode("utf-8", errors="replace")
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Entry IDs look like: BUG-2026-04-17-001
+    matches = _re.findall(rf"BUG-{today}-\d{{3}}", content)
+    return sorted(set(matches))
 
 
 def open_prs(repo: str) -> list[dict]:
@@ -249,6 +292,68 @@ def gate_staging(project: dict) -> CheckResult:
     )
 
 
+def gate_bug_log(project: dict) -> CheckResult:
+    """§1e — every bug-signal commit this session must have a matching BUG-LOG entry.
+
+    Advisory until 2026-05-01 (returns passed=True with warning detail).
+    Hard from 2026-05-01 (returns passed=False on mismatch).
+    """
+    import re as _re
+    now = datetime.now(timezone.utc)
+    enforced = now >= BUG_LOG_ENFORCEMENT_DATE
+    phase = "ENFORCED" if enforced else "ADVISORY"
+
+    # 1. Scan recent commits in the project's code repo for bug-signal phrases.
+    try:
+        commits = recent_commits(project["code_repo"], SESSION_WINDOW_HOURS)
+    except RuntimeError as e:
+        return CheckResult(
+            "bug_log", True,
+            f"[{phase}] Could not fetch recent commits ({e}) — skipping bug-signal scan.",
+        )
+
+    signal_commits = []
+    for c in commits:
+        msg_lower = c["msg"].lower()
+        for pat in BUG_SIGNAL_PATTERNS:
+            if _re.search(pat, msg_lower):
+                signal_commits.append(c)
+                break
+
+    # 2. Check BUG-LOG for entries dated today.
+    entries_today = bug_log_entries_today(BUG_LOG_REPO, BUG_LOG_PATH)
+
+    # 3. Verdict.
+    if not signal_commits:
+        return CheckResult(
+            "bug_log", True,
+            f"[{phase}] No bug-signal commits in last {SESSION_WINDOW_HOURS}h. "
+            f"BUG-LOG entries today: {len(entries_today)}.",
+        )
+
+    commit_lines = "\n".join(
+        f"    {c['sha']} {c['msg'].splitlines()[0][:80]}" for c in signal_commits
+    )
+    if entries_today:
+        return CheckResult(
+            "bug_log", True,
+            f"[{phase}] {len(signal_commits)} bug-signal commit(s), "
+            f"{len(entries_today)} BUG-LOG entr(y/ies) today ({', '.join(entries_today)}). "
+            f"Verify every bug is logged:\n{commit_lines}",
+        )
+
+    # Signal commits exist, no BUG-LOG entries today.
+    detail = (
+        f"[{phase}] {len(signal_commits)} bug-signal commit(s) this session with "
+        f"NO BUG-LOG entries today:\n{commit_lines}\n"
+        f"  File entries in {BUG_LOG_REPO}/{BUG_LOG_PATH} per ENGINE-RULES §1e, "
+        f"or override with explicit line in wrap summary: "
+        f'"Wrap: no BUG-LOG entry needed — [reason]"'
+    )
+    # Advisory: pass with warning. Enforced: fail.
+    return CheckResult("bug_log", not enforced, detail)
+
+
 def gate_open_prs(project: dict) -> CheckResult:
     """Advisory — lists open PRs for awareness, never fails."""
     try:
@@ -284,6 +389,7 @@ def main() -> int:
     # Run gates
     thin_result, thin_data = gate_thinning(project)
     staging_result = gate_staging(project)
+    bug_log_result = gate_bug_log(project)
     prs_result = gate_open_prs(project)
 
     print(header)
@@ -291,6 +397,8 @@ def main() -> int:
     print(f"  {thin_result.detail}")
     print(f"\n[§5.4 Staging] {'PASS' if staging_result.passed else 'FAIL'}")
     print(f"  {staging_result.detail}")
+    print(f"\n[§1e BUG-LOG] {'PASS' if bug_log_result.passed else 'FAIL'}")
+    print(f"  {bug_log_result.detail}")
     print(f"\n[Open PRs] advisory")
     print(f"  {prs_result.detail}")
 
@@ -324,6 +432,8 @@ def main() -> int:
         return 1
     if not staging_result.passed:
         return 2
+    if not bug_log_result.passed:
+        return 4
     return 0
 
 
