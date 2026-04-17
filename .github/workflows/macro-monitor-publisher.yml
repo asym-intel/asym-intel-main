@@ -47,3 +47,20 @@ jobs:
             echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
             sleep $((attempt * 10))
           done
+
+      - name: Purge Cloudflare cache
+        if: success()
+        env:
+          CF_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE: cc419b7519eba04ef0dc6a7b851930c7
+        run: |
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "files": [
+                "https://asym-intel.info/monitors/macro-monitor/data/report-latest.json",
+                "https://asym-intel.info/monitors/macro-monitor/data/report-latest.md"
+              ]
+            }' | python3 -c "import json,sys; d=json.load(sys.stdin); print('CF purge:', 'ok' if d.get('success') else d.get('errors'))"
