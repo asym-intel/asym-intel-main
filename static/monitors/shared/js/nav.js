@@ -313,57 +313,18 @@
      injectThemeToggle(), injectMonitorFooter().
      Adding a new monitor = one entry here, zero HTML changes.
      ──────────────────────────────────────────────────────────── */
+  /* BEGIN @REGISTRY_INLINE */
   var MONITOR_REGISTRY = {
-    'fimi-cognitive-warfare': {
-      abbr:   'FCW',
-      name:   'FIMI & Cognitive Warfare Monitor',
-      accent: '#38bdf8',
-      svg:    '<circle cx="18" cy="18" r="14" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/><circle cx="18" cy="18" r="4" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.35"/><line x1="18" y1="4" x2="18" y2="32" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/><line x1="4" y1="18" x2="32" y2="18" stroke="var(--monitor-accent)" stroke-width="0.75" opacity="0.4"/><circle cx="18" cy="18" r="2" fill="#dc2626"/><circle cx="26" cy="10" r="1.5" fill="#dc2626" opacity="0.8"/><circle cx="10" cy="24" r="1" fill="var(--monitor-accent)" opacity="0.9"/>',
-      vb:     '0 0 36 36',
-    },
-    'democratic-integrity': {
-      abbr:   'WDM',
-      name:   'World Democracy Monitor',
-      accent: '#61a5d2',
-      svg:    '<circle cx="16" cy="16" r="13" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/><ellipse cx="16" cy="16" rx="13" ry="5" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/><ellipse cx="16" cy="16" rx="13" ry="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/><ellipse cx="16" cy="16" rx="5" ry="13" stroke="var(--monitor-accent)" stroke-width="1" fill="none"/><line x1="3" y1="16" x2="29" y2="16" stroke="var(--monitor-accent)" stroke-width="1"/><line x1="16" y1="3" x2="16" y2="29" stroke="var(--monitor-accent)" stroke-width="1"/>',
-      vb:     '0 0 32 32',
-    },
-    'macro-monitor': {
-      abbr:   'GMM',
-      name:   'Global Macro Monitor',
-      accent: '#22a0aa',
-      svg:    '<rect x="2" y="2" width="34" height="34" rx="6" stroke="var(--monitor-accent)" stroke-width="2" fill="none"/><circle cx="12" cy="10" r="2.5" fill="#e87040"/><line x1="12" y1="12.5" x2="12" y2="18" stroke="#e87040" stroke-width="1.5"/><line x1="8" y1="15" x2="16" y2="15" stroke="#e87040" stroke-width="1.5"/><line x1="12" y1="18" x2="9" y2="22" stroke="#e87040" stroke-width="1.5"/><line x1="12" y1="18" x2="15" y2="22" stroke="#e87040" stroke-width="1.5"/><polyline points="5,30 10,30 13,24 17,33 21,26 25,33 29,22 33,30" stroke="#e87040" stroke-width="2" fill="none" stroke-linejoin="round"/>',
-      vb:     '0 0 38 38',
-    },
-    'european-strategic-autonomy': {
-      abbr:   'ESA',
-      name:   'European Strategic Autonomy Monitor',
-      accent: '#5b8db0',
-      svg:    '<polygon points="18,2 32,10 32,26 18,34 4,26 4,10" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/><polygon points="18,7 27,12 27,24 18,29 9,24 9,12" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.7"/><polygon points="18,11 24,14.5 24,21.5 18,25 12,21.5 12,14.5" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.4"/><line x1="18" y1="2" x2="18" y2="34" stroke="var(--monitor-accent)" stroke-width="0.7" opacity="0.5"/><line x1="4" y1="10" x2="32" y2="26" stroke="var(--monitor-accent)" stroke-width="0.7" opacity="0.5"/><line x1="4" y1="26" x2="32" y2="10" stroke="var(--monitor-accent)" stroke-width="0.7" opacity="0.5"/><circle cx="18" cy="18" r="2.5" fill="var(--monitor-accent)" opacity="0.8"/>',
-      vb:     '0 0 36 36',
-    },
-    'ai-governance': {
-      abbr:   'AGM',
-      name:   'AI Governance Monitor',
-      accent: '#3a7d5a',
-      svg:    '<rect x="3" y="3" width="30" height="30" rx="3" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/><rect x="8" y="8" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.9"/><rect x="20" y="8" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.6"/><rect x="8" y="20" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.6"/><rect x="20" y="20" width="8" height="8" rx="1" fill="var(--monitor-accent)" opacity="0.3"/><line x1="12" y1="16" x2="12" y2="20" stroke="var(--monitor-accent)" stroke-width="1.5"/><line x1="24" y1="16" x2="24" y2="20" stroke="var(--monitor-accent)" stroke-width="1.5"/><line x1="16" y1="12" x2="20" y2="12" stroke="var(--monitor-accent)" stroke-width="1.5"/>',
-      vb:     '0 0 36 36',
-    },
-    'environmental-risks': {
-      abbr:   'ERM',
-      name:   'Environmental Risks Monitor',
-      accent: '#4caf7d',
-      svg:    '<circle cx="18" cy="18" r="14" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none"/><circle cx="18" cy="18" r="9" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.5"/><path d="M18 4 Q22 10 18 18 Q14 26 18 32" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/><path d="M4 18 Q10 14 18 18 Q26 22 32 18" stroke="var(--monitor-accent)" stroke-width="1" fill="none" opacity="0.6"/><circle cx="18" cy="18" r="2.5" fill="var(--monitor-accent)" opacity="0.9"/>',
-      vb:     '0 0 36 36',
-    },
-    'conflict-escalation': {
-      abbr:   'SCEM',
-      name:   'Strategic Conflict & Escalation Monitor',
-      accent: '#dc2626',
-      svg:    '<line x1="6" y1="30" x2="30" y2="6" stroke="var(--monitor-accent)" stroke-width="1.8" stroke-linecap="round"/><line x1="6" y1="6" x2="30" y2="30" stroke="var(--monitor-accent)" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="18" r="3" fill="var(--monitor-accent)" opacity="0.9"/><polyline points="22,6 30,6 30,14" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><polyline points="6,22 6,30 14,30" stroke="var(--monitor-accent)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-      vb:     '0 0 36 36',
-    },
+    "democratic-integrity": {"abbr": "WDM", "name": "World Democracy Monitor", "accent": "#61a5d2", "url": "https://asym-intel.info/monitors/democratic-integrity/", "svg_url": "https://asym-intel.info/images/monitors/wdm.svg", "vb": "0 0 32 32"},
+    "macro-monitor": {"abbr": "GMM", "name": "Global Macro Monitor", "accent": "#22a0aa", "url": "https://asym-intel.info/monitors/macro-monitor/", "svg_url": "https://asym-intel.info/images/monitors/gmm.svg", "vb": "0 0 38 38", "accent_2": "#e87040"},
+    "financial-integrity": {"abbr": "FIM", "name": "Financial Integrity Monitor", "accent": "#e6a817", "url": "https://asym-intel.info/monitors/financial-integrity/", "svg_url": "https://asym-intel.info/images/monitors/fim.svg", "vb": "0 0 36 36"},
+    "european-strategic-autonomy": {"abbr": "ESA", "name": "European Strategic Autonomy Monitor", "accent": "#5b8db0", "url": "https://asym-intel.info/monitors/european-strategic-autonomy/", "svg_url": "https://asym-intel.info/images/monitors/esa.svg", "vb": "0 0 36 36"},
+    "fimi-cognitive-warfare": {"abbr": "FCW", "name": "FIMI & Cognitive Warfare Monitor", "accent": "#38bdf8", "url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/", "svg_url": "https://asym-intel.info/images/monitors/fcw.svg", "vb": "0 0 36 36", "accent_2": "#dc2626"},
+    "ai-governance": {"abbr": "AIM", "name": "AI Governance Monitor", "accent": "#3a7d5a", "url": "https://asym-intel.info/monitors/ai-governance/", "svg_url": "https://asym-intel.info/images/monitors/aim.svg", "vb": "0 0 36 36"},
+    "environmental-risks": {"abbr": "ERM", "name": "Environmental Risks Monitor", "accent": "#4caf7d", "url": "https://asym-intel.info/monitors/environmental-risks/", "svg_url": "https://asym-intel.info/images/monitors/erm.svg", "vb": "0 0 36 36"},
+    "conflict-escalation": {"abbr": "SCEM", "name": "Strategic Conflict & Escalation Monitor", "accent": "#dc2626", "url": "https://asym-intel.info/monitors/conflict-escalation/", "svg_url": "https://asym-intel.info/images/monitors/scem.svg", "vb": "0 0 36 36"},
   };
+  /* END @REGISTRY_INLINE */
 
   /* Derive monitor slug from URL path: /monitors/{slug}/{page}.html */
   function getMonitorSlug() {
@@ -386,9 +347,7 @@
     document.documentElement.style.setProperty('--monitor-accent', m.accent);
 
     brand.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="' + m.vb + '" fill="none" aria-hidden="true" style="flex-shrink:0">' +
-        m.svg +
-      '</svg>' +
+      '<img src="' + m.svg_url + '" width="18" height="18" alt="" aria-hidden="true" style="flex-shrink:0">' +
       '<span>' + m.name + '</span>';
   }
 
