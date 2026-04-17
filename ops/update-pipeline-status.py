@@ -47,12 +47,27 @@ DAY_INDEX = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 
 
 # Map (monitor_abbr, stage) -> workflow filename in asym-intel-main
 WORKFLOW_FILES = {}
+# Publisher slug map — workflow filename uses full monitor slug, not abbr
+_PUBLISHER_SLUG = {
+    "WDM": "democratic-integrity",
+    "GMM": "macro-monitor",
+    "ESA": "european-strategic-autonomy",
+    "FCW": "fimi-cognitive-warfare",
+    "AIM": "ai-governance",
+    "ERM": "environmental-risks",
+    "SCEM": "conflict-escalation",
+    "FIM": "financial-integrity",
+}
+
 for abbr, ga_abbr in [("WDM","wdm"), ("GMM","gmm"), ("ESA","esa"), ("FCW","fcw"),
                        ("AIM","agm"), ("ERM","erm"), ("SCEM","scem"), ("FIM","fim")]:
     for stage in ["collector", "weekly-research", "reasoner", "synthesiser"]:
         WORKFLOW_FILES[(abbr, stage)] = f"{ga_abbr}-{stage}.yml"
     # Chatter is now unified — one workflow for all monitors (13 Apr 2026)
     WORKFLOW_FILES[(abbr, "chatter")] = "unified-chatter.yml"
+    # Publisher: tracked as a GA workflow (fixes published:never lie — BUG-002)
+    slug = _PUBLISHER_SLUG.get(abbr, ga_abbr)
+    WORKFLOW_FILES[(abbr, "publisher")] = f"{slug}-publisher.yml"
 
 # Published/dashboard detection: commit message patterns per monitor
 PUBLISH_PATTERNS = {
@@ -127,10 +142,37 @@ def build_station_status(workflow_file):
 
 
 def find_publish_commit(commits, patterns):
-    """Find the most recent publish commit for a monitor."""
+    """Find the most recent publish commit for a monitor.
+
+    DEPRECATED: publisher stages now read from GA workflow runs via
+    build_station_status(). This function is retained only for the commit
+    message enrichment path (_find_publish_message). Do not use for
+    published.last_conclusion — that now comes from GA API.
+    """
+    return _find_publish_message_as_station(commits, patterns)
+
+
+def _find_publish_message(commits, patterns):
+    """Extract the most recent publisher commit message subject (for display only).
+
+    Returns a trimmed string, or None if not found in the provided commit list.
+    Does NOT determine published/never status — GA workflow runs own that.
+    """
     for c in commits:
         msg = c.get("commit", {}).get("message", "").lower()
-        # Must be a data/content commit, not just an SEO or metadata fix
+        subject = c.get("commit", {}).get("message", "").split("\n")[0]
+        if any(p.lower() in msg for p in patterns):
+            is_publish = any(kw in msg for kw in ["issue", "report", "weekly", "publish"])
+            is_meta = any(kw in msg for kw in ["seo:", "fix methodology", "nav ", "rename"])
+            if is_publish and not is_meta:
+                return subject[:80]
+    return None
+
+
+def _find_publish_message_as_station(commits, patterns):
+    """Legacy full-station builder — kept for any callers expecting a station dict."""
+    for c in commits:
+        msg = c.get("commit", {}).get("message", "").lower()
         if any(p.lower() in msg for p in patterns):
             is_publish = any(kw in msg for kw in ["issue", "report", "weekly", "publish", "pipeline"])
             is_meta = any(kw in msg for kw in ["seo:", "fix methodology", "nav ", "rename"])
@@ -164,9 +206,19 @@ def generate_status():
             else:
                 stations[stage] = {"last_run": None, "last_conclusion": "never", "last_success": None}
 
-        # Published (from commits — Computer crons don't show in GA runs)
-        pub = find_publish_commit(commits, PUBLISH_PATTERNS.get(abbr, []))
-        stations["published"] = pub or {"last_run": None, "last_conclusion": "never", "last_success": None}
+        # Published — read from GA workflow runs (same as other stages)
+        # BUG-002 fix: publisher workflows are tracked in GA; commit-scan
+        # was limited to 100 commits and missed older publishes.
+        pub_wf = WORKFLOW_FILES.get((abbr, "publisher"))
+        if pub_wf:
+            pub_station = build_station_status(pub_wf)
+            # Enrich with commit message if available
+            commit_msg = _find_publish_message(commits, PUBLISH_PATTERNS.get(abbr, []))
+            if commit_msg:
+                pub_station["message"] = commit_msg
+            stations["published"] = pub_station
+        else:
+            stations["published"] = {"last_run": None, "last_conclusion": "never", "last_success": None}
 
         # Dashboard mirrors published
         stations["dashboard"] = stations["published"].copy()
