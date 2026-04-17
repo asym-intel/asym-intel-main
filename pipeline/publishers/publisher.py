@@ -289,6 +289,77 @@ def build_signal(synthesis: dict, prev_report: dict, config: dict) -> dict | Non
     return prev_report.get("signal", prev_report.get("lead_signal"))
 
 
+def build_gmm_regime_audit(reasoner: dict, synthesis: dict) -> dict | None:
+    """Build a regime_audit block for GMM (BUG-2026-04-17-004).
+
+    Publisher historically renames synth.stress_regime_preliminary -> stress_regime
+    and discards the reasoner's regime_assessment_review.recommended_regime entirely.
+    That hides divergence between the two stations (reasoner uses a 3-indicator
+    corroboration test; synth uses a 2-domain rule; they can disagree on the
+    same week's data).
+
+    This helper preserves both calls in the published report so readers can see:
+      - what the reasoner recommended (conservative/structural)
+      - what the synth published (canonical/tactical)
+      - whether they agree
+      - why divergence is allowed (methodology note)
+
+    Methodology decision (Option B, 2026-04-17): synth remains canonical for
+    published stress_regime; reasoner's call is preserved in audit form pending
+    methodology unification (SCOPE-2026-04-17-005).
+
+    Returns None if reasoner data is absent (no audit possible).
+    """
+    if not reasoner or not isinstance(reasoner, dict):
+        return None
+
+    reasoner_review = reasoner.get("regime_assessment_review", {}) or {}
+    synth_srp = synthesis.get("stress_regime_preliminary", {}) or {}
+
+    reasoner_regime = reasoner_review.get("recommended_regime") or reasoner_review.get("current_regime")
+    reasoner_conviction = reasoner_review.get("recommended_conviction") or reasoner_review.get("current_conviction")
+    reasoner_change_warranted = reasoner_review.get("regime_change_warranted")
+
+    synth_regime = synth_srp.get("regime")
+    synth_conviction = synth_srp.get("conviction")
+
+    if not reasoner_regime and not synth_regime:
+        return None
+
+    divergence = bool(
+        reasoner_regime and synth_regime
+        and reasoner_regime.strip().upper() != synth_regime.strip().upper()
+    )
+
+    audit = {
+        "reasoner_recommended": {
+            "regime": reasoner_regime,
+            "conviction": reasoner_conviction,
+            "regime_change_warranted": reasoner_change_warranted,
+            "sa_indicator_support": reasoner_review.get("sa_indicator_support"),
+            "ts_noise_flag": reasoner_review.get("ts_noise_flag"),
+        },
+        "synth_preliminary": {
+            "regime": synth_regime,
+            "conviction": synth_conviction,
+            "system_average": synth_srp.get("system_average"),
+            "regime_delta": synth_srp.get("regime_delta"),
+            "regime_change_evidence": synth_srp.get("regime_change_evidence"),
+        },
+        "divergence": divergence,
+        "canonical_source": "synthesiser",
+        "methodology_note": (
+            "Published stress_regime is the synthesiser's stress_regime_preliminary "
+            "(2-domain corroboration rule). The reasoner's recommended_regime uses "
+            "a stricter 3-indicator SA corroboration test and is preserved here for "
+            "audit. Divergence indicates a tactical shock the synth has priced in "
+            "ahead of reasoner's structural confirmation. Methodology unification "
+            "under SCOPE-2026-04-17-005."
+        ),
+    }
+    return audit
+
+
 def build_gmm_signal(synthesis: dict, prev_report: dict) -> dict:
     """GMM signal: built from lead_signal + stress_regime_preliminary.
     Dashboard reads: headline, system_stress_label, system_stress_direction,
@@ -1781,8 +1852,13 @@ def sanitise_for_public(report: dict) -> dict:
     r = strip_preliminary_keys(r)
     return r
 
-def build_last_run_status(synthesis: dict, config: dict, issues: list = None) -> dict:
+def build_last_run_status(synthesis: dict, config: dict, issues: list = None,
+                          reasoner_present: bool | None = None) -> dict:
     inputs = synthesis.get("_meta", {}).get("inputs_used", {})
+    # reasoner_present: caller passes real file-existence when known (accurate).
+    # Fallback to synth._meta.inputs_used which many synthesisers do not populate
+    # (therefore under-reports reasoner availability — see BUG-2026-04-17-004 work).
+    reasoner_flag = reasoner_present if reasoner_present is not None else bool(inputs.get("reasoner_latest"))
     return {
         "run_date": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "success": True,
@@ -1790,7 +1866,7 @@ def build_last_run_status(synthesis: dict, config: dict, issues: list = None) ->
         "pipeline_inputs": {
             "daily_latest": bool(inputs.get("daily_latest")),
             "weekly_latest": bool(inputs.get("weekly_latest")),
-            "reasoner_latest": bool(inputs.get("reasoner_latest")),
+            "reasoner_latest": reasoner_flag,
             "synthesis_latest": True,
         },
         "synthesis_status": synthesis.get("_meta", {}).get("status", "unknown"),
@@ -1847,6 +1923,7 @@ def main():
 
     # Paths
     synthesis_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/synthesised/synthesis-latest.json"
+    reasoner_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/reasoner/reasoner-latest.json"
     prev_report_path = REPO_ROOT / f"static/monitors/{MONITOR_SLUG}/data/report-latest.json"
     persistent_path = REPO_ROOT / f"static/monitors/{MONITOR_SLUG}/data/persistent-state.json"
     archive_path = REPO_ROOT / f"static/monitors/{MONITOR_SLUG}/data/archive.json"
@@ -1863,6 +1940,7 @@ def main():
         sys.exit(1)
 
     synthesis = load_json(synthesis_path)
+    reasoner_latest = load_json(reasoner_path) if reasoner_path.exists() else {}
     prev_report = load_json(prev_report_path) if prev_report_path.exists() else {}
     persistent = load_json(persistent_path) if persistent_path.exists() else {}
     archive = load_json(archive_path) if archive_path.exists() else []
@@ -1976,9 +2054,40 @@ def main():
     report["cross_monitor_flags"] = build_cross_monitor_flags(
         synthesis, prev_report, publish_date, MONITOR_SLUG)
 
+    # GMM-only: regime audit trail (BUG-2026-04-17-004)
+    # Preserves reasoner's recommended_regime alongside synth's preliminary call so
+    # divergence between the two methodologies is visible to readers. Synth remains
+    # canonical; reasoner is preserved in audit form. See build_gmm_regime_audit docstring.
+    if config.get("signal_builder") == "gmm":
+        audit = build_gmm_regime_audit(reasoner_latest, synthesis)
+        if audit:
+            report["regime_audit"] = audit
+            if audit.get("divergence"):
+                log_incident(
+                    monitor=MONITOR_SLUG, stage="publisher",
+                    incident_type="regime_divergence", severity="info",
+                    detail=(
+                        f"Reasoner recommends {audit['reasoner_recommended'].get('regime')}/"
+                        f"{audit['reasoner_recommended'].get('conviction')}; "
+                        f"synth published {audit['synth_preliminary'].get('regime')}/"
+                        f"{audit['synth_preliminary'].get('conviction')}. "
+                        f"Audit block included in report."
+                    ),
+                )
+                print(
+                    f"  ⚠ regime divergence: reasoner={audit['reasoner_recommended'].get('regime')} "
+                    f"synth={audit['synth_preliminary'].get('regime')} — audit block attached"
+                )
+            else:
+                print(f"  ✓ regime agreement: reasoner+synth={audit['synth_preliminary'].get('regime')}")
+        else:
+            print("  ⚠ regime_audit skipped — reasoner input not available")
+
     report["source_url"] = f"{SITE_URL}/monitors/{MONITOR_SLUG}/{publish_date}-weekly-brief/"
     report["weekly_brief_sources"] = build_weekly_brief_sources(synthesis, prev_report)
-    report["_meta"] = {"last_run_status": build_last_run_status(synthesis, config)}
+    report["_meta"] = {"last_run_status": build_last_run_status(
+        synthesis, config, reasoner_present=bool(reasoner_latest)
+    )}
 
     # Normalise: all monitors use "signal" — remove legacy "lead_signal" if carried forward
     report.pop("lead_signal", None)
