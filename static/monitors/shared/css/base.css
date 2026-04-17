@@ -132,7 +132,7 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   transition: background 0.2s, color 0.2s;
-  overflow-x: hidden;
+  overflow-x: clip; /* R-MV-002 / engine rule: clip not hidden — preserves position:sticky children */
   /* Network bar offset is injected via .style in network-bar.html */
 }
 a { color: var(--monitor-accent); text-decoration: none; }
