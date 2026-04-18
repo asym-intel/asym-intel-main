@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "ESA Weekly Research Bot"
           git config user.email "european-strategic-autonomy-weekly@asym-intel.info"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add pipeline/monitors/european-strategic-autonomy/weekly/
           git diff --staged --quiet && echo "No new research to commit" && exit 0
           git commit -m "data(european-strategic-autonomy-weekly): weekly deep research — $(date -u +%Y-%m-%d)"
