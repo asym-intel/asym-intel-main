@@ -86,9 +86,9 @@ if _calib_result.returncode == 0 and _calib_result.stdout.strip():
         if _sec_start > -1:
             _inject = _calib_raw[_sec_start:_sec_start + 5000]
             prompt += (
-                "\n\nANNUAL CALIBRATION "
+                "\n\nMethodology context for "
                 + str(_calib_year)
-                + " — apply these rules:\n"
+                + ":\n"
                 + _inject
             )
             print(f"Calibration injected: {_calib_path} ({len(_inject)} chars)")
