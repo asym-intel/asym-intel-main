@@ -6,7 +6,8 @@
   Triage order (different from publish order): GMM · SCEM · FCW · AIM · WDM · ESA · FIM · ERM.
   When the registry grows a `triage_order` field this can be rewritten to sort by it.
 */}}
-{{ $registry := getJSON "static/monitors/monitor-registry.json" }}
+{{ $registryResource := resources.Get "monitors/monitor-registry.json" | transform.Unmarshal }}
+{{ $registry := $registryResource }}
 {{ $triage := slice "GMM" "SCEM" "FCW" "AIM" "WDM" "ESA" "FIM" "ERM" }}
 <nav class="monitor-strip" role="navigation" aria-label="Monitor navigation">
   <span class="monitor-strip__label">Monitors</span>
