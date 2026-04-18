@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "AGM Weekly Research Bot"
           git config user.email "ai-governance-weekly@asym-intel.info"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add pipeline/monitors/ai-governance/weekly/
           git diff --staged --quiet && echo "No new research to commit" && exit 0
           git commit -m "data(ai-governance-weekly): weekly deep research — $(date -u +%Y-%m-%d)"
