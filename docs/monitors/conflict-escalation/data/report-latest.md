@@ -1,6 +1,6 @@
-# Strategic Conflict & Escalation Monitor — Issue 6
+# Strategic Conflict & Escalation Monitor — Issue 7
 
-**W/E 13 April 2026** | Published 2026-04-13T18:00:00Z
+**W/E 18 April 2026** | Published 2026-04-18T18:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -12,28 +12,52 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**No dominant conflict signal identified; all theatres stable with no new Tier 1 verified developments.**
+**Hormuz closure constitutes largest oil disruption risk amid sustained I2/I4 Red levels despite F3/F4 flags**
 
 Confidence: N/A
 Actor: N/A
 
 ## Key Judgments
 
-1. **All 10 theatres contested week 1; no locked baselines; epistemic uncertainty high**
+1. **Sudan I2 lead signal deadliest theatre with Kordofan diffusion**
    - Confidence: High
-   - Trajectory: Stable
+   - Trajectory: Escalating
 
-2. **Sudan remains deadliest theatre per ACLED despite coverage gap**
+2. **Iran Hormuz I4 constitutes structural economic warfare outlier**
    - Confidence: Assessed
-   - Trajectory: Stable
+   - Trajectory: Escalating
 
-3. **F flags persist without T2 resolution across multiple theatres**
-   - Confidence: High
-   - Trajectory: Stable
+3. **Russia-Ukraine I5 de-escalation signals warrant Stable trajectory**
+   - Confidence: Assessed
+   - Trajectory: De-escalating
 
 ## Weekly Brief
 
-Global escalation snapshot shows 10 active theatres with zero new escalations or de-escalations this week. Daily collector reports zero findings and weekly research no Tier 1 updates across all theatres representing structural coverage gap especially Sudan Myanmar DRC. Contested baselines week 1 preclude deviation calculation; all trajectories stable per reasoner despite prior escalating seeds. Russia-Ukraine stable at I3 Red with I5 de-escalation signals amid F4 on I1 rhetoric; no new NATO posture or drone swarm threshold crossed. Gaza locked I2 Amber ceasefire with I6 Crisis displacement persistent; F4 on I5 unverified. Sudan lead deadliness per ACLED second globally I3 Red stable; F2-adjacent on I1/I2 drone claims. Myanmar I3 Red fragmentation baseline no new offensives. Haiti I2 Amber gang control stable. DRC I3 Red M23 dynamics stable with I4 mineral coercion tagging GMM; F4 ceasefire. Latent East Asia theatres Taiwan I1 Green Korea I2 Red elevated posture no deviation. Middle East hotspots Israel-Lebanon I3 Red 1M displacement Hezbollah; US-Israel-Iran I4 Crisis Hormuz I4 outlier with F3/F4. F flag matrix unchanged; no resolutions. Hybrid layer highlights coltan DRC Hormuz Iran cyber Russia-Ukraine. Roster watch Ethiopia partial I2 approaching inclusion. Key risks: ACLED fatality density Sudan Myanmar; displacement velocity Gaza Lebanon Sudan; I4 economic disruptions Hormuz coltan. No cross-monitor Red-band triggers this week.
+## Lead Signal
+US-Israel-Iran conflict sustains Crisis intensity across I1-I4 with Hormuz closure as defining I4 deviation. This weeks Hormuz persistence marks largest recorded oil disruption risk despite F3/F4 on US operational claims and Iranian mediation signals. Deviation-over-level prioritises this structural outlier above familiar Ukraine and Gaza baselines under Contested conditions.
+
+Three Red-band indicators persist without de-escalation verification. Daily collector confirms regional strikes while reasoner flags episodic nature of counter-claims. Framework mandates Red scoring for absolute levels in week 1 Contested baseline.
+
+ACLED absence on precise counts noted; GMM cross-flag HIGH urgency reflects global impact.
+
+## Other Developments
+**Sudan Kordofan I2 Escalation**
+ACLED T1 confirms fighting shift to Kordofan solidifying east-west divide. Deadliest theatre per daily findings with I6 worlds largest crisis sustained. F2-adjacent on attribution limits confidence but geographic diffusion Confirmed warrants High escalation risk.
+
+**Israel-Lebanon Ten-Day Ceasefire**
+Israel announces ten-day truce amid 1M displacement yet vows sustained southern Lebanon presence for 10km zone. Episodic per historical cycles; F4 on limited framing active. Reasoner maintains Escalating trajectory pending verification.
+
+**DRC Coltan I4 Escalation**
+ACLED watchlist flags M23 mineral coercion amid FDLR activity. I4 deviation Red band crosses into GMM economic warfare. F4 ceasefire claims unverified sustain Collapsed status.
+
+**Russia-Ukraine Stable I5 Signals**
+Ongoing major war with US nuclear policy recommendations for theatre. Reasoner recommends Stable trajectory from I5 de-escalation amid F4 rhetoric. Doctrine shift persistent baseline for I3.
+
+## Cross-Monitor Connections
+GMM sanctions signal HIGH from Iran Hormuz I4 and DRC coltan coercion per reasoner cross-flags. ERM displacement HIGH on Sudan I6 largest crisis Lebanon 1M and Gaza 2M per daily. WDM escalation signal MEDIUM from Ukraine NATO debate and Myanmar junta fragmentation. FIMI fimi-cognitive-warfare candidates from active F3/F4 across Iran Russia Gaza.
+
+## Outlook
+Monitor Hormuz operational status for I4 persistence and Sudan Kordofan for multi-indicator confirmation. Verify Israel-Lebanon ceasefire implementation against F4 patterns. Week 2 baselines remain Contested; lock at week 13. Ethiopia partial I2 approaches dual-indicator threshold.
 
 ## Cross-Monitor Flags
 
@@ -48,10 +72,14 @@ Global escalation snapshot shows 10 active theatres with zero new escalations or
 - **** (European Geopolitical & Hybrid Threat Monitor) — Active
 - **** (Global Environmental Risks & Planetary Boundaries Monitor) — Active
 - **** (FIMI & Cognitive Warfare) — Active
-- **Sudan and Gaza food systems collapse with high displacement** (environmental-risks) — Active — verified (adjacent Issue 7)
-- **Multiple F flags active Russia-Ukraine Gaza DRC Israel-Lebanon US-Iran** (fimi-cognitive-warfare) — Active — NEW
-- **Hormuz closure I4 Crisis US-Israel-Iran; coltan coercion DRC** (macro-monitor) — Active — NEW
-- **I6 Crisis displacement Sudan Gaza Lebanon** (environmental-risks) — Active — NEW
+- **Sudan and Gaza food systems collapse with high displacement** (environmental-risks) — Active — verified (adjacent Issue 8)
+- **Multiple F flags active Russia-Ukraine Gaza DRC Israel-Lebanon US-Iran** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
+- **Hormuz closure I4 Crisis US-Israel-Iran; coltan coercion DRC** (macro-monitor) — Active — verified (adjacent Issue 6)
+- **I6 Crisis displacement Sudan Gaza Lebanon** (environmental-risks) — Active — verified (adjacent Issue 8)
+- **Hormuz closure I4=5 DRC coltan I4=3** (macro-monitor) — Active — NEW
+- **Sudan I6=5 Lebanon I6=5 Gaza I6=5** (environmental-risks) — Active — NEW
+- **F3/F4 active Iran Russia Gaza** (fimi-cognitive-warfare) — Active — NEW
+- **Ukraine I5 Myanmar fragmentation** (wdm) — Active — NEW
 
 ---
 
