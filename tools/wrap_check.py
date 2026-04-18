@@ -379,7 +379,13 @@ def gate_workspace_artifacts() -> CheckResult:
         "/home/user/workspace/past_session_contexts/",  # platform-managed session memory
         "/home/user/workspace/tool_calls/",     # platform tool call I/O scratch
     ]
+    # Suffixes that indicate a session-produced document worth flagging
     EXTENSIONS = {".md", ".py", ".json", ".txt", ".csv", ".yaml", ".yml", ".html"}
+    # Root-level files in the workspace are typically fetched working copies
+    # (e.g. boot-context.md, patched workflow YAMLs) — not persistent outputs.
+    # Only flag files that are at least one directory deep, since deliberate
+    # session outputs (specs, audit reports, data files) always live in a subdir.
+    MIN_DEPTH = 1  # must be inside at least one subdirectory
 
     workspace = pathlib.Path("/home/user/workspace")
     if not workspace.exists():
@@ -403,6 +409,9 @@ def gate_workspace_artifacts() -> CheckResult:
             rel = p.relative_to(workspace)
         except ValueError:
             rel = p
+        # Skip root-level working copies
+        if len(rel.parts) <= MIN_DEPTH:
+            continue
         found.append(str(rel))
 
     found.sort()
