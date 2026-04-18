@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "WDM Research Bot"
           git config user.email "wdm-research@asym-intel.info"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add pipeline/monitors/democratic-integrity/weekly/
           git diff --staged --quiet && echo "No research output to commit" && exit 0
           git commit -m "data(wdm-research): weekly deep research — $(date -u +%Y-%m-%d)"
