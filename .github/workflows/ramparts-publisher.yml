@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -61,7 +63,7 @@ jobs:
           git diff --staged --quiet && echo "No data changes to commit" && exit 0
           git commit -m "data(ramparts): published to ramparts.gi — $(date -u +%Y-%m-%d) [skip ci]"
           for attempt in 1 2 3; do
-            git pull --rebase origin main
+            git pull --rebase --autostash origin main
             git push && break
             echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
             sleep $((attempt * 10))
