@@ -33,6 +33,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -43,13 +45,10 @@ jobs:
         run: python3 pipeline/tools/build_graph.py
 
       - name: Commit updated graph.json
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add static/network/data/graph.json docs/network/data/graph.json
-          if git diff --cached --quiet; then
-            echo "No changes to graph.json"
-          else
-            git commit -m "Auto-update network graph [skip ci]"
-            git push
-          fi
+        uses: ./.github/actions/authenticated-push
+        with:
+          gh-token: ${{ secrets.GH_TOKEN }}
+          commit-message: "data(network): auto-update graph.json [skip ci]"
+          add-paths: "static/network/data/graph.json docs/network/data/graph.json"
+          bot-name: "github-actions[bot]"
+          bot-email: "github-actions[bot]@users.noreply.github.com"

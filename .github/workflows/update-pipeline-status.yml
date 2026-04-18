@@ -32,19 +32,21 @@ jobs:
       - name: Run status updater
         run: python3 ops/update-pipeline-status.py
 
-      - name: Deploy dashboard to public site
+      - name: Copy dashboard to public site
+        if: ${{ hashFiles('pipeline-dashboard.html') != '' }}
         run: |
-          if [ -f pipeline-dashboard.html ]; then
-            cp pipeline-dashboard.html static/ops/pipeline.html
-            cp pipeline-dashboard.html docs/ops/pipeline.html
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add static/ops/pipeline.html docs/ops/pipeline.html
-            git diff --cached --quiet || git commit -m "ops: auto-update pipeline dashboard ($(date -u '+%Y-%m-%d %H:%M UTC')) [skip ci]"
-            git pull --rebase
-            git push
-          fi
+          cp pipeline-dashboard.html static/ops/pipeline.html
+          cp pipeline-dashboard.html docs/ops/pipeline.html
 
+      - name: Deploy dashboard to public site
+        uses: ./.github/actions/authenticated-push
+        with:
+          gh-token: ${{ secrets.GH_TOKEN }}
+          commit-message: "ops: auto-update pipeline dashboard ($(date -u '+%Y-%m-%d %H:%M UTC')) [skip ci]"
+          add-paths: "static/ops/pipeline.html docs/ops/pipeline.html"
+          bot-name: "github-actions[bot]"
+          bot-email: "github-actions[bot]@users.noreply.github.com"
+        if: ${{ hashFiles('pipeline-dashboard.html') != '' }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -54,3 +56,4 @@ jobs:
             pipeline-status.json
             pipeline-dashboard.html
           retention-days: 7
+
