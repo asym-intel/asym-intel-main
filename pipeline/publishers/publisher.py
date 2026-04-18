@@ -43,6 +43,17 @@ try:
 except ImportError:
     def log_incident(**kw): pass  # graceful fallback
 
+# ── Lineage envelope writer (Sprint Narrow & Fence Item 3) ───────────────────
+try:
+    from shared.lineage import mint_ulid, content_sha256, build_envelope, write_lineage_envelope
+    _LINEAGE_AVAILABLE = True
+except ImportError:
+    _LINEAGE_AVAILABLE = False
+    def mint_ulid(): import time, random; return f"NOULID{int(time.time()*1000):013d}{random.randint(0,9999):04d}"[:26]
+    def content_sha256(obj): return "sha256:" + "0" * 64
+    def build_envelope(**kw): return {}
+    def write_lineage_envelope(*a, **kw): pass
+
 
 # All monitors except the current one, for cross-monitor verification
 ALL_MONITORS = [
@@ -1921,6 +1932,12 @@ def main():
     print(f"{config['title']} — Publisher")
     print("=" * 50)
 
+    # ── Lineage: mint run_id for this publish cycle ───────────────────────────
+    # One ULID per end-to-end cycle (AD 2026-04-18 Q3). Publisher is the first
+    # wrapped stage; upstream stages will inherit this run_id when they are wrapped.
+    run_id = mint_ulid()
+    print(f"  run_id: {run_id}")
+
     # Paths
     synthesis_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/synthesised/synthesis-latest.json"
     reasoner_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/reasoner/reasoner-latest.json"
@@ -1940,6 +1957,8 @@ def main():
         sys.exit(1)
 
     synthesis = load_json(synthesis_path)
+    # Hash synthesis at load time — before any mutation — for input_hashes
+    _synthesis_hash = content_sha256(synthesis)
     reasoner_latest = load_json(reasoner_path) if reasoner_path.exists() else {}
     prev_report = load_json(prev_report_path) if prev_report_path.exists() else {}
     persistent = load_json(persistent_path) if persistent_path.exists() else {}
@@ -2143,6 +2162,41 @@ def main():
     write_json(docs_data_dir / f"report-{publish_date}.json", public_report)
     write_json(docs_data_dir / "report-latest.json", public_report)
     write_text(docs_data_dir / "report-latest.md", report_md)
+
+    # ── Lineage: write publisher envelope to asym-intel-internal ───────────────
+    # Internal-only. Never written to public paths (ENGINE-RULES §15/§16).
+    # Non-blocking: failure is logged but does not abort publish.
+    print("\n[lineage] Writing provenance envelope...")
+    _synth_meta = synthesis.get("_meta", {})
+    _schema_ver = _synth_meta.get("schema_version", "2.0")
+    # Strip leading 'gmm-synthesis-v' prefix if present — envelope wants bare semver
+    if isinstance(_schema_ver, str) and _schema_ver.startswith("gmm-synthesis-v"):
+        _schema_ver = _schema_ver[len("gmm-synthesis-v"):]
+    _produced_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    _git_sha = os.environ.get("GITHUB_SHA")  # set by GA; None in local runs
+    if _git_sha:
+        _git_sha = _git_sha[:40]
+    envelope = build_envelope(
+        run_id=run_id,
+        tenant="asym-intel",
+        stage="publisher",
+        product=MONITOR_SLUG,
+        schema_version=_schema_ver,
+        produced_at=_produced_at,
+        # Upstream stages not yet wrapped — no upstream run_ids to reference.
+        # input_artifact_ids will be populated when synthesiser is wrapped (Item 3 follow-on).
+        input_artifact_ids=[],
+        input_hashes={"synthesis": _synthesis_hash},
+        output_obj=public_report,
+        status="published",
+        git_sha=_git_sha,
+    )
+    write_lineage_envelope(
+        envelope,
+        tenant="asym-intel",
+        product=MONITOR_SLUG,
+        date_str=publish_date,
+    )
 
     print(f"\n{'=' * 50}")
     print(f"{config['abbr']} Issue {meta['issue']} ({meta['week_label']}) published.")
