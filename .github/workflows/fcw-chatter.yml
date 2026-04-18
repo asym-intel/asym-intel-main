@@ -11,6 +11,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -20,15 +22,10 @@ jobs:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
         run: python pipeline/monitors/fimi-cognitive-warfare/fcw-chatter.py
       - name: Commit chatter output
-        run: |
-          git config user.name "FCW Chatter Bot"
-          git config user.email "chatter@asym-intel.info"
-          git add static/monitors/fimi-cognitive-warfare/data/chatter*.json
-          git diff --staged --quiet && echo "No chatter output to commit" && exit 0
-          git commit -m "data(fcw-chatter): daily signal — $(date -u +%Y-%m-%d)"
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
+        uses: ./.github/actions/authenticated-push
+        with:
+          gh-token: ${{ secrets.GH_TOKEN }}
+          commit-message: "data(fcw-chatter): daily signal — $(date -u +%Y-%m-%d)"
+          add-paths: "static/monitors/fimi-cognitive-warfare/data/chatter*.json"
+          bot-name: "FCW Chatter Bot"
+          bot-email: "chatter@asym-intel.info"
