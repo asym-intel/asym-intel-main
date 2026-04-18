@@ -1,0 +1,76 @@
+name: 'Authenticated Push'
+description: |
+  Race-safe authenticated push to a branch protected by CODEOWNERS/Preflight.
+  Handles: GH_TOKEN remote URL, pull-before-push with rebase+autostash, retry (3x).
+  Use instead of hand-rolling git push in every workflow.
+
+  ENGINE-RULES §Dangerous Operations: all push-to-protected-branch ops use this action.
+  Fixes BUG-002 class: checkout@v5 needs token: GH_TOKEN; push needs x-access-token URL.
+
+inputs:
+  gh-token:
+    description: 'PAT with write access to the branch (secrets.GH_TOKEN)'
+    required: true
+  commit-message:
+    description: 'Commit message'
+    required: true
+  add-paths:
+    description: 'Space-separated paths to git add (e.g. "static/ docs/")'
+    required: true
+  branch:
+    description: 'Target branch (default: current branch via github.ref_name)'
+    required: false
+    default: ''
+  bot-name:
+    description: 'Git committer name'
+    required: false
+    default: 'github-actions[bot]'
+  bot-email:
+    description: 'Git committer email'
+    required: false
+    default: 'github-actions[bot]@users.noreply.github.com'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Configure git identity
+      shell: bash
+      run: |
+        git config user.name "${{ inputs.bot-name }}"
+        git config user.email "${{ inputs.bot-email }}"
+
+    - name: Set authenticated remote URL
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.gh-token }}
+      run: |
+        REPO="${{ github.repository }}"
+        git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git"
+
+    - name: Stage, commit, and push
+      shell: bash
+      run: |
+        BRANCH="${{ inputs.branch }}"
+        if [ -z "$BRANCH" ]; then
+          BRANCH="${{ github.ref_name }}"
+        fi
+
+        git add ${{ inputs.add-paths }}
+
+        if git diff --staged --quiet; then
+          echo "Nothing to commit — skipping push."
+          exit 0
+        fi
+
+        git commit -m "${{ inputs.commit-message }}"
+
+        for attempt in 1 2 3; do
+          git pull --rebase --autostash origin "$BRANCH" && \
+          git push origin "$BRANCH" && \
+          echo "Push succeeded on attempt $attempt." && exit 0
+          echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+          sleep $((attempt * 10))
+        done
+
+        echo "All 3 push attempts failed."
+        exit 1
