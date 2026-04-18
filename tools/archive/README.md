@@ -1,0 +1,1 @@
+# tools/archive/\n\nOne-off sprint tools archived by AUDIT-001 (18 Apr 2026).\nThese scripts completed their purpose and are retained for reference only.\nThey are not called by any GA workflow or CI check.\n
