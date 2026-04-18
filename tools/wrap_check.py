@@ -374,8 +374,10 @@ def gate_workspace_artifacts() -> CheckResult:
     import pathlib
 
     SKIP_PREFIXES = [
-        "/home/user/workspace/skills/",
-        "/home/user/workspace/.git",
+        "/home/user/workspace/skills/",        # platform skill cache — not session docs
+        "/home/user/workspace/.git",            # git internals
+        "/home/user/workspace/past_session_contexts/",  # platform-managed session memory
+        "/home/user/workspace/tool_calls/",     # platform tool call I/O scratch
     ]
     EXTENSIONS = {".md", ".py", ".json", ".txt", ".csv", ".yaml", ".yml", ".html"}
 
