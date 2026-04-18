@@ -1,4 +1,4 @@
-# Global Environmental Risks Monitor — Issue 8
+# Global Environmental Risks Monitor — Issue 9
 
 **W/E 18 April 2026** | Published 2026-04-18T05:00:00Z
 
@@ -46,9 +46,9 @@ Monitor Tier 1 sources for Q2 boundary updates or tipping precursors, particular
 
 ## Cross-Monitor Flags
 
-- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 6)
+- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 7)
 - **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 6)
-- **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 9)
+- **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 10)
 
 ---
 
