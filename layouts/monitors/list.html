@@ -5,7 +5,7 @@
   Data source: canonical monitor-registry.json (ENGINE-RULES §17).
 */}}
 
-{{ $registry := getJSON "static/monitors/monitor-registry.json" }}
+{{ $registry := resources.Get "monitors/monitor-registry.json" | transform.Unmarshal }}
 
 <div class="page-container">
   <header class="page-header">
