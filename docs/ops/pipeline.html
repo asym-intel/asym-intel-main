@@ -534,58 +534,6 @@
   .chip-live    { background: rgba(34,197,94,0.15); color: #22c55e; }
   .chip-pending { background: rgba(75,85,99,0.3); color: var(--text-muted); }
   .chip-partial { background: rgba(245,158,11,0.15); color: #f59e0b; }
-
-  /* ── Watchtower tab styles ───────────────────────────────── */
-  .wt-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1rem 1.2rem;
-  }
-  .wt-card-title {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 0.4rem;
-  }
-  .wt-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
-  .wt-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .wt-dot.ok     { background: var(--success); }
-  .wt-dot.stale  { background: var(--warning); }
-  .wt-dot.down   { background: var(--failure); }
-  .wt-dot.error  { background: var(--failure); opacity: 0.6; }
-  .wt-detail {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-  }
-  .wt-overall {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.9rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid;
-  }
-  .wt-overall.ok      { color: var(--success); border-color: var(--success); }
-  .wt-overall.degraded{ color: var(--warning); border-color: var(--warning); }
-  .wt-overall.down    { color: var(--failure); border-color: var(--failure); }
-
 </style>
 </head>
 <body>
@@ -598,7 +546,6 @@
 <div class="page-tabs">
   <button class="page-tab active" data-tab="pipeline">Pipeline</button>
   <button class="page-tab" data-tab="epistemic">Epistemic</button>
-  <button class="page-tab" data-tab="watchtower">Watchtower</button>
 </div>
 
 <!-- ── Pipeline tab ──────────────────────────────────────── -->
@@ -697,20 +644,6 @@
   </div>
 
 </div><!-- /tab-epistemic -->
-
-<!-- ── Watchtower tab ─────────────────────────────────────────── -->
-<div class="tab-panel" id="tab-watchtower">
-  <div class="epis-section">
-    <h2>Platform Health <span class="section-tag">CF Watchtower · every 6h · independent</span></h2>
-    <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:1.5rem;">
-      Written by <code>platform-watchtower</code> Cloudflare Worker — independent of GA pipeline.
-      If this disagrees with Pipeline tab, this wins (Sprint N&amp;F §Item 6).
-    </p>
-    <div id="wt-overall" style="margin-bottom:1.5rem;"></div>
-    <div id="wt-checks" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));"></div>
-    <p style="color:var(--text-muted);font-size:0.72rem;margin-top:1.5rem;" id="wt-meta"></p>
-  </div>
-</div><!-- /tab-watchtower -->
 
 <script>
 // ── Tab switching ────────────────────────────────────────────
@@ -985,78 +918,6 @@ function escHtml(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-
-// ── Watchtower tab ────────────────────────────────────────────────
-const HEALTH_URL = "https://raw.githubusercontent.com/asym-intel/asym-intel-internal/main/ops/platform-health.json";
-
-const CHECK_LABELS = {
-  investor_freshness: "Asymmetric Investor — GMM Freshness",
-  asym_intel_uptime:  "asym-intel.info — Uptime",
-  advennt_uptime:     "advennt.io — Uptime",
-};
-
-function wtStatusColor(status) {
-  return { ok: "var(--success)", stale: "var(--warning)", down: "var(--failure)", error: "var(--failure)" }[status] || "var(--text-muted)";
-}
-
-function renderWatchtower(health) {
-  // Overall badge
-  const overall = health.overall || "error";
-  const overallEl = document.getElementById("wt-overall");
-  overallEl.innerHTML = `<span class="wt-overall ${overall}"><span class="wt-dot ${overall}"></span>${overall.toUpperCase()}</span>`;
-
-  // Check cards
-  const checksEl = document.getElementById("wt-checks");
-  checksEl.innerHTML = "";
-  for (const [key, label] of Object.entries(CHECK_LABELS)) {
-    const c = health.checks?.[key];
-    if (!c) continue;
-    const freshLine = c.age_days != null
-      ? `<br>Age: <strong>${c.age_days}d</strong> / threshold: ${c.threshold_days}d`
-      : c.http_status ? `<br>HTTP: <strong>${c.http_status}</strong> · ${c.response_ms}ms` : "";
-    const ago = c.checked_at ? " · checked " + timeAgo(c.checked_at) : "";
-    checksEl.innerHTML += `
-      <div class="wt-card">
-        <div class="wt-card-title">${label}</div>
-        <div class="wt-status"><span class="wt-dot ${c.status}"></span><span style="color:${wtStatusColor(c.status)}">${c.status.toUpperCase()}</span></div>
-        <div class="wt-detail">${c.detail}${freshLine}${ago}</div>
-      </div>`;
-  }
-
-  // Meta line
-  const meta = document.getElementById("wt-meta");
-  const gen = health.generated ? "Last check: " + new Date(health.generated).toUTCString() : "";
-  const runs = health.run_count ? ` · Run #${health.run_count}` : "";
-  meta.textContent = gen + runs + " · Source: ops/platform-health.json (asym-intel-internal)";
-}
-
-function timeAgo(iso) {
-  const diff = Math.floor((Date.now() - new Date(iso)) / 60000);
-  if (diff < 2) return "just now";
-  if (diff < 60) return diff + "m ago";
-  const h = Math.floor(diff / 60);
-  if (h < 24) return h + "h ago";
-  return Math.floor(h / 24) + "d ago";
-}
-
-// Load watchtower data when tab is activated (lazy)
-let wtLoaded = false;
-document.querySelectorAll('.page-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.dataset.tab === 'watchtower' && !wtLoaded) {
-      wtLoaded = true;
-      fetch(HEALTH_URL + "?t=" + Date.now())
-        .then(r => r.json())
-        .then(renderWatchtower)
-        .catch(err => {
-          document.getElementById("wt-checks").innerHTML =
-            `<div class="wt-card" style="color:var(--failure)">Failed to load platform-health.json: ${err.message}<br><small>Worker may not have run yet or file does not exist.</small></div>`;
-        });
-    }
-  });
-});
-
 </script>
 </body>
 </html>
