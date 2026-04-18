@@ -1,6 +1,6 @@
-# Global Environmental Risks Monitor — Issue 7
+# Global Environmental Risks Monitor — Issue 8
 
-**W/E 12 April 2026** | Published 2026-04-12T05:00:00Z
+**W/E 18 April 2026** | Published 2026-04-18T05:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -12,19 +12,43 @@ Schema version: 2.0
 
 ## Key Judgments
 
-1. **Planetary boundary trajectories stable with no new Tier 1 signals**
+1. **Six planetary boundaries remain transgressed with no incremental shifts this week per Tier 1 confirmation**
    - Confidence: High
    - Trajectory: Stable
 
 ## Weekly Brief
 
-Planetary status snapshot: Six boundaries exceeded, one high risk, one increasing risk, one safe; stable week with no trajectory shifts. WEF Global Risks Report 2026 confirms environmental risks dominate 10-year outlook, with extreme weather top-ranked and biodiversity loss second, though short-term focus shifts to geopolitical confrontation. Three-quarters of respondents view environmental outlook as turbulent or stormy. Tier 1 sources including Copernicus C3S, PIK, and Stockholm Resilience report no incremental changes or tipping precursors. Tipping elements remain approaching or imminent without acceleration signals; AMOC FovS proxy stable absent new data. No extreme events meet severity or geopolitical threshold for logging. Climate-security nexus quiet, with no new displacement or resource conflict cascades. ICJ Climate Advisory Opinion pending without developments; next milestone hearings. Loss and Damage Mechanism operationalised but zero disbursements tracked this week, highlighting F2 regulatory vacuum. Attribution gaps persist across novel entities, deep-sea mining, aerosols, microplastics with no governance advances. Reverse cascade check negative. Regional coverage below FM-ERM-02 due to null signals. Analytical filters confirm threat multiplier dormant, regulatory vacuum unchanged, tipping drill-down stable, attribution gaps static. Cross-monitor relevance low this week.
+## Lead Signal
+
+No dominant environmental risk signal emerged for the week ending 2026-04-24. Tier 1 sources including Copernicus C3S, Potsdam Institute, and Stockholm Resilience Centre report stability across all nine planetary boundaries, with six remaining transgressed per the Richardson et al. 2023 framework. This absence of incremental shifts maintains the Earth system in a high-risk configuration, where climate change, biosphere integrity, land system change, freshwater use, biogeochemical flows, and novel entities exceed safe operating space. The lack of new precursors underscores trajectory persistence rather than acceleration, but the compounded transgression of multiple boundaries elevates systemic vulnerability to perturbations.
+
+Pressure continues on all boundaries except stratospheric ozone, which holds safe status due to Montreal Protocol recovery. Aerosol loading remains at high risk with regional exceedances impacting monsoon systems, while ocean acidification edges toward breach. This configuration aligns with Q1 2026 baselines confirmed by reasoner analysis, where Tier 1 silence meets high confidence for no-signal determination.
+
+## Other Developments
+
+**Tipping Point Trajectories Stable.** All monitored tipping elements register no_signal this week. AMOC maintains stable slowdown without FovS freshwater flux precursors; ice sheets, permafrost, Amazon, and coral remain in stressed but non-accelerating states per PIK and Copernicus. Cascade risks between elements persist without triggering developments.
+
+**No Extreme Events Logged.** Daily collector and weekly research confirm zero severe or geopolitically relevant events meeting FM-ERM-01 non-linear departure threshold. Absence across Tier 1-3 sources yields clean extreme_events_log.
+
+**ICJ Climate Advisory Opinion in Hearings Phase.** No developments this week; process remains in written statements phase. Standing tracker notes potential for precedent on state emissions obligations.
+
+**Loss and Damage Mechanism Operationalised.** Committed funding at 700 million USD with 10 million disbursed (1.4 percent ratio). Post-COP29 cycle stable without new pledges or disbursements.
+
+**Regional Coverage Below Threshold.** Zero items from Sub-Saharan Africa, MENA, South Asia, or ocean systems due to null signal week; FM-ERM-02 not met.
+
+## Cross-Monitor Connections
+
+Null signal week yields no linkages to SCEM climate-conflict nexus, GMM resource costs, ESA policy, WDM migration, AIM AI energy, or FCW disinformation. Reverse cascade check negative absent major geopolitical events from ESA or SCEM.
+
+## Outlook
+
+Monitor Tier 1 sources for Q2 boundary updates or tipping precursors, particularly AMOC FovS and permafrost thaw rates. Watch IDMC for displacement flows and UNFCCC for NDC cycle signals. Regional balance correction required next signal week to meet FM-ERM-02.
 
 ## Cross-Monitor Flags
 
-- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 3)
-- **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 4)
-- **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 5)
+- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 6)
+- **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 6)
+- **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 9)
 
 ---
 
