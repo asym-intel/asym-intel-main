@@ -58,6 +58,19 @@ jobs:
             sleep $((attempt * 10))
           done
 
+      - name: Trigger Lineage Gatekeeper (advisory)
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh api -X POST \
+            /repos/asym-intel/asym-intel-internal/actions/workflows/engine-lineage-gate.yml/dispatches \
+            --field ref=main \
+            --field "inputs[tenant]=asym-intel" \
+            --field "inputs[product]=macro-monitor" \
+            --field "inputs[date]=$(date -u +%Y-%m-%d)" \
+            && echo "Gatekeeper triggered" || echo "Gatekeeper trigger failed (non-fatal)"
+
       - name: Purge Cloudflare cache
         if: success()
         env:
