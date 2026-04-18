@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Fetch GMM methodology from internal repo
         env:
@@ -70,5 +72,5 @@ jobs:
           git config user.email "monitor-bot@asym-intel.info"
           git add pipeline/monitors/macro-monitor/synthesised/
           git diff --cached --quiet || git commit -m "chore(gmm): synthesiser run $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git push
