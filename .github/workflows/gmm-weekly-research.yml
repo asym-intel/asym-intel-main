@@ -32,10 +32,10 @@ jobs:
         run: |
           git config user.name  "GMM Research Bot"
           git config user.email "gmm-research@asym-intel.info"
+          git pull --rebase origin main
           git add pipeline/monitors/macro-monitor/weekly/
           git diff --staged --quiet && echo "No research output to commit" && exit 0
           git commit -m "data(gmm-research): weekly deep research — $(date -u +%Y-%m-%d)"
-          git pull --rebase origin main
           git push
 
       - name: Archive prompt exchanges to internal repo
