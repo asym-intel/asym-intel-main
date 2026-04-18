@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "FCW Research Bot"
           git config user.email "fcw-research@asym-intel.info"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add pipeline/monitors/fimi-cognitive-warfare/weekly/
           git diff --staged --quiet && echo "No research output to commit" && exit 0
           git commit -m "data(fcw-research): weekly deep research — $(date -u +%Y-%m-%d)"
