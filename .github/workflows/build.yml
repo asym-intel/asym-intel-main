@@ -94,3 +94,44 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  build_health:
+    name: Write build health signal
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+    if: github.ref_name == 'main' && always()
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    steps:
+      - name: Update _build block in pipeline-status.json
+        run: |
+          NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          BUILD_CONCLUSION="${{ needs.build.result }}"
+          DEPLOY_CONCLUSION="${{ needs.deploy.result }}"
+
+          API_RESP=$(gh api /repos/asym-intel/asym-intel-internal/contents/ops/pipeline-status.json)
+          FILE_SHA=$(echo "$API_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
+          CURRENT=$(echo "$API_RESP" | python3 -c "import sys,json,base64; print(base64.b64decode(json.load(sys.stdin)['content']).decode())")
+
+          UPDATED=$(python3 -c "
+import sys, json, os
+d = json.loads(sys.stdin.read())
+d['_build'] = {
+    'hugo_last_run': os.environ['NOW'],
+    'hugo_build_conclusion': os.environ['BUILD_CONCLUSION'],
+    'deploy_conclusion': os.environ['DEPLOY_CONCLUSION'],
+    'updated_by': 'build.yml build_health job'
+}
+print(json.dumps(d, indent=2))
+" NOW="$NOW" BUILD_CONCLUSION="$BUILD_CONCLUSION" DEPLOY_CONCLUSION="$DEPLOY_CONCLUSION" <<< "$CURRENT")
+
+          ENCODED=$(echo "$UPDATED" | base64 -w0)
+          gh api --method PUT \
+            /repos/asym-intel/asym-intel-internal/contents/ops/pipeline-status.json \
+            -f message="ops: _build signal hugo=$BUILD_CONCLUSION deploy=$DEPLOY_CONCLUSION [skip ci]" \
+            -f content="$ENCODED" \
+            -f sha="$FILE_SHA" \
+            -f branch="main" --silent
+
+          echo "Build health: hugo=$BUILD_CONCLUSION deploy=$DEPLOY_CONCLUSION at $NOW"

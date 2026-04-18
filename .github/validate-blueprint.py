@@ -315,3 +315,18 @@ for slug in MONITOR_SLUGS:
                 warn(f"{slug} — deprecated confidence label \'{dep_label}\' found in report-latest.json (use canonical tiers: Confirmed|High|Assessed|Possible)")
     except Exception:
         pass
+
+
+# ── Check 20: IP boundary — internal-only scripts must not exist in public repo ──
+# ENGINE-RULES §15: verify/scoring tooling stays in asym-intel-internal.
+# If any of these paths exist, it is an IP boundary violation — FAIL.
+print("Check 20: IP boundary — internal-only scripts absent from public repo")
+INTERNAL_ONLY_PATHS = [
+    "pipeline/tools/verify_sources.py",
+    "ops/compile_audit_status.py",
+    "ops/integrity_sweep.py",
+    "policy/gatekeeper/gatekeeper.py",
+]
+for _ip_path in INTERNAL_ONLY_PATHS:
+    if os.path.exists(_ip_path):
+        fail(f"{_ip_path} — IP boundary violation (§15): must not exist in public repo; move to asym-intel-internal/ops/ and use runtime-fetch pattern")
