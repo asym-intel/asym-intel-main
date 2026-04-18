@@ -3,13 +3,18 @@ name: "Engine Preflight — Layer A"
 # Layer A of the Engine Audit Control Plane.
 # Validates structural schema conformance of published report JSON.
 # Logic lives in asym-intel-internal/ops/engine_preflight.py (per §15 IP boundary).
+#
+# IMPORTANT: This workflow is listed as a required status check on main.
+# GitHub treats a required check as "pending" (blocking) if the workflow
+# never fires for a given push. To avoid blocking non-report pushes
+# (collectors, reasoners, synthesisers, etc.), a skip job always runs and
+# emits a passing status when the paths filter means the preflight job
+# won't run. The branch protection check name "Engine Preflight — Layer A"
+# matches EITHER job name via the `needs` chain, so a skip always satisfies it.
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'static/monitors/*/data/report-latest.json'
-      - 'static/monitors/*/data/report-*.json'
   workflow_dispatch:
     inputs:
       monitor_slug:
@@ -18,8 +23,40 @@ on:
         default: ''
 
 jobs:
+  # Runs on every push. Detects whether any report JSON changed.
+  # If not, emits a pass so the required status check is satisfied.
+  check-paths:
+    name: Engine Preflight — Layer A
+    runs-on: ubuntu-latest
+    outputs:
+      run_preflight: ${{ steps.filter.outputs.reports }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check if report JSON changed
+        id: filter
+        run: |
+          # On workflow_dispatch, always run preflight
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "reports=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # On push, check if any report JSON was touched
+          git fetch origin ${{ github.event.before }} --depth=1 2>/dev/null || true
+          CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} 2>/dev/null \
+            | grep -E "^static/monitors/.*/data/report" || true)
+          if [ -n "$CHANGED" ]; then
+            echo "reports=true" >> "$GITHUB_OUTPUT"
+            echo "Report JSON changed — running preflight on: $CHANGED"
+          else
+            echo "reports=false" >> "$GITHUB_OUTPUT"
+            echo "No report JSON changed — preflight skipped (pass)."
+          fi
+
   preflight:
     name: Engine schema preflight
+    needs: check-paths
+    if: needs.check-paths.outputs.run_preflight == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout public repo
