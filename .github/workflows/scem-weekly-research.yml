@@ -32,7 +32,7 @@ jobs:
         run: |
           git config user.name  "SCEM Research Bot"
           git config user.email "scem-research@asym-intel.info"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git add pipeline/monitors/conflict-escalation/weekly/
           git diff --staged --quiet && echo "No research output to commit" && exit 0
           git commit -m "data(scem-research): weekly deep research — $(date -u +%Y-%m-%d)"
