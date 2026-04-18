@@ -22,8 +22,9 @@ Exit codes:
     3 — script error (gh CLI missing, network failure, unknown project)
     4 — bug-log gate failed (bug-signal commits this session with no BUG-LOG entry) — hard from 2026-05-01
 
-Version: 2.0 — 17 Apr 2026. v1 allowed a 20% margin (14.4KB soft ceiling); removed
-after six consecutive non-compliant wraps on 17 Apr. See wrap-enforcement session log.
+Version: 2.1 — 18 Apr 2026. Added gate_workspace_artifacts(): advisory scan of
+/home/user/workspace/ for session-produced files that will be lost at session end
+unless committed. v2.0 note: the 20% margin removed on 17 Apr. See wrap-enforcement log.
 """
 from __future__ import annotations
 
@@ -357,6 +358,68 @@ def gate_open_prs(project: dict) -> CheckResult:
     )
 
 
+def gate_workspace_artifacts() -> CheckResult:
+    """Workspace artifact safety gate — warns about uncommitted session documents.
+
+    Scans /home/user/workspace/ for files that look like session-produced
+    documents (.md, .py, .json, .txt, .csv, .yaml, .yml, .html) and are
+    NOT inside known system/skill paths. These files are ephemeral — they
+    live only for the duration of the session and will be silently lost when
+    the session ends unless committed to a repo or explicitly shared.
+
+    Always advisory (returns passed=True) — never a hard blocker, because
+    not all workspace files need to be committed. But the gate surfaces them
+    so Computer and Peter can make a conscious decision.
+    """
+    import pathlib
+
+    SKIP_PREFIXES = [
+        "/home/user/workspace/skills/",
+        "/home/user/workspace/.git",
+    ]
+    EXTENSIONS = {".md", ".py", ".json", ".txt", ".csv", ".yaml", ".yml", ".html"}
+
+    workspace = pathlib.Path("/home/user/workspace")
+    if not workspace.exists():
+        return CheckResult(
+            "workspace_artifacts", True,
+            "Workspace directory not found — skipping (not running in Computer sandbox)."
+        )
+
+    found = []
+    for p in workspace.rglob("*"):
+        if not p.is_file():
+            continue
+        p_str = str(p)
+        if any(p_str.startswith(skip) for skip in SKIP_PREFIXES):
+            continue
+        if p.suffix not in EXTENSIONS:
+            continue
+        if p.name.startswith("."):
+            continue
+        try:
+            rel = p.relative_to(workspace)
+        except ValueError:
+            rel = p
+        found.append(str(rel))
+
+    found.sort()
+
+    if not found:
+        return CheckResult(
+            "workspace_artifacts", True,
+            "No uncommitted workspace documents found."
+        )
+
+    lines = "\n".join(f"    {f}" for f in found)
+    return CheckResult(
+        "workspace_artifacts", True,
+        f"[ADVISORY] {len(found)} workspace file(s) will be lost at session end unless "
+        f"committed to a repo or already shared with Peter.\n"
+        f"  Review each — commit, confirm ephemeral, or note in wrap summary:\n{lines}"
+    )
+
+
 # -------------------------------------------------------------------
 # Main
 # -------------------------------------------------------------------
@@ -377,6 +440,7 @@ def main() -> int:
     staging_result = gate_staging(project)
     bug_log_result = gate_bug_log(project)
     prs_result = gate_open_prs(project)
+    ws_result = gate_workspace_artifacts()
 
     print(header)
     print(f"\n[§5.3 Thinning] {'PASS' if thin_result.passed else 'FAIL'}")
@@ -387,6 +451,8 @@ def main() -> int:
     print(f"  {bug_log_result.detail}")
     print(f"\n[Open PRs] advisory")
     print(f"  {prs_result.detail}")
+    print(f"\n[Workspace artifacts] advisory")
+    print(f"  {ws_result.detail}")
 
     # Emit the canonical wrap-summary template
     size_str = f"{thin_data['size']}" if thin_data['size'] is not None else "?"
