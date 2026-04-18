@@ -230,12 +230,23 @@ warnings = []
 meta = data.get("_meta", {})
 
 # Hard failures — must have these to publish
+# On quiet weeks (_empty_weekly), key_judgments / lead_signal / weekly_brief_draft
+# may be absent if the model fires the null-signal path — demote to warnings.
 if not data.get("lead_signal", {}).get("headline"):
-    errors.append("lead_signal.headline missing")
+    if _empty_weekly:
+        warnings.append("lead_signal.headline missing — quiet week, null-signal path accepted")
+    else:
+        errors.append("lead_signal.headline missing")
 if not data.get("key_judgments"):
-    errors.append("key_judgments empty or missing")
+    if _empty_weekly:
+        warnings.append("key_judgments empty — quiet week, null-signal path accepted")
+    else:
+        errors.append("key_judgments empty or missing")
 if not data.get("weekly_brief_draft"):
-    errors.append("weekly_brief_draft missing")
+    if _empty_weekly:
+        warnings.append("weekly_brief_draft missing — quiet week, null-signal path accepted")
+    else:
+        errors.append("weekly_brief_draft missing")
 
 # Soft warnings — acceptable on quiet weeks
 if meta.get("schema_version") not in ("synthesis-v1.0", "fcw-synthesis-v1.0"):
