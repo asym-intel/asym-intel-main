@@ -111,20 +111,14 @@ jobs:
           DEPLOY_CONCLUSION="${{ needs.deploy.result }}"
 
           API_RESP=$(gh api /repos/asym-intel/asym-intel-internal/contents/ops/pipeline-status.json)
-          FILE_SHA=$(echo "$API_RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['sha'])")
-          CURRENT=$(echo "$API_RESP" | python3 -c "import sys,json,base64; print(base64.b64decode(json.load(sys.stdin)['content']).decode())")
+          FILE_SHA=$(echo "$API_RESP" | jq -r '.sha')
+          CURRENT=$(echo "$API_RESP" | jq -r '.content' | base64 -d)
 
-          UPDATED=$(python3 -c "
-import sys, json, os
-d = json.loads(sys.stdin.read())
-d['_build'] = {
-    'hugo_last_run': os.environ['NOW'],
-    'hugo_build_conclusion': os.environ['BUILD_CONCLUSION'],
-    'deploy_conclusion': os.environ['DEPLOY_CONCLUSION'],
-    'updated_by': 'build.yml build_health job'
-}
-print(json.dumps(d, indent=2))
-" NOW="$NOW" BUILD_CONCLUSION="$BUILD_CONCLUSION" DEPLOY_CONCLUSION="$DEPLOY_CONCLUSION" <<< "$CURRENT")
+          UPDATED=$(echo "$CURRENT" | jq \
+            --arg now "$NOW" \
+            --arg build "$BUILD_CONCLUSION" \
+            --arg deploy "$DEPLOY_CONCLUSION" \
+            '._build = {"hugo_last_run": $now, "hugo_build_conclusion": $build, "deploy_conclusion": $deploy, "updated_by": "build.yml build_health job"}')
 
           ENCODED=$(echo "$UPDATED" | base64 -w0)
           gh api --method PUT \
