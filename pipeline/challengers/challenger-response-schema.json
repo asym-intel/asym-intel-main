@@ -1,0 +1,146 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Adversarial Challenger Response Schema v1.0",
+  "description": "Flat findings array model. The challenger tags findings by category rather than slotting into per-dimension buckets. See pipeline/challengers/challenger-skeleton-prompt.txt.",
+  "type": "object",
+  "required": ["_meta", "null_challenge_week", "findings", "verdict_preliminary"],
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": [
+        "challenger_schema_version",
+        "challenger_model",
+        "monitor_slug",
+        "challenged_at",
+        "synthesis_week_ending",
+        "synthesis_schema_version",
+        "prior_briefs_supplied"
+      ],
+      "properties": {
+        "challenger_schema_version": { "type": "string" },
+        "challenger_model": { "type": "string" },
+        "monitor_slug": { "type": "string" },
+        "challenged_at": { "type": "string", "description": "ISO-8601 UTC" },
+        "synthesis_week_ending": { "type": "string" },
+        "synthesis_schema_version": { "type": "string" },
+        "prior_briefs_supplied": { "type": "integer", "minimum": 0, "maximum": 2 }
+      }
+    },
+    "null_challenge_week": {
+      "type": "boolean",
+      "description": "True only when genuine adversarial review with web search found nothing worth reporting."
+    },
+    "null_challenge_reason": {
+      "type": ["string", "null"],
+      "description": "One-sentence justification when null_challenge_week=true; null otherwise."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Flat list of atomic findings. Empty array allowed when null_challenge_week=true.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "severity",
+          "categories",
+          "claim_location",
+          "quoted_claim",
+          "finding_preliminary",
+          "evidence",
+          "suggested_action"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^f-[0-9]{3}$",
+            "description": "f-001, f-002, ... incremented per finding"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["info", "soft_flag", "hard_flag"]
+          },
+          "categories": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "overstated_confidence",
+                "causal_overreach",
+                "silent_contradiction",
+                "missing_counter_evidence",
+                "stale_evidence",
+                "source_misattribution",
+                "source_unverifiable",
+                "fabricated_detail",
+                "quantitative_error",
+                "named_entity_error",
+                "logical_inconsistency",
+                "overfit_to_prior",
+                "factual_error",
+                "other"
+              ]
+            },
+            "description": "One or more tags. Tags are suggestive, not slotting — multiple tags per finding are expected."
+          },
+          "claim_location": {
+            "type": "string",
+            "description": "Specific JSON path or prose locator. E.g. lead_signal.headline, key_judgments[2].judgment, weekly_brief_draft paragraph 3."
+          },
+          "quoted_claim": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Verbatim or tight paraphrase of what the brief says."
+          },
+          "finding_preliminary": {
+            "type": "string",
+            "description": "One to three sentences explaining the problem. Publisher strips _preliminary suffix; in Sprint A+B the challenger never feeds the public report so the suffix is cosmetic but retained for convention."
+          },
+          "evidence": {
+            "type": "array",
+            "description": "Sources found via web search that support the finding. Empty array allowed for purely internal findings (silent_contradiction, logical_inconsistency, overfit_to_prior).",
+            "items": {
+              "type": "object",
+              "required": ["source", "relevance"],
+              "properties": {
+                "source": { "type": "string" },
+                "source_url": { "type": ["string", "null"] },
+                "source_date": { "type": ["string", "null"], "description": "YYYY-MM-DD or null" },
+                "source_tier": {
+                  "type": "string",
+                  "enum": ["T1", "T2", "T3", "T4", "unknown"]
+                },
+                "relevance": { "type": "string" }
+              }
+            }
+          },
+          "suggested_action": {
+            "type": "string",
+            "enum": [
+              "fix_claim",
+              "add_caveat",
+              "cite_counter_evidence",
+              "retract",
+              "verify_before_publish",
+              "no_action"
+            ]
+          }
+        }
+      }
+    },
+    "verdict_preliminary": {
+      "type": "object",
+      "required": ["overall", "hard_flags", "soft_flags", "info_findings", "justification"],
+      "properties": {
+        "overall": {
+          "type": "string",
+          "enum": ["publish", "publish_with_flags", "hold_for_review"]
+        },
+        "hard_flags": { "type": "integer", "minimum": 0 },
+        "soft_flags": { "type": "integer", "minimum": 0 },
+        "info_findings": { "type": "integer", "minimum": 0 },
+        "justification": { "type": "string" }
+      }
+    }
+  }
+}
