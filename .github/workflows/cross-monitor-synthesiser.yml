@@ -35,11 +35,51 @@ jobs:
         run: |
           python pipeline/synthesisers/cross-monitor/cross-monitor-synthesiser.py
 
+      # X-2: publish synthesis JSON to the public /data/ path for /synthesis/
+      # page and homepage widget to consume. Dated archive (future: /synthesis/
+      # archive page once ≥4 weeks accumulate).
+      - name: Publish synthesis JSON to static/data
+        run: |
+          set -euo pipefail
+          mkdir -p static/data/synthesis
+          src="pipeline/cross-monitor/synthesis-latest.json"
+          if [ ! -f "$src" ]; then
+            echo "No synthesis-latest.json to publish — skipping."
+            exit 0
+          fi
+          # Public copies: latest + dated archive
+          cp "$src" static/data/synthesis-latest.json
+          week=$(python3 -c "import json,sys; d=json.load(open('$src')); print(d.get('week_ending') or d.get('_meta',{}).get('week_ending') or '')")
+          if [ -n "$week" ]; then
+            cp "$src" "static/data/synthesis/synthesis-$week.json"
+          fi
+
       - name: Commit synthesis output
         run: |
           git config user.name  "monitor-bot"
           git config user.email "monitor-bot@asym-intel.info"
-          git add pipeline/cross-monitor/
+          git add pipeline/cross-monitor/ static/data/synthesis-latest.json static/data/synthesis/ || true
           git diff --cached --quiet || git commit -m "data(xm): cross-monitor synthesis $(date -u +%Y-%m-%d)"
           git pull --rebase --autostash origin main
           git push
+
+      # Uses CF_API_TOKEN (legacy name) to match existing publisher workflows.
+      # Rename to CLOUDFLARE_API_TOKEN is a parked engine follow-up (cf-speed
+      # dispatch 2026-04-19 item c).
+      - name: Purge Cloudflare cache for synthesis JSON
+        if: success()
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ZONE_ID:   cc419b7519eba04ef0dc6a7b851930c7
+        run: |
+          if [ -z "${CF_API_TOKEN:-}" ]; then
+            echo "CLOUDFLARE_API_TOKEN not set — skipping CF purge."
+            exit 0
+          fi
+          curl -sS -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+            -H "Authorization: Bearer ${CF_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data '{"files":["https://asym-intel.info/data/synthesis-latest.json"]}' \
+            | tee /tmp/cf-purge.json
+          grep -q '"success":true' /tmp/cf-purge.json

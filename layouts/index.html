@@ -114,6 +114,78 @@
       {{/* ── CENTRE: editorial feed ──────────────────────────────────── */}}
       <div class="home-feed">
 
+        {{/*
+          home-synthesis-widget.html — cross-monitor synthesis hero
+          ─────────────────────────────────────────────────────────────────────────────
+          Rendered above the monitor strip on the homepage.
+          Fetches /data/synthesis-latest.json client-side and surfaces:
+            · composite score + direction
+            · week_label (tagline)
+            · dominant pattern headline
+            · link to /synthesis/ full view
+          Fails silent (hidden) if data unavailable — never blocks the page.
+        */}}
+        <section class="home-synthesis" id="home-synthesis" aria-labelledby="home-synthesis-title" hidden>
+          <div class="home-synthesis__inner">
+            <div class="home-synthesis__eyebrow">CROSS-MONITOR SYNTHESIS · WEEKLY</div>
+            <div class="home-synthesis__row">
+              <div class="home-synthesis__score-block" aria-label="Composite stress score">
+                <div class="home-synthesis__score" id="hs-score">—</div>
+                <div class="home-synthesis__score-meta">
+                  <div class="home-synthesis__band" id="hs-band"></div>
+                  <div class="home-synthesis__dir" id="hs-dir"></div>
+                </div>
+              </div>
+              <div class="home-synthesis__text">
+                <h2 class="home-synthesis__title" id="home-synthesis-title"><span id="hs-label"></span></h2>
+                <p class="home-synthesis__pattern" id="hs-pattern"></p>
+                <a class="home-synthesis__cta" href="/synthesis/">Read full synthesis →</a>
+              </div>
+            </div>
+            <div class="home-synthesis__date" id="hs-date"></div>
+          </div>
+        </section>
+
+        <script>
+        (function() {
+          'use strict';
+          function esc(s) { return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+          function scoreBand(n) {
+            if (n >= 0.75) return 'Severe';
+            if (n >= 0.55) return 'Elevated';
+            if (n >= 0.35) return 'Moderate';
+            return 'Contained';
+          }
+          function fmtDate(iso) {
+            if (!iso) return '';
+            var d = new Date(iso); if (isNaN(d)) return '';
+            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+          }
+          fetch('/data/synthesis-latest.json', { cache: 'no-store' })
+            .then(function(r) { if (!r.ok) throw 0; return r.json(); })
+            .then(function(d) {
+              var cs = d.composite_score || {};
+              var sc = (typeof cs.score === 'number') ? cs.score : null;
+              if (sc === null) return;
+              document.getElementById('hs-score').textContent = sc.toFixed(2);
+              document.getElementById('hs-band').textContent = scoreBand(sc);
+              var dir = cs.direction || '';
+              var dirEl = document.getElementById('hs-dir');
+              dirEl.textContent = dir;
+              dirEl.classList.add(dir.toLowerCase().indexOf('deterior')>=0 ? 'home-synthesis__dir--deterior' :
+                                  dir.toLowerCase().indexOf('improv')>=0   ? 'home-synthesis__dir--improv'   :
+                                                                             'home-synthesis__dir--stable');
+              document.getElementById('hs-label').textContent = d.week_label || 'This week';
+              var p = (d.dominant_pattern && d.dominant_pattern.narrative) ? d.dominant_pattern.narrative : '';
+              document.getElementById('hs-pattern').textContent = p.length > 220 ? p.slice(0, 217) + '…' : p;
+              var week = d.week_ending || (d._meta && d._meta.week_ending) || '';
+              if (week) document.getElementById('hs-date').textContent = 'Week ending ' + fmtDate(week);
+              document.getElementById('home-synthesis').hidden = false;
+            })
+            .catch(function() { /* fail silent */ });
+        })();
+        </script>
+
         {{/* Value statement — HP-02 (signed off 7 Apr 2026) */}}
         <div class="home-value-statement">
           <p class="home-value-statement__text">Asymmetric Intelligence is a public, methodology-transparent intelligence platform that surfaces pre-consensus structural risks and weekly signals across democracy, conflict, information operations, macroeconomy, AI governance, European strategy, and planetary boundaries.</p>
