@@ -10,7 +10,7 @@ on:
       - 'docs/crons/**'
       - 'tools/preflight.py'
       - 'tools/preflight_engine_chrome.py'
-      - 'tools/preflight_mobile.py'
+      - 'tools/preflight_ui_shim.py'
       - 'static/**/*.css'
       - 'static/**/*.html'
       - 'assets/**/*.css'
@@ -22,6 +22,7 @@ on:
       - 'layouts/partials/monitor-strip.html'
       - 'layouts/monitors/list.html'
       - 'content/commercial.md'
+      - 'ops/ui-token-pairs.json'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -44,13 +45,13 @@ jobs:
       - name: Run engine-chrome preflight (footer + chip specs)
         run: python3 tools/preflight_engine_chrome.py
 
-      - name: Run mobile/tablet preflight (advisory)
-        # Governed by asym-intel-internal/ops/specs/mobile-tablet-spec.md
-        # Advisory for first 2 weeks per new rule (spec §13). Failures surface
-        # in logs but do not block the build. Promote rules to enforced by
-        # removing `continue-on-error` or running without `|| true`.
+      - name: Run UI/accessibility preflight (SPEC-ENGINE-UI-FLOOR, AD-2026-04-19-02)
+        # Supersedes preflight_mobile.py (retired per Q3/AD-2026-04-19-02).
+        # Advisory during warn-phase (spec §5). Promote by removing continue-on-error.
         continue-on-error: true
-        run: python3 tools/preflight_mobile.py
+        env:
+          ENGINE_INTERNAL_READ_TOKEN: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+        run: python3 tools/preflight_ui_shim.py
 
       - name: Test monitor-links preflight regex (RX_CONCAT fixture suite)
         run: python3 tools/test_preflight_monitor_links.py
