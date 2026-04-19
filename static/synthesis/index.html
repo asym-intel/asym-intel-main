@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="assets/synthesis.css">
   <script src="/monitors/shared/js/theme.js"></script>
   <script src="/monitors/shared/js/nav.js"></script>
+  <script src="/monitors/shared/js/monitor-urls.js"></script>
 
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://asym-intel.info/"},{"@type":"ListItem","position":2,"name":"Weekly Synthesis","item":"https://asym-intel.info/synthesis/"}]}</script>
 
@@ -105,16 +106,10 @@
 (function () {
   'use strict';
 
-  var MONITOR_META = {
-    wdm:  { slug: 'democratic-integrity',         label: 'WDM',  name: 'World Democracy Monitor',           accent: '#61a5d2' },
-    gmm:  { slug: 'macro-monitor',                label: 'GMM',  name: 'Global Macro Monitor',              accent: '#22a0aa' },
-    esa:  { slug: 'european-strategic-autonomy',  label: 'ESA',  name: 'European Strategic Autonomy',       accent: '#5b8db0' },
-    fcw:  { slug: 'fimi-cognitive-warfare',       label: 'FCW',  name: 'FIMI & Cognitive Warfare',          accent: '#38bdf8' },
-    aim:  { slug: 'ai-governance',                label: 'AIM',  name: 'AI Governance Monitor',             accent: '#3a7d5a' },
-    agm:  { slug: 'ai-governance',                label: 'AGM',  name: 'AI Governance Monitor',             accent: '#3a7d5a' },
-    erm:  { slug: 'environmental-risks',          label: 'ERM',  name: 'Environmental Risks Monitor',       accent: '#4caf7d' },
-    scem: { slug: 'conflict-escalation',          label: 'SCEM', name: 'Strategic Conflict & Escalation',   accent: '#dc2626' }
-  };
+  // ENGINE-RULES §17: monitor URLs come from the registry resolver, never string-concat.
+  // monitor-urls.js exposes window.MonitorRegistry; we load the registry at page init
+  // alongside the synthesis data. On resolver miss (unknown abbr), fall back to an
+  // abbr-labelled chip with no link — safer than a broken URL.
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -127,10 +122,15 @@
     if (isNaN(d)) return esc(iso);
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   }
+  function resolveMonitor(abbr) {
+    // Returns a monitor record from the registry, or null if unknown.
+    // Swallows errors so a missing/misspelt abbr never crashes the page.
+    try { return window.MonitorRegistry.byAbbr(abbr); } catch (e) { return null; }
+  }
   function monitorChip(abbr) {
-    var m = MONITOR_META[(abbr || '').toLowerCase()];
+    var m = resolveMonitor(abbr);
     if (!m) return '<span class="syn-chip">' + esc((abbr || '').toUpperCase()) + '</span>';
-    return '<a class="syn-chip" href="/monitors/' + m.slug + '/" style="--chip-accent:' + m.accent + '" title="' + esc(m.name) + '">' + esc(m.label) + '</a>';
+    return '<a class="syn-chip" href="' + esc(m.url) + '" style="--chip-accent:' + m.accent + '" title="' + esc(m.name) + '">' + esc(m.strip_label || m.abbr) + '</a>';
   }
   function directionClass(dir) {
     var d = (dir || '').toLowerCase();
@@ -152,12 +152,18 @@
     var comp = cs.component_scores || {};
     var rows = Object.keys(comp).map(function(k) {
       var v = comp[k] || 0;
-      var m = MONITOR_META[k.toLowerCase()] || { label: k.toUpperCase(), accent: '#6b6660', slug: '' };
+      var m = resolveMonitor(k);
+      var label = m ? (m.strip_label || m.abbr) : k.toUpperCase();
+      var accent = m ? m.accent : '#6b6660';
       var wPct = Math.round(v * 100);
+      // Label cell: linked when resolver found the monitor, plain <span> otherwise.
+      var labelCell = m
+        ? '<a class="syn-comp__label" href="' + esc(m.url) + '">' + esc(label) + '</a>'
+        : '<span class="syn-comp__label">' + esc(label) + '</span>';
       return '<li class="syn-comp">' +
-        '<a class="syn-comp__label" href="/monitors/' + m.slug + '/">' + esc(m.label) + '</a>' +
+        labelCell +
         '<div class="syn-comp__bar" role="progressbar" aria-valuenow="' + v + '" aria-valuemin="0" aria-valuemax="1">' +
-          '<div class="syn-comp__fill" style="width:' + wPct + '%;background:' + m.accent + '"></div>' +
+          '<div class="syn-comp__fill" style="width:' + wPct + '%;background:' + accent + '"></div>' +
         '</div>' +
         '<span class="syn-comp__val">' + v.toFixed(2) + '</span>' +
       '</li>';
@@ -198,30 +204,40 @@
     el.innerHTML = 'This week&rsquo;s synthesis has ' + parts.join(', ') + '.';
   }
 
-  fetch('/data/synthesis-latest.json', { cache: 'no-store' })
-    .then(function(r) { if (!r.ok) throw new Error('fetch failed: ' + r.status); return r.json(); })
-    .then(function(data) {
-      var meta = data._meta || {};
-      var week = data.week_ending || meta.week_ending || '';
-      var label = data.week_label || '';
-      var metaEl = document.getElementById('syn-meta');
-      if (metaEl) {
-        metaEl.innerHTML = (week ? 'Week ending ' + fmtDate(week) : '') +
-          (label ? '<span class="syn-meta__sep" aria-hidden="true"> · </span><em>' + esc(label) + '</em>' : '');
-      }
-      document.getElementById('composite-content').innerHTML = renderComposite(data.composite_score);
-      document.getElementById('pattern-content').innerHTML   = renderPattern(data.dominant_pattern);
-      renderTeaserCounts(data);
-    })
-    .catch(function(err) {
-      console.error('[synthesis]', err);
-      var metaEl = document.getElementById('syn-meta');
-      if (metaEl) metaEl.textContent = 'Next cycle publishes Sunday evening UTC.';
-      ['composite-content','pattern-content'].forEach(function(id) {
-        var el = document.getElementById(id);
-        if (el) el.innerHTML = '<p style="color:var(--color-text-muted)">No synthesis published yet. Check back after Sunday 18:30 UTC.</p>';
-      });
+  function renderAll(data) {
+    var week = data.week_ending || '';
+    var label = data.week_label || '';
+    var metaEl = document.getElementById('syn-meta');
+    if (metaEl) {
+      metaEl.innerHTML = (week ? 'Week ending ' + fmtDate(week) : '') +
+        (label ? '<span class="syn-meta__sep" aria-hidden="true"> · </span><em>' + esc(label) + '</em>' : '');
+    }
+    document.getElementById('composite-content').innerHTML = renderComposite(data.composite_score);
+    document.getElementById('pattern-content').innerHTML   = renderPattern(data.dominant_pattern);
+    renderTeaserCounts(data);
+  }
+
+  function renderError() {
+    var metaEl = document.getElementById('syn-meta');
+    if (metaEl) metaEl.textContent = 'Next cycle publishes Sunday evening UTC.';
+    ['composite-content','pattern-content'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = '<p style="color:var(--color-text-muted)">No synthesis published yet. Check back after Sunday 18:30 UTC.</p>';
     });
+  }
+
+  // Load registry + synthesis data in parallel. The registry is the source of truth
+  // for monitor metadata (§17); the synthesis payload is the week's scoring.
+  // If the registry fails, fall back to un-linked chips (resolveMonitor returns null).
+  Promise.all([
+    window.MonitorRegistry.load().catch(function (err) { console.warn('[synthesis] registry load failed — chips will not link', err); return null; }),
+    fetch('/data/synthesis-latest.json', { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) throw new Error('fetch failed: ' + r.status);
+      return r.json();
+    })
+  ])
+  .then(function (results) { renderAll(results[1]); })
+  .catch(function (err) { console.error('[synthesis]', err); renderError(); });
 })();
 </script>
 
