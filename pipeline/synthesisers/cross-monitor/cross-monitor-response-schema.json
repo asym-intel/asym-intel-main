@@ -1,0 +1,96 @@
+{
+  "type": "object",
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": {"type": "string"},
+        "research_model": {"type": "string"},
+        "synthesised_at": {"type": "string"},
+        "week_ending": {"type": "string"},
+        "monitors_read": {"type": "array", "items": {"type": "string"}},
+        "monitors_with_signal": {"type": "array", "items": {"type": "string"}},
+        "null_signal_week": {"type": "boolean"},
+        "null_signal_reason": {"type": ["string", "null"]}
+      },
+      "required": ["schema_version", "synthesised_at", "week_ending", "null_signal_week"]
+    },
+    "week_label": {"type": "string"},
+    "composite_score": {
+      "type": "object",
+      "properties": {
+        "score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "direction": {"type": "string", "enum": ["Deteriorating", "Stable", "Improving", "Mixed"]},
+        "conviction": {"type": "string", "enum": ["High", "Medium", "Low"]},
+        "component_scores": {
+          "type": "object",
+          "properties": {
+            "wdm": {"type": "number"},
+            "gmm": {"type": "number"},
+            "esa": {"type": "number"},
+            "fcw": {"type": "number"},
+            "aim": {"type": "number"},
+            "erm": {"type": "number"},
+            "scem": {"type": "number"}
+          }
+        },
+        "score_rationale": {"type": "string"}
+      },
+      "required": ["score", "direction", "conviction"]
+    },
+    "dominant_pattern": {
+      "type": "object",
+      "properties": {
+        "narrative": {"type": "string"},
+        "monitors_involved": {"type": "array", "items": {"type": "string"}},
+        "confidence": {"type": "string", "enum": ["High", "Assessed", "Possible"]}
+      },
+      "required": ["narrative", "confidence"]
+    },
+    "cross_domain_connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "from_monitor": {"type": "string"},
+          "from_signal": {"type": "string"},
+          "to_monitor": {"type": "string"},
+          "mechanism": {"type": "string"},
+          "significance": {"type": "string"},
+          "confidence": {"type": "string", "enum": ["High", "Assessed", "Possible"]},
+          "classification": {"type": "string", "enum": ["Structural", "Episodic"]}
+        },
+        "required": ["id", "from_monitor", "to_monitor", "mechanism", "confidence", "classification"]
+      }
+    },
+    "amplification_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "monitors": {"type": "array", "items": {"type": "string"}},
+          "dynamic": {"type": "string"},
+          "description": {"type": "string"},
+          "severity": {"type": "string", "enum": ["High", "Medium", "Low"]}
+        },
+        "required": ["id", "monitors", "dynamic", "description", "severity"]
+      }
+    },
+    "quiet_domain_assessment": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "monitor": {"type": "string"},
+          "assessment": {"type": "string", "enum": ["Routine quiet", "Significant absence"]},
+          "note": {"type": "string"}
+        },
+        "required": ["monitor", "assessment", "note"]
+      }
+    },
+    "weekly_brief_draft": {"type": "string"}
+  },
+  "required": ["_meta", "week_label", "composite_score", "dominant_pattern", "cross_domain_connections", "weekly_brief_draft"]
+}
