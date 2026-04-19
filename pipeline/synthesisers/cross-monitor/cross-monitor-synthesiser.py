@@ -5,7 +5,7 @@ Pipeline stage : cross-monitor (site-wide synthesis)
 Model          : sonar-deep-research (no web search — reasons over monitor reports)
 Output         : pipeline/cross-monitor/synthesis-YYYY-MM-DD.json
                  pipeline/cross-monitor/synthesis-latest.json
-Runs           : Sunday 10:00 UTC (30 min after SCEM publisher)
+Runs           : Sunday 18:30 UTC (30 min after SCEM publisher at 18:00)
 Signal product : This output is the raw material for signal.gi
 """
 
@@ -14,7 +14,10 @@ import requests
 import time
 
 # Shared repair utilities — sibling of synthesisers/
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+# synth_utils.py lives at pipeline/synthesisers/synth_utils.py, which is this
+# file's grandparent dir (parent.parent). Earlier parents[2] was wrong — that
+# resolved to pipeline/, one level too high.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 from synth_utils import parse_llm_json
 
 # ── Pipeline incident logging ─────────────────────────────────────────────────
