@@ -1,0 +1,68 @@
+name: "Pre-Publication Adversarial Challenger"
+
+# Engine-wide observer-only challenger (SCOPE-2026-04-17-003, data-integrity-roadmap Layer 3).
+# Dispatched by the Cloudflare pipeline-dispatcher between synthesiser and publisher.
+#
+# Sprint A (22 Apr 2026): FIM only (financial-integrity). Other monitors' guardrail
+# files will be authored in Sprint B (week of 27 Apr).
+#
+# Observer-only: never gates publish. If this workflow fails, the downstream publisher
+# still runs (they are separate dispatcher slots, not a chained workflow_run trigger).
+
+on:
+  workflow_dispatch:
+    inputs:
+      monitor_slug:
+        description: "Monitor slug (e.g. financial-integrity, macro-monitor, cross-monitor)"
+        required: true
+        type: string
+
+jobs:
+  challenge:
+    name: "Challenger — ${{ inputs.monitor_slug }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run challenger
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          REPO_ROOT: ${{ github.workspace }}
+          MONITOR_SLUG: ${{ inputs.monitor_slug }}
+        run: |
+          python pipeline/challengers/run_challenger.py
+
+      - name: Commit _challenge block + log row
+        run: |
+          git config user.name  "challenger-bot"
+          git config user.email "challenger@asym-intel.info"
+          git add -A static/monitors/${{ inputs.monitor_slug }}/data/persistent-state.json \
+                     docs/monitors/${{ inputs.monitor_slug }}/data/persistent-state.json \
+                     ops/challenger-log.md 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No challenger changes to commit (likely degradation path or no persistent-state yet)"
+            exit 0
+          fi
+          git commit -m "data(${{ inputs.monitor_slug }}): challenger verdict $(date -u +%Y-%m-%dT%H:%MZ)"
+          # Race-safe push (same pattern as publishers)
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
