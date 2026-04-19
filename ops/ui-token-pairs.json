@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "site": "asym-intel.info",
+  "notes": "Pre-populated from SPEC-ENGINE-UI-FLOOR §9.1 audit 2026-04-19. Covers asym-intel.info base.css family (also applies to a-i.gi derivative).",
+  "modes": {
+    "light": [
+      { "id": "body-text", "fg": "#1a1917", "bg": "#f9f8f6", "role": "body", "large": false, "ratio": 16.55 },
+      { "id": "text-secondary", "fg": "#3d3a35", "bg": "#f9f8f6", "role": "secondary", "large": false, "ratio": 10.67 },
+      { "id": "text-muted", "fg": "#6b6660", "bg": "#f9f8f6", "role": "muted", "large": false, "ratio": 5.36 }
+    ],
+    "dark": [
+      { "id": "body-text", "fg": "#e4e1da", "bg": "#111210", "role": "body", "large": false, "ratio": 14.39 },
+      { "id": "text-secondary", "fg": "#b8b4ae", "bg": "#111210", "role": "secondary", "large": false, "ratio": 9.10 },
+      { "id": "text-muted", "fg": "#8a8680", "bg": "#111210", "role": "muted", "large": false, "ratio": 5.19 },
+      { "id": "monitor-accent-text", "fg": "#6ab3be", "bg": "#111210", "role": "link-dark", "large": false, "ratio": 7.88 }
+    ]
+  },
+  "exempt": [
+    { "id": "text-faint-light-decorative", "fg": "#9a958d", "bg": "#f9f8f6", "ratio": 2.80, "reason": "Decorative-only per CT-005 (timestamps adjacent to labelled content, separator dots). Day 0 grep required to confirm no interactive/standalone usage." },
+    { "id": "text-faint-dark-decorative", "fg": "#5a5852", "bg": "#111210", "ratio": 2.64, "reason": "Decorative-only per CT-005. Day 0 grep required." },
+    { "id": "monitor-accent-light-decorative", "fg": "#4f98a3", "bg": "#f9f8f6", "ratio": 3.11, "reason": "Accent used for decorative borders/icons with adjacent text labels. Day 0 grep required to confirm no plain-text usage." }
+  ],
+  "day_0_audits": [
+    "Grep asym-intel-main/ for text-faint usage in interactive/form/error selectors",
+    "Grep asym-intel-main/ for monitor-accent as plain text (not border/icon)",
+    "Confirm a-i.gi has no local token overrides that deviate from this file"
+  ]
+}
