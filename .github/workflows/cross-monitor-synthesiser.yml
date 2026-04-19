@@ -63,17 +63,18 @@ jobs:
           git pull --rebase --autostash origin main
           git push
 
-      # Uses CF_API_TOKEN (legacy name) to match existing publisher workflows.
-      # Rename to CLOUDFLARE_API_TOKEN is a parked engine follow-up (cf-speed
-      # dispatch 2026-04-19 item c).
+      # CF cache purge — non-blocking. Data is still republished via commit;
+      # cache will expire naturally within the configured TTL if purge fails.
+      # CF_API_TOKEN needs Zone > Cache Purge on zone cc419b7519eba04ef0dc6a7b851930c7.
       - name: Purge Cloudflare cache for synthesis JSON
         if: success()
+        continue-on-error: true
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ZONE_ID:   cc419b7519eba04ef0dc6a7b851930c7
         run: |
           if [ -z "${CF_API_TOKEN:-}" ]; then
-            echo "CLOUDFLARE_API_TOKEN not set — skipping CF purge."
+            echo "::warning::CF_API_TOKEN not set — skipping CF purge."
             exit 0
           fi
           curl -sS -X POST \
@@ -82,4 +83,6 @@ jobs:
             -H "Content-Type: application/json" \
             --data '{"files":["https://asym-intel.info/data/synthesis-latest.json"]}' \
             | tee /tmp/cf-purge.json
-          grep -q '"success":true' /tmp/cf-purge.json
+          if ! grep -q '"success":true' /tmp/cf-purge.json; then
+            echo "::warning::CF cache purge failed — TTL expiry will catch up."
+          fi
