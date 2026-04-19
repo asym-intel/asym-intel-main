@@ -98,7 +98,8 @@ def check_workflows(r: Results):
                      "inject-network-bar.yml", "generate-triage-strip.yml",
                      "engine-preflight.yml",  # script fetched from internal repo at runtime
                      "engine-post-deploy-smoke.yml",  # Layer B — script from internal repo
-                     "engine-runtime-audit.yml"):  # Layer C — script from internal repo
+                     "engine-runtime-audit.yml",  # Layer C — script from internal repo
+                     "cf-speed-setup.yml"):  # script fetched from internal repo via sparse checkout
             continue
 
         content = wf_file.read_text()
