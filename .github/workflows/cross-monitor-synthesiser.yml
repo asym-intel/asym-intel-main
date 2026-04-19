@@ -2,6 +2,12 @@ name: "Cross-Monitor Synthesiser"
 
 on:
   workflow_dispatch:
+  schedule:
+    # Sunday 18:30 UTC — 30 min after SCEM publisher (Sun 18:00 UTC).
+    # See docs/cross-monitor-methodology.md — synthesiser reads all 7 monitor
+    # report-latest.json files at synthesis time, so must run after SCEM closes
+    # the week.
+    - cron: '30 18 * * 0'
 
 jobs:
   synthesise:
