@@ -1,0 +1,80 @@
+name: CF Speed Profile — apply engine-standard zone settings
+
+# Workflow shim for engine-tools/cf-speed-setup.py.
+# Canonical script lives at asym-intel-internal/ops/engine-tools/cf-speed-setup.py.
+# This workflow checks out that repo at main and invokes the script.
+#
+# Template source: asym-intel-internal/ops/engine-tools/_workflow-templates/cf-speed-setup.yml
+# SPEC reference: docs/specs/SPEC-ENGINE-PARITY-AUDIT-2026-04.md (Phase 3)
+#
+# To deploy into a consumer repo:
+#   1. Copy this file to the consumer repo's .github/workflows/cf-speed-setup.yml.
+#   2. Update the zone_id default below to the consumer's CF zone ID.
+#   3. Update the site_name default below to the consumer's domain (e.g. "payments.gi").
+#   4. Update the verify step's asset paths if the consumer's layout differs.
+#   5. Ensure the following secrets are set at repo or org level:
+#        - CLOUDFLARE_API_TOKEN
+#        - CLOUDFLARE_ACCOUNT_ID
+#        - ENGINE_INTERNAL_READ_TOKEN  (PAT with read access to asym-intel-internal;
+#          required because the internal repo is private and GITHUB_TOKEN is
+#          scoped to the calling repo only)
+#      See ops/engine-tools/README.md for naming convention and setup.
+#
+# Idempotent — safe to re-run. Applies:
+#   - Zone settings: brotli, early hints, HTTP/3, 0-RTT, Speed Brain, HTTPS toggles
+#   - Account-level tiered cache (smart topology)
+#   - Cache rules for /assets/* (1y edge TTL) and /data/*.json (5min edge TTL)
+
+on:
+  workflow_dispatch:
+    inputs:
+      zone_id:
+        description: "CF zone ID (override to target a different zone)"
+        required: false
+        default: "cc419b7519eba04ef0dc6a7b851930c7"
+      site_name:
+        description: "Display name (e.g. advennt.io)"
+        required: false
+        default: "asym-intel.info"
+      skip_tiered_cache:
+        description: "Skip account-level tiered cache (set once per account)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout engine-tools from asym-intel-internal
+        uses: actions/checkout@v4
+        with:
+          repository: asym-intel/asym-intel-internal
+          ref: main
+          path: _engine
+          token: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+          # Sparse-checkout limits the clone to the one directory we need.
+          sparse-checkout: ops/engine-tools
+          sparse-checkout-cone-mode: false
+
+      - name: Apply speed profile
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          python3 _engine/ops/engine-tools/cf-speed-setup.py \
+            --zone-id "${{ inputs.zone_id }}" \
+            --account-id "$CLOUDFLARE_ACCOUNT_ID" \
+            --site-name "${{ inputs.site_name }}" \
+            ${{ inputs.skip_tiered_cache && '--skip-tiered-cache' || '' }}
+
+      - name: Verify speed headers after apply
+        run: |
+          echo "Waiting 10s for settings to propagate..."
+          sleep 10
+          echo ""
+          echo "=== ${{ inputs.site_name }} homepage ==="
+          curl -sSI "https://${{ inputs.site_name }}/" 2>/dev/null | grep -iE "^cf-cache-status|^cache-control|^content-encoding|^age:" || echo "(homepage not reachable)"
+          echo ""
+          echo "Note: asset-level verification is consumer-specific — adjust"
+          echo "this step in the consumer repo to probe a known asset path."
