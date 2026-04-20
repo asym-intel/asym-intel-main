@@ -26,7 +26,7 @@ import pytest
 from pipeline.adapters import get, CanonicalSchemaError  # noqa: E402
 from pipeline.adapters import ramparts_aim  # noqa: F401, E402  (triggers @register)
 
-FIXTURES = ROOT / "fixtures"
+FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 
 # ---- Required item shapes, keyed by (module, list_key) ----
