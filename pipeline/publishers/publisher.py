@@ -1834,6 +1834,10 @@ def sanitise_for_public(report: dict) -> dict:
       - _meta (pipeline telemetry — not reader output)
       - _meta.correction subfields except correction.reason (kept as public note)
       - cross_monitor_candidates (internal routing table)
+      - _challenge (adversarial challenger verdict — observer-only internal audit trail
+        per SCOPE-2026-04-17-003 and CHALLENGER-KNOWHOW §5; attached to
+        persistent-state.json by the challenger runner and MUST NOT leak to the public
+        report)
       - Any key ending in _preliminary (internal staging label — value already published
         under the canonical key by publisher normalisation; where not yet normalised,
         the _preliminary value is the best available and should be published without
@@ -1847,6 +1851,12 @@ def sanitise_for_public(report: dict) -> dict:
 
     # Strip cross_monitor_candidates (internal routing — not published output)
     r.pop("cross_monitor_candidates", None)
+
+    # Strip _challenge (adversarial challenger verdict — observer-only audit trail;
+    # publisher reads persistent-state.json to assemble the next report, so without
+    # this strip the challenger block would leak into report-latest.json. See
+    # ops/CHALLENGER-KNOWHOW.md §5.)
+    r.pop("_challenge", None)
 
     def strip_preliminary_keys(obj):
         """Recursively rename keys ending in _preliminary → canonical name."""
