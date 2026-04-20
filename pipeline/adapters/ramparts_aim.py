@@ -110,8 +110,12 @@ class RampartsAimAdapter(Adapter):
     accepts_schema_versions = ("2.0",)
     emits_schema_version = "ramparts-v2"
 
-    def transform(self, canonical: dict) -> dict:
+    def transform(self, canonical: dict, persistent: dict | None = None) -> dict:
         self._assert_canonical_schema(canonical)
+
+        # §27-L: Stash persistent snapshot so module helpers can merge it in.
+        # None / missing → modules behave as before (empty canonical → empty out).
+        self._persistent = persistent if isinstance(persistent, dict) else {}
 
         out: dict[str, Any] = {}
 
@@ -139,9 +143,11 @@ class RampartsAimAdapter(Adapter):
         out["module_4"] = self._module_4(canonical.get("module_4", {}))
         out["module_5"] = self._module_5(canonical.get("module_5", {}))
         out["module_6"] = self._module_6(canonical.get("module_6", {}))
-        out["module_7"] = self._module_7(canonical.get("module_7", {}))
+        # §27-L: modules 7, 9, 14 are persistent-backed — pass publish_date.
+        publish_date = (c_meta.get("slug") or published or "")[:10]
+        out["module_7"] = self._module_7(canonical.get("module_7", {}), publish_date)
         out["module_8"] = self._module_8(canonical.get("module_8", {}))
-        out["module_9"] = self._module_9(canonical.get("module_9", {}))
+        out["module_9"] = self._module_9(canonical.get("module_9", {}), publish_date)
         out["module_10"] = self._module_10(canonical.get("module_10", {}))
         out["module_11"] = self._module_11(canonical.get("module_11", {}))
         out["module_12"] = self._module_12(canonical.get("module_12", {}))
@@ -149,6 +155,7 @@ class RampartsAimAdapter(Adapter):
         out["module_14"] = self._module_14(
             canonical.get("module_14", {}),
             canonical.get("module_15", {}) or {},
+            publish_date,
         )
 
         # ---- delta strip, country grids ----
@@ -162,9 +169,13 @@ class RampartsAimAdapter(Adapter):
             c_meta.get("published", ""),
         )
 
-        # ---- cross monitor flags (passthrough if present) ----
-        if canonical.get("cross_monitor_flags") is not None:
-            out["cross_monitor_flags"] = canonical["cross_monitor_flags"]
+        # ---- cross monitor flags (§27-L: canonical > persistent floor) ----
+        cmf_canon = canonical.get("cross_monitor_flags")
+        cmf_persist = self._persistent.get("cross_monitor_flags")
+        if cmf_canon is not None:
+            out["cross_monitor_flags"] = cmf_canon
+        elif isinstance(cmf_persist, dict) and cmf_persist.get("flags"):
+            out["cross_monitor_flags"] = cmf_persist
 
         return out
 
@@ -550,8 +561,13 @@ class RampartsAimAdapter(Adapter):
             },
         )
 
-    def _module_7(self, m: dict) -> dict:
+    def _module_7(self, m: dict, publish_date: str = "") -> dict:
         """Module 7 — Risk Indicators: 2028.
+
+        §27-L: persistent-backed. Baseline is `persistent.module_7_risk_vectors`
+        (the full living risk-vector tracker). This week's canonical `vectors`
+        list is merged on top by match_key=`vector`. Empty canonical = carry
+        the full tracker untouched (rule 2).
 
         Commons vector item:
             {vector, rating, summary, asymmetric, confidence, changed,
@@ -595,6 +611,12 @@ class RampartsAimAdapter(Adapter):
                     "source_url": "",
                     "additional_items": [],
                 }
+            # §27-L note: commons-shape (`summary`, `rating`, `sources`) is the
+            # synth source of truth for the fields it controls. When BOTH a
+            # commons-shape field and its ramparts-shape alias are present
+            # (e.g. after a merge where persistent carries `headline` but synth
+            # adds `summary`), the commons-shape field MUST win — otherwise
+            # partial synth updates are silently shadowed by stale persistent.
             rating = (v.get("rating") or v.get("level") or "").upper()
             color, level_label = rating_map.get(rating, ("amber", rating or ""))
             sources = v.get("sources") or []
@@ -602,8 +624,8 @@ class RampartsAimAdapter(Adapter):
             return {
                 "name": v.get("name") or v.get("vector") or "",
                 "color": v.get("color") or color,
-                "level": v.get("level") or level_label,
-                "headline": v.get("headline") or v.get("summary") or "",
+                "level": level_label if v.get("rating") else (v.get("level") or ""),
+                "headline": v.get("summary") or v.get("headline") or "",
                 "detail": v.get("detail") or "",
                 "asymmetric": v.get("asymmetric") or "",
                 "source_label": v.get("source_label") or ("Source" if source_url else ""),
@@ -611,10 +633,32 @@ class RampartsAimAdapter(Adapter):
                 "additional_items": v.get("additional_items") or [],
             }
 
-        vectors_in = m.get("vectors") or []
-        if not isinstance(vectors_in, list):
-            vectors_in = []
-        vectors = [_shape(v) for v in vectors_in]
+        # §27-L merge: persistent floor (`module_7_risk_vectors`) + weekly synth.
+        persistent_vectors = self._persistent.get("module_7_risk_vectors") or []
+        if not isinstance(persistent_vectors, list):
+            persistent_vectors = []
+
+        # §27-L rule 5: fail loud on malformed synth shape. _merge_persistent_list
+        # raises PersistentMergeError when canonical_vectors is a non-list non-None
+        # value — refusing to silently overwrite a persistent tracker with garbled
+        # data. Do NOT coerce here.
+        canonical_vectors = m.get("vectors")
+
+        merged = self._merge_persistent_list(
+            persistent_vectors,
+            canonical_vectors,
+            match_key="vector",
+            publish_date=publish_date,
+            field_name="module_7.vectors",
+        )
+
+        vectors = [_shape(v) for v in merged] if merged else []
+        # Surface `unchanged_since` on the shaped output so the renderer can
+        # badge carried-forward entries.
+        for i, raw in enumerate(merged):
+            if i < len(vectors) and isinstance(raw, dict):
+                vectors[i]["unchanged_since"] = raw.get("unchanged_since", "") or ""
+                vectors[i]["last_updated"] = raw.get("last_updated", "") or ""
         return self._titled("module_7", {"vectors": vectors})
 
     def _module_8(self, m: dict) -> dict:
@@ -655,8 +699,15 @@ class RampartsAimAdapter(Adapter):
             },
         )
 
-    def _module_9(self, m: dict) -> dict:
+    def _module_9(self, m: dict, publish_date: str = "") -> dict:
         """Module 9 — Law & Guidance.
+
+        §27-L: persistent-backed. The canonical `law_highlights` /
+        `standards_highlights` / `litigation_highlights` are this week's
+        *new* developments. The persistent layer holds the living EU AI Act
+        7-layer tracker (`eu_ai_act_tracker` + `module_9_eu_ai_act_tracker`).
+        Empty canonical = zero `new_developments` but the layered tracker
+        still renders.
 
         Commons partitions into law_highlights / standards_highlights /
         litigation_highlights. Each item is shaped like:
@@ -696,13 +747,82 @@ class RampartsAimAdapter(Adapter):
             items = m.get(key) or []
             if isinstance(items, list):
                 new_developments.extend(_dev(it, domain) for it in items)
+        # §27-L: compose eu_ai_act_layered from persistent state if present.
+        # Two possible sources in persistent-state.json (schema tolerates both):
+        #   - `eu_ai_act_tracker.layers` (canonical 7-layer dict shape)
+        #   - `module_9_eu_ai_act_tracker.layers` (older list shape)
+        # Canonical field on the current weekly report can override if present.
+        layered_out: dict[str, Any] = {"title": "", "note": "", "layers": []}
+        canon_layered = m.get("eu_ai_act_layered")
+        if isinstance(canon_layered, dict) and canon_layered.get("layers"):
+            layered_out = {
+                "title": canon_layered.get("title", "") or "",
+                "note": canon_layered.get("note", "") or "",
+                "layers": canon_layered.get("layers") or [],
+            }
+        else:
+            # Try persistent sources in priority order.
+            p_tracker = self._persistent.get("eu_ai_act_tracker") or {}
+            p_module_tracker = self._persistent.get("module_9_eu_ai_act_tracker") or {}
+            layers: list = []
+            # Shape A: eu_ai_act_tracker.layers is a dict of layer_N -> {...}
+            raw_layers = p_tracker.get("layers") if isinstance(p_tracker, dict) else None
+            if isinstance(raw_layers, dict):
+                for key in sorted(raw_layers.keys()):
+                    v = raw_layers[key]
+                    if not isinstance(v, dict):
+                        continue
+                    layers.append(
+                        {
+                            "id": key,
+                            "title": v.get("title") or v.get("name") or key.replace("_", " ").title(),
+                            "status": v.get("status", "") or "",
+                            "note": v.get("note") or v.get("detail") or v.get("summary") or "",
+                            "last_updated": v.get("last_updated", "") or "",
+                        }
+                    )
+            # Shape B: module_9_eu_ai_act_tracker.layers is a list of dicts
+            elif isinstance(p_module_tracker.get("layers"), list):
+                for v in p_module_tracker["layers"]:
+                    if not isinstance(v, dict):
+                        continue
+                    layers.append(
+                        {
+                            "id": v.get("id", "") or v.get("key", "") or "",
+                            "title": v.get("title", "") or v.get("name", "") or "",
+                            "status": v.get("status", "") or "",
+                            "note": v.get("note", "") or v.get("detail", "") or "",
+                            "last_updated": v.get("last_updated", "") or "",
+                        }
+                    )
+            if layers:
+                note_bits = []
+                if p_tracker.get("standards_vacuum_flag") or p_module_tracker.get("standards_vacuum_active"):
+                    note_bits.append("Standards vacuum active")
+                deadline_days = (
+                    p_module_tracker.get("current_days_to_deadline")
+                    or p_tracker.get("current_days_to_deadline")
+                )
+                if deadline_days:
+                    note_bits.append(f"{deadline_days} days to general application")
+                layered_out = {
+                    "title": "EU AI Act — Layered System",
+                    "note": " · ".join(note_bits),
+                    "layers": layers,
+                }
+
+        # §27-L carry-forward tag for standing no-change entries: if the canonical
+        # digest_note exists, surface it; otherwise derive a minimal note from the
+        # tracker `last_updated` so a quiet week still shows when data last moved.
+        digest_note = m.get("digest_note") or {}
         return self._titled(
             "module_9",
             {
                 "new_developments": new_developments,
                 "no_change": [],
                 "friction_analysis": {"title": "", "note": None, "items": []},
-                "eu_ai_act_layered": {"title": "", "note": "", "layers": []},
+                "eu_ai_act_layered": layered_out,
+                "digest_note": digest_note if isinstance(digest_note, dict) else {},
             },
         )
 
@@ -874,24 +994,96 @@ class RampartsAimAdapter(Adapter):
             },
         )
 
-    def _module_14(self, m14: dict, m15: dict) -> dict:
+    def _module_14(self, m14: dict, m15: dict, publish_date: str = "") -> dict:
         # Merge commons module_14 (+ module_15 for people moves) into Ramparts module_14.
+        # §27-L: persistent-backed. Persistent sources (priority):
+        #   - module_15_aisi_pipeline   → lab_movements / government_ai_bodies
+        #                                 / revolving_door / watch_list
+        #   - module_14_concentration_index → concentration domains
+        #   - ongoing_lab_postures      → additional lab_movements carry-forward
         if not isinstance(m14, dict):
             m14 = {}
         if not isinstance(m15, dict):
             m15 = {}
+
+        p_aisi = self._persistent.get("module_15_aisi_pipeline") or {}
+        p_conc = self._persistent.get("module_14_concentration_index") or {}
+        p_postures = self._persistent.get("ongoing_lab_postures") or []
+        if not isinstance(p_aisi, dict):
+            p_aisi = {}
+        if not isinstance(p_conc, dict):
+            p_conc = {}
+        if not isinstance(p_postures, list):
+            p_postures = []
+
+        # Merge per-field: persistent floor + weekly synth updates.
+        # Match keys per list chosen from schema (monotone-ish invariants):
+        #   lab_movements: "lab" or "name"
+        #   government_ai_bodies: "body" or "name"
+        #   revolving_door: "person" or "name"
+        def _merge_named_list(field: str, match_key: str) -> list:
+            persistent_list = p_aisi.get(field) or []
+            if not isinstance(persistent_list, list):
+                persistent_list = []
+            synth_list = m15.get(field)
+            if synth_list is not None and not isinstance(synth_list, list):
+                synth_list = None
+            return self._merge_persistent_list(
+                persistent_list,
+                synth_list,
+                match_key=match_key,
+                publish_date=publish_date,
+                field_name=f"module_15.{field}",
+            )
+
+        lab_movements = _merge_named_list("lab_movements", "lab")
+        gov_bodies = _merge_named_list("government_ai_bodies", "body")
+        revolving_door = _merge_named_list("revolving_door", "person")
+
+        # ongoing_lab_postures: carry-forward lab posture summaries. Treat as
+        # additive to lab_movements only when lab_movements would otherwise be
+        # empty (avoids double-listing when synth provides fresh movement).
+        if not lab_movements and p_postures:
+            for lp in p_postures:
+                if not isinstance(lp, dict):
+                    continue
+                lab_movements.append(
+                    {
+                        "lab": lp.get("lab") or lp.get("name") or "",
+                        "role": lp.get("role", "") or lp.get("posture", ""),
+                        "note": lp.get("note", "") or lp.get("summary", "") or "",
+                        "unchanged_since": lp.get("unchanged_since", "") or lp.get("last_updated", "") or "",
+                        "last_updated": lp.get("last_updated", "") or "",
+                    }
+                )
+
+        # Concentration index: dict merge. Synth may ship partial domains.
+        conc_synth = m14.get("concentration_index") if isinstance(m14.get("concentration_index"), dict) else None
+        conc_merged = self._merge_persistent_dict(
+            p_conc,
+            conc_synth,
+            publish_date=publish_date,
+            field_name="module_14.concentration_index",
+        )
+
+        asymmetric_flags = (m14.get("asymmetric_flags", []) or []) + (
+            m15.get("asymmetric_flags", []) or []
+        )
+
         return self._titled(
             "module_14",
             {
                 "subtitle": m14.get("subtitle", "") or m15.get("subtitle", "") or "",
                 "description": m14.get("description", "") or m15.get("description", "") or "",
-                "lab_movements": m15.get("lab_movements", []) or [],
-                "government_ai_bodies": m15.get("government_ai_bodies", []) or [],
-                "revolving_door": m15.get("revolving_door", []) or [],
-                "asymmetric_flags": (m14.get("asymmetric_flags", []) or [])
-                + (m15.get("asymmetric_flags", []) or []),
+                "lab_movements": lab_movements,
+                "government_ai_bodies": gov_bodies,
+                "revolving_door": revolving_door,
+                "asymmetric_flags": asymmetric_flags,
                 "methodology": m15.get("methodology", "") or "",
-                "aisi_pipeline_result": m15.get("aisi_pipeline_result", "") or "",
+                "aisi_pipeline_result": m15.get("aisi_pipeline_result", "")
+                or p_aisi.get("pipeline_status", "")
+                or "",
+                "concentration_index": conc_merged if conc_merged else {},
             },
         )
 
