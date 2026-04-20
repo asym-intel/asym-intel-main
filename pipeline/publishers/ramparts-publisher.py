@@ -291,10 +291,10 @@ def step1_credentials():
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 # Ramparts repo writes: shaped JSON and Node renderer invocation.
-RAMPARTS_SHAPED_PATH_TMPL = "ramparts-v2/data/report-{date}.json"
+RAMPARTS_SHAPED_PATH_TMPL = "scripts/ramparts-v2/data/report-{date}.json"
 RAMPARTS_REPO_CHECKOUT_ENV = "RAMPARTS_REPO_CHECKOUT"  # set by workflow
 RAMPARTS_RENDERER_REL = "scripts/generate-static.js"
-RAMPARTS_RENDERED_HTML_REL_TMPL = "ramparts-v2/data/static-report-{date}.html"
+RAMPARTS_RENDERED_HTML_REL_TMPL = "scripts/ramparts-v2/data/static-report-{date}.html"
 
 
 def _run_node_renderer(ramparts_checkout: Path, report_date_str: str) -> Path:
