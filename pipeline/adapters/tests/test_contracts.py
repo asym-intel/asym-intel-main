@@ -309,6 +309,284 @@ def test_L_default_persistent_arg_is_backward_compatible(adapter):
     assert "module_7" in shaped
 
 
+# ---------------------------------------------------------------------------
+# Module 9 — EU AI Act layered-system + country_grid renderer contract
+# ---------------------------------------------------------------------------
+#
+# Regression tests for the Issue 4 M9 'undefined' bug (April 2026). The
+# Ramparts renderer reads a specific key-set from each layer and each
+# country_grid row; emitting the wrong keys renders literal 'undefined'
+# strings in the DOM. These tests lock the contract.
+
+
+# Field-names the renderer's renderM8_LawGuidance function reads on each
+# eu_ai_act_layered.layers[] entry.
+M9_LAYER_REQUIRED_KEYS: set[str] = {
+    "layer", "instrument", "status", "status_class",
+    "timeline", "week_update", "source_url",
+}
+
+# Field-names the renderer reads on each country_grid[] row.
+COUNTRY_GRID_REQUIRED_KEYS: set[str] = {
+    "jurisdiction", "status_icon", "binding_law", "key_guidance",
+    "last_updated", "change_flag",
+}
+
+# Allowed values of status_class (renderer switches on these three buckets).
+STATUS_CLASS_ALLOWED: set[str] = {"active", "gap", ""}
+
+
+def _persistent_with_eu_ai_act(shape: str = "both") -> dict:
+    """Build a persistent-state with EU AI Act layer data.
+
+    shape='A'    → only eu_ai_act_tracker.layers (dict shape)
+    shape='B'    → only module_9_eu_ai_act_tracker.layers (list shape)
+    shape='both' → both present (Shape B should win by adapter priority)
+    """
+    state: dict = {}
+    if shape in ("A", "both"):
+        state["eu_ai_act_tracker"] = {
+            "standards_vacuum_flag": "ACTIVE",
+            "last_updated": "2026-04-10",
+            "layers": {
+                "layer_1_text": {"status": "confirmed", "note": "OJ L 2024/1689"},
+                "layer_3_harmonised_standards": {
+                    "status": "standards_vacuum_active",
+                    "note": "No OJ citation; CEN-CENELEC JTC21 Stage 40",
+                    "last_updated": "2026-04-05",
+                },
+            },
+        }
+    if shape in ("B", "both"):
+        state["module_9_eu_ai_act_tracker"] = {
+            "current_days_to_deadline": 104,
+            "standards_vacuum_active": True,
+            "layers": [
+                {
+                    "layer": 1,
+                    "name": "AI Act Text",
+                    "status": "Active",
+                    "note": "Regulation in force.",
+                    "unchanged_since": "2026-03-30",
+                },
+                {
+                    "layer": 3,
+                    "name": "Harmonised Standards (CEN-CENELEC JTC21)",
+                    "status": "Delayed",
+                    "note": "Standards expected Q4 2026.",
+                    "unchanged_since": "2026-03-30",
+                },
+            ],
+        }
+    return state
+
+
+def test_M9_layers_carry_renderer_keys(adapter):
+    """Every emitted eu_ai_act_layered.layers[] entry must carry the exact
+    key-set the Ramparts M9 renderer reads. Missing keys render as 'undefined'
+    in the DOM — this is the Issue 4 regression class."""
+    canonical = _minimal_canonical()
+    persistent = _persistent_with_eu_ai_act(shape="B")
+    shaped = adapter.transform(canonical, persistent=persistent)
+    layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
+    assert layers, "expected layers to be built from persistent state"
+    for i, layer in enumerate(layers):
+        assert isinstance(layer, dict), f"layer {i} is not a dict"
+        missing = M9_LAYER_REQUIRED_KEYS - set(layer.keys())
+        assert not missing, f"layer {i} missing renderer keys: {missing}"
+        # None values would stringify to 'undefined' in the template literal.
+        for k in M9_LAYER_REQUIRED_KEYS:
+            assert layer[k] is not None, f"layer {i}.{k} is None"
+            assert not isinstance(layer[k], (list, dict)), (
+                f"layer {i}.{k} must be a scalar, got {type(layer[k]).__name__}"
+            )
+
+
+def test_M9_layers_status_class_is_bucketed(adapter):
+    """status_class must be one of 'active' / 'gap' / '' — the three buckets
+    the renderer switches on for pill colour."""
+    canonical = _minimal_canonical()
+    persistent = _persistent_with_eu_ai_act(shape="both")
+    shaped = adapter.transform(canonical, persistent=persistent)
+    layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
+    for layer in layers:
+        assert layer["status_class"] in STATUS_CLASS_ALLOWED, (
+            f"status_class={layer['status_class']!r} not in {STATUS_CLASS_ALLOWED}"
+        )
+
+
+def test_M9_layers_prefer_shape_B_when_both_present(adapter):
+    """When both Shape A and Shape B persistent shapes are present, Shape B
+    wins (richer: carries `name`, `unchanged_since`, prose status)."""
+    canonical = _minimal_canonical()
+    persistent = _persistent_with_eu_ai_act(shape="both")
+    shaped = adapter.transform(canonical, persistent=persistent)
+    layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
+    # Shape B has 2 layers; Shape A has 2 layers. Shape B's layer 1 has
+    # name='AI Act Text' — the `layer` field should contain it.
+    layer_displays = [layer["layer"] for layer in layers]
+    assert any("AI Act Text" in disp for disp in layer_displays), (
+        f"expected Shape B names in layer field, got {layer_displays}"
+    )
+
+
+def test_M9_layers_shape_A_key_humanised(adapter):
+    """Shape A has only dict keys like 'layer_3_harmonised_standards'. The
+    adapter must humanise this into a readable 'Layer 3 — Harmonised Standards'
+    string so the renderer displays it correctly."""
+    canonical = _minimal_canonical()
+    persistent = _persistent_with_eu_ai_act(shape="A")
+    shaped = adapter.transform(canonical, persistent=persistent)
+    layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
+    assert layers, "expected Shape A to produce layers"
+    displays = [layer["layer"] for layer in layers]
+    # Must start with 'Layer N —' prefix and carry a humanised trailer.
+    assert all(disp.startswith("Layer ") for disp in displays), (
+        f"Shape A key humanisation failed, got {displays}"
+    )
+    # 'standards_vacuum_active' status should be bucketed as 'gap'.
+    vacuum_layer = next(
+        (l for l in layers if "Harmonised" in l["layer"]), None
+    )
+    assert vacuum_layer is not None, "harmonised_standards layer not found"
+    assert vacuum_layer["status_class"] == "gap"
+
+
+def test_M9_malformed_canonical_layers_raises(adapter):
+    """If canonical module_9.eu_ai_act_layered.layers is a non-list, fail-loud
+    with PersistentMergeError — do not silently render garbage."""
+    canonical = _minimal_canonical()
+    canonical["module_9"] = {
+        "eu_ai_act_layered": {"layers": "this should have been a list"}
+    }
+    with pytest.raises(PersistentMergeError):
+        adapter.transform(canonical, persistent={})
+
+
+def test_M9_malformed_persistent_layers_raises(adapter):
+    """If persistent eu_ai_act_tracker.layers is not dict/list, fail-loud."""
+    canonical = _minimal_canonical()
+    persistent = {
+        "eu_ai_act_tracker": {"layers": "garbage"},
+    }
+    with pytest.raises(PersistentMergeError):
+        adapter.transform(canonical, persistent=persistent)
+
+
+def test_M9_empty_persistent_yields_empty_layers(adapter):
+    """No persistent EU AI Act data + empty canonical → layers: []. Must NOT
+    raise and must NOT emit undefineds."""
+    canonical = _minimal_canonical()
+    shaped = adapter.transform(canonical, persistent={})
+    layered = shaped.get("module_9", {}).get("eu_ai_act_layered", {})
+    assert layered.get("layers") == []
+
+
+# ---------------------------------------------------------------------------
+# country_grid — §27-L persistent-backed
+# ---------------------------------------------------------------------------
+
+
+def _persistent_with_country_grid() -> dict:
+    return {
+        "country_grid_status": {
+            "last_updated": "2026-04-10",
+            "jurisdictions": [
+                {
+                    "jurisdiction": "EU",
+                    "binding_law": "AI Act (curated persistent text)",
+                    "status_icon": "\U0001f7e1",
+                    "last_updated": "2026-04-01",
+                },
+                {
+                    "jurisdiction": "UK",
+                    "binding_law": "No binding AI law; AISI monitoring",
+                    "status_icon": "\U0001f7e0",
+                    "last_updated": "2026-04-01",
+                },
+            ],
+        }
+    }
+
+
+def test_country_grid_empty_synth_carries_persistent(adapter):
+    """Rule 2: empty canonical country_grid → persistent baseline rendered."""
+    canonical = _minimal_canonical()  # no country_grid key
+    persistent = _persistent_with_country_grid()
+    shaped = adapter.transform(canonical, persistent=persistent)
+    grid = shaped.get("country_grid", [])
+    assert len(grid) >= 2, f"expected persistent floor in country_grid, got {len(grid)}"
+    juris = {row["jurisdiction"] for row in grid}
+    assert "EU" in juris and "UK" in juris
+
+
+def test_country_grid_row_has_renderer_keys(adapter):
+    canonical = _minimal_canonical()
+    persistent = _persistent_with_country_grid()
+    shaped = adapter.transform(canonical, persistent=persistent)
+    grid = shaped.get("country_grid", [])
+    for i, row in enumerate(grid):
+        missing = COUNTRY_GRID_REQUIRED_KEYS - set(row.keys())
+        assert not missing, f"country_grid row {i} missing keys: {missing}"
+        for k in COUNTRY_GRID_REQUIRED_KEYS:
+            assert row[k] is not None, f"country_grid row {i}.{k} is None"
+
+
+def test_country_grid_persistent_binding_law_preserved(adapter):
+    """Persistent `binding_law` is curated text. Synth `signal` (news items)
+    must NOT overwrite persistent binding_law for existing jurisdictions.
+    This is the second half of the Issue 4 M9 bug — synth was writing
+    news headlines into what should have been a stable baseline column.
+    """
+    canonical = _minimal_canonical()
+    canonical["country_grid"] = [
+        {
+            "jurisdiction": "EU",
+            "signal": "OpenAI closes $852B round (this is news, not law)",
+            "change_flag": "\u26a0\ufe0f",
+        }
+    ]
+    persistent = _persistent_with_country_grid()
+    shaped = adapter.transform(canonical, persistent=persistent)
+    grid = shaped.get("country_grid", [])
+    eu_row = next((r for r in grid if r["jurisdiction"] == "EU"), None)
+    assert eu_row is not None
+    # Persistent curated binding_law must survive the merge.
+    assert "curated" in eu_row["binding_law"], (
+        f"synth 'signal' overwrote persistent binding_law: {eu_row['binding_law']!r}"
+    )
+    # But change_flag from synth should have been applied.
+    assert eu_row["change_flag"] == "\u26a0\ufe0f"
+
+
+def test_country_grid_synth_adds_new_jurisdiction(adapter):
+    """A synth-only jurisdiction (not in persistent) gets appended with its
+    `signal` used as the binding_law seed."""
+    canonical = _minimal_canonical()
+    canonical["country_grid"] = [
+        {
+            "jurisdiction": "Japan",
+            "signal": "METI soft-law guidelines; no binding framework",
+            "status_icon": "\U0001f7e0",
+        }
+    ]
+    persistent = _persistent_with_country_grid()
+    shaped = adapter.transform(canonical, persistent=persistent)
+    grid = shaped.get("country_grid", [])
+    jp = next((r for r in grid if r["jurisdiction"] == "Japan"), None)
+    assert jp is not None, "Japan not appended from synth"
+    assert "METI" in jp["binding_law"], "signal not seeded as binding_law"
+
+
+def test_country_grid_malformed_raises(adapter):
+    """Rule 5: synth country_grid as dict (not list) → PersistentMergeError."""
+    canonical = _minimal_canonical()
+    canonical["country_grid"] = {"oops": "should be list"}
+    persistent = _persistent_with_country_grid()
+    with pytest.raises(PersistentMergeError):
+        adapter.transform(canonical, persistent=persistent)
+
+
 if __name__ == "__main__":
     # Allow running without pytest for quick checks.
     sys.exit(pytest.main([__file__, "-v"]))
