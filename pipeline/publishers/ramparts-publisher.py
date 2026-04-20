@@ -418,19 +418,55 @@ def step2_build_html(report: dict, report_date_str: str, week_label: str, volume
 
 
 def _extract_body_inner(full_html: str) -> str:
-    """Return the HTML inside <body>…</body> (renderer output always has one)."""
+    """Return HTML suitable for embedding in a WordPress wp:html block.
+
+    Slices <body>…</body> content AND prepends any <style> blocks from
+    <head>. This is required to preserve the WORDPRESS-BACK-ENGINE.md
+    §5 canonical CSS override block — generate-static.js emits it inside
+    <head>, and without it Elementor/Hello-theme defaults win (content
+    clamped to 1140px, .entry-title visible, links underlined,
+    .ramparts-btn loses white text, floating right nav chrome breaks,
+    body fonts and background revert to theme defaults).
+
+    See: asym-intel-main:docs/architecture/thin-frontend-pattern.md
+    Regression introduced: PR #69 (20 Apr 2026). Fixed: 20 Apr 2026.
+    """
+    head_styles = _extract_head_styles(full_html)
     lower = full_html.lower()
     start = lower.find("<body")
     if start == -1:
-        return full_html  # degrade: embed the whole thing
-    # advance past the '>'
+        # degrade: embed the whole thing (styles included)
+        return full_html
     body_open_end = lower.find(">", start)
     if body_open_end == -1:
         return full_html
     end = lower.rfind("</body>")
     if end == -1 or end < body_open_end:
-        return full_html[body_open_end + 1 :]
-    return full_html[body_open_end + 1 : end]
+        body_inner = full_html[body_open_end + 1 :]
+    else:
+        body_inner = full_html[body_open_end + 1 : end]
+    if head_styles:
+        return head_styles + "\n" + body_inner
+    return body_inner
+
+
+def _extract_head_styles(full_html: str) -> str:
+    """Return every <style>…</style> block found inside <head>…</head>.
+
+    Preserves order. Returns empty string if there is no <head> or no
+    <style> blocks inside it. Case-insensitive; DOTALL so blocks may
+    span newlines.
+    """
+    head_match = _re.search(
+        r"<head[^>]*>(.*?)</head>", full_html, _re.DOTALL | _re.IGNORECASE
+    )
+    if not head_match:
+        return ""
+    head_inner = head_match.group(1)
+    blocks = _re.findall(
+        r"<style[^>]*>.*?</style>", head_inner, _re.DOTALL | _re.IGNORECASE
+    )
+    return "\n".join(blocks)
 
 
 # ---------------------------------------------------------------------------
