@@ -9,6 +9,10 @@ Goals:
   3. Adapter output is JSON-serialisable.
   4. Every emitted module/item carries the keys the Ramparts renderer
      reads, with string fallbacks — nothing should stringify as 'undefined'.
+  5. §27-L: persistent-state merge semantics honour Invariant L:
+     - empty/absent synth → persistent carried forward untouched
+     - partial synth → field-update + unchanged_since stamping
+     - malformed synth → PersistentMergeError (fail-loud)
 """
 
 from __future__ import annotations
@@ -24,6 +28,7 @@ sys.path.insert(0, str(ROOT))
 import pytest
 
 from pipeline.adapters import get, CanonicalSchemaError  # noqa: E402
+from pipeline.adapters.base import PersistentMergeError  # noqa: E402
 from pipeline.adapters import ramparts_aim  # noqa: F401, E402  (triggers @register)
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
@@ -156,6 +161,152 @@ def test_no_none_values_in_scalar_fields(shaped):
 
 def test_meta_carries_emitted_schema_version(shaped):
     assert shaped.get("meta", {}).get("schema_version") == "ramparts-v2"
+
+
+# ---------------------------------------------------------------------------
+# §27-L — Persistent-state merge contract tests
+# ---------------------------------------------------------------------------
+#
+# These tests use a minimal synthetic canonical + persistent pair so they
+# are isolated from real fixture drift. They cover the three rules that
+# can silently break Ramparts Issue 4-style pages:
+#
+#   (L.a) empty synth for a persistent-backed module → carry forward
+#   (L.b) partial synth → field-update + unchanged_since stamping
+#   (L.c) contradictory synth shape → PersistentMergeError (fail-loud)
+#
+# Module 7 vectors is the canonical example (match_key='vector') and is
+# exercised in all three tests. Other persistent-backed modules share the
+# same _merge_persistent_list helper so one merge-level test per rule is
+# sufficient to cover Invariant L compliance.
+
+
+def _minimal_canonical(module_7_override: object = "__unset__") -> dict:
+    """Build a minimal schema-2.0 canonical report. By default module_7 is
+    absent (simulates empty synth). Pass explicit value to override.
+    """
+    canonical = {
+        "meta": {
+            "schema_version": "2.0",
+            "published": "2026-04-17",
+            "week_label": "Week 16 — 17 April 2026",
+            "volume": 1,
+            "issue": 4,
+            "slug": "2026-04-17",
+        },
+        # Absence of other modules is fine — adapter tolerates missing modules.
+    }
+    if module_7_override != "__unset__":
+        canonical["module_7"] = module_7_override  # type: ignore[assignment]
+    return canonical
+
+
+def _minimal_persistent() -> dict:
+    """Build a persistent-state with one module_7 vector already tracked."""
+    return {
+        "module_7_risk_vectors": [
+            {
+                "vector": "compute_concentration",
+                "name": "Compute Concentration",
+                "color": "red",
+                "level": "ELEVATED",
+                "headline": "Top-3 labs hold >70% of frontier training compute.",
+                "detail": "Persistent tracker detail.",
+                "asymmetric": "Persistent asymmetric.",
+                "source_label": "Persistent source",
+                "source_url": "https://example.org/persistent",
+                "additional_items": [],
+                "unchanged_since": "2026-04-03",
+                "last_updated": "2026-04-03",
+            }
+        ],
+    }
+
+
+def test_L_a_empty_synth_carries_persistent_forward(adapter):
+    """Rule 2: absent/empty synth for module 7 → persistent vector is rendered
+    unchanged, NOT cleared. Without §27-L this is the Issue 4 bug."""
+    canonical = _minimal_canonical()  # no module_7
+    persistent = _minimal_persistent()
+
+    shaped = adapter.transform(canonical, persistent=persistent)
+
+    vectors = shaped.get("module_7", {}).get("vectors", [])
+    assert len(vectors) >= 1, "module_7.vectors must carry persistent floor when synth is empty"
+    compute = next((v for v in vectors if v.get("name") == "Compute Concentration"), None)
+    assert compute is not None, "Persistent 'Compute Concentration' vector was dropped"
+    # unchanged_since must be preserved from persistent, NOT re-stamped to this week
+    assert compute.get("unchanged_since") == "2026-04-03", (
+        "Empty synth must NOT restamp unchanged_since — carried items keep their prior date."
+    )
+
+
+def test_L_b_partial_synth_field_updates_and_stamps(adapter):
+    """Rule 3+4: a synth item matching a persistent vector by match_key updates
+    the fields provided AND stamps unchanged_since=publish_date. Non-overlapping
+    persistent entries are preserved. Shape mapping in _module_7 collapses
+    `vector` (match_key) to `name`, so we identify the merged item via `name`.
+    """
+    canonical = _minimal_canonical({
+        "vectors": [
+            {
+                "vector": "compute_concentration",
+                "rating": "HIGH",  # adapter maps rating → color+level
+                "summary": "NVIDIA allocates 80% of H-series to three customers.",
+                # other fields omitted — must NOT overwrite persistent values with None
+            }
+        ]
+    })
+    persistent = _minimal_persistent()
+
+    shaped = adapter.transform(canonical, persistent=persistent)
+
+    vectors = shaped.get("module_7", {}).get("vectors", [])
+    compute = next((v for v in vectors if v.get("name") == "Compute Concentration"), None)
+    assert compute is not None, "matched vector disappeared after merge"
+
+    # Synth provided `summary` which → headline via field-fallback. Persistent's
+    # prior headline must be overwritten by the synth value.
+    assert "80%" in compute.get("headline", ""), (
+        "field-update failed: synth 'summary' should overwrite persistent 'headline'"
+    )
+    # Fields absent in synth → preserved from persistent. The adapter's _shape
+    # prefers the merged dict's keys, so persistent-only fields (asymmetric,
+    # detail, source_url) must survive unchanged.
+    assert compute.get("asymmetric") == "Persistent asymmetric.", (
+        "persistent-only field lost after partial synth merge"
+    )
+    assert compute.get("detail") == "Persistent tracker detail.", (
+        "persistent 'detail' lost after partial synth merge"
+    )
+    # unchanged_since stamped to publish_date
+    assert compute.get("unchanged_since") == "2026-04-17", (
+        "partial synth must stamp unchanged_since to this week's publish_date"
+    )
+
+
+def test_L_c_contradictory_synth_shape_raises(adapter):
+    """Rule 5: a synth field arriving with the wrong shape (dict where list is
+    expected) MUST raise PersistentMergeError — we refuse to silently overwrite
+    a persistent tracker with garbled data."""
+    canonical = _minimal_canonical({
+        "vectors": {"oops": "this should have been a list"},  # malformed
+    })
+    persistent = _minimal_persistent()
+
+    with pytest.raises(PersistentMergeError):
+        adapter.transform(canonical, persistent=persistent)
+
+
+def test_L_default_persistent_arg_is_backward_compatible(adapter):
+    """transform(canonical) without persistent= must still work for callers
+    that haven't migrated. Persistent-backed modules just render whatever
+    the canonical provides (possibly empty)."""
+    canonical = _minimal_canonical()
+    # Must not raise; must return a dict with a module_7 key (empty vectors is fine).
+    shaped = adapter.transform(canonical)
+    assert isinstance(shaped, dict)
+    assert "module_7" in shaped
 
 
 if __name__ == "__main__":
