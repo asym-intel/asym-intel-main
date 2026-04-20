@@ -22,57 +22,96 @@ Exit codes:
     3 — script error (gh CLI missing, network failure, unknown project)
     4 — bug-log gate failed (bug-signal commits this session with no BUG-LOG entry) — hard from 2026-05-01
 
-Version: 2.1 — 18 Apr 2026. Added gate_workspace_artifacts(): advisory scan of
+Version: 2.2 — 20 Apr 2026. Project registry moved out of this file to
+`asym-intel-internal/ops/engine-projects.json` (single source of truth for all
+engine tooling). Registry fetched at startup; local cache fallback in
+`ops/engine-projects.json` (asym-intel-main root-relative path resolved from
+this script's location).
+
+New flags: `--list-projects` prints the registry and exits 0. Used by CI drift
+checks to assert parity with the COMPUTER-SKILL.md trigger table.
+
+Rationale (AD-2026-04-20d, R-2 audit fix):
+  - Hardcoded PROJECTS dict was missing `advennt` and `Ramparts`, so any wrap
+    from those projects failed at argparse. The drift was a category-1
+    enforcement gap per AUDIT-SCOPE-v2 RECOMMENDATIONS.md C-014.
+  - Moving the registry to a canonical JSON means one file to edit when a new
+    project joins the engine, and future tooling (CI drift checks, adversarial
+    reviewer, per-project smoke tests) reads the same file.
+
+v2.1 — 18 Apr 2026. Added gate_workspace_artifacts(): advisory scan of
 /home/user/workspace/ for session-produced files that will be lost at session end
 unless committed. v2.0 note: the 20% margin removed on 17 Apr. See wrap-enforcement log.
 """
 from __future__ import annotations
 
 import argparse
+import base64
 import json
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 # -------------------------------------------------------------------
-# Project registry — where notes-for-computer.md lives for each project
+# Project registry — loaded from canonical source
 # -------------------------------------------------------------------
-PROJECTS = {
-    "asym-intel": {
-        "notes_repo": "asym-intel/asym-intel-internal",
-        "notes_path": "notes-for-computer.md",
-        "archive_path_fmt": "ops/notes-archive-{yyyy_mm}.md",
-        "code_repo": "asym-intel/asym-intel-main",
-        "staging_branch": "staging",
-        "next_session_phrase": "Computer: asym-intel.info",
-    },
-    "resilience": {
-        "notes_repo": "asym-intel/resilience",
-        "notes_path": "ops/notes-for-computer.md",
-        "archive_path_fmt": "ops/notes-archive-{yyyy_mm}.md",
-        "code_repo": "asym-intel/resilience",
-        "staging_branch": "staging",
-        "next_session_phrase": "Computer: Resilience",
-    },
-    "payments-gi": {
-        "notes_repo": "asym-intel/payments-gi",
-        "notes_path": "ops/notes-for-computer.md",
-        "archive_path_fmt": "ops/notes-archive-{yyyy_mm}.md",
-        "code_repo": "asym-intel/payments-gi",
-        "staging_branch": None,  # per COMPUTER-core.md — direct to main
-        "next_session_phrase": "Computer: Payments",
-    },
-    "asymmetric-investor": {
-        # Commercial product; session state lives in asym-intel-internal/commercial
-        "notes_repo": "asym-intel/asym-intel-internal",
-        "notes_path": "commercial/notes-for-computer-asymmetric-investor.md",
-        "archive_path_fmt": "commercial/notes-archive-{yyyy_mm}.md",
-        "code_repo": "asym-intel/asym-intel-internal",
-        "staging_branch": None,
-        "next_session_phrase": "Computer: Asymmetric Investor",
-    },
-}
+# Source of truth: asym-intel-internal/ops/engine-projects.json
+# This script fetches via `gh api` at startup. If the fetch fails (offline,
+# auth missing, rate-limit) it falls back to a local cache file at
+# ./engine-projects-cache.json next to this script. The cache is refreshed
+# on every successful fetch.
+
+PROJECTS_REPO = "asym-intel/asym-intel-internal"
+PROJECTS_PATH = "ops/engine-projects.json"
+_SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECTS_CACHE = _SCRIPT_DIR / "engine-projects-cache.json"
+
+
+def _load_projects_via_gh() -> dict:
+    """Fetch ops/engine-projects.json from the internal repo via gh."""
+    out = subprocess.run(
+        ["gh", "api", f"/repos/{PROJECTS_REPO}/contents/{PROJECTS_PATH}", "--jq", ".content"],
+        capture_output=True, text=True, check=False,
+    )
+    if out.returncode != 0:
+        raise RuntimeError(f"gh api failed: {out.stderr.strip()}")
+    decoded = base64.b64decode(out.stdout.strip()).decode("utf-8")
+    return json.loads(decoded)
+
+
+def _load_projects() -> dict:
+    """Load project registry. Prefer live fetch; fall back to local cache."""
+    try:
+        data = _load_projects_via_gh()
+        # Refresh cache on successful fetch
+        try:
+            PROJECTS_CACHE.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        except OSError:
+            pass  # cache refresh is best-effort
+        return data["projects"]
+    except (RuntimeError, KeyError, json.JSONDecodeError) as exc:
+        if PROJECTS_CACHE.exists():
+            try:
+                data = json.loads(PROJECTS_CACHE.read_text(encoding="utf-8"))
+                print(
+                    f"[wrap_check] registry fetch failed ({exc}); using cache at {PROJECTS_CACHE}",
+                    file=sys.stderr,
+                )
+                return data["projects"]
+            except (OSError, KeyError, json.JSONDecodeError) as exc2:
+                raise RuntimeError(
+                    f"registry fetch failed ({exc}) and cache unreadable ({exc2})"
+                ) from exc
+        raise RuntimeError(
+            f"registry fetch failed ({exc}) and no cache at {PROJECTS_CACHE}"
+        ) from exc
+
+
+# Loaded lazily in main() so --help works without network.
+PROJECTS: dict = {}
 
 SIZE_TARGET_BYTES = 12 * 1024          # 12 KB (ENGINE-RULES §5.3c) — HARD limit, no margin
 # Note: the 20% margin that existed in v1 was removed on 17 Apr 2026 after sessions
@@ -436,11 +475,38 @@ def gate_workspace_artifacts() -> CheckResult:
 # -------------------------------------------------------------------
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    # NOTE: --project choices are populated after the registry is loaded below.
     parser.add_argument(
-        "--project", required=True, choices=sorted(PROJECTS.keys()),
-        help="Engine project being wrapped",
+        "--project", required=False,
+        help="Engine project being wrapped. Required unless --list-projects is passed.",
+    )
+    parser.add_argument(
+        "--list-projects", action="store_true",
+        help="Print the loaded project registry as JSON and exit 0. Used by CI drift checks.",
     )
     args = parser.parse_args()
+
+    # Load registry (may hit network).
+    global PROJECTS
+    try:
+        PROJECTS = _load_projects()
+    except RuntimeError as exc:
+        print(f"[wrap_check error] could not load project registry: {exc}", file=sys.stderr)
+        return 3
+
+    if args.list_projects:
+        # Emit a stable, machine-readable listing so CI can diff it against other
+        # sources of truth (e.g. the COMPUTER-SKILL.md trigger table).
+        listing = {name: cfg.get("next_session_phrase") for name, cfg in PROJECTS.items()}
+        print(json.dumps(listing, indent=2, sort_keys=True))
+        return 0
+
+    if not args.project:
+        parser.error("--project is required (use --list-projects to see the registry)")
+    if args.project not in PROJECTS:
+        parser.error(
+            f"unknown project '{args.project}'. Known: {', '.join(sorted(PROJECTS.keys()))}"
+        )
     project = PROJECTS[args.project]
 
     now = datetime.now(timezone.utc)
