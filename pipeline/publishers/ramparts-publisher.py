@@ -187,6 +187,32 @@ def step0_load_and_validate():
     with open(report_path, "r", encoding="utf-8") as fh:
         report = json.load(fh)
 
+    # §27-L (engine_rules 2.7): load persistent-state.json alongside report-latest.
+    # Persistent is the FLOOR for modules with long-lived trackers (module 7, 9, 14,
+    # 15, cross-monitor flags). Missing file is non-fatal — warn and continue so
+    # first-publish bootstraps and local dev without persistent work unchanged.
+    persistent_path = repo_root / "static/monitors/ai-governance/data/persistent-state.json"
+    persistent: dict = {}
+    if persistent_path.exists():
+        try:
+            with open(persistent_path, "r", encoding="utf-8") as fh:
+                persistent = json.load(fh) or {}
+            log(
+                f"Persistent-state loaded: {len(persistent)} top-level keys "
+                f"from {persistent_path.name}"
+            )
+        except (json.JSONDecodeError, OSError) as exc:
+            log(
+                f"WARN: persistent-state.json present but unreadable ({exc}) "
+                "— continuing with empty persistent-state. §27-L merge will no-op."
+            )
+            persistent = {}
+    else:
+        log(
+            f"WARN: persistent-state.json not found at {persistent_path} "
+            "— continuing with empty persistent-state (first publish or local dev)."
+        )
+
     meta = report.get("meta", {})
 
     # Extract key meta fields
@@ -244,7 +270,17 @@ def step0_load_and_validate():
         sys.exit(0)
 
     log("Validation passed — proceeding with publication.")
-    return report, meta, report_date_str, week_label, volume, issue, repo_root, archive
+    return (
+        report,
+        meta,
+        report_date_str,
+        week_label,
+        volume,
+        issue,
+        repo_root,
+        archive,
+        persistent,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -335,7 +371,14 @@ def _run_node_renderer(ramparts_checkout: Path, report_date_str: str) -> Path:
     return rendered
 
 
-def step2_build_html(report: dict, report_date_str: str, week_label: str, volume, issue) -> str:
+def step2_build_html(
+    report: dict,
+    report_date_str: str,
+    week_label: str,
+    volume,
+    issue,
+    persistent: dict | None = None,
+) -> str:
     """
     Build the WordPress issue HTML by:
       1. Transforming commons canonical → Ramparts-shape via adapter registry.
@@ -352,7 +395,9 @@ def step2_build_html(report: dict, report_date_str: str, week_label: str, volume
 
     adapter = get("ai-governance", "ramparts-wp")
     try:
-        shaped = adapter.transform(report)
+        # §27-L: pass persistent-state as FLOOR. Adapter merges by module per
+        # Invariant L; missing/empty persistent → canonical-only behaviour (back-compat).
+        shaped = adapter.transform(report, persistent=persistent or {})
     except Exception as exc:
         log(f"ERROR: adapter.transform failed: {exc}")
         raise
@@ -1344,13 +1389,16 @@ def main():
         issue,
         repo_root,
         archive,
+        persistent,
     ) = step0_load_and_validate()
 
     # Step 1
     wp_user, wp_app_pass = step1_credentials()
 
     # Step 2
-    html_content = step2_build_html(report, report_date_str, week_label, volume, issue)
+    html_content = step2_build_html(
+        report, report_date_str, week_label, volume, issue, persistent=persistent
+    )
 
     # Step 3
     page_url = step3_wordpress_issue_page(
