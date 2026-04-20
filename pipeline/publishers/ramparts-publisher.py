@@ -207,12 +207,18 @@ def step0_load_and_validate():
         log(f"ERROR: Cannot parse report date '{report_date_str}'")
         sys.exit(1)
 
+    backfill_mode = os.environ.get("BACKFILL", "").lower() in ("1", "true", "yes")
     if pub_date < yesterday_utc:
-        log(
-            f"ERROR: Report is stale. Published {pub_date}, today is {today_utc}. "
-            "Expected today or yesterday."
-        )
-        sys.exit(1)
+        if backfill_mode:
+            log(
+                f"BACKFILL=1 — freshness check overridden. Publishing report dated {pub_date} on {today_utc}."
+            )
+        else:
+            log(
+                f"ERROR: Report is stale. Published {pub_date}, today is {today_utc}. "
+                "Expected today or yesterday. Set BACKFILL=1 (workflow_dispatch input) to override."
+            )
+            sys.exit(1)
 
     log(f"Report date: {report_date_str}, week_label: {week_label}")
 
