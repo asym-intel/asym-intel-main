@@ -577,7 +577,7 @@ def step4_update_standing_pages(
         new_span = (
             f'<span class="text-sm">Latest Issue: {html_escape(week_label)}'
             f"{banner_suffix} &nbsp;\n"
-            f'      <a href="{html_escape(page_url)}">Read now &rarr;</a>\n'
+            f'      <a href="{html_escape(page_url)}">Read now →</a>\n'
             f"    </span>"
         )
 
