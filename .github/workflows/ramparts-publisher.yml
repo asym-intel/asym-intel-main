@@ -86,11 +86,31 @@ jobs:
           RAMPARTS_REPO_CHECKOUT: ${{ github.workspace }}/ramparts-checkout
         run: python3 pipeline/publishers/ramparts-publisher.py
 
+      # Post-publish snapshot + sanity check. Captures the live rendered page
+      # as a regression baseline and hard-fails the run if M9 undefineds
+      # reappear (P-011 class) or expected sections go missing.
+      # Set repo variable SOFT_FAIL=true to demote hard-fail to warning.
+      - name: Post-publish snapshot + sanity check
+        env:
+          SOFT_FAIL: ${{ vars.SNAPSHOT_SOFT_FAIL }}
+        run: |
+          SLUG=$(python3 -c "import json; d=json.load(open('static/monitors/ai-governance/data/report-latest.json')); print(d['meta']['slug'])")
+          URL=$(python3 -c "import json; d=json.load(open('static/monitors/ai-governance/data/report-latest.json')); print(d['meta']['source_url'])")
+          echo "Snapshot URL: $URL (slug=$SLUG)"
+          # Give WP ~10s to flush post-publish cache before we fetch
+          sleep 10
+          python3 tools/snapshot.py \
+            --url "$URL" \
+            --issue-slug "$SLUG" \
+            --label post-publish \
+            --adapter-output static/monitors/ai-governance/data/report-latest.json \
+            --sanity-check
+
       - name: Commit data updates
         run: |
           git config user.name "Ramparts Publisher Bot"
           git config user.email "build@ramparts.gi"
-          git add static/monitors/ai-governance/data/
+          git add static/monitors/ai-governance/data/ ops/snapshots/
           git diff --staged --quiet && echo "No data changes to commit" && exit 0
           git commit -m "data(ramparts): published to ramparts.gi — $(date -u +%Y-%m-%d) [skip ci]"
           for attempt in 1 2 3; do
