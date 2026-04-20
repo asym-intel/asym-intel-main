@@ -1,6 +1,6 @@
-# World Democracy Monitor — Issue 10
+# World Democracy Monitor — Issue 11
 
-**W/E 18 April 2026** | Published 2026-04-18T06:00:00Z
+**W/E 20 April 2026** | Published 2026-04-20T06:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -12,41 +12,39 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**US unprecedented 24% V-Dem LDI drop signals rapid democratic decay**
+**Hungary Fidesz institutional capture reinforced in analysis; USA norm erosion noted**
 
 Confidence: N/A
 Actor: N/A
-Source: https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf
+Source: https://democratic-erosion.org/2026/04/19/the-democratic-unraveling-of-hungary/
 
 ## Key Judgments
 
-1. **US faces rapid institutional decay with vdem_ert_active across multiple pillars**
-   - Confidence: High
+1. **Hungary exemplifies autocratisation from within via institutional capture**
+   - Confidence: Assessed
    - Trajectory: Declining
 
 ## Weekly Brief
 
 ## Lead Signal
-V-Dem Institute's Democracy Report 2026 reveals unprecedented 24% Liberal Democracy Index decline in United States over past year, ranking it 51/179 globally amid executive power concentration, civil service politicization, judicial intimidation, and press attacks. Freedom House Freedom in the World 2026 corroborates with 12-point erosion over two decades culminating 2025, noting US among largest declines in free countries. Reasoner analysis recommends rapid_decay status at severity 9.0, driven by multiple pillars under attack and vdem_ert_active flag; this structural erosion precedes electoral risks flagged for FCW cross-monitor.
+Hungary's democratic institutions face entrenched capture under Viktor Orban and Fidesz, as detailed in a Democratic Erosion Consortium analysis published April 19, 2026. Since 2010, constitutional changes have reshaped media oversight, the judiciary, and electoral laws, enabling Fidesz control over approximately 80 percent of the media landscape and resulting in biased coverage disadvantaging opposition parties. Civil liberties have eroded through government influence on education, university budgets, and academic freedom, with Freedom House rating Hungary as partly free at 24 out of 40 political rights and 41 out of 60 civil liberties on a declining trajectory. V-Dem Dataset v16 anchors Hungary's LDI at approximately 0.28 with active electoral regime transition status, indicating ongoing autocratisation though with a 12 to 18 month data lag.
 
-Turkey sustains institutional capture under President Erdogan and AKP per Democratic Erosion Consortium analysis, with judiciary weaponized via special courts, 14 CHP mayors imprisoned, unfair elections since 2014, and 137 media violations 2025. Freedom House awards worst global due process score; European Commission notes politicization. Severity 8.5 reflects persistent crisis trajectory.
+This development reinforces Hungary's preliminary severity score of 8.5, driven by steep LDI trajectory, broad institutional breadth under attack across judiciary, press, and civil society, moderate repression, and weak resilience. The pattern aligns with structural autocratisation processes rather than sudden ruptures, serving as a template for executive overreach in Europe.
 
 ## Other Developments
-**V-Dem Trajectories.** Italy and UK enter watchlist with LDI 0.72/0.74, new autocratization flags affecting elections/judiciary; assessed confidence pending 2026 confirmation. Global stagnation per V-Dem 15 years no democratization; Freedom House 20th decline year, 54 countries deteriorating.
+**USA Norm Erosion.** United States reports highlight democratic decline linked to Donald Trump influence, with social media fostering silence through fear amid institutional weakening. V-Dem LDI stands at 0.57 with active autocratisation, affecting civil society and press pillars at preliminary severity 6.5. Reasoner flags need for 2026 verification due to data lag, holding confidence at Assessed.
 
-**Legislative Watch.** No new entries; monitoring for lawfare angles in US/Turkey.
+**V-Dem Trajectories and Severity Gradient.** No rapid decay promotions this week; Hungary and USA entries initialized from weekly research with single Tier 5 sourcing preventing Confirmed status. Reasoner recommends unchanged absent persistent baselines and multi-source corroboration.
 
-**Institutional Pulse.** US civil service, Turkey judiciary critical; Italy judiciary alert per reasoner/institutional flags.
+**Legislative Watch and Autocratic Export.** No new entries or mimicry chain extensions detected; existing chains stable per reasoner.
 
-**Severity Gradient.** Rapid decay USA/Turkey; watchlist Italy/UK; no recoveries.
-
-**Autocratic Export.** No mimicry chains; authoritarian collaboration rising per Freedom House.
+**Institutional Pulse and Electoral Watch.** Zero institutional events or elections within 90 days; no FIMI risks flagged.
 
 ## Cross-Monitor Connections
-US rapid decay with vdem_ert_active flags FCW electoral FIMI risk amid weakened processes (WDM-W-2026-04-18-001). Turkey opposition repression potential SCEM unrest precursor if escalates.
+Hungary signals link to esa for EU backsliding risks via media capture and judicial erosion, per reasoner cross-monitor flag at MEDIUM urgency referencing WDM-W-2026-04-25-001. USA norm violations show potential fimi-cognitive-warfare adjacency if external amplification confirmed, though no direct FCW signals this week.
 
 ## Outlook
-Monitor US midterms institutional stress-test; Italy/UK Q1 2026 events for confirmation. Turkey actor posture escalation via arrests; scout Sub-Saharan/Latin America per requirements despite thin signals this week.
+Monitor Hungary for Tier 1-2 corroboration on judicial and media developments, particularly Venice Commission or OSCE updates. Verify USA 2026 events against primary sources to resolve V-Dem lag friction. Scout Sub-Saharan Africa and Latin America per requirements, as no coverage this week.
 
 ## Cross-Monitor Flags
 
@@ -56,7 +54,8 @@ Monitor US midterms institutional stress-test; Italy/UK Q1 2026 events for confi
 - **Georgia EU candidate state institutional collapse — ESA/WDM convergence** (democratic-integrity) — Active
 - **US institutional capture enables FIMI electoral targeting** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
 - **Italy UK new ERT flags impact EU democratic norms** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **US institutional capture enables electoral FIMI ops** (fimi-cognitive-warfare) — Active — NEW
+- **US institutional capture enables electoral FIMI ops** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
+- **Hungary institutional capture risks EU norms** (esa) — Active — NEW
 
 ---
 
