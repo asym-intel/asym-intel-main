@@ -3,20 +3,48 @@
 Ramparts Publisher — AI Frontier Monitor
 Publishes weekly AIM report to ramparts.gi (WordPress).
 
-Pipeline position: fires Friday 16:00 UTC (2h after AIM publisher at 14:00 UTC)
-Input:  static/monitors/ai-governance/data/report-latest.json
-Output: WordPress issue page + homepage/archive updates
+Pipeline position: fires Friday 10:00 UTC via dispatcher (1h after AIM commons publisher at 09:00 UTC)
+Input:  static/monitors/ai-governance/data/report-latest.json (commons AIM report)
+Output:
+  - WordPress issue page + homepage/archive updates on ramparts.gi
+  - New entry appended to asym-intel/Ramparts:data/archive.json (cross-repo PUT via gh_put)
+
+Idempotency:
+  - Step 0 dup-check reads asym-intel/Ramparts:data/archive.json over HTTPS — the
+    Ramparts repo is the source of truth for what has shipped to ramparts.gi.
+    DO NOT change this to read static/monitors/ai-governance/data/archive.json —
+    that's the AIM commons archive (different surface). Reading the commons
+    archive caused a silent-skip bug on 2026-04-17 (Issue 4 missed). See
+    pipeline/incidents/incidents.jsonl 2026-04-20 entry.
 """
 
 import json
 import os
 import sys
 import subprocess
+import tempfile
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import re as _re
 import requests
+
+# Vendored race-safe GitHub Contents API writer (see pipeline/lib/gh_put.py).
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
+from gh_put import gh_put  # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Cross-repo archive constants — Ramparts archive is the source of truth
+# ---------------------------------------------------------------------------
+
+RAMPARTS_REPO = "asym-intel/Ramparts"
+RAMPARTS_ARCHIVE_PATH = "data/archive.json"
+RAMPARTS_ARCHIVE_RAW_URL = (
+    f"https://raw.githubusercontent.com/{RAMPARTS_REPO}/main/{RAMPARTS_ARCHIVE_PATH}"
+)
+RAMPARTS_ARCHIVE_API_URL = (
+    f"https://api.github.com/repos/{RAMPARTS_REPO}/contents/{RAMPARTS_ARCHIVE_PATH}"
+)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -103,12 +131,50 @@ def html_escape(text: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _fetch_ramparts_archive() -> list:
+    """Fetch asym-intel/Ramparts:data/archive.json over HTTPS.
+
+    The Ramparts repo is the source of truth for what has shipped to ramparts.gi.
+    Authenticated GitHub API call (Ramparts is a private repo) using GH_TOKEN.
+    Returns [] if the file does not exist on the remote (first-ever publish).
+    Raises RuntimeError on any other failure — never silently swallow.
+    """
+    gh_token = os.environ.get("GH_TOKEN", "")
+    if not gh_token:
+        raise RuntimeError(
+            "GH_TOKEN not set — cannot fetch Ramparts archive for dup-check. "
+            "Refusing to proceed (would risk publishing duplicates)."
+        )
+    try:
+        resp = requests.get(
+            RAMPARTS_ARCHIVE_API_URL,
+            headers={
+                "Authorization": f"token {gh_token}",
+                "Accept": "application/vnd.github.v3.raw",
+            },
+            timeout=20,
+        )
+    except requests.RequestException as exc:
+        raise RuntimeError(f"Network error fetching Ramparts archive: {exc}") from exc
+
+    if resp.status_code == 404:
+        log(f"Ramparts archive not found at {RAMPARTS_REPO}:{RAMPARTS_ARCHIVE_PATH} — treating as empty (first publish).")
+        return []
+    if resp.status_code != 200:
+        raise RuntimeError(
+            f"Ramparts archive fetch returned {resp.status_code}: {resp.text[:200]}"
+        )
+    try:
+        return resp.json()
+    except ValueError as exc:
+        raise RuntimeError(f"Ramparts archive is not valid JSON: {exc}") from exc
+
+
 def step0_load_and_validate():
     log("Step 0: Loading and validating report JSON …")
 
     repo_root = Path(os.environ.get("REPO_ROOT", os.getcwd()))
     report_path = repo_root / "static/monitors/ai-governance/data/report-latest.json"
-    archive_path = repo_root / "static/monitors/ai-governance/data/archive.json"
 
     if not report_path.exists():
         log(f"ERROR: report-latest.json not found at {report_path}")
@@ -150,19 +216,25 @@ def step0_load_and_validate():
 
     log(f"Report date: {report_date_str}, week_label: {week_label}")
 
-    # Duplication guard — check archive.json
-    archive = []
-    if archive_path.exists():
-        with open(archive_path, "r", encoding="utf-8") as fh:
-            archive = json.load(fh)
+    # Duplication guard — read Ramparts repo's own archive.json (source of truth).
+    # NOTE: previously read static/monitors/ai-governance/data/archive.json (the AIM
+    # commons archive). That caused a silent-skip on 2026-04-17 because the commons
+    # publisher had already written the date to the commons archive at 09:00 UTC,
+    # and this publisher exited cleanly at 10:00 UTC without doing anything.
+    log(f"Fetching Ramparts archive for dup-check: {RAMPARTS_REPO}:{RAMPARTS_ARCHIVE_PATH}")
+    archive = _fetch_ramparts_archive()
+    log(f"Ramparts archive: {len(archive)} existing entries.")
 
     existing_slugs = {entry.get("slug", "") for entry in archive}
     if report_date_str in existing_slugs:
-        log(f"Already published: {report_date_str} found in archive.json — exiting cleanly.")
+        log(
+            f"Already published: {report_date_str} found in {RAMPARTS_REPO}:{RAMPARTS_ARCHIVE_PATH}"
+            " — exiting cleanly."
+        )
         sys.exit(0)
 
     log("Validation passed — proceeding with publication.")
-    return report, meta, report_date_str, week_label, volume, issue, repo_root, archive, archive_path
+    return report, meta, report_date_str, week_label, volume, issue, repo_root, archive
 
 
 # ---------------------------------------------------------------------------
@@ -741,9 +813,21 @@ def step6_update_data_pipeline(
     page_url: str,
     repo_root: Path,
     archive: list,
-    archive_path: Path,
 ):
-    log("Step 6: Updating JSON data pipeline files …")
+    """Update Ramparts-side data files.
+
+    Two write surfaces:
+      1. asym-intel/Ramparts:data/archive.json — cross-repo PUT via gh_put (race-safe).
+         Source of truth for what has shipped to ramparts.gi. Drives next week's
+         dup-check.
+      2. Local report-latest.json + report-{DATE}.json + persistent-state.json under
+         static/monitors/ai-governance/data/ in the asym-intel-main checkout. These
+         are committed back to asym-intel-main by the workflow's "Commit data updates"
+         step (see ramparts-publisher.yml). They are the cached AIM-shaped Ramparts
+         report, kept in asym-intel-main so the publisher has a deterministic input
+         on the next run; they are NOT the same surface as the AIM commons report.
+    """
+    log("Step 6: Updating data files …")
 
     data_dir = repo_root / "static/monitors/ai-governance/data"
 
@@ -753,7 +837,7 @@ def step6_update_data_pipeline(
     report["meta"]["site_url"] = WP_SITE
     report["meta"]["pipeline_version"] = PIPELINE_VERSION
 
-    # Write report-{DATE}.json
+    # Write report-{DATE}.json (asym-intel-main checkout — committed by workflow)
     dated_path = data_dir / f"report-{report_date_str}.json"
     try:
         with open(dated_path, "w", encoding="utf-8") as fh:
@@ -762,7 +846,7 @@ def step6_update_data_pipeline(
     except Exception as exc:
         log(f"ERROR writing dated report: {exc}")
 
-    # Write report-latest.json (updated meta)
+    # Write report-latest.json (asym-intel-main checkout — committed by workflow)
     latest_path = data_dir / "report-latest.json"
     try:
         with open(latest_path, "w", encoding="utf-8") as fh:
@@ -771,29 +855,55 @@ def step6_update_data_pipeline(
     except Exception as exc:
         log(f"ERROR writing report-latest.json: {exc}")
 
-    # --- Prepend to archive.json (idempotent) ---
-    try:
-        existing_slugs = {entry.get("slug", "") for entry in archive}
-        if report_date_str not in existing_slugs:
-            new_entry = {
-                "slug": report_date_str,
-                "week_label": week_label,
-                "volume": volume,
-                "issue": issue,
-                "source_url": page_url,
-                "site_url": WP_SITE,
-                "pipeline_version": PIPELINE_VERSION,
-            }
-            archive.insert(0, new_entry)
-            with open(archive_path, "w", encoding="utf-8") as fh:
-                json.dump(archive, fh, ensure_ascii=False, indent=2)
-            log(f"archive.json prepended with {report_date_str}")
-        else:
-            log("archive.json already contains this slug — skipping prepend.")
-    except Exception as exc:
-        log(f"ERROR updating archive.json: {exc}")
+    # --- Prepend new entry to Ramparts:data/archive.json via cross-repo PUT ---
+    existing_slugs = {entry.get("slug", "") for entry in archive}
+    if report_date_str in existing_slugs:
+        log(
+            f"Ramparts archive already contains {report_date_str} — skipping cross-repo PUT."
+        )
+    else:
+        new_entry = {
+            "slug": report_date_str,
+            "week_label": week_label,
+            "volume": volume,
+            "issue": issue,
+            "source_url": page_url,
+            "site_url": WP_SITE,
+            "pipeline_version": PIPELINE_VERSION,
+        }
+        archive_with_new = [new_entry] + archive
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
+                json.dump(archive_with_new, tmp, ensure_ascii=False, indent=2)
+                # Trailing newline keeps gitdiffs clean and matches existing file shape.
+                tmp.write("\n")
+                tmp_path = tmp.name
+            commit_sha = gh_put(
+                repo=RAMPARTS_REPO,
+                path=RAMPARTS_ARCHIVE_PATH,
+                content_path=tmp_path,
+                message=f"data: archive entry for {report_date_str} — Issue {issue} ({week_label}) [skip ci]",
+                branch="main",
+            )
+            log(
+                f"Ramparts archive PUT successful → {RAMPARTS_REPO}@{commit_sha[:7]}"
+                f" (now {len(archive_with_new)} entries)."
+            )
+        except RuntimeError as exc:
+            # Hard fail — a successful WP publish without an archive write would
+            # cause the next week's run to re-publish the same issue (the dup-check
+            # would not see this slug). Better to fail loud here so Peter notices.
+            log(f"ERROR: cross-repo archive PUT failed: {exc}")
+            sys.exit(1)
+        finally:
+            try:
+                os.unlink(tmp_path)
+            except (OSError, NameError):
+                pass
 
-    # --- Update persistent-state.json ---
+    # --- Update persistent-state.json (asym-intel-main checkout) ---
     state_path = data_dir / "persistent-state.json"
     try:
         state = {}
@@ -814,125 +924,24 @@ def step6_update_data_pipeline(
     except Exception as exc:
         log(f"ERROR updating persistent-state.json: {exc}")
 
-    return dated_path, latest_path, archive_path, state_path
+    return dated_path, latest_path, state_path
 
 
 # ---------------------------------------------------------------------------
-# Step 7 — Sync to Ramparts repo
+# Step 7 — REMOVED.
 # ---------------------------------------------------------------------------
-
-
-def step7_sync_repo(
-    report_date_str: str,
-    repo_root: Path,
-    dated_path: Path,
-    latest_path: Path,
-    archive_path: Path,
-    state_path: Path,
-):
-    log("Step 7: Syncing data files to repository …")
-
-    gh_token = os.environ.get("GH_TOKEN", "")
-    if not gh_token:
-        log("WARNING: GH_TOKEN not set — skipping repo sync.")
-        return []
-
-    synced_files = []
-    data_dir = repo_root / "static/monitors/ai-governance/data"
-
-    try:
-        # Configure git identity
-        subprocess.run(
-            ["git", "config", "user.name", "Ramparts Build"],
-            cwd=str(repo_root),
-            check=True,
-            capture_output=True,
-        )
-        subprocess.run(
-            ["git", "config", "user.email", "build@ramparts.gi"],
-            cwd=str(repo_root),
-            check=True,
-            capture_output=True,
-        )
-
-        # Stage data files
-        files_to_add = [
-            str(dated_path.relative_to(repo_root)),
-            str(latest_path.relative_to(repo_root)),
-            str(archive_path.relative_to(repo_root)),
-            str(state_path.relative_to(repo_root)),
-        ]
-        for f in files_to_add:
-            if (repo_root / f).exists():
-                subprocess.run(
-                    ["git", "add", f],
-                    cwd=str(repo_root),
-                    check=True,
-                    capture_output=True,
-                )
-                synced_files.append(f)
-
-        # Check if there are staged changes
-        diff_result = subprocess.run(
-            ["git", "diff", "--staged", "--quiet"],
-            cwd=str(repo_root),
-            capture_output=True,
-        )
-
-        if diff_result.returncode == 0:
-            log("No staged changes — nothing to commit.")
-            return synced_files
-
-        # Commit
-        commit_msg = f"data(ramparts): published {report_date_str} to ramparts.gi [skip ci]"
-        subprocess.run(
-            ["git", "commit", "-m", commit_msg],
-            cwd=str(repo_root),
-            check=True,
-            capture_output=True,
-        )
-        log(f"Committed: {commit_msg}")
-
-        # Push with retry
-        remote_url = (
-            f"https://x-access-token:{gh_token}@github.com/asym-intel/asym-intel.git"
-        )
-        subprocess.run(
-            ["git", "remote", "set-url", "origin", remote_url],
-            cwd=str(repo_root),
-            check=True,
-            capture_output=True,
-        )
-
-        for attempt in range(1, 4):
-            pull_result = subprocess.run(
-                ["git", "pull", "--rebase", "origin", "main"],
-                cwd=str(repo_root),
-                capture_output=True,
-            )
-            push_result = subprocess.run(
-                ["git", "push", "origin", "main"],
-                cwd=str(repo_root),
-                capture_output=True,
-            )
-            if push_result.returncode == 0:
-                log("Push successful.")
-                break
-            else:
-                log(
-                    f"Push attempt {attempt}/3 failed: "
-                    f"{push_result.stderr.decode(errors='replace').strip()}"
-                )
-                if attempt < 3:
-                    import time
-                    time.sleep(attempt * 10)
-        else:
-            log("ERROR: All push attempts failed.")
-
-    except Exception as exc:
-        log(f"ERROR in step 7 (repo sync): {exc}")
-
-    return synced_files
+# Previously this step did `git push` to https://github.com/asym-intel/asym-intel.git
+# (the wrong remote — neither the asym-intel-main checkout nor the Ramparts repo).
+# The push silently failed or no-op'd in production.
+#
+# Cross-repo writes are now handled in Step 6 via the GitHub Contents API
+# (gh_put) — race-safe and targets the correct repo.
+#
+# Local writes to the asym-intel-main checkout (report-latest.json, report-{DATE}.json,
+# persistent-state.json) are committed back to asym-intel-main by the workflow's
+# "Commit data updates" step in .github/workflows/ramparts-publisher.yml — that
+# is the only push surface this publisher relies on.
+# ---------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------
@@ -955,7 +964,6 @@ def main():
         issue,
         repo_root,
         archive,
-        archive_path,
     ) = step0_load_and_validate()
 
     # Step 1
@@ -975,8 +983,8 @@ def main():
     )
 
 
-    # Step 6
-    dated_path, latest_path, updated_archive_path, state_path = step6_update_data_pipeline(
+    # Step 6 — local writes (committed by workflow) + cross-repo Ramparts archive PUT
+    dated_path, latest_path, state_path = step6_update_data_pipeline(
         report,
         meta,
         report_date_str,
@@ -986,17 +994,6 @@ def main():
         page_url,
         repo_root,
         archive,
-        archive_path,
-    )
-
-    # Step 7
-    synced_files = step7_sync_repo(
-        report_date_str,
-        repo_root,
-        dated_path,
-        latest_path,
-        updated_archive_path,
-        state_path,
     )
 
     # Summary
@@ -1006,7 +1003,8 @@ def main():
     log("=" * 60)
     log(f"WordPress issue URL : {page_url}")
     log(f"Homepage URL        : {WP_SITE}/")
-    log(f"Files synced        : {', '.join(synced_files) if synced_files else 'none'}")
+    log(f"Ramparts archive    : {RAMPARTS_REPO}:{RAMPARTS_ARCHIVE_PATH}")
+    log(f"Local data files    : {dated_path.name}, {latest_path.name}, {state_path.name}")
     log("=" * 60)
 
 

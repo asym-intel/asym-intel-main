@@ -23,6 +23,7 @@ Usage:
 """
 
 import argparse
+import ast
 import json
 import os
 import re
@@ -553,6 +554,132 @@ def check_engine_map(r: Results):
         r.ok("MAP-003:path-freshness", "All concrete public-repo paths in ENGINE-MAP resolve")
 
 
+# ─── Publisher archive-target guard (PUB-* check IDs) ──────────────
+#
+# Class bug 2026-04-17: ramparts-publisher.py read the AIM commons archive
+# (static/monitors/ai-governance/data/archive.json) for its dup-check instead
+# of the Ramparts repo's own archive. Commons publisher had already written
+# the date at 09:00 UTC; Ramparts publisher saw the slug at 10:00 UTC and
+# exited cleanly with no output. Fully green workflow, fully silent failure.
+#
+# Guard: every Python publisher under pipeline/publishers/ must declare its
+# archive surface in PUBLISHER_RULES below. AST-walk the file's string literals
+# (skip docstrings + comments — both are explanatory and frequently mention
+# disallowed paths in passing) and flag any literal that names another
+# monitor's archive without being explicitly allow-listed.
+#
+# Adding a new publisher: extend PUBLISHER_RULES. Unknown publishers fail the
+# check by design (forces a human decision about the new publisher's archive).
+
+_ARCHIVE_PATH_RE = re.compile(
+    r"static/monitors/[A-Za-z0-9_\-{}]+/data/(archive|persistent-state)\.json"
+)
+
+PUBLISHER_RULES = {
+    # Commons multi-monitor publisher. Path is parameterised by MONITOR_SLUG via
+    # f-string; the source literal contains the placeholder, so only allow-list
+    # placeholder-shaped substrings.
+    "publisher.py": {
+        "allowed_substrings": {"{MONITOR_SLUG}", "{slug}"},
+    },
+    # Cross-repo publisher. Dup-check + archive write target asym-intel/Ramparts:data/
+    # archive.json (over GitHub Contents API). Local persistent-state.json under
+    # static/monitors/ai-governance/data/ is a per-publisher cache (NOT the commons
+    # archive) and is allow-listed.
+    "ramparts-publisher.py": {
+        "allowed_substrings": {
+            "static/monitors/ai-governance/data/persistent-state.json",
+        },
+    },
+    # Shim does no archive interaction (transformation only).
+    "ramparts-shim.py": {
+        "allowed_substrings": set(),
+    },
+}
+
+_JS_PUBLISHERS_SKIPPED = {"generate-site.js", "generate-static.js"}
+
+
+def _publisher_string_literals(tree: ast.AST):
+    """Yield (lineno, value) for every Python str literal in the AST that is NOT
+    a module/function/class docstring. Comments are not in the AST so are
+    naturally excluded."""
+    docstring_ids = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            body = getattr(node, "body", [])
+            if (
+                body
+                and isinstance(body[0], ast.Expr)
+                and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)
+            ):
+                docstring_ids.add(id(body[0].value))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            if id(node) in docstring_ids:
+                continue
+            yield node.lineno, node.value
+
+
+def check_publishers(r: Results):
+    """Guard against publishers reading or writing another surface's archive (silent-skip class bug)."""
+    publishers_dir = REPO_ROOT / "pipeline" / "publishers"
+    if not publishers_dir.is_dir():
+        r.warn("PUB-000:no-publishers-dir", f"{publishers_dir} not found — skipping publisher guard")
+        return
+
+    unknown = []
+    checked = 0
+    violations_found = False
+
+    for entry in sorted(publishers_dir.iterdir()):
+        if entry.is_dir() or entry.name.startswith("__"):
+            continue
+        if entry.name in _JS_PUBLISHERS_SKIPPED:
+            continue
+        if entry.suffix != ".py":
+            continue
+        rules = PUBLISHER_RULES.get(entry.name)
+        if rules is None:
+            unknown.append(entry.name)
+            continue
+        try:
+            tree = ast.parse(entry.read_text(encoding="utf-8"), filename=str(entry))
+        except SyntaxError as exc:
+            r.fail("PUB-002:syntax", f"{entry.name}: SyntaxError parsing publisher: {exc}")
+            violations_found = True
+            continue
+        checked += 1
+        allowed = rules["allowed_substrings"]
+        for lineno, literal in _publisher_string_literals(tree):
+            for match in _ARCHIVE_PATH_RE.finditer(literal):
+                offending = match.group(0)
+                if any(sub in offending for sub in allowed):
+                    continue
+                r.fail(
+                    "PUB-001:wrong-archive-target",
+                    f"{entry.name}:{lineno}: publisher references foreign archive path "
+                    f"'{offending}' (silent-skip class bug — see preflight.py PUBLISHER_RULES).",
+                )
+                violations_found = True
+
+    if unknown:
+        for name in unknown:
+            r.fail(
+                "PUB-003:unknown-publisher",
+                f"pipeline/publishers/{name} has no entry in tools/preflight.py PUBLISHER_RULES — "
+                f"declare its archive surface before merging.",
+            )
+        violations_found = True
+
+    if not violations_found:
+        r.ok(
+            "PUB-001:archive-target-clean",
+            f"All {checked} Python publisher(s) reference only their own archive surface.",
+        )
+
+
 CHECK_GROUPS = {
     "workflows": check_workflows,
     "preambles": check_prompt_preambles,
@@ -565,6 +692,7 @@ CHECK_GROUPS = {
     "completeness": check_monitor_completeness,
     "frontend": check_frontend_patterns,
     "engine_map": check_engine_map,
+    "publishers": check_publishers,
 }
 
 
