@@ -76,8 +76,79 @@ from __future__ import annotations
 
 from typing import Any
 
-from .base import Adapter
+from .base import Adapter, PersistentMergeError
 from .registry import register
+
+
+# ---------------------------------------------------------------------------
+# EU AI Act layered-system status → status_class mapping.
+#
+# The Ramparts M9 renderer paints each layer's status pill using `status_class`:
+#   'active' → green   'gap' → red   anything else → amber
+#
+# Both persistent-state shapes carry human-readable `status` strings. Map them
+# into one of these three buckets. Unknown statuses fall through to amber.
+# ---------------------------------------------------------------------------
+_EU_AI_ACT_ACTIVE = {
+    "active",
+    "operational",
+    "confirmed",
+    "mostly_designated",
+    "first_general_release_published",
+    "in_force",
+}
+_EU_AI_ACT_GAP = {
+    "delayed",
+    "standards_vacuum_active",
+    "not_yet_active",
+    "gap",
+    "missing",
+    "blocked",
+}
+
+
+def _eu_ai_act_status_class(status: str) -> str:
+    """Normalise a layer status string to the renderer's three-bucket pill."""
+    if not isinstance(status, str):
+        return ""
+    # Lowercase, collapse spaces, strip leading/trailing punctuation.
+    key = status.strip().lower().replace(" ", "_").replace("\u2014", "_").replace("-", "_")
+    # Some entries arrive as "Active \u2014 in trilogue" — split on first underscore.
+    head = key.split("_", 1)[0] if key else ""
+    if key in _EU_AI_ACT_ACTIVE or head in {"active", "operational", "confirmed"}:
+        return "active"
+    if key in _EU_AI_ACT_GAP or head in {"delayed", "blocked", "missing"}:
+        return "gap"
+    # Explicit phrase match for "not yet active"
+    if "not_yet_active" in key or "not_yet" in key:
+        return "gap"
+    return ""  # amber (renderer falls through)
+
+
+def _prettify_layer_key(key: str) -> str:
+    """Turn a Shape-A dict key like 'layer_3_harmonised_standards' into
+    a renderer-ready 'Layer 3 — Harmonised Standards' string.
+    """
+    if not isinstance(key, str) or not key:
+        return ""
+    parts = key.split("_")
+    if len(parts) >= 3 and parts[0] == "layer" and parts[1].isdigit():
+        rest = " ".join(parts[2:]).title()
+        return f"Layer {parts[1]} \u2014 {rest}"
+    return key.replace("_", " ").title()
+
+
+def _prettify_status(status: str) -> str:
+    """Turn a machine status code like 'standards_vacuum_active' into a
+    display-friendly 'Standards Vacuum Active'. Idempotent for already-pretty
+    strings ('Active \u2014 in trilogue' passes through).
+    """
+    if not isinstance(status, str) or not status:
+        return ""
+    # If it already contains spaces or an em-dash, assume it's pretty enough.
+    if " " in status or "\u2014" in status:
+        return status
+    return status.replace("_", " ").title()
 
 
 # Default module titles/subtitles, used when the canonical report omits them.
@@ -163,6 +234,7 @@ class RampartsAimAdapter(Adapter):
         out["country_grid"] = self._country_grid(
             canonical.get("country_grid", []),
             c_meta.get("published", ""),
+            publish_date=publish_date,
         )
         out["country_grid_watch"] = self._country_grid_watch(
             canonical.get("country_grid_watch", []),
@@ -748,53 +820,100 @@ class RampartsAimAdapter(Adapter):
             if isinstance(items, list):
                 new_developments.extend(_dev(it, domain) for it in items)
         # §27-L: compose eu_ai_act_layered from persistent state if present.
+        #
+        # The Ramparts M9 renderer (generate-static.js renderM8_LawGuidance) iterates
+        # `eu_ai_act_layered.layers[]` expecting each layer to carry:
+        #   layer, instrument, status, status_class, timeline, week_update, source_url
+        # Persistent-state carries NEITHER of these key names directly — both Shape A
+        # (`eu_ai_act_tracker.layers` dict) and Shape B (`module_9_eu_ai_act_tracker.layers`
+        # list) use `name`/`status`/`note`/`unchanged_since`. The builder below translates
+        # to the renderer contract. Contract is locked by test_required_item_keys_present.
+        #
         # Two possible sources in persistent-state.json (schema tolerates both):
-        #   - `eu_ai_act_tracker.layers` (canonical 7-layer dict shape)
-        #   - `module_9_eu_ai_act_tracker.layers` (older list shape)
+        #   - `eu_ai_act_tracker.layers` (dict of layer_N_... → {status, note, ...})
+        #   - `module_9_eu_ai_act_tracker.layers` (list of {layer, name, status, note, ...})
         # Canonical field on the current weekly report can override if present.
+        #
+        # Invariant L rule 5 (fail-loud): if canonical/persistent carries a structurally
+        # wrong shape (e.g. `layers` is a string), we raise PersistentMergeError rather
+        # than silently rendering 'undefined' strings — this is the exact regression class
+        # that produced 21 undefineds in Issue 4 M9 (pre-fix).
         layered_out: dict[str, Any] = {"title": "", "note": "", "layers": []}
         canon_layered = m.get("eu_ai_act_layered")
-        if isinstance(canon_layered, dict) and canon_layered.get("layers"):
+        if canon_layered is not None and not isinstance(canon_layered, dict):
+            raise PersistentMergeError(
+                f"[{self.__class__.__name__}] canonical module_9.eu_ai_act_layered "
+                f"expected dict, got {type(canon_layered).__name__} — refusing to render."
+            )
+        canon_layers_raw = canon_layered.get("layers") if isinstance(canon_layered, dict) else None
+        if canon_layers_raw is not None and not isinstance(canon_layers_raw, list):
+            raise PersistentMergeError(
+                f"[{self.__class__.__name__}] canonical module_9.eu_ai_act_layered.layers "
+                f"expected list, got {type(canon_layers_raw).__name__}."
+            )
+
+        if isinstance(canon_layered, dict) and canon_layers_raw:
+            # Canonical weekly override — normalise items through _shape_layer so
+            # renderer keys are guaranteed present even when commons shape drifts.
             layered_out = {
-                "title": canon_layered.get("title", "") or "",
+                "title": canon_layered.get("title", "") or "EU AI Act \u2014 Layered System",
                 "note": canon_layered.get("note", "") or "",
-                "layers": canon_layered.get("layers") or [],
+                "layers": [
+                    self._shape_eu_ai_act_layer(it, key=None, publish_date=publish_date)
+                    for it in canon_layers_raw
+                    if isinstance(it, dict)
+                ],
             }
         else:
-            # Try persistent sources in priority order.
-            p_tracker = self._persistent.get("eu_ai_act_tracker") or {}
-            p_module_tracker = self._persistent.get("module_9_eu_ai_act_tracker") or {}
+            # Try persistent sources in priority order (Shape B richer → preferred).
+            p_tracker = self._persistent.get("eu_ai_act_tracker")
+            p_module_tracker = self._persistent.get("module_9_eu_ai_act_tracker")
+            if p_tracker is not None and not isinstance(p_tracker, dict):
+                raise PersistentMergeError(
+                    f"[{self.__class__.__name__}] persistent eu_ai_act_tracker "
+                    f"expected dict, got {type(p_tracker).__name__}."
+                )
+            if p_module_tracker is not None and not isinstance(p_module_tracker, dict):
+                raise PersistentMergeError(
+                    f"[{self.__class__.__name__}] persistent module_9_eu_ai_act_tracker "
+                    f"expected dict, got {type(p_module_tracker).__name__}."
+                )
+            p_tracker = p_tracker or {}
+            p_module_tracker = p_module_tracker or {}
+
             layers: list = []
-            # Shape A: eu_ai_act_tracker.layers is a dict of layer_N -> {...}
-            raw_layers = p_tracker.get("layers") if isinstance(p_tracker, dict) else None
-            if isinstance(raw_layers, dict):
+            # Shape B: module_9_eu_ai_act_tracker.layers is a list of dicts.
+            mt_layers = p_module_tracker.get("layers")
+            if mt_layers is not None and not isinstance(mt_layers, list):
+                raise PersistentMergeError(
+                    f"[{self.__class__.__name__}] persistent module_9_eu_ai_act_tracker.layers "
+                    f"expected list, got {type(mt_layers).__name__}."
+                )
+            # Shape A: eu_ai_act_tracker.layers is a dict of layer_N → {...}.
+            raw_layers = p_tracker.get("layers")
+            if raw_layers is not None and not isinstance(raw_layers, (dict, list)):
+                raise PersistentMergeError(
+                    f"[{self.__class__.__name__}] persistent eu_ai_act_tracker.layers "
+                    f"expected dict or list, got {type(raw_layers).__name__}."
+                )
+
+            # Prefer Shape B (richer: name, unchanged_since, prose status).
+            if isinstance(mt_layers, list) and mt_layers:
+                for v in mt_layers:
+                    if not isinstance(v, dict):
+                        continue
+                    layers.append(
+                        self._shape_eu_ai_act_layer(v, key=None, publish_date=publish_date)
+                    )
+            elif isinstance(raw_layers, dict) and raw_layers:
                 for key in sorted(raw_layers.keys()):
                     v = raw_layers[key]
                     if not isinstance(v, dict):
                         continue
                     layers.append(
-                        {
-                            "id": key,
-                            "title": v.get("title") or v.get("name") or key.replace("_", " ").title(),
-                            "status": v.get("status", "") or "",
-                            "note": v.get("note") or v.get("detail") or v.get("summary") or "",
-                            "last_updated": v.get("last_updated", "") or "",
-                        }
+                        self._shape_eu_ai_act_layer(v, key=key, publish_date=publish_date)
                     )
-            # Shape B: module_9_eu_ai_act_tracker.layers is a list of dicts
-            elif isinstance(p_module_tracker.get("layers"), list):
-                for v in p_module_tracker["layers"]:
-                    if not isinstance(v, dict):
-                        continue
-                    layers.append(
-                        {
-                            "id": v.get("id", "") or v.get("key", "") or "",
-                            "title": v.get("title", "") or v.get("name", "") or "",
-                            "status": v.get("status", "") or "",
-                            "note": v.get("note", "") or v.get("detail", "") or "",
-                            "last_updated": v.get("last_updated", "") or "",
-                        }
-                    )
+
             if layers:
                 note_bits = []
                 if p_tracker.get("standards_vacuum_flag") or p_module_tracker.get("standards_vacuum_active"):
@@ -806,8 +925,8 @@ class RampartsAimAdapter(Adapter):
                 if deadline_days:
                     note_bits.append(f"{deadline_days} days to general application")
                 layered_out = {
-                    "title": "EU AI Act — Layered System",
-                    "note": " · ".join(note_bits),
+                    "title": "EU AI Act \u2014 Layered System",
+                    "note": " \u00b7 ".join(note_bits),
                     "layers": layers,
                 }
 
@@ -825,6 +944,104 @@ class RampartsAimAdapter(Adapter):
                 "digest_note": digest_note if isinstance(digest_note, dict) else {},
             },
         )
+
+    def _shape_eu_ai_act_layer(
+        self, v: dict, key: str | None = None, publish_date: str = ""
+    ) -> dict:
+        """Translate a persistent-state layer dict (Shape A or Shape B) into
+        the exact key-set the Ramparts M9 renderer consumes.
+
+        Renderer contract (generate-static.js renderM8_LawGuidance, eu_ai_act_layered):
+          layer         — display title (e.g. 'Layer 3 — Harmonised Standards')
+          instrument    — legal instrument / body name (secondary subtitle text)
+          status        — human-readable pill text (e.g. 'Delayed', 'Operational')
+          status_class  — one of 'active' | 'gap' | '' (pill colour bucket)
+          timeline      — short date/phase string (after 'Timeline:' label)
+          week_update   — this-week callout; 'No new activity this week' → empty state
+          source_url    — primary source link (optional)
+
+        Shape A source (dict under eu_ai_act_tracker.layers, key like
+        'layer_3_harmonised_standards'): fields {status, note, last_updated,
+        confidence, ...}. The display title must be derived from the dict key.
+
+        Shape B source (list under module_9_eu_ai_act_tracker.layers): fields
+        {layer, name, status, note, unchanged_since, ...}. The display title
+        combines `layer` and `name`.
+
+        The persistent source carries both machine (`standards_vacuum_active`)
+        and prose (`Delayed`) status values; _eu_ai_act_status_class handles
+        both. `instrument` is derived from the layer's `name`/`instrument` field
+        or (Shape A) from the humanised dict key. All returned fields are
+        non-None strings so the renderer never emits 'undefined'.
+        """
+        if not isinstance(v, dict):
+            v = {}
+
+        # --- layer (display title) ---
+        # Shape B carries {layer: int, name: str}; Shape A carries only the
+        # dict key. Prefer an explicit `layer` string if already normalised.
+        layer_display: str = ""
+        shape_b_layer = v.get("layer")
+        shape_b_name = v.get("name") or ""
+        if isinstance(shape_b_layer, int) and shape_b_name:
+            layer_display = f"Layer {shape_b_layer} \u2014 {shape_b_name}"
+        elif isinstance(shape_b_layer, str) and shape_b_layer:
+            layer_display = shape_b_layer
+        elif v.get("title"):
+            layer_display = str(v.get("title") or "")
+        elif shape_b_name:
+            layer_display = shape_b_name
+        elif key:
+            layer_display = _prettify_layer_key(key)
+
+        # --- instrument (secondary subtitle) ---
+        # Use an explicit `instrument` if carried; otherwise fall back to the
+        # layer name (Shape B) or a humanised key trailer (Shape A).
+        instrument = (
+            v.get("instrument")
+            or v.get("body")
+            or (shape_b_name if shape_b_layer is not None and isinstance(shape_b_layer, int) else "")
+            or ""
+        )
+        if not instrument and key:
+            # Shape A fallback: strip 'layer_N_' prefix from key for instrument.
+            parts = key.split("_", 2)
+            if len(parts) == 3 and parts[0] == "layer" and parts[1].isdigit():
+                instrument = parts[2].replace("_", " ").title()
+
+        # --- status / status_class ---
+        raw_status = v.get("status") or ""
+        status_display = _prettify_status(raw_status)
+        status_class = _eu_ai_act_status_class(raw_status)
+
+        # --- timeline ---
+        # Shape B has `unchanged_since` and sometimes `timeline`. Shape A has
+        # `last_updated`. Prefer an explicit timeline; otherwise render
+        # 'Unchanged since {date}' so renderer's 'Timeline:' label has content.
+        timeline = v.get("timeline") or ""
+        if not timeline:
+            unchanged = v.get("unchanged_since") or v.get("last_updated") or ""
+            if unchanged:
+                timeline = f"Unchanged since {unchanged}"
+
+        # --- week_update ---
+        # Renderer: if truthy AND doesn't startsWith('No new'), it renders a
+        # callout. Otherwise emptyState(). Default to 'No new activity this
+        # week' so carried-forward layers render cleanly without a callout.
+        week_update = v.get("week_update") or "No new activity this week"
+
+        # --- source_url ---
+        source_url = v.get("source_url") or ""
+
+        return {
+            "layer": layer_display or "",
+            "instrument": instrument or "",
+            "status": status_display or "",
+            "status_class": status_class or "",
+            "timeline": timeline or "",
+            "week_update": week_update or "",
+            "source_url": source_url or "",
+        }
 
     def _module_10(self, m: dict) -> dict:
         if not isinstance(m, dict):
@@ -1113,22 +1330,111 @@ class RampartsAimAdapter(Adapter):
             )
         return out
 
-    def _country_grid(self, items: list, last_updated: str) -> list:
-        if not isinstance(items, list):
-            return []
-        out = []
-        for c in items:
+    def _country_grid(
+        self,
+        items: list,
+        last_updated: str,
+        publish_date: str = "",
+    ) -> list:
+        """Country grid — §27-L persistent-backed.
+
+        Source of truth for baseline jurisdictions is persistent state
+        (`country_grid_status.jurisdictions`: list of 12 with curated
+        `binding_law` text). The weekly synth's `country_grid` brings
+        per-issue updates (status_icon / change_flag / last_updated) and
+        may introduce new jurisdictions.
+
+        Merge semantics (via _merge_persistent_list on match_key='jurisdiction'):
+          - Empty synth → persistent carried forward untouched (rule 2)
+          - Partial synth → field-update matched entries, stamp publish_date
+          - Non-list synth → PersistentMergeError (rule 5)
+
+        The renderer (generate-static.js) reads these fields:
+          jurisdiction, status_icon, binding_law, key_guidance,
+          last_updated, change_flag
+        — all guaranteed present and non-None.
+        """
+        # Load persistent jurisdiction list (normalise wrapper shape).
+        p_country = self._persistent.get("country_grid_status")
+        if p_country is not None and not isinstance(p_country, dict):
+            raise PersistentMergeError(
+                f"[{self.__class__.__name__}] persistent country_grid_status "
+                f"expected dict, got {type(p_country).__name__}."
+            )
+        persistent_list: list = []
+        if isinstance(p_country, dict):
+            raw = p_country.get("jurisdictions")
+            if raw is not None and not isinstance(raw, list):
+                raise PersistentMergeError(
+                    f"[{self.__class__.__name__}] persistent country_grid_status.jurisdictions "
+                    f"expected list, got {type(raw).__name__}."
+                )
+            persistent_list = raw or []
+
+        # Normalise synth items: commons uses `country` as the jurisdiction key.
+        # Rename to `jurisdiction` so _merge_persistent_list can match on it.
+        synth_in: list | None
+        if items is None:
+            synth_in = None
+        elif not isinstance(items, list):
+            raise PersistentMergeError(
+                f"[{self.__class__.__name__}] synthesis country_grid "
+                f"expected list, got {type(items).__name__}."
+            )
+        else:
+            # Build a set of jurisdictions already in persistent so we can
+            # decide per-row whether `signal` should be promoted to binding_law.
+            persistent_jurs = {
+                (p.get("jurisdiction") or p.get("country") or "")
+                for p in persistent_list
+                if isinstance(p, dict)
+            }
+            persistent_jurs.discard("")
+
+            synth_in = []
+            for c in items:
+                if not isinstance(c, dict):
+                    continue
+                normalised = dict(c)
+                # Renderer + merge contract both require `jurisdiction`.
+                jur = c.get("jurisdiction") or c.get("country") or ""
+                if jur:
+                    normalised["jurisdiction"] = jur
+                # Commons puts news-item text under `signal`. For jurisdictions
+                # that already have a curated persistent `binding_law`, do NOT
+                # let synth `signal` overwrite it — always drop the field.
+                # For NEW jurisdictions (not in persistent), promote `signal`
+                # to `binding_law` as a seed so the entry isn't blank.
+                if "signal" in normalised:
+                    signal_value = normalised.pop("signal")
+                    if jur not in persistent_jurs and not normalised.get("binding_law"):
+                        normalised["binding_law"] = signal_value
+                synth_in.append(normalised)
+
+        # §27-L merge — reuses the same helper that raises PersistentMergeError
+        # on malformed shapes (rule 5).
+        merged = self._merge_persistent_list(
+            persistent_list,
+            synth_in,
+            match_key="jurisdiction",
+            publish_date=publish_date or last_updated,
+            field_name="country_grid",
+        )
+
+        # Emit in renderer shape, guaranteeing no None values.
+        out: list = []
+        for c in merged:
             if not isinstance(c, dict):
                 continue
             out.append(
                 {
-                    "jurisdiction": c.get("country", "") or c.get("jurisdiction", ""),
-                    "status_icon": c.get("status_icon", ""),
-                    "binding_law": c.get("signal", "") or c.get("binding_law", ""),
-                    "key_guidance": c.get("key_guidance", ""),
-                    "standards": c.get("standards", ""),
-                    "last_updated": c.get("last_updated", "") or last_updated,
-                    "change_flag": c.get("change_flag", "—"),
+                    "jurisdiction": c.get("jurisdiction") or c.get("country") or "",
+                    "status_icon": c.get("status_icon") or "",
+                    "binding_law": c.get("binding_law") or "",
+                    "key_guidance": c.get("key_guidance") or "",
+                    "standards": c.get("standards") or "",
+                    "last_updated": c.get("last_updated") or last_updated or "",
+                    "change_flag": c.get("change_flag") or "\u2014",
                 }
             )
         return out
