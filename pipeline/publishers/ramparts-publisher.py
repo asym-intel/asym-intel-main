@@ -75,6 +75,10 @@ MODULE_NAMES = {
 WP_HOMEPAGE_ID = 22643
 WP_ARCHIVE_ID = 22648
 WP_ABOUT_ID = 22647
+# Canonical "latest issue" page at /ai-frontier-monitor-issue/ — always points to
+# the most recently published issue. The dated page (e.g. /ai-frontier-monitor-issue-2026-04-17/)
+# remains as the permanent archive URL.
+WP_ISSUE_CANONICAL_ID = 22658
 WP_DIGEST_ID = 22649
 WP_SEARCH_ID = 22651
 
@@ -474,6 +478,39 @@ def _extract_head_styles(full_html: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def step3_5_update_canonical_latest(
+    wp_user: str,
+    wp_app_pass: str,
+    week_label: str,
+    report_date_str: str,
+    html_content: str,
+) -> None:
+    """Mirror the current issue's content to the canonical /ai-frontier-monitor-issue/
+    page (ID 22658) so the "Latest Issue" nav link always points at this week's report.
+
+    The dated page created by step 3 remains as the permanent archive link.
+    Failures here are non-fatal — the dated page is already live, and the nav link
+    will be stale for one cycle rather than blocking the whole publish.
+    """
+    log("Step 3.5: Mirroring to canonical /ai-frontier-monitor-issue/ (ID %d) …" % WP_ISSUE_CANONICAL_ID)
+    wp_auth = (wp_user, wp_app_pass)
+    try:
+        resp = requests.post(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ISSUE_CANONICAL_ID}",
+            auth=wp_auth,
+            json={
+                "title": f"AI Frontier Monitor \u2014 {week_label}",
+                "content": html_content,
+                "status": "publish",
+            },
+            timeout=90,
+        )
+        resp.raise_for_status()
+        log(f"Canonical latest-issue page (ID {WP_ISSUE_CANONICAL_ID}) updated to {week_label}.")
+    except Exception as exc:
+        log(f"WARN: failed to update canonical latest-issue page (ID {WP_ISSUE_CANONICAL_ID}): {exc}")
+
+
 def step3_wordpress_issue_page(
     wp_user: str,
     wp_app_pass: str,
@@ -666,32 +703,64 @@ def step4_update_standing_pages(
         log(f"ERROR updating archive page: {exc}")
 
     # --- About page CTA ---
+    # Read-then-patch. MUST request ?context=edit so we get the raw source (WP
+    # otherwise returns rendered HTML where our wp:html comment markers are
+    # stripped and our regex silently fails to match — triggering the append
+    # fallback and producing a new duplicate CTA on every run).
+    # See: asym-intel-internal:knowhow/two-frontend-monolith-backend.md
+    # ("Fail loud on pattern-miss, never fall through to append").
     try:
         about_cta_html = (
             "<!-- wp:html -->\n"
             '<div class="aim-about-cta" style="background:#006b6f;color:#fff;padding:3rem;text-align:center;border-radius:12px;margin-top:2rem">\n'
             f"  <h2 style=\"color:#fff;margin-bottom:0.5rem\">Read the Latest Issue</h2>\n"
             f"  <p style=\"color:rgba(255,255,255,0.8);margin-bottom:1.5rem\">Week of {html_escape(week_label)} &middot; Published {html_escape(report_date_str)}. All primary sources linked. All asymmetric signals flagged.</p>\n"
-            f'  <a href="{html_escape(page_url)}" style="background:#fff;color:#006b6f;padding:0.6rem 1.5rem;border-radius:6px;text-decoration:none;font-weight:600">Open Report &rarr;</a>\n'
+            f'  <a href="{html_escape(page_url)}" style="background:#fff;color:#006b6f;padding:0.6rem 1.5rem;border-radius:6px;text-decoration:none;font-weight:600">Open Report \u2192</a>\n'
             "</div>\n"
             "<!-- /wp:html -->"
         )
-        # Fetch current About page content
+        # Fetch current About page content with ?context=edit (raw source, not rendered)
         resp = requests.get(
-            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ABOUT_ID}",
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ABOUT_ID}?context=edit",
             auth=wp_auth,
             timeout=30,
         )
         resp.raise_for_status()
         _cdata = resp.json().get("content", {})
-        current_about = _cdata.get("raw", "") or _cdata.get("rendered", "")
+        current_about = _cdata.get("raw", "")
+        if not current_about:
+            # Fail loud. We must never fall through to append here — the previous
+            # bug shipped six duplicate CTAs before detection.
+            raise RuntimeError(
+                f"About page (ID {WP_ABOUT_ID}) returned empty raw content via ?context=edit. "
+                "Refusing to write — fix authentication or the page structure first."
+            )
 
-        # Replace the CTA block if it exists, otherwise append
-        cta_pattern = r'<!-- wp:html -->\s*<div class="aim-about-cta".*?<!-- /wp:html -->'
-        if _re.search(cta_pattern, current_about, _re.DOTALL):
+        # Replace the CTA block if it exists. Strict: match must be unique.
+        cta_pattern = r'<!-- wp:html -->\s*<div class="aim-about-cta"[^>]*>.*?</div>\s*<!-- /wp:html -->'
+        matches = list(_re.finditer(cta_pattern, current_about, _re.DOTALL))
+        if len(matches) == 1:
             new_about = _re.sub(cta_pattern, about_cta_html, current_about, flags=_re.DOTALL)
+        elif len(matches) > 1:
+            # Accidental duplicates present. Collapse them all into a single fresh CTA
+            # at the position of the first match (preserves surrounding content).
+            log(f"WARN: About page had {len(matches)} aim-about-cta blocks — collapsing to 1.")
+            first_start = matches[0].start()
+            # Remove every match in reverse order
+            tmp = current_about
+            for m in reversed(matches):
+                tmp = tmp[:m.start()] + tmp[m.end():]
+            # Insert fresh CTA at the original first position
+            new_about = tmp[:first_start] + about_cta_html + tmp[first_start:]
         else:
-            new_about = current_about + "\n" + about_cta_html
+            # Zero matches. Do NOT silently append at end-of-page (that was the bug).
+            # A well-formed About page MUST have an aim-about-cta placeholder. If it
+            # doesn't, raise so the operator notices and authors one intentionally.
+            raise RuntimeError(
+                f"About page (ID {WP_ABOUT_ID}) has no <div class=\"aim-about-cta\"> block. "
+                "Refusing to append a new one (silent-append is the bug that produced "
+                "duplicate CTAs). Hand-edit the page body to add one placeholder, then rerun."
+            )
 
         resp = requests.post(
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ABOUT_ID}",
@@ -737,22 +806,39 @@ def step4_update_standing_pages(
             "</div>\n"
             "<!-- /wp:html -->"
         )
-        # Fetch current Digest page
+        # Fetch current Digest page with ?context=edit (raw source, not rendered).
+        # Same class of bug as About CTA — without context=edit, the wp:html
+        # comment markers come back stripped and our regex misses.
         resp = requests.get(
-            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_DIGEST_ID}",
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_DIGEST_ID}?context=edit",
             auth=wp_auth,
             timeout=30,
         )
         resp.raise_for_status()
         _cdata = resp.json().get("content", {})
-        current_digest = _cdata.get("raw", "") or _cdata.get("rendered", "")
+        current_digest = _cdata.get("raw", "")
+        if not current_digest:
+            raise RuntimeError(
+                f"Digest page (ID {WP_DIGEST_ID}) returned empty raw content via ?context=edit."
+            )
 
-        # Replace digest preview if it exists, otherwise append
-        preview_pattern = r'<!-- wp:html -->\s*<div class="aim-digest-preview".*?<!-- /wp:html -->'
-        if _re.search(preview_pattern, current_digest, _re.DOTALL):
+        # Replace digest preview block if present. Strict: unique match or collapse.
+        preview_pattern = r'<!-- wp:html -->\s*<div class="aim-digest-preview"[^>]*>.*?</div>\s*<!-- /wp:html -->'
+        matches = list(_re.finditer(preview_pattern, current_digest, _re.DOTALL))
+        if len(matches) == 1:
             new_digest = _re.sub(preview_pattern, digest_preview_html, current_digest, flags=_re.DOTALL)
+        elif len(matches) > 1:
+            log(f"WARN: Digest page had {len(matches)} aim-digest-preview blocks — collapsing to 1.")
+            first_start = matches[0].start()
+            tmp = current_digest
+            for m in reversed(matches):
+                tmp = tmp[:m.start()] + tmp[m.end():]
+            new_digest = tmp[:first_start] + digest_preview_html + tmp[first_start:]
         else:
-            new_digest = current_digest + "\n" + digest_preview_html
+            raise RuntimeError(
+                f"Digest page (ID {WP_DIGEST_ID}) has no <div class=\"aim-digest-preview\"> block. "
+                "Refusing to append (silent-append is the bug). Hand-author a placeholder, then rerun."
+            )
 
         resp = requests.post(
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_DIGEST_ID}",
@@ -772,52 +858,243 @@ def step4_update_standing_pages(
         search_items = []
         data_dir = Path(os.environ.get("REPO_ROOT", os.getcwd())) / "static/monitors/ai-governance/data"
 
-        # Build search index from all report JSON files
-        for entry in archive:
+        # Build search index from all report JSON files.
+        #
+        # IMPORTANT: archive-slug ≠ report-filename across the historical backfill.
+        # The archive uses publish-date (or week-start) slugs; report files on disk
+        # use the week-end date. Old code assumed report-{slug}.json and silently
+        # swallowed misses — producing an empty index for 3 of 4 issues.
+        #
+        # Strategy (belt + braces):
+        #   1. Walk every report-YYYY-MM-DD.json that exists on disk.
+        #   2. For each file, match it to an archive entry using the nearest
+        #      publish/slug date within ±30 days (or via meta.slug if present).
+        #   3. Always ensure the currently-publishing report is indexed even if
+        #      its file hasn't been written yet.
+        #   4. Archive-level fallback: if no matching file is found for an entry,
+        #      still index its archive-level signal/top_signals text so the issue
+        #      appears in search results.
+        # See: asym-intel-internal:knowhow/two-frontend-monolith-backend.md
+        # ("One source of truth per data type, referenced by ID not by reconstruction").
+
+        def _archive_entry_meta(entry: dict) -> tuple:
             slug = entry.get("slug", "")
-            entry_url = entry.get("source_url") or f"{WP_SITE}/ai-frontier-monitor-issue-{slug}/"
-            entry_label = entry.get("week_label") or slug
+            url = entry.get("source_url") or f"{WP_SITE}/ai-frontier-monitor-issue-{slug}/"
+            label = entry.get("week_label") or slug
             vol = entry.get("volume", "")
             iss = entry.get("issue", "")
-            vol_issue_str = ""
+            issue_str = ""
             if vol:
-                vol_issue_str += f"Vol. {vol} \u00b7 "
+                issue_str += f"Vol. {vol} \u00b7 "
             if iss:
-                vol_issue_str += f"Issue {iss}"
+                issue_str += f"Issue {iss}"
+            return slug, url, label, issue_str
 
-            # Try to load full report for this issue
-            report_file = data_dir / f"report-{slug}.json"
-            if not report_file.exists():
-                report_file = data_dir / "report-latest.json" if slug == report_date_str else None
+        def _extract_report_text(issue_report: dict) -> list:
+            """Flatten a report into module-level search items.
 
-            if report_file and report_file.exists():
+            Walks module_N / MODULE_NAMES buckets and also top-level rich fields
+            (weekly_brief, delta_strip, country_grid, etc.). Returns list of
+            dicts with {module, text}. Caller adds week/issue/url.
+            """
+            out = []
+            TEXT_FIELDS = ("title","headline","summary","body","detail","note",
+                           "signal","significance","description","text","asymmetric",
+                           "implication","key_insight")
+
+            def deep_flatten(obj, bucket):
+                if obj is None: return
+                if isinstance(obj, list):
+                    for x in obj: deep_flatten(x, bucket)
+                    return
+                if isinstance(obj, dict):
+                    pieces = []
+                    for k in TEXT_FIELDS:
+                        v = obj.get(k)
+                        if isinstance(v, str) and v.strip():
+                            pieces.append(v.strip())
+                    if pieces:
+                        bucket.append(" \u2014 ".join(pieces))
+                    for v in obj.values():
+                        if isinstance(v, (dict, list)):
+                            deep_flatten(v, bucket)
+
+            # Walk MODULE_NAMES-style keys AND raw module_N keys
+            module_keys = set(MODULE_NAMES.keys())
+            for k in list(issue_report.keys()):
+                if k.startswith("module_") or k in module_keys:
+                    mod = issue_report[k]
+                    if not isinstance(mod, dict):
+                        continue
+                    title = mod.get("title") or MODULE_NAMES.get(k, k)
+                    bucket = []
+                    deep_flatten(mod, bucket)
+                    if isinstance(mod.get("body"), str):
+                        bucket.insert(0, mod["body"])
+                    # Dedupe preserving order
+                    seen = set(); kept = []
+                    for p in bucket:
+                        if p not in seen:
+                            seen.add(p); kept.append(p)
+                    combined = " \u2014 ".join(kept)
+                    if combined.strip():
+                        out.append({"module": title, "text": combined[:2000]})
+
+            # Top-level rich fields (cross-monitor, strips, briefs)
+            for top_key in ("weekly_brief", "key_judgments", "delta_strip",
+                            "country_grid", "country_grid_watch",
+                            "jurisdiction_risk_matrix", "lab_posture_scorecard",
+                            "cross_monitor_flags"):
+                v = issue_report.get(top_key)
+                if not v: continue
+                bucket = []
+                if isinstance(v, str):
+                    bucket.append(v)
+                else:
+                    deep_flatten(v, bucket)
+                combined = " \u2014 ".join(bucket)
+                if combined.strip():
+                    out.append({
+                        "module": top_key.replace("_", " ").title(),
+                        "text": combined[:2000],
+                    })
+            return out
+
+        # Pre-scan: enumerate every report-*.json in data_dir and index by every
+        # identifier we can find in meta. The historical backfill has report files
+        # whose filename-date, meta.slug, meta.published and meta.week_label all
+        # drift from the archive entry's slug/week_label. The ONLY invariant that
+        # holds across all four issues is meta.issue (the issue number).
+        report_by_slug = {}       # meta.slug → Path
+        report_by_week = {}       # meta.week_label → Path (exact string)
+        report_by_issue_num = {}  # int(meta.issue) → Path  (authoritative cross-ref)
+        if data_dir.exists():
+            for p in sorted(data_dir.glob("report-*.json")):
+                if p.name == "report-latest.json":
+                    continue
+                try:
+                    with open(p, "r", encoding="utf-8") as fh:
+                        rr = json.load(fh)
+                    meta = rr.get("meta", {}) or {}
+                    if meta.get("slug"):
+                        report_by_slug.setdefault(meta["slug"], p)
+                    if meta.get("week_label"):
+                        report_by_week.setdefault(meta["week_label"], p)
+                    try:
+                        inum = int(meta.get("issue")) if meta.get("issue") is not None else None
+                    except (TypeError, ValueError):
+                        inum = None
+                    if inum is not None:
+                        report_by_issue_num.setdefault(inum, p)
+                except Exception:
+                    continue
+
+        # Index every archive entry
+        issues_with_file = 0
+        issues_archive_only = 0
+        for entry in archive:
+            slug, entry_url, entry_label, vol_issue_str = _archive_entry_meta(entry)
+
+            # Resolve the report file for this archive entry. Try, in order:
+            #   a) entry.report_filename override if the archive entry carries it
+            #      (new entries should carry this going forward)
+            #   b) pre-scanned report_by_slug[entry.slug]  (if a historical report
+            #      file has matching meta.slug, use it — handles backfill)
+            #   c) pre-scanned report_by_week[entry.week_label] (same, by label)
+            #   d) report-{slug}.json        (slug == filename-date)
+            #   e) report-{published}.json   (filename-date == publish-date)
+            #   f) report-latest.json        (current publish only)
+            candidate_files = []
+            rf_override = entry.get("report_filename")
+            if rf_override:
+                candidate_files.append(data_dir / rf_override)
+            # Preferred cross-ref: meta.issue is the only identifier that holds
+            # across archive and report files for all historical issues.
+            try:
+                entry_issue_num = int(entry.get("issue")) if entry.get("issue") is not None else None
+            except (TypeError, ValueError):
+                entry_issue_num = None
+            if entry_issue_num is not None and entry_issue_num in report_by_issue_num:
+                candidate_files.append(report_by_issue_num[entry_issue_num])
+            if slug and slug in report_by_slug:
+                candidate_files.append(report_by_slug[slug])
+            if entry_label in report_by_week:
+                candidate_files.append(report_by_week[entry_label])
+            if slug:
+                candidate_files.append(data_dir / f"report-{slug}.json")
+            published = entry.get("published", "")
+            if published and published != slug:
+                candidate_files.append(data_dir / f"report-{published}.json")
+            if slug == report_date_str:
+                candidate_files.append(data_dir / "report-latest.json")
+
+            report_file = next((p for p in candidate_files if p and p.exists()), None)
+
+            if report_file is not None:
                 try:
                     with open(report_file, "r", encoding="utf-8") as fh:
                         issue_report = json.load(fh)
-                    for mod_key, mod_name in MODULE_NAMES.items():
-                        mod_data = issue_report.get(mod_key) or issue_report.get(mod_key.replace("_", "-"))
-                        if not mod_data:
-                            continue
-                        text_parts = []
-                        items = get_module_items(mod_data)
-                        for item in items:
-                            if isinstance(item, dict):
-                                for field in ("title", "headline", "body", "text", "summary", "asymmetric"):
-                                    v = item.get(field, "")
-                                    if v:
-                                        text_parts.append(str(v))
-                        if isinstance(mod_data, dict) and mod_data.get("body"):
-                            text_parts.insert(0, str(mod_data["body"]))
-                        if text_parts:
-                            search_items.append({
-                                "module": mod_name,
-                                "week": entry_label,
-                                "issue": vol_issue_str,
-                                "text": " ".join(text_parts)[:2000],
-                                "url": entry_url,
-                            })
-                except Exception:
-                    pass
+                    extracted = _extract_report_text(issue_report)
+                    for item in extracted:
+                        search_items.append({
+                            "module": item["module"],
+                            "week": entry_label,
+                            "issue": vol_issue_str,
+                            "text": item["text"],
+                            "url": entry_url,
+                        })
+                    issues_with_file += 1
+                    continue
+                except Exception as exc:
+                    log(f"WARN: failed parsing {report_file.name} for search index: {exc}")
+
+            # Fallback: index archive-level signal/top_signals so the issue still appears
+            arc_text_parts = []
+            for k in ("signal", "editors_signal_preview"):
+                v = entry.get(k)
+                if isinstance(v, str) and v.strip():
+                    arc_text_parts.append(v.strip())
+            top = entry.get("top_signals")
+            if isinstance(top, list):
+                arc_text_parts.extend(str(t) for t in top if t)
+            arc_text = " \u2014 ".join(arc_text_parts).strip()
+            if arc_text:
+                search_items.append({
+                    "module": "Editor's Signal",
+                    "week": entry_label,
+                    "issue": vol_issue_str,
+                    "text": arc_text[:2000],
+                    "url": entry_url,
+                })
+                issues_archive_only += 1
+            else:
+                log(f"WARN: archive entry {slug} has no report file AND no archive-level text — not indexed.")
+
+        # Always include the currently-publishing report (from memory, not filesystem),
+        # even if its archive entry isn't yet in the archive list (happens during
+        # first-ever publish / cross-repo race). Skip if we already indexed this slug.
+        already_indexed_weeks = {i["week"] for i in search_items}
+        current_week = week_label
+        if current_week not in already_indexed_weeks:
+            extracted = _extract_report_text(report)
+            current_vol_issue = ""
+            if volume:
+                current_vol_issue += f"Vol. {volume} \u00b7 "
+            if issue:
+                current_vol_issue += f"Issue {issue}"
+            for item in extracted:
+                search_items.append({
+                    "module": item["module"],
+                    "week": current_week,
+                    "issue": current_vol_issue,
+                    "text": item["text"],
+                    "url": page_url,
+                })
+            log(f"Search: indexed current issue {current_week} from in-memory report.")
+
+        log(f"Search: {issues_with_file} issues indexed from report files, "
+            f"{issues_archive_only} from archive-only fallback, "
+            f"total {len(search_items)} items.")
 
         # Serialise search data as JSON for the data-items attribute
         search_json = json.dumps(search_items, ensure_ascii=False)
@@ -1077,6 +1354,14 @@ def main():
 
     # Step 3
     page_url = step3_wordpress_issue_page(
+        wp_user, wp_app_pass, week_label, report_date_str, html_content
+    )
+
+    # Step 3.5 — mirror the same content to the canonical /ai-frontier-monitor-issue/
+    # page (ID 22658). This keeps the "Latest Issue" nav link pointing at current
+    # content while the dated URL (/ai-frontier-monitor-issue-YYYY-MM-DD/) remains
+    # as the permanent archive link.
+    step3_5_update_canonical_latest(
         wp_user, wp_app_pass, week_label, report_date_str, html_content
     )
 
