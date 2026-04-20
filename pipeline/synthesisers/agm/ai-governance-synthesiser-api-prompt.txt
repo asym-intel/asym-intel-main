@@ -30,8 +30,6 @@ output the module key with empty arrays/objects so the renderer shows a clean
 
 ---
 
-## OUTPUT SCHEMA
-
 ## CONFIDENCE TIER STANDARD (cross-monitor canonical — v1.0, approved 16 Apr 2026)
 
 Four tiers apply to all main signal confidence fields and key_judgments across all monitors.
@@ -55,6 +53,8 @@ It will be rare given the nature of AI governance data — that is analytically 
 
 ---
 
+## OUTPUT SCHEMA
+
 Return a single valid JSON object. No markdown fences. No text outside the JSON.
 All string values must avoid apostrophes and contractions — use full words only.
 
@@ -70,9 +70,16 @@ All string values must avoid apostrophes and contractions — use full words onl
     "null_signal_reason": null
   },
 
+  "lead_signal": {
+    "headline": "string — REQUIRED. Single most significant AI governance development this week. Max 120 chars. Factual statement, not a status label.",
+    "body": "string — 2-3 sentence analytical summary",
+    "source_url": "string — URL from the source documents",
+    "confidence_preliminary": "Confirmed | High | Assessed | Possible"
+  },
+
   "module_0": {
-    "title": "One-line signal headline — the single most important AI governance development this week",
-    "body": "2-4 sentence analytical summary of the weeks headline signal. Context, significance, and what to watch."
+    "title": "One-line signal headline — the single most important AI governance development this week (mirror of lead_signal.headline for Ramparts renderer)",
+    "body": "2-4 sentence analytical summary of the weeks headline signal. Context, significance, and what to watch. (mirror of lead_signal.body for Ramparts renderer)"
   },
 
   "module_1": {
@@ -572,7 +579,7 @@ All string values must avoid apostrophes and contractions — use full words onl
 ## RULES
 
 1. All 16 modules (module_0 through module_15) MUST appear in the output. Do not omit any.
-2. module_0 (The Signal) is the single most important development. Write a punchy title and analytical body.
+2. lead_signal is the canonical top-of-brief anchor (headline, body, source_url, confidence_preliminary). module_0 (The Signal) mirrors lead_signal for the Ramparts renderer — write a punchy title and analytical body consistent with lead_signal. Both MUST be populated.
 3. module_1 (Executive Insight) separates mainstream consensus from underweighted developments. Aim for 3-5 mainstream and 2-3 underweighted items.
 4. module_2 (Model Frontier) tracks frontier model releases and capability developments. Use tiers: 1 = frontier, 2 = capable, 3 = reported/unverified. Set flag=true for T3 items with unverified sources.
 5. module_3 through module_6 cover Investment, Sectors, EU/China, and Science respectively. Populate richly.
@@ -594,4 +601,5 @@ All string values must avoid apostrophes and contractions — use full words onl
 21. standards_vacuum_flag in module_5 european items: set true when harmonised standards are not yet in the Official Journal.
 22. ciyuan_flag in module_5 china items: set true when the item relates to the Ciyuan token economy framework.
 
+# Version: v2.1 | Updated: 2026-04-20 | Change: Added top-level lead_signal field to match sibling shape (WDM signal / SCEM lead_signal). Confidence Tier Standard block moved ahead of OUTPUT SCHEMA heading to match sibling ordering. Additive — module_0 retained as Ramparts renderer mirror.
 # Version: v2.0 | Updated: 2026-04-10 | Change: Full 16-module schema + Sprint 4 fields (jurisdiction_risk_matrix, lab_posture_scorecard, governance_health_composite, delta_strip)

@@ -27,6 +27,35 @@
         }
       }
     },
+    "lead_signal": {
+      "type": "object",
+      "required": [
+        "headline",
+        "body",
+        "source_url",
+        "confidence_preliminary"
+      ],
+      "properties": {
+        "headline": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "confidence_preliminary": {
+          "type": "string",
+          "enum": [
+            "Confirmed",
+            "High",
+            "Assessed",
+            "Possible"
+          ]
+        }
+      }
+    },
     "module_0": {
       "type": "object",
       "properties": {
@@ -646,6 +675,7 @@
   },
   "required": [
     "_meta",
+    "lead_signal",
     "module_0",
     "module_1",
     "module_2",
