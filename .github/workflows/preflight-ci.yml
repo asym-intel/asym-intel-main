@@ -39,6 +39,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install preflight test deps
+        run: pip install pytest
+
       - name: Run pipeline preflight
         run: python3 tools/preflight.py --verbose
 

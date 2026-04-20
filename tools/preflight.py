@@ -680,6 +680,95 @@ def check_publishers(r: Results):
         )
 
 
+
+def check_adapters(r: Results):
+    """
+    Verify the thin-frontend adapter pattern is healthy.
+
+    ADAPT-001: pipeline/adapters/ package is importable and registry non-empty.
+    ADAPT-002: RampartsAimAdapter declares schema 2.0 in accepts_schema_versions.
+    ADAPT-003: pipeline/adapters/tests/test_contracts.py runs and all tests pass.
+    """
+    adapters_dir = REPO_ROOT / "pipeline" / "adapters"
+
+    if not adapters_dir.exists():
+        r.fail(
+            "ADAPT-001:registry-loadable",
+            f"pipeline/adapters/ not found at {adapters_dir}",
+        )
+        return
+
+    # ADAPT-001 — package + registry
+    sys.path.insert(0, str(REPO_ROOT))
+    try:
+        from pipeline.adapters import get, list_adapters, ramparts_aim  # noqa: F401
+        registered = list(list_adapters())
+        if not registered:
+            r.fail("ADAPT-001:registry-loadable", "Adapter registry is empty.")
+        else:
+            r.ok(
+                "ADAPT-001:registry-loadable",
+                f"Registry has {len(registered)} adapter(s): "
+                + ", ".join(f"{m}->{t}" for (m, t, _cls) in registered),
+            )
+    except Exception as exc:  # pragma: no cover
+        r.fail("ADAPT-001:registry-loadable", f"Import failed: {type(exc).__name__}: {exc}")
+        return
+
+    # ADAPT-002 — RampartsAimAdapter accepts canonical schema 2.0
+    try:
+        adapter = get("ai-governance", "ramparts-wp")
+        accepts = set(adapter.accepts_schema_versions)
+        if "2.0" not in accepts:
+            r.fail(
+                "ADAPT-002:ramparts-accepts-2.0",
+                f"RampartsAimAdapter.accepts_schema_versions={accepts!r} missing '2.0'",
+            )
+        elif adapter.emits_schema_version != "ramparts-v2":
+            r.fail(
+                "ADAPT-002:ramparts-accepts-2.0",
+                f"RampartsAimAdapter.emits_schema_version={adapter.emits_schema_version!r} "
+                "expected 'ramparts-v2'",
+            )
+        else:
+            r.ok(
+                "ADAPT-002:ramparts-accepts-2.0",
+                f"RampartsAimAdapter accepts={sorted(accepts)} emits={adapter.emits_schema_version}",
+            )
+    except Exception as exc:
+        r.fail("ADAPT-002:ramparts-accepts-2.0", f"{type(exc).__name__}: {exc}")
+
+    # ADAPT-003 — contract tests pass
+    test_path = adapters_dir / "tests" / "test_contracts.py"
+    if not test_path.exists():
+        r.fail("ADAPT-003:contract-tests-pass", f"Contract test file not found: {test_path}")
+        return
+    import subprocess as _sp
+    try:
+        proc = _sp.run(
+            [sys.executable, "-m", "pytest", str(test_path), "-q", "--tb=short"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+    except FileNotFoundError:
+        r.warn(
+            "ADAPT-003:contract-tests-pass",
+            "pytest not installed locally — CI will run this; skipping.",
+        )
+        return
+    except Exception as exc:
+        r.fail("ADAPT-003:contract-tests-pass", f"pytest invocation failed: {exc}")
+        return
+    if proc.returncode != 0:
+        # Last line of stdout typically holds pytest summary
+        tail = (proc.stdout or proc.stderr).strip().splitlines()[-1:] or [""]
+        r.fail("ADAPT-003:contract-tests-pass", f"pytest exit {proc.returncode}: {tail[0]}")
+    else:
+        last = (proc.stdout or "").strip().splitlines()[-1:] or [""]
+        r.ok("ADAPT-003:contract-tests-pass", last[0])
+
 CHECK_GROUPS = {
     "workflows": check_workflows,
     "preambles": check_prompt_preambles,
@@ -693,6 +782,7 @@ CHECK_GROUPS = {
     "frontend": check_frontend_patterns,
     "engine_map": check_engine_map,
     "publishers": check_publishers,
+    "adapters": check_adapters,
 }
 
 

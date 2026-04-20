@@ -22,10 +22,26 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
 
+      # Ramparts repo = canonical source of front-end HTML/CSS/JS and ramparts-v2/data.
+      # The publisher invokes node scripts/generate-static.js inside this checkout,
+      # then POSTs the rendered HTML to WordPress.
+      - name: Checkout Ramparts repo
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/Ramparts
+          token: ${{ secrets.GH_TOKEN }}
+          path: ramparts-checkout
+          ref: main
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
       - name: Install dependencies
         run: pip install requests
@@ -46,19 +62,28 @@ jobs:
               m = re.search(r'\| ' + key + r' \| ([^|]+)\|', text)
               return m.group(1).strip() if m else ''
           with open('/tmp/creds.env', 'w') as f:
+              f.write(f'WP_USER={get(\"WP_USER\")}\n')
               f.write(f'WP_APP_PASS={get(\"WP_APP_PASS\")}\n')
 
           "
+          # Mask the secret BEFORE exporting so any accidental echo in later
+          # steps is redacted. (Prevents AD-2026-04-20 leak recurrence — see
+          # run 24654557432 where WP_APP_PASS printed via env dump.)
+          WP_APP_PASS_VALUE="$(grep '^WP_APP_PASS=' /tmp/creds.env | cut -d= -f2-)"
+          echo "::add-mask::${WP_APP_PASS_VALUE}"
           cat /tmp/creds.env >> $GITHUB_ENV
           rm -f /tmp/platform-config.md /tmp/creds.env
-          echo "Credentials loaded from internal repo"
+          echo "Credentials loaded from internal repo (WP_APP_PASS masked)"
 
       - name: Run Ramparts Publisher
         env:
           REPO_ROOT: ${{ github.workspace }}
-          WP_APP_PASS: ${{ env.WP_APP_PASS }}
+          # WP_APP_PASS is already exported via $GITHUB_ENV and masked; do NOT
+          # re-declare here — the explicit re-declare pattern was the surface
+          # that echoed the secret in run 24654557432.
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           BACKFILL: ${{ github.event.inputs.backfill }}
+          RAMPARTS_REPO_CHECKOUT: ${{ github.workspace }}/ramparts-checkout
         run: python3 pipeline/publishers/ramparts-publisher.py
 
       - name: Commit data updates

@@ -251,152 +251,186 @@ def step0_load_and_validate():
 def step1_credentials():
     log("Step 1: Reading credentials from environment …")
 
-    wp_user = os.environ.get("WP_USER", "peterhowitt@gmail.com")
+    # WP basic-auth pair: (WP_USER, WP_APP_PASS) where WP_USER is the WordPress
+    # user that owns the application password (asym-intel-engine since
+    # 2026-04-20). Both are loaded from asym-intel-internal:platform-config.md
+    # by the workflow — no defaults; fail loud if either is missing.
+    wp_user = os.environ.get("WP_USER", "")
     wp_app_pass = os.environ.get("WP_APP_PASS", "")
 
-
+    if not wp_user:
+        log("ERROR: WP_USER environment variable is required but not set.")
+        sys.exit(1)
     if not wp_app_pass:
         log("ERROR: WP_APP_PASS environment variable is required but not set.")
         sys.exit(1)
 
-
-    log("Credentials loaded.")
+    log(f"Credentials loaded for WP user {wp_user!r}.")
     return wp_user, wp_app_pass
 
 
 # ---------------------------------------------------------------------------
-# Step 2 — Build WordPress HTML
+# Step 2 — Adapter-driven thin-frontend render.
+#
+# New architecture (AD-2026-04-20, thin-frontend pattern):
+#   commons canonical JSON (report-latest.json)
+#     → RampartsAimAdapter.transform()         (pipeline/adapters/)
+#     → shaped JSON committed to
+#         asym-intel/Ramparts:ramparts-v2/data/report-{date}.json
+#     → node scripts/generate-static.js {date}  (run inside Ramparts checkout)
+#     → static-report-{date}.html (≈150 KB rich monitor HTML)
+#     → wrapped in <!-- wp:html --> and posted to WordPress by Step 3.
+#
+# The Ramparts repo is the single source of HTML/CSS/JS truth for ramparts.gi.
+# This publisher never writes front-end bytes — only data, then delegates.
 # ---------------------------------------------------------------------------
 
 
-def _build_item_html(item: dict) -> str:
-    title = get_item_field(item, "title", "headline")
-    body = get_item_field(item, "body", "text", "summary")
-    asymmetric = item.get("asymmetric", "")
-    friction = item.get("friction_analysis", "")
-    source_url = item.get("source_url", "")
-    source_name = item.get("source_name", "Source")
+# Sibling path to adapters: /home/user/workspace/.../pipeline/publishers/
+# → /home/user/workspace/.../pipeline/adapters/
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "adapters"))
 
-    parts = ['<div class="item">']
-    if title:
-        parts.append(f"  <h3>{html_escape(title)}</h3>")
-    if body:
-        parts.append(f'  <div class="item-body">{html_escape(body)}</div>')
-    if asymmetric:
-        parts.append(
-            f'  <div class="asymmetric"><strong>Asymmetric Signal:</strong> {html_escape(asymmetric)}</div>'
+# Ramparts repo writes: shaped JSON and Node renderer invocation.
+RAMPARTS_SHAPED_PATH_TMPL = "ramparts-v2/data/report-{date}.json"
+RAMPARTS_REPO_CHECKOUT_ENV = "RAMPARTS_REPO_CHECKOUT"  # set by workflow
+RAMPARTS_RENDERER_REL = "scripts/generate-static.js"
+RAMPARTS_RENDERED_HTML_REL_TMPL = "ramparts-v2/data/static-report-{date}.html"
+
+
+def _run_node_renderer(ramparts_checkout: Path, report_date_str: str) -> Path:
+    """Invoke the Ramparts Node renderer; return path to the rendered HTML."""
+    renderer = ramparts_checkout / RAMPARTS_RENDERER_REL
+    if not renderer.exists():
+        raise RuntimeError(
+            f"Ramparts renderer not found at {renderer}. "
+            f"Workflow must checkout asym-intel/Ramparts into {ramparts_checkout}."
         )
-    if friction:
-        parts.append(
-            f'  <div class="friction"><strong>&#9881;&#65039; Technical Friction:</strong> {html_escape(friction)}</div>'
+    # The renderer reads {cwd}/ramparts-v2/data/report-{date}.json so we run it
+    # from the Ramparts repo root.
+    log(f"Running Node renderer: node {renderer} {report_date_str}")
+    result = subprocess.run(
+        ["node", str(renderer), report_date_str],
+        cwd=str(ramparts_checkout),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    if result.stdout:
+        for line in result.stdout.splitlines():
+            log(f"  [renderer] {line}")
+    if result.returncode != 0:
+        log(f"Renderer stderr:\n{result.stderr}")
+        raise RuntimeError(
+            f"Node renderer exited with code {result.returncode} for {report_date_str}"
         )
-    if source_url:
-        parts.append(
-            f'  <p class="source"><a href="{html_escape(source_url)}" target="_blank">{html_escape(source_name)}</a></p>'
-        )
-    parts.append("</div>")
-    return "\n".join(parts)
+    rendered = ramparts_checkout / RAMPARTS_RENDERED_HTML_REL_TMPL.format(
+        date=report_date_str
+    )
+    if not rendered.exists():
+        raise RuntimeError(f"Renderer did not produce expected output: {rendered}")
+    return rendered
 
 
 def step2_build_html(report: dict, report_date_str: str, week_label: str, volume, issue) -> str:
-    log("Step 2: Building WordPress HTML …")
+    """
+    Build the WordPress issue HTML by:
+      1. Transforming commons canonical → Ramparts-shape via adapter registry.
+      2. Committing shaped JSON to asym-intel/Ramparts:ramparts-v2/data/.
+      3. Invoking the Ramparts Node renderer in the Ramparts checkout.
+      4. Wrapping the rendered HTML in a WordPress Custom HTML block.
+    """
+    log("Step 2: Adapter-driven render …")
 
-    # Normalise module keys in report
-    normalised = {}
-    for k, v in report.items():
-        normalised[normalise_module_key(k)] = v
+    # --- 2.1 Adapter transform ---
+    # Imports happen inside the function so top-level imports stay minimal and
+    # the adapter package isn't required for unrelated unit tests.
+    from pipeline.adapters import get, ramparts_aim  # noqa: F401  (registers)
 
-    lines = []
-    lines.append("<!-- wp:html -->")
-    lines.append('<div class="aim-report">')
-    lines.append('  <div class="report-meta">')
-    lines.append(f"    <h1>AI Frontier Monitor &#8212; {html_escape(week_label)}</h1>")
+    adapter = get("ai-governance", "ramparts-wp")
+    try:
+        shaped = adapter.transform(report)
+    except Exception as exc:
+        log(f"ERROR: adapter.transform failed: {exc}")
+        raise
 
-    vol_issue = ""
-    if volume:
-        vol_issue += f"Vol. {html_escape(str(volume))} &middot; "
-    if issue:
-        vol_issue += f"Issue {html_escape(str(issue))} &middot; "
-    vol_issue += f"Published {html_escape(report_date_str)}"
-    lines.append(f'    <p class="issue-info">{vol_issue}</p>')
-    lines.append("  </div>")
-    lines.append("")
+    log(
+        f"Adapter OK — monitor={adapter.monitor} target={adapter.target} "
+        f"accepts={adapter.accepts_schema_versions} emits={adapter.emits_schema_version}"
+    )
 
-    # module_0 (The Signal) — body is directly on the module dict
-    m0 = normalised.get("module_0", {})
-    if m0:
-        m0_body = ""
-        if isinstance(m0, dict):
-            m0_body = m0.get("body") or m0.get("text") or m0.get("summary") or ""
-        lines.append('  <div class="module" id="m0">')
-        lines.append("    <h2>The Signal</h2>")
-        lines.append(f'    <div class="module-body">{html_escape(m0_body)}</div>')
-        lines.append("  </div>")
-        lines.append("")
+    # --- 2.2 PUT shaped JSON to Ramparts repo ---
+    shaped_path = RAMPARTS_SHAPED_PATH_TMPL.format(date=report_date_str)
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False, encoding="utf-8"
+    ) as tmp:
+        json.dump(shaped, tmp, ensure_ascii=False, indent=2)
+        tmp.write("\n")
+        tmp_path = tmp.name
+    try:
+        commit_sha = gh_put(
+            repo=RAMPARTS_REPO,
+            path=shaped_path,
+            content_path=tmp_path,
+            message=(
+                f"data(ramparts-v2): shaped report {report_date_str} "
+                f"— Issue {issue} ({week_label}) [skip ci]"
+            ),
+            branch="main",
+        )
+        log(f"Shaped JSON PUT → {RAMPARTS_REPO}:{shaped_path}@{commit_sha[:7]}")
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
 
-    # modules 1–14
-    for i in range(1, 15):
-        key = f"module_{i}"
-        module_data = normalised.get(key)
-        if module_data is None:
-            continue
+    # --- 2.3 Invoke Node renderer ---
+    checkout_env = os.environ.get(RAMPARTS_REPO_CHECKOUT_ENV)
+    if not checkout_env:
+        raise RuntimeError(
+            f"Environment variable {RAMPARTS_REPO_CHECKOUT_ENV} not set — "
+            "workflow must checkout asym-intel/Ramparts and export this path."
+        )
+    ramparts_checkout = Path(checkout_env).resolve()
+    # Copy the just-shaped JSON into the checkout so the renderer sees it
+    # (avoids a git pull race after our PUT).
+    checkout_shaped = ramparts_checkout / shaped_path
+    checkout_shaped.parent.mkdir(parents=True, exist_ok=True)
+    with open(checkout_shaped, "w", encoding="utf-8") as fh:
+        json.dump(shaped, fh, ensure_ascii=False, indent=2)
+        fh.write("\n")
+    rendered_path = _run_node_renderer(ramparts_checkout, report_date_str)
+    rendered_html = rendered_path.read_text(encoding="utf-8")
+    log(f"Rendered HTML: {len(rendered_html):,} chars from {rendered_path.name}")
 
-        display_name = MODULE_NAMES.get(key, key.replace("_", " ").title())
-        items = get_module_items(module_data)
+    # --- 2.4 Wrap in WordPress Custom HTML block ---
+    # The renderer emits a full <html>…</html> document; we only need the
+    # body content for embedding inside a WP page. We extract the <body>
+    # inner HTML and wrap it in wp:html so WordPress doesn't sanitise it.
+    body_inner = _extract_body_inner(rendered_html)
+    wp_html = (
+        "<!-- wp:html -->\n"
+        f"{body_inner}\n"
+        "<!-- /wp:html -->\n"
+    )
+    log(f"WP Custom HTML block assembled: {len(wp_html):,} chars.")
+    return wp_html
 
-        lines.append(f'  <div class="module" id="m{i}">')
-        lines.append(f"    <h2>{html_escape(display_name)}</h2>")
 
-        for item in items:
-            if isinstance(item, dict):
-                item_html = _build_item_html(item)
-                # Indent each line of item HTML
-                for line in item_html.splitlines():
-                    lines.append(f"    {line}")
-
-        lines.append("  </div>")
-        lines.append("")
-
-    # Delta strip
-    delta_strip = normalised.get("delta_strip") or report.get("delta_strip", [])
-    if delta_strip and isinstance(delta_strip, list):
-        lines.append('  <div class="delta-strip">')
-        lines.append("    <h2>Key Changes This Week</h2>")
-        lines.append("    <ol>")
-        for d in delta_strip[:10]:
-            if isinstance(d, dict):
-                label = html_escape(d.get("label") or d.get("module_tag") or "")
-                text = html_escape(d.get("text") or "")
-                lines.append(f"      <li><strong>{label}:</strong> {text}</li>")
-        lines.append("    </ol>")
-        lines.append("  </div>")
-        lines.append("")
-
-    # Country grid
-    country_grid = normalised.get("country_grid") or report.get("country_grid", [])
-    if country_grid and isinstance(country_grid, list):
-        lines.append('  <div class="country-grid">')
-        lines.append("    <h2>Country Grid</h2>")
-        lines.append("    <table>")
-        lines.append("      <tr><th>Jurisdiction</th><th>Status</th><th>Binding Law</th></tr>")
-        for c in country_grid:
-            if isinstance(c, dict):
-                jurisdiction = html_escape(c.get("jurisdiction", ""))
-                status_icon = html_escape(c.get("status_icon", ""))
-                binding_law = html_escape(c.get("binding_law", ""))
-                lines.append(
-                    f"      <tr><td>{jurisdiction}</td><td>{status_icon}</td><td>{binding_law}</td></tr>"
-                )
-        lines.append("    </table>")
-        lines.append("  </div>")
-        lines.append("")
-
-    lines.append("</div>")
-    lines.append("<!-- /wp:html -->")
-
-    html_content = "\n".join(lines)
-    log(f"HTML built: {len(html_content)} characters.")
-    return html_content
+def _extract_body_inner(full_html: str) -> str:
+    """Return the HTML inside <body>…</body> (renderer output always has one)."""
+    lower = full_html.lower()
+    start = lower.find("<body")
+    if start == -1:
+        return full_html  # degrade: embed the whole thing
+    # advance past the '>'
+    body_open_end = lower.find(">", start)
+    if body_open_end == -1:
+        return full_html
+    end = lower.rfind("</body>")
+    if end == -1 or end < body_open_end:
+        return full_html[body_open_end + 1 :]
+    return full_html[body_open_end + 1 : end]
 
 
 # ---------------------------------------------------------------------------
