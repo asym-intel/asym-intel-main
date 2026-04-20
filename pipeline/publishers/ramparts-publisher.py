@@ -546,37 +546,64 @@ def step4_update_standing_pages(
     page_url: str,
     archive: list,
     report: dict,
+    volume="",
+    issue="",
 ):
     log("Step 4: Updating standing WordPress pages (homepage + archive) …")
     wp_auth = (wp_user, wp_app_pass)
 
-    # --- Homepage ---
+    # --- Homepage (read-then-patch: only the latest-banner div) ---
+    # Rich landing page (hero + module grid + audience cards) is authored manually.
+    # The publisher only swaps the inner <span class="text-sm"> of the latest-banner
+    # div — never replaces full content. See WORDPRESS-BACK-ENGINE.md §5 (Rule 2).
     try:
-        # Pull signal text
-        m0 = report.get("module_0") or report.get("module-0") or {}
-        signal_text = ""
-        if isinstance(m0, dict):
-            signal_text = m0.get("body") or m0.get("text") or m0.get("summary") or ""
-
-        homepage_html = (
-            "<!-- wp:html -->\n"
-            '<div class="aim-latest">\n'
-            f"  <h2>AI Frontier Monitor &#8212; {html_escape(week_label)}</h2>\n"
-            f"  <p class=\"signal-preview\">{html_escape(signal_text[:600])}{'&hellip;' if len(signal_text) > 600 else ''}</p>\n"
-            f'  <p><a href="{html_escape(page_url)}" class="read-more">Read this week\'s issue &rarr;</a></p>\n'
-            f'  <p class="pub-date">Published {html_escape(report_date_str)}</p>\n'
-            "</div>\n"
-            "<!-- /wp:html -->"
-        )
-
-        resp = requests.post(
-            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_HOMEPAGE_ID}",
+        # 1. Read current homepage content
+        get_resp = requests.get(
+            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_HOMEPAGE_ID}?context=edit",
             auth=wp_auth,
-            json={"content": homepage_html, "status": "publish"},
             timeout=60,
         )
-        resp.raise_for_status()
-        log(f"Homepage (ID {WP_HOMEPAGE_ID}) updated.")
+        get_resp.raise_for_status()
+        current = get_resp.json().get("content", {}).get("raw", "")
+
+        # 2. Build new banner inner HTML
+        vol_iss_parts = []
+        if volume:
+            vol_iss_parts.append(f"Vol. {html_escape(str(volume))}")
+        if issue:
+            vol_iss_parts.append(f"Issue {html_escape(str(issue))}")
+        vol_iss = " · ".join(vol_iss_parts)
+        banner_suffix = f" · {vol_iss}" if vol_iss else ""
+        new_span = (
+            f'<span class="text-sm">Latest Issue: {html_escape(week_label)}'
+            f"{banner_suffix} &nbsp;\n"
+            f'      <a href="{html_escape(page_url)}">Read now &rarr;</a>\n'
+            f"    </span>"
+        )
+
+        # 3. Read-then-patch: replace ONLY the <span class="text-sm">...</span>
+        #    inside <div class="latest-banner">.
+        pattern = _re.compile(
+            r'(<div class="latest-banner">.*?<div class="container">\s*)'
+            r'<span class="text-sm">.*?</span>'
+            r'(\s*</div>\s*</div>)',
+            _re.DOTALL,
+        )
+        if not pattern.search(current):
+            log(
+                "WARN: latest-banner slot not found on homepage — skipping update. "
+                "Check page 22643 still has <div class='latest-banner'> structure."
+            )
+        else:
+            patched = pattern.sub(r"\1" + new_span + r"\2", current, count=1)
+            resp = requests.post(
+                f"{WP_SITE}/wp-json/wp/v2/pages/{WP_HOMEPAGE_ID}",
+                auth=wp_auth,
+                json={"content": patched, "status": "publish"},
+                timeout=60,
+            )
+            resp.raise_for_status()
+            log(f"Homepage (ID {WP_HOMEPAGE_ID}) latest-banner updated.")
     except Exception as exc:
         log(f"ERROR updating homepage: {exc}")
 
@@ -1055,7 +1082,8 @@ def main():
 
     # Step 4
     step4_update_standing_pages(
-        wp_user, wp_app_pass, week_label, report_date_str, page_url, archive, report
+        wp_user, wp_app_pass, week_label, report_date_str, page_url, archive, report,
+        volume=volume, issue=issue,
     )
 
 
