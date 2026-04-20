@@ -22,7 +22,14 @@ Exit codes:
     3 — script error (gh CLI missing, network failure, unknown project)
     4 — bug-log gate failed (bug-signal commits this session with no BUG-LOG entry) — hard from 2026-05-01
 
-Version: 2.3 — 20 Apr 2026 (evening). Added gate_next_session_freshness():
+Version: 2.4 — 21 Apr 2026. Added gate_ad_chain(), gate_handover_sweep_needed(),
+and gate_monthly_archive_rollover(). Per AD-2026-04-21b (P-12 Phase A, Tool 6)
+— wrap-side gates for the three new failure classes covered by the Phase-A
+boot/wrap tooling. All three are advisory (passed=True regardless of finding)
+since the authoritative tools in tools/ already exit non-zero; wrap_check’s
+job here is to raise the finding in the wrap board rather than gate the wrap.
+
+v2.3 — 20 Apr 2026 (evening). Added gate_next_session_freshness():
 advisory check that warns if next-session.md "Primary task" still names an AD
 that landed in this session (i.e. a wrap from yesterday forgot to promote the
 next task, so the boot prompt is stale). Per AD-2026-04-20g, in response to
@@ -149,6 +156,29 @@ AD_ID_PATTERN = r"AD-\d{4}-\d{2}-\d{2}[a-z]?"
 PRIMARY_TASK_BLOCK_PATTERN = (
     r"##\s*Primary task[^\n]*\n(.*?)(?=\n## |\Z)"
 )
+
+# -------------------------------------------------------------------
+# P-12 Phase A additions (v2.4) — boot-gate parity advisory gates
+# -------------------------------------------------------------------
+# All three new gates reach into the asym-intel-internal repo, since that
+# is where the files they check (architectural-decisions.md, HANDOVER.md,
+# gate-telemetry/) live. Each gate is ADVISORY: it never blocks the wrap.
+# Authoritative enforcement lives in the standalone tools under tools/
+# (validate_ad_chain.py, sweep_handover.py) which exit non-zero on failure.
+
+AD_LOG_REPO = "asym-intel/asym-intel-internal"
+AD_LOG_PATH = "ops/architectural-decisions.md"
+HANDOVER_REPO = "asym-intel/asym-intel-internal"
+HANDOVER_PATH = "ops/HANDOVER.md"
+HANDOVER_SWEEP_AGE_DAYS = 30
+HANDOVER_LINE_CAP = 300
+TELEMETRY_REPO = "asym-intel/asym-intel-internal"
+TELEMETRY_DIR = "ops/gate-telemetry"
+
+# AD header patterns (kept in sync with tools/validate_ad_chain.py).
+_AD_HDR_A = r"^#{1,2}\s+AD-(\d{4}-\d{2}-\d{2}[a-z]?(?:-\d+)?)\s*[—\-–]"
+_AD_HDR_B = r"^#{1,2}\s+\d{4}-\d{2}-\d{2}\s*[—\-–]\s*AD-(\d{4}-\d{2}-\d{2}[a-z]?(?:-\d+)?)\s*[:\-]"
+
 
 # Phrases in commit messages that signal bug work. Lowercased match.
 BUG_SIGNAL_PATTERNS = [
@@ -585,6 +615,319 @@ def gate_workspace_artifacts() -> CheckResult:
 
 
 # -------------------------------------------------------------------
+# P-12 Phase A (v2.4) gates — advisory only
+# -------------------------------------------------------------------
+
+def gate_ad_chain(project_name: str) -> CheckResult:
+    """Advisory gate — reports structural problems in the AD log.
+
+    Three failure classes detected (mirrors tools/validate_ad_chain.py):
+      - duplicate: same AD ID appears under two distinct headers
+      - dangling: `Retires: AD-X` names an ID that is not in the log
+      - double_retire: same AD ID retired by two different live ADs
+
+    Only runs for project 'asym-intel' — the AD log lives in the internal
+    repo and the same log governs all engine projects. Always advisory
+    (passed=True). Authoritative enforcement lives in tools/validate_ad_chain.py
+    which exits non-zero. This gate surfaces the same finding in the wrap board
+    so Computer notices at wrap time.
+
+    Per AD-2026-04-21b (P-12 Phase A, Tool 6 — wrap-side parity).
+    """
+    import re as _re
+
+    if project_name != "asym-intel":
+        return CheckResult(
+            "ad_chain", True,
+            f"[ADVISORY] Skipped — AD log convention runs through asym-intel "
+            f"project (checked there). Skipping for '{project_name}'.",
+        )
+
+    # 1. Fetch AD log.
+    try:
+        out = gh([
+            "api", f"/repos/{AD_LOG_REPO}/contents/{AD_LOG_PATH}",
+            "--jq", ".content",
+        ])
+    except RuntimeError as e:
+        return CheckResult(
+            "ad_chain", True,
+            f"[ADVISORY] Could not fetch {AD_LOG_PATH} ({e}) — skipping AD chain check.",
+        )
+    try:
+        content = base64.b64decode(out.strip()).decode("utf-8", errors="replace")
+    except Exception as e:
+        return CheckResult(
+            "ad_chain", True,
+            f"[ADVISORY] Could not decode {AD_LOG_PATH} ({e}) — skipping.",
+        )
+
+    # 2. Walk the log: find every AD header, then for each AD walk its body
+    # until the next AD header, collecting the `**Retires:**` block and
+    # extracting AD-IDs from it. Mirrors tools/validate_ad_chain.py block walk.
+    hdr_a = _re.compile(_AD_HDR_A)
+    hdr_b = _re.compile(_AD_HDR_B)
+    ad_id_any = _re.compile(r"\bAD-(\d{4}-\d{2}-\d{2}[a-z]?(?:-\d+)?)\b")
+    retires_marker = "**Retires:**"
+    block_end_markers = (
+        "**Signed off:**", "**Commit(s):**", "**Commit:**", "**Review:**",
+        "**Tension log:**", "**Verification:**", "**Rollback:**", "**Status:**",
+    )
+
+    seen: dict[str, list[int]] = {}           # id -> [line numbers of headers]
+    ad_ids_in_log: set[str] = set()
+    retires_edges: list[tuple[str, str]] = []  # (retiring_ad_id, retired_ad_id)
+
+    lines = content.splitlines()
+
+    # Pass 1 — collect header positions.
+    header_positions: list[tuple[int, str]] = []  # (line_index_0based, ad_id)
+    for idx, line in enumerate(lines):
+        m = hdr_a.match(line) or hdr_b.match(line)
+        if m:
+            ad_id = f"AD-{m.group(1)}"
+            seen.setdefault(ad_id, []).append(idx + 1)
+            ad_ids_in_log.add(ad_id)
+            header_positions.append((idx, ad_id))
+
+    # Pass 2 — for each AD, walk body to find Retires block and extract AD-IDs.
+    for k, (hdr_idx, ad_id) in enumerate(header_positions):
+        body_start = hdr_idx + 1
+        body_end = header_positions[k + 1][0] if k + 1 < len(header_positions) else len(lines)
+        # Find Retires marker within this AD's body.
+        retires_start = None
+        for j in range(body_start, body_end):
+            if retires_marker in lines[j]:
+                retires_start = j
+                break
+        if retires_start is None:
+            continue
+        # Walk from retires_start until block-end marker or next AD header.
+        for j in range(retires_start, body_end):
+            line = lines[j]
+            stripped = line.lstrip()
+            # Stop at another metadata marker (but not the Retires marker line itself).
+            if j != retires_start and any(
+                stripped.startswith(m) for m in block_end_markers
+            ):
+                break
+            for mm in ad_id_any.finditer(line):
+                rid = f"AD-{mm.group(1)}"
+                if rid != ad_id:
+                    retires_edges.append((ad_id, rid))
+
+    # 3. Classify findings.
+    duplicates = {aid: lns for aid, lns in seen.items() if len(lns) > 1}
+
+    dangling = sorted({retired for _retiring, retired in retires_edges
+                       if retired not in ad_ids_in_log})
+
+    retired_count: dict[str, list[str]] = {}
+    for retiring, retired in retires_edges:
+        retired_count.setdefault(retired, []).append(retiring)
+    double_retired = {aid: rs for aid, rs in retired_count.items() if len(rs) > 1}
+
+    if not duplicates and not dangling and not double_retired:
+        return CheckResult(
+            "ad_chain", True,
+            f"[ADVISORY] AD chain clean — {len(ad_ids_in_log)} AD(s) in log, "
+            f"{len(retires_edges)} Retires edge(s), no duplicates / dangling / double-retires.",
+        )
+
+    parts: list[str] = [
+        f"[ADVISORY] AD chain findings in {AD_LOG_PATH} "
+        f"({len(ad_ids_in_log)} AD(s), {len(retires_edges)} Retires edge(s)):"
+    ]
+    if duplicates:
+        for aid, lns in sorted(duplicates.items()):
+            parts.append(f"  - DUPLICATE {aid} at lines {lns}")
+    if dangling:
+        parts.append(f"  - DANGLING Retires targets (not in log): {dangling}")
+    if double_retired:
+        for aid, retirers in sorted(double_retired.items()):
+            parts.append(f"  - DOUBLE-RETIRED {aid} by {sorted(retirers)}")
+    parts.append(
+        "  Run `python3 tools/validate_ad_chain.py` for the authoritative verdict "
+        "(non-zero exit on these classes)."
+    )
+    return CheckResult("ad_chain", True, "\n".join(parts))
+
+
+def gate_handover_sweep_needed(project_name: str) -> CheckResult:
+    """Advisory gate — warns if HANDOVER.md contains resolved entries older than
+    HANDOVER_SWEEP_AGE_DAYS, or if the file is approaching the line cap.
+
+    Heuristic for 'resolved + old':
+      - Find `### YYYY-MM-DD — title` headers (skip obvious placeholders).
+      - An entry is 'resolved' if its block contains a line matching
+        `**Status:**` with `resolved|closed|done|complete` (case-insensitive).
+      - An entry is 'old' if its header date is older than today − N days.
+
+    Only runs for project 'asym-intel' (HANDOVER.md lives in the internal repo).
+    Always advisory; authoritative sweep is tools/sweep_handover.py.
+
+    Per AD-2026-04-21b (P-12 Phase A, Tool 6 — wrap-side parity).
+    """
+    import re as _re
+
+    if project_name != "asym-intel":
+        return CheckResult(
+            "handover_sweep", True,
+            f"[ADVISORY] Skipped — HANDOVER.md lives in asym-intel-internal; "
+            f"not checked for project '{project_name}'.",
+        )
+
+    try:
+        out = gh([
+            "api", f"/repos/{HANDOVER_REPO}/contents/{HANDOVER_PATH}",
+            "--jq", ".content",
+        ])
+    except RuntimeError as e:
+        return CheckResult(
+            "handover_sweep", True,
+            f"[ADVISORY] Could not fetch {HANDOVER_PATH} ({e}) — skipping sweep check.",
+        )
+    try:
+        content = base64.b64decode(out.strip()).decode("utf-8", errors="replace")
+    except Exception as e:
+        return CheckResult(
+            "handover_sweep", True,
+            f"[ADVISORY] Could not decode {HANDOVER_PATH} ({e}) — skipping.",
+        )
+
+    lines = content.splitlines()
+    total_lines = len(lines)
+    header_re = _re.compile(r"^###\s+(\d{4}-\d{2}-\d{2})\s*[—\-–]\s*(.+)$")
+    status_re = _re.compile(r"^\*\*Status:\*\*\s*(.+)$", _re.IGNORECASE)
+    resolved_words = _re.compile(r"\b(resolved|closed|done|complete[d]?)\b", _re.IGNORECASE)
+
+    # Split the file into blocks keyed by header.
+    blocks: list[tuple[str, str, list[str]]] = []  # (date_str, title, body_lines)
+    current: tuple[str, str, list[str]] | None = None
+    for line in lines:
+        m = header_re.match(line)
+        if m:
+            if current is not None:
+                blocks.append(current)
+            date_str, title = m.group(1), m.group(2).strip()
+            # Skip obvious placeholder entries.
+            if title.lower().startswith(("placeholder", "example", "template")):
+                current = None
+                continue
+            current = (date_str, title, [])
+            continue
+        if current is not None:
+            current[2].append(line)
+    if current is not None:
+        blocks.append(current)
+
+    today = datetime.now(timezone.utc).date()
+    cutoff = today - timedelta(days=HANDOVER_SWEEP_AGE_DAYS)
+    stale_resolved: list[tuple[str, str]] = []
+
+    for date_str, title, body in blocks:
+        try:
+            entry_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        if entry_date > cutoff:
+            continue
+        # Look for a Status line indicating resolution.
+        for bline in body:
+            sm = status_re.match(bline.strip())
+            if sm and resolved_words.search(sm.group(1)):
+                stale_resolved.append((date_str, title))
+                break
+
+    warnings: list[str] = []
+    if stale_resolved:
+        warnings.append(
+            f"{len(stale_resolved)} resolved entr(ies) older than "
+            f"{HANDOVER_SWEEP_AGE_DAYS}d in {HANDOVER_PATH}:"
+        )
+        for date_str, title in stale_resolved[:5]:
+            warnings.append(f"    - {date_str} — {title}")
+        if len(stale_resolved) > 5:
+            warnings.append(f"    ... and {len(stale_resolved) - 5} more")
+        warnings.append(
+            "  Run `python3 tools/sweep_handover.py` to archive these into "
+            "ops/handover-archive-YYYY-MM.md."
+        )
+
+    if total_lines > HANDOVER_LINE_CAP:
+        warnings.append(
+            f"{HANDOVER_PATH} is {total_lines} lines "
+            f"(cap {HANDOVER_LINE_CAP}) — sweep recommended regardless of age."
+        )
+
+    if not warnings:
+        return CheckResult(
+            "handover_sweep", True,
+            f"[ADVISORY] {HANDOVER_PATH} OK — {total_lines} line(s), "
+            f"no resolved entries older than {HANDOVER_SWEEP_AGE_DAYS}d.",
+        )
+
+    return CheckResult("handover_sweep", True, "[ADVISORY] " + "\n  ".join(warnings))
+
+
+def gate_monthly_archive_rollover() -> CheckResult:
+    """Advisory gate — on the 1st of a month, warn if the prior month's
+    gate-telemetry JSONL has not yet been committed to ops/gate-telemetry/.
+
+    The telemetry rollover is discipline-based (see ops/gate-telemetry/README.md).
+    Each gate execution appends to `ops/gate-telemetry/YYYY-MM.jsonl`. When a new
+    month starts, the prior file stops receiving writes. This gate detects the
+    case where the rollover day has arrived but the prior month's file is not
+    present in the repo (e.g. still only in a local workspace, or was never
+    committed).
+
+    Only active on the 1st–3rd of the month UTC (gives a small grace window).
+    Always advisory.
+
+    Per AD-2026-04-21b (P-12 Phase A, Tool 6 — wrap-side parity).
+    """
+    now = datetime.now(timezone.utc)
+    if now.day > 3:
+        return CheckResult(
+            "telemetry_rollover", True,
+            f"[ADVISORY] Not in rollover window (day {now.day} of month; "
+            f"gate active days 1–3 UTC) — skipping.",
+        )
+
+    # Prior month stamp.
+    first_of_this_month = now.replace(day=1)
+    prior = first_of_this_month - timedelta(days=1)
+    prior_stamp = prior.strftime("%Y-%m")
+    prior_path = f"{TELEMETRY_DIR}/{prior_stamp}.jsonl"
+
+    # Probe the file via `gh api`.
+    try:
+        gh([
+            "api", f"/repos/{TELEMETRY_REPO}/contents/{prior_path}",
+            "--jq", ".sha",
+        ])
+    except RuntimeError as e:
+        msg = str(e).lower()
+        if "not found" in msg or "404" in msg:
+            return CheckResult(
+                "telemetry_rollover", True,
+                f"[ADVISORY] Rollover pending — {prior_path} not yet committed to "
+                f"{TELEMETRY_REPO}. If gates ran in {prior_stamp} the local JSONL "
+                f"must be committed before it is lost. Run the gate telemetry "
+                f"review: `python3 tools/review_gate_telemetry.py --month {prior_stamp}`.",
+            )
+        return CheckResult(
+            "telemetry_rollover", True,
+            f"[ADVISORY] Could not probe {prior_path} ({e}) — skipping rollover check.",
+        )
+
+    return CheckResult(
+        "telemetry_rollover", True,
+        f"[ADVISORY] Rollover OK — {prior_path} present in {TELEMETRY_REPO}.",
+    )
+
+
+# -------------------------------------------------------------------
 # Main
 # -------------------------------------------------------------------
 def main() -> int:
@@ -633,6 +976,9 @@ def main() -> int:
     prs_result = gate_open_prs(project)
     ws_result = gate_workspace_artifacts()
     freshness_result = gate_next_session_freshness(args.project)
+    ad_chain_result = gate_ad_chain(args.project)
+    handover_result = gate_handover_sweep_needed(args.project)
+    rollover_result = gate_monthly_archive_rollover()
 
     print(header)
     print(f"\n[§5.3 Thinning] {'PASS' if thin_result.passed else 'FAIL'}")
@@ -647,6 +993,12 @@ def main() -> int:
     print(f"  {ws_result.detail}")
     print(f"\n[next-session.md freshness] advisory")
     print(f"  {freshness_result.detail}")
+    print(f"\n[AD chain] advisory")
+    print(f"  {ad_chain_result.detail}")
+    print(f"\n[HANDOVER sweep] advisory")
+    print(f"  {handover_result.detail}")
+    print(f"\n[Telemetry rollover] advisory")
+    print(f"  {rollover_result.detail}")
 
     # Emit the canonical wrap-summary template
     size_str = f"{thin_data['size']}" if thin_data['size'] is not None else "?"
