@@ -286,9 +286,9 @@ def step1_credentials():
 # ---------------------------------------------------------------------------
 
 
-# Sibling path to adapters: /home/user/workspace/.../pipeline/publishers/
-# → /home/user/workspace/.../pipeline/adapters/
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "adapters"))
+# Add repo root to sys.path so `from pipeline.adapters import …` resolves.
+# publishers/ → pipeline/ → repo root = parents[2].
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 # Ramparts repo writes: shaped JSON and Node renderer invocation.
 RAMPARTS_SHAPED_PATH_TMPL = "ramparts-v2/data/report-{date}.json"
