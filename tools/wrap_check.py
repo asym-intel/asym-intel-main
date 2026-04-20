@@ -22,7 +22,16 @@ Exit codes:
     3 — script error (gh CLI missing, network failure, unknown project)
     4 — bug-log gate failed (bug-signal commits this session with no BUG-LOG entry) — hard from 2026-05-01
 
-Version: 2.2 — 20 Apr 2026. Project registry moved out of this file to
+Version: 2.3 — 20 Apr 2026 (evening). Added gate_next_session_freshness():
+advisory check that warns if next-session.md "Primary task" still names an AD
+that landed in this session (i.e. a wrap from yesterday forgot to promote the
+next task, so the boot prompt is stale). Per AD-2026-04-20g, in response to
+the live failure observed at boot 2026-04-20: yesterday's wrap landed
+AD-2026-04-20c/d/e but next-session.md still pointed at "Implement R-1, R-2,
+R-8" — i.e. the trio that had just been completed. Computer detected the
+staleness manually at boot; the gate now catches it at wrap.
+
+v2.2 — 20 Apr 2026. Project registry moved out of this file to
 `asym-intel-internal/ops/engine-projects.json` (single source of truth for all
 engine tooling). Registry fetched at startup; local cache fallback in
 `ops/engine-projects.json` (asym-intel-main root-relative path resolved from
@@ -124,6 +133,22 @@ SESSION_WINDOW_HOURS = 12               # "this session" = commits in last 12h
 BUG_LOG_REPO = "asym-intel/asym-intel-internal"
 BUG_LOG_PATH = "ops/BUG-LOG.md"
 BUG_LOG_ENFORCEMENT_DATE = datetime(2026, 5, 1, tzinfo=timezone.utc)
+
+# next-session.md freshness gate (AD-2026-04-20g, advisory).
+# The path is currently hardcoded for the asym-intel project only — the only
+# project where the prompt-file convention is known and stable. Other projects
+# do not yet have a documented next-session.md path; generalising the gate is a
+# follow-up. When the path moves into engine-projects.json (per-project
+# `next_session_path` key) the hardcode goes away.
+NEXT_SESSION_REPO = "asym-intel/asym-intel-internal"
+NEXT_SESSION_PATH = "docs/prompts/next-session.md"
+# Match AD IDs of the form AD-YYYY-MM-DD or AD-YYYY-MM-DDx (single suffix letter).
+AD_ID_PATTERN = r"AD-\d{4}-\d{2}-\d{2}[a-z]?"
+# The "Primary task" block starts at the H2 header containing that phrase and
+# ends at the next H2. Captured non-greedily.
+PRIMARY_TASK_BLOCK_PATTERN = (
+    r"##\s*Primary task[^\n]*\n(.*?)(?=\n## |\Z)"
+)
 
 # Phrases in commit messages that signal bug work. Lowercased match.
 BUG_SIGNAL_PATTERNS = [
@@ -397,6 +422,95 @@ def gate_open_prs(project: dict) -> CheckResult:
     )
 
 
+def gate_next_session_freshness(project_name: str) -> CheckResult:
+    """Advisory gate — warns if next-session.md Primary task references an AD
+    that landed in this session window.
+
+    Heuristic: for each AD ID found in commit messages on the internal repo in
+    the last SESSION_WINDOW_HOURS, check whether the same AD ID appears in the
+    next-session.md "Primary task" block. If yes, the prompt is stale — it is
+    instructing the next session to do work that just landed.
+
+    Limitation: only runs for the 'asym-intel' project (others have no known
+    prompt path yet). Always advisory — returns passed=True.
+
+    Per AD-2026-04-20g — closes the wrap-hygiene gap observed at 2026-04-20
+    boot when next-session.md still pointed at the just-landed R-1/R-2/R-8 trio.
+    """
+    import re as _re
+
+    if project_name != "asym-intel":
+        return CheckResult(
+            "next_session_freshness", True,
+            f"[ADVISORY] Skipped — prompt-path convention not yet documented for "
+            f"project '{project_name}'. Gate currently runs for asym-intel only.",
+        )
+
+    # 1. Collect AD IDs from session-window commits on the internal repo.
+    try:
+        commits = recent_commits(NEXT_SESSION_REPO, SESSION_WINDOW_HOURS)
+    except RuntimeError as e:
+        return CheckResult(
+            "next_session_freshness", True,
+            f"[ADVISORY] Could not fetch commits ({e}) — skipping freshness check.",
+        )
+
+    landed_ads: set[str] = set()
+    for c in commits:
+        for match in _re.findall(AD_ID_PATTERN, c["msg"]):
+            landed_ads.add(match)
+
+    if not landed_ads:
+        return CheckResult(
+            "next_session_freshness", True,
+            f"[ADVISORY] No AD IDs in last {SESSION_WINDOW_HOURS}h of commits — "
+            f"freshness check skipped (nothing to compare).",
+        )
+
+    # 2. Fetch next-session.md.
+    try:
+        out = gh([
+            "api", f"/repos/{NEXT_SESSION_REPO}/contents/{NEXT_SESSION_PATH}",
+            "--jq", ".content",
+        ])
+    except RuntimeError as e:
+        return CheckResult(
+            "next_session_freshness", True,
+            f"[ADVISORY] Could not fetch {NEXT_SESSION_PATH} ({e}) — skipping.",
+        )
+    content = base64.b64decode(out.strip()).decode("utf-8", errors="replace")
+
+    # 3. Extract the Primary task block.
+    block_match = _re.search(PRIMARY_TASK_BLOCK_PATTERN, content, _re.DOTALL)
+    if not block_match:
+        return CheckResult(
+            "next_session_freshness", True,
+            f"[ADVISORY] No '## Primary task' block found in {NEXT_SESSION_PATH} "
+            f"— freshness check skipped (cannot locate task block to scan).",
+        )
+    primary_block = block_match.group(1)
+
+    # 4. Look for any landed AD that appears in the Primary task block.
+    stale_refs = sorted(ad for ad in landed_ads if ad in primary_block)
+
+    if not stale_refs:
+        return CheckResult(
+            "next_session_freshness", True,
+            f"[ADVISORY] {NEXT_SESSION_PATH} Primary task does not reference any "
+            f"AD landed this session. Landed: {sorted(landed_ads)}. Verdict: FRESH.",
+        )
+
+    return CheckResult(
+        "next_session_freshness", True,
+        f"[ADVISORY] {NEXT_SESSION_PATH} Primary task references AD(s) that "
+        f"landed in this session: {stale_refs}. "
+        f"This usually means the prior wrap forgot to promote the next task, "
+        f"so the boot prompt is stale. Rewrite the Primary task block before "
+        f"closing wrap, then re-run wrap_check to confirm. "
+        f"All landed ADs this window: {sorted(landed_ads)}.",
+    )
+
+
 def gate_workspace_artifacts() -> CheckResult:
     """Workspace artifact safety gate — warns about uncommitted session documents.
 
@@ -518,6 +632,7 @@ def main() -> int:
     bug_log_result = gate_bug_log(project)
     prs_result = gate_open_prs(project)
     ws_result = gate_workspace_artifacts()
+    freshness_result = gate_next_session_freshness(args.project)
 
     print(header)
     print(f"\n[§5.3 Thinning] {'PASS' if thin_result.passed else 'FAIL'}")
@@ -530,6 +645,8 @@ def main() -> int:
     print(f"  {prs_result.detail}")
     print(f"\n[Workspace artifacts] advisory")
     print(f"  {ws_result.detail}")
+    print(f"\n[next-session.md freshness] advisory")
+    print(f"  {freshness_result.detail}")
 
     # Emit the canonical wrap-summary template
     size_str = f"{thin_data['size']}" if thin_data['size'] is not None else "?"
