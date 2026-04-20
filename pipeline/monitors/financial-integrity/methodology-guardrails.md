@@ -117,18 +117,67 @@ for that level. Challenger must verify the evidentiary standard is met.
 evidence from a higher tier. Confidence must be downgraded if the supporting
 source withdraws or qualifies, or if credible rebuttal evidence emerges.
 
-## Bias Corrections (methodology §07)
+## Scheme Severity Rating (four levels)
 
-The brief must actively counter three known biases. A brief that does not
-surface attempts to apply these corrections is methodologically incomplete.
+FIM briefs assign severity to named illicit-finance schemes. This is distinct
+from confidence: confidence measures evidentiary strength, severity measures
+strategic consequence. Challenger must verify the criteria for the asserted
+severity are met by the evidence presented.
+
+| Rating | Criteria |
+|---|---|
+| **CRITICAL** | Systemic sanctions-evasion architecture sustaining a conflict or weapons programme. State-level complicity documented. Multi-jurisdictional enabling infrastructure. |
+| **HIGH** | Large-scale illicit flow with documented strategic consequences. Professional-enabler network identified. Regulatory enforcement gap confirmed. |
+| **ELEVATED** | Significant illicit-finance scheme documented but strategic consequences not yet fully assessed. Architecture partially mapped. |
+| **MONITORED** | Credible indicators of illicit flow or enabler-jurisdiction risk. Under investigation or assessment. |
+
+**CRITICAL** in particular requires three independent evidentiary anchors:
+(1) architecture documented at multi-jurisdiction scale, (2) state-level
+complicity established by Tier-1 evidence, (3) strategic consequence traced
+(conflict sustained / weapons procured / regime preserved). A CRITICAL label
+without all three anchors is overstated severity.
+
+## Bias Corrections (methodology §10)
+
+The brief must actively counter known biases. A brief that does not surface
+attempts to apply these corrections is methodologically incomplete.
+
+### Over-indexing corrections
 
 - **Enforcement-action bias.** Regulatory enforcement generates coverage;
-  regulatory gaps do not. F3 actively searches for non-enforcement.
-- **Anglo-jurisdiction bias.** English-language sources dominate. Must
-  actively seek coverage of UAE, Russia, China, Central Asia, Sahel.
+  regulatory gaps do not. F3 actively searches for non-enforcement — **absence
+  of enforcement action is itself a signal**, and the gap between Tier-2
+  findings and Tier-1 enforcement is itself a signal.
+- **Russia overweight.** Russian sanctions-evasion is the best-documented case.
+  Iranian, DPRK, and non-state evasion architectures must receive proportionate
+  coverage.
+- **Banking-sector focus.** Banks are the most regulated and most visible
+  intermediaries. Professional enablers, real-estate channels, and TBML carry
+  larger volumes at lower visibility.
+- **Anglo-jurisdiction bias.** English-language sources dominate. Must actively
+  seek coverage of UAE, Russia, China, Central Asia, Sahel.
 - **Seizure-headline bias.** A large-value seizure does not indicate systemic
   success; it often indicates the visibility of one interdicted flow against a
   much larger architecture.
+
+### Under-indexing corrections (named omissions the challenger should flag)
+
+The following are documented under-indexing risks in FIM output. A brief that
+silently omits any of these without justification is methodologically
+incomplete and should be flagged under `missing_counter_evidence` or `other`
+with category note `under_indexing`.
+
+- **Trade-based money laundering (TBML).** The largest-volume channel for
+  illicit finance and the least visible. Dedicated weekly searches required.
+- **Professional enablers.** Lawyers, accountants, and corporate service
+  providers are structurally under-reported due to professional privilege and
+  regulatory fragmentation. Dedicated searches required.
+- **Sub-Saharan Africa.** Extractive-industry corruption, conflict minerals,
+  and illicit financial flows from Africa are under-covered relative to scale.
+  Mandatory regional scouting.
+- **Domestic proceeds of corruption.** FIM's cross-border focus may
+  under-capture domestic corruption that does not involve international flows
+  but degrades institutional integrity.
 
 ## What FIM Is NOT
 
@@ -157,5 +206,7 @@ F4.
 
 ---
 
-**Version:** v1.0 (distilled 2026-04-19 for Sprint A FIM challenger).
-Re-distill when public methodology changes materially.
+**Version:** v1.1 (distilled 2026-04-19 for Sprint A FIM challenger; extended
+2026-04-20 — added Scheme Severity Rating, non-enforcement active-search clause,
+and Under-indexing Corrections per Sprint A audit against methodology v2 §07 and
+§10). Re-distill when public methodology changes materially.
