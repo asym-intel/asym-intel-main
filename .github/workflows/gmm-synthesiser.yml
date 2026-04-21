@@ -14,15 +14,29 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout repository
+      - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Fetch GMM methodology from internal repo
+      # ── Phase B Step 5 cutover — engine + bespoke config live in internal ──
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/macro-monitor
+          sparse-checkout-cone-mode: false
+
+      - name: Fetch GMM methodology + identity from internal repo
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
+          mkdir -p docs/methodology docs/identity
+
           # Identity card (analytical quality standard)
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
@@ -31,11 +45,7 @@ jobs:
             && echo "Identity card fetched ($(wc -c < docs/identity/gmm-identity.md) bytes)" \
             || echo "WARNING: Identity card not found — continuing without it"
 
-          # Prompt is now in main repo — no fetch needed
-          echo "GMM prompt in repo ($(wc -c < pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt) bytes)"
-
           # Methodology (private IP — stays in internal repo)
-          mkdir -p docs/methodology docs/identity
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/macro-monitor-full.md" \
@@ -50,21 +60,32 @@ jobs:
             && echo "GMM addendum fetched ($(wc -c < docs/methodology/macro-monitor-addendum.md) bytes)" \
             || echo "No addendum found — continuing without it"
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests pyyaml
 
-      - name: Run GMM synthesiser
+      # The engine reads bespoke files via paths resolved relative to CWD
+      # (public-main root). Stage the internal checkout's bespoke files there.
+      # §15 IP boundary preserved — they are never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/macro-monitor
+          cp -v internal/pipeline/monitors/macro-monitor/metadata.yml             pipeline/monitors/macro-monitor/
+          cp -v internal/pipeline/monitors/macro-monitor/synthesiser-prompt.txt   pipeline/monitors/macro-monitor/
+          cp -v internal/pipeline/monitors/macro-monitor/synthesiser-schema.json  pipeline/monitors/macro-monitor/
+          cp -v internal/pipeline/monitors/macro-monitor/synthesiser-domain.md    pipeline/monitors/macro-monitor/ || true
+
+      - name: Run GMM synthesiser (engine dispatch)
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          REPO_ROOT: ${{ github.workspace }}
-          SYNTH_MODEL: ${{ github.event.inputs.model }}
-        run: |
-          python pipeline/synthesisers/gmm/macro-monitor-synthesiser.py
+          REPO_ROOT:    ${{ github.workspace }}
+          SYNTH_MODEL:  ${{ github.event.inputs.model }}
+          PYTHONPATH:   internal
+        run: python -m pipeline.engine.synth_base --monitor macro-monitor
 
       - name: Commit synthesis output
         run: |
