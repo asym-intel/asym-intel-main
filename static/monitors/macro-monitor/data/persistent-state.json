@@ -458,5 +458,141 @@
       "applied_by": "GMM Analyst cron (manual run)",
       "summary": "Tariff Cascade Protocol active T3 (22%); dollar_weaponization and treasury_market_liquidity upgraded to WARNING; system average CRITICAL (-0.664); EM Equities MILD NEGATIVE→BEARISH; 6/8 asset classes BEARISH"
     }
-  ]
+  ],
+  "_challenge": {
+    "challenger_schema_version": "1.0",
+    "challenger_model": "sonar-pro",
+    "challenger_prompt_hash": "156d2450e6fe1706",
+    "ts": "2026-04-21T09:15:44Z",
+    "duration_ms": 14685,
+    "verdict": "hold_for_review",
+    "justification": "Two hard flags on fabricated Turnberry deal and regime logic, plus soft flags on blind spots and sources warrant human review before publication.",
+    "null_challenge_week": false,
+    "null_challenge_reason": null,
+    "flag_counts": {
+      "findings": 6,
+      "hard": 2,
+      "soft": 3,
+      "info": 1,
+      "top_category": "logical_inconsistency"
+    },
+    "findings": [
+      {
+        "id": "f-001",
+        "severity": "hard_flag",
+        "categories": [
+          "source_unverifiable",
+          "fabricated_detail"
+        ],
+        "claim_location": "lead_signal.headline",
+        "quoted_claim": "EU-US Turnberry tariff deal locks in 15 percent rate on EU exports reducing uncertainty but eroding EU competitiveness",
+        "finding_preliminary": "No evidence of any EU-US Turnberry tariff deal exists in web searches as of 2026-04-21. Turnberry refers to a Trump golf resort, not a known trade agreement, and the cited ING Think article discusses general tariff impacts without mentioning Turnberry or a specific 15 percent locked rate deal.",
+        "evidence": [
+          {
+            "source": "ING Think article",
+            "source_url": "https://think.ing.com/articles/the-us-tariff-shock-same-negative-impact-different-drivers-in-2025-and-2026/",
+            "source_date": null,
+            "source_tier": "T3",
+            "relevance": "Article projects EU export slowdown to US at 4.6 percent in 2026 due to tariffs but does not mention Turnberry deal or locking in 15 percent rate"
+          },
+          {
+            "source": "Web search for Turnberry tariff deal",
+            "source_url": null,
+            "source_date": null,
+            "source_tier": "unknown",
+            "relevance": "No results for EU-US Turnberry tariff deal; Turnberry associated with Trump properties, not trade policy"
+          }
+        ],
+        "suggested_action": "retract"
+      },
+      {
+        "id": "f-002",
+        "severity": "hard_flag",
+        "categories": [
+          "logical_inconsistency"
+        ],
+        "claim_location": "stress_regime_preliminary.regime_delta",
+        "quoted_claim": "regime_delta: Stable, regime: CRISIS",
+        "finding_preliminary": "Stress regime remains CRISIS with Stable delta, but guardrails require corroborating evidence across at least two domains for any non-Stable delta; here delta is Stable yet lead signal and multiple domains cite new Turnberry deal as structural entrenchment without prior brief evidence, violating conjunctivity rule implicitly by introducing unverified driver.",
+        "evidence": [],
+        "suggested_action": "verify_before_publish"
+      },
+      {
+        "id": "f-003",
+        "severity": "soft_flag",
+        "categories": [
+          "source_misattribution",
+          "stale_evidence"
+        ],
+        "claim_location": "domain_4_real_economy[4].value",
+        "quoted_claim": "earnings_revisions flag: ELEVATED, EPS revision breadth -15 percent, source: FactSet",
+        "finding_preliminary": "Earnings_revisions flagged ELEVATED (not GREEN), so Blind Spot 1 trigger does not apply, but Tech asset_class lacks any caveat on buyback distortion despite guardrail expectation for GREEN cases; FactSet data unverifiable for exact -15 percent without URL.",
+        "evidence": [],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-004",
+        "severity": "soft_flag",
+        "categories": [
+          "quantitative_error",
+          "stale_evidence"
+        ],
+        "claim_location": "domain_3_market_structure[4].value",
+        "quoted_claim": "m2_money_supply flag: ELEVATED direction: DETERIORATING value: M2 YoY growth 2.1 percent",
+        "finding_preliminary": "Nominal M2 at 2.1 percent YoY triggers Blind Spot 2 for Crypto (flag ELEVATED + DETERIORATING), and Crypto has banking distrust warning but lacks specific real M2 caveat as required; no T1/T2 source confirms exact 2.1 percent for week ending 2026-04-18.",
+        "evidence": [
+          {
+            "source": "Federal Reserve H.6 Money Stock Measures",
+            "source_url": null,
+            "source_date": "2026-04-17",
+            "source_tier": "T2",
+            "relevance": "Latest H.6 shows M2 YoY around 1.8-2.0 percent as of mid-April 2026, close but requires verification; real M2 negative per CPI adjustment"
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-005",
+        "severity": "info",
+        "categories": [
+          "missing_counter_evidence"
+        ],
+        "claim_location": "domain_6_amplifiers[0].current_driver",
+        "quoted_claim": "trump_tariffs current_driver: USMCA review and Section 232 enforcement",
+        "finding_preliminary": "Tariff_tracker cites 2026-04-02 effective dates unverifiable; prior brief mentions Section 122 and Yale estimates at 9.6-11 percent, not 17.2 percent effective rate without T1 source.",
+        "evidence": [
+          {
+            "source": "Prior brief 2026-04-17",
+            "source_url": null,
+            "source_date": "2026-04-17",
+            "source_tier": "unknown",
+            "relevance": "Prior reports effective tariff 11.0 percent, highest since 1943"
+          }
+        ],
+        "suggested_action": "cite_counter_evidence"
+      },
+      {
+        "id": "f-006",
+        "severity": "soft_flag",
+        "categories": [
+          "logical_inconsistency"
+        ],
+        "claim_location": "asset_outlook[1].blind_spot_warning",
+        "quoted_claim": "Energy blind_spot_warning: Energy equity vs commodity divergence blind spot active Hormuz driver unresolved",
+        "finding_preliminary": "Acknowledges documented false-positive 4 (energy commodity vs equity) and Hormuz-flip risk per guardrails 6.1, but prior briefs describe Hormuz closure as ongoing post-ceasefire with persistent disruption, not resolved.",
+        "evidence": [
+          {
+            "source": "Prior brief 2026-04-17",
+            "source_url": null,
+            "source_date": "2026-04-17",
+            "source_tier": "unknown",
+            "relevance": "Hormuz traffic far below pre-war levels post-April 8 ceasefire"
+          }
+        ],
+        "suggested_action": "no_action"
+      }
+    ],
+    "status": "ok",
+    "schema_version": "1.0"
+  }
 }
