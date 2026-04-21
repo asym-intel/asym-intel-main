@@ -96,6 +96,7 @@
 <footer class="monitor-footer"></footer>
 
 <script src="../shared/js/renderer.js"></script>
+<script src="../shared/js/monitor-urls.js"></script>
 <script>
 (function () {
   'use strict';
@@ -121,9 +122,32 @@
     return f.linkage || f.body || f.description || f.detail || '';
   }
 
+  /* ENGINE-RULES §17: slug → display-name resolution MUST come from the
+     canonical MonitorRegistry, never from inline string maps. nameFromSlug
+     returns the registry `name` (or a titlecased fallback on miss) so
+     publisher data that writes slugs into `monitor` (CMF-004/005 class)
+     renders cleanly. Registry is loaded alongside report data below. */
+  function resolveMonitorText(val) {
+    if (!val) return '';
+    var reg = window.MonitorRegistry;
+    if (reg && typeof reg.nameFromSlug === 'function') {
+      /* If it already looks like a display name (has spaces), pass through. */
+      if (typeof val === 'string' && val.indexOf(' ') < 0 && val.indexOf('-') >= 0) {
+        return reg.nameFromSlug(val);
+      }
+    }
+    return val;
+  }
+
   function flagMonitor(f) {
-    if (f.monitors_involved && f.monitors_involved.length) return f.monitors_involved.join(' \u00b7 ');
-    if (f.monitor) return f.monitor;
+    var reg = window.MonitorRegistry;
+    if (f.monitor_slug && reg && typeof reg.nameFromSlug === 'function') {
+      return reg.nameFromSlug(f.monitor_slug);
+    }
+    if (f.monitors_involved && f.monitors_involved.length) {
+      return f.monitors_involved.map(resolveMonitorText).join(' \u00b7 ');
+    }
+    if (f.monitor) return resolveMonitorText(f.monitor);
     return '';
   }
 
@@ -264,12 +288,20 @@
     if (window.AsymNav) window.AsymNav.init();
   }
 
-  fetch('data/report-latest.json')
-    .then(function (res) {
+  /* Load registry + report in parallel (ENGINE-RULES §17). Registry miss
+     is non-fatal — flagMonitor falls back to titlecased slug on resolver
+     absence rather than crashing the page. */
+  Promise.all([
+    window.MonitorRegistry.load().catch(function (err) {
+      console.warn('[cross-monitor] registry load failed — slug resolution degraded', err);
+      return null;
+    }),
+    fetch('data/report-latest.json').then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
     })
-    .then(render)
+  ])
+    .then(function (results) { return render(results[1]); })
     .catch(function (err) {
       document.getElementById('active-flags-content').innerHTML =
         '<div class="error-banner" style="background:var(--surface-warning,#fff3e0);border-left:3px solid var(--color-warning,#e65100);border-radius:4px;padding:var(--space-4) var(--space-5);font-size:var(--text-sm);color:var(--color-text)">' +
