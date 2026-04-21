@@ -602,6 +602,11 @@ PUBLISHER_RULES = {
     "ramparts-shim.py": {
         "allowed_substrings": set(),
     },
+    # Unit test for publisher.sanitise_for_public(). No archive interaction —
+    # exercises in-memory dict transforms only.
+    "test_sanitise_for_public.py": {
+        "allowed_substrings": set(),
+    },
 }
 
 _JS_PUBLISHERS_SKIPPED = {"generate-site.js", "generate-static.js"}
