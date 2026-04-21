@@ -9,25 +9,30 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout repository
+      - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+      # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
         with:
-          python-version: "3.11"
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/european-strategic-autonomy
+          sparse-checkout-cone-mode: false
 
-      - name: Install dependencies
-        run: pip install requests
-
-
-      - name: Fetch identity card from internal repo
+      - name: Fetch ESA methodology + identity from internal repo
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          mkdir -p docs/identity
+          mkdir -p docs/methodology docs/identity
+
+          # Identity card (analytical quality standard)
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-ESA.md" \
@@ -35,12 +40,40 @@ jobs:
             && echo "Identity card fetched ($(wc -c < docs/identity/esa-identity.md) bytes)" \
             || echo "WARNING: Identity card not found — continuing without it"
 
-      - name: Run ESA synthesiser
+          # Methodology (private IP — stays in internal repo)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/european-strategic-autonomy-eeas-2026.md" \
+            -o docs/methodology/european-strategic-autonomy-eeas-2026.md
+          echo "ESA methodology fetched ($(wc -c < docs/methodology/european-strategic-autonomy-eeas-2026.md) bytes)"
+
+          # No addendum for ESA
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      # The engine reads bespoke files via paths resolved relative to CWD
+      # (public-main root). Stage the internal checkout's bespoke files there.
+      # §15 IP boundary preserved — they are never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/european-strategic-autonomy
+          cp -v internal/pipeline/monitors/european-strategic-autonomy/metadata.yml             pipeline/monitors/european-strategic-autonomy/
+          cp -v internal/pipeline/monitors/european-strategic-autonomy/synthesiser-prompt.txt   pipeline/monitors/european-strategic-autonomy/
+          cp -v internal/pipeline/monitors/european-strategic-autonomy/synthesiser-schema.json  pipeline/monitors/european-strategic-autonomy/
+          cp -v internal/pipeline/monitors/european-strategic-autonomy/domain.md                pipeline/monitors/european-strategic-autonomy/ || true
+
+      - name: Run ESA synthesiser (engine dispatch)
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          REPO_ROOT: ${{ github.workspace }}
-        run: |
-          python pipeline/synthesisers/esa/european-strategic-autonomy-synthesiser.py
+          REPO_ROOT:    ${{ github.workspace }}
+          PYTHONPATH:   internal
+        run: python -m pipeline.engine.synth_base --monitor european-strategic-autonomy
 
       - name: Commit synthesis output
         run: |
