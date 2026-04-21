@@ -82,6 +82,7 @@ jobs:
       - name: Run WDM synthesiser (engine dispatch)
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          GH_TOKEN:     ${{ secrets.GH_TOKEN }}
           REPO_ROOT:    ${{ github.workspace }}
           SYNTH_MODEL:  ${{ github.event.inputs.model }}
           PYTHONPATH:   internal
