@@ -88,6 +88,38 @@
     return m;
   }
 
+  /* Safe lookups (null on miss instead of throw) — for UI code that must
+     never crash when an unknown slug appears in data. Mirrors the pattern
+     used in /static/synthesis/index.html :: resolveMonitor. */
+  function bySlugSafe(slug) {
+    if (!_data || !slug) return null;
+    var list = _data.monitors;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].slug === slug) return list[i];
+    }
+    return null;
+  }
+  function byAbbrSafe(abbr) {
+    if (!_data || !abbr) return null;
+    var key = String(abbr).toUpperCase();
+    var list = _data.monitors;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].abbr === key) return list[i];
+    }
+    return null;
+  }
+
+  /* Slug → display name. Returns the monitor's canonical `name` from the
+     registry, or a defensive titlecased fallback so the UI never leaks a
+     raw slug. Used by cross-monitor flag cards and any component that
+     receives slugs from publisher data. */
+  function nameFromSlug(slug) {
+    var m = bySlugSafe(slug);
+    if (m) return m.name;
+    if (!slug) return '';
+    return String(slug).replace(/-/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+  }
+
   function url(abbr)    { return byAbbr(abbr).url; }
   function slug(abbr)   { return byAbbr(abbr).slug; }
   function name(abbr)   { return byAbbr(abbr).name; }
@@ -103,7 +135,10 @@
     abbrs: abbrs,
     slugs: slugs,
     byAbbr: byAbbr,
+    byAbbrSafe: byAbbrSafe,
     bySlug: bySlug,
+    bySlugSafe: bySlugSafe,
+    nameFromSlug: nameFromSlug,
     url: url,
     slug: slug,
     name: name,
