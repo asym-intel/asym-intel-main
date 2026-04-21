@@ -1,4 +1,4 @@
-# Global Macro Monitor — Issue 7
+# Global Macro Monitor — Issue 8
 
 **W/E 21 April 2026** | Published 2026-04-21T08:00:00Z
 
@@ -77,7 +77,7 @@ Watch ECB forward guidance on tariff passthrough at May 7 meeting and USTR retal
 - **EU energy security concerns driving strategic autonomy** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
 - **AI infrastructure spending boom requiring governance frameworks** (ai-governance) — Active — verified (adjacent Issue 5)
 - **Energy crisis accelerating clean energy transition** (environmental-risks) — Active — verified (adjacent Issue 9)
-- **Turnberry deal locks 15 percent tariff rate embedding structural drag** (european-strategic-autonomy) — Active — NEW
+- **Turnberry deal locks 15 percent tariff rate embedding structural drag** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
 - **EU-Mercosur agreement accelerates EM trade realignment** (sceM) — Active — NEW
 - **Section 232 steel aluminum tariffs drive input inflation** (erm) — Active — NEW
 
