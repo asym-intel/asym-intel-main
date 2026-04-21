@@ -2,6 +2,12 @@ name: "AI Governance Monitor Synthesiser"
 
 on:
   workflow_dispatch:
+    inputs:
+      model:
+        description: "Perplexity model override (default: sonar-pro)"
+        required: false
+        type: string
+        default: "sonar-pro"
 
 jobs:
   synthesise:
@@ -35,10 +41,30 @@ jobs:
             && echo "Identity card fetched ($(wc -c < docs/identity/agm-identity.md) bytes)" \
             || echo "WARNING: Identity card not found — continuing without it"
 
+      - name: Fetch methodology from internal repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          mkdir -p docs/methodology
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/ai-governance-full.md" \
+            -o docs/methodology/ai-governance-full.md \
+            && echo "Methodology fetched ($(wc -c < docs/methodology/ai-governance-full.md) bytes)" \
+            || { echo "ERROR: Methodology fetch failed — aborting synth run"; exit 1; }
+          # Optional addendum — non-fatal if missing
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/ai-governance-addendum.md" \
+            -o docs/methodology/ai-governance-addendum.md \
+            && echo "Addendum fetched ($(wc -c < docs/methodology/ai-governance-addendum.md) bytes)" \
+            || echo "No addendum found — continuing without it"
+
       - name: Run AGM synthesiser
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
           REPO_ROOT: ${{ github.workspace }}
+          SYNTH_MODEL: ${{ inputs.model }}
         run: |
           python pipeline/synthesisers/agm/ai-governance-synthesiser.py
 

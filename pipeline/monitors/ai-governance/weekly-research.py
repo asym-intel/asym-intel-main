@@ -23,7 +23,7 @@ import base64
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY     = os.environ["PPLX_API_KEY"]
-MODEL       = "sonar-pro"             # sonar-pro: live web search with deeper synthesis
+MODEL       = "sonar-deep-research"   # D-001: deep-research for active-search weekly step (AD-2026-04-21)
 TODAY       = datetime.date.today()
 TODAY_STR   = TODAY.isoformat()
 
@@ -90,7 +90,7 @@ else:
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
 print(f"Calling Perplexity API ({MODEL}) for week ending {WEEK_ENDING}...")
-print("Note: sonar-pro may take 10-30 seconds...")
+print("Note: sonar-deep-research may take 60-180 seconds...")
 
 response = requests.post(
     "https://api.perplexity.ai/chat/completions",

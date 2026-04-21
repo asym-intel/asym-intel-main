@@ -108,6 +108,13 @@ def check_workflows(r: Results):
         # Check: workflow references a Python script that exists
         py_matches = re.findall(r'python3?\s+([\w/.-]+\.py)', content)
         for script_path in py_matches:
+            # Scripts under _internal/ are checked out from asym-intel-internal at
+            # runtime (SPEC-§15 Stage 1(b) pattern) and are not present in this repo
+            # during preflight. Trust them — their existence is validated by the
+            # internal-checkout step of the workflow itself.
+            if script_path.startswith("_internal/"):
+                r.ok(f"WF-SCRIPT:{name}", f"{script_path} (runtime checkout from internal repo — skipped local check)")
+                continue
             full_path = REPO_ROOT / script_path
             if not full_path.exists():
                 r.fail(f"WF-SCRIPT:{name}", f"References {script_path} which does not exist")
