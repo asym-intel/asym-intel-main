@@ -3,8 +3,11 @@ name: "Pre-Publication Adversarial Challenger"
 # Engine-wide observer-only challenger (SCOPE-2026-04-17-003, data-integrity-roadmap Layer 3).
 # Dispatched by the Cloudflare pipeline-dispatcher between synthesiser and publisher.
 #
-# Sprint A (22 Apr 2026): FIM only (financial-integrity). Other monitors' guardrail
-# files will be authored in Sprint B (week of 27 Apr).
+# Stage 1(b) of SPEC-§15-PIPELINE-REPATRIATION (AD-2026-04-21): this workflow now
+# checks out asym-intel-internal at $GITHUB_WORKSPACE/_internal and invokes the
+# canonical challenger script from there. Prompts, response schema, and per-monitor
+# methodology-guardrails.md live in the internal repo (IP boundary). The public
+# checkout remains at $GITHUB_WORKSPACE so writes still land on main.
 #
 # Observer-only: never gates publish. If this workflow fails, the downstream publisher
 # still runs (they are separate dispatcher slots, not a chained workflow_run trigger).
@@ -13,7 +16,7 @@ on:
   workflow_dispatch:
     inputs:
       monitor_slug:
-        description: "Monitor slug (e.g. financial-integrity, macro-monitor, cross-monitor)"
+        description: "Monitor slug (e.g. financial-integrity, macro-monitor, ai-governance, cross-monitor)"
         required: true
         type: string
 
@@ -26,10 +29,17 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
+      - name: Checkout public repo (write target)
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_TOKEN }}
+
+      - name: Checkout internal repo (read-only, engine IP)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+          path: _internal
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v6
@@ -43,9 +53,10 @@ jobs:
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
           REPO_ROOT: ${{ github.workspace }}
+          INTERNAL_ROOT: ${{ github.workspace }}/_internal
           MONITOR_SLUG: ${{ inputs.monitor_slug }}
         run: |
-          python pipeline/challengers/run_challenger.py
+          python _internal/pipeline/challengers/run_challenger.py
 
       - name: Commit _challenge block + log row
         run: |
