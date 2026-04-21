@@ -259,7 +259,7 @@ def call_synth_api(
     lab_run_id: str = None,
     engine: str = "asym-intel",
     prompt_body_sha: str = None,
-    timeout: int = 300,
+    timeout: int = 600,  # 2026-04-21: bumped from 300s per lab-timeout-audit.md
     rate_limit_backoff: int = 60,
 ) -> tuple:
     """Call the Perplexity API, parse the response, log the exchange.
@@ -313,12 +313,12 @@ def call_synth_api(
 
     t0 = time.time()
     try:
-        resp = requests.post(url, headers=headers, json=body, timeout=timeout)
+        resp = requests.post(url, headers=headers, json=body, timeout=(10, timeout))
         http_status = resp.status_code
         if resp.status_code == 429:
             print(f"[{monitor}] 429 rate limit — waiting {rate_limit_backoff}s")
             time.sleep(rate_limit_backoff)
-            resp = requests.post(url, headers=headers, json=body, timeout=timeout)
+            resp = requests.post(url, headers=headers, json=body, timeout=(10, timeout))
             http_status = resp.status_code
         resp.raise_for_status()
 
