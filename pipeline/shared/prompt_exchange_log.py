@@ -14,7 +14,22 @@ Import:   sys.path.insert(0, str(repo_root / "pipeline" / "shared"))
 
 Output:   pipeline/incidents/prompt-exchanges.jsonl
 
-Schema version: 1.0 (16 April 2026)
+Schema version: 1.1 (21 April 2026)
+
+Schema v1.1 changes (additive — v1.0 readers unaffected):
+  - engine              str ("asym-intel" | "advennt")
+  - source              str ("cron" | "lab")
+  - lab_run_id          str | None  (joins to pipeline/lab/run-log.jsonl)
+  - extractor           str | None  (extraction strategy)
+  - contract            str | None  (prompt contract layer)
+  - prompt_body_sha     str | None  (domain body SHA vs final-assembled)
+  - runtime_seconds     float | None  (wall-clock API call duration)
+  - schema_version      str ("1.1" on every v1.1 row; absent → v1.0)
+
+Core invariants preserved:
+  - log_exchange NEVER raises
+  - v1.0 readers ignore unknown v1.1 fields
+  - v1.1 readers parse v1.0 rows correctly
 """
 
 import hashlib
@@ -102,6 +117,14 @@ def log_exchange(
     tokens: int = None,
     citations: int = None,
     item_count: int = None,
+    # ── v1.1 additions (all optional, defaulted) ──
+    engine: str = "asym-intel",
+    source: str = "cron",
+    lab_run_id: str = None,
+    extractor: str = None,
+    contract: str = None,
+    prompt_body_sha: str = None,
+    runtime_seconds: float = None,
     repo_root: pathlib.Path = None,
 ) -> dict:
     """Log a single LLM API exchange to the JSONL archive.
@@ -143,6 +166,7 @@ def log_exchange(
             "ts": datetime.datetime.now(datetime.timezone.utc).strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
             ),
+            "schema_version": "1.1",
             "monitor": monitor,
             "stage": stage,
             "model": model,
@@ -154,13 +178,27 @@ def log_exchange(
             "raw_response": raw_response,
         }
 
-        # Optional fields
+        # Optional fields (v1.0)
         if tokens is not None:
             record["tokens"] = tokens
         if citations is not None:
             record["citations"] = citations
         if item_count is not None:
             record["item_count"] = item_count
+
+        # ── v1.1 additive fields ──
+        record["engine"] = engine
+        record["source"] = source
+        if lab_run_id is not None:
+            record["lab_run_id"] = lab_run_id
+        if extractor is not None:
+            record["extractor"] = extractor
+        if contract is not None:
+            record["contract"] = contract
+        if prompt_body_sha is not None:
+            record["prompt_body_sha"] = prompt_body_sha
+        if runtime_seconds is not None:
+            record["runtime_seconds"] = runtime_seconds
 
         # Run context from GA
         run_id = os.environ.get("GITHUB_RUN_ID", "local")
