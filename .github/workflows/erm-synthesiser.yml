@@ -2,6 +2,11 @@ name: "Global Environmental Risks Monitor Synthesiser"
 
 on:
   workflow_dispatch:
+    inputs:
+      model:
+        description: 'Override model (default: sonar-deep-research)'
+        required: false
+        default: ''
 
 jobs:
   synthesise:
@@ -9,25 +14,30 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout repository
+      - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v6
+      # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
         with:
-          python-version: "3.11"
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/environmental-risks
+          sparse-checkout-cone-mode: false
 
-      - name: Install dependencies
-        run: pip install requests
-
-
-      - name: Fetch identity card from internal repo
+      - name: Fetch ERM methodology + identity from internal repo
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          mkdir -p docs/identity
+          mkdir -p docs/methodology docs/identity
+
+          # Identity card (analytical quality standard)
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-ERM.md" \
@@ -35,12 +45,47 @@ jobs:
             && echo "Identity card fetched ($(wc -c < docs/identity/erm-identity.md) bytes)" \
             || echo "WARNING: Identity card not found — continuing without it"
 
-      - name: Run ERM synthesiser
+          # Methodology (private IP — stays in internal repo)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/environmental-risks-full.md" \
+            -o docs/methodology/environmental-risks-full.md
+          echo "ERM methodology fetched ($(wc -c < docs/methodology/environmental-risks-full.md) bytes)"
+
+          # Addendum (optional — don't fail if absent)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/environmental-risks-copernicus-2026.md" \
+            -o docs/methodology/environmental-risks-addendum.md \
+            && echo "ERM addendum fetched ($(wc -c < docs/methodology/environmental-risks-addendum.md) bytes)" \
+            || echo "No addendum found — continuing without it"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      # The engine reads bespoke files via paths resolved relative to CWD
+      # (public-main root). Stage the internal checkout's bespoke files there.
+      # §15 IP boundary preserved — they are never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/environmental-risks
+          cp -v internal/pipeline/monitors/environmental-risks/metadata.yml             pipeline/monitors/environmental-risks/
+          cp -v internal/pipeline/monitors/environmental-risks/synthesiser-prompt.txt   pipeline/monitors/environmental-risks/
+          cp -v internal/pipeline/monitors/environmental-risks/synthesiser-schema.json  pipeline/monitors/environmental-risks/
+          cp -v internal/pipeline/monitors/environmental-risks/synthesiser-domain.md    pipeline/monitors/environmental-risks/ || true
+
+      - name: Run ERM synthesiser (engine dispatch)
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          REPO_ROOT: ${{ github.workspace }}
-        run: |
-          python pipeline/synthesisers/erm/environmental-risks-synthesiser.py
+          REPO_ROOT:    ${{ github.workspace }}
+          SYNTH_MODEL:  ${{ github.event.inputs.model }}
+          PYTHONPATH:   internal
+        run: python -m pipeline.engine.synth_base --monitor environmental-risks
 
       - name: Commit synthesis output
         run: |
