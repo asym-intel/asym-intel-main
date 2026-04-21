@@ -23,7 +23,7 @@ import base64
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY     = os.environ["PPLX_API_KEY"]
-MODEL       = "sonar-deep-research"   # D-001: deep-research for active-search weekly step (AD-2026-04-21)
+MODEL       = "sonar-pro"   # reverted from D-001: crash was synth-side, not research-side (AD-2026-04-21 rev)
 TODAY       = datetime.date.today()
 TODAY_STR   = TODAY.isoformat()
 
