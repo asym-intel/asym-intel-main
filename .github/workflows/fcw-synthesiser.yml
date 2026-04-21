@@ -43,11 +43,17 @@ jobs:
           # Methodology (private IP — stays in internal repo)
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/fimi-cognitive-warfare-hybridcoe-2026.md" \
-            -o docs/methodology/fimi-cognitive-warfare-hybridcoe-2026.md
-          echo "FCW methodology fetched ($(wc -c < docs/methodology/fimi-cognitive-warfare-hybridcoe-2026.md) bytes)"
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/fimi-cognitive-warfare-full.md" \
+            -o docs/methodology/fimi-cognitive-warfare-full.md
+          echo "FCW methodology fetched ($(wc -c < docs/methodology/fimi-cognitive-warfare-full.md) bytes)"
 
-          # No addendum for FCW
+          # Addendum (EEAS FIMI Threat Report — calibration layer)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/fimi-cognitive-warfare-eeas-2026.md" \
+            -o docs/methodology/fimi-cognitive-warfare-addendum.md \
+            && echo "FCW addendum fetched ($(wc -c < docs/methodology/fimi-cognitive-warfare-addendum.md) bytes)" \
+            || echo "WARNING: FCW addendum not found — continuing without it"
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v6
