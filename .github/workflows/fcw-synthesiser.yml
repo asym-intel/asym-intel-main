@@ -2,31 +2,37 @@ name: FCW Synthesiser
 
 on:
   workflow_dispatch:
+
 jobs:
   synthesise:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout repository
+      - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
         with:
-          python-version: "3.11"
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/fimi-cognitive-warfare
+          sparse-checkout-cone-mode: false
 
-      - name: Install dependencies
-        run: pip install requests
-
-
-      - name: Fetch identity card from internal repo
+      - name: Fetch FCW methodology + identity from internal repo
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          mkdir -p docs/identity
+          mkdir -p docs/methodology docs/identity
+
+          # Identity card (analytical quality standard)
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
             "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-FCW.md" \
@@ -34,21 +40,46 @@ jobs:
             && echo "Identity card fetched ($(wc -c < docs/identity/fcw-identity.md) bytes)" \
             || echo "WARNING: Identity card not found — continuing without it"
 
-      - name: Run FCW Synthesiser
+          # Methodology (private IP — stays in internal repo)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/fimi-cognitive-warfare-hybridcoe-2026.md" \
+            -o docs/methodology/fimi-cognitive-warfare-hybridcoe-2026.md
+          echo "FCW methodology fetched ($(wc -c < docs/methodology/fimi-cognitive-warfare-hybridcoe-2026.md) bytes)"
+
+          # No addendum for FCW
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      # The engine reads bespoke files via paths resolved relative to CWD
+      # (public-main root). Stage the internal checkout's bespoke files there.
+      # §15 IP boundary preserved — they are never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/fimi-cognitive-warfare
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/metadata.yml             pipeline/monitors/fimi-cognitive-warfare/
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/synthesiser-prompt.txt   pipeline/monitors/fimi-cognitive-warfare/
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/synthesiser-schema.json  pipeline/monitors/fimi-cognitive-warfare/
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/domain.md                pipeline/monitors/fimi-cognitive-warfare/ || true
+
+      - name: Run FCW synthesiser (engine dispatch)
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-        run: |
-          python3 pipeline/synthesisers/fcw/fcw-synthesiser.py
+          REPO_ROOT:    ${{ github.workspace }}
+          PYTHONPATH:   internal
+        run: python -m pipeline.engine.synth_base --monitor fimi-cognitive-warfare
 
       - name: Commit synthesis output
         run: |
           git config user.name  "FCW Synthesiser Bot"
           git config user.email "fcw-synthesiser@asym-intel.info"
-          if git diff --quiet; then
-            echo "No changes to commit — synthesis output unchanged."
-            exit 0
-          fi
           git add pipeline/monitors/fimi-cognitive-warfare/synthesised/
-          git commit -m "data(fcw-synthesiser): weekly synthesis $(date -u +%Y-%m-%d) [skip ci]"
+          git diff --cached --quiet || git commit -m "chore(fcw): synthesiser run $(date -u +%Y-%m-%d)"
           git pull --rebase --autostash origin main
           git push
