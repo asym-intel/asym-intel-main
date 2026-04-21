@@ -27,6 +27,9 @@ jobs:
         env:
           REPO_ROOT: ${{ github.workspace }}
           MONITOR_SLUG: fimi-cognitive-warfare
+          # LINEAGE_WRITE_TOKEN: used by pipeline/shared/lineage.py to write provenance
+          # envelopes to asym-intel-internal/archive/lineage/. Non-blocking if absent.
+          LINEAGE_WRITE_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           python3 pipeline/publishers/publisher.py
           ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/fimi-cognitive-warfare/data/report-latest.json"))["meta"]["issue"])')
