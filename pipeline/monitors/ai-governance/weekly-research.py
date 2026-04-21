@@ -105,7 +105,7 @@ response = requests.post(
         "search_recency_filter": "month",  # weekly research — broader window than daily
         "return_citations": True,
     },
-    timeout=120,
+    timeout=300,   # sonar-deep-research can take 60-180s; 300s leaves headroom
 )
 response.raise_for_status()
 
