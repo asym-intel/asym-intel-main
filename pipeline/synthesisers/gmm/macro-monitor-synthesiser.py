@@ -2,7 +2,7 @@
 """
 Global Macro Monitor Synthesiser
 Monitor slug : macro-monitor
-Model       : sonar-pro (no web search — reasons over supplied docs)
+Model       : sonar-deep-research (no web search — reasons over supplied docs)
 Output      : pipeline/monitors/macro-monitor/synthesised/synthesis-latest.json
 """
 
