@@ -44,6 +44,8 @@ Baseline md5s captured 2026-04-22 on internal HEAD `HEAD~A` / main HEAD `HEAD~B`
 | GMM | synth-prompt | `pipeline/monitors/macro-monitor/synthesiser-prompt.txt` | `pipeline/synthesisers/gmm/macro-monitor-synthesiser-api-prompt.txt` |
 | GMM | reasoner-prompt | `pipeline/monitors/macro-monitor/reasoner-prompt.txt` | `pipeline/monitors/macro-monitor/gmm-reasoner-api-prompt.txt` |
 | GMM | weekly-research-prompt | `pipeline/monitors/macro-monitor/weekly-research-prompt.txt` | `pipeline/monitors/macro-monitor/gmm-weekly-research-api-prompt.txt` |
+| GMM | synth-schema | `pipeline/monitors/macro-monitor/synthesiser-schema.json` | `pipeline/synthesisers/gmm/gmm-response-schema.json` |
+| GMM | methodology-guardrails | `pipeline/monitors/macro-monitor/methodology-guardrails.md` | `pipeline/monitors/macro-monitor/methodology-guardrails.md` |
 | ESA | synth-prompt | `pipeline/monitors/european-strategic-autonomy/synthesiser-prompt.txt` | `pipeline/synthesisers/esa/european-strategic-autonomy-synthesiser-api-prompt.txt` |
 | ESA | reasoner-prompt | `pipeline/monitors/european-strategic-autonomy/reasoner-prompt.txt` | `pipeline/monitors/european-strategic-autonomy/esa-reasoner-api-prompt.txt` |
 | ESA | weekly-research-prompt | `pipeline/monitors/european-strategic-autonomy/weekly-research-prompt.txt` | `pipeline/monitors/european-strategic-autonomy/esa-weekly-research-api-prompt.txt` |
@@ -64,11 +66,11 @@ Baseline md5s captured 2026-04-22 on internal HEAD `HEAD~A` / main HEAD `HEAD~B`
 | SCEM | weekly-research-prompt | `pipeline/monitors/conflict-escalation/weekly-research-prompt.txt` | `pipeline/monitors/conflict-escalation/scem-weekly-research-api-prompt.txt` |
 | SCEM | synth-schema | `pipeline/monitors/conflict-escalation/synthesiser-schema.json` | `pipeline/synthesisers/scem/scem-response-schema.json` |
 
-Row count: **26** (21 prompts + 5 schemas; FCW and GMM schemas classified elsewhere — see below).
+Row count: **28** (21 prompts + 6 schemas + 1 methodology-guardrails; FCW schema classified elsewhere — see below).
 
 ---
 
-## Canonical-only rows (36 rows — exempt from both checks)
+## Canonical-only rows (24 rows — exempt from both checks)
 
 These live exclusively on internal. No live counterpart exists or is expected. Preflight does not touch them.
 
@@ -85,7 +87,6 @@ These live exclusively on internal. No live counterpart exists or is expected. P
 | GMM | weekly-research-schema | `pipeline/monitors/macro-monitor/weekly-research-schema.json` |
 | GMM | reasoner-instructions | `pipeline/monitors/macro-monitor/reasoner-instructions.md` |
 | GMM | reasoner-schema | `pipeline/monitors/macro-monitor/reasoner-schema.json` |
-| GMM | methodology-guardrails | `pipeline/monitors/macro-monitor/methodology-guardrails.md` |
 | ERM | synth-domain | `pipeline/monitors/environmental-risks/synthesiser-domain.md` |
 | ERM | weekly-research-domain | `pipeline/monitors/environmental-risks/weekly-research-domain.md` |
 | ERM | reasoner-instructions | `pipeline/monitors/environmental-risks/reasoner-instructions.md` |
@@ -107,7 +108,7 @@ These live exclusively on internal. No live counterpart exists or is expected. P
 | SCEM | metadata | `pipeline/monitors/conflict-escalation/metadata.yml` |
 | FIM | metadata | `pipeline/monitors/financial-integrity/metadata.yml` |
 
-Row count: **25**.
+Row count: **24**.
 
 ---
 
@@ -132,9 +133,9 @@ Time-limited entries. Each must cite the root cause and the expiry milestone. PA
 
 | Monitor | Slot | Canonical | Live | Cause | Expiry |
 |---|---|---|---|---|---|
-| GMM | synth-schema | `pipeline/monitors/macro-monitor/synthesiser-schema.json` | `pipeline/synthesisers/gmm/gmm-response-schema.json` | Canonical authored independently before live schema was fully migrated to match. Baseline md5s diverged at manifest creation: canonical `0f5d9bb1…`, live `a91750a1…`. | GMM canonical sprint (H-6 on `ops/fe-readiness-tracker.md`). |
+| _(none)_ | | | | | |
 
-Row count: **1**.
+Row count: **0**.
 
 **Allow-list hygiene:** A new known-drift row requires an architectural decision entry (AD) and an explicit expiry milestone. If an expiry passes without the row being resolved or re-justified, `tools/preflight_parity.py` fails. Allow-list is not a retirement home.
 
@@ -167,3 +168,4 @@ Preflight runs in both repos. See `tools/preflight_parity.py` for the dual-conte
 ## Change log
 
 - **2026-04-22 — v1.0 created.** Filed from SCOPE-2026-04-22-002 Class A. Baseline: 26 byte-identical + 25 canonical-only + 4 pre-canonical (FIM) + 1 known-drift (GMM synth-schema) = 56 rows total. 21/21 prompt pairs byte-identical at creation; 5/7 synth-schema pairs byte-identical, 1 canonical-only (FCW), 1 known-drift (GMM). Computer's manifest-authoring pass captured baseline md5s for every byte-identical row on clean `HEAD` of both repos.
+- **2026-04-22 — v1.1 GMM canonical sprint (Phase A1).** Retired the only known-drift row. GMM synth-schema flipped `known-drift` → `byte-identical` after canonical alignment of vocabulary with live JSON Schema: direction unified to `Worsening|Stable|Improving`; asset_outlook.conviction split to four distinct enum values `HIGH|MEDIUM|LOW|BIFURCATED`; confidence_preliminary unified to four-tier `Confirmed|High|Assessed|Possible` on lead_signal, key_judgments and cross_monitor_candidates; stress_level extended to four-tier `Green|Amber|Red|Crisis` on indicator_domains and credit_stress; tail_risks.direction retained as `Increasing|Stable|Decreasing` (risk magnitude, semantically distinct). Schema and synth prompt swept together under paused-cron conditions so both sides agree. Separately, GMM methodology-guardrails reclassified `canonical-only` → `byte-identical` after audit confirmed it already exists at the same path on both repos with md5 `b4cfa56cd3c04a50f56bf0ec7c2c5588` (12727 bytes). New totals: 28 byte-identical + 24 canonical-only + 4 pre-canonical (FIM) + 0 known-drift = 56 rows. Closes H-6 on `ops/fe-readiness-tracker.md`. Preflight now checks 29 paired rows (28 byte-identical + 1 manifest self-reference), with 28 exempt.
