@@ -1,0 +1,59 @@
+# AUTO-ENFORCES SCOPE-2026-04-22-002: canonical artefact parity between
+# asym-intel-internal and asym-intel-main. Blocks PRs on md5 drift or
+# pair-existence gaps (the class of silent failure that produced the
+# Class E back-port gap on 2026-04-22).
+#
+# Manifest: pipeline/CANONICAL-ARTEFACTS.md (byte-lifted copy on this repo).
+#           ops/CANONICAL-ARTEFACTS.md (authoritative, on asym-intel-internal).
+# Script:   tools/preflight_parity.py (runs in both repos via sentinel detection).
+# Fixture:  tools/test_preflight_parity.py (runs before live scan — PREFLIGHT-KNOWHOW §2).
+#
+# Scope doc: asym-intel-internal:ops/scopes/canonical-parity-preflight-scope.md
+
+name: Canonical parity preflight
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'pipeline/CANONICAL-ARTEFACTS.md'
+      - 'static/monitors/**'
+      - 'tools/preflight_parity.py'
+      - 'tools/test_preflight_parity.py'
+      - '.github/workflows/canonical-parity.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'pipeline/CANONICAL-ARTEFACTS.md'
+      - 'static/monitors/**'
+      - 'tools/preflight_parity.py'
+      - 'tools/test_preflight_parity.py'
+      - '.github/workflows/canonical-parity.yml'
+  workflow_dispatch:
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Step 1 — fixture suite runs BEFORE live scan (PREFLIGHT-KNOWHOW §2).
+      # If the parser or check logic regresses, fixture fails first with a
+      # clear test name; live scan failures are much harder to diagnose.
+      - name: Fixture suite — tools/test_preflight_parity.py
+        run: python3 tools/test_preflight_parity.py
+
+      # Step 2 — live cross-repo scan. preflight_parity.py detects it is
+      # running on main (via tools/preflight.py sentinel) and fetches
+      # asym-intel-internal into a cache dir. Needs a PAT with read access
+      # to the private internal repo (GITHUB_TOKEN cannot cross repos).
+      - name: Live scan — preflight_parity.py
+        env:
+          GH_TOKEN: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+        run: python3 tools/preflight_parity.py
