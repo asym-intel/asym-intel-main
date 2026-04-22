@@ -2,7 +2,7 @@
 """
 Strategic Conflict & Escalation Monitor Synthesiser
 Monitor slug : conflict-escalation
-Model       : sonar-pro (no web search — reasons over supplied docs)
+Model       : sonar-deep-research (no web search — reasons over supplied docs)
 Output      : pipeline/monitors/conflict-escalation/synthesised/synthesis-latest.json
 """
 
@@ -46,7 +46,7 @@ OUT_DATED = SYNTH_DIR / f"synthesis-{TODAY_STR}.json"
 
 API_KEY = os.environ["PPLX_API_KEY"]
 API_URL = "https://api.perplexity.ai/chat/completions"
-MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-pro"
+MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-deep-research"
 
 if OUT_DATED.exists():
     print(f"[SCEM] GUARD: synthesiser already ran today ({TODAY_STR}). Exiting.")
@@ -133,7 +133,7 @@ request_body = {
         {"role": "system", "content": system_msg},
         {"role": "user",   "content": user_msg},
     ],
-    "max_tokens": 16384,
+    "max_tokens": 32768,
     "temperature": 0.1,
 }
 if response_schema:
