@@ -2,7 +2,7 @@
 """
 Artificial Intelligence Monitor Synthesiser
 Monitor slug : ai-governance
-Model       : sonar-pro (no web search — reasons over supplied docs)
+Model       : sonar-deep-research (no web search — reasons over supplied docs)
 Output      : pipeline/monitors/ai-governance/synthesised/synthesis-latest.json
 """
 
