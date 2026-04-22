@@ -91,6 +91,10 @@ These live exclusively on internal. No live counterpart exists or is expected. P
 | ERM | weekly-research-domain | `pipeline/monitors/environmental-risks/weekly-research-domain.md` |
 | ERM | reasoner-instructions | `pipeline/monitors/environmental-risks/reasoner-instructions.md` |
 | ERM | reasoner-schema | `pipeline/monitors/environmental-risks/reasoner-schema.json` |
+| ESA | synth-domain | `pipeline/monitors/european-strategic-autonomy/synthesiser-domain.md` |
+| ESA | weekly-research-domain | `pipeline/monitors/european-strategic-autonomy/weekly-research-domain.md` |
+| ESA | reasoner-instructions | `pipeline/monitors/european-strategic-autonomy/reasoner-instructions.md` |
+| ESA | reasoner-schema | `pipeline/monitors/european-strategic-autonomy/reasoner-schema.json` |
 | AGM | methodology-guardrails | `pipeline/monitors/ai-governance/methodology-guardrails.md` |
 | FCW | synth-schema | `pipeline/monitors/fimi-cognitive-warfare/synthesiser-schema.json` |
 | FIM | methodology-guardrails | `pipeline/monitors/financial-integrity/methodology-guardrails.md` |
@@ -108,7 +112,7 @@ These live exclusively on internal. No live counterpart exists or is expected. P
 | SCEM | metadata | `pipeline/monitors/conflict-escalation/metadata.yml` |
 | FIM | metadata | `pipeline/monitors/financial-integrity/metadata.yml` |
 
-Row count: **24**.
+Row count: **28**.
 
 ---
 
@@ -166,4 +170,5 @@ Preflight runs in both repos. See `tools/preflight_parity.py` for the dual-conte
 ## Change log
 
 - **2026-04-22 — v1.0 created.** Filed from SCOPE-2026-04-22-002 Class A. Baseline: 26 byte-identical + 25 canonical-only + 4 pre-canonical (FIM) + 1 known-drift (GMM synth-schema) = 56 rows total. 21/21 prompt pairs byte-identical at creation; 5/7 synth-schema pairs byte-identical, 1 canonical-only (FCW), 1 known-drift (GMM). Computer's manifest-authoring pass captured baseline md5s for every byte-identical row on clean `HEAD` of both repos.
+- **2026-04-22 — v1.2 ESA canonical sprint (Leg A — canonical files landed).** ESA advanced from 4/8 to 8/8 canonical files with the addition of `synthesiser-domain.md`, `weekly-research-domain.md`, `reasoner-instructions.md` and `reasoner-schema.json` at `pipeline/monitors/european-strategic-autonomy/`. Canonical-only row count increased from 24 → 28. Reasoner body and `cross_monitor_candidates` swept to four-tier confidence canon `Confirmed|High|Assessed|Possible`; actors aligned to four-actor canon `RU|CN|US|IL` with Turkey/Gulf/Belarus/Iran demoted to a separate `context_actors` posture-flag tier; direction unified to `Worsening|Stable|Improving`; stress to four-tier `Green|Amber|Red|Crisis`. Dual-axis domain model preserved and documented in `reasoner-instructions.md` — 6-domain ECFR taxonomy (security-defence, economy-tech, climate-energy, migration, democracy-rule-of-law, external-action) is used for the synthesiser brief surface, while the 5-domain persistent-state axis (defence, energy, tech, trade, diplomatic) remains the scoring axis for the reasoner's per-domain stress and direction fields. This is an additive landing: no live counterparts affected, no parity class flipped. Config lift (sonar-pro/16384 → sonar-deep-research/32768) follows in Leg B1 paired-merge under AD-22e. Advances H-2 on `ops/fe-readiness-tracker.md` from 3/7 → 4/7. New totals: 28 byte-identical + 28 canonical-only + 4 pre-canonical (FIM) + 0 known-drift = 60 rows.
 - **2026-04-22 — v1.1 GMM canonical sprint (Phase A1).** Retired the only known-drift row. GMM synth-schema flipped `known-drift` → `byte-identical` after canonical alignment of vocabulary with live JSON Schema: direction unified to `Worsening|Stable|Improving`; asset_outlook.conviction split to four distinct enum values `HIGH|MEDIUM|LOW|BIFURCATED`; confidence_preliminary unified to four-tier `Confirmed|High|Assessed|Possible` on lead_signal, key_judgments and cross_monitor_candidates; stress_level extended to four-tier `Green|Amber|Red|Crisis` on indicator_domains and credit_stress; tail_risks.direction retained as `Increasing|Stable|Decreasing` (risk magnitude, semantically distinct). Schema and synth prompt swept together under paused-cron conditions so both sides agree. Separately, GMM methodology-guardrails reclassified `canonical-only` → `byte-identical` after audit confirmed it already exists at the same path on both repos with md5 `b4cfa56cd3c04a50f56bf0ec7c2c5588` (12727 bytes). New totals: 28 byte-identical + 24 canonical-only + 4 pre-canonical (FIM) + 0 known-drift = 56 rows. Closes H-6 on `ops/fe-readiness-tracker.md`. Preflight now checks 29 paired rows (28 byte-identical + 1 manifest self-reference), with 28 exempt.
