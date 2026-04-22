@@ -58,7 +58,7 @@ key_judgments use three tiers only: High | Assessed | Possible
 (Key judgments are analytical inferences — Confirmed is reserved for primary signal items.)
 
 Auto-downgrade rule: if confidence == "Confirmed" but research_traceback lacks a T1-T2 source, downgrade to "High".
-Cross-monitor flags use a separate scale: Low | Medium | High (unchanged).
+Cross-monitor flag urgency uses a separate uppercase scale: HIGH | MEDIUM | LOW.
 
 Note on ERM: primary data sources (Copernicus C3S, IPCC, IPBES, WMO) are Tier 1.
 Findings backed by these sources are eligible for "Confirmed" when independently corroborated.
@@ -85,14 +85,14 @@ All string values must avoid apostrophes and contractions — use full words onl
     "boundaries_high_risk": 0,
     "boundaries_increasing_risk": 0,
     "boundaries_safe": 0,
-    "status_delta_this_week": "Stable | Deteriorating | Improving",
+    "status_delta_this_week": "Stable | Worsening | Improving",
     "lead_signal": "string"
   },
   "planetary_boundary_tracker": [
     {
       "boundary": "Climate | Biodiversity | Land system | Freshwater | Biogeochemical | Ocean acidification | Atmospheric aerosols | Stratospheric ozone | Novel entities",
       "status": "Safe | Increasing risk | High risk | Beyond boundary",
-      "status_delta": "Stable | Deteriorating | Improving",
+      "status_delta": "Stable | Worsening | Improving",
       "key_indicator": "string — specific metric e.g. CO2 ppm, LPI value",
       "data_source": "Copernicus | IPCC | IPBES | WMO | NOAA | Other",
       "week_development": "string | null",
@@ -227,7 +227,7 @@ All string values must avoid apostrophes and contractions — use full words onl
       "judgment": "string",
       "confidence_preliminary": "High | Assessed | Possible",
       "boundary_or_element": "string",
-      "trajectory": "Improving | Stable | Deteriorating",
+      "trajectory": "Improving | Stable | Worsening",
       "source_urls": ["string — primary source URLs supporting this judgment. Include up to 3. Use source_url values from the finding arrays where this judgment is drawn from."]
     }
   ],
@@ -237,7 +237,7 @@ All string values must avoid apostrophes and contractions — use full words onl
       "target_monitor": "fimi-cognitive-warfare | democratic-integrity | conflict-escalation | european-strategic-autonomy | macro-monitor | ai-governance",
       "signal": "string",
       "type": "Climate-conflict nexus | Resource security | Migration pressure | Climate FIMI | AI energy cost",
-      "confidence_preliminary": "Low | Medium | High"
+      "confidence_preliminary": "High | Assessed | Possible"
     }
   ]
 }
