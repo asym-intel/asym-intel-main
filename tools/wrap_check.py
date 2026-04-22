@@ -16,11 +16,23 @@ Usage:
 Requires: `gh` CLI authenticated for the asym-intel org.
 
 Exit codes:
-    0 — all gates pass, wrap may proceed
-    1 — thinning gate failed (notes file >12KB — HARD limit, no margin as of 17 Apr 2026)
+    0 — all gates pass, wrap may proceed (may include soft-limit warnings)
+    1 — thinning gate failed (notes file over HARD cliff — 18 KB per AD-2026-04-22c)
     2 — staging gate failed (staging ahead of main, must merge before wrap)
     3 — script error (gh CLI missing, network failure, unknown project)
     4 — bug-log gate failed (bug-signal commits this session with no BUG-LOG entry) — hard from 2026-05-01
+
+Version: 2.5 — 22 Apr 2026 (AD-2026-04-22c). Two-tier thinning gate: soft 15 KB
+(warn, wrap proceeds), hard 18 KB (fail, exit 1). +20% breathing room between
+tiers to prevent mid-wrap shrink churn while bounding long-term growth. Also
+resynced to ENGINE-RULES §5.3 which was at 15 KB since 21 Apr (v2.4 was still
+at 12 KB — drift).
+
+Adoption note: this script is canonical in engine-projects.json + BUG-LOG.md +
+ENGINE-RULES §5.3/§5d + AD-21b, but wrap-time invocation discipline has been
+inconsistent and the workflow cliffs (notes-size-gate.yml, session-arc-size-
+gate.yml) are the actually-firing enforcement. Adoption vs deprecation to be
+decided in SCOPE-2026-04-22-003.
 
 Version: 2.4 — 21 Apr 2026. Added gate_ad_chain(), gate_handover_sweep_needed(),
 and gate_monthly_archive_rollover(). Per AD-2026-04-21b (P-12 Phase A, Tool 6)
@@ -129,10 +141,21 @@ def _load_projects() -> dict:
 # Loaded lazily in main() so --help works without network.
 PROJECTS: dict = {}
 
-SIZE_TARGET_BYTES = 12 * 1024          # 12 KB (ENGINE-RULES §5.3c) — HARD limit, no margin
-# Note: the 20% margin that existed in v1 was removed on 17 Apr 2026 after sessions
-# consistently landed in the 12–14.4 KB "grace band" and never returned to target.
-# ENGINE-RULES §5.3 is now a cliff, not a slope. See wrap-enforcement session log.
+# Two-tier thinning gate (AD-2026-04-22c, ENGINE-RULES §5.3):
+#   SOFT — 15 KB target. Over = warning in wrap board, wrap proceeds (exit 0).
+#   HARD — 18 KB cliff. Over = gate fails, wrap blocks (exit 1). +20% of soft.
+# Matches .github/workflows/notes-size-gate.yml SOFT_LIMIT_BYTES / HARD_LIMIT_BYTES.
+# History: v1 had a 20% margin. Removed 17 Apr 2026 (sessions squatted in grace
+# band, never thinned). Single-cliff-at-12-KB failed differently on 21–22 Apr —
+# forced mid-wrap shrink cycles on legitimate multi-sprint days, burning credits.
+# Two-tier restores elasticity without abandoning the bound: soft says "drift,
+# trim next wrap"; hard bounds long-term growth.
+SIZE_SOFT_LIMIT_BYTES = 15 * 1024      # 15,360 B — target, warning only
+SIZE_HARD_LIMIT_BYTES = 18 * 1024      # 18,432 B — cliff, wrap fails
+# Back-compat alias: downstream code referenced SIZE_TARGET_BYTES when the gate
+# was single-cliff. Alias to the hard limit so any stragglers still block only
+# at the real cliff. Prefer SIZE_HARD_LIMIT_BYTES / SIZE_SOFT_LIMIT_BYTES in new code.
+SIZE_TARGET_BYTES = SIZE_HARD_LIMIT_BYTES
 SESSION_WINDOW_HOURS = 12               # "this session" = commits in last 12h
 
 # ENGINE-RULES §1e — Bug Discovery Protocol
@@ -300,7 +323,13 @@ def open_prs(repo: str) -> list[dict]:
 # Gates
 # -------------------------------------------------------------------
 def gate_thinning(project: dict) -> tuple[CheckResult, dict]:
-    """§5.3 — thinning gate. Fails if notes >12KB and no archive commit this session."""
+    """§5.3 — two-tier thinning gate (AD-2026-04-22c).
+
+    PASS if size ≤ HARD cliff (18 KB). Warns in detail string if size is between
+    SOFT (15 KB) and HARD. FAIL if over HARD. Archive-this-session remains an
+    informational field but does not itself fail the gate — the size cliff is
+    what bounds growth; the archive check is for wrap-summary context only.
+    """
     repo = project["notes_repo"]
     path = project["notes_path"]
     try:
@@ -323,28 +352,42 @@ def gate_thinning(project: dict) -> tuple[CheckResult, dict]:
         archive_dt = datetime.fromisoformat(archive_last.replace("Z", "+00:00"))
         archive_this_session = archive_dt >= session_cutoff
 
-    detail = (
+    detail_base = (
         f"{path}: {size} bytes / {lines} lines "
-        f"(HARD limit {SIZE_TARGET_BYTES} bytes = 12 KB). "
+        f"(SOFT {SIZE_SOFT_LIMIT_BYTES} / HARD {SIZE_HARD_LIMIT_BYTES} bytes). "
         f"Archive {archive_path} last commit: "
         f"{archive_last or 'never'} "
         f"({'this session' if archive_this_session else 'not this session'})."
     )
 
-    if size <= SIZE_TARGET_BYTES:
+    meta = {"size": size, "lines": lines, "archive_this_session": archive_this_session}
+
+    if size > SIZE_HARD_LIMIT_BYTES:
         return (
-            CheckResult("thinning", True, detail + " Verdict: PASS."),
-            {"size": size, "lines": lines, "archive_this_session": archive_this_session},
+            CheckResult(
+                "thinning", False,
+                detail_base
+                + f" Verdict: FAIL — {size - SIZE_HARD_LIMIT_BYTES} bytes over HARD cliff. "
+                "Thin the file before wrap completes. Commit-time gate "
+                "(.github/workflows/notes-size-gate.yml) will also block push.",
+            ),
+            meta,
         )
+
+    if size > SIZE_SOFT_LIMIT_BYTES:
+        return (
+            CheckResult(
+                "thinning", True,
+                detail_base
+                + f" Verdict: PASS (warn) — {size - SIZE_SOFT_LIMIT_BYTES} bytes over SOFT target "
+                "but within HARD cliff. Trim at next wrap per §5.3 3a→3d; no action required now.",
+            ),
+            meta,
+        )
+
     return (
-        CheckResult(
-            "thinning", False,
-            detail
-            + f" Verdict: FAIL — {size - SIZE_TARGET_BYTES} bytes over hard limit. "
-            "Thin the file before wrap completes. Commit-time gate "
-            "(.github/workflows/notes-size-gate.yml) will also block push.",
-        ),
-        {"size": size, "lines": lines, "archive_this_session": archive_this_session},
+        CheckResult("thinning", True, detail_base + " Verdict: PASS."),
+        meta,
     )
 
 
