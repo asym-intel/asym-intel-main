@@ -102,7 +102,8 @@ All string values must avoid apostrophes and contractions — use full words onl
   ],
   "tipping_point_tracker": [
     {
-      "tipping_element": "AMOC | Arctic sea ice | Permafrost | Amazon | Coral | Greenland ice sheet | West Antarctic ice sheet | Boreal forest | Monsoon | Other",
+      "tipping_element": "amoc | amazon_dieback | greenland_ice_sheet | west_antarctic_ice_sheet | permafrost_methane | coral_reef_collapse | context_system",
+      "context_system_name": "null — OR one of east_antarctic_ice_sheet | boreal_forest_shift | sahel_greening_collapse when tipping_element == context_system",
       "proximity": "Distant | Approaching | Imminent | Crossed",
       "probability_preliminary": "Low | Medium | High | Critical",
       "key_indicator": "string",
@@ -185,6 +186,33 @@ All string values must avoid apostrophes and contractions — use full words onl
     "cascade_description": "string | null — e.g. armed conflict driving deforestation",
     "note": "string — document result even if negative"
   },
+  "weaponisation_events": [
+    {
+      "event_summary": "string — 1-2 sentences",
+      "actor": "string — state or non-state actor",
+      "target": "string",
+      "natural_asset": "string — Earth-system asset or condition weaponised (water | food | critical_minerals | forest_cover | other)",
+      "earth_system_impact": "string — planetary boundary or tipping system affected",
+      "filter_classification": {
+        "f1_threat_multiplier": false,
+        "f2_regulatory_vacuum": false,
+        "f3_tipping_point_precursor": false,
+        "f4_attribution_gap": false
+      },
+      "confidence": "Confirmed | High | Assessed | Possible",
+      "source": "string"
+    }
+  ],
+  "aerosol_dual_risk_flag": [
+    {
+      "region": "string",
+      "cooling_masking_estimate_w_m2": 0.0,
+      "pm25_mortality_indicator": "string | null",
+      "dual_risk_summary": "string — how cooling masking interacts with PM2.5 mortality risk in this region",
+      "confidence": "Confirmed | High | Assessed | Possible",
+      "source": "string"
+    }
+  ],
   "regional_coverage": {
     "sub_saharan_africa_items": 0,
     "mena_items": 0,
