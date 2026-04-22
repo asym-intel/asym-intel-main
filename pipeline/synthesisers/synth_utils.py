@@ -297,6 +297,8 @@ def call_synth_api(
               exchange_record  — dict returned by log_exchange
               tokens           — int | None  (usage.total_tokens if present)
               citations        — int | None  (len(resp['citations']) if present)
+              api_request_id   — str | None  (upstream X-Request-ID response header)
+              api_response_id  — str | None  (upstream response body 'id' field)
 
     Never raises. On any failure, returns (None, meta) with error populated.
     """
@@ -310,19 +312,25 @@ def call_synth_api(
     tokens = None
     citations = None
     error_msg = None
+    api_request_id = None
+    api_response_id = None
 
     t0 = time.time()
     try:
         resp = requests.post(url, headers=headers, json=body, timeout=(10, timeout))
         http_status = resp.status_code
+        # Capture upstream request ID best-effort; retry (if any) may overwrite.
+        api_request_id = resp.headers.get("X-Request-ID") or api_request_id
         if resp.status_code == 429:
             print(f"[{monitor}] 429 rate limit — waiting {rate_limit_backoff}s")
             time.sleep(rate_limit_backoff)
             resp = requests.post(url, headers=headers, json=body, timeout=(10, timeout))
             http_status = resp.status_code
+            api_request_id = resp.headers.get("X-Request-ID") or api_request_id
         resp.raise_for_status()
 
         data = resp.json()
+        api_response_id = data.get("id")
         raw = data.get("choices", [{}])[0].get("message", {}).get("content", "") or ""
         raw = raw.strip()
 
@@ -377,5 +385,7 @@ def call_synth_api(
         "exchange_record": exchange_record,
         "tokens": tokens,
         "citations": citations,
+        "api_request_id": api_request_id,
+        "api_response_id": api_response_id,
     }
     return parsed, meta
