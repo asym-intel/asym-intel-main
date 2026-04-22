@@ -1,0 +1,413 @@
+{
+  "type": "object",
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "research_model": {
+          "type": "string"
+        },
+        "monitor_slug": {
+          "type": "string"
+        },
+        "synthesised_at": {
+          "type": "string"
+        },
+        "week_ending": {
+          "type": "string"
+        },
+        "null_signal_week": {
+          "type": "boolean"
+        },
+        "null_signal_reason": {
+          "type": "string"
+        }
+      }
+    },
+    "lead_signal": {
+      "type": "object",
+      "properties": {
+        "headline": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "string"
+        },
+        "confidence_basis": {
+          "type": "string"
+        },
+        "mf_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "campaigns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "campaign_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "platforms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "confidence": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_tier": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "actor_tracker": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "actor": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "posture": {
+            "type": "string"
+          },
+          "doctrine_note": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "capability_change": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "eeas_coverage": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_tier": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "platform_responses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "target_campaign": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headline": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_tier": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "attribution_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "attribution_id": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "campaign_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "attributing_body": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_tier": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "cognitive_warfare": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "classification": {
+            "type": "string"
+          },
+          "headline": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "actors_involved": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "significance": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "source_tier": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "intelligence_highlights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "headline": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "relevance": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "delta_strip": {
+      "type": "object",
+      "properties": {
+        "new_campaigns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "status_changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actor_posture_changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "platform_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contested_findings_for_analyst": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "judgment": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "string"
+          },
+          "mf_flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "trajectory": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "weekly_brief_draft": {
+      "type": "string"
+    },
+    "cross_monitor_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_monitor": {
+            "type": "string"
+          },
+          "signal": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string"
+          },
+          "campaign_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "synthesis_quality_notes": {
+      "type": "object",
+      "properties": {
+        "weekly_input_status": {
+          "type": "string"
+        },
+        "coverage_gaps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "low_confidence_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "missing_inputs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "contested_count": {
+          "type": "integer"
+        },
+        "quiet_week_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "_meta",
+    "lead_signal",
+    "campaigns",
+    "actor_tracker",
+    "platform_responses",
+    "attribution_log",
+    "cognitive_warfare",
+    "intelligence_highlights",
+    "delta_strip",
+    "key_judgments",
+    "weekly_brief_draft",
+    "cross_monitor_candidates",
+    "synthesis_quality_notes"
+  ]
+}
