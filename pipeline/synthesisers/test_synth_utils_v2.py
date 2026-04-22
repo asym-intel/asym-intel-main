@@ -124,21 +124,28 @@ def test_parse_llm_json_think_aware_no_wrapper_still_works():
 
 # ─── call_synth_api ──────────────────────────────────────────────────────────
 
-def _mock_ok_response(content: str, tokens: int = 1234):
+def _mock_ok_response(
+    content: str,
+    tokens: int = 1234,
+    *,
+    request_id: str = "req-test-abc",
+    response_id: str = "resp-test-xyz",
+    status_code: int = 200,
+):
     class _Resp:
-        status_code = 200
+        pass
 
-        def raise_for_status(self):
-            pass
-
-        def json(self):
-            return {
-                "choices": [{"message": {"content": content}}],
-                "usage": {"total_tokens": tokens},
-                "citations": ["a", "b", "c"],
-            }
-
-    return _Resp()
+    resp = _Resp()
+    resp.status_code = status_code
+    resp.headers = {"X-Request-ID": request_id} if request_id else {}
+    resp.raise_for_status = lambda: None
+    resp.json = lambda: {
+        "id": response_id,
+        "choices": [{"message": {"content": content}}],
+        "usage": {"total_tokens": tokens},
+        "citations": ["a", "b", "c"],
+    }
+    return resp
 
 
 def test_call_synth_api_happy_path_logs_and_parses(tmp_path, monkeypatch):
@@ -180,6 +187,9 @@ def test_call_synth_api_happy_path_logs_and_parses(tmp_path, monkeypatch):
     assert meta["tokens"] == 1234
     assert meta["citations"] == 3
     assert meta["runtime_seconds"] >= 0
+    # SPEC-ENGINE-PROMPT-ARCHIVAL v1.0.3 — upstream IDs captured into meta.
+    assert meta["api_request_id"] == "req-test-abc"
+    assert meta["api_response_id"] == "resp-test-xyz"
 
     # Exactly one exchange row written
     log_file = tmp_path / "pipeline" / "incidents" / "prompt-exchanges.jsonl"
@@ -265,6 +275,10 @@ def test_call_synth_api_never_raises_on_network_failure(tmp_path, monkeypatch):
     assert meta["parsed_ok"] is False
     assert meta["error"] is not None
     assert "ConnectionError" in meta["error"]
+    # SPEC-ENGINE-PROMPT-ARCHIVAL v1.0.3 — IDs are None when the call never
+    # produced a response object.
+    assert meta["api_request_id"] is None
+    assert meta["api_response_id"] is None
     # Log row still emitted
     log_file = tmp_path / "pipeline" / "incidents" / "prompt-exchanges.jsonl"
     assert log_file.exists()
@@ -301,3 +315,116 @@ def test_call_synth_api_parse_failure_is_recorded_not_raised(tmp_path, monkeypat
     log_file = tmp_path / "pipeline" / "incidents" / "prompt-exchanges.jsonl"
     rows = [json.loads(line) for line in log_file.read_text().splitlines() if line]
     assert rows[-1]["outcome"] == "parse_error"
+
+
+# ─── SPEC-ENGINE-PROMPT-ARCHIVAL v1.0.3 — upstream ID capture ───────────────
+
+def test_call_synth_api_captures_request_and_response_ids(tmp_path, monkeypatch):
+    """meta must surface api_request_id (X-Request-ID header) and
+    api_response_id (body `id`) so downstream exchange records can reconcile
+    with upstream provider logs."""
+    import prompt_exchange_log as pel
+
+    monkeypatch.setattr(pel, "_DEFAULT_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(synth_utils, "_load_log_exchange",
+                        lambda: pel.log_exchange)
+
+    import requests
+
+    def _mock_post(*a, **k):
+        return _mock_ok_response(
+            '{"weekly_brief_draft": "hi"}',
+            request_id="req-unique-001",
+            response_id="chatcmpl-xyz-42",
+        )
+
+    monkeypatch.setattr(requests, "post", _mock_post)
+
+    _, meta = call_synth_api(
+        url="x", headers={}, body={},
+        monitor="ai-governance",
+        stage="synthesiser",
+        model="sonar-pro",
+        prompt_text="p",
+    )
+
+    assert meta["api_request_id"] == "req-unique-001"
+    assert meta["api_response_id"] == "chatcmpl-xyz-42"
+
+
+def test_call_synth_api_missing_ids_yield_none(tmp_path, monkeypatch):
+    """If the upstream response has no X-Request-ID header and no body `id`,
+    both meta fields must be None (not KeyError, not empty string)."""
+    import prompt_exchange_log as pel
+
+    monkeypatch.setattr(pel, "_DEFAULT_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(synth_utils, "_load_log_exchange",
+                        lambda: pel.log_exchange)
+
+    import requests
+
+    def _mock_post(*a, **k):
+        # request_id="" → no header present; response_id=None → body lacks id.
+        return _mock_ok_response(
+            '{"weekly_brief_draft": "hi"}',
+            request_id="",
+            response_id=None,
+        )
+
+    monkeypatch.setattr(requests, "post", _mock_post)
+
+    _, meta = call_synth_api(
+        url="x", headers={}, body={},
+        monitor="ai-governance",
+        stage="synthesiser",
+        model="sonar-pro",
+        prompt_text="p",
+    )
+
+    assert meta["api_request_id"] is None
+    assert meta["api_response_id"] is None
+
+
+def test_call_synth_api_429_retry_captures_retry_ids(tmp_path, monkeypatch):
+    """When a 429 triggers a retry, meta must reflect the IDs from the retry
+    response (the successful one), not the rate-limited first attempt."""
+    import prompt_exchange_log as pel
+
+    monkeypatch.setattr(pel, "_DEFAULT_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(synth_utils, "_load_log_exchange",
+                        lambda: pel.log_exchange)
+    # Skip the real sleep
+    monkeypatch.setattr(synth_utils.time, "sleep", lambda *_a, **_k: None)
+
+    import requests
+
+    calls = {"n": 0}
+
+    def _mock_post(*a, **k):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            return _mock_ok_response(
+                "", request_id="req-ratelimited",
+                response_id=None, status_code=429,
+            )
+        return _mock_ok_response(
+            '{"weekly_brief_draft": "hi"}',
+            request_id="req-retry-success",
+            response_id="chatcmpl-retry-ok",
+        )
+
+    monkeypatch.setattr(requests, "post", _mock_post)
+
+    _, meta = call_synth_api(
+        url="x", headers={}, body={},
+        monitor="ai-governance",
+        stage="synthesiser",
+        model="sonar-pro",
+        prompt_text="p",
+        rate_limit_backoff=0,
+    )
+
+    assert calls["n"] == 2
+    assert meta["http_status"] == 200
+    assert meta["api_request_id"] == "req-retry-success"
+    assert meta["api_response_id"] == "chatcmpl-retry-ok"
