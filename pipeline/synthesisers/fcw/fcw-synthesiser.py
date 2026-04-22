@@ -1,24 +1,9 @@
 #!/usr/bin/env python3
 """
-FCW Synthesiser — Weekly Pipeline Synthesis
-GitHub Actions script. Runs Wednesday 22:00 UTC (after Reasoner at 20:00).
-
-Loads:
-- pipeline/monitors/fimi-cognitive-warfare/daily/daily-latest.json
-- pipeline/monitors/fimi-cognitive-warfare/weekly/weekly-latest.json
-- pipeline/monitors/fimi-cognitive-warfare/reasoner/reasoner-latest.json
-
-Feeds all three as context to sonar-pro for structured synthesis.
-Outputs a complete draft report (minus cross_monitor_flags and
-persistent_state_delta) to:
-  pipeline/monitors/fimi-cognitive-warfare/synthesised/synthesis-latest.json
-  pipeline/monitors/fimi-cognitive-warfare/synthesised/synthesis-YYYY-MM-DD.json
-
-The FCW Analyst reads synthesis-latest.json at Step 0S as the primary
-draft input for weekly publication.
-
-sonar-pro reasons over the documents YOU provide.
-It does NOT search the web. The structured JSON is the document.
+FIMI & Cognitive Warfare Monitor Synthesiser
+Monitor slug : fimi-cognitive-warfare
+Model       : sonar-deep-research (no web search — reasons over supplied docs)
+Output      : pipeline/monitors/fimi-cognitive-warfare/synthesised/synthesis-latest.json
 """
 
 import os
@@ -54,7 +39,7 @@ except ImportError:
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
-MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-pro"
+MODEL   = os.environ.get("SYNTH_MODEL") or "sonar-deep-research"
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DIR   = pathlib.Path("pipeline/monitors/fimi-cognitive-warfare/synthesised")
 OUT_LATEST = OUT_DIR / "synthesis-latest.json"
@@ -197,6 +182,7 @@ response = requests.post(
     json={
         "model":       MODEL,
         "messages":    [{"role": "user", "content": prompt}],
+        "max_tokens":  32768,
         "temperature": 0.1,
     },
     timeout=300,
