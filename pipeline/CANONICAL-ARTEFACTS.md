@@ -131,9 +131,7 @@ FIM has not yet been canonical-sprinted. Live artefacts exist and run (daily cha
 
 Time-limited entries. Each must cite the root cause and the expiry milestone. PARITY-001 logs these as "drift (allow-listed, expires \<milestone\>)" but does not fail. PARITY-002 still enforces existence.
 
-| Monitor | Slot | Canonical | Live | Cause | Expiry |
-|---|---|---|---|---|---|
-| _(none)_ | | | | | |
+_No active known-drift entries. Table restored when a new drift row is authored with an AD and expiry._
 
 Row count: **0**.
 
