@@ -49,11 +49,9 @@ Use exactly these labels — no synonyms.
 | 3 | Assessed | Credible T3-T4 evidence. Analytical judgment supported but not independently corroborated. Default for most signals. |
 | 4 | Possible | Min 2 independent source categories. Pattern-consistent but evidence thin, indirect, or early. |
 
-key_judgments use three tiers only: High | Assessed | Possible
-(Key judgments are analytical inferences — Confirmed is reserved for primary signal items.)
+All confidence_preliminary fields — lead_signal, key_judgments, cross_monitor_candidates — use the same 4-tier scale: Confirmed | High | Assessed | Possible.
 
 Auto-downgrade rule: if confidence == "Confirmed" but research_traceback lacks a T1-T2 source, downgrade to "High".
-Cross-monitor flags use a separate scale: Low | Medium | High (unchanged).
 
 ---
 
@@ -96,8 +94,8 @@ The lead_signal field is REQUIRED — never skip it.
     {
       "domain": "growth_recession | inflation_central_bank | financial_stability | trade_tariff | currency_fx | sovereign_debt",
       "signal": "string — key development this week",
-      "direction": "Deteriorating | Stable | Improving",
-      "stress_level": "Green | Amber | Red",
+      "direction": "Worsening | Stable | Improving",
+      "stress_level": "Green | Amber | Red | Crisis",
       "key_data_point": "string — specific figure or event",
       "source": "string — IMF/BIS/WB/Fed/ECB etc."
     }
@@ -107,7 +105,7 @@ The lead_signal field is REQUIRED — never skip it.
       {
         "indicator": "us_debt_deficit | japan_jgb_yields | em_sovereign_distress | custody_migration | gold_reserve_ratio_em",
         "flag": "WARNING | ELEVATED | GREEN",
-        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "direction": "Worsening | Stable | Improving",
         "indicator_type": "SA | CC | TS",
         "value": "string — current reading",
         "source": "string — primary source",
@@ -118,7 +116,7 @@ The lead_signal field is REQUIRED — never skip it.
       {
         "indicator": "fed_sloos | cre_delinquency | gsib_capital | private_credit_nbfi",
         "flag": "WARNING | ELEVATED | GREEN",
-        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "direction": "Worsening | Stable | Improving",
         "indicator_type": "SA | CC | TS",
         "value": "string",
         "source": "string",
@@ -129,7 +127,7 @@ The lead_signal field is REQUIRED — never skip it.
       {
         "indicator": "vix_term_structure | treasury_market_liquidity | margin_debt | fx_swap_basis | m2_money_supply",
         "flag": "WARNING | ELEVATED | GREEN",
-        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "direction": "Worsening | Stable | Improving",
         "indicator_type": "SA | CC | TS",
         "value": "string",
         "source": "string",
@@ -140,7 +138,7 @@ The lead_signal field is REQUIRED — never skip it.
       {
         "indicator": "ism_pmi | jobless_claims | cass_freight | consumer_confidence | earnings_revisions",
         "flag": "WARNING | ELEVATED | GREEN",
-        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "direction": "Worsening | Stable | Improving",
         "indicator_type": "SA | CC | TS",
         "value": "string",
         "source": "string",
@@ -151,7 +149,7 @@ The lead_signal field is REQUIRED — never skip it.
       {
         "indicator": "stlfsi | nfci | iif_global_debt | zero_dte_volume",
         "flag": "WARNING | ELEVATED | GREEN",
-        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "direction": "Worsening | Stable | Improving",
         "indicator_type": "SA | CC | TS",
         "value": "string",
         "source": "string",
@@ -162,7 +160,7 @@ The lead_signal field is REQUIRED — never skip it.
       {
         "indicator": "trump_tariffs | oil_supply_shock | dollar_weaponization | ai_infra_debt",
         "flag": "WARNING | ELEVATED | GREEN",
-        "direction": "DETERIORATING | STABLE | BIFURCATED | IMPROVING",
+        "direction": "Worsening | Stable | Improving",
         "indicator_type": "SA | CC | TS",
         "value": "string",
         "source": "string",
@@ -178,7 +176,7 @@ The lead_signal field is REQUIRED — never skip it.
       "score_prior_week": 0.00,
       "score_delta": 0.00,
       "outlook_label": "BULLISH | MILD POSITIVE | NEUTRAL | MILD NEGATIVE | BEARISH",
-      "conviction": "HIGH | MEDIUM | LOW — BIFURCATED",
+      "conviction": "HIGH | MEDIUM | LOW | BIFURCATED",
       "conviction_detail": "string — which flags agree/disagree and why",
       "alert_tier": "NONE | WATCH | CRITICAL",
       "alert_detail": "string | null — triggered when |delta| >= 0.45 (WATCH) or >= 0.60 (CRITICAL)",
@@ -189,7 +187,7 @@ The lead_signal field is REQUIRED — never skip it.
           "flag": "WARNING | ELEVATED | GREEN",
           "base_score": -1.0,
           "weight": 0.00,
-          "direction": "DETERIORATING | STABLE | IMPROVING",
+          "direction": "Worsening | Stable | Improving",
           "direction_multiplier": 1.0,
           "weighted_contribution": 0.00
         }
@@ -264,7 +262,7 @@ The lead_signal field is REQUIRED — never skip it.
       "entity": "US | Japan | EU | China | EM aggregate",
       "debt_to_gdp": 0.0,
       "deficit_to_gdp": 0.0,
-      "trajectory": "Deteriorating | Stable | Improving",
+      "trajectory": "Worsening | Stable | Improving",
       "key_risk": "string",
       "source": "string"
     }
@@ -272,9 +270,9 @@ The lead_signal field is REQUIRED — never skip it.
   "credit_stress": [
     {
       "segment": "CRE | Private Credit | Consumer | Corporate",
-      "stress_level": "Green | Amber | Red",
+      "stress_level": "Green | Amber | Red | Crisis",
       "key_metric": "string — delinquency rate, spread, etc.",
-      "direction": "Deteriorating | Stable | Improving",
+      "direction": "Worsening | Stable | Improving",
       "contagion_risk": "string | null",
       "source": "string"
     }
@@ -305,9 +303,9 @@ The lead_signal field is REQUIRED — never skip it.
     {
       "id": "kj-001",
       "judgment": "string",
-      "confidence_preliminary": "High | Assessed | Possible",
+      "confidence_preliminary": "Confirmed | High | Assessed | Possible",
       "stress_domain": "string",
-      "trajectory": "Deteriorating | Stable | Improving",
+      "trajectory": "Worsening | Stable | Improving",
       "source_urls": ["string — primary source URLs supporting this judgment. Include up to 3. Use source_url values from the finding arrays where this judgment is drawn from."]
     }
   ],
@@ -317,7 +315,7 @@ The lead_signal field is REQUIRED — never skip it.
       "target_monitor": "fimi-cognitive-warfare | democratic-integrity | conflict-escalation | european-strategic-autonomy | ai-governance | environmental-risks",
       "signal": "string",
       "type": "Economic coercion | Sanctions | Trade war | Financial contagion",
-      "confidence_preliminary": "Low | Medium | High"
+      "confidence_preliminary": "Confirmed | High | Assessed | Possible"
     }
   ]
 }
@@ -336,9 +334,11 @@ The lead_signal field is REQUIRED — never skip it.
 ### Direction Multipliers
 | Direction | Multiplier |
 |---|---|
-| DETERIORATING | x 1.1 |
-| IMPROVING | x 0.9 |
-| STABLE or BIFURCATED | x 1.0 |
+| Worsening | x 1.1 |
+| Improving | x 0.9 |
+| Stable | x 1.0 |
+
+Note: BIFURCATED is a conviction value on asset_outlook.conviction, not a direction. Direction multipliers apply only to the three canonical direction values above.
 
 Scores capped -1.0 to +1.0 after multiplier application.
 
@@ -372,7 +372,7 @@ REAL ESTATE: cre_delinquency 0.40, private_credit_nbfi 0.30, fed_sloos 0.15, gsi
 Count flags in the asset class formula. Find % in single largest group (all-red, all-amber, all-green).
 - > 80% dominant group = HIGH CONVICTION
 - 50-80% = MEDIUM CONVICTION
-- No group reaches 50% = LOW — BIFURCATED
+- No group reaches 50% = LOW (set conviction = "BIFURCATED" when flags split roughly evenly across opposing directions)
 
 ### Indicator Type Classification
 | Type | Label | Examples |
@@ -392,7 +392,7 @@ If earnings_revisions flag = GREEN, append to Tech asset class blind_spot_warnin
 "Score may be suppressed by buyback distortion ($1.1T+ annually in share repurchases) and GAAP-to-non-GAAP adjustments (stock-based compensation excluded). Watch Q2 guidance season as potential detonation point."
 
 Rule 2 — Nominal M2 Mirage:
-If m2_money_supply flag = ELEVATED AND direction = DETERIORATING, append to Crypto asset class blind_spot_warning:
+If m2_money_supply flag = ELEVATED AND direction = Worsening, append to Crypto asset class blind_spot_warning:
 "Nominal M2 expansion is thinning in real terms. Forward Real M2 may turn negative on current inflation pipeline (PPI + tariff pass-through). Nominal M2 narrative support for Crypto is deteriorating."
 
 Blind spot warnings affect commentary only. Scores use mechanical flag values unchanged.
@@ -467,4 +467,4 @@ System Average = arithmetic mean of all 8 asset class scores.
 16. scenario_framework must include all three scenarios with current probability weights.
 17. For oil_supply_shock, always update the current_driver field in domain_6_amplifiers.
 
-# Version: schema-sprint-v2 | Updated: 2026-04-11 | Added: scenario_framework, positioning_overlay (MATT), blind_spot_flags, conviction_detail, indicator_type_classification, asset_outlook scoring_breakdown, debt_dynamics, credit_stress, systemic_risk, safe_haven, sentiment_overlay, domain_indicators with all 24 indicators
+# Version: schema-sprint-v2-canonical | Updated: 2026-04-22 | Canonical Phase A1 vocabulary sweep: direction unified to Worsening|Stable|Improving (retired DETERIORATING/Deteriorating enum uses); stress_level 4-tier Green|Amber|Red|Crisis; asset_outlook.conviction HIGH|MEDIUM|LOW|BIFURCATED (4 distinct enum values, not compound); confidence_preliminary unified to 4-tier Confirmed|High|Assessed|Possible across lead_signal, key_judgments, cross_monitor_candidates; tail_risks.direction retained as Increasing|Stable|Decreasing (risk magnitude, semantically distinct). Prior scope still present: scenario_framework, positioning_overlay (MATT), blind_spot_flags, conviction_detail, indicator_type_classification, asset_outlook scoring_breakdown, debt_dynamics, credit_stress, systemic_risk, safe_haven, sentiment_overlay, domain_indicators with all 24 indicators.

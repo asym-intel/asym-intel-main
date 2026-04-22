@@ -5,13 +5,15 @@
       "type": "object",
       "properties": {
         "schema_version": {
-          "type": "string"
+          "type": "string",
+          "const": "gmm-synthesis-v2.0"
         },
         "research_model": {
           "type": "string"
         },
         "monitor_slug": {
-          "type": "string"
+          "type": "string",
+          "const": "macro-monitor"
         },
         "synthesised_at": {
           "type": "string"
@@ -37,10 +39,24 @@
           "type": "string"
         },
         "domain": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "growth_recession",
+            "inflation_central_bank",
+            "financial_stability",
+            "trade_tariff",
+            "currency_fx",
+            "sovereign_debt"
+          ]
         },
         "confidence_preliminary": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "Confirmed",
+            "High",
+            "Assessed",
+            "Possible"
+          ]
         },
         "source_url": {
           "type": "string"
@@ -51,31 +67,79 @@
       "type": "object",
       "properties": {
         "regime": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "GREEN",
+            "AMBER",
+            "RED",
+            "CRITICAL",
+            "CRISIS"
+          ]
         },
         "conviction": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "VERY HIGH"
+          ]
         },
         "system_average": {
           "type": "number"
         },
         "global": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "Green",
+            "Amber",
+            "Red",
+            "Crisis"
+          ]
         },
         "us": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "Green",
+            "Amber",
+            "Red",
+            "Crisis"
+          ]
         },
         "eu": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "Green",
+            "Amber",
+            "Red",
+            "Crisis"
+          ]
         },
         "china": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "Green",
+            "Amber",
+            "Red",
+            "Crisis"
+          ]
         },
         "em_basket": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "Green",
+            "Amber",
+            "Red",
+            "Crisis"
+          ]
         },
         "regime_delta": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "Stable",
+            "Downgrade",
+            "Upgrade"
+          ]
         },
         "regime_change_evidence": {
           "type": [
@@ -91,16 +155,35 @@
         "type": "object",
         "properties": {
           "domain": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "growth_recession",
+              "inflation_central_bank",
+              "financial_stability",
+              "trade_tariff",
+              "currency_fx",
+              "sovereign_debt"
+            ]
           },
           "signal": {
             "type": "string"
           },
           "direction": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Worsening",
+              "Stable",
+              "Improving"
+            ]
           },
           "stress_level": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Green",
+              "Amber",
+              "Red",
+              "Crisis"
+            ]
           },
           "key_data_point": {
             "type": "string"
@@ -123,13 +206,28 @@
                 "type": "string"
               },
               "flag": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "WARNING",
+                  "ELEVATED",
+                  "GREEN"
+                ]
               },
               "direction": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Worsening",
+                  "Stable",
+                  "Improving"
+                ]
               },
               "indicator_type": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "SA",
+                  "CC",
+                  "TS"
+                ]
               },
               "value": {
                 "type": "string"
@@ -155,13 +253,28 @@
                 "type": "string"
               },
               "flag": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "WARNING",
+                  "ELEVATED",
+                  "GREEN"
+                ]
               },
               "direction": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Worsening",
+                  "Stable",
+                  "Improving"
+                ]
               },
               "indicator_type": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "SA",
+                  "CC",
+                  "TS"
+                ]
               },
               "value": {
                 "type": "string"
@@ -187,13 +300,28 @@
                 "type": "string"
               },
               "flag": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "WARNING",
+                  "ELEVATED",
+                  "GREEN"
+                ]
               },
               "direction": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Worsening",
+                  "Stable",
+                  "Improving"
+                ]
               },
               "indicator_type": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "SA",
+                  "CC",
+                  "TS"
+                ]
               },
               "value": {
                 "type": "string"
@@ -219,13 +347,28 @@
                 "type": "string"
               },
               "flag": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "WARNING",
+                  "ELEVATED",
+                  "GREEN"
+                ]
               },
               "direction": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Worsening",
+                  "Stable",
+                  "Improving"
+                ]
               },
               "indicator_type": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "SA",
+                  "CC",
+                  "TS"
+                ]
               },
               "value": {
                 "type": "string"
@@ -251,13 +394,28 @@
                 "type": "string"
               },
               "flag": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "WARNING",
+                  "ELEVATED",
+                  "GREEN"
+                ]
               },
               "direction": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Worsening",
+                  "Stable",
+                  "Improving"
+                ]
               },
               "indicator_type": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "SA",
+                  "CC",
+                  "TS"
+                ]
               },
               "value": {
                 "type": "string"
@@ -283,13 +441,28 @@
                 "type": "string"
               },
               "flag": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "WARNING",
+                  "ELEVATED",
+                  "GREEN"
+                ]
               },
               "direction": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "Worsening",
+                  "Stable",
+                  "Improving"
+                ]
               },
               "indicator_type": {
-                "type": "string"
+                "type": "string",
+                "enum": [
+                  "SA",
+                  "CC",
+                  "TS"
+                ]
               },
               "value": {
                 "type": "string"
@@ -317,7 +490,17 @@
         "type": "object",
         "properties": {
           "asset_class": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Metals",
+              "Energy",
+              "Bonds",
+              "Crypto",
+              "Tech",
+              "Consumer Staples",
+              "EM Equities",
+              "Real Estate"
+            ]
           },
           "score": {
             "type": "number"
@@ -329,16 +512,34 @@
             "type": "number"
           },
           "outlook_label": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "BULLISH",
+              "MILD POSITIVE",
+              "NEUTRAL",
+              "MILD NEGATIVE",
+              "BEARISH"
+            ]
           },
           "conviction": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "BIFURCATED"
+            ]
           },
           "conviction_detail": {
             "type": "string"
           },
           "alert_tier": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "NONE",
+              "WATCH",
+              "CRITICAL"
+            ]
           },
           "alert_detail": {
             "type": [
@@ -361,7 +562,12 @@
                   "type": "string"
                 },
                 "flag": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "WARNING",
+                    "ELEVATED",
+                    "GREEN"
+                  ]
                 },
                 "base_score": {
                   "type": "number"
@@ -370,7 +576,12 @@
                   "type": "number"
                 },
                 "direction": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "Worsening",
+                    "Stable",
+                    "Improving"
+                  ]
                 },
                 "direction_multiplier": {
                   "type": "number"
@@ -481,10 +692,24 @@
         "type": "object",
         "properties": {
           "institution": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Fed",
+              "ECB",
+              "PBOC",
+              "BoE",
+              "BoJ",
+              "Other"
+            ]
           },
           "posture": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Tightening",
+              "Neutral",
+              "Easing",
+              "Emergency"
+            ]
           },
           "last_action": {
             "type": "string"
@@ -516,7 +741,13 @@
             "type": "string"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Announced",
+              "In force",
+              "Suspended",
+              "Retaliated"
+            ]
           },
           "macro_impact_assessment": {
             "type": "string"
@@ -542,7 +773,12 @@
             "type": "number"
           },
           "direction": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Increasing",
+              "Stable",
+              "Decreasing"
+            ]
           },
           "note": {
             "type": "string"
@@ -562,7 +798,14 @@
         "type": "object",
         "properties": {
           "entity": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "US",
+              "Japan",
+              "EU",
+              "China",
+              "EM aggregate"
+            ]
           },
           "debt_to_gdp": {
             "type": "number"
@@ -571,7 +814,12 @@
             "type": "number"
           },
           "trajectory": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Worsening",
+              "Stable",
+              "Improving"
+            ]
           },
           "key_risk": {
             "type": "string"
@@ -588,16 +836,33 @@
         "type": "object",
         "properties": {
           "segment": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "CRE",
+              "Private Credit",
+              "Consumer",
+              "Corporate"
+            ]
           },
           "stress_level": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Green",
+              "Amber",
+              "Red",
+              "Crisis"
+            ]
           },
           "key_metric": {
             "type": "string"
           },
           "direction": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Worsening",
+              "Stable",
+              "Improving"
+            ]
           },
           "contagion_risk": {
             "type": "string"
@@ -620,10 +885,21 @@
             "type": "string"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Structural",
+              "Cyclical",
+              "Trigger-dependent"
+            ]
           },
           "probability_preliminary": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ]
           },
           "transmission_channel": {
             "type": "string"
@@ -666,13 +942,24 @@
             "type": "string"
           },
           "confidence_preliminary": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
           },
           "supporting_evidence": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Worsening",
+              "Stable",
+              "Improving"
+            ]
           }
         }
       }
@@ -686,16 +973,36 @@
         "type": "object",
         "properties": {
           "target_monitor": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "fimi-cognitive-warfare",
+              "democratic-integrity",
+              "conflict-escalation",
+              "european-strategic-autonomy",
+              "ai-governance",
+              "environmental-risks"
+            ]
           },
           "signal": {
             "type": "string"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Economic coercion",
+              "Sanctions",
+              "Trade war",
+              "Financial contagion"
+            ]
           },
           "confidence_preliminary": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
           }
         }
       }
