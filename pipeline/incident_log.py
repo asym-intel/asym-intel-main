@@ -71,6 +71,7 @@ def log_incident(
     run_id: str = None,
     raw_snippet: str = None,
     repo_root: pathlib.Path = None,
+    entity_id: str = None,
 ) -> dict:
     """Append a single incident line to the JSONL log.
 
@@ -85,6 +86,12 @@ def log_incident(
         run_id:        GitHub Actions run ID (from GITHUB_RUN_ID env var if not provided)
         raw_snippet:   First 500 chars of raw LLM output (for debugging prompt failures)
         repo_root:     Override repo root path (defaults to auto-detected)
+        entity_id:     Fan-out entity identifier (e.g. jurisdiction code "GI", "CA-ON")
+                       for monitors with top-level fan_out (SPEC-ADVENNT-ENGINE-MIGRATION
+                       v1.2 §3.2, asym-intel-internal engine fanout bases
+                       reasoner_base/synth_base/weekly_research_base). Omitted from the
+                       JSONL record when None, so non-fan-out monitors write
+                       byte-identical records to pre-v1.2.
 
     Returns:
         The incident dict that was written (for testing/chaining).
@@ -118,6 +125,8 @@ def log_incident(
             incident["errors"] = errors
         if warnings:
             incident["warnings"] = warnings
+        if entity_id:
+            incident["entity_id"] = entity_id
 
         # Run ID: explicit or from GA environment
         incident["run_id"] = run_id or os.environ.get("GITHUB_RUN_ID", "local")
