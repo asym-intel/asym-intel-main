@@ -162,6 +162,42 @@
                 }
               }
             }
+          },
+          "ert_classification": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "V-Dem Episode of Regime Transformation classification. Null when no active episode. Populated from reasoner ert_episode_review[].",
+            "properties": {
+              "episode_type": {
+                "type": "string",
+                "enum": [
+                  "stand_alone",
+                  "bell_turn",
+                  "u_turn",
+                  "none"
+                ],
+                "description": "V-Dem episode-type canon \u2014 per synthesiser-domain \u00a7ERT CLASSIFICATION."
+              },
+              "episode_phase": {
+                "type": "string",
+                "enum": [
+                  "onset",
+                  "mid_episode",
+                  "reversal",
+                  "post_episode"
+                ],
+                "description": "Phase within the active episode."
+              },
+              "v_dem_episode_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "V-Dem episode identifier when available."
+              }
+            }
           }
         }
       }
@@ -195,7 +231,63 @@
     "electoral_calendar_watch": {
       "type": "array",
       "items": {
-        "type": "object"
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "ISO 3166-1 alpha-3 or country name."
+          },
+          "election_date": {
+            "type": "string",
+            "description": "YYYY-MM-DD when known; accepts natural-language window (e.g. 'Q3 2026') when precise date not fixed."
+          },
+          "election_type": {
+            "type": "string",
+            "enum": [
+              "Presidential",
+              "Parliamentary",
+              "Local",
+              "Referendum"
+            ]
+          },
+          "days_until": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "fimi_risk": {
+            "type": "string",
+            "enum": [
+              "None",
+              "Low",
+              "Medium",
+              "High"
+            ]
+          },
+          "integrity_concern": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "electoral_environment": {
+            "type": "string",
+            "enum": [
+              "FREE_FAIR",
+              "COMPETITIVE",
+              "RESTRICTED",
+              "HIGH_RISK",
+              "MANIPULATED"
+            ],
+            "description": "Five-value canonical enum \u2014 per synthesiser-domain \u00a7ELECTORAL ENVIRONMENT. Required for every country in the 90-day election calendar. Populated by promoting reasoner electoral_environment_review[].recommended_classification."
+          }
+        },
+        "required": [
+          "country",
+          "election_date",
+          "electoral_environment"
+        ]
       }
     },
     "institutional_integrity_flags": {

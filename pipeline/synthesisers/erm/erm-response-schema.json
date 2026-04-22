@@ -91,7 +91,17 @@
         "type": "object",
         "properties": {
           "tipping_element": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "amoc",
+              "amazon_dieback",
+              "greenland_ice_sheet",
+              "west_antarctic_ice_sheet",
+              "permafrost_methane",
+              "coral_reef_collapse",
+              "context_system"
+            ],
+            "description": "Six core tipping systems per synthesiser-domain \u00a7SIX CORE TIPPING SYSTEMS. Use 'context_system' for named context systems (east_antarctic_ice_sheet, boreal_forest_shift, sahel_greening_collapse) when triggered \u2014 populate context_system_name alongside."
           },
           "proximity": {
             "type": "string"
@@ -119,6 +129,19 @@
               "string",
               "null"
             ]
+          },
+          "context_system_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              null,
+              "east_antarctic_ice_sheet",
+              "boreal_forest_shift",
+              "sahel_greening_collapse"
+            ],
+            "description": "Required when tipping_element == 'context_system'. Null otherwise. Canonical context-system enum per reasoner-schema \u00a7tipping_system_review."
           }
         }
       }
@@ -314,6 +337,113 @@
       "items": {
         "type": "object"
       }
+    },
+    "weaponisation_events": {
+      "type": "array",
+      "description": "Events where a natural asset or environmental condition is weaponised. Sourced from reasoner weaponisation_audit[]. Per synthesiser-domain \u00a7F1/\u00a7F2 filters and four-filter classification.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "event_summary": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "natural_asset": {
+            "type": "string",
+            "description": "Earth-system asset or condition weaponised (e.g. water, food, critical minerals, forest cover)."
+          },
+          "earth_system_impact": {
+            "type": "string",
+            "description": "Planetary boundary or tipping system affected."
+          },
+          "filter_classification": {
+            "type": "object",
+            "properties": {
+              "f1_threat_multiplier": {
+                "type": "boolean"
+              },
+              "f2_regulatory_vacuum": {
+                "type": "boolean"
+              },
+              "f3_tipping_point_precursor": {
+                "type": "boolean"
+              },
+              "f4_attribution_gap": {
+                "type": "boolean"
+              }
+            }
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ],
+            "description": "4-tier canonical confidence ladder per ops/CANONICAL-VOCABULARY.md \u00a7Confidence."
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_summary",
+          "natural_asset",
+          "earth_system_impact",
+          "confidence"
+        ]
+      }
+    },
+    "aerosol_dual_risk_flag": {
+      "type": "array",
+      "description": "Atmospheric aerosol dual-risk cases \u2014 where cooling masks warming AND air-quality mortality is elevated. Sourced from reasoner boundary_review items where boundary=='atmospheric_aerosols' and aerosol_dual_risk_triggered is true. Per synthesiser-domain \u00a7DUAL RISK.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string"
+          },
+          "cooling_masking_estimate_w_m2": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "pm25_mortality_indicator": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "dual_risk_summary": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ],
+            "description": "4-tier canonical confidence ladder per ops/CANONICAL-VOCABULARY.md \u00a7Confidence."
+          },
+          "source": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "region",
+          "dual_risk_summary",
+          "confidence"
+        ]
+      }
     }
   },
   "required": [
@@ -331,6 +461,8 @@
     "regional_coverage",
     "key_judgments",
     "weekly_brief_draft",
-    "cross_monitor_candidates"
+    "cross_monitor_candidates",
+    "weaponisation_events",
+    "aerosol_dual_risk_flag"
   ]
 }
