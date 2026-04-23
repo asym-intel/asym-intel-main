@@ -78,6 +78,28 @@
             }
           },
           "additionalProperties": false
+        },
+        "replay_mode": {
+          "type": "boolean",
+          "description": "Sprint 3 Step 4a.3 (AD-2026-04-23 Option C). Engine-stamped true when WEEKLY_FILE_OVERRIDE was active on the dispatch. Absent/false in production dispatches. Not model-derived; the Interpreter LLM does not emit this field."
+        },
+        "replay_window": {
+          "type": "object",
+          "description": "Sprint 3 Step 4a.3 (AD-2026-04-23 Option C). Required iff replay_mode is true. Holds the replay cycle window read from the override weekly bundle's `_meta.week_ending` (end) and end-6d (start). Not model-derived.",
+          "properties": {
+            "start": {
+              "type": "string",
+              "description": "ISO-8601 date (YYYY-MM-DD). week_ending - 6 days."
+            },
+            "end": {
+              "type": "string",
+              "description": "ISO-8601 date (YYYY-MM-DD). Copied from the override bundle's _meta.week_ending."
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ]
         }
       }
     },
