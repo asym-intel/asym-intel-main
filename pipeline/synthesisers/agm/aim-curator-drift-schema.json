@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIM Curator Drift Register (aim-curator-drift-v1.0)",
+  "description": "File-output schema for the deterministic Curator stage (Sprint 3 Step 4). LLM-free: no curator_model, no advisory_notes, no structured_claims. Output is a drift register emitted every cycle (including null cycles) with four typed triggers (T1-T4) firing at advisory severity only. Non-blocking by design (F5/F6). Per AMEND-G canonical-parity: if an LLM is added to Curator later, an internal LLM-output schema would sit at pipeline/monitors/ai-governance/curator-schema.json; this file-output schema remains at the public path.",
+  "type": "object",
+  "required": ["_meta", "triggers_fired", "cycle_summary"],
+  "additionalProperties": false,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "monitor_slug", "cycle_id", "curator_commit_sha"],
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": { "const": "aim-curator-drift-v1.0" },
+        "monitor_slug": { "type": "string" },
+        "cycle_id": { "type": "string" },
+        "curator_deterministic": { "const": true },
+        "curator_model": { "type": "null" },
+        "curator_commit_sha": { "type": "string" },
+        "computed_at": { "type": "string", "format": "date-time" },
+        "methodology_version": { "type": "string" },
+        "input_provenance": {
+          "type": "object",
+          "description": "Which prior cycles' chains + interpret outputs this computation consumed.",
+          "additionalProperties": false,
+          "properties": {
+            "prior_cycle_ids": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "window_size": { "type": "integer", "minimum": 1 },
+            "non_null_cycles_in_window": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "triggers_fired": {
+      "type": "array",
+      "description": "One entry per trigger firing this cycle. Empty array if no triggers fired. Curator is non-blocking (F6): a fired trigger is advisory only, never halts the publish chain.",
+      "items": {
+        "type": "object",
+        "required": ["trigger", "severity", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "trigger": { "enum": ["T1", "T2", "T3", "T4"] },
+          "severity": { "enum": ["advisory"] },
+          "evidence": {
+            "type": "object",
+            "description": "Trigger-specific evidence payload. Shape varies by trigger; see curator_base.py _trigger_T1..T4.",
+            "additionalProperties": true
+          },
+          "flags": {
+            "type": "array",
+            "description": "Trigger-level flags, e.g. 'awaiting_appendix_a_patches' when T3 fires gated on AMEND-D closure.",
+            "items": { "type": "string" }
+          },
+          "message": { "type": "string" }
+        }
+      }
+    },
+    "cycle_summary": {
+      "type": "object",
+      "description": "Summary stats Curator computed this cycle, regardless of whether triggers fired. Present even on null cycles so carry-forward and shape continuity are measurable.",
+      "required": ["structured_claims_count", "entity_registry_size", "carry_forward_rate"],
+      "additionalProperties": false,
+      "properties": {
+        "structured_claims_count": { "type": "integer", "minimum": 0 },
+        "entity_registry_size": { "type": "integer", "minimum": 0 },
+        "carry_forward_rate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "shape_fingerprint": { "type": "string" },
+        "methodology_version": { "type": "string" },
+        "cycle_disposition": {
+          "type": ["string", "null"],
+          "enum": ["normal_cycle", "material_change", "null_cycle", null]
+        }
+      }
+    },
+    "curator_error": {
+      "type": "boolean",
+      "description": "True if the Curator itself hit an internal error (missing input, validation failure). Strictly orthogonal to triggers_fired — an error run emits {} triggers + curator_error: true."
+    },
+    "curator_flags": {
+      "type": "array",
+      "description": "Register-level flags (not trigger-scoped). E.g. 'window_incomplete' when fewer than window_size prior cycles exist.",
+      "items": { "type": "string" }
+    }
+  }
+}

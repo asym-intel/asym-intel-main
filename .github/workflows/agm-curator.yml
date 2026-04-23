@@ -1,0 +1,147 @@
+name: "AI Governance Monitor Curator"
+
+# ── Sprint 3 Step 4 — Curator role ──
+# Chained after Applier success, downstream of the full Interpreter →
+# Reviewer → Composer → Applier chain. Reads the live cycle's
+# interpret-latest.json + chains-latest.json + apply-latest.json, plus
+# the prior N cycles' interpret/chains archives, and produces:
+#   - drift-register-YYYY-MM-DD.json (immutable per-cycle)
+#   - drift-register-latest.json (rolling pointer)
+# LLM-FREE — deterministic drift detection only (design F2, analog of
+# Step 3's E6 Applier LLM-free decision). No PPLX_API_KEY needed. No
+# prompt/schema staging. Replay-safe given the same window of prior
+# cycle SHAs.
+#
+# Four typed triggers at advisory severity only (F5):
+#   T1 — schema-shape change ≥2 in window without methodology bump
+#   T2 — tracked rating flip without fresh T1 evidence
+#   T3 — entity silent drop from registry (AMEND-D stub: awaiting_appendix_a_patches)
+#   T4 — carry-forward rate ≥ 0.80 on a non-null cycle
+#
+# NON-BLOCKING by design (F6) — a fired trigger is advisory, never halts
+# the publish chain. Runs on null cycles (F7) — emits triggers_fired: []
+# + cycle_summary stats so carry-forward is measurable.
+#
+# Design: session-artefacts/2026-04-23-sprint3-step4/step-4-design.md
+# Ratified: AD-2026-04-23k (internal@6f124c61 → engine+metadata atomic)
+# Topology: F10 atomic-by-layer — separate workflow, workflow_run
+# chained off Applier success (mirrors the Reviewer/Applier topology).
+
+on:
+  workflow_dispatch: {}
+  workflow_run:
+    workflows: ["AI Governance Monitor Applier"]
+    types:
+      - completed
+
+jobs:
+  curate:
+    # Gate: only run if upstream applier actually succeeded.
+    # workflow_dispatch runs always pass this guard (F9 acceptance gate
+    # uses this path against the live e20d2af3 HEAD null-cycle inputs).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          # workflow_run always starts from default branch HEAD; make that
+          # explicit so we see the apply-latest.json + chains-latest.json
+          # the upstream job just committed.
+          ref: main
+          # Curator needs prior cycle history to compute T1/T4 windows.
+          # Fetch full history so interpret-YYYY-MM-DD.json / chains-*.json
+          # archives from prior cycles are available. Cost is cheap — the
+          # asym-intel-main repo is small.
+          fetch-depth: 0
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/ai-governance
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+
+      # The engine reads bespoke metadata.yml via paths resolved relative
+      # to CWD (public-main root). Stage the internal checkout's metadata
+      # there. §15 IP boundary preserved — it is never committed back.
+      # No prompt/schema staging (LLM-free).
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/ai-governance
+          cp -v internal/pipeline/monitors/ai-governance/metadata.yml \
+                pipeline/monitors/ai-governance/
+
+      # Skip-on-missing guard. Curator needs apply-latest.json at minimum
+      # (it reads interpret/chains via the apply manifest's input_provenance
+      # and/or direct path lookup). If absent (upstream errored before
+      # commit), exit 0 so the chain doesn't block or emit a noisy error
+      # manifest to public on a transient upstream hiccup.
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          A="pipeline/monitors/ai-governance/applied/apply-latest.json"
+          I="pipeline/monitors/ai-governance/synthesised/interpret-latest.json"
+          MISSING=""
+          [ -f "$A" ] || MISSING="${MISSING} apply-latest"
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Curator."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run AGM curator (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:          ${{ github.workspace }}
+          PYTHONPATH:         internal
+          # Provenance telemetry — the curator stamps curator_commit_sha
+          # from GITHUB_SHA on the emitted drift register (_meta block).
+          CURATOR_RUN_ID:     ${{ github.event.workflow_run.id }}
+          GITHUB_SHA:         ${{ github.sha }}
+        run: python -m pipeline.engine.curator_base --monitor ai-governance
+
+      - name: Validate drift register against public schema
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+          from jsonschema import Draft7Validator
+          schema = json.loads(Path("pipeline/synthesisers/agm/aim-curator-drift-schema.json").read_text())
+          register = json.loads(Path("pipeline/monitors/ai-governance/curator/drift-register-latest.json").read_text())
+          errors = sorted(Draft7Validator(schema).iter_errors(register), key=lambda e: e.path)
+          if errors:
+              for e in errors:
+                  print(f"SCHEMA ERR: {list(e.path)} — {e.message}")
+              sys.exit(1)
+          print(f"Schema OK — schema_version={register['_meta']['schema_version']}, triggers_fired={len(register['triggers_fired'])}")
+          PY
+
+      - name: Commit curator output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/ai-governance/curator/
+          git diff --cached --quiet || git commit -m "chore(agm): curator run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
