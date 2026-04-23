@@ -1,9 +1,14 @@
 name: "AI Governance Monitor Composer"
 
 # ── Sprint 3 Step 1 — Composer role ──
-# Chained after Interpreter success. Reads interpret-latest.json and
-# composes a grounded weekly brief draft (no new claims; claim_trace[]
-# tied to interpreter claim IDs).
+# Chained after Reviewer success (Sprint 3 Step 2b, AD-2026-04-23i).
+# Reads interpret-latest.json + review-latest.json and composes a
+# grounded weekly brief draft (no new claims; claim_trace[] tied to
+# interpreter claim IDs).
+#
+# Reviewer verdict handling:
+#   APPROVE / APPROVE_WITH_FLAGS / SKIP_NULL_CYCLE → normal render.
+#   REJECT / SKIP_ERROR_CYCLE                     → skip (publisher fallback).
 #
 # §5 acceptance gate: on first post-unpause AGM cycle, claim #47 (NVIDIA
 # $3.2T) must fail interpreter structured-claim extraction, so Composer
@@ -17,7 +22,10 @@ on:
         required: false
         default: ''
   workflow_run:
-    workflows: ["AI Governance Monitor Interpreter"]
+    # Sprint 3 Step 2b: chain now points at Reviewer, not Interpreter.
+    # Reviewer is itself chained on Interpreter success, so the
+    # Interpreter → Reviewer → Composer sequence is preserved.
+    workflows: ["AI Governance Monitor Reviewer"]
     types:
       - completed
 
@@ -79,14 +87,23 @@ jobs:
           cp -v internal/pipeline/monitors/ai-governance/composer-prompt.txt   pipeline/monitors/ai-governance/
           cp -v internal/pipeline/monitors/ai-governance/composer-schema.json  pipeline/monitors/ai-governance/
 
-      # Skip-on-error-cycle guard: if Interpreter set cycle_disposition to
-      # "error_cycle", Composer exits 0 without calling the model. Publisher
-      # dual-file read will fall back to legacy path when compose-latest is
-      # absent.
-      - name: Check interpreter disposition
+      # Skip-on-disposition guard. Two layers (workflow + engine) keep the
+      # chain honest. This step surfaces the reason in the UI before
+      # spinning up the model call.
+      #
+      # Interpreter disposition (pre-reviewer pattern — retained):
+      #   error_cycle            → skip (publisher fallback).
+      # Reviewer verdict (Sprint 3 Step 2b — additive):
+      #   REJECT                 → skip (publisher fallback).
+      #   SKIP_ERROR_CYCLE       → skip (publisher fallback).
+      #   APPROVE / APPROVE_WITH_FLAGS / SKIP_NULL_CYCLE → proceed.
+      # Missing review-latest.json → proceed (pre-reviewer behaviour).
+      - name: Check interpreter disposition + reviewer verdict
         id: disposition
         run: |
           INTERPRET_PATH="pipeline/monitors/ai-governance/synthesised/interpret-latest.json"
+          REVIEW_PATH="pipeline/monitors/ai-governance/synthesised/review-latest.json"
+
           if [ ! -f "$INTERPRET_PATH" ]; then
             echo "skip=true"       >> "$GITHUB_OUTPUT"
             echo "reason=missing-interpret-latest" >> "$GITHUB_OUTPUT"
@@ -99,10 +116,30 @@ jobs:
             echo "skip=true"   >> "$GITHUB_OUTPUT"
             echo "reason=error_cycle" >> "$GITHUB_OUTPUT"
             echo "Interpreter reported error_cycle — skipping Composer."
-          else
-            echo "skip=false"  >> "$GITHUB_OUTPUT"
-            echo "reason=ok"   >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+
+          if [ -f "$REVIEW_PATH" ]; then
+            VERDICT=$(python -c "import json; d=json.load(open('$REVIEW_PATH')); print(d.get('verdict',''))")
+            echo "verdict=$VERDICT"
+            if [ "$VERDICT" = "REJECT" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "reason=reviewer_reject" >> "$GITHUB_OUTPUT"
+              echo "Reviewer verdict=REJECT — skipping Composer."
+              exit 0
+            fi
+            if [ "$VERDICT" = "SKIP_ERROR_CYCLE" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "reason=reviewer_skip_error_cycle" >> "$GITHUB_OUTPUT"
+              echo "Reviewer verdict=SKIP_ERROR_CYCLE — skipping Composer."
+              exit 0
+            fi
+          else
+            echo "verdict=(no review-latest.json; proceeding on Interpreter disposition alone)"
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "reason=ok"  >> "$GITHUB_OUTPUT"
 
       - name: Run AGM composer (engine dispatch)
         if: steps.disposition.outputs.skip != 'true'
