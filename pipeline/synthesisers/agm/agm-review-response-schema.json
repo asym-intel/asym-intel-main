@@ -98,6 +98,30 @@
             "string",
             "null"
           ]
+        },
+        "independence_mechanism": {
+          "type": "object",
+          "description": "Sprint 3 Step 4a Risk 3 fix (AD-2026-04-23l). Audit-documentation field naming the mechanisms that make the Reviewer's verdict independent of the Interpreter. Engine-stamped verbatim from metadata.yml stages.reviewer.independence_mechanism. Read by P2 adjudication (independent review criterion).",
+          "additionalProperties": true,
+          "properties": {
+            "distinct_model_family": {
+              "type": "object",
+              "description": "Names the distinct LLM families used by Reviewer vs Interpreter. Concrete evidence that the advisory_notes call is not the same model that produced the interpret output.",
+              "additionalProperties": true,
+              "properties": {
+                "reviewer_model": {
+                  "type": "string"
+                },
+                "interpreter_model": {
+                  "type": "string"
+                }
+              }
+            },
+            "first_principles_source_re_read": {
+              "type": "boolean",
+              "description": "True when the Reviewer prompt instructs first-principles re-reading of source evidence rather than deferring to the Interpreter's framing."
+            }
+          }
         }
       }
     },
