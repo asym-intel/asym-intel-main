@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIM Review Output Schema (aim-review-v1.0)",
+  "description": "Output schema for the AIM Reviewer stage (pipeline/engine/review_base.py → review-YYYY-MM-DD.json + review-latest.json). Sprint 3 Step 2b role insertion (AD-2026-04-23i). The Reviewer sits between the Interpreter and the Composer: it reads interpret-latest.json, runs R1–R7 deterministic rule-engine checks (disposition-aware per design §3.3), and emits a 5-value verdict. LLM call produces advisory_notes[] only; verdict + checks + claim_flags are set by the rule engine.",
+  "type": "object",
+  "required": [
+    "_meta",
+    "verdict",
+    "checks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "monitor_slug",
+        "reviewed_from"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": [
+            "aim-review-v1.0"
+          ]
+        },
+        "reviewer_model": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Model used for the advisory_notes LLM call (sonar-pro default). Null when REVIEWER_NO_LLM=1 or under error_cycle short-circuit. Verdict is independent of LLM output."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "ai-governance"
+        },
+        "reviewed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "ISO-8601 UTC. Stamped by engine."
+        },
+        "reviewed_from": {
+          "type": "string",
+          "enum": [
+            "aim-interpret-v1.0"
+          ]
+        },
+        "reviewed_from_file": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Filename of the interpret output this review consumed. Typically 'interpret-latest.json' or 'interpret-YYYY-MM-DD.json'."
+        },
+        "interpret_meta": {
+          "type": "object",
+          "description": "Cherry-picked mirror of the upstream Interpreter _meta fields that the Composer will care about. Engine-stamped.",
+          "additionalProperties": true,
+          "properties": {
+            "null_signal_week": {
+              "type": "boolean"
+            },
+            "cycle_disposition": {
+              "type": "string",
+              "enum": [
+                "material_change",
+                "normal_cycle",
+                "null_cycle",
+                "partial_cycle",
+                "error_cycle"
+              ]
+            },
+            "week_ending": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "reviewer_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Engine-side flags (not LLM-emitted). E.g. 'rule_engine_only' when LLM skipped."
+        },
+        "reviewer_error": {
+          "type": "boolean",
+          "description": "Engine-stamped. True only when the LLM advisory_notes call failed. Does NOT affect verdict (rule engine is independent)."
+        },
+        "reviewer_error_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "APPROVE",
+        "APPROVE_WITH_FLAGS",
+        "REJECT",
+        "SKIP_NULL_CYCLE",
+        "SKIP_ERROR_CYCLE"
+      ],
+      "description": "5-value verdict (design §3.2, D2). Set by rule engine in pipeline/engine/review_base.py.derive_verdict(); NOT LLM-overridable."
+    },
+    "verdict_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 280,
+      "description": "Short prose reason from the rule engine. Suitable for logs and composer_flags lineage."
+    },
+    "checks": {
+      "type": "array",
+      "description": "Rule-engine results for R1–R7 per design §3.3. Ordered by check_id.",
+      "items": {
+        "type": "object",
+        "required": [
+          "check_id",
+          "name",
+          "result",
+          "disposition_aware_skip"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "enum": [
+              "R1",
+              "R2",
+              "R3",
+              "R4",
+              "R5",
+              "R6",
+              "R7"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 140
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "SKIP",
+              "WARN"
+            ]
+          },
+          "disposition_aware_skip": {
+            "type": "boolean",
+            "description": "True when the check was skipped because of the upstream cycle_disposition (expected and healthy)."
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 280,
+            "description": "Terse finding."
+          }
+        }
+      }
+    },
+    "claim_flags": {
+      "type": "array",
+      "description": "Per-claim findings from the rule engine (R3 shape integrity + R4 evidence completeness). Never LLM-emitted.",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "flag_type",
+          "severity"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "type": "string"
+          },
+          "flag_type": {
+            "type": "string",
+            "enum": [
+              "evidence_missing",
+              "predicate_drift",
+              "entity_mismatch",
+              "low_confidence_amplification"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "block",
+              "warn"
+            ]
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 280
+          }
+        }
+      }
+    },
+    "advisory_notes": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "Optional prose observations from the LLM call. Composer may reflect but not claim as facts. Empty under REVIEWER_NO_LLM=1 or rule_engine_only mode.",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    }
+  }
+}
