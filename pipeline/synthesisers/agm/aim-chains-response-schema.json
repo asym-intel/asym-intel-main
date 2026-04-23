@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIM Chains Output Schema (aim-chains-v1.0)",
+  "description": "Public chains artefact emitted by the AIM Applier (pipeline/engine/apply_base.py → chains-YYYY-MM-DD.json + chains-latest.json). One chain per interpreter structured_claim, linking claim_id → per-claim review_status → patch_id (MVP: always null) → evidence (evidence_id + source_url + source_module_path). Designed for public audit of the monitor pipeline; replay-deterministic given the three upstream content SHAs. Sprint 3 Step 3 (AD-2026-04-23j).",
+  "type": "object",
+  "required": ["_meta", "chains"],
+  "additionalProperties": false,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "monitor_slug",
+        "chained_at",
+        "cycle_id",
+        "chain_count",
+        "chain_builder_deterministic"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": ["aim-chains-v1.0"]
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "ai-governance"
+        },
+        "chained_at": {
+          "type": "string",
+          "description": "ISO-8601 UTC timestamp when the chain builder ran."
+        },
+        "cycle_id": {
+          "type": ["string", "null"],
+          "description": "Canonical per-cycle identifier ({abbr}-YYYY-MM-DD). Matches the companion manifest's cycle_id."
+        },
+        "cycle_disposition": {
+          "type": "string",
+          "enum": ["normal_cycle", "null_cycle", "error_cycle", "unknown"]
+        },
+        "week_ending": {
+          "type": ["string", "null"]
+        },
+        "review_verdict": {
+          "type": ["string", "null"],
+          "enum": ["APPROVE", "APPROVE_WITH_FLAGS", "SKIP_NULL_CYCLE", "SKIP_ERROR_CYCLE", "REJECT", null]
+        },
+        "chain_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "chain_builder_deterministic": {
+          "type": "boolean",
+          "const": true,
+          "description": "MVP guarantee: chain construction is pure deterministic stitching. Byte-identical replay given the three input SHAs + today's date."
+        }
+      }
+    },
+    "chains": {
+      "type": "array",
+      "description": "Ordered chain[] — one per interpreter structured_claim, preserving structured_claims[] order. chain_id format: '{abbr}-chain-{week_ending}-{NNNN}' (4-digit zero-padded index, 1-based).",
+      "items": {
+        "type": "object",
+        "required": [
+          "chain_id",
+          "claim_id",
+          "claim",
+          "review_status",
+          "review_flags",
+          "patch_id",
+          "patch_status",
+          "evidence",
+          "in_compose_trace"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "chain_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+-chain-.+-[0-9]{4}$"
+          },
+          "claim_id": {
+            "type": "string",
+            "description": "From interpret.structured_claims[].claim_id. Falls back to 'unknown-NNNN' if the source claim lacks an ID (observable as an interpret_schema_mismatch condition)."
+          },
+          "claim": {
+            "type": "object",
+            "required": ["entity", "predicate", "value", "source_module", "extraction_method"],
+            "additionalProperties": false,
+            "properties": {
+              "entity": {"type": ["string", "null"]},
+              "predicate": {"type": ["string", "null"]},
+              "value": {},
+              "confidence": {"type": ["number", "string", "null"]},
+              "source_module": {"type": ["string", "null"]},
+              "extraction_method": {
+                "type": "string",
+                "enum": ["deterministic", "llm_fallback", "unknown"],
+                "description": "Derived from interpret claim.notes string (design §3.3 rule 3): 'deterministic' if notes contains 'deterministic', 'llm_fallback' if contains 'llm', else 'unknown'."
+              }
+            }
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "APPROVE_WITH_FLAGS",
+              "APPROVE_WITH_CLAIM_FLAGS",
+              "SKIP_NULL_CYCLE",
+              "SKIP_ERROR_CYCLE",
+              "REJECT",
+              "UNKNOWN"
+            ],
+            "description": "Per-claim status derived from brief-level review.verdict with per-claim escalation (design §3.3 rule 5): if review.claim_flags[] contains entries for this claim_id, APPROVE is promoted to APPROVE_WITH_CLAIM_FLAGS."
+          },
+          "review_flags": {
+            "type": "array",
+            "items": {"type": "object"},
+            "description": "Subset of review.claim_flags[] matching this claim_id (preserved verbatim). Empty array when none."
+          },
+          "patch_id": {
+            "type": "null",
+            "description": "MVP: always null. AMEND-D stub — Appendix-A-form patches deferred until the Interpreter emits patches in Appendix A shape (Step 5 or later)."
+          },
+          "patch_status": {
+            "type": "string",
+            "enum": ["no_patch_emitted"],
+            "description": "MVP: always 'no_patch_emitted'. Signals explicit absence of a patch for this claim in this cycle (not missing data)."
+          },
+          "evidence": {
+            "type": "object",
+            "required": ["evidence_id", "source_url", "source_module_path"],
+            "additionalProperties": false,
+            "properties": {
+              "evidence_id": {"type": ["string", "null"]},
+              "source_url": {
+                "type": ["string", "null"],
+                "description": "Resolved via interpret.weekly_developments[] → cross_monitor_candidates[] → lead_signal.source_url fallback (design §3.3 rule 7). Null for deterministic claims extracted from persistent-state modules (typical)."
+              },
+              "source_module_path": {
+                "type": ["string", "null"],
+                "description": "Canonical module path for claims sourced from persistent-state (e.g. 'persistent-state/modules/…'). Null for weekly-input-sourced claims."
+              }
+            }
+          },
+          "in_compose_trace": {
+            "type": "boolean",
+            "description": "True iff compose.claim_trace[] referenced this claim_id (either as a string entry or as an object with matching claim_id). False for claims not surfaced in the published brief."
+          }
+        }
+      }
+    }
+  }
+}

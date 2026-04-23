@@ -1,0 +1,234 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIM Apply Output Schema (aim-apply-v1.0)",
+  "description": "Output schema for the AIM Applier stage (pipeline/engine/apply_base.py → apply-YYYY-MM-DD.json + apply-latest.json). Sprint 3 Step 3 role insertion (AD-2026-04-23j). The Applier sits downstream of the Composer and reads all three upstream outputs (interpret-latest.json, review-latest.json, compose-latest.json) to produce a cycle manifest. MVP is LLM-free — deterministic stitching only; per design E6. Patches are emitted under AMEND-D stub (all arrays empty in MVP). Role 6 contract: (cycle_id, ready_to_publish, patches_applied/rejected/deferred/looped_back) + publisher_artefacts handoff for the Publisher role (not yet implemented).",
+  "type": "object",
+  "required": [
+    "_meta",
+    "cycle_id",
+    "inputs",
+    "patches_applied",
+    "patches_rejected",
+    "patches_deferred",
+    "patches_looped_back",
+    "publication",
+    "chains_artefact"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "monitor_slug",
+        "applied_at",
+        "applier_deterministic",
+        "cycle_disposition",
+        "applier_flags",
+        "applier_error"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": ["aim-apply-v1.0"]
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "ai-governance"
+        },
+        "applied_at": {
+          "type": "string",
+          "description": "ISO-8601 UTC timestamp when the applier engine ran."
+        },
+        "applier_model": {
+          "type": ["string", "null"],
+          "description": "Always null in MVP — applier is LLM-free (E6). Reserved for future Appendix-A patch execution (AMEND-D)."
+        },
+        "applier_deterministic": {
+          "type": "boolean",
+          "const": true,
+          "description": "MVP guarantee: the applier is a pure deterministic stitcher. Byte-identical replay given the same three input SHAs + today's date."
+        },
+        "cycle_disposition": {
+          "type": "string",
+          "enum": ["normal_cycle", "null_cycle", "error_cycle", "unknown"]
+        },
+        "applier_flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "compose_composed_at_null",
+              "compose_no_reviewed_by_stamp",
+              "interpret_no_claims",
+              "schema_mismatch:interpret",
+              "schema_mismatch:review",
+              "schema_mismatch:compose"
+            ]
+          },
+          "description": "Informational flags only — never block publication. All flag values are pre-enumerated; new flags require a whitelist extension."
+        },
+        "applier_error": {
+          "type": "boolean",
+          "description": "True when any required input is missing. Forces ready_to_publish=false with hold_reason='applier_error'."
+        },
+        "applier_error_reason": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "cycle_id": {
+      "type": ["string", "null"],
+      "description": "Canonical per-cycle identifier in form '{abbr}-YYYY-MM-DD' (e.g. 'agm-2026-04-23'). Derived from interpret._meta.synthesised_at or today's date. Null only on applier_error (missing inputs)."
+    },
+    "methodology_version": {
+      "type": "string",
+      "description": "Monitor methodology version (e.g. 'agm-methodology-2026-Q2'). Sourced from metadata.yml stages.applier.methodology_version."
+    },
+    "week_ending": {
+      "type": ["string", "null"],
+      "description": "ISO date for the cycle's week-ending anchor. Sourced from interpret._meta.week_ending (preferred) or review._meta.interpret_meta.week_ending (fallback)."
+    },
+    "week_ending_source": {
+      "type": ["string", "null"],
+      "enum": [
+        "interpret._meta.week_ending",
+        "review._meta.interpret_meta.week_ending",
+        null
+      ]
+    },
+    "inputs": {
+      "type": "object",
+      "description": "Provenance block for the three upstream artefacts. content_sha1 enables replay determinism checks.",
+      "properties": {
+        "interpret": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "required": ["path", "content_sha1", "schema_version", "claim_count"],
+              "properties": {
+                "path": {"type": "string"},
+                "content_sha1": {"type": "string"},
+                "schema_version": {"type": ["string", "null"]},
+                "claim_count": {"type": "integer", "minimum": 0},
+                "null_signal_week": {"type": ["boolean", "null"]},
+                "triple_extraction_manifest": {"type": "object"}
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        "review": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "required": ["path", "content_sha1", "verdict"],
+              "properties": {
+                "path": {"type": "string"},
+                "content_sha1": {"type": "string"},
+                "schema_version": {"type": ["string", "null"]},
+                "verdict": {
+                  "type": ["string", "null"],
+                  "enum": ["APPROVE", "APPROVE_WITH_FLAGS", "SKIP_NULL_CYCLE", "SKIP_ERROR_CYCLE", "REJECT", null]
+                },
+                "verdict_reason": {"type": ["string", "null"]},
+                "check_summary": {"type": "object"},
+                "advisory_note_count": {"type": "integer", "minimum": 0},
+                "claim_flag_count": {"type": "integer", "minimum": 0}
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        "compose": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "required": ["path", "content_sha1"],
+              "properties": {
+                "path": {"type": "string"},
+                "content_sha1": {"type": "string"},
+                "schema_version": {"type": ["string", "null"]},
+                "composed_at": {"type": ["string", "null"]},
+                "claim_trace_count": {"type": "integer", "minimum": 0},
+                "composer_error": {"type": "boolean"},
+                "reviewed_by": {"type": ["string", "null"]}
+              },
+              "additionalProperties": true
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "patches_applied": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "MVP: always empty. AMEND-D stub — Appendix-A-form patch execution deferred until Interpreter emits patches in Appendix A shape (Step 5 or later). Future items will conform to Appendix A §1.3 (Role 6 contract)."
+    },
+    "patches_rejected": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "MVP: always empty. See patches_applied."
+    },
+    "patches_deferred": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "MVP: always empty. See patches_applied."
+    },
+    "patches_looped_back": {
+      "type": "array",
+      "maxItems": 0,
+      "description": "MVP: always empty. See patches_applied."
+    },
+    "publication": {
+      "type": "object",
+      "required": ["ready_to_publish"],
+      "properties": {
+        "ready_to_publish": {
+          "type": ["boolean", "null"],
+          "description": "True iff review.verdict ∈ {APPROVE, APPROVE_WITH_FLAGS, SKIP_NULL_CYCLE} AND compose._meta.composer_error is false. SKIP_NULL_CYCLE is publish-eligible — null-cycle briefs still render and publish (design §3.1 rule 4). Null only when applier could not reach the decision (error path)."
+        },
+        "hold_reason": {
+          "type": ["string", "null"],
+          "enum": [
+            "review_rejected",
+            "review_error_cycle_skip",
+            "composer_error",
+            "applier_error",
+            null
+          ]
+        },
+        "publisher_artefacts": {
+          "type": "object",
+          "description": "Handoff block for the Publisher role (Role 7 — not yet implemented). Paths are relative to monitor slug; the Publisher resolves them at publish time.",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "chains_artefact": {
+      "type": "object",
+      "required": ["path", "schema_version", "chain_count"],
+      "description": "Pointer to the companion chains-latest.json (public claim→review→patch→evidence chains).",
+      "properties": {
+        "path": {"type": "string"},
+        "schema_version": {
+          "type": "string",
+          "enum": ["aim-chains-v1.0"]
+        },
+        "chain_count": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Workflow provenance. Public mirror (apply-latest.json) has the three *_workflow_run_id fields stripped per design §3.1; the dated copy retains them for internal replay.",
+      "additionalProperties": true
+    }
+  }
+}

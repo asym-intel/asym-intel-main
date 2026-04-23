@@ -1,0 +1,123 @@
+name: "AI Governance Monitor Applier"
+
+# ── Sprint 3 Step 3 — Applier role ──
+# Chained after Composer success, downstream of Reviewer. Reads all three
+# upstream artefacts (interpret-latest.json, review-latest.json,
+# compose-latest.json) and produces:
+#   - apply-YYYY-MM-DD.json + apply-latest.json (cycle manifest)
+#   - chains-YYYY-MM-DD.json + chains-latest.json (public claim→review→
+#     patch→evidence chains, one per structured_claim)
+# LLM-FREE — deterministic stitching only (design E6). No PPLX_API_KEY
+# needed. No prompt/schema staging needed. Replay-safe given the same
+# three input SHAs + today's date.
+#
+# Design: session-artefacts/2026-04-23-sprint3-step3/step-3-design.md
+# Ratified: AD-2026-04-23j (internal@25db305a → engine@83cc5a80)
+# Topology: E2 Option A — separate workflow, workflow_run chained off
+# Composer success (mirrors the Reviewer/Interpreter topology).
+
+on:
+  workflow_dispatch: {}
+  workflow_run:
+    workflows: ["AI Governance Monitor Composer"]
+    types:
+      - completed
+
+jobs:
+  apply:
+    # Gate: only run if upstream composer actually succeeded.
+    # workflow_dispatch runs always pass this guard (E9 acceptance gate
+    # uses this path against live null-cycle inputs).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          # workflow_run always starts from default branch HEAD; make that
+          # explicit so we see the compose-latest.json the upstream job
+          # just committed.
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/ai-governance
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      # The engine reads bespoke metadata.yml via paths resolved relative
+      # to CWD (public-main root). Stage the internal checkout's metadata
+      # there. §15 IP boundary preserved — it is never committed back.
+      # No prompt/schema staging (LLM-free).
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/ai-governance
+          cp -v internal/pipeline/monitors/ai-governance/metadata.yml \
+                pipeline/monitors/ai-governance/
+
+      # Skip-on-missing guard. All three upstream artefacts are required;
+      # if any is absent (upstream errored before commit) exit 0 so the
+      # chain doesn't block. The Applier emits an explicit applier_error
+      # manifest in that case only if called directly with missing files
+      # — we pre-empt it here so we don't commit an error manifest to the
+      # public repo from a transient upstream hiccup.
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          I="pipeline/monitors/ai-governance/synthesised/interpret-latest.json"
+          R="pipeline/monitors/ai-governance/synthesised/review-latest.json"
+          C="pipeline/monitors/ai-governance/synthesised/compose-latest.json"
+          MISSING=""
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          [ -f "$R" ] || MISSING="${MISSING} review-latest"
+          [ -f "$C" ] || MISSING="${MISSING} compose-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Applier."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run AGM applier (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:          ${{ github.workspace }}
+          PYTHONPATH:         internal
+          # Provenance telemetry — stripped from public apply-latest.json
+          # by sanitise_manifest_for_public() (design §3.1 + E7). Retained
+          # in the dated manifest for internal replay.
+          INTERPRET_RUN_ID:   ${{ github.event.workflow_run.id }}
+          REVIEW_RUN_ID:      ${{ github.event.workflow_run.id }}
+          COMPOSE_RUN_ID:     ${{ github.event.workflow_run.id }}
+        run: python -m pipeline.engine.apply_base --monitor ai-governance
+
+      - name: Commit applier output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          # apply-debug-*.json is engine-internal telemetry (keeps full
+          # provenance run IDs for debugging). It is intentionally NOT
+          # committed to the public repo — per engine docstring §3.1.
+          rm -f pipeline/monitors/ai-governance/applied/apply-debug-*.json
+          git add pipeline/monitors/ai-governance/applied/
+          git diff --cached --quiet || git commit -m "chore(agm): applier run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
