@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "schema_version": "aim-apply-v1.0",
+    "monitor_slug": "ai-governance",
+    "applied_at": "2026-04-23T22:23:19Z",
+    "applier_model": null,
+    "applier_deterministic": true,
+    "cycle_disposition": "material_change",
+    "applier_flags": [
+      "compose_composed_at_null"
+    ],
+    "applier_error": false,
+    "applier_error_reason": null
+  },
+  "cycle_id": "agm-2026-04-23",
+  "methodology_version": "agm-methodology-2026-Q2",
+  "week_ending": "2026-04-16",
+  "week_ending_source": "interpret._meta.week_ending",
+  "inputs": {
+    "interpret": {
+      "path": "pipeline/monitors/ai-governance/synthesised/interpret-latest.json",
+      "content_sha1": "8e96d321cba83a11a5d576ac0aea84f913e0b5d8",
+      "schema_version": "aim-interpret-v1.0",
+      "claim_count": 20,
+      "null_signal_week": false,
+      "triple_extraction_manifest": {
+        "deterministic_extractions": 12,
+        "llm_fallback_extractions": 8,
+        "llm_fallback_model": "sonar-pro",
+        "llm_fallback_temperature": 0.1,
+        "llm_fallback_timestamp": "2026-04-23T22:18:26Z"
+      }
+    },
+    "review": {
+      "path": "pipeline/monitors/ai-governance/synthesised/review-latest.json",
+      "content_sha1": "161b2c0760a640fa802fddf0d943dd38e6e8e08a",
+      "schema_version": "aim-review-v1.0",
+      "verdict": "APPROVE",
+      "verdict_reason": "all checks PASS; composer proceeds normally",
+      "check_summary": {
+        "PASS": 6,
+        "SKIP": 1,
+        "FAIL": 0
+      },
+      "advisory_note_count": 3,
+      "claim_flag_count": 0
+    },
+    "compose": {
+      "path": "pipeline/monitors/ai-governance/synthesised/compose-latest.json",
+      "content_sha1": "dffec4b0ea00af298d0ca0b8bd2d9cf1d5ab59e1",
+      "schema_version": "aim-compose-v1.0",
+      "composed_at": null,
+      "claim_trace_count": 23,
+      "composer_error": false,
+      "reviewed_by": {
+        "verdict": "APPROVE",
+        "reviewer_model": "sonar-pro",
+        "reviewed_at": "2026-04-23T22:22:01.893310+00:00",
+        "review_schema_version": "aim-review-v1.0"
+      }
+    }
+  },
+  "patches_applied": [],
+  "patches_rejected": [],
+  "patches_deferred": [],
+  "patches_looped_back": [],
+  "publication": {
+    "ready_to_publish": true,
+    "hold_reason": null,
+    "publisher_artefacts": {
+      "weekly_brief_path": "content/monitors/ai-governance/2026-04-16-weekly-brief.md",
+      "report_latest_path": "static/monitors/ai-governance/data/report-latest.json"
+    }
+  },
+  "chains_artefact": {
+    "path": "pipeline/monitors/ai-governance/applied/chains-latest.json",
+    "schema_version": "aim-chains-v1.0",
+    "chain_count": 20
+  },
+  "provenance": {
+    "applier_commit_sha": null,
+    "interpret_workflow_run_id": "24861829294",
+    "review_workflow_run_id": "24861829294",
+    "compose_workflow_run_id": "24861829294"
+  }
+}
