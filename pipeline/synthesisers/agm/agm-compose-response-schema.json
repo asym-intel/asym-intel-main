@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIM Compose Output Schema (aim-compose-v1.0)",
+  "description": "Output schema for the AIM Composer stage. Sprint 3 Step 1 role split (AD-2026-04-23f). Consumed by publisher.py (builds report-YYYY-MM-DD.json's weekly_brief_draft + claim_trace[] sidecar) and by the Step 2 Reviewer gate.",
+  "type": "object",
+  "required": [
+    "_meta",
+    "weekly_brief_draft",
+    "claim_trace"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "monitor_slug",
+        "composed_from"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": [
+            "aim-compose-v1.0"
+          ]
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "ai-governance"
+        },
+        "composed_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "ISO-8601 UTC. Stamped by engine; may be null at emit time."
+        },
+        "composed_from": {
+          "type": "string",
+          "enum": [
+            "aim-interpret-v1.0"
+          ]
+        },
+        "composed_from_file": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Filename of the interpret output this compose consumed. Typically 'interpret-latest.json' or 'interpret-YYYY-MM-DD.json'."
+        },
+        "compose_model": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Model used (sonar-pro default). Stamped by engine."
+        },
+        "cycle_disposition": {
+          "type": "string",
+          "enum": [
+            "material_change",
+            "null_cycle",
+            "partial_cycle",
+            "error_cycle"
+          ],
+          "description": "Mirrored from Interpreter._meta.cycle_disposition. Engine re-stamps — prompt may emit as best-effort."
+        },
+        "composer_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional. Wanted-claim flags for the Reviewer gate. Format: 'wanted-claim: <description>'."
+        },
+        "composer_error": {
+          "type": "boolean",
+          "description": "Engine-stamped. True when the Composer fallback stub wrote due to parse/API error."
+        },
+        "composer_error_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "weekly_brief_draft": {
+      "type": "string",
+      "minLength": 0,
+      "description": "800-1200 word structured markdown narrative. Four sections: ## Lead Signal / ## Other Developments / ## Cross-Monitor Connections / ## Outlook. Null-cycle renders 600-900 words acknowledging absence of material change. Empty string only in fallback stub."
+    },
+    "claim_trace": {
+      "type": "array",
+      "description": "Per-span provenance for weekly_brief_draft. Every factual span must have a trace entry. Structural sentences get trace_type=structural, trace_ref=null.",
+      "items": {
+        "type": "object",
+        "required": [
+          "brief_offset_start",
+          "brief_offset_end",
+          "brief_excerpt",
+          "trace_type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "brief_offset_start": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "0-indexed character offset into weekly_brief_draft."
+          },
+          "brief_offset_end": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "End-exclusive character offset."
+          },
+          "brief_excerpt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 400,
+            "description": "The prose span this trace covers. Reviewer gate validates weekly_brief_draft[start:end] == brief_excerpt."
+          },
+          "trace_type": {
+            "type": "string",
+            "enum": [
+              "claim_id",
+              "kb_entry_id",
+              "structural"
+            ]
+          },
+          "trace_ref": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The claim_id from Interpreter.structured_claims[] (when trace_type=claim_id), the kb_entry_id from the living KB (when trace_type=kb_entry_id), or null (when trace_type=structural)."
+          },
+          "surface_drift_jaccard": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Jaccard similarity of content words between brief_excerpt and the source triple's canonical form. Required (non-null) for trace_type=claim_id. Null for kb_entry_id and structural."
+          }
+        }
+      }
+    },
+    "_raw_fallback": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Raw LLM output captured when the Composer fallback stub wrote. Engine-populated."
+    }
+  }
+}

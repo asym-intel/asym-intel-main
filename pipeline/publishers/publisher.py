@@ -1949,7 +1949,17 @@ def main():
     print(f"  run_id: {run_id}")
 
     # Paths
-    synthesis_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/synthesised/synthesis-latest.json"
+    synthesised_dir = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/synthesised"
+    synthesis_path = synthesised_dir / "synthesis-latest.json"
+    # Sprint 3 Step 1 — dual-file paths (AGM only, at present). When both
+    # interpret-latest.json and compose-latest.json exist, they are merged
+    # into a synthesis-shape dict and used in preference to the legacy
+    # single-file path. If either is missing, the legacy path is used and
+    # the pipeline behaves exactly as before. This keeps the 6 un-migrated
+    # monitors (WDM/GMM/FCW/ESA/ERM/SCEM) on the old path until Step 4
+    # propagation. See AD 2026-04-23 Sprint 3 Step 1.
+    interpret_path = synthesised_dir / "interpret-latest.json"
+    compose_path = synthesised_dir / "compose-latest.json"
     reasoner_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/reasoner/reasoner-latest.json"
     prev_report_path = REPO_ROOT / f"static/monitors/{MONITOR_SLUG}/data/report-latest.json"
     persistent_path = REPO_ROOT / f"static/monitors/{MONITOR_SLUG}/data/persistent-state.json"
@@ -1960,13 +1970,35 @@ def main():
 
     # Load inputs
     print("\n[1/6] Loading inputs...")
-    if not synthesis_path.exists():
-        log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="input_missing",
-                     severity="error", detail=f"synthesis-latest.json not found at {synthesis_path}")
-        print(f"  ✗ synthesis-latest.json not found at {synthesis_path}")
-        sys.exit(1)
 
-    synthesis = load_json(synthesis_path)
+    # Sprint 3 Step 1 — dual-file detection + merge (Interpreter + Composer)
+    # Merge rule: interpret payload is the base (all modules + _meta);
+    # compose payload overlays weekly_brief_draft only. Top-level _meta is
+    # taken from interpret (freshness checks key off _meta.week_ending and
+    # _meta.generated_at). Compose _meta is preserved under
+    # _meta.compose_meta for downstream lineage if needed.
+    _dual_file_mode = interpret_path.exists() and compose_path.exists()
+    if _dual_file_mode:
+        print(f"  dual-file mode (Sprint 3 Step 1): interpret + compose present")
+        _interpret = load_json(interpret_path)
+        _compose = load_json(compose_path)
+        synthesis = dict(_interpret)  # shallow copy — we overlay one key
+        _compose_brief = _compose.get("weekly_brief_draft")
+        if _compose_brief is not None:
+            synthesis["weekly_brief_draft"] = _compose_brief
+        # Preserve compose _meta for lineage; keep interpret _meta authoritative.
+        _interp_meta = dict(synthesis.get("_meta", {}))
+        _compose_meta = _compose.get("_meta") or {}
+        if _compose_meta:
+            _interp_meta["compose_meta"] = _compose_meta
+            synthesis["_meta"] = _interp_meta
+    else:
+        if not synthesis_path.exists():
+            log_incident(monitor=MONITOR_SLUG, stage="publisher", incident_type="input_missing",
+                         severity="error", detail=f"synthesis-latest.json not found at {synthesis_path} (and dual-file pair not present)")
+            print(f"  ✗ synthesis-latest.json not found at {synthesis_path}")
+            sys.exit(1)
+        synthesis = load_json(synthesis_path)
     # Hash synthesis at load time — before any mutation — for input_hashes
     _synthesis_hash = content_sha256(synthesis)
     reasoner_latest = load_json(reasoner_path) if reasoner_path.exists() else {}

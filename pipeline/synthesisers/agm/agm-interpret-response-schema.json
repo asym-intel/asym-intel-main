@@ -5,7 +5,11 @@
       "type": "object",
       "properties": {
         "schema_version": {
-          "type": "string"
+          "type": "string",
+          "enum": [
+            "aim-interpret-v1.0"
+          ],
+          "description": "Must be exactly 'aim-interpret-v1.0'."
         },
         "research_model": {
           "type": "string"
@@ -24,6 +28,56 @@
         },
         "null_signal_reason": {
           "type": "string"
+        },
+        "cycle_disposition": {
+          "type": "string",
+          "enum": [
+            "material_change",
+            "null_cycle",
+            "partial_cycle",
+            "error_cycle"
+          ],
+          "description": "Interpreter's judgment on the cycle. 'material_change' = at least one module has new content; 'null_cycle' = evidence bundle carries no material change; 'partial_cycle' = mixed; 'error_cycle' = reserved for engine-level failure paths (engine stamps, prompt does not emit)."
+        },
+        "cycle_disposition_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "One-sentence justification. Required for null_cycle and partial_cycle; optional otherwise."
+        },
+        "triple_extraction_manifest": {
+          "type": "object",
+          "description": "Provenance of structured_claims[] extraction.",
+          "properties": {
+            "deterministic_extractions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "llm_fallback_extractions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "llm_fallback_model": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "llm_fallback_temperature": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "llm_fallback_timestamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
         }
       }
     },
@@ -649,9 +703,6 @@
         }
       }
     },
-    "weekly_brief_draft": {
-      "type": "string"
-    },
     "cross_monitor_candidates": {
       "type": "array",
       "items": {
@@ -670,6 +721,107 @@
             "type": "string"
           }
         }
+      }
+    },
+    "structured_claims": {
+      "type": "array",
+      "description": "Triple store of every factual assertion in this interpretation. Populated by the Interpreter; consumed by the Composer (for claim_trace[] provenance) and the Reviewer gate (Step 2).",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "entity",
+          "predicate",
+          "value",
+          "evidence_id",
+          "confidence",
+          "source_module"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^aim-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+            "description": "Stable within a cycle. Format: aim-int-{ISO-date}-{4-digit-sequence}."
+          },
+          "entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "predicate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              }
+            ],
+            "description": "The asserted value. Accept string/number/object/array."
+          },
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "References weekly-research source_id or KB entry_id."
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
+          },
+          "source_module": {
+            "type": "string",
+            "description": "Which module or field the claim first appears in."
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "gaps_register": {
+      "type": "array",
+      "description": "Optional. What evidence would improve Uncertain claims.",
+      "items": {
+        "type": "object",
+        "required": [
+          "gap_id",
+          "description"
+        ],
+        "properties": {
+          "gap_id": {
+            "type": "string",
+            "pattern": "^aim-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "affected_claims": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
       }
     }
   },
@@ -697,7 +849,7 @@
     "lab_posture_scorecard",
     "governance_health_composite",
     "key_judgments",
-    "weekly_brief_draft",
-    "cross_monitor_candidates"
+    "cross_monitor_candidates",
+    "structured_claims"
   ]
 }

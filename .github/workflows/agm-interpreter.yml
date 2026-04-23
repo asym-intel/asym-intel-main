@@ -1,4 +1,4 @@
-name: "AI Governance Monitor Synthesiser"
+name: "AI Governance Monitor Interpreter"
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         default: ''
 
 jobs:
-  synthesise:
+  interpret:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -19,7 +19,8 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
+      # ── Sprint 3 Step 1 — Interpreter role (structured-claim extraction only) ──
+      # ── engine + bespoke config live in internal repo ──
       - name: Checkout internal repo (engine + bespoke config)
         uses: actions/checkout@v5
         with:
@@ -75,24 +76,24 @@ jobs:
         run: |
           mkdir -p pipeline/monitors/ai-governance
           cp -v internal/pipeline/monitors/ai-governance/metadata.yml             pipeline/monitors/ai-governance/
-          cp -v internal/pipeline/monitors/ai-governance/synthesiser-prompt.txt   pipeline/monitors/ai-governance/
-          cp -v internal/pipeline/monitors/ai-governance/synthesiser-schema.json  pipeline/monitors/ai-governance/
+          cp -v internal/pipeline/monitors/ai-governance/interpreter-prompt.txt   pipeline/monitors/ai-governance/
+          cp -v internal/pipeline/monitors/ai-governance/interpreter-schema.json  pipeline/monitors/ai-governance/
           cp -v internal/pipeline/monitors/ai-governance/synthesiser-domain.md    pipeline/monitors/ai-governance/ || true
 
-      - name: Run AGM synthesiser (engine dispatch)
+      - name: Run AGM interpreter (engine dispatch)
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
           GH_TOKEN:     ${{ secrets.GH_TOKEN }}
           REPO_ROOT:    ${{ github.workspace }}
           SYNTH_MODEL:  ${{ github.event.inputs.model }}
           PYTHONPATH:   internal
-        run: python -m pipeline.engine.synth_base --monitor ai-governance
+        run: python -m pipeline.engine.interpret_base --monitor ai-governance
 
-      - name: Commit synthesis output
+      - name: Commit interpret output
         run: |
           git config user.name  "monitor-bot"
           git config user.email "monitor-bot@asym-intel.info"
           git add pipeline/monitors/ai-governance/synthesised/
-          git diff --cached --quiet || git commit -m "chore(agm): synthesiser run $(date -u +%Y-%m-%d)"
+          git diff --cached --quiet || git commit -m "chore(agm): interpreter run $(date -u +%Y-%m-%d)"
           git pull --rebase --autostash origin main
           git push

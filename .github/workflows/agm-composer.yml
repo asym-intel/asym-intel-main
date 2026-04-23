@@ -1,0 +1,125 @@
+name: "AI Governance Monitor Composer"
+
+# ── Sprint 3 Step 1 — Composer role ──
+# Chained after Interpreter success. Reads interpret-latest.json and
+# composes a grounded weekly brief draft (no new claims; claim_trace[]
+# tied to interpreter claim IDs).
+#
+# §5 acceptance gate: on first post-unpause AGM cycle, claim #47 (NVIDIA
+# $3.2T) must fail interpreter structured-claim extraction, so Composer
+# must not fabricate it into the brief either.
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Override composer model (default: sonar-pro)'
+        required: false
+        default: ''
+  workflow_run:
+    workflows: ["AI Governance Monitor Interpreter"]
+    types:
+      - completed
+
+jobs:
+  compose:
+    # Gate: only run if the upstream interpreter workflow actually succeeded
+    # (workflow_dispatch runs always pass this guard).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          # workflow_run always starts from default branch HEAD; make that
+          # explicit so we see the interpret-latest.json the upstream job
+          # just committed.
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/ai-governance
+          sparse-checkout-cone-mode: false
+
+      - name: Fetch AGM identity from internal repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          mkdir -p docs/identity
+
+          # Identity card (analytical quality standard — shared across roles)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-AGM.md" \
+            -o docs/identity/agm-identity.md \
+            && echo "Identity card fetched ($(wc -c < docs/identity/agm-identity.md) bytes)" \
+            || echo "WARNING: Identity card not found — continuing without it"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/ai-governance
+          cp -v internal/pipeline/monitors/ai-governance/metadata.yml          pipeline/monitors/ai-governance/
+          cp -v internal/pipeline/monitors/ai-governance/composer-prompt.txt   pipeline/monitors/ai-governance/
+          cp -v internal/pipeline/monitors/ai-governance/composer-schema.json  pipeline/monitors/ai-governance/
+
+      # Skip-on-error-cycle guard: if Interpreter set cycle_disposition to
+      # "error_cycle", Composer exits 0 without calling the model. Publisher
+      # dual-file read will fall back to legacy path when compose-latest is
+      # absent.
+      - name: Check interpreter disposition
+        id: disposition
+        run: |
+          INTERPRET_PATH="pipeline/monitors/ai-governance/synthesised/interpret-latest.json"
+          if [ ! -f "$INTERPRET_PATH" ]; then
+            echo "skip=true"       >> "$GITHUB_OUTPUT"
+            echo "reason=missing-interpret-latest" >> "$GITHUB_OUTPUT"
+            echo "No interpret-latest.json found — skipping Composer (will fall back to legacy synthesis read in Publisher)."
+            exit 0
+          fi
+          DISPOSITION=$(python -c "import json; d=json.load(open('$INTERPRET_PATH')); print((d.get('_meta') or {}).get('cycle_disposition',''))")
+          echo "disposition=$DISPOSITION"
+          if [ "$DISPOSITION" = "error_cycle" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=error_cycle" >> "$GITHUB_OUTPUT"
+            echo "Interpreter reported error_cycle — skipping Composer."
+          else
+            echo "skip=false"  >> "$GITHUB_OUTPUT"
+            echo "reason=ok"   >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run AGM composer (engine dispatch)
+        if: steps.disposition.outputs.skip != 'true'
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          GH_TOKEN:     ${{ secrets.GH_TOKEN }}
+          REPO_ROOT:    ${{ github.workspace }}
+          SYNTH_MODEL:  ${{ github.event.inputs.model }}
+          PYTHONPATH:   internal
+        run: python -m pipeline.engine.compose_base --monitor ai-governance
+
+      - name: Commit compose output
+        if: steps.disposition.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/ai-governance/synthesised/
+          git diff --cached --quiet || git commit -m "chore(agm): composer run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
