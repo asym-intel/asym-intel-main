@@ -7,6 +7,10 @@ on:
         description: 'Override model (default: sonar-deep-research)'
         required: false
         default: ''
+      weekly-file:
+        description: 'Override weekly bundle filename (e.g. weekly-2026-04-10.json). Empty = use weekly-latest.json. Sprint 3 Step 4a.1.'
+        required: false
+        default: ''
 
 jobs:
   interpret:
@@ -86,6 +90,11 @@ jobs:
           GH_TOKEN:     ${{ secrets.GH_TOKEN }}
           REPO_ROOT:    ${{ github.workspace }}
           SYNTH_MODEL:  ${{ github.event.inputs.model }}
+          # Sprint 3 Step 4a.1 — weekly-file override passthrough. When the
+          # dispatch input `weekly-file` is populated, the engine resolves
+          # the named bundle inside pipeline/monitors/{slug}/weekly/ and
+          # reads it instead of weekly-latest.json. Empty = default behaviour.
+          WEEKLY_FILE_OVERRIDE: ${{ github.event.inputs.weekly-file }}
           PYTHONPATH:   internal
         run: python -m pipeline.engine.interpret_base --monitor ai-governance
 
