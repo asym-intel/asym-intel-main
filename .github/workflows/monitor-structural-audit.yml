@@ -1,0 +1,90 @@
+name: monitor-structural-audit
+
+# AD-2026-04-24o §2.4 CI structural lock.
+#
+# Runs monitor_diff.py against the 6 inheriting monitors on every push to
+# asym-intel-internal main. Triggered cross-repo via repository_dispatch
+# (type: monitor-structural-audit), payload carries the triggering commit
+# SHA for annotation.
+#
+# Does NOT block the push (skill's Two-Source-Tree Rule permits direct
+# pushes to main for monitor source). Surfaces class-(a) structural
+# drift via a check-run annotation on the triggering commit.
+
+on:
+  repository_dispatch:
+    types: [monitor-structural-audit]
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: "Triggering commit SHA on asym-intel-internal (optional, defaults to main HEAD)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resolve triggering SHA
+        id: resolve
+        run: |
+          if [ -n "${{ github.event.client_payload.sha }}" ]; then
+            echo "sha=${{ github.event.client_payload.sha }}" >> "$GITHUB_OUTPUT"
+            echo "source=repository_dispatch" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ github.event.inputs.commit_sha }}" ]; then
+            echo "sha=${{ github.event.inputs.commit_sha }}" >> "$GITHUB_OUTPUT"
+            echo "source=workflow_dispatch" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=main" >> "$GITHUB_OUTPUT"
+            echo "source=manual" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out asym-intel-internal at triggering SHA
+        uses: actions/checkout@v4
+        with:
+          repository: asym-intel/asym-intel-internal
+          ref: ${{ steps.resolve.outputs.sha }}
+          token: ${{ secrets.ASYM_INTEL_INTERNAL_READ_TOKEN }}
+          path: internal
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run monitor_diff
+        id: diff
+        working-directory: internal
+        continue-on-error: true
+        run: |
+          python3 -m pipeline.tooling.monitor_diff \
+            --fail-on structural \
+            --format text \
+            --output pipeline/tooling/monitor-diff-latest.json \
+          | tee /tmp/diff.txt
+          echo "exit=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Summarise result
+        working-directory: internal
+        run: |
+          echo "## monitor-structural-audit" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Triggering SHA: \`${{ steps.resolve.outputs.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Source: ${{ steps.resolve.outputs.source }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          cat /tmp/diff.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail job if structural drift detected
+        if: steps.diff.outcome == 'failure'
+        run: |
+          echo "::warning::class-(a) structural drift detected on ${{ steps.resolve.outputs.sha }} — see job summary"
+          # Intentionally non-blocking: monitor source lands directly on main,
+          # so this job surfaces drift but does not block merges.
+          exit 0
