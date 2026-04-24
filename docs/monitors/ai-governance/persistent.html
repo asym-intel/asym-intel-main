@@ -148,10 +148,11 @@
       if (!d.cross_monitor_flags && report.cross_monitor_flags) {
         d.cross_monitor_flags = report.cross_monitor_flags;
       }
-        // Risk Vectors
+        // Risk Vectors — field whitelist is [title, ...body fields]. Confidence, rating, first_rated,
+        // last_rated, unchanged_since, sources, version_history are handled universally by renderEntityList.
         var rv = Array.isArray(d.module_7_risk_vectors) ? d.module_7_risk_vectors : [];
         document.getElementById('risk-vectors-content').innerHTML =
-          renderEntityList(rv, ['vector', 'summary', 'confidence']);
+          renderEntityList(rv, ['vector', 'summary', 'asymmetric']);
 
         // EU AI Act Tracker — visual pipeline
         var euact = d.module_9_eu_ai_act_tracker || {};
@@ -255,6 +256,45 @@
       return '';
     }
 
+    /* Render version_history entries. Handles two schemas:
+       (a) Issue-style carry-forward: {date, change, reason, prior_value}
+       (b) Publisher-auto diff: {date, source, fields_changed, note}
+       Collapsible; hidden by default. */
+    function renderVersionHistoryLocal(history) {
+      if (!Array.isArray(history) || !history.length) return '';
+      var vhId = 'vh-' + Math.random().toString(36).slice(2, 9);
+      var entries = history.slice().reverse().map(function (h) {
+        var dateLabel = esc(h.date || '');
+        // Schema (a): change + reason present
+        if (h.change || h.reason) {
+          var change = h.change ? '<div class="version-entry__change">' + esc(h.change) + '</div>' : '';
+          var reason = h.reason ? '<div class="version-entry__reason">' + esc(h.reason) + '</div>' : '';
+          var prior = h.prior_value ? '<div class="version-entry__prior"><em>Prior:</em> ' + esc(h.prior_value) + '</div>' : '';
+          return '<div class="version-entry">' +
+            '<div class="version-entry__date">' + dateLabel + '</div>' +
+            change + reason + prior +
+          '</div>';
+        }
+        // Schema (b): publisher-auto diff
+        var src = h.source ? ' <span class="version-entry__source">· ' + esc(h.source) + '</span>' : '';
+        var note = h.note ? '<div class="version-entry__change">' + esc(h.note) + '</div>' : '';
+        var fc = (Array.isArray(h.fields_changed) && h.fields_changed.length)
+          ? '<div class="version-entry__reason"><em>Fields changed:</em> ' + h.fields_changed.map(esc).join(', ') + '</div>'
+          : '';
+        return '<div class="version-entry">' +
+          '<div class="version-entry__date">' + dateLabel + src + '</div>' +
+          note + fc +
+        '</div>';
+      }).join('');
+      return '<div class="version-history" id="' + vhId + '">' + entries + '</div>' +
+        '<button class="version-history__toggle" type="button" ' +
+          'onclick="var vh=document.getElementById(\'' + vhId + '\');' +
+          'vh.classList.toggle(\'version-history--open\');' +
+          'this.textContent=vh.classList.contains(\'version-history--open\')?\'Hide history ↑\':\'Version history (\' + ' + history.length + ' + \' entries) →\'">' +
+          'Version history (' + history.length + ' entries) →' +
+        '</button>';
+    }
+
     function renderEntityList(arr, fields) {
       if (!arr || !arr.length) return '<p class="empty-state">No entries.</p>';
       fields = fields || [];
@@ -262,21 +302,29 @@
         var titleKey = fields[0] || 'title';
         var title = item[titleKey] || item.title || item.name || '';
         var html = '<div class="intel-item">';
-        html += '<div class="intel-item__title">' + esc(title);
-        if (item.rating) html += ' <span class="tag ' + ratingClass(item.rating) + '">' + esc(item.rating) + '</span>';
-        html += '</div>';
+        html += '<div class="intel-item__title">' + esc(title) + '</div>';
+        // Rating promoted to labelled primary field (not conditional title tag).
+        if (item.rating) {
+          html += '<div class="intel-item__field intel-item__field--rating"><strong>Rating:</strong> ' +
+            '<span class="tag ' + ratingClass(item.rating) + '">' + esc(item.rating) + '</span></div>';
+        }
         fields.slice(1).forEach(function (f) {
           if (item[f] && f !== titleKey) {
             html += '<div class="intel-item__field intel-item__field--' + f + '">' + esc(item[f]) + '</div>';
           }
         });
         if (item.confidence) html += '<div class="intel-item__field"><em>Confidence: ' + esc(item.confidence) + '</em></div>';
+        // first_rated surfaced distinct from unchanged_since (bug fix: both were previously collapsed into one "Unchanged since" line).
+        if (item.first_rated) html += '<div class="intel-item__field"><em>First rated: ' + esc(item.first_rated) + '</em></div>';
+        if (item.last_rated)  html += '<div class="intel-item__field"><em>Last rated: '  + esc(item.last_rated)  + '</em></div>';
         if (item.unchanged_since) html += '<div class="intel-item__field"><em>Unchanged since: ' + esc(item.unchanged_since) + '</em></div>';
         if (Array.isArray(item.sources) && item.sources.length) {
           html += '<div class="intel-item__sources">' + item.sources.map(function (s) {
             return '<a class="intel-item__source" href="' + esc(s) + '" target="_blank" rel="noopener">Source →</a>';
           }).join(' ') + '</div>';
         }
+        // Version history (collapsible). Reveals Issue-4 carry-forward + publisher-auto diffs.
+        html += renderVersionHistoryLocal(item.version_history);
         html += '</div>';
         return html;
       }).join('') + '</div>';
@@ -295,9 +343,10 @@
             return '<div class="intel-item__field"><strong>' + esc(k.replace(/_/g,' ')) + ':</strong> ' + v.map(esc).join(', ') + '</div>';
           }
           if (Array.isArray(v) && v.length && typeof v[0] === 'object') {
-            // version_history and similar arrays of objects
-            if (k === 'version_history' && typeof window.AsymEntityCards !== 'undefined' && window.AsymEntityCards.renderVersionHistory) {
-              return window.AsymEntityCards.renderVersionHistory(v);
+            // version_history rendered via local helper (handles both Issue-style and publisher-auto schemas).
+            // Previously referenced window.AsymEntityCards which does not exist — dead branch silently fell through to generic table render.
+            if (k === 'version_history') {
+              return '<div class="intel-item__field"><strong>Version history:</strong>' + renderVersionHistoryLocal(v) + '</div>';
             }
             var rows = v.map(function(entry) {
               var cells = Object.keys(entry).map(function(ek) {
