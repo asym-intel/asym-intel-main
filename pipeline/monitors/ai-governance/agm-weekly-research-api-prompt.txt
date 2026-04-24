@@ -78,11 +78,13 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
   },
   "weekly_developments": [
     {
+      "evidence_id": "<stamped by engine — do not invent>",
+      "retrieval_timestamp": "<stamped by engine — do not invent>",
       "indicator": "<I1|I2|I3|I4|I5|I6>",
       "jurisdiction": "<EU|US|UK|China|Global>",
       "title": "<short descriptive title>",
       "summary": "<2-3 sentences: what happened, which indicator is affected, trajectory implication>",
-      "source_url": "<direct primary source URL>",
+      "source_url": "<direct primary source URL, or null for absence/silence items>",
       "source_name": "<publication or institution name>",
       "source_tier": "<1|2|3>",
       "research_traceback": {
@@ -191,3 +193,4 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
 }
 
 # Version: v1.0 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter
+# Version: v1.1 | Updated: 2026-04-24 | Change: Added evidence_id + retrieval_timestamp to weekly_developments[] (engine-stamped, LLM must not invent). Closes AGM audit gaps G6 + G7 per ops/tickets/g6-g7-collector-provenance.md.
