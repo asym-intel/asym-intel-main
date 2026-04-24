@@ -725,6 +725,16 @@
       </div>
     </section>
 
+    <!-- Calibration Log (Sprint 4 §0) -->
+    <section class="module-section" id="section-calibration-log">
+      <div class="module-header">
+        <div class="module-title">Calibration Log</div>
+      </div>
+      <div id="calibration-log-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -1066,6 +1076,11 @@ document.addEventListener('DOMContentLoaded', function () {
       d._report_cmf || d.cross_monitor_flags || {},
       'cross-monitor'
     );
+
+    /* ── Calibration Log — shared renderer (Sprint 4 §0 AD-24c) ── */
+    if (window.AsymSections && AsymSections.renderCalibrationLog) {
+      AsymSections.renderCalibrationLog(d.calibration_log || [], 'calibration-log-content');
+    }
 
     /* Re-init nav */
     if (window.AsymNav) AsymNav.init();

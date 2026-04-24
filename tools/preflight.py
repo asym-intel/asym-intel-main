@@ -781,6 +781,158 @@ def check_adapters(r: Results):
         last = (proc.stdout or "").strip().splitlines()[-1:] or [""]
         r.ok("ADAPT-003:contract-tests-pass", last[0])
 
+def check_persistent_state_routing(r: Results):
+    """Sprint 4 §0 AD-24c — persistent-state routing contract enforcement.
+
+    Checks:
+      PSR-001  Every top-level key in a monitor's persistent-state.json must
+               appear in docs/monitors/persistent-state-routing.md under that
+               monitor's `routes:` block. Meta keys are exempt.
+      PSR-002  No monitor persistent.html may define local copies of shared-lib
+               render functions (renderEntityList, renderEntityObj,
+               renderEntityCard). Grandfathered exceptions are listed below.
+    """
+    import json as _json
+    import re as _re
+
+    contract_path = REPO_ROOT / "docs" / "monitors" / "persistent-state-routing.md"
+    if not contract_path.exists():
+        r.fail(
+            "PSR-000:contract-exists",
+            "docs/monitors/persistent-state-routing.md is missing — routing "
+            "contract is required (see AD-2026-04-24c).",
+        )
+        return
+    r.ok("PSR-000:contract-exists", "routing contract doctrine present")
+
+    contract_text = contract_path.read_text(encoding="utf-8", errors="ignore")
+
+    # Parse the contract: sections are `### ABBR — slug` followed by a yaml
+    # block. Each yaml block has lines like `  key_name: Route` (possibly with
+    # indented `reason:` below). We extract per-slug key sets.
+    META_KEYS = {"schema_version", "generated_at", "monitor", "last_updated"}
+    EXEMPT_PREFIX = "_"  # underscore-prefixed runtime merge fields (e.g. _report_cmf)
+
+    def _parse_contract(text: str):
+        # Yields (slug, {key: route})
+        header_re = _re.compile(r"^###\s+([A-Z]+)\s+—\s+([a-z0-9\-]+)\s*$", _re.M)
+        route_re = _re.compile(r"^\s{2,4}([a-zA-Z0-9_]+)\s*:\s*([A-Za-z\- ]+?)\s*(?:#.*)?$")
+        headers = [(m.start(), m.group(1), m.group(2)) for m in header_re.finditer(text)]
+        for i, (pos, abbr, slug) in enumerate(headers):
+            end = headers[i + 1][0] if i + 1 < len(headers) else len(text)
+            block = text[pos:end]
+            # Skip into the first ```yaml fence if present
+            fence = _re.search(r"```(?:yaml)?\s*\n(.*?)```", block, _re.S)
+            body = fence.group(1) if fence else block
+            keys = {}
+            for line in body.splitlines():
+                m = route_re.match(line)
+                if not m:
+                    continue
+                k, route = m.group(1), m.group(2).strip()
+                if k == "routes" or k == "reason":
+                    continue
+                keys[k] = route
+            yield slug, keys
+
+    contract_routes = dict(_parse_contract(contract_text))
+
+    missing_keys = []
+    for abbr, slug in MONITORS.items():
+        ps_path = REPO_ROOT / "static" / "monitors" / slug / "data" / "persistent-state.json"
+        if not ps_path.exists():
+            r.warn(
+                f"PSR-001:{slug}",
+                f"persistent-state.json not found at {ps_path.relative_to(REPO_ROOT)} — skipping",
+            )
+            continue
+        try:
+            ps = _json.loads(ps_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            r.fail(f"PSR-001:{slug}:parse", f"JSON parse failed: {exc}")
+            continue
+
+        if not isinstance(ps, dict):
+            r.fail(f"PSR-001:{slug}:shape", "persistent-state.json top-level must be object")
+            continue
+
+        if slug not in contract_routes:
+            r.fail(
+                f"PSR-001:{slug}:contract-block",
+                f"no `### {abbr.upper()} — {slug}` routes block in routing contract",
+            )
+            continue
+
+        declared = set(contract_routes[slug].keys())
+        actual = {k for k in ps.keys() if not k.startswith(EXEMPT_PREFIX) and k not in META_KEYS}
+        unrouted = actual - declared
+        if unrouted:
+            missing_keys.append(
+                f"{slug}: {len(unrouted)} unrouted — {', '.join(sorted(unrouted))}"
+            )
+        else:
+            r.ok(
+                f"PSR-001:{slug}:routes-complete",
+                f"{len(actual)} keys all declared in contract",
+            )
+
+    if missing_keys:
+        r.fail(
+            "PSR-001:contract-coverage",
+            "persistent-state keys without a route in "
+            "docs/monitors/persistent-state-routing.md:\n    "
+            + "\n    ".join(missing_keys),
+        )
+
+    # ── PSR-002: no local shadow renderers ───────────────────────────────
+    # Grandfathered exemptions — tracked for Sprint 4 §1 burn-down:
+    #   ERM renderVersionHistory(history, toggleId, historyId)  — 3-arg sibling API, not a shared-lib shadow.
+    #   AGM renderEntityList(arr, fields)                       — field-whitelist signature; shared-lib API is
+    #                                                             (items, containerId, opts). Migrate by adding
+    #                                                             opts.fieldWhitelist to AsymPersistent.
+    #   AGM renderEntityObj(obj)                                — no shared-lib equivalent yet. Add
+    #                                                             AsymPersistent.renderEntityObj in §1.
+    GRANDFATHERED = {
+        "environmental-risks/persistent.html": {"renderVersionHistory"},
+        "ai-governance/persistent.html": {"renderEntityList", "renderEntityObj"},
+    }
+    SHADOW_FUNCS = [
+        "renderEntityList",
+        "renderEntityObj",
+        "renderEntityCard",
+    ]
+    shadow_violations = []
+    for slug in MONITORS.values():
+        persist_html = REPO_ROOT / "static" / "monitors" / slug / "persistent.html"
+        if not persist_html.exists():
+            continue
+        text = persist_html.read_text(encoding="utf-8", errors="ignore")
+        rel_key = f"{slug}/persistent.html"
+        grandfathered = GRANDFATHERED.get(rel_key, set())
+        for fn in SHADOW_FUNCS:
+            if fn in grandfathered:
+                continue
+            # Match `function fn(` or `var fn = function` / `fn = function`
+            pat = _re.compile(
+                r"(?:function\s+%s\s*\(|(?:var\s+)?%s\s*=\s*function\s*\()" % (fn, fn)
+            )
+            if pat.search(text):
+                shadow_violations.append(f"{rel_key}: local definition of {fn}()")
+
+    if shadow_violations:
+        r.fail(
+            "PSR-002:no-shadow-renderers",
+            "monitor persistent.html files shadow shared-lib renderers "
+            "(move to assets/js/renderer.js under AsymPersistent/AsymSections):\n    "
+            + "\n    ".join(shadow_violations),
+        )
+    else:
+        r.ok(
+            "PSR-002:no-shadow-renderers",
+            f"{len(MONITORS)} monitor persistent.html files clean of shadow renderers",
+        )
+
+
 CHECK_GROUPS = {
     "workflows": check_workflows,
     "preambles": check_prompt_preambles,
@@ -795,6 +947,7 @@ CHECK_GROUPS = {
     "engine_map": check_engine_map,
     "publishers": check_publishers,
     "adapters": check_adapters,
+    "persistent_state_routing": check_persistent_state_routing,
 }
 
 
