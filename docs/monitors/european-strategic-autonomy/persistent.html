@@ -230,6 +230,15 @@
       </div>
     </section>
 
+    <!-- Calibration Log (Sprint 4 §0) -->
+    <section class="module-section" id="section-calibration-log">
+      <div class="module-num-large">10</div>
+      <h2 class="module-title">Calibration Log</h2>
+      <div id="calibration-log-content">
+        <div class="loading-state">Loading calibration log&hellip;</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -675,6 +684,11 @@ document.addEventListener('DOMContentLoaded', function () {
     /* 09 Cross-Monitor Flags (shared function) */
     if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
       AsymSections.renderCrossMonitorFlags(rpt.cross_monitor_flags || {}, 'cross-monitor-list');
+    }
+
+    /* ── Calibration Log — shared renderer (Sprint 4 §0 AD-24c) ── */
+    if (window.AsymSections && AsymSections.renderCalibrationLog) {
+      AsymSections.renderCalibrationLog(ps.calibration_log || [], 'calibration-log-content');
     }
   }).catch(function(err) { console.error('Report/persistent merge error:', err); });
 });

@@ -104,6 +104,12 @@
         <div id="cross-monitor-content"><p class="loading-state">Loading…</p></div>
       </section>
 
+      <!-- Calibration Log (Sprint 4 §0) -->
+      <section id="calibration-log" aria-labelledby="cal-heading">
+        <h2 class="section-label" id="cal-heading">Calibration Log</h2>
+        <div id="calibration-log-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
     </main>
 
     <!-- Right-hand sidebar -->
@@ -233,10 +239,15 @@
 
         // Cross-monitor flags — shared renderer (SVG icons + monitor accent colours)
         AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
+
+        /* ── Calibration Log — shared renderer (Sprint 4 §0 AD-24c) ── */
+        if (window.AsymSections && AsymSections.renderCalibrationLog) {
+          AsymSections.renderCalibrationLog(d.calibration_log || [], 'calibration-log-content');
+        }
       })
       .catch(function () {
         ['risk-vectors-content','eu-ai-act-content','concentration-content','aisi-pipeline-content',
-         'gpai-compliance-content','standards-vacuum-content','ciyuan-content','lab-postures-content','cross-monitor-content'].forEach(function (id) {
+         'gpai-compliance-content','standards-vacuum-content','ciyuan-content','lab-postures-content','cross-monitor-content','calibration-log-content'].forEach(function (id) {
           var el = document.getElementById(id);
           if (el) el.innerHTML = '<p class="error-state">Could not load data.</p>';
         });

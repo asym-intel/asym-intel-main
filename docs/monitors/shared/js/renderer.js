@@ -444,44 +444,107 @@ window.AsymPersistent = (function () {
     return 'moderate';
   }
 
-  /* Render version history toggle */
+  /* Render version history toggle.
+     Handles two observed schemas across the 7 monitors:
+       (a) Issue-style carry-forward: {date, change, reason, prior_value, version?}
+       (b) Publisher-auto diff:       {date, source, fields_changed[], note}
+     Field-tolerant — empty/missing fields suppress cleanly.
+     Dual-schema support added 2026-04-24 per AD-2026-04-24c (supersedes AD-24b remediation #1). */
   function renderVersionHistory(history) {
-    if (!history || !history.length) return '';
-    var entries = history.map(function(h) {
+    if (!Array.isArray(history) || !history.length) return '';
+    var vhId = 'vh-' + Math.random().toString(36).slice(2,9);
+    var entries = history.slice().reverse().map(function(h) {
+      var dateLabel = escHtml(h.date || '');
+      // Schema (a): human change + reason
+      if (h.change || h.reason) {
+        var change = h.change ? '<div class="version-entry__change">' + escHtml(h.change) + '</div>' : '';
+        var reason = h.reason ? '<div class="version-entry__reason">' + escHtml(h.reason) + '</div>' : '';
+        var prior  = h.prior_value ? '<div class="version-entry__prior"><em>Prior:</em> ' + escHtml(h.prior_value) + '</div>' : '';
+        return '<div class="version-entry">' +
+          '<div class="version-entry__date">' + dateLabel + '</div>' +
+          change + reason + prior +
+        '</div>';
+      }
+      // Schema (b): publisher-auto diff
+      var src  = h.source ? ' <span class="version-entry__source">· ' + escHtml(h.source) + '</span>' : '';
+      var note = h.note ? '<div class="version-entry__change">' + escHtml(h.note) + '</div>' : '';
+      var fc   = (Array.isArray(h.fields_changed) && h.fields_changed.length)
+        ? '<div class="version-entry__reason"><em>Fields changed:</em> ' + h.fields_changed.map(escHtml).join(', ') + '</div>'
+        : '';
       return '<div class="version-entry">' +
-        '<div class="version-entry__date">' + escHtml(h.date||'') + '</div>' +
-        '<div class="version-entry__change">' + escHtml(h.change||'') + '</div>' +
-        (h.reason ? '<div class="version-entry__reason">' + escHtml(h.reason) + '</div>' : '') +
+        '<div class="version-entry__date">' + dateLabel + src + '</div>' +
+        note + fc +
       '</div>';
     }).join('');
-    return '<div class="version-history" id="vh-' + Math.random().toString(36).slice(2,7) + '">' + entries + '</div>' +
-           '<button class="version-history__toggle" onclick="var vh=this.previousElementSibling;vh.classList.toggle(\'version-history--open\');this.textContent=vh.classList.contains(\'version-history--open\')?\'Hide history ↑\':\'Version history →\'">Version history →</button>';
+    return '<div class="version-history" id="' + vhId + '">' + entries + '</div>' +
+           '<button class="version-history__toggle" type="button" ' +
+             'onclick="var vh=document.getElementById(\'' + vhId + '\');' +
+             'vh.classList.toggle(\'version-history--open\');' +
+             'this.textContent=vh.classList.contains(\'version-history--open\')?\'Hide history ↑\':\'Version history (\' + ' + history.length + ' + \' entries) →\'">' +
+             'Version history (' + history.length + ' entries) →' +
+           '</button>';
   }
 
-  /* Generic entity card — works for any persistent entity with standard fields */
+  /* Generic entity card — works for any persistent entity with standard fields.
+     Supports the union of field sets observed across the 7 monitors:
+       name:        country | boundary | conflict | vector | actor | institution | lab | name | chain_id
+       primary tag: rating | status | tier | band | severity | safety_posture
+       score:       severity_score | score
+       trend:       trend | severity_arrow | trajectory_arrow
+       body:        headline | lead_signal | summary | signal | note | linkage
+       meta:        theatre | first_seen | first_rated | last_updated | last_rated |
+                    last_material_change | unchanged_since | confidence | asymmetric
+       footer:      sources[] | version_history[] */
   function renderEntityCard(entity, opts) {
     opts = opts || {};
-    var statusVal  = entity.status || entity.tier || entity.band || entity.severity || '';
+    var ratingVal  = entity.rating || '';
+    var statusVal  = entity.status || entity.tier || entity.band || entity.severity || entity.safety_posture || '';
+    var primaryTag = ratingVal || statusVal;
     var scoreVal   = entity.severity_score != null ? entity.severity_score : (entity.score != null ? entity.score : '');
     var trendVal   = entity.trend || entity.severity_arrow || entity.trajectory_arrow || '';
-    var nameVal    = entity.country || entity.boundary || entity.conflict || entity.name || entity.chain_id || '';
-    var bodyVal    = entity.headline || entity.lead_signal || entity.summary || entity.signal || entity.note || '';
+    var nameVal    = entity.country || entity.boundary || entity.conflict || entity.vector || entity.actor || entity.institution || entity.lab || entity.name || entity.chain_id || '';
+    var bodyVal    = entity.headline || entity.lead_signal || entity.summary || entity.signal || entity.note || entity.linkage || '';
+    var asymVal    = entity.asymmetric || '';
     var metaItems  = [];
-    if (entity.theatre)      metaItems.push(escHtml(entity.theatre));
-    if (entity.first_seen)   metaItems.push('First seen: ' + escHtml(entity.first_seen));
-    if (entity.last_updated) metaItems.push('Updated: ' + escHtml(entity.last_updated));
-    if (entity.last_material_change) metaItems.push('Changed: ' + escHtml(entity.last_material_change));
+    if (entity.theatre)               metaItems.push(escHtml(entity.theatre));
+    if (entity.confidence)            metaItems.push('Confidence: ' + escHtml(entity.confidence));
+    if (entity.first_rated)           metaItems.push('First rated: ' + escHtml(entity.first_rated));
+    if (entity.first_seen)            metaItems.push('First seen: ' + escHtml(entity.first_seen));
+    if (entity.last_rated)            metaItems.push('Last rated: ' + escHtml(entity.last_rated));
+    if (entity.last_updated)          metaItems.push('Updated: ' + escHtml(entity.last_updated));
+    if (entity.last_material_change)  metaItems.push('Changed: ' + escHtml(entity.last_material_change));
+    if (entity.unchanged_since)       metaItems.push('Unchanged since: ' + escHtml(entity.unchanged_since));
+
+    // Sources[] footer — accepts plain URL strings OR {url,name,tier,source_tier} objects.
+    var sources = Array.isArray(entity.sources) ? entity.sources : [];
+    var sourcesHtml = '';
+    if (sources.length) {
+      sourcesHtml = '<div class="persistent-entity__sources" style="margin-top:var(--space-2);font-size:var(--text-xs)">' +
+        sources.map(function(s) {
+          if (typeof s === 'string') {
+            return '<a class="persistent-entity__source" href="' + escHtml(s) + '" target="_blank" rel="noopener" style="margin-right:var(--space-2)">Source →</a>';
+          }
+          var url = s.url || s.source_url || '';
+          var label = s.name || s.label || s.title || 'Source';
+          var tier = s.tier || s.source_tier;
+          return '<a class="persistent-entity__source" href="' + escHtml(url) + '" target="_blank" rel="noopener" style="margin-right:var(--space-2)">' +
+            escHtml(label) + (tier ? ' <span class="text-muted">(' + escHtml(tier) + ')</span>' : '') + ' →</a>';
+        }).join('') +
+      '</div>';
+    }
 
     return '<div class="persistent-entity">' +
       '<div class="persistent-entity__header">' +
         '<div class="persistent-entity__country">' + escHtml(nameVal) + '</div>' +
         '<div class="persistent-entity__badges">' +
-          (statusVal ? '<span class="severity-badge severity-badge--' + severityClass(statusVal) + '">' + escHtml(statusVal) + '</span>' : '') +
-          (scoreVal !== '' ? '<span class="severity-badge severity-badge--' + severityClass(statusVal) + '">' + escHtml(scoreVal) + (trendVal ? ' ' + escHtml(trendVal) : '') + '</span>' : '') +
+          (primaryTag ? '<span class="severity-badge severity-badge--' + severityClass(primaryTag) + '">' + escHtml(primaryTag) + '</span>' : '') +
+          (scoreVal !== '' ? '<span class="severity-badge severity-badge--' + severityClass(primaryTag) + '">' + escHtml(scoreVal) + (trendVal ? ' ' + escHtml(trendVal) : '') + '</span>' : '') +
         '</div>' +
       '</div>' +
       (metaItems.length ? '<div class="persistent-entity__meta">' + metaItems.join(' · ') + '</div>' : '') +
       (bodyVal ? '<div class="card__body" style="margin-top:var(--space-3)">' + escHtml(bodyVal) + '</div>' : '') +
+      (asymVal ? '<div class="card__body" style="margin-top:var(--space-2);font-style:italic;color:var(--color-text-secondary)"><strong>Asymmetric:</strong> ' + escHtml(asymVal) + '</div>' : '') +
+      sourcesHtml +
       renderVersionHistory(entity.version_history || []) +
     '</div>';
   }
@@ -5538,4 +5601,256 @@ window.AsymSections = (function () {
   /* Fallback direct access */
   window.AsymEntityHeatStrip = renderEntityHeatStrip;
 
+}());
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PersistentStateSections — Sprint 4 §0 shared section renderers (AD-2026-04-24)
+   Addresses: persistent-state orphan class across AGM/SCEM/ERM/ESA monitors.
+   Contract: docs/monitors/persistent-state-routing.md declares which keys
+   each monitor routes here; CI (tools/preflight.py) enforces completeness.
+
+   Exports on window.AsymSections:
+     - renderCalibrationLog(calLog, targetId, opts)
+     - renderBaselinePanel(baseline, targetId, opts)
+     - renderJurisdictionsGrid(grid, targetId, opts)
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function () {
+  'use strict';
+
+  function esc(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // Reuse root flag() if available; fall back to raw country code
+  function flag(cc) {
+    if (typeof window !== 'undefined' && typeof window.flag === 'function') return window.flag(cc);
+    if (!cc) return '';
+    return esc(cc);
+  }
+
+  /* ── renderCalibrationLog ──
+     Schema: [{date, source, applied_by, summary, effective_date?, countries_updated?, new_watchlist_entries?, changes?}]
+     Renders a card per entry. Tolerant of all 7 monitors' variants.
+     opts.emptyMessage — override "No calibration entries recorded." */
+  function renderCalibrationLog(calLog, targetId, opts) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    opts = opts || {};
+    var list = Array.isArray(calLog) ? calLog : [];
+
+    if (!list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">' +
+        esc(opts.emptyMessage || 'No calibration log entries.') + '</p>';
+      return;
+    }
+
+    // Most recent first
+    var sorted = list.slice().reverse();
+    var html = '';
+    sorted.forEach(function (entry) {
+      var meta = [];
+      if (entry.date) meta.push(esc(entry.date));
+      if (entry.source) meta.push(esc(entry.source));
+      if (entry.applied_by) meta.push('Applied by: ' + esc(entry.applied_by));
+
+      html += '<div class="card" style="margin-bottom:var(--space-3)">' +
+        '<div class="card__label">' + meta.join(' · ') + '</div>' +
+        (entry.summary ? '<div class="card__body" style="font-weight:600">' + esc(entry.summary) + '</div>' : '') +
+        (entry.effective_date ? '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Effective: ' + esc(entry.effective_date) + '</div>' : '');
+
+      // changes: can be array of strings or array of {field, from, to}
+      if (Array.isArray(entry.changes) && entry.changes.length) {
+        html += '<ul style="margin:var(--space-2) 0 0;padding-left:1.25rem;font-size:var(--text-xs);color:var(--color-text-secondary)">';
+        entry.changes.forEach(function (ch) {
+          if (typeof ch === 'string') {
+            html += '<li>' + esc(ch) + '</li>';
+          } else if (ch && typeof ch === 'object') {
+            var parts = [];
+            if (ch.field) parts.push('<strong>' + esc(ch.field) + '</strong>');
+            if (ch.from !== undefined || ch.to !== undefined) {
+              parts.push(esc(ch.from) + ' → ' + esc(ch.to));
+            }
+            if (ch.note) parts.push(esc(ch.note));
+            html += '<li>' + parts.join(': ') + '</li>';
+          }
+        });
+        html += '</ul>';
+      }
+
+      if (Array.isArray(entry.countries_updated) && entry.countries_updated.length) {
+        html += '<div style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:var(--space-1)">';
+        entry.countries_updated.forEach(function (c) {
+          html += '<span class="card__tag">' + flag(c) + ' ' + esc(c) + '</span>';
+        });
+        html += '</div>';
+      }
+
+      if (Array.isArray(entry.new_watchlist_entries) && entry.new_watchlist_entries.length) {
+        html += '<div style="margin-top:var(--space-2)"><span style="font-size:var(--text-xs);font-weight:600;color:#d97706">New Watchlist:</span> ';
+        entry.new_watchlist_entries.forEach(function (c) {
+          html += '<span class="card__tag" style="background:rgba(217,119,6,0.1);color:#d97706">' + flag(c) + ' ' + esc(c) + '</span> ';
+        });
+        html += '</div>';
+      }
+
+      html += '</div>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  /* ── renderBaselinePanel ──
+     Renders methodology-dated baseline data: {baseline_date, <group_key>, critical_note?, last_updated?}
+     where <group_key> is an object map {slug: {rating, confidence?, primary_actor?, watch_signal?, note?, ...}}
+     opts.groupKey — explicit key (e.g. 'vectors','domains'). If omitted, auto-detects first object-valued key that isn't baseline_date/critical_note/last_updated.
+     opts.title — optional panel title
+     opts.slugLabel — function (slug) => display label. Default: Title Case split on _/- */
+  function renderBaselinePanel(baseline, targetId, opts) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    opts = opts || {};
+
+    if (!baseline || typeof baseline !== 'object') {
+      el.innerHTML = '<p class="text-muted text-sm">No baseline recorded.</p>';
+      return;
+    }
+
+    // Auto-detect group key
+    var groupKey = opts.groupKey;
+    var RESERVED = { baseline_date: 1, critical_note: 1, last_updated: 1, _description: 1 };
+    if (!groupKey) {
+      for (var k in baseline) {
+        if (RESERVED[k]) continue;
+        if (baseline[k] && typeof baseline[k] === 'object' && !Array.isArray(baseline[k])) {
+          groupKey = k;
+          break;
+        }
+      }
+    }
+
+    var group = groupKey ? baseline[groupKey] : null;
+    var labelFn = opts.slugLabel || function (s) {
+      return String(s || '').replace(/[_-]+/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    };
+
+    var html = '';
+
+    // Panel header (baseline_date + last_updated)
+    var headerBits = [];
+    if (baseline.baseline_date) headerBits.push('Baseline: ' + esc(baseline.baseline_date));
+    if (baseline.last_updated) headerBits.push('Updated: ' + esc(baseline.last_updated));
+    if (headerBits.length) {
+      html += '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">' +
+        headerBits.join(' · ') + '</div>';
+    }
+
+    if (baseline.critical_note) {
+      html += '<div class="callout callout--warning" style="margin-bottom:var(--space-3)">' +
+        esc(baseline.critical_note) + '</div>';
+    }
+
+    if (!group || typeof group !== 'object') {
+      html += '<p class="text-muted text-sm">No entries in baseline.</p>';
+      el.innerHTML = html;
+      return;
+    }
+
+    html += '<div class="card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-3)">';
+
+    Object.keys(group).forEach(function (slug) {
+      var item = group[slug] || {};
+      var rating = item.rating || item.level || '';
+      var ratingClass = (typeof window !== 'undefined' && typeof window.severityClass === 'function')
+        ? window.severityClass(rating) : 'moderate';
+
+      html += '<div class="card">' +
+        '<div class="card__label">' + esc(labelFn(slug)) + '</div>' +
+        (rating ? '<div style="margin:var(--space-1) 0"><span class="severity-badge severity-badge--' + ratingClass + '">' + esc(rating) + '</span>' +
+          (item.confidence ? ' <span class="card__tag">' + esc(item.confidence) + '</span>' : '') + '</div>' : '');
+
+      if (item.primary_actor) {
+        html += '<div style="font-size:var(--text-sm);margin-top:var(--space-2)"><strong>Primary:</strong> ' + esc(item.primary_actor) + '</div>';
+      }
+      if (item.watch_signal) {
+        html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)"><strong>Watch:</strong> ' + esc(item.watch_signal) + '</div>';
+      }
+      if (item.note) {
+        html += '<div class="card__body" style="margin-top:var(--space-2)">' + esc(item.note) + '</div>';
+      }
+      if (item.last_updated) {
+        html += '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)">Updated: ' + esc(item.last_updated) + '</div>';
+      }
+      html += '</div>';
+    });
+
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  /* ── renderJurisdictionsGrid ──
+     Renders AGM country_grid_status shape: {jurisdictions: [{jurisdiction, binding_law, status_icon, last_updated, ...}]}
+     Also tolerates bare array input. */
+  function renderJurisdictionsGrid(grid, targetId, opts) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    opts = opts || {};
+
+    var list = Array.isArray(grid) ? grid : (grid && Array.isArray(grid.jurisdictions) ? grid.jurisdictions : []);
+
+    if (!list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No jurisdictions recorded.</p>';
+      return;
+    }
+
+    var html = '';
+    if (grid && grid.last_updated && !Array.isArray(grid)) {
+      html += '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">Last updated: ' + esc(grid.last_updated) + '</div>';
+    }
+
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-3)">';
+    list.forEach(function (j) {
+      var jName = j.jurisdiction || j.country || j.name || '';
+      html += '<div class="card">' +
+        '<div class="card__label">' +
+          (j.status_icon ? esc(j.status_icon) + ' ' : '') +
+          esc(jName) +
+          (j.confidence ? ' <span class="card__tag">' + esc(j.confidence) + '</span>' : '') +
+        '</div>';
+
+      if (j.binding_law) {
+        html += '<div style="font-size:var(--text-sm);margin-top:var(--space-2)"><strong>Binding law:</strong> ' + esc(j.binding_law) + '</div>';
+      }
+      if (j.status) {
+        html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(j.status) + '</div>';
+      }
+      if (j.note) {
+        html += '<div class="card__body" style="margin-top:var(--space-2)">' + esc(j.note) + '</div>';
+      }
+
+      var footerBits = [];
+      if (j.first_seen) footerBits.push('First seen: ' + esc(j.first_seen));
+      if (j.last_material_change) footerBits.push('Last change: ' + esc(j.last_material_change));
+      else if (j.last_updated) footerBits.push('Updated: ' + esc(j.last_updated));
+      if (footerBits.length) {
+        html += '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-2)">' +
+          footerBits.join(' · ') + '</div>';
+      }
+
+      html += '</div>';
+    });
+    html += '</div>';
+
+    el.innerHTML = html;
+  }
+
+  /* ── Attach to AsymSections ── */
+  if (typeof window !== 'undefined') {
+    window.AsymSections = window.AsymSections || {};
+    window.AsymSections.renderCalibrationLog = renderCalibrationLog;
+    window.AsymSections.renderBaselinePanel = renderBaselinePanel;
+    window.AsymSections.renderJurisdictionsGrid = renderJurisdictionsGrid;
+  }
 }());
