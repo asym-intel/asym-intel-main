@@ -1,38 +1,12 @@
-# Artificial Intelligence Monitor — Issue 6
-
-**W/E 24 April 2026** | Published 2026-04-24T09:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**Anthropic Claude Opus 4.6 doubles METR benchmark time horizon to 12 human programmer hours.**
-
-Confidence: N/A
-Actor: N/A
-Source: https://www.understandingai.org/p/why-its-getting-harder-to-measure
-
-## Key Judgments
-
-1. **The EU AI Act standards vacuum represents the most immediate governance risk as high-risk compliance deadline approaches without sufficient harmonised standards**
-   - Confidence: High
-   - Trajectory: Advancing
-
-2. **Regulatory fragmentation is accelerating innovation in regulatory arbitrage strategies as companies optimize deployment across different regulatory environments**
-   - Confidence: Assessed
-   - Trajectory: Advancing
-
-3. **AI-generated child sexual abuse material presents the most urgent societal harm requiring coordinated technical and regulatory responses**
-   - Confidence: High
-   - Trajectory: Advancing
-
-## Weekly Brief
+title: "Artificial Intelligence Monitor — W/E 24 April 2026"
+date: 2026-04-24T09:00:00Z
+summary: ""
+draft: false
+monitor: "ai-governance"
+brief_sources:
+  - url: "https://www.understandingai.org/p/why-its-getting-harder-to-measure"
+---
 
 ## Lead Signal
 
@@ -57,29 +31,3 @@ The EU AI Act Standards Vacuum directly links to the european-strategic-autonomy
 ## Outlook
 
 Next week, monitor regulatory responses to the Claude 4.6 benchmark jump, including any AISI pipeline evaluations or updates to evals like Humanitys Last Exam. Watch EU Official Journal for standards progress before August 2026 obligations, as private standardisation efforts could solidify amid the vacuum. Proposed KB patches for module_2 model frontier and module_7 risk persistence indicate structural updates incoming, but material change requires confirmed shifts in enforcement or new capability signals.
-
-## Cross-Monitor Flags
-
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **EU AI Act standards vacuum risks tech sovereignty in high-risk compliance** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **EU AI Act standards vacuum** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **AI-generated child sexual abuse material surge connects to cognitive warfare risks** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
-- **Pentagon's AI procurement shifts could accelerate military AI development** (conflict-escalation) — Active — verified (adjacent Issue 8)
-- **EU AI Act standards vacuum threatens European tech sovereignty** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **AI energy demands growing faster than efficiency gains** (environmental-risks) — Active — verified (adjacent Issue 9)
-- **EU AI Act Standards Vacuum active** (european-strategic-autonomy) — Active — NEW
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/ai-governance/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/ai-governance/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/ai-governance/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/ai-governance/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/ai-governance/methodology.html>
