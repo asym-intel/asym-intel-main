@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AIM Review Output Schema (aim-review-v1.0)",
-  "description": "Output schema for the AIM Reviewer stage (pipeline/engine/review_base.py → review-YYYY-MM-DD.json + review-latest.json). Sprint 3 Step 2b role insertion (AD-2026-04-23i). The Reviewer sits between the Interpreter and the Composer: it reads interpret-latest.json, runs R1–R7 deterministic rule-engine checks (disposition-aware per design §3.3), and emits a 5-value verdict. LLM call produces advisory_notes[] only; verdict + checks + claim_flags are set by the rule engine.",
+  "description": "Output schema for the AIM Reviewer stage (pipeline/engine/review_base.py → review-YYYY-MM-DD.json + review-latest.json). Sprint 3 Step 2b role insertion (AD-2026-04-23i); per-patch verdicts added by AD-2026-04-26X (G4+G5). The Reviewer sits between the Interpreter and the Composer: it reads interpret-latest.json, runs R1–R7 deterministic rule-engine checks (disposition-aware per design §3.3), emits a brief-level 5-value verdict, and emits one per-patch verdict per interpret.proposed_patches[] entry. LLM call produces advisory_notes[] only; verdict + checks + claim_flags + patch_verdicts are all rule-engine-deterministic and not LLM-overridable.",
   "type": "object",
   "required": [
     "_meta",
@@ -128,13 +128,28 @@
     "verdict": {
       "type": "string",
       "enum": [
+        "publish",
+        "publish-with-flags",
+        "hold-for-review",
+        "defer-issue",
         "APPROVE",
         "APPROVE_WITH_FLAGS",
         "REJECT",
         "SKIP_NULL_CYCLE",
         "SKIP_ERROR_CYCLE"
       ],
-      "description": "5-value verdict (design §3.2, D2). Set by rule engine in pipeline/engine/review_base.py.derive_verdict(); NOT LLM-overridable."
+      "description": "Brief-level verdict (design §3.2, D2; vocabulary aligned by AD-2026-04-26X G5). Set by rule engine in pipeline/engine/review_base.py.derive_verdict() then translated via brief_verdict_legacy_to_new(); NOT LLM-overridable. During the AD-2026-04-26X one-cycle bake this enum is a UNION of the new 4-value vocabulary (publish / publish-with-flags / hold-for-review / defer-issue — canonical post-bake) and the legacy 5-value vocabulary (APPROVE / APPROVE_WITH_FLAGS / REJECT / SKIP_NULL_CYCLE / SKIP_ERROR_CYCLE — retained only for the bake window). The Reviewer emits the new vocabulary on this canonical field and mirrors the legacy value on `verdict_legacy`. The retirement AD will narrow this enum back to the new 4 values and drop `verdict_legacy`."
+    },
+    "verdict_legacy": {
+      "type": "string",
+      "enum": [
+        "APPROVE",
+        "APPROVE_WITH_FLAGS",
+        "REJECT",
+        "SKIP_NULL_CYCLE",
+        "SKIP_ERROR_CYCLE"
+      ],
+      "description": "Legacy 5-value brief verdict mirror (AD-2026-04-26X G5 one-cycle bake). Reviewer emits this alongside the canonical `verdict` field so downstream consumers that have not yet migrated can fall back. Applier prefers `verdict` and stamps an `applier_flags` deprecation entry if it sees only `verdict_legacy`. Retired by the bake-completion AD; this property will be removed at that point."
     },
     "verdict_reason": {
       "type": [
@@ -245,6 +260,85 @@
       "items": {
         "type": "string",
         "maxLength": 500
+      }
+    },
+    "patch_verdicts": {
+      "type": "array",
+      "description": "G4+G5 (AD-2026-04-26X). Per-patch verdicts derived by pipeline/engine/review_base.py.derive_patch_verdicts() against interpret.proposed_patches[]. One entry per proposed patch. Empty array when interpret carried no patches. Verdict vocabulary is engine-fixed per pipeline-purpose-and-roles.md §3.5 + Appendix C; the rule sets that derive these verdicts are AGM-internal (R1–R7 per ENGINE-RULES §1j). LLM never overrides — verdicts are rule-engine-deterministic.",
+      "items": {
+        "type": "object",
+        "required": [
+          "patch_id",
+          "verdict",
+          "verdict_reason",
+          "rules_passed",
+          "rules_failed"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "patch_id": {
+            "type": "string",
+            "description": "Stable patch ID from interpret.proposed_patches[].patch_id. If absent, Reviewer stamps `_unstamped_<idx>`."
+          },
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "apply",
+              "reject",
+              "defer",
+              "loop-back-to-Interpreter",
+              "loop-back-to-Collector"
+            ],
+            "description": "Per-patch verdict (canonical §3.5 + Appendix C). Loop-back verdicts are next-cycle deferral payloads, not mid-cycle control flow (§4.4 as clarified by AD-2026-04-26X)."
+          },
+          "verdict_reason": {
+            "type": "string",
+            "maxLength": 280,
+            "description": "Short prose reason from the rule engine. Names the rule(s) or condition that produced the verdict."
+          },
+          "rules_passed": {
+            "type": "array",
+            "description": "Cycle-level R-rule check_ids that PASS. May be empty under disposition short-circuits.",
+            "items": {
+              "type": "string",
+              "enum": ["R1", "R2", "R3", "R4", "R5", "R6", "R7"]
+            }
+          },
+          "rules_failed": {
+            "type": "array",
+            "description": "Cycle-level R-rule check_ids that FAIL. Drives reject (R1–R3) and defer (R4–R7) verdicts.",
+            "items": {
+              "type": "string",
+              "enum": ["R1", "R2", "R3", "R4", "R5", "R6", "R7"]
+            }
+          },
+          "deferral": {
+            "type": "object",
+            "description": "Structured deferral payload — present iff verdict == 'defer'. Closed enum on deferral_reason per AD-2026-04-26X §Q1.",
+            "required": ["deferral_reason"],
+            "additionalProperties": false,
+            "properties": {
+              "deferral_reason": {
+                "type": "string",
+                "enum": [
+                  "evidence_incomplete",
+                  "confidence_below_threshold",
+                  "blocking_claim_flag",
+                  "cross_cycle_dependency"
+                ]
+              },
+              "blocking_evidence_id": {
+                "type": ["string", "null"],
+                "description": "Required iff deferral_reason == 'evidence_incomplete'. The evidence_id whose absence blocks this patch."
+              },
+              "retry_after_cycle": {
+                "type": ["integer", "null"],
+                "minimum": 1,
+                "description": "Optional. Cycle offset at which this patch should be re-evaluated. 1 = next cycle."
+              }
+            }
+          }
+        }
       }
     }
   }
