@@ -1,0 +1,25 @@
+# Dependabot configuration for asym-intel-main
+# Scope: GitHub Actions versions across ~79 workflows.
+# Python deps are inline pip-installs; no requirements.txt to track.
+# See ops/easy-wins-2026-04-25.md for the rationale.
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "deps(actions)"
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
