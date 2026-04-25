@@ -128,13 +128,28 @@
     "verdict": {
       "type": "string",
       "enum": [
+        "publish",
+        "publish-with-flags",
+        "hold-for-review",
+        "defer-issue",
         "APPROVE",
         "APPROVE_WITH_FLAGS",
         "REJECT",
         "SKIP_NULL_CYCLE",
         "SKIP_ERROR_CYCLE"
       ],
-      "description": "5-value verdict (design §3.2, D2). Set by rule engine in pipeline/engine/review_base.py.derive_verdict(); NOT LLM-overridable."
+      "description": "Brief-level verdict (design §3.2, D2; vocabulary aligned by AD-2026-04-26X G5). Set by rule engine in pipeline/engine/review_base.py.derive_verdict() then translated via brief_verdict_legacy_to_new(); NOT LLM-overridable. During the AD-2026-04-26X one-cycle bake this enum is a UNION of the new 4-value vocabulary (publish / publish-with-flags / hold-for-review / defer-issue — canonical post-bake) and the legacy 5-value vocabulary (APPROVE / APPROVE_WITH_FLAGS / REJECT / SKIP_NULL_CYCLE / SKIP_ERROR_CYCLE — retained only for the bake window). The Reviewer emits the new vocabulary on this canonical field and mirrors the legacy value on `verdict_legacy`. The retirement AD will narrow this enum back to the new 4 values and drop `verdict_legacy`."
+    },
+    "verdict_legacy": {
+      "type": "string",
+      "enum": [
+        "APPROVE",
+        "APPROVE_WITH_FLAGS",
+        "REJECT",
+        "SKIP_NULL_CYCLE",
+        "SKIP_ERROR_CYCLE"
+      ],
+      "description": "Legacy 5-value brief verdict mirror (AD-2026-04-26X G5 one-cycle bake). Reviewer emits this alongside the canonical `verdict` field so downstream consumers that have not yet migrated can fall back. Applier prefers `verdict` and stamps an `applier_flags` deprecation entry if it sees only `verdict_legacy`. Retired by the bake-completion AD; this property will be removed at that point."
     },
     "verdict_reason": {
       "type": [
