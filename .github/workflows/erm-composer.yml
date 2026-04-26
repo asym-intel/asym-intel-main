@@ -1,12 +1,9 @@
 name: "Environmental Risks Monitor Composer"
 
-# ── Sprint AM — ERM Composer role ──
-# workflow_dispatch only at Sprint AM merge time per AD-2026-04-26-AM
-# §"What this AD does NOT do" item 6. Cron-resumption and workflow_run
-# chaining to be added in a follow-up sprint after first-Friday
-# observation lands clean.
-#
-# Mirrors AGM composer workflow structure verbatim (AD-2026-04-26-AM).
+# ── Sprint AN — ERM Composer role ── AD-2026-04-26-AN
+# workflow_run trigger on ERM Reviewer added (Sprint AN, step-an-erm).
+# Mirrors AGM composer topology: workflow_run fires on Reviewer success;
+# workflow_dispatch always passes the job guard.
 # Reads interpret-latest.json + review-latest.json and composes a
 # grounded weekly brief draft (no new claims; claim_trace[] tied to
 # interpreter claim IDs).
@@ -19,9 +16,16 @@ on:
         description: 'Override composer model (default: sonar-pro)'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["Environmental Risks Monitor Reviewer"]
+    types:
+      - completed
 
 jobs:
   compose:
+    # Gate: only run if the upstream reviewer workflow actually succeeded
+    # (workflow_dispatch runs always pass this guard).
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
