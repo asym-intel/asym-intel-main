@@ -1,16 +1,18 @@
 name: "SCEM Interpreter"
 
-# ── Sprint AM — Interpreter role (SCEM) ──
-# Chained after SCEM Reasoner success, extending the cron-dispatched
-# chain. Reasoner finishing means both weekly-latest.json and
+# ── Sprint AN — Interpreter role (SCEM) ──
+# Sprint AN adds workflow_run trigger on SCEM Reasoner so cron-dispatched
+# SCEM runs cascade automatically: Reasoner → Interpreter → Reviewer →
+# Composer → Applier → Curator end-to-end.
+# Reasoner finishing means both weekly-latest.json and
 # reasoner-latest.json are committed — the two artefacts Interpreter
 # reads from paths.weekly_latest + paths.reasoner_latest.
 # Topology mirrors AGM: Interpreter → Reviewer → Composer → Applier →
-# Curator chain established in Sprint AM per AD-2026-04-26-AM.
+# Curator chain. workflow_run trigger added per AD-2026-04-26-AN.
 #
-# No schedule trigger: workflow_dispatch only at Sprint AM merge time.
-# Cron addition is a separate sprint after first-Friday observation.
-# Per AD-AM §"What this AD does NOT do" item 6.
+# No schedule trigger: workflow_dispatch + workflow_run (Reasoner success).
+# Cron lines remain commented until cascade-validation runbook passes.
+# Per AD-AN §acceptance gates.
 
 on:
   workflow_dispatch:
@@ -23,9 +25,14 @@ on:
         description: 'Override weekly bundle filename (e.g. weekly-2026-05-01.json). Empty = use weekly-latest.json.'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["SCEM Reasoner — Conflict Trajectory Analysis"]
+    types:
+      - completed
 
 jobs:
   interpret:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
