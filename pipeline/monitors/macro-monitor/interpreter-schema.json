@@ -1,0 +1,776 @@
+{
+  "type": "object",
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": [
+            "gmm-interpret-v1.0"
+          ],
+          "description": "Must be exactly 'gmm-interpret-v1.0'."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "macro-monitor"
+        },
+        "synthesised_at": {
+          "type": "string"
+        },
+        "week_ending": {
+          "type": "string"
+        },
+        "null_signal_week": {
+          "type": "boolean"
+        },
+        "null_signal_reason": {
+          "type": ["string", "null"]
+        },
+        "cycle_disposition": {
+          "type": "string",
+          "enum": [
+            "material_change",
+            "null_cycle",
+            "partial_cycle",
+            "error_cycle"
+          ],
+          "description": "Interpreter's judgment on the cycle. 'material_change' = at least one module has new content; 'null_cycle' = evidence bundle carries no material change; 'partial_cycle' = mixed; 'error_cycle' = reserved for engine-level failure paths (engine stamps, prompt does not emit)."
+        },
+        "cycle_disposition_reason": {
+          "type": ["string", "null"],
+          "description": "One-sentence justification. Required for null_cycle and partial_cycle; optional otherwise."
+        },
+        "triple_extraction_manifest": {
+          "type": "object",
+          "description": "Provenance of structured_claims[] extraction.",
+          "properties": {
+            "deterministic_extractions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "llm_fallback_extractions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "llm_fallback_timestamp": {
+              "type": ["string", "null"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "replay_mode": {
+          "type": "boolean",
+          "description": "Engine-stamped true when WEEKLY_FILE_OVERRIDE was active on the dispatch. Absent or false in production dispatches. Not model-derived; the Interpreter does not emit this field."
+        },
+        "replay_window": {
+          "type": "object",
+          "description": "Required iff replay_mode is true. Holds the replay cycle window. Not model-derived.",
+          "properties": {
+            "start": {
+              "type": "string",
+              "description": "ISO-8601 date (YYYY-MM-DD). week_ending - 6 days."
+            },
+            "end": {
+              "type": "string",
+              "description": "ISO-8601 date (YYYY-MM-DD). Copied from the override bundle's _meta.week_ending."
+            }
+          },
+          "required": ["start", "end"]
+        }
+      }
+    },
+    "lead_signal": {
+      "type": "object",
+      "required": [
+        "headline",
+        "domain",
+        "body",
+        "source_url",
+        "confidence_preliminary"
+      ],
+      "properties": {
+        "headline": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string",
+          "enum": [
+            "growth_recession",
+            "inflation_central_bank",
+            "financial_stability",
+            "trade_tariff",
+            "currency_fx",
+            "sovereign_debt"
+          ]
+        },
+        "body": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "confidence_preliminary": {
+          "type": "string",
+          "enum": [
+            "Confirmed",
+            "High",
+            "Assessed",
+            "Possible"
+          ]
+        }
+      }
+    },
+    "module_0": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        }
+      }
+    },
+    "module_1": {
+      "type": "object",
+      "properties": {
+        "mainstream": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "underweighted": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_2": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "announcements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "institution": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "released": {
+                "type": "string"
+              },
+              "headline": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "flag": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "module_3": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "flow_events": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "liquidity_conditions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "reserve_movements": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_4": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "domain": {
+                "type": "string",
+                "enum": [
+                  "growth_recession",
+                  "inflation_central_bank",
+                  "financial_stability",
+                  "trade_tariff",
+                  "currency_fx",
+                  "sovereign_debt"
+                ]
+              },
+              "stress_level": {
+                "type": "string",
+                "enum": ["Green", "Amber", "Red", "Crisis"]
+              },
+              "direction": {
+                "type": "string",
+                "enum": ["Worsening", "Stable", "Improving"]
+              },
+              "headline_developments": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "key_data_point": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "module_5": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "currency_signals": {
+          "type": "object"
+        },
+        "sovereign_debt": {
+          "type": "object"
+        }
+      }
+    },
+    "module_6": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "threshold_assessments": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "research_highlights": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_7": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "vectors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "vector": {
+                "type": "string"
+              },
+              "rating": {
+                "type": "string",
+                "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string",
+                "enum": ["High", "Assessed", "Possible"]
+              },
+              "changed": {
+                "type": "boolean"
+              },
+              "unchanged_since": {
+                "type": ["string", "null"]
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "module_8": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_9": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "digest_note": {
+          "type": ["string", "null"]
+        },
+        "new_developments": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "no_change": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "friction_analysis": {
+          "type": "string"
+        },
+        "tariff_escalation_rung": {
+          "type": "string"
+        },
+        "retaliation_chain": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_10": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "multilateral_signals": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "central_bank_coordination": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "fiscal_governance": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "governance_gaps": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_11": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "structural_trends": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "trend": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "delta_strip": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "jurisdiction_risk_matrix": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "jurisdiction": {
+            "type": "string"
+          },
+          "monetary_policy_stance": {
+            "type": "string",
+            "enum": ["Tightening", "Neutral", "Easing", "Emergency"]
+          },
+          "fiscal_sustainability": {
+            "type": "string",
+            "enum": ["Stable", "Deteriorating", "Improving"]
+          },
+          "external_vulnerability": {
+            "type": "string",
+            "enum": ["HIGH", "MEDIUM", "LOW"]
+          },
+          "overall_stress": {
+            "type": "string",
+            "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
+          },
+          "key_development": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": ["Improving", "Stable", "Deteriorating"]
+          }
+        }
+      }
+    },
+    "central_bank_scorecard": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "institution": {
+            "type": "string"
+          },
+          "posture": {
+            "type": "string",
+            "enum": ["Tightening", "Neutral", "Easing", "Emergency"]
+          },
+          "last_action": {
+            "type": ["string", "null"]
+          },
+          "forward_guidance": {
+            "type": ["string", "null"]
+          },
+          "key_development": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": ["Hawkish", "Stable", "Dovish"]
+          }
+        }
+      }
+    },
+    "macro_health_composite": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["Improving", "Stable", "Deteriorating"]
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "growth_stability": {
+              "type": "string"
+            },
+            "inflation_anchor": {
+              "type": "string"
+            },
+            "financial_stability": {
+              "type": "string"
+            },
+            "external_balance": {
+              "type": "string"
+            },
+            "policy_coherence": {
+              "type": "string"
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "judgment": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string",
+            "enum": ["High", "Assessed", "Possible"]
+          },
+          "stress_domain": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": ["Worsening", "Stable", "Improving"]
+          },
+          "source_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "cross_monitor_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_monitor": {
+            "type": "string"
+          },
+          "signal": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string",
+            "enum": ["Low", "Medium", "High"]
+          }
+        }
+      }
+    },
+    "structured_claims": {
+      "type": "array",
+      "description": "Triple store of every factual assertion in this interpretation. Populated by the Interpreter; consumed by the Composer (for claim_trace[] provenance) and the Reviewer gate.",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "entity",
+          "predicate",
+          "value",
+          "evidence_id",
+          "confidence",
+          "source_module"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+            "description": "Stable within a cycle. Format: gmm-int-{ISO-date}-{4-digit-sequence}."
+          },
+          "entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "predicate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "object"},
+              {"type": "array"}
+            ],
+            "description": "The asserted value. Accept string/number/object/array."
+          },
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "References weekly-research source_id or KB entry_id."
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["Confirmed", "High", "Assessed", "Possible"]
+          },
+          "source_module": {
+            "type": "string",
+            "description": "Which module or field the claim first appears in."
+          },
+          "notes": {
+            "type": ["string", "null"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "gaps_register": {
+      "type": "array",
+      "description": "Optional. What evidence would improve Uncertain claims.",
+      "items": {
+        "type": "object",
+        "required": [
+          "gap_id",
+          "description"
+        ],
+        "properties": {
+          "gap_id": {
+            "type": "string",
+            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "affected_claims": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "proposed_patches": {
+      "type": "array",
+      "description": "OPTIONAL. Material-change patches proposed to the Applier. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries the 5 Appendix A required fields.",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_applied",
+          "evidence_ids",
+          "confidence",
+          "material_change_justification",
+          "target_kb_path"
+        ],
+        "properties": {
+          "rule_applied": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["Confirmed", "High", "Assessed", "Possible"]
+          },
+          "material_change_justification": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_kb_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patch_id": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": ["create", "update", "archive", "carry-forward-verified"]
+          },
+          "prior_value": {},
+          "new_value": {},
+          "notes": {
+            "type": ["string", "null"]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "_meta",
+    "lead_signal",
+    "module_0",
+    "module_1",
+    "module_2",
+    "module_3",
+    "module_4",
+    "module_5",
+    "module_6",
+    "module_7",
+    "module_8",
+    "module_9",
+    "module_10",
+    "module_11",
+    "delta_strip",
+    "jurisdiction_risk_matrix",
+    "central_bank_scorecard",
+    "macro_health_composite",
+    "key_judgments",
+    "cross_monitor_candidates",
+    "structured_claims"
+  ]
+}
