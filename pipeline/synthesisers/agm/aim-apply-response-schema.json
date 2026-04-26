@@ -11,6 +11,7 @@
     "patches_rejected",
     "patches_deferred",
     "patches_looped_back",
+    "patches_apply_failed",
     "publication",
     "chains_artefact"
   ],
@@ -185,6 +186,25 @@
       "maxItems": 0,
       "description": "MVP: always empty. See patches_applied."
     },
+    "patches_apply_failed": {
+      "type": "array",
+      "description": "G1+G2 (AD-2026-04-26Y) — fifth bucket. Patches the Reviewer said `apply` but the Applier could not safely write to persistent-state.json (optimistic-concurrency mismatch, missing parent path, deferred operation, etc.). Distinct from `patches_rejected` (Reviewer-said-reject) and `patches_deferred` (Reviewer-said-defer). When non-empty AND no more-blocking error precedes, drives `publication.hold_reason = patch_apply_failed`.",
+      "items": {
+        "type": "object",
+        "required": ["patch_id", "target_kb_path", "applier_rejection_reason"],
+        "properties": {
+          "patch_id": {"type": ["string", "null"]},
+          "target_kb_path": {"type": ["string", "null"]},
+          "applier_rejection_reason": {
+            "type": "string",
+            "description": "Coded reason. Stable prefixes: `prior_value_mismatch`, `target_missing:<path>`, `parent_missing:<path>`, `create_target_exists:<key>`, `parent_not_dict`, `parent_not_list:<key>`, `path_parse_error:<msg>`, `live_state_missing`, `operation_archive_not_yet_implemented`, `unknown_operation:<op>`, `update_relookup_failed`."
+          },
+          "observed_value": {"description": "Value the Applier saw at the path when concurrency check failed. Null if path didn't resolve."},
+          "expected_prior_value": {"description": "Value the patch's `prior_value` field claimed. Null if not supplied."}
+        },
+        "additionalProperties": true
+      }
+    },
     "publication": {
       "type": "object",
       "required": ["ready_to_publish"],
@@ -200,8 +220,11 @@
             "review_error_cycle_skip",
             "composer_error",
             "applier_error",
+            "patch_apply_failed",
+            "loop_back_pending",
             null
-          ]
+          ],
+          "description": "Why the cycle is held. `patch_apply_failed` (G2 — AD-2026-04-26Y) is set when `patches_apply_failed[]` is non-empty AND no more-blocking applier_error/composer_error precedes. `loop_back_pending` is reserved for a future sprint that gates on outstanding loop-backs; loop-backs do NOT block publication today (AD-2026-04-26X §4.4 + Q4 ratification 2026-04-26)."
         },
         "publisher_artefacts": {
           "type": "object",

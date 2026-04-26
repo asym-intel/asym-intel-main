@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AIM Persistent-State Schema (aim-persistent-state-v1.0)",
+  "description": "Schema for the AGM monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to (G1+G2, AD-2026-04-26Y). The MVP shape is intentionally permissive on per-module structure (`additionalProperties: true` everywhere outside `_meta`); per-module strictness is the responsibility of the MBC sweeps that own each module's contract. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. The Applier engine bumps `_meta.last_updated` and `_meta.last_issue` on any cycle that lands at least one patch (Q5 ratification 2026-04-26 — null cycles are no-ops).",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "enum": ["aim-persistent-state-v1.0", "2.0", 2.0],
+          "description": "Schema version of this file. New canonical value: `aim-persistent-state-v1.0`. Legacy bake value `2.0` (string or number) is accepted during the AD-2026-04-26Y bake window. A follow-up AD will retire the legacy values once MBC sweeps stamp every monitor's persistent-state.json with the canonical version."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change. Either ISO date (YYYY-MM-DD, what the Applier writes per Q5 ratification) or full ISO-8601 timestamp (legacy MBC-stamped). Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer; left untouched otherwise (string-based versioning is per-module, not engine-stamped in MVP)."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "description": "Owning monitor slug (e.g. 'ai-governance' for AGM)."
+        }
+      }
+    }
+  }
+}
