@@ -1,0 +1,105 @@
+name: "WDM Curator"
+
+# ── Sprint AM — WDM Curator role ──
+# Chained after WDM Applier success (workflow_run depth 0 → 1, valid
+# because Applier enters via workflow_dispatch chain-depth reset).
+# Reads interpret-latest.json + chains-latest.json + apply-latest.json
+# plus prior N cycles' archives and produces:
+#   - drift-register-YYYY-MM-DD.json (immutable per-cycle)
+#   - drift-register-latest.json (rolling pointer)
+# LLM-FREE — deterministic drift detection only. Four typed triggers:
+#   T1 — schema-shape change ≥2 in window without methodology bump
+#   T2 — tracked rating flip without fresh T1 evidence (disabled for WDM
+#         initially — T2 tracked_predicates empty until first material cycle)
+#   T3 — entity silent drop from registry
+#   T4 — carry-forward rate ≥ 0.80 on a non-null cycle
+# NON-BLOCKING (advisory only). Mirrors AGM Curator topology (AD-2026-04-26-AM).
+
+on:
+  workflow_dispatch: {}
+  workflow_run:
+    workflows: ["WDM Applier"]
+    types:
+      - completed
+
+jobs:
+  curate:
+    # Gate: only run if upstream applier actually succeeded.
+    # workflow_dispatch runs always pass this guard.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: main
+          # Curator needs prior cycle history to compute T1/T4 windows.
+          # Fetch full history so archives from prior cycles are available.
+          fetch-depth: 0
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/democratic-integrity
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+
+      # Stage bespoke metadata. No prompt/schema staging (LLM-free).
+      # §15 IP boundary preserved — never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/democratic-integrity
+          cp -v internal/pipeline/monitors/democratic-integrity/metadata.yml \
+                pipeline/monitors/democratic-integrity/
+
+      # Skip-on-missing guard.
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          A="pipeline/monitors/democratic-integrity/applied/apply-latest.json"
+          I="pipeline/monitors/democratic-integrity/synthesised/interpret-latest.json"
+          MISSING=""
+          [ -f "$A" ] || MISSING="${MISSING} apply-latest"
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Curator."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run WDM curator (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:      ${{ github.workspace }}
+          monitor:        democratic-integrity
+          PYTHONPATH:     internal
+          CURATOR_RUN_ID: ${{ github.event.workflow_run.id }}
+          GITHUB_SHA:     ${{ github.sha }}
+        run: python -m pipeline.engine.curator_base --monitor democratic-integrity
+
+      - name: Commit curator output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/democratic-integrity/curator/
+          git diff --cached --quiet || git commit -m "chore(wdm): curator run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
