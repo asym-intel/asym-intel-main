@@ -13,22 +13,27 @@ name: "AI Governance Monitor Applier"
 #
 # Design: session-artefacts/2026-04-23-sprint3-step3/step-3-design.md
 # Ratified: AD-2026-04-23j (internal@25db305a → engine@83cc5a80)
-# Topology: E2 Option A — separate workflow, workflow_run chained off
-# Composer success (mirrors the Reviewer/Interpreter topology).
+# Topology: E2 Option A — separate workflow, originally workflow_run chained
+# off Composer success (mirrors the Reviewer/Interpreter topology).
+#
+# 2026-04-26 amendment: workflow_run trigger REMOVED. The full cron-time chain
+# (Reasoner [dispatch] → Interpreter → Reviewer → Composer) reaches GitHub's
+# 3-level workflow_run nesting limit at Composer; a wf_run trigger on Applier
+# would be a 4th level and silently never fires. Verified 2026-04-26 manual
+# cascade: Composer succeeded but no Applier run was created. Composer now
+# triggers Applier via an explicit `gh workflow run` step (chain-depth reset),
+# which means Applier is reached only via workflow_dispatch in both cron and
+# manual paths. Applier→Curator wf_run hop remains valid (depth 0 → 1).
 
 on:
   workflow_dispatch: {}
-  workflow_run:
-    workflows: ["AI Governance Monitor Composer"]
-    types:
-      - completed
 
 jobs:
   apply:
-    # Gate: only run if upstream composer actually succeeded.
-    # workflow_dispatch runs always pass this guard (E9 acceptance gate
-    # uses this path against live null-cycle inputs).
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # All entry paths now use workflow_dispatch (Composer's `gh workflow run`
+    # step uses the workflow_dispatch event under the hood). The pre-existing
+    # E9 acceptance-gate manual fires also flow through this path.
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
 

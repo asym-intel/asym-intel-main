@@ -160,3 +160,21 @@ jobs:
           git diff --cached --quiet || git commit -m "chore(agm): composer run $(date -u +%Y-%m-%d)"
           git pull --rebase --autostash origin main
           git push
+
+      # Trigger Applier via direct API dispatch (NOT workflow_run).
+      # GitHub limits workflow_run-triggered chains to 3 levels deep. The cron
+      # path is: dispatcher→Reasoner [dispatch] → Interpreter [wf_run-1] →
+      # Reviewer [wf_run-2] → Composer [wf_run-3 — LIMIT]. A wf_run trigger on
+      # Applier would silently never fire (verified 2026-04-26 manual cascade).
+      # Calling `gh workflow run` here resets the chain depth so Applier runs
+      # as a fresh dispatch (depth 0), enabling Applier→Curator [wf_run-1] to
+      # complete. Applier's `workflow_run` trigger has been removed in tandem;
+      # this step is the sole automatic path from Composer to Applier.
+      - name: Trigger Applier (chain-depth reset)
+        if: steps.disposition.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh workflow run agm-applier.yml \
+            --repo ${{ github.repository }} \
+            --ref main
