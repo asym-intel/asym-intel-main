@@ -1,0 +1,99 @@
+name: "European Strategic Autonomy Monitor Applier"
+
+# ── Sprint AM — ESA Applier role ──
+# workflow_dispatch-only at Sprint AM merge time per AD-2026-04-26-AM
+# §"What this AD does NOT do" item 6. Cron chaining is a separate sprint
+# after first-Friday observation lands clean.
+# Reads interpret-latest.json + review-latest.json + compose-latest.json
+# and produces apply-YYYY-MM-DD.json + apply-latest.json + chains files.
+# LLM-FREE — deterministic stitching only (design E6). No PPLX_API_KEY.
+# Topology mirrors AGM applier (workflow_dispatch only; Composer triggers
+# via gh workflow run to reset chain depth per 2026-04-26 amendment).
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  apply:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/european-strategic-autonomy
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      # The engine reads bespoke metadata.yml via paths resolved relative
+      # to CWD (public-main root). Stage the internal checkout's metadata
+      # there. §15 IP boundary preserved — it is never committed back.
+      # No prompt/schema staging (LLM-free).
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/european-strategic-autonomy
+          cp -v internal/pipeline/monitors/european-strategic-autonomy/metadata.yml \
+                pipeline/monitors/european-strategic-autonomy/
+
+      # Skip-on-missing guard. All three upstream artefacts are required;
+      # if any is absent (upstream errored before commit) exit 0 so the
+      # chain doesn't block.
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          I="pipeline/monitors/european-strategic-autonomy/synthesised/interpret-latest.json"
+          R="pipeline/monitors/european-strategic-autonomy/synthesised/review-latest.json"
+          C="pipeline/monitors/european-strategic-autonomy/synthesised/compose-latest.json"
+          MISSING=""
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          [ -f "$R" ] || MISSING="${MISSING} review-latest"
+          [ -f "$C" ] || MISSING="${MISSING} compose-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Applier."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run ESA applier (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:          ${{ github.workspace }}
+          monitor:            european-strategic-autonomy
+          PYTHONPATH:         internal
+          INTERPRET_RUN_ID:   ${{ github.event.workflow_run.id }}
+          REVIEW_RUN_ID:      ${{ github.event.workflow_run.id }}
+          COMPOSE_RUN_ID:     ${{ github.event.workflow_run.id }}
+        run: python -m pipeline.engine.apply_base --monitor european-strategic-autonomy
+
+      - name: Commit applier output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          rm -f pipeline/monitors/european-strategic-autonomy/applied/apply-debug-*.json
+          git add pipeline/monitors/european-strategic-autonomy/applied/
+          git diff --cached --quiet || git commit -m "chore(esa): applier run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
