@@ -1,0 +1,96 @@
+name: "SCEM Applier"
+
+# ── Sprint AM — Applier role (SCEM) ──
+# Chained after SCEM Composer success via explicit gh workflow run
+# (chain-depth reset — mirrors AGM 2026-04-26 amendment). Reads all
+# three upstream artefacts (interpret-latest.json, review-latest.json,
+# compose-latest.json) and produces:
+#   - apply-YYYY-MM-DD.json + apply-latest.json (cycle manifest)
+#   - chains-YYYY-MM-DD.json + chains-latest.json (public claim chains)
+# LLM-FREE — deterministic stitching only. No PPLX_API_KEY needed.
+# No ANTHROPIC_API_KEY: stays on Sonar per D1 §7.1.
+#
+# No schedule trigger: workflow_dispatch only at Sprint AM merge time.
+# Per AD-2026-04-26-AM.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  apply:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      monitor: conflict-escalation
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/conflict-escalation
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/conflict-escalation
+          cp -v internal/pipeline/monitors/conflict-escalation/metadata.yml \
+                pipeline/monitors/conflict-escalation/
+
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          I="pipeline/monitors/conflict-escalation/synthesised/interpret-latest.json"
+          R="pipeline/monitors/conflict-escalation/synthesised/review-latest.json"
+          C="pipeline/monitors/conflict-escalation/synthesised/compose-latest.json"
+          MISSING=""
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          [ -f "$R" ] || MISSING="${MISSING} review-latest"
+          [ -f "$C" ] || MISSING="${MISSING} compose-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Applier."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run SCEM applier (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:        ${{ github.workspace }}
+          PYTHONPATH:       internal
+          INTERPRET_RUN_ID: ${{ github.event.workflow_run.id }}
+          REVIEW_RUN_ID:    ${{ github.event.workflow_run.id }}
+          COMPOSE_RUN_ID:   ${{ github.event.workflow_run.id }}
+        run: python -m pipeline.engine.apply_base --monitor conflict-escalation
+
+      - name: Commit applier output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          rm -f pipeline/monitors/conflict-escalation/applied/apply-debug-*.json
+          git add pipeline/monitors/conflict-escalation/applied/
+          git diff --cached --quiet || git commit -m "chore(scem): applier run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
