@@ -53,7 +53,17 @@ jobs:
       # running on main (via tools/preflight.py sentinel) and fetches
       # asym-intel-internal into a cache dir. Needs a PAT with read access
       # to the private internal repo (GITHUB_TOKEN cannot cross repos).
+      #
+      # AD-2026-04-26-AB — paired-PR awareness:
+      # On `pull_request`, ASYM_COUNTERPART_REF is set to the PR's head
+      # branch so the live scan compares against the matching branch in
+      # the counterpart (asym-intel-internal) repo. If that branch does
+      # not exist in the counterpart repo, preflight_parity.py logs a
+      # [counterpart-ref-fallback] line and falls back to `main`. On
+      # `push` / `workflow_dispatch` the env var is absent and the
+      # default `main` resolution applies.
       - name: Live scan — preflight_parity.py
         env:
           GH_TOKEN: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+          ASYM_COUNTERPART_REF: ${{ github.event_name == 'pull_request' && github.head_ref || '' }}
         run: python3 tools/preflight_parity.py
