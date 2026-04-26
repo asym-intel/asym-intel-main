@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "schema_version": "aim-review-v1.0",
+    "reviewer_model": "sonar-pro",
+    "monitor_slug": "environmental-risks",
+    "reviewed_at": "2026-04-26T20:27:26.746246+00:00",
+    "reviewed_from": "aim-interpret-v1.0",
+    "reviewed_from_file": "interpret-latest.json",
+    "interpret_meta": {
+      "null_signal_week": false,
+      "cycle_disposition": "material_change",
+      "week_ending": "2026-05-02"
+    },
+    "reviewer_flags": [],
+    "reviewer_error": false,
+    "reviewer_error_reason": null,
+    "independence_mechanism": {
+      "rule_engine_verdict_is_llm_independent": true
+    }
+  },
+  "verdict": "hold-for-review",
+  "verdict_legacy": "REJECT",
+  "verdict_reason": "hard-invariant FAIL: ['R1']",
+  "checks": [
+    {
+      "check_id": "R1",
+      "name": "schema_version == aim-interpret-v1.0",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "schema_version='erm-interpret-v1.0' (expected 'aim-interpret-v1.0')"
+    },
+    {
+      "check_id": "R2",
+      "name": "_meta.cycle_disposition in enum",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "cycle_disposition=material_change"
+    },
+    {
+      "check_id": "R3",
+      "name": "structured_claims[] shape integrity",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "all 42 claims carry 8 required keys"
+    },
+    {
+      "check_id": "R4",
+      "name": "evidence_id non-empty on every claim",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "all 42 claims carry evidence_id"
+    },
+    {
+      "check_id": "R5",
+      "name": "gaps_register[] non-empty when null_signal_week",
+      "result": "SKIP",
+      "disposition_aware_skip": true,
+      "detail": "skipped — null_signal_week is false"
+    },
+    {
+      "check_id": "R6",
+      "name": "triple_extraction_manifest self-consistent",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "42 det + 0 llm = 42 claims"
+    },
+    {
+      "check_id": "R7",
+      "name": "persistent-state modules non-empty",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "empty modules: ['lab_posture_scorecard']"
+    }
+  ],
+  "claim_flags": [],
+  "advisory_notes": [
+    "Interpreter output is comprehensive with all 9 planetary boundaries covered in tracker and strong filter tag application across sections (F1-F4 present). Tipping systems at 'Approaching/Imminent' have complete cascade_chain details, no Rubric B gaps.",
+    "icj_tracker.last_development_date='2025-07-01' is ~10 months stale vs week_ending='2026-05-02'; loss_damage_tracker has current-week development but compliance_cycle='First replenishment cycle' may need freshness check by Composer (Rubric C).",
+    "aerosol_dual_risk_flag non-empty with atmospheric_aerosols boundary detail and reverse_cascade_check linking to shipping/Middle East conflict; logic carries through consistently (Rubric F)."
+  ],
+  "patch_verdicts": []
+}
