@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GMM Reviewer Response Schema",
+  "description": "Structured-output schema for the GMM Reviewer stage. The LLM emits ONLY advisory_notes[] (max 3 strings). Verdict, checks, and claim_flags are set deterministically by the rule engine and are NOT overridable. Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n).",
+  "type": "object",
+  "required": [
+    "advisory_notes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "advisory_notes": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "Optional prose observations for the Composer's internal awareness. Each entry ≤ 500 characters. Emit [] if nothing useful to surface.",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    }
+  }
+}
