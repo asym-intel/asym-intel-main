@@ -26,8 +26,9 @@ What PARITY-003 does NOT check
     — these are workflow descriptions, not identity tokens.
   - DAY_MONITOR lowercase values in workers/pipeline-dispatcher/src/index.ts
     — these are slug lookups (intentional lowercase), not abbr tokens.
-  - metadata.yml abbr lowercase values — flagged by engine validate_metadata_against_canonical
-    warnings, not by this preflight (pending drift-fix PR).
+  - metadata.yml abbr values — these carry the canonical internal abbr (e.g. AGM for
+    ai-governance), which is intentional per operator decision A.2(a) (Sprint AO Wave 2 §A.3).
+    Engine validate_metadata_against_canonical() handles any case-normalisation warnings.
   - File contents of pipeline/engine/canonical_monitors.yml itself.
 
 Repo detection
@@ -94,18 +95,21 @@ SCAN_EXTENSIONS = {".yml", ".yaml", ".md", ".ts", ".json"}
 # labels use the pattern "| AGM |" — we check those.
 # ---------------------------------------------------------------------------
 
-# Known abbr drift: maps wrong_abbr → canonical_abbr (for targeted scanning)
-KNOWN_ABBR_DRIFT = {
-    # ai-governance: AGM appears in CANONICAL-ARTEFACTS.md rows; canonical is AIM
-    "AGM": "AIM",
-}
+# Known abbr drift: maps wrong_abbr → canonical_abbr (for targeted scanning).
+# NOTE: AGM is intentionally excluded from this dict.
+# Per operator decision A.2(a) (Sprint AO Wave 2 §A.3):
+#   AGM = canonical INTERNAL stage-prefix convention (metadata.yml, CANONICAL-ARTEFACTS.md,
+#         per-stage workflow prefixes, cross-monitor routing strings in schemas/domain files)
+#   AIM = canonical PUBLIC abbreviation (monitor-registry.json, publisher workflow)
+# Both are ratified legitimate forms; AGM appearing in internal files is NOT drift.
+# PARITY-003 therefore has no AGM→AIM drift to scan for. If AIM is ever replaced
+# with something else in a public-facing context, add a new entry here.
+KNOWN_ABBR_DRIFT: dict[str, str] = {}
 
-# Files where abbr drift is expected and already documented (excluded from PARITY-003 fail)
+# Files where abbr forms are intentional and should not be flagged by PARITY-003.
+# With KNOWN_ABBR_DRIFT empty (AGM is canonical internal per A.2(a)), this list is
+# retained for any future drift entries added to KNOWN_ABBR_DRIFT.
 ABBR_DRIFT_ALLOWLIST_PATTERNS = [
-    # CANONICAL-ARTEFACTS.md contains AGM rows (pre-existing; follow-on drift-fix PR)
-    re.compile(r"CANONICAL-ARTEFACTS\.md"),
-    # metadata.yml files contain lowercase abbr (pre-existing; follow-on drift-fix PR)
-    re.compile(r"pipeline/monitors/[^/]+/metadata\.yml"),
     # DAY_MONITOR in pipeline-dispatcher (intentional slug-as-key, not abbr token)
     re.compile(r"workers/pipeline-dispatcher/src/index\.ts"),
     # AUDIT.md documents drift — don't flag it
