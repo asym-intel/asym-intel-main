@@ -1,0 +1,113 @@
+name: "FIMI & Cognitive Warfare Monitor Interpreter"
+
+# ── Sprint AM (AD-2026-04-26-AM) — FCW Interpreter role ──
+# Cascade-trio wire for FCW. Chained after Reasoner success, upstream
+# of Reviewer. Reads weekly-latest.json + reasoner-latest.json and
+# extracts structured claims via interpret_base.py.
+#
+# No cron schedule — workflow_dispatch only at Sprint AM merge time.
+# Cron adoption is a separate sprint after first-Friday observation.
+# No ANTHROPIC_API_KEY — FCW Interpreter stays on Sonar per D1 §7.1.
+#
+# Topology mirrors AGM interpreter.yml (Sprint 3 Step 1).
+# Paired with asym-intel-internal:pipeline/monitors/fimi-cognitive-warfare/
+# cascade-trio artefacts wired in Sprint AM (AD-2026-04-26-AM).
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'Override model (default: sonar-pro)'
+        required: false
+        default: ''
+      weekly-file:
+        description: 'Override weekly bundle filename (e.g. weekly-2026-05-01.json). Empty = use weekly-latest.json.'
+        required: false
+        default: ''
+  workflow_run:
+    workflows: ["FCW Reasoner — FCW Capability Governance Reasoning"]
+    types:
+      - completed
+
+jobs:
+  interpret:
+    # Gate: only run if upstream reasoner actually succeeded.
+    # workflow_dispatch runs always pass this guard.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/fimi-cognitive-warfare
+          sparse-checkout-cone-mode: false
+
+      - name: Fetch FCW methodology + identity from internal repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          mkdir -p docs/methodology docs/identity
+
+          # Identity card (analytical quality standard)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-FCW.md" \
+            -o docs/identity/fcw-identity.md \
+            && echo "Identity card fetched ($(wc -c < docs/identity/fcw-identity.md) bytes)" \
+            || echo "WARNING: Identity card not found — continuing without it"
+
+          # Methodology (private IP — stays in internal repo)
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/fimi-cognitive-warfare-full.md" \
+            -o docs/methodology/fimi-cognitive-warfare-full.md \
+            && echo "FCW methodology fetched ($(wc -c < docs/methodology/fimi-cognitive-warfare-full.md) bytes)" \
+            || echo "WARNING: Methodology not found — continuing without it"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml
+
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/fimi-cognitive-warfare
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/metadata.yml             pipeline/monitors/fimi-cognitive-warfare/
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/interpreter-prompt.txt   pipeline/monitors/fimi-cognitive-warfare/
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/interpreter-schema.json  pipeline/monitors/fimi-cognitive-warfare/
+
+      - name: Run FCW interpreter (engine dispatch)
+        env:
+          PPLX_API_KEY:         ${{ secrets.PPLX_API_KEY }}
+          GH_TOKEN:             ${{ secrets.GH_TOKEN }}
+          REPO_ROOT:            ${{ github.workspace }}
+          monitor:              fimi-cognitive-warfare
+          SYNTH_MODEL:          ${{ github.event.inputs.model }}
+          WEEKLY_FILE_OVERRIDE: ${{ github.event.inputs.weekly-file }}
+          PYTHONPATH:           internal
+        run: python -m pipeline.engine.interpret_base --monitor fimi-cognitive-warfare
+
+      - name: Commit interpret output
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/fimi-cognitive-warfare/synthesised/
+          git diff --cached --quiet || git commit -m "chore(fcw): interpreter run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
