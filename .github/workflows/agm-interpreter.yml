@@ -93,7 +93,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install requests pyyaml
+        run: pip install requests pyyaml anthropic
 
       # The engine reads bespoke files via paths resolved relative to CWD
       # (public-main root). Stage the internal checkout's bespoke files there.
@@ -108,7 +108,8 @@ jobs:
 
       - name: Run AGM interpreter (engine dispatch)
         env:
-          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN:     ${{ secrets.GH_TOKEN }}
           REPO_ROOT:    ${{ github.workspace }}
           SYNTH_MODEL:  ${{ github.event.inputs.model }}
