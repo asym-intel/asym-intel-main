@@ -78,7 +78,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install requests pyyaml anthropic
+        run: pip install requests pyyaml
 
       - name: Stage bespoke config into expected paths
         run: |
@@ -144,8 +144,7 @@ jobs:
       - name: Run AGM composer (engine dispatch)
         if: steps.disposition.outputs.skip != 'true'
         env:
-          PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
           GH_TOKEN:     ${{ secrets.GH_TOKEN }}
           REPO_ROOT:    ${{ github.workspace }}
           SYNTH_MODEL:  ${{ github.event.inputs.model }}
