@@ -1,0 +1,1269 @@
+{
+  "type": "object",
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": [
+            "fcw-interpret-v1.0"
+          ],
+          "description": "Must be exactly 'fcw-interpret-v1.0'."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "fimi-cognitive-warfare"
+        },
+        "synthesised_at": {
+          "type": "string"
+        },
+        "week_ending": {
+          "type": "string"
+        },
+        "null_signal_week": {
+          "type": "boolean"
+        },
+        "null_signal_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cycle_disposition": {
+          "type": "string",
+          "enum": [
+            "material_change",
+            "null_cycle",
+            "partial_cycle",
+            "error_cycle"
+          ],
+          "description": "Interpreter judgment on the cycle. 'material_change' = at least one module has new content; 'null_cycle' = evidence bundle carries no material change; 'partial_cycle' = mixed; 'error_cycle' = reserved for engine-level failure paths."
+        },
+        "cycle_disposition_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "One-sentence justification. Required for null_cycle and partial_cycle; optional otherwise."
+        },
+        "triple_extraction_manifest": {
+          "type": "object",
+          "description": "Provenance of structured_claims[] extraction.",
+          "properties": {
+            "deterministic_extractions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "llm_fallback_extractions": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "llm_fallback_temperature": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "llm_fallback_timestamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "replay_mode": {
+          "type": "boolean",
+          "description": "Engine-stamped true when WEEKLY_FILE_OVERRIDE was active on the dispatch. Not model-derived."
+        },
+        "replay_window": {
+          "type": "object",
+          "description": "Required iff replay_mode is true. Holds the replay cycle window.",
+          "properties": {
+            "start": {
+              "type": "string",
+              "description": "ISO-8601 date (YYYY-MM-DD). week_ending minus 6 days."
+            },
+            "end": {
+              "type": "string",
+              "description": "ISO-8601 date (YYYY-MM-DD). Copied from the override bundle week_ending."
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ]
+        }
+      }
+    },
+    "lead_signal": {
+      "type": "object",
+      "required": [
+        "headline",
+        "actor",
+        "body",
+        "source_url",
+        "confidence_preliminary"
+      ],
+      "properties": {
+        "headline": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string",
+          "enum": [
+            "RU",
+            "CN",
+            "IR",
+            "GULF",
+            "US",
+            "IL",
+            "COMMERCIAL",
+            "UNKNOWN"
+          ]
+        },
+        "body": {
+          "type": "string"
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "confidence_preliminary": {
+          "type": "string",
+          "enum": [
+            "Confirmed",
+            "High",
+            "Assessed",
+            "Possible"
+          ]
+        },
+        "mf_flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "MF1",
+              "MF2",
+              "MF3",
+              "MF4"
+            ]
+          }
+        }
+      }
+    },
+    "module_0": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        }
+      }
+    },
+    "module_1": {
+      "type": "object",
+      "properties": {
+        "mainstream": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "underweighted": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_2": {
+      "type": "object",
+      "properties": {
+        "campaigns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "operation_name": {
+                "type": "string"
+              },
+              "actor": {
+                "type": "string",
+                "enum": [
+                  "RU",
+                  "CN",
+                  "IR",
+                  "GULF",
+                  "US",
+                  "IL",
+                  "COMMERCIAL",
+                  "UNKNOWN"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "Active",
+                  "Disrupted",
+                  "Dormant",
+                  "Concluded"
+                ]
+              },
+              "status_change": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "attribution_confidence": {
+                "type": "string",
+                "enum": [
+                  "Confirmed",
+                  "High",
+                  "Assessed",
+                  "Possible",
+                  "Unattributed"
+                ]
+              },
+              "mf_flags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "disarm_ttps": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "platform": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              },
+              "target_election": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_tier": {
+                "type": "string",
+                "enum": [
+                  "T1",
+                  "T2",
+                  "T3",
+                  "T4"
+                ]
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "first_documented": {
+                "type": "string"
+              },
+              "last_activity": {
+                "type": "string"
+              },
+              "narrative_persistence": {
+                "type": "boolean"
+              },
+              "narrative_persistence_weeks": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "cross_monitor_relevance": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "module_3": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "actors": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "description": "Exactly six entries — one per primary tracked actor (RU, CN, IR, GULF, US, IL).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "actor": {
+                "type": "string",
+                "enum": [
+                  "RU",
+                  "CN",
+                  "IR",
+                  "GULF",
+                  "US",
+                  "IL"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "Escalating",
+                  "Active",
+                  "Stable",
+                  "Reduced",
+                  "Dormant"
+                ]
+              },
+              "posture": {
+                "type": "string"
+              },
+              "doctrine_note": {
+                "type": "string"
+              },
+              "headline": {
+                "type": "string"
+              },
+              "capability_change": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "eeas_coverage": {
+                "type": "string",
+                "enum": [
+                  "Tracked",
+                  "Partially tracked",
+                  "Not tracked"
+                ]
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "source_tier": {
+                "type": "string"
+              },
+              "changed": {
+                "type": "boolean"
+              },
+              "unchanged_since": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "module_4": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "disclosure_gaps": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_5": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "attribution_log": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_6": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "classification": {
+                "type": "string",
+                "enum": [
+                  "Doctrine shift",
+                  "Capability deployment",
+                  "Strategic pattern",
+                  "Narrative operation",
+                  "Epistemic attack"
+                ]
+              },
+              "headline": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "actors_involved": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "significance": {
+                "type": "string",
+                "enum": [
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              },
+              "source_tier": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "module_7": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "vectors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "vector": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "rating": {
+                "type": "string",
+                "enum": [
+                  "HIGH",
+                  "ELEVATED",
+                  "MODERATE",
+                  "LOW"
+                ]
+              },
+              "level": {
+                "type": "string",
+                "enum": [
+                  "HIGH",
+                  "ELEVATED",
+                  "MODERATE",
+                  "LOW"
+                ]
+              },
+              "color": {
+                "type": "string",
+                "enum": [
+                  "red",
+                  "amber",
+                  "yellow",
+                  "green"
+                ]
+              },
+              "headline": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string"
+              },
+              "changed": {
+                "type": "boolean"
+              },
+              "unchanged_since": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "module_8": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_9": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "digest_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "new_developments": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "no_change": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "friction_analysis": {
+          "type": "string"
+        },
+        "dsa_fimi_status": {
+          "type": "string"
+        }
+      }
+    },
+    "module_10": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "international_frameworks": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "platform_governance": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "civil_society_research": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "governance_gaps": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_11": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "module_12": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "capability_watch": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "module_13": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "structural_trends": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "trend": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "module_14": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "concentration_index": {
+          "type": "object",
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "trend": {
+                    "type": "string"
+                  },
+                  "top_actors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "unchanged_since": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "module_15": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "analyst_movements": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "institutional_developments": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "delta_strip": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "actor_risk_matrix": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "description": "Exactly six entries — one per primary tracked actor (RU, CN, IR, GULF, US, IL).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "actor": {
+            "type": "string",
+            "enum": [
+              "RU",
+              "CN",
+              "IR",
+              "GULF",
+              "US",
+              "IL"
+            ]
+          },
+          "operational_tempo": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "ELEVATED",
+              "MODERATE",
+              "LOW"
+            ]
+          },
+          "attribution_confidence": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "ELEVATED",
+              "MODERATE",
+              "LOW"
+            ]
+          },
+          "platform_reach": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "ELEVATED",
+              "MODERATE",
+              "LOW"
+            ]
+          },
+          "eeas_coverage": {
+            "type": "string",
+            "enum": [
+              "Tracked",
+              "Partially tracked",
+              "Not tracked"
+            ]
+          },
+          "overall_risk": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "ELEVATED",
+              "MODERATE",
+              "LOW"
+            ]
+          },
+          "key_development": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": [
+              "Worsening",
+              "Stable",
+              "Improving"
+            ]
+          }
+        }
+      }
+    },
+    "platform_posture_scorecard": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string"
+          },
+          "transparency_posture": {
+            "type": "string",
+            "enum": [
+              "Leading",
+              "Adequate",
+              "Lagging",
+              "Opaque"
+            ]
+          },
+          "disclosure_cadence": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
+          },
+          "dsa_compliance": {
+            "type": "string",
+            "enum": [
+              "Proactive",
+              "Compliant",
+              "Resistant",
+              "Absent"
+            ]
+          },
+          "key_development": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": [
+              "Improving",
+              "Stable",
+              "Deteriorating"
+            ]
+          }
+        }
+      }
+    },
+    "information_integrity_composite": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "Improving",
+            "Stable",
+            "Deteriorating"
+          ]
+        },
+        "components": {
+          "type": "object",
+          "properties": {
+            "attribution_capacity": {
+              "type": "string"
+            },
+            "platform_transparency": {
+              "type": "string"
+            },
+            "regulatory_coverage": {
+              "type": "string"
+            },
+            "enforcement_capacity": {
+              "type": "string"
+            },
+            "cross_actor_parity": {
+              "type": "string"
+            }
+          }
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "judgment": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string",
+            "enum": [
+              "High",
+              "Assessed",
+              "Possible"
+            ]
+          },
+          "mf_flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "framework_affected": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": [
+              "Worsening",
+              "Stable",
+              "Improving"
+            ]
+          },
+          "source_urls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "cross_monitor_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_monitor": {
+            "type": "string",
+            "enum": [
+              "democratic-integrity",
+              "conflict-escalation",
+              "european-strategic-autonomy",
+              "macro-monitor",
+              "ai-governance",
+              "environmental-risks"
+            ]
+          },
+          "signal": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Electoral FIMI",
+              "Conflict theatre IO",
+              "Hybrid threat",
+              "Economic coercion narrative",
+              "AI-enabled FIMI",
+              "Climate FIMI"
+            ]
+          },
+          "confidence_preliminary": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
+          },
+          "campaign_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "structured_claims": {
+      "type": "array",
+      "description": "Triple store of every factual assertion in this interpretation. Populated by the Interpreter; consumed by the Composer (for claim_trace[] provenance) and the Reviewer gate.",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "entity",
+          "predicate",
+          "value",
+          "evidence_id",
+          "confidence",
+          "source_module"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "pattern": "^fcw-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+            "description": "Stable within a cycle. Format: fcw-int-{ISO-date}-{4-digit-sequence}."
+          },
+          "entity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "predicate": {
+            "type": "string",
+            "minLength": 1
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              }
+            ],
+            "description": "The asserted value. Accept string/number/object/array."
+          },
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "References weekly-research source_id or KB entry_id."
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
+          },
+          "source_module": {
+            "type": "string",
+            "description": "Which module or field the claim first appears in."
+          },
+          "mf_flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "gaps_register": {
+      "type": "array",
+      "description": "Optional. What evidence would improve Possible or Unattributed claims.",
+      "items": {
+        "type": "object",
+        "required": [
+          "gap_id",
+          "description"
+        ],
+        "properties": {
+          "gap_id": {
+            "type": "string",
+            "pattern": "^fcw-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "affected_claims": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "proposed_patches": {
+      "type": "array",
+      "description": "OPTIONAL top-level array naming material-change patches for the Applier. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries 5 required fields per pipeline-doctrine Appendix A.",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule_applied",
+          "evidence_ids",
+          "confidence",
+          "material_change_justification",
+          "target_kb_path"
+        ],
+        "properties": {
+          "rule_applied": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
+          },
+          "material_change_justification": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_kb_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patch_id": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "create",
+              "update",
+              "archive",
+              "carry-forward-verified"
+            ]
+          },
+          "prior_value": {},
+          "new_value": {},
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "_meta",
+    "lead_signal",
+    "module_0",
+    "module_1",
+    "module_2",
+    "module_3",
+    "module_4",
+    "module_5",
+    "module_6",
+    "module_7",
+    "module_8",
+    "module_9",
+    "module_10",
+    "module_11",
+    "module_12",
+    "module_13",
+    "module_14",
+    "module_15",
+    "delta_strip",
+    "actor_risk_matrix",
+    "platform_posture_scorecard",
+    "information_integrity_composite",
+    "key_judgments",
+    "cross_monitor_candidates",
+    "structured_claims"
+  ]
+}

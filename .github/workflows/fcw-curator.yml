@@ -1,0 +1,110 @@
+name: "FIMI & Cognitive Warfare Monitor Curator"
+
+# ── Sprint AM (AD-2026-04-26-AM) — FCW Curator role ──
+# LLM-FREE — deterministic drift detection. Chained after Applier success.
+# Reads interpret-latest.json + chains-latest.json + apply-latest.json,
+# plus prior N cycles' interpret/chains archives, and produces:
+#   - drift-register-YYYY-MM-DD.json (immutable per-cycle)
+#   - drift-register-latest.json (rolling pointer)
+#
+# Four typed triggers at advisory severity only (non-blocking):
+#   T1 — schema-shape change ≥2 in window without methodology bump
+#   T2 — disabled for FCW at Sprint AM (tracked_predicates empty — populate
+#         in follow-up sprint after first material cycle catalogued)
+#   T3 — entity silent drop from registry
+#   T4 — carry-forward rate ≥ 0.80 on a non-null cycle
+#
+# No cron schedule — workflow_dispatch only at Sprint AM merge time.
+# No ANTHROPIC_API_KEY — LLM-free stage.
+# No PPLX_API_KEY — LLM-free stage.
+#
+# Topology mirrors AGM curator.yml (Sprint 3 Step 4, AD-2026-04-23k).
+# Paired with asym-intel-internal:pipeline/monitors/fimi-cognitive-warfare/
+# cascade-trio artefacts wired in Sprint AM (AD-2026-04-26-AM).
+
+on:
+  workflow_dispatch: {}
+  workflow_run:
+    workflows: ["FIMI & Cognitive Warfare Monitor Applier"]
+    types:
+      - completed
+
+jobs:
+  curate:
+    # Gate: only run if upstream applier actually succeeded.
+    # workflow_dispatch runs always pass this guard.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: main
+          # Curator needs prior cycle history to compute T1/T4 windows.
+          # Fetch full history so interpret-YYYY-MM-DD.json / chains-*.json
+          # archives from prior cycles are available.
+          fetch-depth: 0
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/fimi-cognitive-warfare
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/fimi-cognitive-warfare
+          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/metadata.yml \
+                pipeline/monitors/fimi-cognitive-warfare/
+
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          A="pipeline/monitors/fimi-cognitive-warfare/applied/apply-latest.json"
+          I="pipeline/monitors/fimi-cognitive-warfare/synthesised/interpret-latest.json"
+          MISSING=""
+          [ -f "$A" ] || MISSING="${MISSING} apply-latest"
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Curator."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run FCW curator (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:      ${{ github.workspace }}
+          monitor:        fimi-cognitive-warfare
+          PYTHONPATH:     internal
+          CURATOR_RUN_ID: ${{ github.event.workflow_run.id }}
+          GITHUB_SHA:     ${{ github.sha }}
+        run: python -m pipeline.engine.curator_base --monitor fimi-cognitive-warfare
+
+      - name: Commit curator output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add pipeline/monitors/fimi-cognitive-warfare/curator/
+          git diff --cached --quiet || git commit -m "chore(fcw): curator run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FCW Reviewer LLM Response Schema",
+  "description": "Structured-output schema for the FCW Reviewer stage LLM call. The LLM emits ONLY advisory_notes[] (max 3 strings). Verdict, checks, and claim_flags are set deterministically by the rule engine and are NOT LLM-overridable. Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). FCW-specific adaptations: actor_risk_matrix and platform_posture_scorecard replace AGM jurisdiction/lab persistent-state modules; MF-flag array presence is checked in R3 extension; attribution-vs-coordination collapse is a named FCW advisory dimension.",
+  "type": "object",
+  "required": [
+    "advisory_notes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "advisory_notes": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "Optional prose observations for the Composer internal awareness. Each entry <= 500 characters. Emit [] if nothing useful to surface.",
+      "items": {
+        "type": "string",
+        "maxLength": 500
+      }
+    }
+  }
+}
