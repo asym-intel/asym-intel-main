@@ -1,5 +1,16 @@
 name: "AI Governance Monitor Interpreter"
 
+# ── Sprint 3 Step 1 — Interpreter role ──
+# Cron-resumption 2026-04: workflow_run trigger added so Reasoner
+# success auto-chains into Interpreter, extending the cron-dispatched
+# chain (research → reasoner → interpreter via dispatcher; reviewer
+# → composer → applier → curator via downstream workflow_run).
+# Reasoner finishing means both weekly-latest.json and
+# reasoner-latest.json are committed and present — the two artefacts
+# Interpreter reads from `paths.weekly_latest` + `paths.reasoner_latest`.
+# Topology mirrors the Interpreter → Reviewer → Composer → Applier →
+# Curator chain established in Sprint 3.
+
 on:
   workflow_dispatch:
     inputs:
@@ -11,9 +22,16 @@ on:
         description: 'Override weekly bundle filename (e.g. weekly-2026-04-10.json). Empty = use weekly-latest.json. Sprint 3 Step 4a.1.'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["AGM Reasoner — AGM Capability Governance Reasoning"]
+    types:
+      - completed
 
 jobs:
   interpret:
+    # Gate: only run if upstream reasoner actually succeeded.
+    # workflow_dispatch runs always pass this guard.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -22,6 +40,10 @@ jobs:
         uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_TOKEN }}
+          # workflow_run always starts from default branch HEAD; make that
+          # explicit so we see the weekly-latest.json + reasoner-latest.json
+          # the upstream Reasoner job just committed.
+          ref: main
 
       # ── Sprint 3 Step 1 — Interpreter role (structured-claim extraction only) ──
       # ── engine + bespoke config live in internal repo ──
