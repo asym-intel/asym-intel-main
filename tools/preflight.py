@@ -933,6 +933,168 @@ def check_persistent_state_routing(r: Results):
         )
 
 
+def check_chains_provenance_resolution(r: Results):
+    """AD-2026-04-26-AG (G8) — public-boundary provenance chain closure.
+
+    Enforces that every chain in `applied/chains-latest.json` carries an
+    explicit `evidence.source_url_resolution` value drawn from the v1.1
+    enum, and that `null` source_url is only emitted under the two
+    permitted resolutions.
+
+    Rules:
+      G8-001  schema_version gate — only fires when chains _meta declares
+              `aim-chains-v1.1` or later. Pre-v1.1 artefacts skip-with-warn
+              (mirrors PSR-001 "missing artefact" precedent). Cycles emitted
+              by old engine builds are not retroactively v1.1-conformant.
+      G8-002  Every chain.evidence object MUST carry
+              `source_url_resolution`, drawn from the v1.1 enum.
+      G8-003  source_url:null is permitted ONLY under resolutions that
+              structurally explain the absence: `weekly_match_absence`,
+              `persistent_state_module`, `evidence_id_missing`,
+              `evidence_id_not_found_in_weekly`. Any other null is the
+              live failure pattern G8 was raised to close. (Note:
+              `weekly_match` and `cross_monitor_match` MUST carry a populated
+              source_url — the whole point of those branches.)
+      G8-004  Non-AGM monitors with no chains-latest.json skip-with-warn
+              until equalisation lands.
+    """
+    import json as _json
+
+    PERMITTED_RESOLUTIONS = {
+        "weekly_match",
+        "weekly_match_absence",
+        "cross_monitor_match",
+        "persistent_state_module",
+        "evidence_id_missing",
+        "evidence_id_not_found_in_weekly",
+    }
+    NULL_PERMITTED_RESOLUTIONS = {
+        # Each value below names a structural reason source_url is null
+        # by design — not the live failure pattern G8 was raised to close.
+        "weekly_match_absence",            # weekly item itself carries source_url:null (absence claim)
+        "persistent_state_module",         # claim is sourced from internal persistent-state, no upstream URL exists
+        "evidence_id_missing",             # pre-G6+G7 cycle or legacy fallback; resolver cannot match
+        "evidence_id_not_found_in_weekly", # LLM emission drift (observability, not engine failure)
+    }
+    REQUIRED_SCHEMA_PREFIX = "aim-chains-v1."
+    REQUIRED_SCHEMA_MIN_MINOR = 1  # v1.1 introduced source_url_resolution
+
+    for abbr, slug in MONITORS.items():
+        chains_path = (
+            REPO_ROOT
+            / "pipeline"
+            / "monitors"
+            / slug
+            / "applied"
+            / "chains-latest.json"
+        )
+        if not chains_path.exists():
+            # G8-004 — skip-with-warn until equalisation lands.
+            r.warn(
+                f"G8-004:{slug}",
+                f"chains-latest.json absent at {chains_path.relative_to(REPO_ROOT)} "
+                f"— skipping (only AGM is wired pre-equalisation)",
+            )
+            continue
+
+        try:
+            doc = _json.loads(chains_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            r.fail(f"G8-002:{slug}:parse", f"JSON parse failed: {exc}")
+            continue
+
+        meta = doc.get("_meta") or {}
+        schema_version = str(meta.get("schema_version") or "")
+        # G8-001 — schema_version gate.
+        if not schema_version.startswith(REQUIRED_SCHEMA_PREFIX):
+            r.warn(
+                f"G8-001:{slug}",
+                f"chains schema_version {schema_version!r} predates v1.1 "
+                f"(G8 not yet executed for this monitor) — skipping",
+            )
+            continue
+        try:
+            minor = int(schema_version.split(".", 2)[1])
+        except (IndexError, ValueError):
+            r.fail(
+                f"G8-001:{slug}:malformed-schema",
+                f"chains schema_version {schema_version!r} is malformed",
+            )
+            continue
+        if minor < REQUIRED_SCHEMA_MIN_MINOR:
+            r.warn(
+                f"G8-001:{slug}",
+                f"chains schema_version {schema_version!r} predates v1.1 — skipping",
+            )
+            continue
+
+        chains = doc.get("chains") or []
+        if not isinstance(chains, list):
+            r.fail(
+                f"G8-002:{slug}:shape",
+                "`chains` field must be a list",
+            )
+            continue
+
+        missing_resolution = []
+        unknown_resolution = []
+        unexplained_null = []
+        for chain in chains:
+            if not isinstance(chain, dict):
+                continue
+            chain_id = chain.get("chain_id") or "<unknown>"
+            evidence = chain.get("evidence") or {}
+            if not isinstance(evidence, dict):
+                missing_resolution.append(chain_id)
+                continue
+            resolution = evidence.get("source_url_resolution")
+            source_url = evidence.get("source_url")
+            # G8-002
+            if resolution is None:
+                missing_resolution.append(chain_id)
+                continue
+            if resolution not in PERMITTED_RESOLUTIONS:
+                unknown_resolution.append(f"{chain_id}:{resolution}")
+                continue
+            # G8-003
+            if source_url is None and resolution not in NULL_PERMITTED_RESOLUTIONS:
+                unexplained_null.append(f"{chain_id}:{resolution}")
+
+        if missing_resolution:
+            r.fail(
+                f"G8-002:{slug}:resolution-missing",
+                f"{len(missing_resolution)} chain(s) lack "
+                f"`evidence.source_url_resolution`: "
+                + ", ".join(missing_resolution[:5])
+                + (" …" if len(missing_resolution) > 5 else ""),
+            )
+        if unknown_resolution:
+            r.fail(
+                f"G8-002:{slug}:resolution-enum",
+                f"{len(unknown_resolution)} chain(s) carry resolution outside the v1.1 enum: "
+                + ", ".join(unknown_resolution[:5])
+                + (" …" if len(unknown_resolution) > 5 else ""),
+            )
+        if unexplained_null:
+            r.fail(
+                f"G8-003:{slug}:unexplained-null",
+                f"{len(unexplained_null)} chain(s) emit source_url:null under a resolution "
+                f"that does not permit null "
+                f"(permitted: {', '.join(sorted(NULL_PERMITTED_RESOLUTIONS))}): "
+                + ", ".join(unexplained_null[:5])
+                + (" …" if len(unexplained_null) > 5 else ""),
+            )
+        if (
+            not missing_resolution
+            and not unknown_resolution
+            and not unexplained_null
+        ):
+            r.ok(
+                f"G8:{slug}:chains-resolved",
+                f"{len(chains)} chain(s), schema {schema_version}, all resolutions valid",
+            )
+
+
 CHECK_GROUPS = {
     "workflows": check_workflows,
     "preambles": check_prompt_preambles,
@@ -948,6 +1110,7 @@ CHECK_GROUPS = {
     "publishers": check_publishers,
     "adapters": check_adapters,
     "persistent_state_routing": check_persistent_state_routing,
+    "chains_provenance_resolution": check_chains_provenance_resolution,
 }
 
 
