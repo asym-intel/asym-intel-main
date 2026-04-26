@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "schema_version": "aim-apply-v1.0",
+    "monitor_slug": "environmental-risks",
+    "applied_at": "2026-04-26T20:28:11Z",
+    "applier_model": null,
+    "applier_deterministic": true,
+    "cycle_disposition": "material_change",
+    "applier_flags": [
+      "interpret_schema_mismatch:erm-interpret-v1.0!=aim-interpret-v1.0",
+      "compose_schema_mismatch:erm-compose-v1.0!=aim-compose-v1.0",
+      "compose_composed_at_null",
+      "persistent_state_writeback_not_wired"
+    ],
+    "applier_error": false,
+    "applier_error_reason": null
+  },
+  "cycle_id": "erm-2026-04-26",
+  "methodology_version": "environmental-risks-methodology-2026-Q2",
+  "week_ending": "2026-05-02",
+  "week_ending_source": "interpret._meta.week_ending",
+  "inputs": {
+    "interpret": {
+      "path": "pipeline/monitors/environmental-risks/synthesised/interpret-latest.json",
+      "content_sha1": "5a59f80a6d8badcabb2045ce1bb8047150e3fda0",
+      "schema_version": "erm-interpret-v1.0",
+      "claim_count": 42,
+      "null_signal_week": false,
+      "triple_extraction_manifest": {
+        "deterministic_extractions": 42,
+        "llm_fallback_extractions": 0,
+        "llm_fallback_model": null,
+        "llm_fallback_temperature": null,
+        "llm_fallback_timestamp": null
+      }
+    },
+    "review": {
+      "path": "pipeline/monitors/environmental-risks/synthesised/review-latest.json",
+      "content_sha1": "7dbf5478314b33a04bf7738f0da65e9d177fa6c1",
+      "schema_version": "aim-review-v1.0",
+      "verdict": "hold-for-review",
+      "verdict_legacy": "REJECT",
+      "verdict_reason": "hard-invariant FAIL: ['R1']",
+      "check_summary": {
+        "PASS": 4,
+        "SKIP": 1,
+        "FAIL": 2
+      },
+      "advisory_note_count": 3,
+      "claim_flag_count": 0
+    },
+    "compose": {
+      "path": "pipeline/monitors/environmental-risks/synthesised/compose-latest.json",
+      "content_sha1": "97cc177ab39ccb800518c6fec703b9f7c1f34d54",
+      "schema_version": "erm-compose-v1.0",
+      "composed_at": null,
+      "claim_trace_count": 0,
+      "composer_error": false,
+      "reviewed_by": {
+        "verdict": "hold-for-review",
+        "reviewer_model": "sonar-pro",
+        "reviewed_at": "2026-04-26T20:27:26.746246+00:00",
+        "review_schema_version": "aim-review-v1.0"
+      }
+    }
+  },
+  "patches_applied": [],
+  "patches_rejected": [],
+  "patches_deferred": [],
+  "patches_looped_back": [],
+  "patches_apply_failed": [],
+  "patches_actually_applied": [],
+  "persistent_state_snapshot": null,
+  "publication": {
+    "ready_to_publish": false,
+    "hold_reason": "review_verdict:hold-for-review",
+    "publisher_artefacts": {
+      "weekly_brief_path": "content/monitors/environmental-risks/2026-05-02-weekly-brief.md",
+      "report_latest_path": "static/monitors/environmental-risks/data/report-latest.json"
+    }
+  },
+  "chains_artefact": {
+    "path": "pipeline/monitors/environmental-risks/applied/chains-latest.json",
+    "schema_version": "aim-chains-v1.1",
+    "chain_count": 42
+  },
+  "provenance": {
+    "applier_commit_sha": null
+  }
+}
