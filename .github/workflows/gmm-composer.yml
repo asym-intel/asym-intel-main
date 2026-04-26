@@ -1,10 +1,9 @@
 name: "Global Macro Monitor Composer"
 
-# ── Sprint AM (AD-2026-04-26-AM) — GMM Composer role ──
+# ── Sprint AN (AD-2026-04-26-AN) — GMM Composer role ──
 # Cascade-trio wire for Global Macro Monitor (GMM). Mirrors AGM topology.
-# workflow_dispatch only at Sprint AM merge time — cron chaining deferred
-# to a separate sprint after first-Friday observation lands clean
-# (AD-AM §"What this AD does NOT do" item 6).
+# Sprint AN: added workflow_run trigger on GMM Reviewer so cron-dispatched
+# runs cascade end-to-end (Reasoner → Interpreter → Reviewer → Composer).
 # Sonar-only per D1 §7.1 (no Anthropic env var injection).
 #
 # Reviewer verdict handling:
@@ -18,9 +17,14 @@ on:
         description: 'Override composer model (default: sonar-pro)'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["Global Macro Monitor Reviewer"]
+    types:
+      - completed
 
 jobs:
   compose:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
