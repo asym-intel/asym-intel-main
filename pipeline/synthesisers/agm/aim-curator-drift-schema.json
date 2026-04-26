@@ -72,6 +72,46 @@
         "cycle_disposition": {
           "type": ["string", "null"],
           "enum": ["normal_cycle", "material_change", "null_cycle", null]
+        },
+        "methodology_drift_status": {
+          "type": "object",
+          "description": "G11 (AD-2026-04-26-AJ) — deterministic methodology-vs-persistent-state drift check. Always emitted; `uninitialised: true` when persistent-state lacks _meta.required_modules; `uninitialised: false` with full live fields otherwise. Curator never raises on this field.",
+          "oneOf": [
+            {
+              "description": "Uninitialised case: persistent-state missing or lacks _meta.required_modules.",
+              "required": ["uninitialised", "drift_present"],
+              "additionalProperties": false,
+              "properties": {
+                "uninitialised": { "const": true },
+                "drift_present": { "type": "null" },
+                "reason": { "type": "string" }
+              }
+            },
+            {
+              "description": "Live case: persistent-state declared _meta.required_modules; full comparison performed.",
+              "required": [
+                "uninitialised",
+                "methodology_version_active",
+                "methodology_version_declared_in_state",
+                "version_match",
+                "required_modules_declared",
+                "required_modules_present",
+                "missing_modules",
+                "drift_present"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "uninitialised": { "const": false },
+                "methodology_version_active": { "type": ["string", "null"] },
+                "methodology_version_declared_in_state": { "type": ["string", "null"] },
+                "version_match": { "type": "boolean" },
+                "required_modules_declared": { "type": "integer", "minimum": 0 },
+                "required_modules_present": { "type": "integer", "minimum": 0 },
+                "missing_modules": { "type": "array", "items": { "type": "string" } },
+                "drift_present": { "type": "boolean" }
+              }
+            }
+          ]
         }
       }
     },
