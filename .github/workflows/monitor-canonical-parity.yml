@@ -53,7 +53,6 @@ jobs:
       - name: Run PARITY-003 monitor identifier check
         # Advisory mode during warn phase (pending metadata.yml drift-fix PR).
         # Remove continue-on-error to promote to blocking gate.
-        continue-on-error: true
         run: |
           python3 tools/parity_monitor_identifiers.py --verbose \
             --canonical /tmp/asym-intel-parity-cache/asym-intel-internal/pipeline/engine/canonical_monitors.yml
