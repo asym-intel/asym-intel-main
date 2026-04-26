@@ -1,9 +1,8 @@
 name: "European Strategic Autonomy Monitor Interpreter"
 
-# ── Sprint AM — ESA Interpreter role ──
-# workflow_dispatch-only at Sprint AM merge time per AD-2026-04-26-AM
-# §"What this AD does NOT do" item 6. Cron chaining is a separate sprint
-# after first-Friday observation lands clean.
+# ── Sprint AN — ESA Interpreter role — AD-2026-04-26-AN ──
+# workflow_run trigger added (Sprint AN WS-AN-1) so Reasoner success
+# auto-chains into Interpreter. Mirrors AGM topology.
 # Reads weekly-latest.json + reasoner-latest.json (via paths.weekly_latest
 # + paths.reasoner_latest in metadata) and emits interpret-latest.json.
 # Topology mirrors AGM interpreter; emits_patches: false for ESA initially
@@ -20,10 +19,14 @@ on:
         description: 'Override weekly bundle filename (e.g. weekly-2026-04-23.json). Empty = use weekly-latest.json.'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["ESA Reasoner — ESA Domain Autonomy Reasoning"]
+    types:
+      - completed
 
 jobs:
   interpret:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
