@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "schema_version": "aim-review-v1.0",
+    "reviewer_model": "sonar-pro",
+    "monitor_slug": "european-strategic-autonomy",
+    "reviewed_at": "2026-04-26T20:25:33.999625+00:00",
+    "reviewed_from": "aim-interpret-v1.0",
+    "reviewed_from_file": "interpret-latest.json",
+    "interpret_meta": {
+      "null_signal_week": false,
+      "cycle_disposition": "material_change",
+      "week_ending": "2026-05-02"
+    },
+    "reviewer_flags": [],
+    "reviewer_error": false,
+    "reviewer_error_reason": null,
+    "independence_mechanism": {
+      "rule_engine_verdict_is_llm_independent": true
+    }
+  },
+  "verdict": "hold-for-review",
+  "verdict_legacy": "REJECT",
+  "verdict_reason": "hard-invariant FAIL: ['R1']",
+  "checks": [
+    {
+      "check_id": "R1",
+      "name": "schema_version == aim-interpret-v1.0",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "schema_version='esa-interpret-v1.0' (expected 'aim-interpret-v1.0')"
+    },
+    {
+      "check_id": "R2",
+      "name": "_meta.cycle_disposition in enum",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "cycle_disposition=material_change"
+    },
+    {
+      "check_id": "R3",
+      "name": "structured_claims[] shape integrity",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "all 54 claims carry 8 required keys"
+    },
+    {
+      "check_id": "R4",
+      "name": "evidence_id non-empty on every claim",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "all 54 claims carry evidence_id"
+    },
+    {
+      "check_id": "R5",
+      "name": "gaps_register[] non-empty when null_signal_week",
+      "result": "SKIP",
+      "disposition_aware_skip": true,
+      "detail": "skipped — null_signal_week is false"
+    },
+    {
+      "check_id": "R6",
+      "name": "triple_extraction_manifest self-consistent",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "det(42) + llm(3) = 45 != claims(54)"
+    },
+    {
+      "check_id": "R7",
+      "name": "persistent-state modules non-empty",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "empty modules: ['jurisdiction_risk_matrix', 'lab_posture_scorecard']"
+    }
+  ],
+  "claim_flags": [],
+  "advisory_notes": [
+    "Rule engine R1/R7 failures due to legacy AGM bindings checking 'aim-interpret-v1.0' and AGM modules instead of ESA's 'esa-interpret-v1.0', member_state_risk_matrix (present, covers HU/GE/SK/RS/AT/CY), actor_posture_scorecard (present, covers RU/CN/US/IL).",
+    "R6 manifest inconsistency: det+llm=45 but claims=54; Composer should note potential under-extraction.",
+    "Cross-module alignment strong: module_4 Russian gas LOW syncs with module_6 REPowerEU milestone and module_7 Sovereignty Gap improving; module_14 covers all 4 actors in dependency_index despite thin items[]."
+  ],
+  "patch_verdicts": []
+}
