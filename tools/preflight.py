@@ -948,10 +948,13 @@ def check_chains_provenance_resolution(r: Results):
               by old engine builds are not retroactively v1.1-conformant.
       G8-002  Every chain.evidence object MUST carry
               `source_url_resolution`, drawn from the v1.1 enum.
-      G8-003  source_url:null is permitted ONLY under resolutions
-              `weekly_match_absence`, `evidence_id_missing`,
+      G8-003  source_url:null is permitted ONLY under resolutions that
+              structurally explain the absence: `weekly_match_absence`,
+              `persistent_state_module`, `evidence_id_missing`,
               `evidence_id_not_found_in_weekly`. Any other null is the
-              live failure pattern G8 was raised to close.
+              live failure pattern G8 was raised to close. (Note:
+              `weekly_match` and `cross_monitor_match` MUST carry a populated
+              source_url — the whole point of those branches.)
       G8-004  Non-AGM monitors with no chains-latest.json skip-with-warn
               until equalisation lands.
     """
@@ -966,9 +969,12 @@ def check_chains_provenance_resolution(r: Results):
         "evidence_id_not_found_in_weekly",
     }
     NULL_PERMITTED_RESOLUTIONS = {
-        "weekly_match_absence",
-        "evidence_id_missing",
-        "evidence_id_not_found_in_weekly",
+        # Each value below names a structural reason source_url is null
+        # by design — not the live failure pattern G8 was raised to close.
+        "weekly_match_absence",            # weekly item itself carries source_url:null (absence claim)
+        "persistent_state_module",         # claim is sourced from internal persistent-state, no upstream URL exists
+        "evidence_id_missing",             # pre-G6+G7 cycle or legacy fallback; resolver cannot match
+        "evidence_id_not_found_in_weekly", # LLM emission drift (observability, not engine failure)
     }
     REQUIRED_SCHEMA_PREFIX = "aim-chains-v1."
     REQUIRED_SCHEMA_MIN_MINOR = 1  # v1.1 introduced source_url_resolution
