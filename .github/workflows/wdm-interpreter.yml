@@ -1,11 +1,14 @@
 name: "WDM Interpreter"
 
-# ── Sprint AM — WDM Interpreter role ──
+# ── Sprint AN — WDM Interpreter role ──
 # Chained after WDM Reasoner success, extending the cron-dispatched
 # chain. Reads weekly-latest.json + reasoner-latest.json (the two
 # artefacts the Interpreter consumes via paths.weekly_latest +
 # paths.reasoner_latest) and produces interpret-latest.json.
-# Topology mirrors AGM Interpreter (AD-2026-04-26-AM).
+# Topology mirrors AGM Interpreter (AD-2026-04-26-AN).
+# Sprint AN adds workflow_run trigger on WDM Reasoner so cron-dispatched
+# WDM runs cascade automatically: Reasoner → Interpreter → Reviewer →
+# Composer → Applier → Curator end-to-end.
 # WDM publishes Monday 06:00 UTC (cron-dispatched separately).
 
 on:
@@ -19,9 +22,16 @@ on:
         description: 'Override weekly bundle filename (e.g. weekly-2026-04-28.json). Empty = use weekly-latest.json.'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["WDM Reasoner — Deterioration Pattern Analysis"]
+    types:
+      - completed
 
 jobs:
   interpret:
+    # Gate: only run if upstream reasoner actually succeeded.
+    # workflow_dispatch runs always pass this guard.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
