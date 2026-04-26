@@ -93,7 +93,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install requests pyyaml
+        run: pip install requests pyyaml anthropic
 
       # The engine reads bespoke files via paths resolved relative to CWD
       # (public-main root). Stage the internal checkout's bespoke files there.
@@ -108,16 +108,17 @@ jobs:
 
       - name: Run AGM interpreter (engine dispatch)
         env:
-          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:     ${{ secrets.GH_TOKEN }}
-          REPO_ROOT:    ${{ github.workspace }}
-          SYNTH_MODEL:  ${{ github.event.inputs.model }}
+          PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN:          ${{ secrets.GH_TOKEN }}
+          REPO_ROOT:         ${{ github.workspace }}
+          SYNTH_MODEL:       ${{ github.event.inputs.model }}
           # Sprint 3 Step 4a.1 — weekly-file override passthrough. When the
           # dispatch input `weekly-file` is populated, the engine resolves
           # the named bundle inside pipeline/monitors/{slug}/weekly/ and
           # reads it instead of weekly-latest.json. Empty = default behaviour.
           WEEKLY_FILE_OVERRIDE: ${{ github.event.inputs.weekly-file }}
-          PYTHONPATH:   internal
+          PYTHONPATH:        internal
         run: python -m pipeline.engine.interpret_base --monitor ai-governance
 
       - name: Commit interpret output
