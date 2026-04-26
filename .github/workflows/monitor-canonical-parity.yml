@@ -1,0 +1,59 @@
+# PARITY-003 — Monitor identifier canonical check (asym-intel-main).
+# Mirrors the internal workflow. Fetches canonical_monitors.yml from
+# asym-intel-internal (requires ENGINE_INTERNAL_READ_TOKEN secret).
+#
+# Reference: Sprint AO BRIEF #6 (step-ao-monitor-canonical), AD-2026-04-26-AO §3.
+# Script: tools/parity_monitor_identifiers.py
+#
+# Gate tier: advisory (warn-mode) on first merge; promote to blocking after
+# metadata.yml drift-fix PR lands (Sprint AO BRIEF #6 escalation).
+
+name: Monitor Canonical Parity — PARITY-003
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/parity_monitor_identifiers.py'
+      - '.github/workflows/monitor-canonical-parity.yml'
+      - 'static/monitors/**'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/parity_monitor_identifiers.py'
+      - '.github/workflows/monitor-canonical-parity.yml'
+      - 'static/monitors/**'
+  workflow_dispatch:
+
+jobs:
+  parity-003:
+    name: PARITY-003 Monitor Canonical
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Clone asym-intel-internal (for canonical_monitors.yml)
+        env:
+          GH_TOKEN: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+        run: |
+          mkdir -p /tmp/asym-intel-parity-cache
+          gh repo clone asym-intel/asym-intel-internal \
+            /tmp/asym-intel-parity-cache/asym-intel-internal \
+            -- --depth=1 --quiet
+
+      - name: Run PARITY-003 monitor identifier check
+        # Advisory mode during warn phase (pending metadata.yml drift-fix PR).
+        # Remove continue-on-error to promote to blocking gate.
+        continue-on-error: true
+        run: |
+          python3 tools/parity_monitor_identifiers.py --verbose \
+            --canonical /tmp/asym-intel-parity-cache/asym-intel-internal/pipeline/engine/canonical_monitors.yml
