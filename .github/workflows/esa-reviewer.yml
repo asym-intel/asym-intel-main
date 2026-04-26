@@ -1,9 +1,8 @@
 name: "European Strategic Autonomy Monitor Reviewer"
 
-# ── Sprint AM — ESA Reviewer role ──
-# workflow_dispatch-only at Sprint AM merge time per AD-2026-04-26-AM
-# §"What this AD does NOT do" item 6. Cron chaining is a separate sprint
-# after first-Friday observation lands clean.
+# ── Sprint AN — ESA Reviewer role — AD-2026-04-26-AN ──
+# workflow_run trigger added (Sprint AN WS-AN-1) so Interpreter success
+# auto-chains into Reviewer. Mirrors AGM topology.
 # Reads interpret-latest.json and produces review-latest.json with a
 # deterministic verdict (rule engine R1–R7 in review_base.py) plus
 # LLM-advisory notes[]. Topology mirrors AGM reviewer.
@@ -21,10 +20,14 @@ on:
         description: 'Skip LLM call (rule engine only) — "1" to enable'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["European Strategic Autonomy Monitor Interpreter"]
+    types:
+      - completed
 
 jobs:
   review:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
