@@ -1,12 +1,9 @@
 name: "Environmental Risks Monitor Reviewer"
 
-# ── Sprint AM — ERM Reviewer role ──
-# workflow_dispatch only at Sprint AM merge time per AD-2026-04-26-AM
-# §"What this AD does NOT do" item 6. Cron-resumption and workflow_run
-# chaining to be added in a follow-up sprint after first-Friday
-# observation lands clean.
-#
-# Mirrors AGM reviewer workflow structure verbatim (AD-2026-04-26-AM).
+# ── Sprint AN — ERM Reviewer role ── AD-2026-04-26-AN
+# workflow_run trigger on ERM Interpreter added (Sprint AN, step-an-erm).
+# Mirrors AGM reviewer topology: workflow_run fires on Interpreter success;
+# workflow_dispatch always passes the job guard.
 # Independence mechanism: rule-engine verdict is LLM-independent (R1–R7).
 # No ANTHROPIC_API_KEY — stays on Sonar per D1 §7.1.
 
@@ -21,9 +18,16 @@ on:
         description: 'Skip LLM call (rule engine only) — "1" to enable'
         required: false
         default: ''
+  workflow_run:
+    workflows: ["Environmental Risks Monitor Interpreter"]
+    types:
+      - completed
 
 jobs:
   review:
+    # Gate: only run if upstream interpreter actually succeeded.
+    # workflow_dispatch runs always pass this guard.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
