@@ -1,0 +1,88 @@
+name: "Global Macro Monitor Applier"
+
+# ── Sprint AM (AD-2026-04-26-AM) — GMM Applier role ──
+# Cascade-trio wire for Global Macro Monitor (GMM). Mirrors AGM topology.
+# workflow_dispatch only at Sprint AM merge time — cron chaining deferred
+# to a separate sprint after first-Friday observation lands clean
+# (AD-AM §"What this AD does NOT do" item 6).
+# LLM-FREE — deterministic stitching only (design E6). No PPLX_API_KEY needed.
+# Triggered by Composer via explicit gh workflow run (chain-depth reset).
+# Mirrors AGM applier 2026-04-26 amendment: workflow_run trigger removed.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  apply:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.GH_TOKEN }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/monitors/macro-monitor
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/macro-monitor
+          cp -v internal/pipeline/monitors/macro-monitor/metadata.yml \
+                pipeline/monitors/macro-monitor/
+
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          I="pipeline/monitors/macro-monitor/synthesised/interpret-latest.json"
+          R="pipeline/monitors/macro-monitor/synthesised/review-latest.json"
+          C="pipeline/monitors/macro-monitor/synthesised/compose-latest.json"
+          MISSING=""
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          [ -f "$R" ] || MISSING="${MISSING} review-latest"
+          [ -f "$C" ] || MISSING="${MISSING} compose-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Applier."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run GMM applier (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:  ${{ github.workspace }}
+          monitor:    macro-monitor
+          PYTHONPATH: internal
+        run: python -m pipeline.engine.apply_base --monitor macro-monitor
+
+      - name: Commit applier output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          rm -f pipeline/monitors/macro-monitor/applied/apply-debug-*.json
+          git add pipeline/monitors/macro-monitor/applied/
+          git diff --cached --quiet || git commit -m "chore(gmm): applier run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
