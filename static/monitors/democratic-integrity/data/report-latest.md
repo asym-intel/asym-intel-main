@@ -1,6 +1,6 @@
-# World Democracy Monitor — Issue 11
+# World Democracy Monitor — Issue 12
 
-**W/E 20 April 2026** | Published 2026-04-20T06:00:00Z
+**W/E 27 April 2026** | Published 2026-04-27T06:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -12,39 +12,43 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**Hungary Fidesz institutional capture reinforced in analysis; USA norm erosion noted**
+**V Dem downgrades United States to electoral democracy for first time in 50 years**
 
 Confidence: N/A
 Actor: N/A
-Source: https://democratic-erosion.org/2026/04/19/the-democratic-unraveling-of-hungary/
+Source: https://en.wikipedia.org/wiki/Democratic_backsliding_in_the_United_States
 
 ## Key Judgments
 
-1. **Hungary exemplifies autocratisation from within via institutional capture**
-   - Confidence: Assessed
+1. **United States has crossed threshold into electoral democracy status with structural risks to multiple democratic pillars**
+   - Confidence: High
    - Trajectory: Declining
 
 ## Weekly Brief
 
 ## Lead Signal
-Hungary's democratic institutions face entrenched capture under Viktor Orban and Fidesz, as detailed in a Democratic Erosion Consortium analysis published April 19, 2026. Since 2010, constitutional changes have reshaped media oversight, the judiciary, and electoral laws, enabling Fidesz control over approximately 80 percent of the media landscape and resulting in biased coverage disadvantaging opposition parties. Civil liberties have eroded through government influence on education, university budgets, and academic freedom, with Freedom House rating Hungary as partly free at 24 out of 40 political rights and 41 out of 60 civil liberties on a declining trajectory. V-Dem Dataset v16 anchors Hungary's LDI at approximately 0.28 with active electoral regime transition status, indicating ongoing autocratisation though with a 12 to 18 month data lag.
 
-This development reinforces Hungary's preliminary severity score of 8.5, driven by steep LDI trajectory, broad institutional breadth under attack across judiciary, press, and civil society, moderate repression, and weak resilience. The pattern aligns with structural autocratisation processes rather than sudden ruptures, serving as a template for executive overreach in Europe.
+The V Dem Institute 2026 democracy report marks a historic downgrade for the United States, classifying it as an electoral democracy rather than a liberal democracy for the first time in over 50 years.[1] This assessment reflects unprecedented speed of democratic dismantlement in modern history, representing a structural shift with profound implications for global democratic leadership and institutional resilience.[1] The United States health status assessed as electoral democracy carries confirmed confidence, signaling crossing of a critical threshold into electoral democracy status with structural risks to multiple democratic pillars.[1][kj-001]
+
+This lead signal anchors a week of material change across the democratic integrity monitor, driven by 12 developments across 8 pillars with 6+ corroborated sources meeting confirmed tier standards. The democracy health composite score stands at 0.45 with deteriorating direction, noting United States democratic health deteriorating across multiple pillars with electoral integrity at highest risk level. Erosion severity rated at 9.2 underscores the depth of this backsliding, while key developments like advancing SAVE America Act and over 500 threats against federal judges amplify the urgency.[2][4][5]
 
 ## Other Developments
-**USA Norm Erosion.** United States reports highlight democratic decline linked to Donald Trump influence, with social media fostering silence through fear amid institutional weakening. V-Dem LDI stands at 0.57 with active autocratisation, affecting civil society and press pillars at preliminary severity 6.5. Reasoner flags need for 2026 verification due to data lag, holding confidence at Assessed.
 
-**V-Dem Trajectories and Severity Gradient.** No rapid decay promotions this week; Hungary and USA entries initialized from weekly research with single Tier 5 sourcing preventing Confirmed status. Reasoner recommends unchanged absent persistent baselines and multi-source corroboration.
+**SAVE America Act advances through Congress.** The SAVE America Act progresses through Congress, creating new electoral integrity risks through structural risk of mid cycle electoral engineering via voter roll purges and mail in ballot restrictions.[module_2] This ties directly to United States electoral administration integrity at highest risk level due to SAVE America Act and partisan interference, assessed with high confidence and marked as changed.[module_7]
 
-**Legislative Watch and Autocratic Export.** No new entries or mimicry chain extensions detected; existing chains stable per reasoner.
+**Judicial threats escalate dramatically.** Over 500 threats against federal judges represent a confirmed development, contributing to deteriorating trajectory across institutions like the Constitutional Court, where independence posture remains adequate but faces impeachment threats.[4][institutional_health_scorecard] This creates a chilling effect on electoral integrity alongside stealth flag of escalating threats against election officials and judges.[module_4]
 
-**Institutional Pulse and Electoral Watch.** Zero institutional events or elections within 90 days; no FIMI risks flagged.
+**Press freedom faces new restrictions.** United States press freedom status assessed as with restrictions, confirmed, aligns with press sector independence posture compromised, transparency low, and accountability engagement resistant, exacerbated by FBI Director suing The Atlantic escalating press intimidation.[3][institutional_health_scorecard] This development heightens risks in the information environment critical to democratic processes.
+
+**Institutional health deteriorates broadly.** The institutional health scorecard reveals compromised independence posture for Electoral Commission, Civil Society sector, and Press sector, all with low transparency and resistant accountability engagement, trajectories deteriorating amid key developments like SAVE America Act and judicial threats.[institutional_health_scorecard] Jurisdiction risk matrix rates United States overall risk as high with low integrity readiness, medium resilience capacity, and deteriorating trajectory.[jurisdiction_risk_matrix]
 
 ## Cross-Monitor Connections
-Hungary signals link to esa for EU backsliding risks via media capture and judicial erosion, per reasoner cross-monitor flag at MEDIUM urgency referencing WDM-W-2026-04-25-001. USA norm violations show potential fimi-cognitive-warfare adjacency if external amplification confirmed, though no direct FCW signals this week.
+
+This week findings link directly to the fimi-cognitive-warfare monitor, where United States democratic erosion creates vulnerability to foreign influence operations, typed as electoral FIMI with medium confidence preliminary.[cross_monitor_candidates] The V Dem downgrade and electoral administration capture risks amplify exposure to cognitive warfare tactics targeting compromised electoral integrity and institutional health. Patterns of accelerating democratic erosion in established democracies, with the United States downgrade as critical threshold, further intersect with conflict-democracy nexus signals in scem monitor and economic stress accelerants in gmm monitor, though specific linkages await further evidence.[module_13]
 
 ## Outlook
-Monitor Hungary for Tier 1-2 corroboration on judicial and media developments, particularly Venice Commission or OSCE updates. Verify USA 2026 events against primary sources to resolve V-Dem lag friction. Scout Sub-Saharan Africa and Latin America per requirements, as no coverage this week.
+
+Next week watch implementation status of SAVE America Act provisions to assess full electoral integrity impact, as flagged in gaps register.[gaps_register] Monitor judicial threats and press intimidation for escalation, alongside 2026-11-03 United States Presidential election cycle events that could crystallize mid cycle electoral engineering risks.[module_2] Any material advancement in these areas would trigger patch operations updating knowledge base paths like jurisdiction health status, building on this cycle proposed patches shifting from liberal democracy to electoral democracy.[proposed_patches]
 
 ## Cross-Monitor Flags
 
@@ -56,6 +60,7 @@ Monitor Hungary for Tier 1-2 corroboration on judicial and media developments, p
 - **Italy UK new ERT flags impact EU democratic norms** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
 - **US institutional capture enables electoral FIMI ops** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
 - **Hungary institutional capture risks EU norms** (esa) — Active — NEW
+- **United States democratic erosion creates vulnerability to foreign influence operations** (fimi-cognitive-warfare) — Active — NEW
 
 ---
 
