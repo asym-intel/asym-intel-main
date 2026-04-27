@@ -9,6 +9,17 @@ on:
       - 'docs/**'
       - '.github/workflows/**'
       - 'publishing-workflow.md'
+      # S5 phase 1 Fix 4: publisher-bot data writes don't need a fresh
+      # build/deploy. These dirs are data-only JSON outputs; layouts and
+      # engine code live elsewhere (pipeline/engine/, layouts/, assets/).
+      # Note: real dir name is `applied/` (past tense), not `applier/` as
+      # in the AD prose — reconciled to actual repo state.
+      - 'pipeline/monitors/**/curator/**'
+      - 'pipeline/monitors/**/reasoner/**'
+      - 'pipeline/monitors/**/synthesised/**'
+      - 'pipeline/monitors/**/applied/**'
+      - 'pipeline/monitors/**/daily/**'
+      - 'pipeline/monitors/**/weekly/**'
   workflow_dispatch:
 
 env:
