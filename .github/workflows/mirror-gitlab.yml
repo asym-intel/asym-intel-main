@@ -2,7 +2,10 @@ name: Mirror to GitLab
 
 on:
   push:
-    branches: ["**"]
+    # S5 phase 1 Fix 3: only mirror main + staging branch pushes.
+    # Tags continue to mirror so releases stay in sync. Feature/PR
+    # branches don't need mirroring — they're transient.
+    branches: [main, staging]
     tags: ["**"]
   delete:
 
