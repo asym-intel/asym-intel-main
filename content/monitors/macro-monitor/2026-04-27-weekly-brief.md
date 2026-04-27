@@ -1,42 +1,12 @@
-# Global Macro Monitor — Issue 9
-
-**W/E 27 April 2026** | Published 2026-04-27T08:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**ECB President Lagarde warns Strait of Hormuz closure represents largest oil supply disruption in history amid relentless shock cascade**
-
-System stress: GREEN — No systemic stress
-Direction: Stable
-Source: https://www.ecb.europa.eu/press/key/date/2026/html/ecb.sp260420~cdf674023e.en.html
-
-## Key Judgments
-
-1. **Tariff shock has transitioned from uncertainty to structural competitiveness drag**
-   - Confidence: High
-   - Trajectory: Deteriorating
-
-2. **EU-Mercosur agreement accelerates trade realignment amid US tariff pressures**
-   - Confidence: High
-   - Trajectory: Deteriorating
-
-3. **Hormuz oil shock remains unresolved driver amplifying stagflation**
-   - Confidence: High
-   - Trajectory: Deteriorating
-
-4. **Three SA indicators corroborate CRISIS regime without regime change**
-   - Confidence: High
-   - Trajectory: Stable
-
-## Weekly Brief
+title: "Global Macro Monitor — W/E 27 April 2026"
+date: 2026-04-27T08:00:00Z
+summary: ""
+draft: false
+monitor: "macro-monitor"
+brief_sources:
+  - url: "https://www.ecb.europa.eu/press/key/date/2026/html/ecb.sp260420~cdf674023e.en.html"
+---
 
 ## Lead Signal
 
@@ -63,41 +33,3 @@ This week macro signals link to ESA via Turnberry deal and Parliament vote locki
 ## Outlook
 
 Next week watch national ratification status of EU-US trade deal, as pending approvals could destabilize tariff rung 3 or trigger escalation to rung 4. USMCA Joint Review progress will clarify escalation likelihood. Duration of Hormuz closure remains critical, with evidence needed to assess prolonged disruption scenario entailing significant growth reduction. G-7 rate decisions and inflation data will test stagflation lock-in under dual shocks.
-
-## Cross-Monitor Flags
-
-- **** (AI Governance Monitor) — Active — verified (adjacent Issue 6)
-- **** (AI Governance Monitor) — Active — verified (adjacent Issue 6)
-- **** (Environmental Risks Monitor) — Active — verified (adjacent Issue 9)
-- **** (Strategic Conflict & Escalation Monitor) — Active — verified (adjacent Issue 8)
-- **** (FIMI & Cognitive Warfare Monitor) — NoSignal — verified (adjacent Issue 5)
-- **** (Democratic Integrity Monitor) — Watch — verified (adjacent Issue 12)
-- **** (European Strategic Autonomy Monitor) — Active — verified (adjacent Issue 6)
-- **US visa restrictions on EU digital regulation officials** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
-- **Tariff escalation used to influence domestic policies in partner countries** (democratic-integrity) — Active — verified (adjacent Issue 12)
-- **Strait of Hormuz closure as escalation of US-Iran conflict** (conflict-escalation) — Active — verified (adjacent Issue 8)
-- **EU dependency on Middle Eastern commodities for agriculture** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **US using trade leverage to prevent spread of digital regulation** (ai-governance) — Active — verified (adjacent Issue 6)
-- **Energy supply shock impacting green transition commodities** (environmental-risks) — Active — verified (adjacent Issue 9)
-- **Tariff escalation as economic coercion tool** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
-- **Energy crisis impacting political stability** (democratic-integrity) — Active — verified (adjacent Issue 12)
-- **Iran-US conflict driving energy supply shock** (conflict-escalation) — Active — verified (adjacent Issue 8)
-- **EU energy security concerns driving strategic autonomy** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **AI infrastructure spending boom requiring governance frameworks** (ai-governance) — Active — verified (adjacent Issue 6)
-- **Energy crisis accelerating clean energy transition** (environmental-risks) — Active — verified (adjacent Issue 9)
-- **Turnberry deal locks 15 percent tariff rate embedding structural drag** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **EU-Mercosur agreement accelerates EM trade realignment** (sceM) — Active — NEW
-- **Section 232 steel aluminum tariffs drive input inflation** (erm) — Active — NEW
-- **Turnberry deal and Parliament vote lock US-EU tariff friction as economic coercion; ECB energy shock elevates EUR growth inflation divergence** (esa) — Active — NEW
-- **Hormuz closure as largest oil shock plus Section 232 steel alum tariffs signal energy metals supply chain stress** (erm) — Active — NEW
-- **USTR agenda enforcement plus EM exporter tariff convergence risks sovereign stress to conflict financing** (scem) — Active — NEW
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/macro-monitor/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/macro-monitor/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/macro-monitor/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/macro-monitor/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/macro-monitor/methodology.html>
