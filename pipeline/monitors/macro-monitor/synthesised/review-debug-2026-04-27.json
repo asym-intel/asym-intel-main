@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "schema_version": "aim-review-v1.0",
+    "reviewer_model": "sonar-pro",
+    "monitor_slug": "macro-monitor",
+    "reviewed_at": "2026-04-27T00:03:49.000615+00:00",
+    "reviewed_from": "aim-interpret-v1.0",
+    "reviewed_from_file": "interpret-latest.json",
+    "interpret_meta": {
+      "null_signal_week": false,
+      "cycle_disposition": "material_change",
+      "week_ending": "2026-05-02"
+    },
+    "reviewer_flags": [],
+    "reviewer_error": false,
+    "reviewer_error_reason": null,
+    "independence_mechanism": {
+      "rule_engine_verdict_is_llm_independent": true
+    }
+  },
+  "verdict": "hold-for-review",
+  "verdict_legacy": "REJECT",
+  "verdict_reason": "hard-invariant FAIL: ['R1']",
+  "checks": [
+    {
+      "check_id": "R1",
+      "name": "schema_version == aim-interpret-v1.0",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "schema_version='gmm-interpret-v1.0' (expected 'aim-interpret-v1.0')"
+    },
+    {
+      "check_id": "R2",
+      "name": "_meta.cycle_disposition in enum",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "cycle_disposition=material_change"
+    },
+    {
+      "check_id": "R3",
+      "name": "structured_claims[] shape integrity",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "all 30 claims carry 8 required keys"
+    },
+    {
+      "check_id": "R4",
+      "name": "evidence_id non-empty on every claim",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "all 30 claims carry evidence_id"
+    },
+    {
+      "check_id": "R5",
+      "name": "gaps_register[] non-empty when null_signal_week",
+      "result": "SKIP",
+      "disposition_aware_skip": true,
+      "detail": "skipped — null_signal_week is false"
+    },
+    {
+      "check_id": "R6",
+      "name": "triple_extraction_manifest self-consistent",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "det(18) + llm(7) = 25 != claims(30)"
+    },
+    {
+      "check_id": "R7",
+      "name": "persistent-state modules non-empty",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "empty modules: ['jurisdiction_risk_matrix', 'lab_posture_scorecard']"
+    }
+  ],
+  "claim_flags": [],
+  "advisory_notes": [
+    "Excessive claim duplication in structured_claims[] (claims 0024-0030 repeat identical ECB stagflation assessment; manifest inconsistency 25!=30 suggests extraction overrun).",
+    "Empty persistent-state modules (jurisdiction_risk_matrix, central_bank_scorecard) despite policy divergence signals in module_2/module_7; R7 flags but Composer should note for future cycles.",
+    "Regime divergence: module_4 shows growth_recession/inflation Red-Worsening but module_8 (Financial System Stress) empty; module_3 (Liquidity) empty despite EUREP signals in module_4/7."
+  ],
+  "patch_verdicts": []
+}
