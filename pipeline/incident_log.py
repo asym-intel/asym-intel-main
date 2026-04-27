@@ -203,3 +203,4 @@ def read_incidents(
         incidents.append(record)
 
     return list(reversed(incidents))  # newest first
+
