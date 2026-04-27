@@ -1,0 +1,98 @@
+{
+  "_meta": {
+    "schema_version": "aim-apply-v1.0",
+    "monitor_slug": "democratic-integrity",
+    "applied_at": "2026-04-27T00:03:30Z",
+    "applier_model": null,
+    "applier_deterministic": true,
+    "cycle_disposition": "material_change",
+    "applier_flags": [
+      "interpret_schema_mismatch:wdm-interpret-v1.0!=aim-interpret-v1.0",
+      "compose_schema_mismatch:wdm-compose-v1.0!=aim-compose-v1.0",
+      "compose_composed_at_null",
+      "persistent_state_writeback_not_wired"
+    ],
+    "applier_error": false,
+    "applier_error_reason": null
+  },
+  "cycle_id": "wdm-2026-04-27",
+  "methodology_version": "democratic-integrity-methodology-2026-Q2",
+  "week_ending": "2026-05-02",
+  "week_ending_source": "interpret._meta.week_ending",
+  "inputs": {
+    "interpret": {
+      "path": "pipeline/monitors/democratic-integrity/synthesised/interpret-latest.json",
+      "content_sha1": "025639d2b5a9979cc529ae00c2edaf3de95b3337",
+      "schema_version": "wdm-interpret-v1.0",
+      "claim_count": 5,
+      "null_signal_week": false,
+      "triple_extraction_manifest": {
+        "deterministic_extractions": 12,
+        "llm_fallback_extractions": 0,
+        "llm_fallback_model": "null",
+        "llm_fallback_temperature": 0.0,
+        "llm_fallback_timestamp": "null"
+      }
+    },
+    "review": {
+      "path": "pipeline/monitors/democratic-integrity/synthesised/review-latest.json",
+      "content_sha1": "e5b4e5b3199335f9abcfd67b1dfbd5b574d6a7dd",
+      "schema_version": "aim-review-v1.0",
+      "verdict": "hold-for-review",
+      "verdict_legacy": "REJECT",
+      "verdict_reason": "hard-invariant FAIL: ['R1']",
+      "check_summary": {
+        "PASS": 3,
+        "SKIP": 1,
+        "FAIL": 3
+      },
+      "advisory_note_count": 3,
+      "claim_flag_count": 0
+    },
+    "compose": {
+      "path": "pipeline/monitors/democratic-integrity/synthesised/compose-latest.json",
+      "content_sha1": "6f5c6831eb5f78daab543c4ff46a50e20fc3dbdf",
+      "schema_version": "wdm-compose-v1.0",
+      "composed_at": null,
+      "claim_trace_count": 12,
+      "composer_error": false,
+      "reviewed_by": {
+        "verdict": "hold-for-review",
+        "reviewer_model": "sonar-pro",
+        "reviewed_at": "2026-04-27T00:02:26.280152+00:00",
+        "review_schema_version": "aim-review-v1.0"
+      }
+    }
+  },
+  "patches_applied": [],
+  "patches_rejected": [
+    {
+      "patch_id": "wdm-patch-2026-04-27-0001",
+      "verdict": "reject",
+      "verdict_reason": "cycle-level hard-invariant FAIL: ['R1']",
+      "target_kb_path": "/jurisdiction/United_States/health_status_assessed/electoral_democracy",
+      "rule_applied": "WDM methodology rule 22a"
+    }
+  ],
+  "patches_deferred": [],
+  "patches_looped_back": [],
+  "patches_apply_failed": [],
+  "patches_actually_applied": [],
+  "persistent_state_snapshot": null,
+  "publication": {
+    "ready_to_publish": false,
+    "hold_reason": "review_verdict:hold-for-review",
+    "publisher_artefacts": {
+      "weekly_brief_path": "content/monitors/democratic-integrity/2026-05-02-weekly-brief.md",
+      "report_latest_path": "static/monitors/democratic-integrity/data/report-latest.json"
+    }
+  },
+  "chains_artefact": {
+    "path": "pipeline/monitors/democratic-integrity/applied/chains-latest.json",
+    "schema_version": "aim-chains-v1.1",
+    "chain_count": 5
+  },
+  "provenance": {
+    "applier_commit_sha": null
+  }
+}
