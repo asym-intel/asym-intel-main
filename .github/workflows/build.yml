@@ -15,8 +15,11 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
+  # S5 phase 1 Fix 2: cancel superseded staging (and any non-main) runs.
+  # Main builds keep cancel-in-progress: false because publishers depend on
+  # every main build completing for deploy.
   group: build-deploy-${{ github.ref_name }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 permissions:
   contents: write
