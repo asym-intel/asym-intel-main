@@ -1,0 +1,66 @@
+name: CodeQL
+
+# S5 phase 1 Fix 1 — replaces GitHub default code-scanning setup with a
+# custom workflow so we can apply path filters and exclude publisher-bot
+# data commits from triggering analysis. See AD-2026-04-27-S5-micro.
+#
+# Five-language coverage matches prior default setup:
+#   - actions (workflows themselves)
+#   - javascript-typescript (covers both JS and TS in modern CodeQL)
+#   - python
+# Weekly scheduled run is preserved.
+
+on:
+  push:
+    branches: [main, staging]
+    paths:
+      - '**.py'
+      - '**.js'
+      - '**.ts'
+      - '**.yml'
+      - '**.yaml'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.py'
+      - '**.js'
+      - '**.ts'
+      - '**.yml'
+      - '**.yaml'
+      - '.github/workflows/**'
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [actions, javascript-typescript, python]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
