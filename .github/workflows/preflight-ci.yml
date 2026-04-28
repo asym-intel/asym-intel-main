@@ -7,10 +7,13 @@ on:
       - '.github/workflows/*.yml'
       - 'pipeline/**'
       - 'static/monitors/**'
+      - 'static/ops/**'
       - 'docs/crons/**'
       - 'tools/preflight.py'
       - 'tools/preflight_engine_chrome.py'
       - 'tools/preflight_ui_shim.py'
+      - 'tools/public_surface_audit.py'
+      - 'tools/public_surface_audit.allowlist'
       - 'static/**/*.css'
       - 'static/**/*.html'
       - 'assets/**/*.css'
@@ -72,3 +75,9 @@ jobs:
             exit 1
           fi
           echo "✓ nav.js MONITOR_REGISTRY in sync"
+
+      - name: Run public-surface IP-leak audit (tools/public_surface_audit.py)
+        # Hard-fails if any L1/L2/L3/L5 redline pattern hits the public surface
+        # (static/, docs/). See tools/public_surface_audit.py header for rules.
+        # Add legitimate exposures to tools/public_surface_audit.allowlist.
+        run: python3 tools/public_surface_audit.py --root .
