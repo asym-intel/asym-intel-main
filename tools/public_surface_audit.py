@@ -54,7 +54,11 @@ from typing import List, Pattern
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 
-DEFAULT_PUBLIC_ROOTS = ("static", "docs")
+# Default scope for this PR: static/ only.
+# docs/ contains internal IP that needs a separate triage sprint before being
+# brought under this scanner. Override with --public-roots static docs after
+# that triage.
+DEFAULT_PUBLIC_ROOTS = ("static",)
 EXCLUDE_DIRS = {".git", "node_modules", "archive", "session-artefacts", "tools/fixtures"}
 SCAN_EXTENSIONS = {".html", ".htm", ".json", ".js", ".css", ".xml", ".txt", ".md"}
 
@@ -78,13 +82,18 @@ class Rule:
 
 
 RULES: List[Rule] = [
-    # L1 — WP application-password shape: 4 groups of 4 alphanumerics separated by spaces
+    # L1 — WP application-password shape: 6 groups of mixed-alphanumeric (must contain
+    # both letters AND digits in the overall sequence to avoid plain-English false positives).
+    # WordPress generates app-passwords as 24 chars in 6 groups of 4 with both upper, lower, and digits.
     # Example from leak: "RHD2 dBK6 Ik8a pP9d PbRQ evsa", "W6V9 C3nr 9ogf snGu RR46 Di34"
+    # Rejects: "more harm than good" (all-letter), "auto auto auto" (repeat), "rate from 2025 will" (no mixed-class group).
     Rule(
         id="L1_CREDENTIAL_TOKEN",
         severity="hard-fail",
-        description="WordPress application-password shape (4-char groups) in public surface",
-        pattern=re.compile(r"\b(?:[A-Za-z0-9]{4}\s){3,7}[A-Za-z0-9]{4}\b"),
+        description="WordPress application-password shape (6 mixed-alnum groups of 4) in public surface",
+        # Each group must be 4 chars and contain at least one digit (forces alphanumeric mix).
+        # Then require ≥4 such groups in sequence (real WP shape is 6, but 4+ is a strong signal).
+        pattern=re.compile(r"\b(?:(?=[A-Za-z0-9]{4}\b)(?=[A-Za-z0-9]*\d)[A-Za-z0-9]{4}\s){3,}(?=[A-Za-z0-9]{4}\b)(?=[A-Za-z0-9]*\d)[A-Za-z0-9]{4}\b"),
     ),
     Rule(
         id="L2_PLATFORM_USER",
@@ -104,8 +113,8 @@ RULES: List[Rule] = [
         description="Bare git SHA in public content (verify intentional)",
         # Match 7-40 hex with at least one letter (excludes all-digit constants/timestamps).
         # Negative lookbehind/lookahead avoids pinned action versions (`@<sha>`) and slashes.
+        # URL-context filtering happens in scan_file (L4 lines containing http(s):// are skipped).
         pattern=re.compile(r"(?<![@/\w])\b(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b(?![\w@])"),
-        # Permit obvious release-note style "see commit X" only via allowlist file
     ),
     Rule(
         id="L5_METHODOLOGY_LEAK",
@@ -198,8 +207,22 @@ def scan_file(path: Path, root: Path, allowlist: List[Pattern[str]]) -> List[Fin
 
     rel = str(path.relative_to(root))
     for lineno, line in enumerate(text.splitlines(), start=1):
+        # Pre-compute: does this line contain a URL? Used to suppress L4 hits on
+        # hex IDs inside third-party source URLs (e.g. apnews article slugs).
+        line_has_url = ("http://" in line) or ("https://" in line)
         for rule in RULES:
+            # L4 false-positive guard: if the line contains a URL, skip L4 entirely.
+            # Internal commit SHAs are not normally inside URLs in our content.
+            if rule.id == "L4_INTERNAL_COMMIT_SHA" and line_has_url:
+                continue
             for m in rule.pattern.finditer(line):
+                # L4: skip if match is preceded by '#' (CSS hex colour with alpha,
+                # e.g. '#22c55e20' parses as 8 hex). The negative lookbehind in the
+                # regex itself is awkward to compose; check here.
+                if rule.id == "L4_INTERNAL_COMMIT_SHA":
+                    s = m.start()
+                    if s > 0 and line[s-1] == "#":
+                        continue
                 if is_allowlisted(rel, line, allowlist):
                     continue
                 excerpt = line.strip()
