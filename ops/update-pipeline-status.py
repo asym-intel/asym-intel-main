@@ -209,6 +209,135 @@ def _find_publish_message(commits, patterns):
     return None
 
 
+# --- Phase B cascade-file station status (BRIEF-2 v2 §2) ---
+#
+# Phase B station status is derived from cascade-output artefacts under
+# pipeline/monitors/{slug}/{synthesised,applied,curator}/...-latest.json,
+# NOT from GitHub Actions workflow runs.
+#
+# Why: workflow-run lens captures "did the GA job exit 0". Cascade-file
+# lens captures "did the artefact land cleanly per its own _meta". These
+# differ on the failure class axis A is designed to catch (content-level
+# applier divergence, e.g. GMM 2026-04-14 BUG-LOG: applier output diverged
+# from published narrative even though every GA workflow exited 0).
+#
+# Field mapping per stage (verified from live samples 2026-04-28):
+#   interpret -> synthesised/interpret-latest.json
+#                _meta.synthesised_at, _meta.cycle_disposition (presence => success)
+#   review    -> synthesised/review-latest.json
+#                _meta.reviewed_at, _meta.reviewer_error (false => success)
+#   compose   -> synthesised/compose-latest.json
+#                _meta.composed_at, _meta.composer_error (false => success)
+#   apply     -> applied/apply-latest.json
+#                _meta.applied_at, _meta.applier_error (false => success)
+#   curate    -> curator/drift-register-latest.json
+#                _meta.computed_at, no explicit error field (presence => success)
+#
+# Note: BRIEF-2 v2 §2 names the curate file as 'curate-latest.json'; the
+# actual on-disk filename is 'drift-register-latest.json'. Documenting the
+# deviation in the PR body per BRIEF-2 v2 §0 deviation-declaration policy.
+
+PHASE_B_CASCADE_FILES = {
+    "interpret": ("synthesised", "interpret-latest.json"),
+    "review":    ("synthesised", "review-latest.json"),
+    "compose":   ("synthesised", "compose-latest.json"),
+    "apply":     ("applied",     "apply-latest.json"),
+    "curate":    ("curator",     "drift-register-latest.json"),
+}
+
+PHASE_B_TIMESTAMP_FIELD = {
+    "interpret": "synthesised_at",
+    "review":    "reviewed_at",
+    "compose":   "composed_at",
+    "apply":     "applied_at",
+    "curate":    "computed_at",
+}
+
+# Stage-specific error field. None means 'no explicit error field — file
+# presence with a non-null cycle_id/timestamp is the success signal'.
+PHASE_B_ERROR_FIELD = {
+    "interpret": None,           # success = file present + cycle_disposition set
+    "review":    "reviewer_error",
+    "compose":   "composer_error",
+    "apply":     "applier_error",
+    "curate":    None,           # success = file present + computed_at set
+}
+
+
+def _read_cascade_file(monitor_slug, subdir, filename, repo_root=None):
+    """Read a cascade-output JSON file from the local checkout.
+
+    Producer runs from `asym-intel-main` GitHub Actions and has filesystem
+    access to `pipeline/monitors/{slug}/...` in the same checkout. Returns
+    the parsed JSON dict, or None if the file is missing or unreadable.
+
+    repo_root override is for unit tests — defaults to cwd which is the
+    repo root inside GA.
+    """
+    import os
+    root = repo_root if repo_root is not None else os.getcwd()
+    path = os.path.join(
+        root, "pipeline", "monitors", monitor_slug, subdir, filename
+    )
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def build_phase_b_station_status(monitor_slug, stage, repo_root=None):
+    """Build station status for a Phase B stage from its cascade-output file.
+
+    Returns dict with last_run / last_conclusion / last_success — same
+    shape as build_station_status() so the consumer (operator surface) sees
+    a uniform schema across Phase A + Phase B stations.
+
+    Conclusion semantics:
+      - File missing                                  -> 'never'
+      - File present, error field True                -> 'failure'
+      - File present, error field False or None       -> 'success'
+      - File present but timestamp field is null      -> still 'success' if
+        no error (the artefact landed; an upstream stage left the timestamp
+        unset, e.g. compose with composed_at=null in some monitors). In
+        that case last_run falls back to None.
+    """
+    subdir, filename = PHASE_B_CASCADE_FILES[stage]
+    data = _read_cascade_file(monitor_slug, subdir, filename, repo_root=repo_root)
+
+    if data is None:
+        return {"last_run": None, "last_conclusion": "never", "last_success": None}
+
+    meta = data.get("_meta") or data.get("meta") or {}
+    ts_field = PHASE_B_TIMESTAMP_FIELD[stage]
+    err_field = PHASE_B_ERROR_FIELD[stage]
+
+    timestamp = meta.get(ts_field)
+    if isinstance(timestamp, str) and timestamp.strip().lower() in ("", "null"):
+        timestamp = None
+
+    if err_field is None:
+        # No explicit error field for this stage — presence = success
+        conclusion = "success"
+    else:
+        err_val = meta.get(err_field)
+        if err_val is True:
+            conclusion = "failure"
+        else:
+            # False, None, or missing — treat as success (file landed)
+            conclusion = "success"
+
+    last_success = timestamp if conclusion == "success" else None
+
+    return {
+        "last_run": timestamp,
+        "last_conclusion": conclusion,
+        "last_success": last_success,
+    }
+
+
 def _find_publish_message_as_station(commits, patterns):
     """Legacy full-station builder — kept for any callers expecting a station dict."""
     for c in commits:
@@ -249,16 +378,16 @@ def generate_status():
             else:
                 stations[stage] = {"last_run": None, "last_conclusion": "never", "last_success": None}
 
-        # Phase B canon stages: interpret, review, compose, apply, curate
+        # Phase B canon stages: interpret, review, compose, apply, curate.
+        # Per BRIEF-2 v2 §2, Phase B stations are derived from cascade-output
+        # *-latest.json artefacts (content-level signal), NOT from GA workflow
+        # runs (job-level signal). See PHASE_B_CASCADE_FILES + build_phase_b_station_status.
+        monitor_slug = _PUBLISHER_SLUG.get(abbr, abbr.lower())
         for stage in ["interpret", "review", "compose", "apply", "curate"]:
-            wf_file = WORKFLOW_FILES.get((abbr, stage))
-            if wf_file:
-                stations[stage] = build_station_status(wf_file)
-                symbol = {"success": "✅", "failure": "❌", "running": "🔄", "never": "⬜"}.get(
-                    stations[stage]["last_conclusion"], "❓")
-                print(f"  {symbol} {abbr} {stage}: {stations[stage]['last_conclusion']}")
-            else:
-                stations[stage] = {"last_run": None, "last_conclusion": "never", "last_success": None}
+            stations[stage] = build_phase_b_station_status(monitor_slug, stage)
+            symbol = {"success": "✅", "failure": "❌", "running": "🔄", "never": "⬜"}.get(
+                stations[stage]["last_conclusion"], "❓")
+            print(f"  {symbol} {abbr} {stage}: {stations[stage]['last_conclusion']} (cascade)")
 
         # Published — read from GA workflow runs (same as other stages)
         # BUG-002 fix: publisher workflows are tracked in GA; commit-scan
