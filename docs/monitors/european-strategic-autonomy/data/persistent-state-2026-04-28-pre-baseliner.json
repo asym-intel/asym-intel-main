@@ -1,0 +1,606 @@
+{
+  "_meta": {
+    "description": "Persistent living knowledge for the European Strategic Autonomy monitor (EGHTM). Carries forward KPI baselines, active elections, state capture cases, actor campaigns, EU legislation tracking, and timeline events across weekly issues.",
+    "last_updated": "2026-04-16T04:10:15Z",
+    "last_issue": 6,
+    "schema_version": "2.0"
+  },
+  "kpi_state": {
+    "threat_actors_tracked": 4,
+    "fimi_incidents_eeas": 540,
+    "hybrid_attacks_total": 151,
+    "hybrid_attacks_recent": 41,
+    "states_at_capture_risk": [
+      "HU",
+      "GE",
+      "SK",
+      "RS",
+      "CZ",
+      "AT",
+      "CY"
+    ],
+    "elections_under_threat": 2,
+    "eu_legislation_targeted": 12,
+    "nato_at_2_percent": "32/32",
+    "eu_defence_spending_real_change": "+20%",
+    "eu_defence_total_2025": "€392B",
+    "safe_programme_total": "€150B",
+    "safe_first_tranche": "€22.5B",
+    "lagrange_point_progress": "~35%",
+    "lagrange_point_dimensions": {
+      "energy": {
+        "score": 52,
+        "note": "Russian gas 45%→13%, but US LNG at 60%"
+      },
+      "defence": {
+        "score": 30,
+        "note": "Up from 28%; SAFE €22.5B first tranche + €17.1B second wave; +20% spending"
+      },
+      "technology": {
+        "score": 18,
+        "note": "US cloud 70%+; Digital Omnibus weakening protections"
+      },
+      "finance": {
+        "score": 22,
+        "note": "Euro 20.3% of reserves"
+      },
+      "materials": {
+        "score": 25,
+        "note": "97% Mg from China; RE suspension until Nov 2026"
+      },
+      "institutions": {
+        "score": 35,
+        "note": "QMV blocked"
+      }
+    },
+    "ceasefire_probability_ukraine": "<1%",
+    "democratic_health_avg": 3.0,
+    "vdem_autocratising_europe": 6,
+    "freedom_house_consecutive_decline_years": 20,
+    "last_updated": "2026-04-08",
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Initial population from W/E 29 March 2026 brief and knowledge base",
+        "reason": "JSON pipeline initialisation",
+        "prior_value": "Placeholder values"
+      },
+      {
+        "date": "2026-04-01",
+        "change": "Added EU total Ukraine support (€194.9B); SAFE second wave (€17.1B FR+CZ); ceasefire probability unchanged at <1%",
+        "reason": "European Council Mar 19-20 outcomes; Commission SAFE second wave proposal Mar 26; Kremlin dismissed Easter ceasefire",
+        "prior_value": "ceasefire 1%; no second wave tracked; no EU total tracked"
+      },
+      {
+        "date": "2026-04-08",
+        "change": "EU Council adopts hybrid threat deterrence conclusions (new institutional milestone); Robert Schuman study confirms 40 arson plots Germany/Poland (attacks quadrupled 2023-2024) — consistent with RU-003 campaign tracking; ECFR offensive hybrid strategy advocacy; Hungary election 4 days (CRITICAL window)",
+        "reason": "Issue 3 pipeline — fallback synthesis from daily + reasoner (synthesis-latest.json null_signal_week=true)",
+        "prior_value": "hybrid_attacks_total: 151, last_issue: 2"
+      }
+    ],
+    "safe_second_wave": "€17.1B (FR + CZ)",
+    "eu_support_ukraine_total": "€194.9B"
+  },
+  "active_elections": [
+    {
+      "country": "HU",
+      "name": "Hungary Parliamentary Election",
+      "date": "2026-04-12",
+      "severity": "CRITICAL",
+      "interference_actors": [
+        "RU",
+        "US",
+        "IL"
+      ],
+      "key_facts": "Tisza 47.8% vs Fidesz 40.5% (PolitPro aggregate Mar 31); Republikon Mar 26: Tisza 49 vs Fidesz 40; Vance visit announced 'early April'; €90B Ukraine loan blocked by Orbán at European Council; Issue 3 (Apr 8): 4 days to election; PolitPro aggregate Tisza 47.8% vs Fidesz 40.5%; RU/US/IL triple interference active; CRITICAL monitoring window",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Updated polling: PolitPro aggregate Tisza 47.8% vs Fidesz 40.5%; Vance visit confirmed; €90B loan blocked",
+          "reason": "New polls (Republikon Mar 26); European Council outcome",
+          "prior_value": "Fidesz trailing Tisza by 20-23pts (Medián)"
+        },
+        {
+          "date": "2026-04-08",
+          "change": "Final 4-day window; triple interference (RU SDA, US Alliance of Sovereign Nations, IL Hasbara) all documented active; PolitPro aggregate: Tisza 47.8% vs Fidesz 40.5%",
+          "reason": "Issue 3 update",
+          "prior_value": "12 days to election; Vance visit announced"
+        }
+      ]
+    },
+    {
+      "country": "SI",
+      "name": "Slovenia Parliamentary Election (occurred)",
+      "date": "2026-03-22",
+      "severity": "HIGH",
+      "interference_actors": [
+        "IL"
+      ],
+      "key_facts": "GS 29 seats + allies = 40; SDS 28 + allies = 43. Neither at 46. Parliament inaugurates 10 April. SDS early voting complaints rejected. Seven parties in parliament.",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Parliament inauguration set for 10 April; SDS complaints rejected; coalition arithmetic clarified",
+          "reason": "Euronews/Reuters reporting on coalition talks and timeline",
+          "prior_value": "Coalition formation pending"
+        }
+      ]
+    }
+  ],
+  "state_capture_cases": [
+    {
+      "country": "HU",
+      "severity": 5.0,
+      "status": "Electoral autocracy",
+      "arrow": "→",
+      "key_indicator": "9 vetoes since Oct 2023; EUR 18B EU funds frozen",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        }
+      ]
+    },
+    {
+      "country": "GE",
+      "severity": 4.5,
+      "status": "Civil society capture complete",
+      "arrow": "↑",
+      "key_indicator": "March 2026 laws criminalise foreign grants; CIVICUS 'Repressed'",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        }
+      ]
+    },
+    {
+      "country": "SK",
+      "severity": 4.0,
+      "status": "Judicial/media erosion",
+      "arrow": "→",
+      "key_indicator": "Abolished corruption investigation office; RTVS dissolved → STVR",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        }
+      ]
+    },
+    {
+      "country": "CZ",
+      "severity": 2.5,
+      "status": "Entering pipeline",
+      "arrow": "↑",
+      "key_indicator": "Babis rejected Ukraine aid; joined HU/SK bloc; BUT SAFE €2.06B accepted — dual track (capture risk + defence integration)",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Added SAFE participation nuance — Czech accepting €2.06B defence loans while rejecting Ukraine aid",
+          "reason": "Commission SAFE second wave proposal includes Czechia",
+          "prior_value": "Babis rejected Ukraine aid; joined HU/SK bloc; CPAC participant"
+        }
+      ]
+    },
+    {
+      "country": "RS",
+      "severity": 3.5,
+      "status": "Media capture advancing",
+      "arrow": "→",
+      "key_indicator": "RTS capture; Pink/Happy TV oligarchic; foreign agent bill pending",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        }
+      ]
+    },
+    {
+      "country": "AT",
+      "severity": 2.0,
+      "status": "Monitoring — FPÖ coalition",
+      "arrow": "→",
+      "key_indicator": "FPÖ in government; Kickl at CPAC/PfE",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        }
+      ]
+    },
+    {
+      "country": "CY",
+      "severity": 1.5,
+      "status": "Monitoring — China FDI exposure",
+      "arrow": "→",
+      "key_indicator": "Golden passports history; Chinese investment concentration",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry",
+          "reason": "Pipeline init"
+        }
+      ]
+    }
+  ],
+  "active_actor_campaigns": {
+    "RU": [
+      {
+        "id": "RU-001",
+        "name": "SDA Hungary Election Pre-Op",
+        "status": "ACTIVE",
+        "target": "Hungary April 12 election",
+        "last_activity": "2026-04-01",
+        "source_url": "https://www.dw.com/en/russia-working-to-tip-scale-for-orban-in-hungary-election/a-76349043"
+      },
+      {
+        "id": "RU-002",
+        "name": "Doppelganger DE/FR",
+        "status": "DISRUPTED",
+        "target": "Germany, France",
+        "last_activity": "2026-02-15",
+        "source_url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html"
+      },
+      {
+        "id": "RU-003",
+        "name": "Hybrid sabotage campaign",
+        "status": "ACTIVE",
+        "target": "Pan-European",
+        "last_activity": "2026-04-08",
+        "source_url": "https://united24media.com/latest-news/over-150-russian-hybrid-attacks-recorded-across-europe-since-2022-16529"
+      }
+    ],
+    "CN": [
+      {
+        "id": "CN-001",
+        "name": "Rare earth coercion framework",
+        "status": "SUSPENDED",
+        "target": "EU supply chains",
+        "last_activity": "2025-11-11",
+        "source_url": "https://www.china-briefing.com/news/eu-china-relations-in-2026-what-to-watch/"
+      }
+    ],
+    "US": [
+      {
+        "id": "US-001",
+        "name": "Alliance of Sovereign Nations",
+        "status": "ACTIVE",
+        "target": "European far-right parties/MEPs",
+        "last_activity": "2026-03-30",
+        "source_url": "https://www.hungarianconservative.com/articles/current/cpac-hungary-2026-javier-milei/"
+      },
+      {
+        "id": "US-002",
+        "name": "Section 301 investigations",
+        "status": "ACTIVE",
+        "target": "EU trade policy",
+        "last_activity": "2026-03-12",
+        "source_url": "https://www.hklaw.com/en/insights/publications/2026/03/ustr-launches-awaited-section-301-investigations"
+      },
+      {
+        "id": "US-003",
+        "name": "Anti-GDPR diplomatic campaign",
+        "status": "ACTIVE",
+        "target": "EU data protection framework",
+        "last_activity": "2026-02-15",
+        "source_url": "https://www.youtube.com/watch?v=X-kFGv8ElV4"
+      }
+    ],
+    "IL": [
+      {
+        "id": "IL-001",
+        "name": "Hasbara digital campaign (EU)",
+        "status": "ACTIVE",
+        "target": "DE/IT/PL/UK",
+        "last_activity": "2026-03-30",
+        "source_url": "https://spotlight.ebu.ch/p/the-new-front-of-war-inside-israels"
+      },
+      {
+        "id": "IL-002",
+        "name": "Black Cube Slovenia",
+        "status": "CONFIRMED",
+        "target": "Slovenia election",
+        "last_activity": "2026-03-22",
+        "source_url": "https://www.aljazeera.com/news/2026/3/22/slovenias-freedom-movement-party-takes-narrow-election-lead-exit-poll"
+      },
+      {
+        "id": "IL-003",
+        "name": "ELNET parliamentary lobbying",
+        "status": "ACTIVE",
+        "target": "EU/Bundestag/UK Parliament",
+        "last_activity": "2026-03-30",
+        "source_url": "https://elnetwork.eu/about/"
+      }
+    ]
+  },
+  "eu_legislation_tracker": [
+    {
+      "id": "LEG-001",
+      "name": "Russia Sanctions (14th Package Extension)",
+      "status": "Renewed to Sep 2026",
+      "last_update": "2026-03-14",
+      "source_url": "https://www.reuters.com/world/eu-extends-sanctions-against-people-over-russias-war-against-ukraine-2026-03-14/"
+    },
+    {
+      "id": "LEG-002",
+      "name": "Digital Omnibus (AI Act/GDPR amendments)",
+      "status": "IMCO Committee debate 27 Feb",
+      "last_update": "2026-02-27",
+      "source_url": "https://digital.nemko.com/news/eu-digital-omnibus-proposes-key-ai-act-gdpr-reforms"
+    },
+    {
+      "id": "LEG-003",
+      "name": "EU Cybersecurity Act (Huawei/ZTE phase-out)",
+      "status": "Proposed",
+      "last_update": "2026-01-15",
+      "source_url": "https://www.cfr.org/articles/china-in-europe-january-2026"
+    },
+    {
+      "id": "LEG-004",
+      "name": "Industrial Accelerator Act",
+      "status": "Proposed 4 Mar",
+      "last_update": "2026-03-04",
+      "source_url": "https://www.linkedin.com/pulse/week-12-2026-eu-china-trade-escalation-clockcloud-0tntf"
+    },
+    {
+      "id": "LEG-005",
+      "name": "SAFE Regulation (€150B defence loans)",
+      "status": "First disbursements Mar 2026",
+      "last_update": "2026-03-15",
+      "source_url": "https://defence-industry-space.ec.europa.eu/commission-approves-first-wave-defence-funding-eight-member-states-under-safe-2026-01-15_en"
+    },
+    {
+      "id": "LEG-006",
+      "name": "CBAM (Carbon Border Adjustment)",
+      "status": "In force since 1 Jan 2026",
+      "last_update": "2026-01-01",
+      "source_url": "https://www.china-briefing.com/news/eu-china-relations-in-2026-what-to-watch/"
+    },
+    {
+      "id": "LEG-007",
+      "name": "SAFE Second Wave (FR + CZ)",
+      "status": "Proposed Mar 26; Council 4 weeks to approve",
+      "last_update": "2026-03-26",
+      "source_url": "https://2eu.brussels/en/news/commission-proposes-over-eur17-billion-safe-defence-funding-for-france-and-czechia"
+    }
+  ],
+  "timeline_events": [
+    {
+      "date": "2026-03-14",
+      "event": "EU sanctions on Russia renewed to September 2026",
+      "module": "M07"
+    },
+    {
+      "date": "2026-03-16",
+      "event": "EU Council adopts hybrid threat counter-conclusions",
+      "module": "M09"
+    },
+    {
+      "date": "2026-03-17",
+      "event": "EEAS FIMI Explorer launched; 4th FIMI Report published",
+      "module": "M03"
+    },
+    {
+      "date": "2026-03-17",
+      "event": "V-Dem 2026 Democracy Report released",
+      "module": "M04"
+    },
+    {
+      "date": "2026-03-20",
+      "event": "Czech Pardubice drone warehouse arson",
+      "module": "M03"
+    },
+    {
+      "date": "2026-03-21",
+      "event": "CPAC Hungary 2026 — 45 speakers, 51 countries",
+      "module": "M06"
+    },
+    {
+      "date": "2026-03-22",
+      "event": "Slovenia parliamentary election — razor-thin result",
+      "module": "M04"
+    },
+    {
+      "date": "2026-03-23",
+      "event": "ISW confirms Russia spring-summer offensive begun",
+      "module": "M02"
+    },
+    {
+      "date": "2026-03-23",
+      "event": "Patriots Grand Assembly in Budapest — Le Pen, Salvini, Wilders",
+      "module": "M06"
+    },
+    {
+      "date": "2026-03-24",
+      "event": "3 arrested on terrorism charges in Czech Pardubice case",
+      "module": "M03"
+    },
+    {
+      "date": "2026-03-26",
+      "event": "BBC 'The Price of the Vote' Hungary voter intimidation documentary",
+      "module": "M04"
+    },
+    {
+      "date": "2026-03-26",
+      "event": "NATO Annual Report: European allies +20% defence spending",
+      "module": "M08"
+    },
+    {
+      "date": "2026-03-27",
+      "event": "Russia gasoline export ban directive (Apr-Jul 2026) from Deputy PM Novak",
+      "module": "hybrid_threats"
+    },
+    {
+      "date": "2026-03-26",
+      "event": "Eurostat: EU 2025 trade data — China imports €559.4B (+6.4% YoY)",
+      "module": "institutional"
+    },
+    {
+      "date": "2026-03-26",
+      "event": "Commission proposes €17.1B SAFE second wave (FR €15.09B + CZ €2.06B)",
+      "module": "defence"
+    },
+    {
+      "date": "2026-03-30",
+      "event": "Zelensky proposes Easter ceasefire — Kremlin dismisses",
+      "module": "hybrid_threats"
+    },
+    {
+      "date": "2026-03-30",
+      "event": "ISW: Russian milbloggers admit offensive stalling; Duma questions 2026 objectives",
+      "module": "hybrid_threats"
+    },
+    {
+      "date": "2026-03-25",
+      "event": "Czech intelligence probes Russian false-flag scenario in Pardubice arson",
+      "module": "hybrid_threats"
+    },
+    {
+      "date": "2026-03-27",
+      "event": "Slovenia PM Golob launches broad coalition talks",
+      "module": "institutional"
+    },
+    {
+      "date": "2026-03-19",
+      "event": "European Council: €194.9B Ukraine support confirmed; €90B loan blocked by Orbán; 20th sanctions package prepared",
+      "module": "institutional"
+    },
+    {
+      "date": "2026-04-08",
+      "event": "EU Council adopts comprehensive hybrid threat deterrence conclusions — hybrid toolbox, NIS2, cyber diplomacy formalised",
+      "module": "hybrid_threats"
+    },
+    {
+      "date": "2026-04-08",
+      "event": "ECFR publishes 'From Shield to Sword: Europe's Offensive Strategy for the Hybrid Age'",
+      "module": "hybrid_threats"
+    },
+    {
+      "date": "2026-04-08",
+      "event": "Robert Schuman Foundation study: 40 Russia-linked arson plots Germany/Poland 2018-2025 (attacks quadrupled 2023-2024)",
+      "module": "hybrid_threats"
+    },
+    {
+      "date": "2026-04-16",
+      "event": "Russian FIMI campaign amplifies AfD narratives in German elections.",
+      "module": "HT3"
+    },
+    {
+      "date": "2026-04-16",
+      "event": "Belarusian drone probes target Polish rail infrastructure.",
+      "module": "HT6"
+    },
+    {
+      "date": "2026-04-16",
+      "event": "Chinese opaque funding to pro-BRI Italian think tanks.",
+      "module": "HT3"
+    }
+  ],
+  "lagrange_scoring_2026": {
+    "baseline_date": "2026-04-02",
+    "pillar_directions": {
+      "P1_defence_industrial": {
+        "direction": "Strengthening_conditional",
+        "note": "Rhetoric > capability. Score contracts signed, not summit declarations. EDIP capital committed vs announced."
+      },
+      "P2_energy_independence": {
+        "direction": "Mixed",
+        "note": "Russian gas exit + US LNG lock-in risk. Distinguish dependency exit from new dependency entry."
+      },
+      "P3_digital_sovereignty": {
+        "direction": "Weakening",
+        "note": "DSA enforcement under US pressure. Score enforcement action taken, not regulatory text published."
+      },
+      "P4_financial_instruments": {
+        "direction": "Slowly_strengthening",
+        "note": "Lag effects 2+ years. CMU progress."
+      },
+      "P5_diplomatic_capability": {
+        "direction": "Fragmenting",
+        "note": "Hungary/Slovakia bilateral deviations. Member state divergence is key indicator."
+      },
+      "Defence industrial base": {
+        "progress": "Incremental",
+        "last_updated": "2026-04-16",
+        "key_metric": "EDIP contracts signed 500 million euros.",
+        "blocker": null
+      },
+      "Energy independence": {
+        "progress": "Incremental",
+        "last_updated": "2026-04-16",
+        "key_metric": "Raw materials MoUs covering 20 percent lithium.",
+        "blocker": "US LNG lock-in"
+      },
+      "Digital sovereignty": {
+        "progress": "Stalled",
+        "last_updated": "2026-04-16",
+        "key_metric": "NIS2 implementation acceleration.",
+        "blocker": "Chinese influence operations"
+      },
+      "Financial instruments": {
+        "progress": "Regressing",
+        "last_updated": "2026-04-16",
+        "key_metric": "US steel tariffs to 30 percent.",
+        "blocker": "Trade coercion"
+      },
+      "Diplomatic capability": {
+        "progress": "Stable",
+        "last_updated": "2026-04-16",
+        "key_metric": "Council conclusions on hybrid threats.",
+        "blocker": "Member state divergence"
+      }
+    },
+    "us_vector_status": {
+      "classification": "active_coercion",
+      "note": "Shifted from passive dependency to active coercive pressure. Multi-vector simultaneous pressure = strategic squeeze.",
+      "active_domains": [
+        "trade_tariffs",
+        "technology_export_controls",
+        "platform_governance",
+        "defence_conditionality"
+      ]
+    },
+    "rearm_europe": {
+      "score_status": "Conditional_Watch",
+      "score_triggers": [
+        "EDIP contracts reach €1bn+ committed",
+        "5+ member states update defence trajectories",
+        "First EU common procurement of major platform"
+      ]
+    }
+  },
+  "calibration_log": [
+    {
+      "date": "2026-04-02",
+      "source": "ESA Enhancement Addendum v1.0",
+      "applied_by": "Computer session",
+      "summary": "US vector calibration, Lagrange 2026 scoring guidance, ReArm Europe scoring discipline, member state tracker upgrades"
+    },
+    {
+      "date": "2026-04-08",
+      "source": "Issue 3 pipeline — fallback synthesis",
+      "applied_by": "ESA Analyst cron",
+      "summary": "No domain score movements this week. Hybrid threat incidents updated (HTI-003 EU Council, HTI-004 arson study, HTI-005 airspace). Cross-monitor flags updated (CMF-007 SCEM, CMF-008 FCW, CMF-009 AGM). Hungary election CRITICAL window."
+    }
+  ]
+}

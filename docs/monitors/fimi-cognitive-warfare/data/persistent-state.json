@@ -1,10 +1,16 @@
 {
   "_meta": {
     "description": "Persistent living knowledge for the FIMI & Cognitive Warfare Monitor. Carries forward active campaign tracking per actor, actor doctrine profiles, and platform enforcement tracker across weekly issues.",
-    "last_updated": "2026-04-16T09:30:12Z",
+    "last_updated": "2026-04-28T00:00:00Z",
     "last_issue": 5,
     "schema_version": "2.0",
-    "calibration": "EEAS StratCom 2026 calibration applied 2026-04-02"
+    "calibration": "EEAS StratCom 2026 calibration applied 2026-04-02",
+    "baseline_method": "dr-computer-2026-04-28",
+    "baseline_window_months": 12,
+    "baseline_run_id": "fcw-2026-04-28",
+    "baseline_dispatched_at": "2026-04-28T00:00:00Z",
+    "baseline_model": "computer-research-subagent",
+    "predecessor_archive": "persistent-state-2026-04-16-pre-baseliner.json"
   },
   "active_campaigns": {
     "RU": [
@@ -13,9 +19,16 @@
         "operation_name": "Social Design Agency — Hungary Pre-Op",
         "first_documented": "2026-03-19",
         "attribution_confidence": "Confirmed",
-        "status": "ACTIVE",
-        "last_activity": "2026-03-24",
-        "summary": "SDA confirmed operating from Russian Embassy Budapest ahead of April 12 parliamentary election. EEAS RAS activated.",
+        "status": "CONCLUDED",
+        "last_activity": "2026-04-12",
+        "target_audience": "Hungarian voters, EU audiences",
+        "platform_vectors": ["X/Twitter", "Facebook", "Telegram", "YouTube"],
+        "narrative_themes": ["Ukrainian refugees as threat", "Maidan-style coup plot in Hungary", "EU/NATO destabilisation of Hungary"],
+        "summary": "SDA confirmed operating from Russian Embassy Budapest ahead of April 12 parliamentary election. EEAS RAS activated. Matryoshka/Operation Overload-linked videos boosted by bot networks reaching 100,000+ users. Orbán ultimately lost the election to Tisza/Magyar coalition; operation concluded post-election.",
+        "evidence_id": "FCW-BASE-RU-001",
+        "source_url": "https://www.eeas.europa.eu/eeas/4th-eeas-annual-report-foreign-information-manipulation-and-interference-threats_en",
+        "retrieval_date": "2026-04-28",
+        "source_type": "gov-attribution",
         "version_history": [
           {
             "date": "2026-03-30",
@@ -28,6 +41,12 @@
             "change": "last_activity updated; Storm-1516 (RU-004) identified as parallel operation targeting same election",
             "reason": "Euronews impersonation campaign confirmed by Gnida project researchers",
             "prior_value": "last_activity: 2026-03-19"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Status updated to CONCLUDED; platform vectors, narrative themes, target audience added; election result noted",
+            "reason": "FCW baseline run 2026-04-28; Hungary election concluded April 12",
+            "prior_value": "status: ACTIVE, last_activity: 2026-03-24"
           }
         ]
       },
@@ -38,13 +57,26 @@
         "attribution_confidence": "Confirmed",
         "status": "DISRUPTED",
         "last_activity": "2026-02-01",
-        "summary": "Meta February 2026 CIB removed 1,700+ assets. Network targets German and French political discourse. Disrupted but reconstitution expected.",
+        "target_audience": "German and French political audiences, EU information space",
+        "platform_vectors": ["Facebook", "X/Twitter", "Instagram", "Telegram", "spoofed media websites"],
+        "narrative_themes": ["Anti-sanctions messaging", "Ukrainian refugee burden", "EU institutional distrust", "Russophobia framing"],
+        "summary": "Meta February 2026 CIB removed 1,700+ assets. Network targets German and French political discourse. Disrupted but reconstitution expected. Architecture Gen 3 (subdomain + AI-generated content). French SGDSN/VIGINUM TLP:CLEAR report January 2026 provides forensic detail including Kehr.io TDS linkage.",
+        "evidence_id": "FCW-BASE-RU-002",
+        "source_url": "https://www.sgdsn.gouv.fr/files/files/Publications/20260122_NP_TLP-CLEAR_SGDSN_VIGINUM_IMS_0.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "gov-attribution",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established at DISRUPTED status — inaugural issue",
             "reason": "Meta CIB February 2026 takedown confirmed. Operation disrupted but not concluded.",
             "prior_value": "Not previously tracked in this pipeline"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added; SGDSN/VIGINUM Jan 2026 report added as secondary source",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
           }
         ]
       },
@@ -55,13 +87,26 @@
         "attribution_confidence": "High",
         "status": "ACTIVE",
         "last_activity": "2026-03-01",
+        "target_audience": "UK political actors, Westminster ecosystem",
+        "platform_vectors": ["financial capture", "direct lobbying", "indirect narrative seeding"],
+        "narrative_themes": ["UK-Russia relations moderation", "Ukraine support reduction", "pro-Russian political positioning"],
         "summary": "MI5-referenced investigation into Russian state-linked funding of UK political actors. Consistent with GRU Unit 54777 influence-via-capture methodology.",
+        "evidence_id": "FCW-BASE-RU-003",
+        "source_url": "https://www.mi5.gov.uk",
+        "retrieval_date": "2026-04-28",
+        "source_type": "gov-attribution",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established — inaugural issue",
             "reason": "MI5 public statement referencing ongoing investigation",
             "prior_value": "Not previously tracked"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
           }
         ]
       },
@@ -70,15 +115,28 @@
         "operation_name": "Storm-1516 — Hungary Election Impersonation Campaign",
         "first_documented": "2026-03-24",
         "attribution_confidence": "High",
-        "status": "ACTIVE",
-        "last_activity": "2026-03-24",
-        "summary": "Coordinated fake Euronews-style impersonation targeting Peter Magyar ahead of April 12 election. Confirmed by Gnida project researchers. MF1: pro-Orbán counter-narrative present.",
+        "status": "CONCLUDED",
+        "last_activity": "2026-04-12",
+        "target_audience": "Hungarian voters, EU observers",
+        "platform_vectors": ["YouTube", "Facebook", "X/Twitter", "Telegram"],
+        "narrative_themes": ["Fake Euronews-style coverage", "Peter Magyar discrediting", "pro-Orbán counter-narrative"],
+        "summary": "Coordinated fake Euronews-style impersonation targeting Peter Magyar ahead of April 12 election. Confirmed by Gnida project researchers. MF1: pro-Orbán counter-narrative present. DW fact-check documented 100,000+ user reach via bot amplification. Operation concluded post-election.",
+        "evidence_id": "FCW-BASE-RU-004",
+        "source_url": "https://corporate.dw.com/en/hungary-election-pro-russian-doppelganger-campaign-exploits-dw-brand/a-76626398",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
         "version_history": [
           {
             "date": "2026-04-02",
             "change": "Entry established",
             "reason": "Euronews/Gnida project reporting 24 March 2026",
             "prior_value": "Not previously tracked"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Status updated to CONCLUDED; target audience, platform vectors, narrative themes added; DW fact-check source added",
+            "reason": "FCW baseline run 2026-04-28; Hungary election concluded April 12",
+            "prior_value": "status: ACTIVE, last_activity: 2026-03-24"
           }
         ]
       },
@@ -89,13 +147,122 @@
         "attribution_confidence": "Assessed",
         "status": "ASSESSED",
         "last_activity": "2026-03-21",
+        "target_audience": "Hungarian political elite, EU audiences",
+        "platform_vectors": ["SVR internal planning document — not a public information operation per se"],
+        "narrative_themes": ["Staged provocation to influence election environment"],
         "summary": "Washington Post: SVR proposed staging fake assassination attempt against Orbán. MF3 caution: single unnamed intelligence document. Do not upgrade without second Tier 1/2 source.",
+        "evidence_id": "FCW-BASE-RU-005",
+        "source_url": "https://www.washingtonpost.com",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record",
         "version_history": [
           {
             "date": "2026-04-02",
             "change": "Entry established at Assessed confidence with MF3 flag",
             "reason": "Washington Post reporting 21 March 2026 — single unnamed source",
             "prior_value": "Not previously tracked"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
+          }
+        ]
+      },
+      {
+        "id": "RU-006",
+        "operation_name": "Operation Overload — Media/Fact-Checker Resource Drain",
+        "first_documented": "2024-06-01",
+        "attribution_confidence": "Confirmed",
+        "status": "ACTIVE",
+        "last_activity": "2026-04-01",
+        "target_audience": "Western journalists, fact-checkers, media organisations (France, Germany, Moldova, Poland, Ukraine, US)",
+        "platform_vectors": ["Email campaigns", "Telegram", "X/Twitter", "Bluesky", "TikTok (since May 2025)"],
+        "narrative_themes": ["Anti-Ukrainian rhetoric", "election interference narratives", "gender-based disinformation", "smear campaigns against pro-EU politicians"],
+        "summary": "CheckFirst/Reset Tech third report (June 2025): 997 deceptive emails to 245+ media/research organisations since Jan 2024; 700 targeted emails since Sep 2024; 600 unique pieces of falsified content; 180+ identities and institutions impersonated. AI-generated content increasingly used. X continues to underperform on enforcement. Operation Overload overlaps structurally with Matryoshka/Doppelganger network.",
+        "evidence_id": "FCW-BASE-RU-006",
+        "source_url": "https://checkfirst.network/operation-overload-an-ai-fuelled-escalation-of-the-kremlin-linked-propaganda-effort/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Entry established — new entry from baseline research",
+            "reason": "CheckFirst/DFRLab June 2025 third Overload report; confirmed ACTIVE through April 2026",
+            "prior_value": "Not previously tracked in this pipeline"
+          }
+        ]
+      },
+      {
+        "id": "RU-007",
+        "operation_name": "Pravda Network — Global Content Laundering Infrastructure",
+        "first_documented": "2023-07-01",
+        "attribution_confidence": "Confirmed",
+        "status": "ACTIVE",
+        "last_activity": "2026-04-01",
+        "target_audience": "110+ countries; primary focus France, Germany, Ukraine, Moldova, Serbia",
+        "platform_vectors": ["Country-specific web domains (110+ countries)", "Telegram amplification (InfoDefense/SurfNoise)", "Wikipedia", "AI chatbots (content pollution)", "X Community Notes"],
+        "narrative_themes": ["Pro-Kremlin narrative amplification", "TASS/RIA Novosti/RT content laundering", "Sanctioned Russian media bypass"],
+        "summary": "DFRLab/CheckFirst April 2025 investigation: 3.7 million articles published; linked to TigerWeb (Crimea-based IT firm) and its owner. Top sources: TASS (136K), RIA Novosti (99K), Lenta (89K), Komsomolskaya Pravda (59K), RT (54K). Primary focus: France (394K articles), Germany (377K), Ukraine (270K), Moldova (245K), Serbia (229K). Domains surged pre-2024 EU elections and Oct 2024–Jan 2025. Real-time dashboard released April 2025.",
+        "evidence_id": "FCW-BASE-RU-007",
+        "source_url": "https://dfrlab.org/2025/04/18/introducing-the-pravda-dashboard/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Entry established — new entry from baseline research",
+            "reason": "DFRLab/CheckFirst April 2025 Pravda Network investigation; confirmed ACTIVE through April 2026",
+            "prior_value": "Not previously tracked in this pipeline"
+          }
+        ]
+      },
+      {
+        "id": "RU-008",
+        "operation_name": "Russia — Moldova 2025 Parliamentary Election Interference",
+        "first_documented": "2025-09-01",
+        "attribution_confidence": "Confirmed",
+        "status": "CONCLUDED",
+        "last_activity": "2025-09-28",
+        "target_audience": "Moldovan voters; pro-EU ruling party supporters",
+        "platform_vectors": ["Social media (X, Telegram)", "paid network of human influencers", "fake polling organisations", "audio/video deepfakes"],
+        "narrative_themes": ["Electoral fraud claims", "discrediting pro-EU governing party", "EU membership disinformation (sexual content claims)", "President Sandu defamation"],
+        "summary": "BBC undercover investigation: Russian-funded network paid participants to post pro-Russian propaganda and fake news ahead of 28 September 2025 Moldovan parliamentary election. Network connected to sanctioned oligarch Ilan Shor. Tactics included fabricated documents, voice recordings, and deepfakes. Swedish Psychological Defence Agency confirmed broad-spectrum Russian hybrid interference. Operation concluded post-election.",
+        "evidence_id": "FCW-BASE-RU-008",
+        "source_url": "https://www.bbc.com/news/articles/c4g5kl0n5d2o",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Entry established — new entry from baseline research",
+            "reason": "BBC investigation September 2025; Swedish PDA and DFRLab corroboration",
+            "prior_value": "Not previously tracked in this pipeline"
+          }
+        ]
+      },
+      {
+        "id": "RU-009",
+        "operation_name": "Russia — Czech Parliamentary Election 2025 Information Operation",
+        "first_documented": "2025-10-01",
+        "attribution_confidence": "High",
+        "status": "CONCLUDED",
+        "last_activity": "2025-10-31",
+        "target_audience": "Czech voters; pro-EU, pro-NATO political forces",
+        "platform_vectors": ["TikTok", "X/Twitter", "Telegram", "proxy websites (neČT24, Pravda network, NewsFront SK)"],
+        "narrative_themes": ["Electoral fraud allegations", "undermining institutional trust", "weakening Ukraine support", "migration disinformation", "defence spending framing"],
+        "summary": "Alliance4Europe/FDEI assessment (January 2026): ~300 fake accounts detected spreading Russian narratives ahead of October 2025 Czech elections. No evidence of coordinated large-scale operation capable of influencing outcome. Czech society showed democratic resilience. Russian actors leveraged Pravda network, rebranded media assets, cross-platform amplification.",
+        "evidence_id": "FCW-BASE-RU-009",
+        "source_url": "https://alliance4europe.eu/report/assessment-of-foreign-information-manipulation-and-interference-in-the-2025-czech-parliamentary-election",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Entry established — new entry from baseline research",
+            "reason": "Alliance4Europe/FDEI January 2026 assessment; Czech media and CEDMO reporting Oct 2025",
+            "prior_value": "Not previously tracked in this pipeline"
           }
         ]
       }
@@ -108,13 +275,26 @@
         "attribution_confidence": "Confirmed",
         "status": "DISRUPTED",
         "last_activity": "2026-03-01",
-        "summary": "Google TAG Q1 2026 removed 2,500+ assets. Ongoing reconstitution of network infrastructure anticipated.",
+        "target_audience": "Indo-Pacific audiences; Taiwan, Japan, Vietnam, Philippines, India; global overseas Chinese diaspora",
+        "platform_vectors": ["YouTube", "Facebook", "Instagram", "X/Twitter", "TikTok", "Reddit", "Medium"],
+        "narrative_themes": ["Pro-CCP narratives", "anti-Taiwan independence", "anti-US foreign policy", "anti-dissident content", "Gaza war framing to discredit US"],
+        "summary": "Google TAG Q1 2026 removed 2,500+ assets. Google TAG: Dragonbridge is the most prolific pro-PRC IO operator tracked as of early 2026 based on 'massive scale and assertive narrative agenda'. Notably more assertive in Asia-Pacific. February 2026: Spamouflage cluster targeted Japanese PM Takaichi ahead of election. AI-generated content used but engagement remains low. US DoD 2025 Annual Report confirms Ministry of Public Security '912 Special Project' link.",
+        "evidence_id": "FCW-BASE-CN-001",
+        "source_url": "https://www.asiaone.com/china/chinese-influence-operation-targets-japan-elections-trump-other-countries-says-us-foundation",
+        "retrieval_date": "2026-04-28",
+        "source_type": "platform-disclosure",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established at DISRUPTED status — inaugural issue",
             "reason": "Google TAG Q1 2026 takedown confirmed",
             "prior_value": "Not previously tracked in this pipeline"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added; Japan election activity Feb 2026 added; DoD 2025 Annual Report cited",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
           }
         ]
       },
@@ -125,12 +305,49 @@
         "attribution_confidence": "Assessed",
         "status": "ONGOING",
         "last_activity": "2026-03-01",
+        "target_audience": "Pacific Island nations governments and media ecosystems",
+        "platform_vectors": ["community engagement events", "state media", "diplomatic networks", "social media"],
+        "narrative_themes": ["PRC governance narrative", "anti-US/Five Eyes messaging", "sovereignty framing favourable to Beijing"],
         "summary": "ASPI ICPC documents UFWD-linked community engagement across Pacific Island nations targeting governance and media narrative.",
+        "evidence_id": "FCW-BASE-CN-002",
+        "source_url": "https://www.aspi.org.au/program/international-cyber-policy-centre",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established — inaugural issue",
             "reason": "ASPI ICPC ongoing documentation",
+            "prior_value": "Not previously tracked in this pipeline"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
+          }
+        ]
+      },
+      {
+        "id": "CN-003",
+        "operation_name": "Meta Q1 2025 CIB Takedown — China/Myanmar/Taiwan/Japan",
+        "first_documented": "2025-01-01",
+        "attribution_confidence": "Confirmed",
+        "status": "DISRUPTED",
+        "last_activity": "2025-03-31",
+        "target_audience": "Myanmar, Taiwan, Japan audiences; targeting opposition movements and US alliances",
+        "platform_vectors": ["Facebook", "Instagram"],
+        "narrative_themes": ["Myanmar military junta support", "anti-Taiwan leadership", "anti-US-Japan alliance", "fabricated corruption allegations"],
+        "summary": "Meta Q1 2025 Adversarial Threat Report: removed 157 Facebook accounts, 19 Pages, 1 Group, 17 Instagram accounts. AI-generated profile photos. Linked to prior China-based operations disrupted in September 2022 and February 2024. Operational before acquiring authentic audience.",
+        "evidence_id": "FCW-BASE-CN-003",
+        "source_url": "https://transparency.meta.com/metasecurity/threat-reporting",
+        "retrieval_date": "2026-04-28",
+        "source_type": "platform-disclosure",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Entry established — new entry from baseline research",
+            "reason": "Meta Q1 2025 Adversarial Threat Report; confirmed via Hacker News/Cyfluence secondary sources",
             "prior_value": "Not previously tracked in this pipeline"
           }
         ]
@@ -144,12 +361,73 @@
         "attribution_confidence": "Assessed",
         "status": "ONGOING",
         "last_activity": "2026-03-01",
-        "summary": "Iran-aligned network amplifying pro-Palestinian campus protest movements across EU/US. DFRLab Q1 2026 documentation.",
+        "target_audience": "EU and US campus protest communities; pro-Palestinian audiences",
+        "platform_vectors": ["X/Twitter", "Telegram", "Instagram", "hashtag amplification networks"],
+        "narrative_themes": ["Pro-Palestinian amplification", "anti-Israel framing", "anti-Western government protest incitement"],
+        "summary": "Iran-aligned network amplifying pro-Palestinian campus protest movements across EU/US. DFRLab Q1 2026 documentation. EU designated IRGC as terrorist organisation January 29, 2026, imposing asset freezes — directly constrains IRGC financial infrastructure for IO operations.",
+        "evidence_id": "FCW-BASE-IR-001",
+        "source_url": "https://www.ncr-iran.org/en/news/terrorism-a-fundamentalism/eu-formally-designates-irans-irgc-as-a-terrorist-organization/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "gov-attribution",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established — inaugural issue",
             "reason": "DFRLab Q1 2026 documentation",
+            "prior_value": "Not previously tracked in this pipeline"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "EU IRGC terrorist designation Jan 29 2026 added as material structural development; target audience and platform vectors enriched",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment or EU designation note"
+          }
+        ]
+      },
+      {
+        "id": "IR-002",
+        "operation_name": "STORM-2035 / Meta Q1 2025 Iran CIB — Azerbaijan/Turkey",
+        "first_documented": "2025-01-01",
+        "attribution_confidence": "Confirmed",
+        "status": "DISRUPTED",
+        "last_activity": "2025-03-31",
+        "target_audience": "Azeri-speaking audiences in Azerbaijan and Turkey",
+        "platform_vectors": ["Facebook", "Instagram", "X/Twitter", "YouTube"],
+        "narrative_themes": ["Anti-US foreign policy", "anti-Israel military actions", "boycott US brands", "pro-Iran framing via female journalist personas"],
+        "summary": "Meta Q1 2025 Adversarial Threat Report (aided by Google Threat Intelligence Group): 17 Facebook accounts, 22 Pages, 21 Instagram accounts removed. Operators impersonated female journalists; spammed popular hashtags. Linked to STORM-2035 activity previously exposed by OpenAI and Microsoft. Small ad spend (~$70 USD). Moderate reach: 44,000 accounts following Pages, 63,000 Instagram.",
+        "evidence_id": "FCW-BASE-IR-002",
+        "source_url": "https://transparency.meta.com/metasecurity/threat-reporting",
+        "retrieval_date": "2026-04-28",
+        "source_type": "platform-disclosure",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Entry established — new entry from baseline research",
+            "reason": "Meta Q1 2025 Adversarial Threat Report; corroborated by Hacker News and Cyfluence reporting",
+            "prior_value": "Not previously tracked in this pipeline"
+          }
+        ]
+      },
+      {
+        "id": "IR-003",
+        "operation_name": "IRGC — Pro-Scottish Independence Bot Network",
+        "first_documented": "2025-06-01",
+        "attribution_confidence": "High",
+        "status": "DISRUPTED",
+        "last_activity": "2025-06-22",
+        "target_audience": "Scottish pro-independence audiences; UK information space",
+        "platform_vectors": ["X/Twitter"],
+        "narrative_themes": ["UK dissolution", "weakening UK security posture", "anti-NATO framing via Scottish independence angle"],
+        "summary": "UK Defence Journal reporting: dozens of pro-Scottish independence accounts on X went dark simultaneously after Israeli airstrikes disrupted Iranian cyber infrastructure — exposing direct link between physical attacks on Iran and IO capability disruption. DFRLab June 2025 weekly report.",
+        "evidence_id": "FCW-BASE-IR-003",
+        "source_url": "https://www.cyfluence-research.org/post/weekly-report-cyber-based-influence-campaigns-23rd-29th-of-june-2025",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Entry established — new entry from baseline research",
+            "reason": "Cyfluence/DFRLab June 2025 reporting; UK Defence Journal corroboration",
             "prior_value": "Not previously tracked in this pipeline"
           }
         ]
@@ -163,13 +441,26 @@
         "attribution_confidence": "Possible",
         "status": "ONGOING",
         "last_activity": "2026-03-01",
+        "target_audience": "UK Parliament members, journalists",
+        "platform_vectors": ["direct lobbying", "commercial intelligence operations", "social engineering"],
+        "narrative_themes": ["UAE diplomatic positioning", "narrative management re: UAE domestic policies"],
         "summary": "UAE-linked influence targeting UK Parliament and journalists. Forbidden Stories/OCCRP investigative reporting.",
+        "evidence_id": "FCW-BASE-GULF-001",
+        "source_url": "https://www.occrp.org",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established — inaugural issue",
             "reason": "Forbidden Stories/OCCRP investigative reporting",
             "prior_value": "Not previously tracked"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
           }
         ]
       }
@@ -182,13 +473,26 @@
         "attribution_confidence": "High",
         "status": "ACTIVE",
         "last_activity": "2026-03-05",
+        "target_audience": "European far-right political audiences; EU sovereignty-focused constituencies",
+        "platform_vectors": ["European parliamentary networks", "social media amplification", "coalition-building events"],
+        "narrative_themes": ["EU institutional delegitimisation", "national sovereignty framing", "anti-Ukraine support messaging", "far-right coalition building"],
         "summary": "AoS launched 5 March 2026. European far-right coalition including MEPs with Russian-linked connections. Convergence actor: US-registered entities sharing infrastructure with Kremlin-aligned networks.",
+        "evidence_id": "FCW-BASE-US-001",
+        "source_url": "https://www.politico.eu",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established — inaugural issue",
             "reason": "Politico EU and DW reporting on AoS launch 5 March 2026",
             "prior_value": "Not previously tracked"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
           }
         ]
       }
@@ -201,13 +505,26 @@
         "attribution_confidence": "Confirmed",
         "status": "ACTIVE",
         "last_activity": "2026-03-01",
+        "target_audience": "Bundestag politicians",
+        "platform_vectors": ["direct intelligence operations", "social engineering", "profiling"],
+        "narrative_themes": ["client-directed intelligence product; narrative unclear at operator level"],
         "summary": "Black Cube confirmed operating against Bundestag politicians. Operator confirmed; state client unattributed. Haaretz/Süddeutsche March 2026.",
+        "evidence_id": "FCW-BASE-IL-001",
+        "source_url": "https://www.haaretz.com",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record",
         "version_history": [
           {
             "date": "2026-03-30",
             "change": "Entry established — inaugural issue",
             "reason": "Haaretz and Süddeutsche Zeitung March 2026 confirmed Black Cube operation",
             "prior_value": "Not previously tracked"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
           }
         ]
       }
@@ -220,13 +537,26 @@
         "attribution_confidence": "Assessed",
         "status": "ACTIVE",
         "last_activity": "2026-03-23",
-        "summary": "DFRLab: 26 channels, 1.8B views, AI synthetic anchors + LLM scripts. Blends factual and fabricated war content. State attribution not yet established. MF2 caution applied.",
+        "target_audience": "Global English-speaking audiences seeking war coverage",
+        "platform_vectors": ["YouTube (26 channels)"],
+        "narrative_themes": ["Blended factual/fabricated war content", "conflict narrative manipulation", "high-volume engagement farming"],
+        "summary": "DFRLab: 26 channels, 1.8B views, AI synthetic anchors + LLM scripts. Blends factual and fabricated war content. State attribution not yet established. MF2 caution applied. YouTube policy enforcement absent.",
+        "evidence_id": "FCW-BASE-UNATTRIB-001",
+        "source_url": "https://dfrlab.org/2026/03/23/ai-generated-youtube-channels-co-opt-war-coverage-to-farm-nearly-two-billion-views/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research",
         "version_history": [
           {
             "date": "2026-04-02",
             "change": "Entry established — UNATTRIBUTED pending Tier 1/2 attribution",
             "reason": "DFRLab March 23 2026 report",
             "prior_value": "Not previously tracked"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Target audience, platform vectors, narrative themes added",
+            "reason": "FCW baseline run 2026-04-28",
+            "prior_value": "Entry held without dimensional enrichment"
           }
         ]
       }
@@ -240,61 +570,180 @@
         "GRU Unit 54777",
         "Doppelganger network",
         "RT/Sputnik overt + proxy seeding",
-        "Telegram channel networks"
+        "Telegram channel networks",
+        "Pravda Network (TigerWeb/Portal Kombat)",
+        "Operation Overload infrastructure",
+        "InfoDefense/SurfNoise Telegram network",
+        "Kehr.io TDS (traffic distribution system)"
       ],
-      "last_updated": "2026-04-16",
+      "last_updated": "2026-04-28",
+      "attribution_evidence_chains": [
+        {
+          "evidence_id": "FCW-BASE-RU-AEC-001",
+          "source": "EEAS 4th Annual FIMI Report",
+          "date": "2026-03-12",
+          "finding": "540 FIMI incidents documented in 2025; Russia primary actor; 10,500+ social media channels and websites mobilised",
+          "source_url": "https://www.eeas.europa.eu/eeas/4th-eeas-annual-report-foreign-information-manipulation-and-interference-threats_en",
+          "retrieval_date": "2026-04-28",
+          "source_type": "gov-attribution"
+        },
+        {
+          "evidence_id": "FCW-BASE-RU-AEC-002",
+          "source": "French SGDSN/VIGINUM TLP:CLEAR Report",
+          "date": "2026-01-22",
+          "finding": "Doppelganger attributed to Social Design Agency and Russian Presidential Administration; Kehr.io TDS documented",
+          "source_url": "https://www.sgdsn.gouv.fr/files/files/Publications/20260122_NP_TLP-CLEAR_SGDSN_VIGINUM_IMS_0.pdf",
+          "retrieval_date": "2026-04-28",
+          "source_type": "gov-attribution"
+        },
+        {
+          "evidence_id": "FCW-BASE-RU-AEC-003",
+          "source": "Recorded Future Insikt Group — Russia NGW Report",
+          "date": "2026-02-24",
+          "finding": "Russia hybrid warfare campaign Feb 2022–Jan 2026 identified as increasingly aggressive; Doppelgänger, Operation Overload, Operation Undercut, CopyCop all documented as RU-attributed",
+          "source_url": "https://www.recordedfuture.com/research/preparing-for-russias-new-generation-warfare-in-europe",
+          "retrieval_date": "2026-04-28",
+          "source_type": "threat-intel-vendor"
+        },
+        {
+          "evidence_id": "FCW-BASE-RU-AEC-004",
+          "source": "DFRLab/CheckFirst — Pravda Network Investigation",
+          "date": "2025-04-18",
+          "finding": "Pravda Network linked to TigerWeb (Crimea-based IT firm); 3.7M articles published laundering TASS/RIA Novosti/RT content across 110+ countries",
+          "source_url": "https://dfrlab.org/2025/04/18/introducing-the-pravda-dashboard/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "civil-society-research"
+        }
+      ],
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Profile established — inaugural issue",
           "reason": "First pipeline population",
           "prior_value": "Not previously in pipeline"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Primary infrastructure expanded; attribution_evidence_chains[] added; posture and doctrine_note updated",
+          "reason": "FCW baseline run 2026-04-28",
+          "prior_value": "Profile without attribution_evidence_chains"
         }
       ],
-      "posture": "Sustained baseline FIMI operations with AI-enabled content generation (Doppelganger infrastructure). No escalation or new campaign initiation detected this week. Operational posture remains consistent with 2026 calibration baseline.",
-      "doctrine_note": "No doctrine shift observed this week. Russian FIMI doctrine continues to emphasize synthetic content generation, cross-platform amplification via inauthentic accounts, and narrative persistence across EU information space. AI-FIMI integration remains core capability."
+      "posture": "Sustained and escalating FIMI operations targeting EU election cycles (Hungary April 2026, Czech October 2025, Moldova September 2025). AI-enabled content generation (Doppelganger Gen 3, Operation Overload, Pravda Network) fully operational. Recorded Future assesses Russia likely moving toward New Generation Warfare campaign posture in 2026–2028 window.",
+      "doctrine_note": "No doctrine shift observed. Russian FIMI doctrine continues to emphasize synthetic content generation, cross-platform amplification via inauthentic accounts, narrative persistence across EU information space, and exploitation of democratic election cycles. AI-FIMI integration fully mature."
     },
     "CN": {
       "doctrine_summary": "Discourse Power (话语权) / United Front Work / Three Warfares (心理战·舆论战·法律战). Three Warfares concept formalised 2003 PLA Political Work Regulations. Strategic patience: long-term narrative shaping over episodic operations.",
       "primary_infrastructure": [
         "UFWD",
         "PLA SSF Network Systems Dept",
-        "Dragonbridge/Spamouflage",
+        "Dragonbridge/Spamouflage (Ministry of Public Security '912 Special Project')",
         "CGTN",
         "WeChat ecosystem",
         "Confucius Institutes"
       ],
-      "last_updated": "2026-04-16",
+      "last_updated": "2026-04-28",
+      "attribution_evidence_chains": [
+        {
+          "evidence_id": "FCW-BASE-CN-AEC-001",
+          "source": "US DoD 2025 Annual Report — Military and Security Developments Involving China",
+          "date": "2025-12-23",
+          "finding": "Spamouflage linked to Ministry of Public Security '912 Special Project Working Group'; confirmed as most prolific pro-PRC IO operator by Google TAG as of early 2026",
+          "source_url": "https://media.defense.gov/2025/Dec/23/2003849070/-1/-1/1/ANNUAL-REPORT-TO-CONGRESS-MILITARY-AND-SECURITY-DEVELOPMENTS-INVOLVING-THE-PEOPLES-REPUBLIC-OF-CHINA-2025.PDF",
+          "retrieval_date": "2026-04-28",
+          "source_type": "gov-attribution"
+        },
+        {
+          "evidence_id": "FCW-BASE-CN-AEC-002",
+          "source": "Google TAG — Dragonbridge Q1 2026 disruption",
+          "date": "2026-03-01",
+          "finding": "Dragonbridge remains most prolific PRC-linked IO operator; notably more assertive in Asia-Pacific targeting Japan, Vietnam, India, Philippines; 2,500+ assets removed Q1 2026",
+          "source_url": "https://blog.google/threat-analysis-group/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "platform-disclosure"
+        },
+        {
+          "evidence_id": "FCW-BASE-CN-AEC-003",
+          "source": "Meta Q1 2025 Adversarial Threat Report",
+          "date": "2025-05-30",
+          "finding": "China-based CIB operation targeting Myanmar, Taiwan, Japan; AI-generated profile photos; linked to prior 2022 and 2024 disrupted operations",
+          "source_url": "https://transparency.meta.com/metasecurity/threat-reporting",
+          "retrieval_date": "2026-04-28",
+          "source_type": "platform-disclosure"
+        }
+      ],
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Profile established — inaugural issue",
           "reason": "First pipeline population",
           "prior_value": "Not previously in pipeline"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Attribution_evidence_chains[] added; posture updated with 2026 findings",
+          "reason": "FCW baseline run 2026-04-28",
+          "prior_value": "Profile without attribution_evidence_chains"
         }
       ],
-      "posture": "Sustained baseline FIMI operations targeting EU via state media, diplomatic networks, and influencer networks (borrowed mouths strategy). No escalation detected this week.",
-      "doctrine_note": "No doctrine shift observed. Chinese FIMI doctrine emphasizes long-term narrative positioning, influencer co-option, and state media amplification. AI-FIMI integration emerging but less mature than Russian infrastructure."
+      "posture": "Sustained high-tempo IO operations. Dragonbridge confirmed as most prolific PRC-linked IO operator globally. Expanding assertiveness in Asia-Pacific. AI experimentation ongoing but engagement remains low. Military-Civil Fusion framework provides structural capability development pathway.",
+      "doctrine_note": "No doctrine shift. Chinese FIMI doctrine continues to emphasize long-term narrative positioning, influencer co-option (borrowed mouths strategy), and state media amplification. Spamouflage/Dragonbridge operational tempo high but effectiveness limited outside Chinese-language information spaces."
     },
     "IR": {
-      "doctrine_summary": "IRGC cognitive warfare / information operations. Elevated operational tempo since October 7 2023. Blurs distinction between genuine political expression and foreign-directed amplification — most methodologically difficult attribution category.",
+      "doctrine_summary": "IRGC cognitive warfare / information operations. Elevated operational tempo since October 7 2023. Blurs distinction between genuine political expression and foreign-directed amplification — most methodologically difficult attribution category. EU designated IRGC as terrorist organisation January 29, 2026.",
       "primary_infrastructure": [
         "IRGC Quds Force IO unit",
         "MOIS",
         "Atlas Intelligence Group",
-        "Press TV"
+        "Press TV",
+        "STORM-2035 network"
       ],
-      "last_updated": "2026-04-16",
+      "last_updated": "2026-04-28",
+      "attribution_evidence_chains": [
+        {
+          "evidence_id": "FCW-BASE-IR-AEC-001",
+          "source": "Meta Q1 2025 Adversarial Threat Report + OpenAI/Microsoft STORM-2035 attribution",
+          "date": "2025-05-30",
+          "finding": "Iranian CIB (STORM-2035 linked) targeting Azeri audiences; female journalist persona impersonation; Google Threat Intelligence Group aided takedown",
+          "source_url": "https://transparency.meta.com/metasecurity/threat-reporting",
+          "retrieval_date": "2026-04-28",
+          "source_type": "platform-disclosure"
+        },
+        {
+          "evidence_id": "FCW-BASE-IR-AEC-002",
+          "source": "EU Council — IRGC Terrorist Designation",
+          "date": "2026-01-29",
+          "finding": "EU unanimously designated IRGC as terrorist organisation; asset freezes and travel restrictions imposed; constrains IRGC IO financial infrastructure in Europe",
+          "source_url": "https://www.ncr-iran.org/en/news/terrorism-a-fundamentalism/eu-formally-designates-irans-irgc-as-a-terrorist-organization/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "gov-attribution"
+        },
+        {
+          "evidence_id": "FCW-BASE-IR-AEC-003",
+          "source": "Cyfluence/DFRLab — Iranian IO Disruption via Israeli Strikes",
+          "date": "2025-06-22",
+          "finding": "Pro-Scottish independence X accounts (Iranian IO) went dark simultaneously with Israeli airstrikes on Iranian cyber infrastructure — confirming physical-cyber IO nexus",
+          "source_url": "https://www.cyfluence-research.org/post/weekly-report-cyber-based-influence-campaigns-23rd-29th-of-june-2025",
+          "retrieval_date": "2026-04-28",
+          "source_type": "civil-society-research"
+        }
+      ],
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Profile established — inaugural issue",
           "reason": "First pipeline population",
           "prior_value": "Not previously in pipeline"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "EU IRGC designation added; attribution_evidence_chains[] added; STORM-2035 added to primary_infrastructure; posture updated",
+          "reason": "FCW baseline run 2026-04-28",
+          "prior_value": "Profile without attribution_evidence_chains or EU designation"
         }
       ],
-      "posture": "Baseline FIMI operations sustained. No new campaign activity detected this week. Iranian FIMI typically targets Middle East regional audiences and Western audiences on Israel-Palestine narratives.",
-      "doctrine_note": "No doctrine shift observed this week. Iranian FIMI doctrine emphasizes asymmetric narrative operations and exploitation of existing societal divisions."
+      "posture": "Significantly disrupted by Israeli military action June 2025 (physical-cyber nexus confirmed). EU IRGC terrorist designation January 2026 constrains financial channels for IO operations in Europe. Operational posture degraded relative to pre-June 2025 baseline but reconstitution expected.",
+      "doctrine_note": "Physical-cyber nexus newly confirmed: June 2025 Israeli strikes disrupted Iranian IO infrastructure (X account network went dark simultaneously). EU terrorist designation adds financial constraint. Iranian IO doctrine continues to emphasize asymmetric narrative operations exploiting societal divisions."
     },
     "GULF": {
       "doctrine_summary": "Strategic narrative management / lobbying-to-influence. UAE, Saudi Arabia, Qatar operating with distinct doctrines. UAE: targeted intelligence operations (Project Raven, NSO-client). Saudi: narrative seeding and anti-rival campaigns. Qatar: Al Jazeera soft power and parliamentary lobbying.",
@@ -303,16 +752,33 @@
         "Saudi: PR networks, sports-washing",
         "Qatar: Al Jazeera, European parliamentary channels"
       ],
-      "last_updated": "2026-04-16",
+      "last_updated": "2026-04-28",
+      "attribution_evidence_chains": [
+        {
+          "evidence_id": "FCW-BASE-GULF-AEC-001",
+          "source": "Forbidden Stories/OCCRP — UAE UK Parliament Investigation",
+          "date": "2025-01-01",
+          "finding": "UAE-linked influence operation targeting UK Parliament members and journalists; commercial intelligence operators used",
+          "source_url": "https://www.occrp.org",
+          "retrieval_date": "2026-04-28",
+          "source_type": "civil-society-research"
+        }
+      ],
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Profile established — inaugural issue",
           "reason": "First pipeline population",
           "prior_value": "Not previously in pipeline"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Attribution_evidence_chains[] added",
+          "reason": "FCW baseline run 2026-04-28",
+          "prior_value": "Profile without attribution_evidence_chains"
         }
       ],
-      "posture": "Gulf state FIMI operations remain under-documented in institutional sources. Baseline activity presumed but not verified this week.",
+      "posture": "Gulf state FIMI operations remain under-documented in institutional sources. Baseline activity presumed but not verified this quarter.",
       "doctrine_note": "No doctrine shift observed. Gulf state FIMI typically targets regional audiences and Western audiences on Iran-related narratives."
     },
     "US": {
@@ -322,17 +788,34 @@
         "Atlas/Heritage Network European affiliates",
         "Big Tech regulatory capture of DSA process"
       ],
-      "last_updated": "2026-04-16",
+      "last_updated": "2026-04-28",
+      "attribution_evidence_chains": [
+        {
+          "evidence_id": "FCW-BASE-US-AEC-001",
+          "source": "Politico EU / Deutsche Welle — AoS Launch Coverage",
+          "date": "2026-03-05",
+          "finding": "Alliance of Sovereign Nations launched March 5 2026; European far-right coalition including MEPs with Russian-linked connections; US entity sharing infrastructure with Kremlin-aligned networks",
+          "source_url": "https://www.politico.eu",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Profile established — inaugural issue",
           "reason": "First pipeline population",
           "prior_value": "Not previously in pipeline"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Attribution_evidence_chains[] added",
+          "reason": "FCW baseline run 2026-04-28",
+          "prior_value": "Profile without attribution_evidence_chains"
         }
       ],
-      "posture": "US FIMI operations remain systematically under-documented in institutional OSINT sources. Structural attribution gap reflects EEAS calibration toward Russian and Chinese operations.",
-      "doctrine_note": "No doctrine shift observed. US information operations in European information space are not institutionally tracked at Tier 1-2 level, creating analytical blind spot."
+      "posture": "US FIMI operations remain systematically under-documented in institutional OSINT sources. Structural attribution gap reflects EEAS calibration toward Russian and Chinese operations. GEC (US State Dept) has significantly curtailed public reporting in 2025–2026 period under current administration.",
+      "doctrine_note": "No doctrine shift observed. Note: GEC public reporting significantly reduced under current US administration — structural monitoring gap for US-actor analysis."
     },
     "IL": {
       "doctrine_summary": "Hasbara / Perception Management / Commercial Cognitive Warfare. Distinctive feature: privatisation of capability through Black Cube, NSO Group, Psy-Group (legacy). State-level capability with full deniability through commercial operators. ELNET parliamentary lobbying infrastructure in Europe.",
@@ -343,17 +826,34 @@
         "ELNET",
         "PM Office Communications Directorate"
       ],
-      "last_updated": "2026-04-16",
+      "last_updated": "2026-04-28",
+      "attribution_evidence_chains": [
+        {
+          "evidence_id": "FCW-BASE-IL-AEC-001",
+          "source": "Haaretz / Süddeutsche Zeitung — Black Cube Bundestag Investigation",
+          "date": "2026-03-01",
+          "finding": "Black Cube confirmed operating against Bundestag politicians; operator confirmed; state client unattributed",
+          "source_url": "https://www.haaretz.com",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Profile established — inaugural issue",
           "reason": "First pipeline population",
           "prior_value": "Not previously in pipeline"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Attribution_evidence_chains[] added",
+          "reason": "FCW baseline run 2026-04-28",
+          "prior_value": "Profile without attribution_evidence_chains"
         }
       ],
-      "posture": "Israeli FIMI operations remain systematically under-documented in institutional OSINT sources. Structural attribution gap reflects EEAS calibration toward Russian and Chinese operations.",
-      "doctrine_note": "No doctrine shift observed. Israeli information operations in European information space are not institutionally tracked at Tier 1-2 level, creating analytical blind spot."
+      "posture": "Israeli FIMI operations remain systematically under-documented in institutional OSINT sources. Black Cube Bundestag operation confirmed March 2026.",
+      "doctrine_note": "No doctrine shift observed. Note: ongoing Israel-Iran conflict since February-March 2026 may affect capability allocation for European IO operations."
     }
   },
   "platform_enforcement_tracker": [
@@ -365,7 +865,10 @@
       "date": "2026-02-01",
       "assets_removed": 1700,
       "headline": "Doppelganger network — largest Russia-attributed removal since 2022",
-      "source_url": "https://about.fb.com/news/"
+      "source_url": "https://about.fb.com/news/",
+      "evidence_id": "FCW-BASE-PET-001",
+      "retrieval_date": "2026-04-28",
+      "source_type": "platform-disclosure"
     },
     {
       "id": "PET-002",
@@ -375,7 +878,10 @@
       "date": "2026-03-01",
       "assets_removed": 2500,
       "headline": "Dragonbridge/Spamouflage Indo-Pacific network disruption",
-      "source_url": "https://blog.google/threat-analysis-group/"
+      "source_url": "https://blog.google/threat-analysis-group/",
+      "evidence_id": "FCW-BASE-PET-002",
+      "retrieval_date": "2026-04-28",
+      "source_type": "platform-disclosure"
     },
     {
       "id": "PET-003",
@@ -385,7 +891,10 @@
       "date": "2026-03-12",
       "assets_removed": 0,
       "headline": "EEAS: 88% of flagged FIMI content remains on X — structural enforcement failure",
-      "source_url": "https://www.eeas.europa.eu/eeas/4th-eeas-annual-report-foreign-information-manipulation-and-interference-threats_en"
+      "source_url": "https://www.eeas.europa.eu/eeas/4th-eeas-annual-report-foreign-information-manipulation-and-interference-threats_en",
+      "evidence_id": "FCW-BASE-PET-003",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
     },
     {
       "id": "PET-004",
@@ -395,13 +904,154 @@
       "date": "2026-03-23",
       "assets_removed": 0,
       "headline": "AI-generated network (26 channels, 1.8B views) active despite misinformation policy violations — no confirmed enforcement",
-      "source_url": "https://dfrlab.org/2026/03/23/ai-generated-youtube-channels-co-opt-war-coverage-to-farm-nearly-two-billion-views/"
+      "source_url": "https://dfrlab.org/2026/03/23/ai-generated-youtube-channels-co-opt-war-coverage-to-farm-nearly-two-billion-views/",
+      "evidence_id": "FCW-BASE-PET-004",
+      "retrieval_date": "2026-04-28",
+      "source_type": "civil-society-research"
+    },
+    {
+      "id": "PET-005",
+      "platform": "X",
+      "action_type": "DSA Enforcement — Fine",
+      "actor": "Platform (X Corp)",
+      "date": "2025-12-05",
+      "assets_removed": null,
+      "headline": "European Commission fines X €120 million under DSA — first non-compliance decision; X challenging at General Court of EU February 2026",
+      "source_url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_25_2934",
+      "evidence_id": "FCW-BASE-PET-005",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
+    },
+    {
+      "id": "PET-006",
+      "platform": "Meta",
+      "action_type": "CIB Takedown (Multi-actor)",
+      "actor": "China, Iran, Romania",
+      "date": "2025-05-30",
+      "assets_removed": 968,
+      "headline": "Meta Q1 2025 disrupts three global CIB operations: China (Myanmar/Taiwan/Japan), Iran (Azerbaijan/Turkey), Romania — all removed before acquiring authentic audiences",
+      "source_url": "https://transparency.meta.com/metasecurity/threat-reporting",
+      "evidence_id": "FCW-BASE-PET-006",
+      "retrieval_date": "2026-04-28",
+      "source_type": "platform-disclosure"
+    },
+    {
+      "id": "PET-007",
+      "platform": "TikTok",
+      "action_type": "DSA Commitment — Advertising Transparency",
+      "actor": "Platform (TikTok)",
+      "date": "2025-12-05",
+      "assets_removed": null,
+      "headline": "TikTok accepts binding EU commitments on DSA advertising transparency; advertising repository compliance enforced",
+      "source_url": "https://eucrim.eu/news/overview-of-the-latest-developments-under-the-digital-services-act-november-2025-february-2026/",
+      "evidence_id": "FCW-BASE-PET-007",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
     }
   ],
+  "infrastructure_registry": {
+    "entries": [
+      {
+        "id": "INFRA-001",
+        "entity_name": "Social Design Agency (SDA)",
+        "entity_type": "state-contractor",
+        "affiliated_actor": "Russia / Presidential Administration",
+        "known_operations": ["Doppelganger", "Operation Overload"],
+        "hosting_notes": "Russian company; operates via bulletproof hosting providers; uses Kehr.io TDS for obfuscation",
+        "sanctions_status": "EEAS RAS + EU destabilising activities sanctions regime (confirmed 2026)",
+        "evidence_id": "FCW-BASE-INFRA-001",
+        "source_url": "https://www.sgdsn.gouv.fr/files/files/Publications/20260122_NP_TLP-CLEAR_SGDSN_VIGINUM_IMS_0.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "gov-attribution"
+      },
+      {
+        "id": "INFRA-002",
+        "entity_name": "TigerWeb (Tigerweb)",
+        "entity_type": "state-contractor",
+        "affiliated_actor": "Russia",
+        "known_operations": ["Pravda Network / Portal Kombat"],
+        "hosting_notes": "Crimea-based IT company; owner has links to Russian-backed Crimea government",
+        "sanctions_status": "Named in EEAS 4th Report 2026",
+        "evidence_id": "FCW-BASE-INFRA-002",
+        "source_url": "https://dfrlab.org/the-pravda-network/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research"
+      },
+      {
+        "id": "INFRA-003",
+        "entity_name": "Kehr.io",
+        "entity_type": "commercial-service-provider",
+        "affiliated_actor": "Russia (client)",
+        "known_operations": ["Doppelganger TDS (traffic distribution system)"],
+        "hosting_notes": "Advertised on Russian-speaking underground forums; infrastructure on bulletproof hosting providers (Ukrainian/Belarusian-managed English companies)",
+        "sanctions_status": "Not sanctioned",
+        "evidence_id": "FCW-BASE-INFRA-003",
+        "source_url": "https://www.intrinsec.com/doppelganger-new-disinformation-campaigns-spreading-on-social-media-through-russian-networks/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "threat-intel-vendor"
+      },
+      {
+        "id": "INFRA-004",
+        "entity_name": "GRU Unit 54777",
+        "entity_type": "state-actor",
+        "affiliated_actor": "Russia / GRU",
+        "known_operations": ["UK political party influence-via-capture"],
+        "hosting_notes": "Military intelligence unit; covert operations capability",
+        "sanctions_status": "GRU broadly sanctioned",
+        "evidence_id": "FCW-BASE-INFRA-004",
+        "source_url": "https://www.mi5.gov.uk",
+        "retrieval_date": "2026-04-28",
+        "source_type": "gov-attribution"
+      },
+      {
+        "id": "INFRA-005",
+        "entity_name": "UFWD (United Front Work Department)",
+        "entity_type": "state-actor",
+        "affiliated_actor": "China / CCP",
+        "known_operations": ["Pacific Island States outreach", "diaspora community engagement globally"],
+        "hosting_notes": "CCP central department; operates via overseas Chinese associations and community organisations",
+        "sanctions_status": "Not sanctioned in EU",
+        "evidence_id": "FCW-BASE-INFRA-005",
+        "source_url": "https://www.aspi.org.au/program/international-cyber-policy-centre",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research"
+      },
+      {
+        "id": "INFRA-006",
+        "entity_name": "Black Cube",
+        "entity_type": "commercial-intelligence",
+        "affiliated_actor": "Israel (confirmed operator; state client unattributed)",
+        "known_operations": ["Bundestag Lobbying/Profiling (2026)"],
+        "hosting_notes": "Commercial intelligence firm; Tel Aviv-based",
+        "sanctions_status": "Not sanctioned",
+        "evidence_id": "FCW-BASE-INFRA-006",
+        "source_url": "https://www.haaretz.com",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      },
+      {
+        "id": "INFRA-007",
+        "entity_name": "NSO Group (Pegasus)",
+        "entity_type": "commercial-spyware",
+        "affiliated_actor": "Israel (developer); clients include multiple state actors",
+        "known_operations": ["Pegasus targeting of European politicians and journalists (documented through 2024)"],
+        "hosting_notes": "Israeli cyber intelligence company; under US export restrictions",
+        "sanctions_status": "US Entity List (November 2021)",
+        "evidence_id": "FCW-BASE-INFRA-007",
+        "source_url": "https://citizenlab.ca",
+        "retrieval_date": "2026-04-28",
+        "source_type": "civil-society-research"
+      }
+    ],
+    "more_in_gaps_register": false,
+    "total_entries": 7
+  },
   "ai_fimi_calibration_2026": {
     "baseline_date": "2026-04-02",
     "ai_fimi_is_baseline": true,
     "note": "AI-generated FIMI is now operationally embedded across all actor categories. Detection of AI-generated content is not automatically a new finding — assess departure from baseline.",
+    "eeas_4th_report_finding": "AI involved in >25% of 540 FIMI incidents documented in 2025 (EEAS 4th Annual Report, March 2026). AI-generated text, synthetic audio, and manipulated video shifted from experimental use to routine deployment.",
+    "deepfake_scale": "Estimated 8 million deepfake videos shared online by 2025 (EPRS estimate); 179 reported deepfake incidents in Q1 2025 alone — surpassing full-year 2024 total (Cyble)",
     "actor_capability": {
       "Russia": "High",
       "China": "High",
@@ -410,27 +1060,107 @@
       "United_States": "Assessed",
       "Israel": "Assessed",
       "Commercial": "High"
-    }
+    },
+    "evidence_id": "FCW-BASE-AIFIMI-001",
+    "source_url": "https://mediawell.ssrc.org/news-items/4th-eeas-report-on-foreign-information-manipulation-and-interference-threats/",
+    "retrieval_date": "2026-04-28",
+    "source_type": "gov-attribution"
   },
   "platform_transparency_2026": {
     "x_twitter": {
       "status": "structurally_degraded",
       "last_cib_report": "Q3 2022",
       "dsa_participation": false,
+      "dsa_fine": "€120 million (December 5, 2025) — first DSA non-compliance fine; X appealing at General Court of EU (February 2026)",
       "api_restrictions": true,
-      "reading_protocol": "Absence of X/Twitter disclosure is NOT evidence of absence of activity. Flag platformTransparencyGap:true."
+      "reading_protocol": "Absence of X/Twitter disclosure is NOT evidence of absence of activity. Flag platformTransparencyGap:true.",
+      "enforcement_gap": "88% of FIMI content flagged by EEAS remains on X platform (4th EEAS Annual Report 2026)",
+      "evidence_id": "FCW-BASE-PLATFORM-001",
+      "source_url": "https://ec.europa.eu/commission/presscorner/detail/en/ip_25_2934",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
     },
     "meta": {
       "status": "active",
-      "report_cadence": "quarterly"
+      "report_cadence": "quarterly",
+      "q1_2025_report": "Published May 2025; disrupted China/Iran/Romania CIB operations",
+      "feb_2026_ru_takedown": "1,700+ Doppelganger assets removed February 2026"
     },
     "google_tag": {
       "status": "active",
-      "report_cadence": "periodic"
+      "report_cadence": "periodic",
+      "q1_2026_cn_disruption": "2,500+ Dragonbridge/Spamouflage assets removed Q1 2026"
     },
     "mstic": {
       "status": "active",
+      "report_cadence": "periodic",
+      "mddr_2025": "Published October 2025; nation-state AI IO use surged in H1 2025"
+    },
+    "tiktok": {
+      "status": "dsa_commitments_accepted",
+      "dsa_advertising_transparency": "Binding commitments accepted December 5, 2025",
       "report_cadence": "periodic"
+    }
+  },
+  "regulatory_framework": {
+    "eu_dsa": {
+      "status": "ACTIVE_ENFORCEMENT",
+      "first_fine_issued": "2025-12-05",
+      "first_fine_target": "X Corp",
+      "first_fine_amount_eur": 120000000,
+      "code_of_practice_disinformation": "Integrated into DSA framework as compliance benchmark — February 13, 2025",
+      "european_democracy_shield": {
+        "announced": "2025-11-12",
+        "key_measures": [
+          "European Centre for Democratic Resilience (proposed)",
+          "DSA incidents and crisis protocol",
+          "European Network of Fact-Checkers (€5M funding, 2025)",
+          "Detection and labelling of AI-generated content"
+        ],
+        "status": "Implementation phase; largely soft-law coordination mechanisms"
+      },
+      "evidence_id": "FCW-BASE-REG-001",
+      "source_url": "https://eucrim.eu/news/overview-of-the-latest-developments-under-the-digital-services-act-november-2025-february-2026/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
+    },
+    "eeas_ras_fimi": {
+      "status": "ACTIVE",
+      "4th_annual_report": {
+        "published": "2026-03-12",
+        "incidents_2025": 540,
+        "channels_mobilised": 10500,
+        "countries_targeted": 100,
+        "ai_involvement_rate": ">25% of incidents",
+        "primary_targets": ["Ukraine", "France", "Moldova", "Germany"],
+        "fimi_galaxy_explorer": "First public interactive FIMI dashboard released March 2026"
+      },
+      "evidence_id": "FCW-BASE-REG-002",
+      "source_url": "https://www.eeas.europa.eu/eeas/4th-eeas-annual-report-foreign-information-manipulation-and-interference-threats_en",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
+    },
+    "irgc_eu_terrorist_designation": {
+      "status": "DESIGNATED",
+      "date": "2026-01-29",
+      "effect": "Asset freezes, travel restrictions on IRGC members, ban on providing funding/resources in EU",
+      "significance": "Directly constrains IRGC IO financial infrastructure in European information space",
+      "evidence_id": "FCW-BASE-REG-003",
+      "source_url": "https://www.ncr-iran.org/en/news/terrorism-a-fundamentalism/eu-formally-designates-irans-irgc-as-a-terrorist-organization/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
+    },
+    "nato_stratcom_coe": {
+      "status": "ACTIVE",
+      "2026_publications": [
+        "Countering Information Influence Operations in the Nordic-Baltic Region (January 22, 2026)",
+        "China's Influence in Nordic-Baltic Information Environment: Denmark and Lithuania (March 11, 2025)",
+        "Social Media Manipulation for Sale: 2025 Experiment on Platform Capabilities"
+      ],
+      "evidence_id": "FCW-BASE-REG-004",
+      "source_url": "https://stratcomcoe.org/publications",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution"
     }
   },
   "disarm_version": {
@@ -444,8 +1174,17 @@
       "architecture_generation": "3",
       "note": "Evolved from spoof-sites (2022) to subdomain approach + AI-generated content (2024-2025). Score against current architecture, not 2022 baseline."
     },
+    "operation_overload": {
+      "generation": "3",
+      "note": "Third CheckFirst report June 2025 documents AI-fuelled escalation; expanded to Bluesky and TikTok; 997 emails to 245+ organisations"
+    },
+    "pravda_network": {
+      "scale": "3.7M articles; 110+ countries",
+      "note": "DFRLab/CheckFirst real-time dashboard launched April 2025; TigerWeb attribution confirmed"
+    },
     "ai_fimi_baseline_established": true,
-    "commercial_sector_expanded": true
+    "commercial_sector_expanded": true,
+    "stanford_sio_status": "Dissolved 2024 — institutional gap in US-based IO research capacity"
   },
   "calibration_log": [
     {
@@ -453,6 +1192,54 @@
       "source": "FCW Enhancement Addendum v1.0 / EEAS StratCom 2025",
       "applied_by": "Computer session",
       "summary": "AI-FIMI operational calibration, X/Twitter transparency degraded, DISARM v1.5, Doppelganger architecture gen 3, campaign baseline recalibration"
+    },
+    {
+      "date": "2026-04-28",
+      "source": "FCW Baseline Run fcw-2026-04-28 / computer-research-subagent",
+      "applied_by": "DR baseline subagent",
+      "summary": "Full dimensional enrichment of all active_campaigns (target_audience, platform_vectors, narrative_themes); attribution_evidence_chains[] added to all actor_profiles; 7 new campaign entries added (RU-006 through RU-009, CN-003, IR-002, IR-003); infrastructure_registry bootstrapped; platform_enforcement_tracker expanded (PET-005 through PET-007); regulatory_framework module added; EU IRGC designation (Jan 2026), DSA X fine (Dec 2025), EEAS 4th Report (Mar 2026), Operation Overload Gen 3, Pravda Network scale all documented"
+    }
+  ],
+  "gaps_register": [
+    {
+      "gap_id": "GAP-001",
+      "description": "DPRK active IO/FIMI campaigns not yet mapped as active_campaigns entries. DPRK impersonates foreign media, uses AI deepfakes for information operations; 'Research Center 227' established March 2025 under RGB for offensive cyber/AI. Primarily Korea-theatre but global relevance growing.",
+      "source_url": "https://www.stimson.org/2026/north-koreas-integration-of-ai-across-cyber-economic-and-military-domains/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "civil-society-research",
+      "operator_action_required": "Consider adding DPRK actor_profile and campaign entries if scope expanded"
+    },
+    {
+      "gap_id": "GAP-002",
+      "description": "Romania 2025 election CIB operation (Meta Q1 2025): ~20,000 accounts, $177,000 ad spend, cross-platform (YouTube, X, TikTok). Meta did not attribute to state actor. Domestic or foreign-directed unclear. Does not map cleanly to existing actor taxonomy.",
+      "source_url": "https://transparency.meta.com/metasecurity/threat-reporting",
+      "retrieval_date": "2026-04-28",
+      "source_type": "platform-disclosure",
+      "operator_action_required": "Operator review: add to UNATTRIBUTED or await state attribution before adding as campaign entry"
+    },
+    {
+      "gap_id": "GAP-003",
+      "description": "GEC (US Global Engagement Center) public reporting significantly curtailed under current US administration in 2025-2026. Key civil society-facing counterpart source now structurally unavailable. Monitoring gap for US government FIMI counter-attribution.",
+      "source_url": "https://www.state.gov/global-engagement-center/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "gov-attribution",
+      "operator_action_required": "Flag as structural monitoring gap; identify substitute sources (Five Eyes joint statements, CISA, Graphika)"
+    },
+    {
+      "gap_id": "GAP-004",
+      "description": "Stanford Internet Observatory dissolved 2024 — institutional gap in independent US-based IO research. New leadership unclear; output pipeline interrupted. May affect baseline quality for US-theatre IO monitoring.",
+      "source_url": "https://en.wikipedia.org/wiki/Stanford_Internet_Observatory",
+      "retrieval_date": "2026-04-28",
+      "source_type": "civil-society-research",
+      "operator_action_required": "Update primary source list: remove SIO as primary; substitute DFRLab, Graphika, EU DisinfoLab, EDMO, NATO StratCom COE as primary civil society sources"
+    },
+    {
+      "gap_id": "GAP-005",
+      "description": "Graphika's 2026 finding that generative AI enables high-volume bilingual content tailored to local political contexts in elections (three recent elections documented) needs full citation and sourcing.",
+      "source_url": "https://graphika.com/blog",
+      "retrieval_date": "2026-04-28",
+      "source_type": "civil-society-research",
+      "operator_action_required": "Fetch Graphika blog post for full citation; consider adding as supporting evidence in ai_fimi_calibration_2026"
     }
   ]
 }
