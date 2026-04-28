@@ -1,12 +1,1113 @@
 {
   "_meta": {
-    "description": "Persistent living knowledge for the Strategic Conflict & Escalation Monitor (SCEM). Carries forward conflict baselines (indicator medians build over 13 weeks), F-flag history, and roster status across weekly issues.",
-    "last_updated": "2026-04-19T09:30:53Z",
+    "description": "Persistent living knowledge for the Strategic Conflict & Escalation Monitor (SCEM). Carries forward conflict baselines (indicator medians build over 13 weeks), F-flag history, and roster status across weekly issues. Extended by DR baseliner 2026-04-28 with spec-mandated structural modules.",
+    "last_updated": "2026-04-28T00:00:00Z",
     "last_issue": 8,
     "week_number": 1,
-    "schema_version": "1.0",
-    "calibration": "ACLED 2026 Watchlist + I1-I6 upgrades applied 2026-04-02"
+    "schema_version": "2.0",
+    "calibration": "ACLED 2026 Watchlist + I1-I6 upgrades applied 2026-04-02",
+    "baseline_method": "dr-computer-2026-04-28",
+    "baseline_window_months": 18,
+    "baseline_run_id": "scem-2026-04-28",
+    "baseline_dispatched_at": "2026-04-28T00:00:00Z",
+    "baseline_model": "computer-research-subagent",
+    "predecessor_archive": "persistent-state-2026-04-19-pre-baseliner.json",
+    "baseliner_corrections": [
+      {
+        "field": "last_issue",
+        "from": 0,
+        "to": 8,
+        "applied_at": "2026-04-28T06:22:16Z",
+        "reason": "Subagent emitted last_issue=0 (first-build pattern); current state has last_issue=8. Operator-side correction during consolidation."
+      }
+    ]
   },
+  "conflict_pair_registry": [
+    {
+      "conflict_id": "russia-ukraine",
+      "display_name": "Russia–Ukraine War",
+      "theatre": "Eastern Europe",
+      "parties": [
+        "Russia",
+        "Ukraine"
+      ],
+      "external_parties": [
+        "NATO (indirect — weapons/intelligence)",
+        "North Korea (troops + munitions)",
+        "Belarus (territory)",
+        "US (intelligence + weapons)"
+      ],
+      "nature": "kinetic",
+      "status": "Active — Spring-Summer 2026 offensive under way",
+      "onset_date": "2022-02-24",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-russia-ukraine-001",
+      "source_url": "https://understandingwar.org/research/russia-ukraine/russian-offensive-campaign-assessment-april-22-2026/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record"
+    },
+    {
+      "conflict_id": "russia-nato",
+      "display_name": "Russia–NATO Strategic Competition",
+      "theatre": "Euro-Atlantic",
+      "parties": [
+        "Russia",
+        "NATO (collective)"
+      ],
+      "nature": "grey-zone/strategic-competition",
+      "status": "Active — elevated; Eastern Sentry launched Sep 2025",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-russia-nato-001",
+      "source_url": "https://www.nato.int/en/what-we-do/deterrence-and-defence/strengthening-natos-eastern-flank",
+      "retrieval_date": "2026-04-28",
+      "source_type": "primary-government"
+    },
+    {
+      "conflict_id": "israel-hamas-gaza",
+      "display_name": "Gaza / Israel–Hamas",
+      "theatre": "Middle East",
+      "parties": [
+        "Israel",
+        "Hamas",
+        "Palestinian Islamic Jihad"
+      ],
+      "nature": "kinetic",
+      "status": "Active — fragile ceasefire (Trump Oct-2025 framework); persistent violations; Hamas rejected disarmament 14 Apr 2026",
+      "onset_date": "2023-10-07",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-israel-hamas-001",
+      "source_url": "https://www.securitycouncilreport.org/monthly-forecast/2026-04/the-middle-east-including-the-palestinian-question-24.php",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record"
+    },
+    {
+      "conflict_id": "israel-iran-direct",
+      "display_name": "US–Israel vs Iran (Op Epic Fury / Op Roaring Lion)",
+      "theatre": "Middle East / Persian Gulf",
+      "parties": [
+        "US",
+        "Israel",
+        "Iran",
+        "Houthi/Ansar Allah",
+        "Iran-aligned proxies"
+      ],
+      "nature": "kinetic",
+      "status": "Active — war on; ceasefire fragile; Hormuz blockade by both sides; nuclear talks at impasse Apr 2026",
+      "onset_date": "2026-02-28",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-israel-iran-001",
+      "source_url": "https://www.axios.com/2026/04/27/iran-us-hormuz-strait-nuclear-talks-proposal-pakistan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "israel-hezbollah-lebanon",
+      "display_name": "Israel–Lebanon / Hezbollah War",
+      "theatre": "Middle East",
+      "parties": [
+        "Israel",
+        "Hezbollah",
+        "Lebanon (state capacity disputed)"
+      ],
+      "nature": "kinetic",
+      "status": "Active — ceasefire brokered Apr 16 2026 now unraveling; IDF ground forces remain; new evacuation orders Apr 27",
+      "onset_date": "2026-03-02",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-israel-hezbollah-001",
+      "source_url": "https://www.aljazeera.com/news/2026/4/26/israel-issues-forced-evacuation-orders-for-southern-lebanon-in-escalation",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "us-china-taiwan",
+      "display_name": "US–China (Taiwan Strait / SCS / ECS / Tech)",
+      "theatre": "Indo-Pacific",
+      "parties": [
+        "PRC",
+        "Taiwan (ROC)",
+        "US",
+        "Japan (aligned)",
+        "Australia (aligned)"
+      ],
+      "nature": "grey-zone/strategic-competition",
+      "status": "Active — sustained PLA grey-zone pressure; Justice Mission 2025 Dec 2026; US-PH Balikatan 2026 ongoing Apr",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-us-china-001",
+      "source_url": "https://chinapower.csis.org/china-increased-military-activities-indo-pacific-2025/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "korea-peninsula",
+      "display_name": "Korean Peninsula",
+      "theatre": "East Asia",
+      "parties": [
+        "DPRK",
+        "South Korea",
+        "US"
+      ],
+      "nature": "grey-zone/kinetic-potential",
+      "status": "Active — DPRK troops deployed Russia; 7th missile test 2026 Apr; Kim ordered nuclear acceleration Feb 2026",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-korea-001",
+      "source_url": "https://www.armscontrol.org/act/2026-04/news/north-korea-seeks-nuclear-recognition-us-talks",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "india-pakistan",
+      "display_name": "India–Pakistan",
+      "theatre": "South Asia",
+      "parties": [
+        "India",
+        "Pakistan"
+      ],
+      "external_parties": [
+        "Pakistan-backed militant groups",
+        "China (indirect support to Pakistan)"
+      ],
+      "nature": "kinetic/grey-zone",
+      "status": "Latent escalatory — post-Op Sindoor May 2025 ceasefire; residual tension; CFR rates 'moderate' conflict risk 2026",
+      "last_kinetic": "2025-05-10",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-india-pak-001",
+      "source_url": "https://thediplomat.com/2025/06/no-war-no-peace-indias-limited-war-strategy-of-controlled-escalation/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "india-china",
+      "display_name": "India–China",
+      "theatre": "Himalayan / Indo-Pacific",
+      "parties": [
+        "India",
+        "China"
+      ],
+      "nature": "grey-zone/strategic-competition",
+      "status": "Managed tension — post-Galwan partial disengagement holds; structural competition in Indian Ocean continues",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-india-china-001",
+      "source_url": "https://thediplomat.com/2025/06/no-war-no-peace-indias-limited-war-strategy-of-controlled-escalation/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "sudan-civil-war",
+      "display_name": "Sudan Civil War (SAF vs RSF)",
+      "theatre": "Sahel / Horn of Africa",
+      "parties": [
+        "SAF (Sudanese Armed Forces)",
+        "RSF (Rapid Support Forces / Hemedti)",
+        "SPLM-N (SAF-aligned)"
+      ],
+      "external_parties": [
+        "UAE (RSF support)",
+        "Ethiopia (RSF training)",
+        "Egypt + Turkey (SAF support — Akinci drones)"
+      ],
+      "nature": "kinetic",
+      "status": "Active — year 4; Kordofan new flashpoint; RSF captured El Fasher Oct 2025; 14M displaced",
+      "onset_date": "2023-04-15",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-sudan-001",
+      "source_url": "https://www.cfr.org/global-conflict-tracker/conflict/power-struggle-sudan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "myanmar-civil-war",
+      "display_name": "Myanmar Civil War",
+      "theatre": "Southeast Asia",
+      "parties": [
+        "SAC/Tatmadaw (junta)",
+        "NUG/PDF",
+        "Three Brotherhood Alliance (AA, MNDAA, TNLA)",
+        "KIA",
+        "KNU"
+      ],
+      "external_parties": [
+        "China (junta support)",
+        "Russia (junta support)",
+        "Iran (jet fuel)"
+      ],
+      "nature": "kinetic",
+      "status": "Active — year 5+; junta controls ~21% territory; SCEF resistance alliance formed Apr 2026; Min Aung Hlaing sworn as president Apr 10 2026",
+      "onset_date": "2021-02-01",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-myanmar-001",
+      "source_url": "https://theconversation.com/the-myanmar-civil-war-is-at-stalemate-but-anti-junta-forces-may-be-gaining-the-upper-hand-277733",
+      "retrieval_date": "2026-04-28",
+      "source_type": "academic"
+    },
+    {
+      "conflict_id": "drc-eastern",
+      "display_name": "DRC Eastern Theatre",
+      "theatre": "Central Africa",
+      "parties": [
+        "FARDC (DRC government)",
+        "M23 / AFC",
+        "Rwanda (backing M23)"
+      ],
+      "external_parties": [
+        "US (Washington Accords mediation)",
+        "Angola",
+        "Qatar (Doha process)"
+      ],
+      "nature": "kinetic",
+      "status": "Active — ceasefire fragile; Switzerland talks Apr 16-19 2026 produced humanitarian protocol; South Kivu fighting continues",
+      "onset_date": "2012-01-01",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-drc-001",
+      "source_url": "https://www.aljazeera.com/news/2026/4/19/drc-government-m23-rebels-commit-to-protect-civilians-aid-deliveries",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "haiti-political-criminal",
+      "display_name": "Haiti Political-Criminal",
+      "theatre": "Caribbean",
+      "parties": [
+        "Haitian National Police",
+        "Gang Coalition (including Viv Ansanm)",
+        "MSS→GSF transition"
+      ],
+      "nature": "kinetic/criminal-political",
+      "status": "Active — MSS transitioning to GSF (Haitian-led security force); gang control of ~85% Port-au-Prince",
+      "as_of": "2026-04-28",
+      "evidence_id": "SCEM-BASE-haiti-001",
+      "source_url": "https://acleddata.com",
+      "retrieval_date": "2026-04-28",
+      "source_type": "sipri-iiss-acled-ucdp"
+    }
+  ],
+  "order_of_battle": [
+    {
+      "actor": "Russia",
+      "theatre": "Ukraine",
+      "as_of": "2026-04-22",
+      "standing_strength": "~600,000 troops deployed (per ISW Apr 2026 estimates)",
+      "deployed_positions": "Eastern Ukraine front — Lyman, Kupyansk, Pokrovsk, Chasiv Yar, Donetsk axes; Kherson direction; Zaporizhzhia steppe",
+      "key_capabilities": {
+        "precision_strike": "Iskander-M ballistic, Kh-101/Kh-59/Kh-69 cruise missiles, Kinzhal (limited)",
+        "drones": "Shahed-136/Gerbera/Italmas (Iran-sourced); Lancet loitering munition; Molniya FPV — mass-employment doctrine",
+        "air_defence": "S-400, S-300, Pantsir-S1",
+        "armour": "T-72/T-80/T-90; significant attrition — replaced by older stocks and DPRK-supplied munitions"
+      },
+      "notable": "Spring-Summer 2026 offensive begun ~Mar 17; largest single strike package in war history launched Mar 23-24 (~1000 projectiles); Ukraine drone advantage degrading Russian advance tempo",
+      "dprk_contingent": "~11,000 troops in Kursk Oblast; 6,000 casualties to date; regular rotations; artillery units active since Jan 2026",
+      "evidence_id": "SCEM-BASE-russia-ukraine-002",
+      "source_url": "https://understandingwar.org/research/russia-ukraine/russian-offensive-campaign-assessment-april-22-2026/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record"
+    },
+    {
+      "actor": "Ukraine",
+      "theatre": "Ukraine",
+      "as_of": "2026-04-22",
+      "deployed_positions": "Sumy/Kharkiv sector; Fortress Belt (Lyman-Slovyansk-Kramatorsk); Pokrovsk axis; Zaporizhzhia-Dnipropetrovsk front",
+      "key_capabilities": {
+        "drones": "11,000+ combat UAV missions per day (Syrskyi Apr 9 2026); 41 mid-range strikes Jan → 115 Mar 2026; drone advantage confirmed vs Russia",
+        "air_defence": "US Patriot (critical shortage); NASAMS; European systems; degraded by Russian strikes on energy",
+        "strike": "Mid-range strikes against Russian logistics/command posts in near-rear; strikes on Russian oil infrastructure (Tuapse Apr 28)"
+      },
+      "notable": "Most significant territorial gains since Kursk incursion Aug 2024; recently liberated Andriivka (Sumy north) Apr 21; Ukraine preparations for summer counter-offensive",
+      "evidence_id": "SCEM-BASE-russia-ukraine-003",
+      "source_url": "https://understandingwar.org/research/russia-ukraine/russian-offensive-campaign-assessment-april-9-2026/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record"
+    },
+    {
+      "actor": "Israel (IDF)",
+      "theatre": "Middle East (multi-front)",
+      "as_of": "2026-04-28",
+      "deployed_positions": "Gaza (Yellow Line perimeter); Southern Lebanon (Litani buffer zone, ground forces); Persian Gulf / Red Sea (joint with US)",
+      "key_capabilities": {
+        "air": "F-35I Adir; F-15I Ra'am; multi-axis precision strike; 700+ Lebanon sorties documented Mar 2026",
+        "ground": "98th Division + second division in Lebanon; Golani in Gaza perimeter",
+        "air_defence": "Iron Dome (Gaza/Lebanon); Arrow 3 (ballistic); David's Sling"
+      },
+      "notable": "Operation Eternal Darkness (Apr 8 2026) — 357 killed, 100 airstrikes; IDF ground invasion Lebanon since Mar 16 2026",
+      "evidence_id": "SCEM-BASE-israel-hezbollah-002",
+      "source_url": "https://en.wikipedia.org/wiki/8_April_2026_Israeli_attacks_on_Lebanon",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "actor": "Iran (IRGC + conventional)",
+      "theatre": "Persian Gulf / Middle East",
+      "as_of": "2026-04-28",
+      "deployed_positions": "Persian Gulf / Strait of Hormuz; Hormuz closure enforced",
+      "key_capabilities": {
+        "nuclear_programme": "~400kg 60%-enriched uranium at unknown location post-US/Israeli strikes; centrifuge capacity degraded",
+        "missiles": "Ballistic missile program — reduced after Israeli strikes on arsenal; Rubio insists must be included in talks",
+        "proxies": "Houthis/Ansar Allah (Red Sea); remaining Hezbollah capacity; Iraq-based militias — substantially degraded by Israeli strikes"
+      },
+      "notable": "US-Israeli strikes June 2025 destroyed key nuclear sites + air defences; Hormuz running ~6 vessels/day vs 135 normal; Iran proposed Apr 27 to reopen Strait separate from nuclear talks — US described offer as 'not good enough'",
+      "evidence_id": "SCEM-BASE-israel-iran-002",
+      "source_url": "https://www.axios.com/2026/04/27/iran-us-hormuz-strait-nuclear-talks-proposal-pakistan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "actor": "PLA / PRC",
+      "theatre": "Taiwan Strait / Indo-Pacific",
+      "as_of": "2026-04-28",
+      "standing_strength": "Active PLAN Task Group 107 — live-fire drills east of Philippines Apr 25-26 in response to Balikatan 2026",
+      "key_capabilities": {
+        "exercises": "Justice Mission 2025 (Dec 29-30 2025) — largest Taiwan blockade simulation since 2022; zones entered Taiwan's territorial waters; 27 rockets near Keelung",
+        "aviation": "274 ADIZ sorties Dec 2025; sustained higher operational tempo post-Lai inauguration",
+        "naval": "Type 075 amphibious assault ship 'Hainan' first deployed in major Taiwan exercise"
+      },
+      "notable": "Two large-scale exercises 2025 (Strait Thunder-2025A Apr; Justice Mission 2025 Dec); targeting Taiwanese energy facilities publicly stated; no carrier deployed in Dec exercise — assessed blockade/decapitation focus",
+      "evidence_id": "SCEM-BASE-us-china-002",
+      "source_url": "https://chinapower.csis.org/china-increased-military-activities-indo-pacific-2025/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "actor": "DPRK",
+      "theatre": "Korean Peninsula / Russia",
+      "as_of": "2026-04-28",
+      "standing_strength": "~11,000 troops in Russia Kursk (early 2026); 11th 'Storm' Corps special forces + artillery",
+      "key_capabilities": {
+        "nuclear": "Est. ~50 warheads; Yongbyon complex expansion underway; Kim ordered acceleration Feb 2026",
+        "missiles": "7th launch 2026 (Apr 21) — Hwasong-11 cluster-bomb warhead variants; SLBM program active",
+        "artillery": "MLRS + howitzers active in Kursk vs Ukraine border targets"
+      },
+      "notable": "DPRK seeking US recognition as nuclear-armed state (Arms Control Apr 2026); US redeploying Korean assets to Middle East per reports",
+      "evidence_id": "SCEM-BASE-korea-002",
+      "source_url": "https://www.armscontrol.org/act/2026-04/news/north-korea-seeks-nuclear-recognition-us-talks",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    }
+  ],
+  "treaty_posture": [
+    {
+      "treaty": "New START",
+      "parties": [
+        "US",
+        "Russia"
+      ],
+      "status": "lapsed",
+      "expiry_date": "2026-02-05",
+      "details": "Expired Feb 5 2026. Russia declared obligations 'no longer binding' Feb 4 2026. Informal handshake deal negotiated in Abu Dhabi to observe central limits for ~6 months while new treaty discussed — not formally signed, requires presidential approval. No legally binding successor agreement.",
+      "evidence_id": "SCEM-BASE-arms-control-001",
+      "source_url": "https://www.axios.com/2026/02/05/new-start-arms-control-us-russia-extend",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "treaty": "INF Treaty (Intermediate-Range Nuclear Forces)",
+      "parties": [
+        "US",
+        "Russia"
+      ],
+      "status": "denounced",
+      "expiry_date": "2019-08-02",
+      "details": "US withdrew 2019; Russia suspended 2023. No successor. Both parties now free to develop and deploy INF-range ground-launched missiles. Russia has resumed testing; US developing non-nuclear INF-range systems.",
+      "evidence_id": "SCEM-BASE-arms-control-002",
+      "source_url": "https://www.atlanticcouncil.org/in-depth-research-reports/issue-brief/new-start-might-be-dead-but-legally-binding-arms-control-isnt/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "treaty": "NPT (Nuclear Non-Proliferation Treaty)",
+      "parties": [
+        "191 states parties"
+      ],
+      "status": "in-force",
+      "details": "In force. DPRK: withdrew 2003 — conducting active nuclear weapons development. Iran: NPT member, JCPOA collapsed, enrichment ceased post-US strikes June 2025, ~400kg 60%-enriched uranium at unknown location. India/Pakistan: not NPT parties. Israel: not NPT party (ambiguous posture).",
+      "iran_compliance": "Non-compliant — enrichment exceeded limits pre-strikes; post-strikes compliance status unclear given unknown stockpile location",
+      "dprk_compliance": "Non-compliant — active ICBM + nuclear warhead program",
+      "evidence_id": "SCEM-BASE-arms-control-003",
+      "source_url": "https://www.armscontrol.org/act/2026-04/news/north-korea-seeks-nuclear-recognition-us-talks",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "treaty": "Open Skies Treaty",
+      "parties": [
+        "Former: US, Russia + 32 states"
+      ],
+      "status": "lapsed",
+      "details": "US withdrew 2020; Russia withdrew 2021. Effectively defunct.",
+      "evidence_id": "SCEM-BASE-arms-control-004",
+      "source_url": "https://www.atlanticcouncil.org/in-depth-research-reports/issue-brief/new-start-might-be-dead-but-legally-binding-arms-control-isnt/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "treaty": "CTBT (Comprehensive Nuclear Test Ban Treaty)",
+      "parties": [
+        "186 signatories; not entered into force"
+      ],
+      "status": "signed-not-in-force",
+      "details": "Has not entered into force — US, China, India, Pakistan, Israel, Egypt, Iran not ratified. DPRK conducted nuclear tests through 2017; no test detected since. Russia ratified. No confirmed tests by any state 2024-2026 (monitoring period).",
+      "evidence_id": "SCEM-BASE-arms-control-005",
+      "source_url": "https://www.armscontrol.org/act/2026-04/news/north-korea-seeks-nuclear-recognition-us-talks",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "treaty": "JCPOA (Iran Nuclear Deal)",
+      "parties": [
+        "Iran",
+        "US",
+        "UK",
+        "France",
+        "Germany",
+        "China",
+        "Russia"
+      ],
+      "status": "collapsed",
+      "details": "US withdrew 2018 (Trump 1st term); Iran progressively exceeded enrichment limits; talks to restore collapsed. US/Israeli strikes June 2025 destroyed major centrifuge capacity. Current US-Iran talks (Oman/Pakistan mediation) focused on post-war settlement, not JCPOA restoration. US demands Iran never obtain nuclear weapon; Iran demands nuclear program not on table until Hormuz reopened.",
+      "evidence_id": "SCEM-BASE-arms-control-006",
+      "source_url": "https://www.arabnews.jp/en/middle-east/article_163594/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "treaty": "Russia–Ukraine Minsk Agreements",
+      "parties": [
+        "Russia",
+        "Ukraine",
+        "OSCE-mediated"
+      ],
+      "status": "defunct",
+      "details": "Minsk I (2014) and Minsk II (2015) — both effectively defunct since Feb 2022 full-scale invasion.",
+      "evidence_id": "SCEM-BASE-arms-control-007",
+      "source_url": "https://kyivindependent.com/russia-in-no-rush-to-resume-ukraine-peace-talks-lavrov-says/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "treaty": "DPRK–Russia Comprehensive Strategic Partnership",
+      "parties": [
+        "DPRK",
+        "Russia"
+      ],
+      "status": "in-force",
+      "details": "Signed June 2024 during Putin visit to Pyongyang. Mutual defence clause invoked to justify DPRK troop deployment. Includes munitions supply and military technology transfer provisions.",
+      "evidence_id": "SCEM-BASE-arms-control-008",
+      "source_url": "https://kyivindependent.com/nearly-11-000-north-korean-troops-stationed-in-russias-kursk-oblast-at-start-of-2026-media-reports/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    }
+  ],
+  "escalation_thresholds": [
+    {
+      "conflict_id": "russia-ukraine",
+      "actor": "Russia",
+      "stated_red_lines": [
+        "Direct NATO military involvement in combat operations on Ukrainian territory",
+        "Strikes on Russian territory with Western-supplied long-range weapons (declared red line, partially crossed — Kremlin recalibrated response)",
+        "NATO membership for Ukraine"
+      ],
+      "demonstrated_red_lines_crossed": [
+        {
+          "event": "Ukraine ATACMS strikes on Crimea and Russian-held territory",
+          "date": "2024-2025",
+          "response": "Intensified strikes on Ukrainian infrastructure; no nuclear escalation; threshold crossed without nuclear response",
+          "significance": "Demonstrates red line was not a hard stop"
+        },
+        {
+          "event": "Ukraine Kursk incursion Aug 2024",
+          "date": "2024-08-06",
+          "response": "Counter-offensive with DPRK troops; no escalation to nuclear; conventional response",
+          "significance": "Major territorial crossing absorbed without strategic escalation"
+        }
+      ],
+      "nuclear_doctrine": {
+        "posture": "Lowered threshold",
+        "doctrine_date": "2024-11-19",
+        "doctrine_note": "Russia formally lowered threshold for nuclear use in response to conventional attacks supported by nuclear states. PERSISTENT BASELINE SHIFT. Subsequent Medvedev/MFA rhetoric is episodic. First use now explicitly permitted if Russian state existence threatened OR if conventional attack supported by nuclear-armed ally.",
+        "current_level": "Elevated signalling; no operational deployment change confirmed"
+      },
+      "evidence_id": "SCEM-BASE-russia-ukraine-004",
+      "source_url": "https://kyivindependent.com/analysis-ukraines-counterattacks-and-the-upcoming-russian-spring-campaign/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record"
+    },
+    {
+      "conflict_id": "israel-iran-direct",
+      "actor": "US",
+      "stated_red_lines": [
+        "Iran obtaining a nuclear weapon — Secretary Rubio: 'definitively prevents them from sprinting towards a nuclear weapon at any point'",
+        "Hormuz closure normalized — Rubio: 'international waterways, cannot tolerate them trying to normalize a system in which Iranians decide who gets to use'"
+      ],
+      "demonstrated_red_lines_crossed": [
+        {
+          "event": "Iran 400kg 60%-enriched uranium at unknown location",
+          "date": "2026-ongoing",
+          "response": "Continued blockade; nuclear demand remains central to US negotiating position",
+          "significance": "US does not consider nuclear risk resolved"
+        }
+      ],
+      "nuclear_doctrine": {
+        "posture": "Extended deterrence — US does not permit Iran nuclear acquisition",
+        "current_status": "War ongoing; Iran nuclear program substantially degraded but not eliminated"
+      },
+      "evidence_id": "SCEM-BASE-israel-iran-003",
+      "source_url": "https://www.axios.com/2026/04/27/iran-us-hormuz-strait-nuclear-talks-proposal-pakistan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "israel-iran-direct",
+      "actor": "Iran",
+      "stated_red_lines": [
+        "Nuclear program non-negotiable until Hormuz reopened and blockade lifted",
+        "Ballistic missile program off the table per Araghchi statements"
+      ],
+      "nuclear_doctrine": {
+        "posture": "Ambiguous — no official nuclear weapons doctrine; ~400kg 60%-enriched uranium at unknown location; Shamkhani: ending program or exporting uranium 'nonstarters'",
+        "current_status": "Centrifuge capacity substantially degraded by US/Israeli strikes June 2025; enrichment halted (forced); stockpile location unknown"
+      },
+      "evidence_id": "SCEM-BASE-israel-iran-004",
+      "source_url": "https://www.lemonde.fr/en/international/article/2026/02/28/mediator-oman-hails-breakthrough-in-us-iran-nuclear-talks_6750947_4.html",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "korea-peninsula",
+      "actor": "DPRK",
+      "stated_red_lines": [
+        "Any US/ROK first strike on DPRK nuclear facilities",
+        "Regime change operations",
+        "US refusal to acknowledge DPRK nuclear status — Kim seeking nuclear recognition as precondition for any talks"
+      ],
+      "nuclear_doctrine": {
+        "posture": "First use doctrine — DPRK 2022 law permits nuclear first use if regime existence threatened; Kim ordered nuclear acceleration Feb 2026; ~50 estimated warheads",
+        "current_status": "HIGH. 7 launches in 2026 by Apr 21; Hwasong-11 cluster-bomb warhead variants; Yongbyon expansion; SLBM active"
+      },
+      "evidence_id": "SCEM-BASE-korea-003",
+      "source_url": "https://www.armscontrol.org/act/2026-04/news/north-korea-seeks-nuclear-recognition-us-talks",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "us-china-taiwan",
+      "actor": "PRC",
+      "stated_red_lines": [
+        "Formal Taiwan independence declaration",
+        "Foreign military basing in Taiwan",
+        "US arms sales above tolerance threshold (recent $11.1bn package triggered Justice Mission 2025 Dec drills)"
+      ],
+      "nuclear_doctrine": {
+        "posture": "No-first-use declared — BUT ongoing expansion to 1,000+ warhead capability by 2035 (DoD 2025 assessment); lesson-drawing from Iran-Israel conflict for I3 signalling",
+        "current_status": "No imminent first-use signals; PLA grey-zone operations maintained at elevated tempo"
+      },
+      "evidence_id": "SCEM-BASE-us-china-003",
+      "source_url": "https://understandingwar.org/research/china-taiwan/china-taiwan-update-january-2-2026/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record"
+    },
+    {
+      "conflict_id": "india-pakistan",
+      "actor": "India",
+      "stated_red_lines": [
+        "High-casualty terrorist attack traceable to Pakistan state — Modi doctrine post-Op Sindoor: 'future attacks met with swift and forceful retaliation'",
+        "Pakistan nuclear first-use threat — Modi explicitly rejected as deterrent: 'such threats will not deter India from targeting terrorist infrastructure'"
+      ],
+      "nuclear_doctrine": {
+        "posture": "No-first-use declared; credible minimum deterrence; strategic forces triad (Agni-series, sub-launched Sagarika, aircraft)",
+        "current_status": "Stable; post-Op Sindoor India demonstrated willingness to strike Pakistan across LoC without nuclear escalation"
+      },
+      "evidence_id": "SCEM-BASE-india-pak-002",
+      "source_url": "https://thediplomat.com/2025/06/no-war-no-peace-indias-limited-war-strategy-of-controlled-escalation/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "india-pakistan",
+      "actor": "Pakistan",
+      "stated_red_lines": [
+        "Existential threat to Pakistani state",
+        "Indian conventional forces crossing international border in strength (tripwire to nuclear signalling)"
+      ],
+      "nuclear_doctrine": {
+        "posture": "First use permitted — lower threshold than India; full-spectrum deterrence includes tactical nuclear weapons (Nasr/Hatf-9); Army Chief Munir reaffirmed two-nation theory 2025",
+        "current_status": "Elevated signalling after Op Sindoor; nuclear umbrella explicitly invoked but India did not desist"
+      },
+      "evidence_id": "SCEM-BASE-india-pak-003",
+      "source_url": "https://thediplomat.com/2025/06/no-war-no-peace-indias-limited-war-strategy-of-controlled-escalation/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    }
+  ],
+  "active_escalation_events": [
+    {
+      "event_id": "SCEM-BASE-russia-ukraine-005",
+      "conflict_id": "russia-ukraine",
+      "event_date": "2026-03-17",
+      "event": "Russia launches Spring-Summer 2026 offensive — ISW assessment: offensive began ~Mar 17-21 with marked increase in mechanised/motorised assaults across multiple sectors",
+      "strategic_significance": "Major escalation step — sustained offensive with tens of thousands of casualties in first week; largest single strike package in war history (Mar 23-24: ~1000 drones/missiles)",
+      "source_url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-march-29-2026",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-russia-ukraine-006",
+      "conflict_id": "russia-ukraine",
+      "event_date": "2026-04-11",
+      "event": "Orthodox Easter ceasefire — 32-hour truce agreed by both sides; ceasefire collapses amid mutual accusations of thousands of violations; Russia rejects Zelensky proposal for trilateral leaders' meeting",
+      "strategic_significance": "Diplomatic failure; confirms no peace pathway near-term; Russia 'not top priority' (Lavrov Apr 18)",
+      "source_url": "https://www.aljazeera.com/news/2026/4/11/russia-ukraine-orthodox-easter-ceasefire-begins",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-russia-ukraine-007",
+      "conflict_id": "russia-ukraine",
+      "event_date": "2026-02-05",
+      "event": "New START expires — no successor; informal US-Russia handshake to observe limits for 6 months; no formal agreement",
+      "strategic_significance": "First time since 1972 no legally binding nuclear arms control agreement between US and Russia",
+      "source_url": "https://www.armscontrol.org/act/2026-03/news/new-start-expires-us-urges-modernized-treaty",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-russia-ukraine-008",
+      "conflict_id": "russia-ukraine",
+      "event_date": "2026-02-12",
+      "event": "~11,000 DPRK troops confirmed in Russia's Kursk Oblast (South Korean NIS); 6,000 casualties; regular rotations under DPRK-Russia Comprehensive Strategic Partnership; North Korean artillery units active Jan 2026",
+      "strategic_significance": "Third-party nuclear-armed state troops directly participating in European war — unprecedented since Korea 1950",
+      "source_url": "https://kyivindependent.com/nearly-11-000-north-korean-troops-stationed-in-russias-kursk-oblast-at-start-of-2026-media-reports/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-israel-iran-005",
+      "conflict_id": "israel-iran-direct",
+      "event_date": "2026-02-28",
+      "event": "US-Israel launches strikes on Iran (Operation Epic Fury / Roaring Lion) — onset of direct US-Iran/Israel kinetic conflict; Strait of Hormuz blockade effective; CENTCOM claims capabilities 'dismantled'",
+      "strategic_significance": "Largest regional war in Middle East since 1973; Hormuz closure largest oil disruption in history (IEA); Brent >$120",
+      "source_url": "https://www.bbc.com/news/articles/cvg1vd95nl9o",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-israel-iran-006",
+      "conflict_id": "israel-iran-direct",
+      "event_date": "2026-04-20",
+      "event": "Indirect US-Iran nuclear talks in Muscat (Oman mediation) — 'consultations focused on preparing appropriate circumstances for resuming diplomatic and technical negotiations'; no agreement",
+      "strategic_significance": "First diplomatic contact since war onset; Iranian leadership divided on nuclear concessions; talks described as 'totally an impasse' by Iranian official Apr 27",
+      "source_url": "https://www.arabnews.jp/en/middle-east/article_163594/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-israel-iran-007",
+      "conflict_id": "israel-iran-direct",
+      "event_date": "2026-04-27",
+      "event": "Iran proposes decoupling Hormuz from nuclear talks — offer to reopen Strait + end war if US lifts blockade; nuclear talks deferred to later stage; conveyed via Pakistan intermediaries; US described it as 'not good enough'",
+      "strategic_significance": "Signals Iranian leadership split; US leverage via blockade; impasse on nuclear — no off-ramp visible",
+      "source_url": "https://www.axios.com/2026/04/27/iran-us-hormuz-strait-nuclear-talks-proposal-pakistan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-israel-hezbollah-003",
+      "conflict_id": "israel-hezbollah-lebanon",
+      "event_date": "2026-03-16",
+      "event": "IDF ground invasion of Lebanon begins — first ground invasion since 2006; second division deployed; Litani buffer zone operations; UNIFIL mandate effectively broken; 1M+ displaced (20% of Lebanon)",
+      "strategic_significance": "Major escalation — ground war in Lebanon while Gaza ceasefire nominally holds",
+      "source_url": "https://acleddata.com/report/israel-prepares-ground-invasion-lebanon-hezbollah-formally-joins-war",
+      "retrieval_date": "2026-04-28",
+      "source_type": "sipri-iiss-acled-ucdp",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-israel-hezbollah-004",
+      "conflict_id": "israel-hezbollah-lebanon",
+      "event_date": "2026-04-08",
+      "event": "Operation Eternal Darkness — Israeli strikes on Lebanon kill 357, wound hundreds; condemned by 20+ states and UN; Black Wednesday; disrupted Iran war ceasefire talks",
+      "strategic_significance": "Highest single-day casualty event in Lebanon war; ceasefire negotiations triggered",
+      "source_url": "https://en.wikipedia.org/wiki/8_April_2026_Israeli_attacks_on_Lebanon",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-israel-hezbollah-005",
+      "conflict_id": "israel-hezbollah-lebanon",
+      "event_date": "2026-04-16",
+      "event": "US-brokered ceasefire (3-week) begins; Trump extends to mid-May; ceasefire already unraveling by Apr 26 — Netanyahu orders IDF to 'vigorously attack' Hezbollah; Israel issues new evacuation orders for 7 towns Apr 27",
+      "strategic_significance": "Pattern: ceasefires nominal only; IDF maintains kinetic operations; Hezbollah drones targeting Israeli helicopter Apr 26",
+      "source_url": "https://www.aljazeera.com/news/2026/4/26/israel-issues-forced-evacuation-orders-for-southern-lebanon-in-escalation",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-israel-hamas-002",
+      "conflict_id": "israel-hamas-gaza",
+      "event_date": "2026-04-14",
+      "event": "Hamas rejects disarmament clause of Gaza peace plan — refused Board of Peace phased disarmament plan presented by HR Mladenov; IDF reports 14 ceasefire violations Apr 8-16; death toll since ceasefire Oct 2025 exceeds 984",
+      "strategic_significance": "Core impasse for 2nd phase of Comprehensive Plan; disarmament remains key Israeli red line; ceasefire structurally fragile",
+      "source_url": "https://www.fdd.org/analysis/2026/04/16/hamas-rejects-disarmament-clause-of-gaza-peace-plan-idf-reports-14-ceasefire-violations-april-8-16/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-sudan-002",
+      "conflict_id": "sudan-civil-war",
+      "event_date": "2025-10-27",
+      "event": "RSF captures El Fasher — last major SAF stronghold in Darfur falls; mass killings, sexual violence, atrocities; UN fact-finding: 'hallmarks of genocide'",
+      "strategic_significance": "Strategic inflection — RSF dominates all Darfur; SAF launches Kordofan counter-offensive",
+      "source_url": "https://www.cfr.org/global-conflict-tracker/conflict/power-struggle-sudan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-sudan-003",
+      "conflict_id": "sudan-civil-war",
+      "event_date": "2026-03-19",
+      "event": "Chad border incident — RSF drone strikes kill 17 funeral-goers in Chad territory; President Déby orders retaliation and total border closure; risk of regional spillover",
+      "strategic_significance": "Conflict risk of regional expansion into Chad; Sudan as trigger for Sahel destabilisation",
+      "source_url": "https://www.cfr.org/global-conflict-tracker/conflict/power-struggle-sudan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-sudan-004",
+      "conflict_id": "sudan-civil-war",
+      "event_date": "2026-02-26",
+      "event": "UN Security Council sanctions RSF leaders including 'Butcher of El-Fasher'; resolution expresses grave concern over Kordofan",
+      "strategic_significance": "Limited diplomatic response; no operational change; Quad mediation non-operational since late 2025",
+      "source_url": "https://www.cfr.org/global-conflict-tracker/conflict/power-struggle-sudan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-myanmar-002",
+      "conflict_id": "myanmar-civil-war",
+      "event_date": "2026-04-10",
+      "event": "Min Aung Hlaing sworn as Myanmar president — legitimation gambit following Feb 4 junta-backed USDP election; condemned by UN and rights groups; major ethnic armed groups immediately reject junta's 100-day peace talks offer",
+      "strategic_significance": "Junta attempting democratic veneer; resistance coalescence under SCEF may accelerate",
+      "source_url": "https://www.aljazeera.com/news/2026/4/21/myanmars-military-government-rebuffed-on-peace-talk-offer",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-myanmar-003",
+      "conflict_id": "myanmar-civil-war",
+      "event_date": "2026-04-15",
+      "event": "SCEF (Steering Council for Emergence of Federal Democratic Union) alliance announced — unites KIA, KNU, CNF, KNPP, NUG, Three Brotherhood Alliance around federal democratic union; first meaningful unified command structure",
+      "strategic_significance": "Potentially transformative — addresses historic fragmentation weakness of resistance; operational military authority granted to ethnic groups",
+      "source_url": "https://www.fdd.org/analysis/2026/04/15/new-resistance-alliance-built-to-win-myanmars-civil-war/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-drc-002",
+      "conflict_id": "drc-eastern",
+      "event_date": "2026-04-16",
+      "event": "DRC and M23/AFC sign interim peace monitoring mechanism in Switzerland; Apr 19 joint statement includes humanitarian access protocol and prisoner release within 10 days",
+      "strategic_significance": "Most substantive step since Washington Accords Dec 2025; monitoring mechanism agreed; implementation unverified; South Kivu clashes continue",
+      "source_url": "https://www.aljazeera.com/news/2026/4/19/drc-government-m23-rebels-commit-to-protect-civilians-aid-deliveries",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-korea-004",
+      "conflict_id": "korea-peninsula",
+      "event_date": "2026-02-01",
+      "event": "Kim Jong Un orders nuclear acceleration — rare political meeting orders officials to speed development of nuclear weapons and delivery systems including land and sea-launched missiles; Yongbyon complex expansion ongoing",
+      "strategic_significance": "Formal leadership directive — accelerates already elevated nuclear posture",
+      "source_url": "https://www.armscontrol.org/act/2026-04/news/north-korea-seeks-nuclear-recognition-us-talks",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-korea-005",
+      "conflict_id": "korea-peninsula",
+      "event_date": "2026-04-21",
+      "event": "DPRK 7th missile test of 2026 — 4th in April; Hwasong-11 tactical ballistic missiles with cluster-bomb and fragmentation mine warheads; fired toward East Sea; South Korea/Japan/US detection confirmed",
+      "strategic_significance": "Accelerating test tempo; cluster-bomb warhead innovation threatens South Korean military concentrations",
+      "source_url": "https://www.npr.org/2026/04/09/g-s1-116848/north-korea-says-its-latest-weapons-tests-included-missiles-with-cluster-bomb-warheads",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-us-china-004",
+      "conflict_id": "us-china-taiwan",
+      "event_date": "2025-12-29",
+      "event": "PLA Justice Mission 2025 exercises (Dec 29-30) — largest Taiwan blockade simulation since 2022; zones entered Taiwan's territorial waters for first time; 27 rockets near Keelung; Type 075 amphibious assault ship deployed; no carriers — blockade/decapitation focus assessed",
+      "strategic_significance": "Incremental escalation ladder — each exercise pushes closer; practice entering territorial waters first time",
+      "source_url": "https://www.defensenews.com/global/asia-pacific/2026/01/08/chinese-drill-near-taiwan-seen-as-test-run-for-blockade-message-to-us/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-us-china-005",
+      "conflict_id": "us-china-taiwan",
+      "event_date": "2026-04-25",
+      "event": "PLA Task Group 107 live-fire drills east of Philippines' Luzon Island — direct response to US-PH Balikatan 2026 (with Japan, Australia, Canada, France, New Zealand) near Taiwan Strait",
+      "strategic_significance": "China treating Balikatan as hostile rehearsal; counter-exercise near First Island Chain",
+      "source_url": "https://understandingwar.org/research/china-taiwan/china-taiwan-update-january-2-2026/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record",
+      "in_window": true
+    },
+    {
+      "event_id": "SCEM-BASE-india-pak-004",
+      "conflict_id": "india-pakistan",
+      "event_date": "2025-05-06",
+      "event": "India launches Operation Sindoor — targeted strikes on terrorist camps in Pakistan/PoK following Pahalgam massacre (26 civilians killed Apr 22 2025); 100+ terrorists, 9 camps eliminated; Pakistan responds with drones May 7-10; Pakistan DGMO calls Indian DGMO for ceasefire May 10",
+      "strategic_significance": "Most serious India-Pakistan confrontation since Balakot 2019; established new Indian doctrine of forceful retaliation; nuclear signals not deterred India",
+      "source_url": "https://thediplomat.com/2025/06/no-war-no-peace-indias-limited-war-strategy-of-controlled-escalation/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record",
+      "in_window": true
+    }
+  ],
+  "mediation_deescalation_architecture": [
+    {
+      "conflict_id": "russia-ukraine",
+      "frameworks": [
+        {
+          "name": "US-brokered bilateral talks (Witkoff/Kushner)",
+          "status": "Stalled — last trilateral Feb 16 2026; Russia 'not top priority' (Lavrov Apr 18 2026)",
+          "key_obstacle": "Russia demands Ukraine withdraw from Donbas; Ukraine proposes front-line freeze only",
+          "mediator": "US (Steve Witkoff, Jared Kushner)",
+          "last_contact": "2026-04-18"
+        },
+        {
+          "name": "Orthodox Easter ceasefire",
+          "status": "Collapsed — mutual accusations of thousands of violations",
+          "duration": "32 hours, Apr 11-12 2026",
+          "outcome": "175 POW exchange only positive outcome"
+        }
+      ],
+      "un_security_council": "Deadlocked — Russian veto; UN not operative mediation channel",
+      "evidence_id": "SCEM-BASE-russia-ukraine-009",
+      "source_url": "https://kyivindependent.com/russia-in-no-rush-to-resume-ukraine-peace-talks-lavrov-says/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "israel-iran-direct",
+      "frameworks": [
+        {
+          "name": "Oman mediation (indirect US-Iran talks)",
+          "status": "Active but impassed — talks in Muscat Apr 20 2026; 'totally an impasse' per Iranian official Apr 27",
+          "key_obstacle": "US demands nuclear program on table; Iran wants nuclear issue deferred until Hormuz reopened; Iranian leadership divided",
+          "mediator": "Oman (FM Al-Busaidi); Pakistan (intermediary for Iranian proposal)"
+        },
+        {
+          "name": "Iran proposal via Pakistan",
+          "status": "Received; US described as 'not good enough'; White House Situation Room meeting Apr 27",
+          "terms_offered": "Iran: reopen Hormuz + end war + defer nuclear; US: lift blockade + unfreeze assets + pause nuclear talks"
+        }
+      ],
+      "evidence_id": "SCEM-BASE-israel-iran-008",
+      "source_url": "https://www.axios.com/2026/04/27/iran-us-hormuz-strait-nuclear-talks-proposal-pakistan",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "israel-hezbollah-lebanon",
+      "frameworks": [
+        {
+          "name": "US-brokered ceasefire (Apr 16 2026)",
+          "status": "Nominally extended to mid-May; operationally unraveling — Netanyahu ordered 'vigorous attacks' Apr 26; 500+ Israeli violations per Hezbollah",
+          "mediator": "US (Trump); Trump plans to host Netanyahu + Lebanese President Aoun in Washington",
+          "ceasefire_status": "Name only as of Apr 26-27 2026"
+        }
+      ],
+      "evidence_id": "SCEM-BASE-israel-hezbollah-006",
+      "source_url": "https://www.aljazeera.com/news/2026/4/26/israel-issues-forced-evacuation-orders-for-southern-lebanon-in-escalation",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "conflict_id": "israel-hamas-gaza",
+      "frameworks": [
+        {
+          "name": "Trump Comprehensive Plan / Board of Peace (BoP)",
+          "status": "Phase 1 active — fragile; Phase 2 stalled on disarmament",
+          "un_endorsement": "UNSC Res 2803, Nov 17 2025",
+          "hr_bop": "Nickolay Mladenov",
+          "key_obstacle": "Hamas rejected disarmament clause Apr 14 2026; 984 Palestinians killed since ceasefire Oct 2025",
+          "ceasefire_status": "Low-intensity continued — daily violations; Yellow Line boundary"
+        }
+      ],
+      "evidence_id": "SCEM-BASE-israel-hamas-003",
+      "source_url": "https://www.securitycouncilreport.org/monthly-forecast/2026-04/the-middle-east-including-the-palestinian-question-24.php",
+      "retrieval_date": "2026-04-28",
+      "source_type": "war-of-record"
+    },
+    {
+      "conflict_id": "sudan-civil-war",
+      "frameworks": [
+        {
+          "name": "Quad mediation (US + UAE + Saudi Arabia + Egypt)",
+          "status": "Non-operational since Sep 2025 — diplomatic bandwidth shifted to Iran war",
+          "last_active": "Sep 2025"
+        },
+        {
+          "name": "UN Security Council",
+          "status": "Feb 26 2026: sanctions on RSF leaders; statement on Kordofan; no ceasefire mechanism"
+        }
+      ],
+      "evidence_id": "SCEM-BASE-sudan-005",
+      "source_url": "https://thesoufancenter.org/intelbrief-2026-april-21/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "conflict_id": "drc-eastern",
+      "frameworks": [
+        {
+          "name": "Washington Accords (Dec 2025)",
+          "status": "In parliament; MONUSCO oversight not operational",
+          "mediator": "US",
+          "latest": "Switzerland talks Apr 16-19 2026 — interim peace monitoring mechanism signed; humanitarian access protocol agreed"
+        },
+        {
+          "name": "Doha Process",
+          "status": "Superseded by Washington Accords; prior ceasefire repeatedly violated"
+        },
+        {
+          "name": "Angola mediation",
+          "status": "Parallel track; claims unverified operationally"
+        }
+      ],
+      "evidence_id": "SCEM-BASE-drc-003",
+      "source_url": "https://www.aljazeera.com/news/2026/4/19/drc-government-m23-rebels-commit-to-protect-civilians-aid-deliveries",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    }
+  ],
+  "alliance_security_architectures": [
+    {
+      "alliance": "NATO",
+      "members": 32,
+      "activation_status": "Article 5 not triggered; heightened deterrence posture",
+      "posture_changes_recent": [
+        "Eastern Sentry launched Sep 2025 — enhanced vigilance after Russian drones violated airspace of Estonia, Finland, Latvia, Lithuania, Norway, Poland, Romania",
+        "Baltic Sentry (Jan 2025) — critical undersea infrastructure protection Baltic Sea",
+        "Germany-led brigade in Lithuania inaugurated May 2025; scaling to 5,000 troops by 2027",
+        "Forward Land Forces: 8 multinational battlegroups Bulgaria/Estonia/Hungary/Latvia/Lithuania/Poland/Romania/Slovakia",
+        "Defense spending: majority of members now meeting or exceeding 2% GDP; Romania 2.7% 2026; Poland >3%",
+        "New Force Model: hundreds of thousands at varying readiness; rapid deployment within days",
+        "Balikatan 2026 (US-PH with Japan, Australia, Canada, France, New Zealand): Apr 20-May 8 near Taiwan Strait"
+      ],
+      "evidence_id": "SCEM-BASE-alliance-001",
+      "source_url": "https://www.nato.int/en/what-we-do/deterrence-and-defence/strengthening-natos-eastern-flank",
+      "retrieval_date": "2026-04-28",
+      "source_type": "primary-government"
+    },
+    {
+      "alliance": "AUKUS",
+      "members": [
+        "US",
+        "UK",
+        "Australia"
+      ],
+      "activation_status": "Active — Pillar I (submarine) and Pillar II (advanced capabilities) progressing",
+      "posture_changes_recent": [
+        "Pillar I: Virginia-class submarines to Australia from ~2032; AUKUS SSN on rotation in Western Australia ongoing",
+        "Pillar II: AI, quantum, cyber, hypersonic, electronic warfare cooperation progressing"
+      ],
+      "evidence_id": "SCEM-BASE-alliance-002",
+      "source_url": "https://www.nato.int/en/what-we-do/deterrence-and-defence/strengthening-natos-eastern-flank",
+      "retrieval_date": "2026-04-28",
+      "source_type": "primary-government"
+    },
+    {
+      "alliance": "QUAD",
+      "members": [
+        "US",
+        "Japan",
+        "Australia",
+        "India"
+      ],
+      "activation_status": "Active diplomatic coordination; no mutual defence clause",
+      "posture_changes_recent": [
+        "Balikatan 2026 includes Japan and Australia (QUAD alignment)",
+        "India: balancing QUAD participation with Russia-India relationship; India abstains on UN Ukraine votes"
+      ],
+      "evidence_id": "SCEM-BASE-alliance-003",
+      "source_url": "https://chinapower.csis.org/china-increased-military-activities-indo-pacific-2025/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "alliance": "SCO (Shanghai Cooperation Organisation)",
+      "members": [
+        "China",
+        "Russia",
+        "India",
+        "Pakistan",
+        "Iran (observer→full)",
+        "others"
+      ],
+      "activation_status": "Functional diplomatic forum; no collective defence action; China-India divergence limits effectiveness",
+      "posture_changes_recent": [
+        "Iran formally joined; Russia-China coordination deepening",
+        "India-Pakistan and India-China tensions constrain collective coherence"
+      ],
+      "evidence_id": "SCEM-BASE-alliance-004",
+      "source_url": "https://thediplomat.com/2025/06/no-war-no-peace-indias-limited-war-strategy-of-controlled-escalation/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "think-tank-of-record"
+    },
+    {
+      "alliance": "CSTO (Collective Security Treaty Organisation)",
+      "members": [
+        "Russia",
+        "Belarus",
+        "Armenia",
+        "Kazakhstan",
+        "Kyrgyzstan",
+        "Tajikistan"
+      ],
+      "activation_status": "Degraded — Armenia suspended participation after CSTO failed to respond to Azerbaijani offensive 2023",
+      "posture_changes_recent": [
+        "Armenia de facto exit from active participation",
+        "Russian focus on Ukraine limits CSTO rapid reaction capability"
+      ],
+      "evidence_id": "SCEM-BASE-alliance-005",
+      "source_url": "https://www.nato.int/en/what-we-do/deterrence-and-defence/strengthening-natos-eastern-flank",
+      "retrieval_date": "2026-04-28",
+      "source_type": "primary-government"
+    },
+    {
+      "alliance": "DPRK-Russia Axis",
+      "members": [
+        "DPRK",
+        "Russia"
+      ],
+      "activation_status": "Active — Comprehensive Strategic Partnership in force; troops deployed; munitions flowing",
+      "posture_changes_recent": [
+        "~11,000 DPRK troops in Kursk early 2026; artillery units active Jan 2026",
+        "DPRK instructors returning from Ukraine with 21st-century warfare skills — structural capability transfer"
+      ],
+      "evidence_id": "SCEM-BASE-alliance-006",
+      "source_url": "https://kyivindependent.com/nearly-11-000-north-korean-troops-stationed-in-russias-kursk-oblast-at-start-of-2026-media-reports/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    }
+  ],
   "conflict_baselines": [
     {
       "conflict": "Russia–Ukraine War",
@@ -31,13 +1132,19 @@
         "I5": 4,
         "I6": 4
       },
-      "notes": "All indicators at structural wartime norm. Spring offensive staging detected (I2 trajectory signal).",
+      "notes": "All indicators at structural wartime norm. Spring-Summer 2026 offensive under way (ISW: commenced Mar 17). Ukraine drone advantage degrading Russian advance tempo. Easter ceasefire collapsed Apr 11-12. Peace talks stalled — Russia 'not top priority' (Lavrov Apr 18).",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Initial baseline seeding from Week 1 scoring",
           "reason": "Inaugural edition",
           "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Apr 2026 events; indicator levels confirmed",
+          "reason": "DR baseliner run scem-2026-04-28",
+          "prior_value": "notes: Spring offensive staging detected"
         }
       ],
       "indicatorBaselines": {
@@ -73,13 +1180,18 @@
         "I5": 3,
         "I6": 4
       },
-      "notes": "Ceasefire holds at low friction. F4 flag on I5 — ceasefire claims unverified. Iran conflict side-effects (crossing closures) constitute I4 signal.",
+      "notes": "Ceasefire holds at low friction but structurally fragile. Hamas rejected disarmament Apr 14 2026. 984 Palestinians killed since Oct 2025 ceasefire. IDF daily violations. Phase 2 stalled. F4 flag on I5 — ceasefire claims unverified; Hamas disarmament not proceeding.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Initial baseline seeding from Week 1 scoring",
           "reason": "Inaugural edition",
           "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Hamas disarmament rejection and ongoing violations",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ],
       "indicatorBaselines": {
@@ -109,13 +1221,18 @@
         "I5": 4,
         "I6": 5
       },
-      "notes": "Lead signal this week. Four indicators above initial baseline. F2-adjacent flag. Quad mediation non-operational since Sep 2025. World's largest displacement crisis.",
+      "notes": "Year 4. RSF captured El Fasher Oct 2025. Kordofan new flashpoint. SAF recaptured Kadugli Feb 2026. Chad border incident Mar 2026 (risk of spillover). 14M displaced. 33.7M need humanitarian aid. Famine confirmed North Darfur + South Kordofan. Quad mediation non-operational. I6 displacement continues at world's worst level.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Initial baseline seeding from Week 1 scoring",
           "reason": "Inaugural edition",
           "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with El Fasher fall, Kordofan dynamics, Chad incident",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ],
       "indicatorBaselines": {
@@ -148,13 +1265,18 @@
         "I5": 4,
         "I6": 4
       },
-      "notes": "I2 and I5 above initial baseline. Iranian jet fuel confirmed sustaining air campaign. Junta elections 30 March.",
+      "notes": "Year 5+. Junta controls ~21% territory. Min Aung Hlaing sworn president Apr 10. SCEF resistance alliance formed Apr 15 — potentially transformative. Junta peace talks offer rejected by KNU and CNF. Iranian jet fuel confirmed sustaining air campaign. Junta weaker than at any point since 2021.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Initial baseline seeding from Week 1 scoring",
           "reason": "Inaugural edition",
           "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Min Aung Hlaing presidency and SCEF formation",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ],
       "q2_2026_recalc": true,
@@ -184,7 +1306,7 @@
         "I5": 2,
         "I6": 4
       },
-      "notes": "I2, I4, I6 above initial baseline. Gangs controlling maritime/overland routes. MSS→GSF transition creating security gap.",
+      "notes": "MSS→GSF transition creating security gap. Gangs controlling maritime/overland routes. GSF (Haitian-led security force) replacing MSS — transition period is high-risk. Gang control ~85% Port-au-Prince.",
       "version_history": [
         {
           "date": "2026-03-30",
@@ -217,13 +1339,18 @@
         "I5": 3,
         "I6": 4
       },
-      "notes": "F4 on I5. Doha ceasefire violated. M23 drone strikes Kisangani. Washington Accords in parliament but MONUSCO oversight not operational.",
+      "notes": "F4 on I5. Washington Accords in parliament but MONUSCO oversight not operational. Switzerland talks Apr 16-19 produced interim peace monitoring mechanism and humanitarian access protocol. South Kivu fighting continues. M23 drone strikes Kisangani. Rubaya coltan mine (M23/Rwanda control) — strategic minerals link to US-DRC partnership.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Initial baseline seeding from Week 1 scoring",
           "reason": "Inaugural edition",
           "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Switzerland talks Apr 2026",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ]
     },
@@ -250,13 +1377,18 @@
         "I5": 2,
         "I6": 1
       },
-      "notes": "All at latent-conflict structural baseline. No deviation. PRC lesson-drawing from Iran-Israel conflict for I3-adjacent monitoring.",
+      "notes": "All at latent-conflict structural baseline. Justice Mission 2025 (Dec 29-30) largest exercise since 2022 — entered Taiwan's territorial waters. Two large-scale exercises in 2025 (Strait Thunder-2025A Apr; Justice Mission Dec). PLA counter-drills near Philippines Apr 25-26 responding to Balikatan 2026. PRC lesson-drawing from Iran-Israel conflict for I3-adjacent monitoring.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Initial baseline seeding from Week 1 scoring",
           "reason": "Inaugural edition",
           "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Justice Mission 2025 and Balikatan 2026 counter-drills",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ]
     },
@@ -283,13 +1415,18 @@
         "I5": 4,
         "I6": 1
       },
-      "notes": "I1/I2 above initial baseline (doctrine re-institutionalisation, March tests). I3 at structural high baseline — not a new deviation.",
+      "notes": "I1/I2 above initial baseline. I3 at structural high baseline — not new deviation. 7th missile test 2026 by Apr 21; Kim ordered nuclear acceleration Feb 2026; ~11,000 troops in Russia/Ukraine. US redeploying Korea assets to Middle East creates window of reduced deterrence. DPRK seeking nuclear state recognition.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Initial baseline seeding from Week 1 scoring",
           "reason": "Inaugural edition",
           "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Kim nuclear acceleration order, missile tests, US asset redeployment",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ]
     },
@@ -318,13 +1455,18 @@
         "I5": 4,
         "I6": 5
       },
-      "notes": "I6 displacement +2 (RED-band threshold). 1M+ displaced = 20% of Lebanon. IDF ground invasion since 16 March. UNIFIL mandate broken. F4 on 'limited' framing.",
+      "notes": "I6 displacement +2 (RED-band threshold). 1M+ displaced = 20% of Lebanon. IDF ground invasion since Mar 16. UNIFIL mandate broken. F4 on 'limited' framing. Operation Eternal Darkness Apr 8 (357 killed). Ceasefire Apr 16 extended to mid-May but nominally only — Netanyahu ordered vigorous attacks Apr 26; new evacuation orders Apr 27.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Retroactively added to active roster; initial baseline seeded",
           "reason": "Omission error in inaugural edition",
           "prior_value": "In Roster Watch (incorrect)"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Operation Eternal Darkness, ceasefire status, and Apr 26-27 escalation",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ]
     },
@@ -336,7 +1478,7 @@
       "baseline_locks_at_week": 13,
       "first_observed": "2026-02-28",
       "roster_added_to_monitor": "2026-03-30",
-      "roster_note": "Retroactive correction — active since 28 February 2026. Placed in Roster Watch in error in inaugural edition.",
+      "roster_note": "Retroactive correction — active since 28 February 2026",
       "indicator_medians": {
         "I1": null,
         "I2": null,
@@ -353,13 +1495,18 @@
         "I5": 4,
         "I6": 4
       },
-      "notes": "Three indicators at RED-band deviation levels under Contested Baseline. I3: 400kg enriched uranium at unknown location. I4: Hormuz closure — largest oil disruption in recorded history. F3 on CENTCOM 'dismantled' claim; F4 on Iran conditional mediation signals.",
+      "notes": "Three indicators at RED-band deviation levels. I3: 400kg enriched uranium at unknown location. I4: Hormuz closure — ~6 vessels/day vs 135 normally; Brent >$120; QatarEnergy force majeure. I5 elevated: Oman talks Apr 20 'consultations'; Iran proposal Apr 27 — US described as 'not good enough'; official: 'totally an impasse'. F3 on CENTCOM 'dismantled' claim. F4 on Iran decouple-Hormuz-from-nuclear proposal.",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Retroactively added to active roster; initial baseline seeded",
           "reason": "Omission error in inaugural edition — conflict active since 28 Feb 2026",
           "prior_value": "In Roster Watch (incorrect)"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Notes updated with Oman talks, Iran proposal Apr 27, impasse status",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ]
     },
@@ -519,7 +1666,7 @@
       "flag": "F4",
       "conflict": "Russia–Ukraine",
       "indicator": "I1",
-      "detail": "Kremlin negotiating signals T3 only. No T2 corroboration.",
+      "detail": "Kremlin negotiating signals T3 only. No T2 corroboration. Lavrov Apr 18 confirmed Russia not prioritising talks.",
       "applied": "2026-03-30",
       "status": "Active",
       "version_history": []
@@ -528,7 +1675,7 @@
       "flag": "F4",
       "conflict": "Gaza",
       "indicator": "I5",
-      "detail": "Ceasefire/disarmament progress claims from Israeli/US officials (T3). Hamas disarmament unverified.",
+      "detail": "Ceasefire/disarmament progress claims from Israeli/US officials (T3). Hamas disarmament rejected Apr 14 2026. Phase 2 stalled.",
       "applied": "2026-03-30",
       "status": "Active",
       "version_history": []
@@ -537,7 +1684,7 @@
       "flag": "F4",
       "conflict": "DRC Eastern",
       "indicator": "I5",
-      "detail": "Doha/Washington/Angola ceasefire claims unverified operationally. MONUSCO oversight not functional.",
+      "detail": "Doha/Washington/Angola ceasefire claims unverified operationally. Switzerland Apr 2026 talks produced protocol but MONUSCO oversight not functional.",
       "applied": "2026-03-30",
       "status": "Active",
       "version_history": []
@@ -546,7 +1693,7 @@
       "flag": "F2-adjacent",
       "conflict": "Sudan",
       "indicator": "I1/I2",
-      "detail": "Mutual drone attribution without forensic corroboration. Pattern consistent with false-flag seeding.",
+      "detail": "Mutual drone attribution without forensic corroboration. Yale Humanitarian Lab Apr 2026: satellite imagery confirms Ethiopia-RSF supply route. Pattern consistent with false-flag seeding.",
       "applied": "2026-03-30",
       "status": "Active",
       "version_history": []
@@ -555,7 +1702,7 @@
       "flag": "F4",
       "conflict": "Israel–Lebanon (C9)",
       "indicator": "I2",
-      "detail": "'Limited and targeted' Israeli framing inconsistent with operational scale (second division, Litani buffer zone, 700+ sorties).",
+      "detail": "'Limited and targeted' Israeli framing inconsistent with operational scale (second division, Litani buffer zone, 700+ sorties, Op Eternal Darkness 357 killed).",
       "applied": "2026-03-30",
       "status": "Active",
       "version_history": []
@@ -564,7 +1711,7 @@
       "flag": "F3",
       "conflict": "US–Israel vs Iran (C10)",
       "indicator": "I2",
-      "detail": "CENTCOM claim of Iranian capabilities 'totally dismantled' contradicted by ongoing operations, Hormuz closure, Gulf attacks.",
+      "detail": "CENTCOM claim of Iranian capabilities 'totally dismantled' contradicted by ongoing operations, Hormuz closure, Gulf attacks. Confirmed F3 Capability Theatre.",
       "applied": "2026-03-30",
       "status": "Active",
       "version_history": []
@@ -573,7 +1720,7 @@
       "flag": "F4",
       "conflict": "US–Israel vs Iran (C10)",
       "indicator": "I5",
-      "detail": "Iran conditional mediation signals (29 March) contradicted by FM denial of negotiations same day (31 March Al Jazeera).",
+      "detail": "Iran Apr 27 proposal to decouple Hormuz from nuclear — conveyed via Pakistan. Iranian FM denied direct negotiations same day. US described offer as 'not good enough'. Official: 'totally an impasse'. Leadership division confirmed.",
       "applied": "2026-03-30",
       "status": "Active",
       "version_history": []
@@ -681,63 +1828,63 @@
     {
       "conflict": "Russia–Ukraine War",
       "status": "Active",
-      "trajectory": "Escalating",
+      "trajectory": "Escalating — Spring-Summer 2026 offensive; Easter ceasefire collapsed; talks stalled",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "Gaza / Israel–Hamas",
       "status": "Active",
-      "trajectory": "Stable (ceasefire)",
+      "trajectory": "Unstable ceasefire — daily violations; Hamas rejected disarmament; Phase 2 stalled",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "Sudan Civil War",
       "status": "Active",
-      "trajectory": "Escalating",
+      "trajectory": "Escalating — year 4; famine; Chad spillover risk; Quad mediation collapsed",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "Myanmar Civil War",
       "status": "Active",
-      "trajectory": "Escalating",
+      "trajectory": "Stalemate shifting — SCEF resistance alliance potentially transformative; junta weakening",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "Haiti Political-Criminal",
       "status": "Active",
-      "trajectory": "Escalating",
+      "trajectory": "Unstable — MSS→GSF transition gap; gang control dominant",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "DRC Eastern Theatre",
       "status": "Active",
-      "trajectory": "Escalating",
+      "trajectory": "Fragile de-escalation attempt — Switzerland talks Apr 2026; ground fighting continues",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "Taiwan Strait / PRC–Taiwan",
       "status": "Active",
-      "trajectory": "Stable",
+      "trajectory": "Stable elevated pressure — two major exercises 2025; territorial water incursions normalised",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "Korean Peninsula",
       "status": "Active",
-      "trajectory": "Stable (elevated posture)",
+      "trajectory": "Elevated — nuclear acceleration ordered; 7 tests 2026 to Apr; US asset redeployment to ME",
       "added": "2026-03-30",
       "version_history": []
     },
     {
       "conflict": "Israel–Lebanon / Hezbollah War",
       "status": "Active",
-      "trajectory": "Escalating",
+      "trajectory": "Ceasefire unraveling — nominal only as of Apr 26-27",
       "added": "2026-03-30",
       "roster_note": "Retroactive correction",
       "version_history": [
@@ -752,15 +1899,29 @@
     {
       "conflict": "US–Israel vs Iran (Op Epic Fury / Roaring Lion)",
       "status": "Active",
-      "trajectory": "Escalating",
+      "trajectory": "Ongoing war — Hormuz blockade; nuclear talks at impasse; Iran Apr 27 decouple proposal rejected",
       "added": "2026-03-30",
-      "roster_note": "Retroactive correction — should have been active from 28 Feb 2026",
+      "roster_note": "Retroactive correction — active since 28 Feb 2026",
       "version_history": [
         {
           "date": "2026-03-30",
           "change": "Added to active roster — retroactive correction",
-          "reason": "Omitted in error from inaugural edition; placed in Roster Watch incorrectly",
+          "reason": "Omitted in error from inaugural edition",
           "prior_value": "Roster Watch"
+        }
+      ]
+    },
+    {
+      "conflict": "India–Pakistan",
+      "status": "Roster Watch — post-conflict latent",
+      "trajectory": "Post-Op Sindoor ceasefire holds; CFR moderate risk 2026 due to terrorist activity; new Indian doctrine of forceful retaliation",
+      "added": "2026-04-28",
+      "roster_note": "Added by DR baseliner — conflict pair with active escalation history within window",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Added to roster watch — Op Sindoor May 2025 within 18-month window",
+          "reason": "DR baseliner run scem-2026-04-28"
         }
       ]
     }
@@ -773,12 +1934,22 @@
         "criteria_met": [
           "Partial I2"
         ]
+      },
+      {
+        "theatre_name": "India–Pakistan",
+        "reason": "Operation Sindoor May 2025 (4-day kinetic confrontation within 18-month window); CFR moderate risk 2026; post-ceasefire residual tension",
+        "criteria_met": [
+          "I1",
+          "I2",
+          "I3 (nuclear signalling)",
+          "I5 (ceasefire achieved)"
+        ]
       }
     ],
     "approaching_retirement": []
   },
   "cross_monitor_flags": {
-    "updated": "2026-03-30T18:00:00Z",
+    "updated": "2026-04-28T00:00:00Z",
     "flags": [
       {
         "flag_id": "SCEM-FIMI-001",
@@ -787,13 +1958,13 @@
         "conflict": "Sudan",
         "indicator": "I1/I2",
         "signal": "F2-adjacent — False-flag seeding risk",
-        "detail": "SAF and RSF attributing drone strikes to each other without forensic corroboration in tight time windows. Pattern consistent with mutual false-flag seeding for domestic legitimation. Flag for FIMI assessment.",
+        "detail": "SAF and RSF attributing drone strikes to each other without forensic corroboration in tight time windows. Yale Humanitarian Lab Apr 2026 confirmed Ethiopia-RSF supply route via satellite imagery. Pattern consistent with mutual false-flag seeding for domestic legitimation. Flag for FIMI assessment.",
         "structural_or_transient": "Transient (monitor for pattern persistence)",
         "status": "Active",
         "first_raised": "2026-03-30",
         "unchanged_since": "2026-03-30",
         "title": "F2-adjacent — False-flag seeding risk",
-        "summary": "SAF and RSF attributing drone strikes to each other without forensic corroboration in tight time windows. Pattern consistent with mutual false-flag seeding for domestic legitimation. Flag for FIMI assessment.",
+        "summary": "SAF and RSF attributing drone strikes to each other without forensic corroboration in tight time windows. Pattern consistent with mutual false-flag seeding for domestic legitimation.",
         "monitors": [
           "FIMI & Cognitive Warfare"
         ],
@@ -806,13 +1977,13 @@
         "conflict": "Gaza",
         "indicator": "I5",
         "signal": "F4 — Premature De-escalation",
-        "detail": "Ceasefire and disarmament progress claims sourced from Israeli/US officials (T3). Hamas disarmament plan not independently verified. Scored at verified level.",
+        "detail": "Ceasefire and disarmament progress claims sourced from Israeli/US officials (T3). Hamas disarmament plan rejected Apr 14 2026. Not independently verified.",
         "structural_or_transient": "Structural (persistent while ceasefire framework unverified)",
         "status": "Active",
         "first_raised": "2026-03-30",
         "unchanged_since": "2026-03-30",
         "title": "F4 — Premature De-escalation",
-        "summary": "Ceasefire and disarmament progress claims sourced from Israeli/US officials (T3). Hamas disarmament plan not independently verified. Scored at verified level.",
+        "summary": "Ceasefire and disarmament progress claims sourced from Israeli/US officials (T3). Hamas disarmament plan not independently verified.",
         "monitors": [
           "FIMI & Cognitive Warfare"
         ],
@@ -825,13 +1996,13 @@
         "conflict": "DRC Eastern",
         "indicator": "I5",
         "signal": "F4 — Premature De-escalation",
-        "detail": "Multiple ceasefire frameworks (Doha/Washington/Angola) claimed without operational verification. MONUSCO oversight not functional. Both parties accusing each other simultaneously.",
+        "detail": "Multiple ceasefire frameworks (Doha/Washington/Angola/Switzerland) claimed without operational verification. MONUSCO oversight not functional. Both parties accusing each other simultaneously.",
         "structural_or_transient": "Structural (persistent while MONUSCO oversight non-functional)",
         "status": "Active",
         "first_raised": "2026-03-30",
         "unchanged_since": "2026-03-30",
         "title": "F4 — Premature De-escalation",
-        "summary": "Multiple ceasefire frameworks (Doha/Washington/Angola) claimed without operational verification. MONUSCO oversight not functional. Both parties accusing each other simultaneously.",
+        "summary": "Multiple ceasefire frameworks claimed without operational verification. MONUSCO oversight not functional.",
         "monitors": [
           "FIMI & Cognitive Warfare"
         ],
@@ -844,13 +2015,13 @@
         "conflict": "Russia–Ukraine",
         "indicator": "I1",
         "signal": "F4 — Premature De-escalation",
-        "detail": "Kremlin negotiating-willingness signals sourced from Russian state media (T3) only. Standard circular delegitimisation framing (Medvedev 19 March). No T2 corroboration.",
+        "detail": "Kremlin negotiating-willingness signals sourced from Russian state media (T3) only. Lavrov Apr 18 2026 confirmed Russia 'not in rush' to resume talks. Standard circular delegitimisation framing. No T2 corroboration.",
         "structural_or_transient": "Structural (persistent Kremlin disinformation pattern)",
         "status": "Active",
         "first_raised": "2026-03-30",
         "unchanged_since": "2026-03-30",
         "title": "F4 — Premature De-escalation",
-        "summary": "Kremlin negotiating-willingness signals sourced from Russian state media (T3) only. Standard circular delegitimisation framing (Medvedev 19 March). No T2 corroboration.",
+        "summary": "Kremlin negotiating-willingness signals sourced from Russian state media (T3) only. No T2 corroboration.",
         "monitors": [
           "FIMI & Cognitive Warfare"
         ],
@@ -862,14 +2033,14 @@
         "monitor_url": "https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html",
         "conflict": "Russia–Ukraine",
         "indicator": "I2/I5",
-        "signal": "European theatre — Spring offensive staging",
-        "detail": "Russian mechanised assault increase since 17 March. ISW assesses Spring-Summer 2026 offensive preparation. EGHTM should assess NATO eastern flank readiness and air defence allocation implications.",
+        "signal": "European theatre — Spring-Summer offensive under way",
+        "detail": "Russian Spring-Summer 2026 offensive commenced Mar 17 (ISW). Largest strike package in war history Mar 23-24 (~1000 projectiles). Ukraine drone advantage partially neutralising. Easter ceasefire collapsed. EGHTM should assess NATO eastern flank readiness and air defence allocation implications. New START lapsed Feb 5.",
         "structural_or_transient": "Structural (seasonal offensive pattern)",
         "status": "Active",
         "first_raised": "2026-03-30",
-        "unchanged_since": "2026-03-30",
-        "title": "European theatre — Spring offensive staging",
-        "summary": "Russian mechanised assault increase since 17 March. ISW assesses Spring-Summer 2026 offensive preparation. EGHTM should assess NATO eastern flank readiness and air defence allocation implications.",
+        "last_updated": "2026-04-28",
+        "title": "European theatre — Spring-Summer offensive under way",
+        "summary": "Russian Spring-Summer 2026 offensive commenced. Easter ceasefire collapsed. New START lapsed. EGHTM assess NATO eastern flank implications.",
         "monitors": [
           "European Geopolitical & Hybrid Threat Monitor"
         ],
@@ -882,13 +2053,13 @@
         "conflict": "Sudan",
         "indicator": "I6",
         "signal": "Climate/water displacement driver",
-        "detail": "Sudan 12M+ displacement includes conflict and climate/food-insecurity drivers. Famine in Darfur/Kordofan partly climate-aggravated. GERP should assess as compound crisis case.",
+        "detail": "Sudan 14M+ displacement includes conflict and climate/food-insecurity drivers. Famine confirmed in El Fasher and Kadugli; risk in 20 areas. Darfur/Kordofan partly climate-aggravated. 33.7M need humanitarian aid (2/3 population). GERP should assess as compound crisis case.",
         "structural_or_transient": "Structural",
         "status": "Active",
         "first_raised": "2026-03-30",
-        "unchanged_since": "2026-03-30",
+        "last_updated": "2026-04-28",
         "title": "Climate/water displacement driver",
-        "summary": "Sudan 12M+ displacement includes conflict and climate/food-insecurity drivers. Famine in Darfur/Kordofan partly climate-aggravated. GERP should assess as compound crisis case.",
+        "summary": "Sudan 14M+ displacement; famine confirmed. GERP assess compound conflict-climate crisis.",
         "monitors": [
           "Global Environmental Risks & Planetary Boundaries Monitor"
         ],
@@ -901,13 +2072,13 @@
         "conflict": "DRC Eastern",
         "indicator": "I4",
         "signal": "Resource conflict financing — coltan/cobalt",
-        "detail": "M23/Rwanda control of Rubaya coltan mine. FARDC operations targeting Rubaya explicitly. US-DRC strategic minerals partnership (Washington Accords) links conflict zone to critical supply chain.",
+        "detail": "M23/Rwanda control of Rubaya coltan mine. FARDC operations targeting Rubaya explicitly. US-DRC strategic minerals partnership (Washington Accords) links conflict zone to critical supply chain. Switzerland Apr 2026 talks include mineral access dimension.",
         "structural_or_transient": "Structural",
         "status": "Active",
         "first_raised": "2026-03-30",
         "unchanged_since": "2026-03-30",
         "title": "Resource conflict financing — coltan/cobalt",
-        "summary": "M23/Rwanda control of Rubaya coltan mine. FARDC operations targeting Rubaya explicitly. US-DRC strategic minerals partnership (Washington Accords) links conflict zone to critical supply chain.",
+        "summary": "M23/Rwanda control of Rubaya coltan mine. Washington Accords links conflict zone to US critical supply chain.",
         "monitors": [
           "Macro Monitor"
         ],
@@ -920,13 +2091,13 @@
         "conflict": "US–Israel vs Iran (C10)",
         "indicator": "I4",
         "signal": "I4 RED-band — Hormuz closure / largest oil disruption in recorded history",
-        "detail": "Strait of Hormuz: 6 vessels/day vs 135 normally. Brent crude >$120/barrel. QatarEnergy force majeure on all LNG exports. Iran demanding yuan not dollars — petrodollar challenge. IEA: largest supply disruption in history of global oil market.",
+        "detail": "Strait of Hormuz: ~6 vessels/day vs 135 normally. Brent crude >$120/barrel. QatarEnergy force majeure on all LNG exports. Iran Apr 27 proposal to decouple Hormuz from nuclear talks — US rejected. Hormuz remains closed. IEA: largest supply disruption in history of global oil market.",
         "structural_or_transient": "Structural while conflict continues",
         "status": "Active",
         "first_raised": "2026-03-30",
-        "unchanged_since": "2026-03-30",
+        "last_updated": "2026-04-28",
         "title": "I4 RED-band — Hormuz closure / largest oil disruption in recorded history",
-        "summary": "Strait of Hormuz: 6 vessels/day vs 135 normally. Brent crude >$120/barrel. QatarEnergy force majeure on all LNG exports. Iran demanding yuan not dollars — petrodollar challenge. IEA: largest supply disruption in history of global oil market.",
+        "summary": "Hormuz ~6 vessels/day vs 135 normally. Brent >$120. Iran Apr 27 decouple proposal rejected — Hormuz remains closed.",
         "monitors": [
           "Macro Monitor"
         ],
@@ -939,13 +2110,13 @@
         "conflict": "US–Israel vs Iran (C10)",
         "indicator": "I3",
         "signal": "I3 RED-band — 400kg 60%-enriched uranium at unknown location post-strikes",
-        "detail": "CSIS analysis: Iran retains ~400kg 60%-enriched uranium whose location is unknown post-strikes. US proposal demands Iran commit to never obtaining nuclear weapon — confirming US does not consider nuclear risk resolved. EGHTM should assess implications for European deterrence posture.",
+        "detail": "CSIS analysis: Iran retains ~400kg 60%-enriched uranium whose location is unknown post-strikes. US position (Rubio): deal must definitively prevent nuclear weapon 'at any point'. Iranian Shamkhani: exporting uranium 'nonstarter'. Nuclear talks at impasse as of Apr 27 2026. EGHTM should assess implications for European deterrence posture.",
         "structural_or_transient": "Structural",
         "status": "Active",
         "first_raised": "2026-03-30",
-        "unchanged_since": "2026-03-30",
+        "last_updated": "2026-04-28",
         "title": "I3 RED-band — 400kg 60%-enriched uranium at unknown location post-strikes",
-        "summary": "CSIS analysis: Iran retains ~400kg 60%-enriched uranium whose location is unknown post-strikes. US proposal demands Iran commit to never obtaining nuclear weapon — confirming US does not consider nuclear risk resolved. EGHTM should assess implications for European deterrence posture.",
+        "summary": "Iran ~400kg 60%-enriched uranium at unknown location. US-Iran nuclear talks at impasse Apr 27 2026. EGHTM assess European deterrence implications.",
         "monitors": [
           "European Geopolitical & Hybrid Threat Monitor"
         ],
@@ -958,13 +2129,13 @@
         "conflict": "Israel–Lebanon (C9)",
         "indicator": "I6",
         "signal": "I6 RED-band — 1M+ displaced (20% of Lebanon's population)",
-        "detail": "Largest displacement by velocity in Lebanon's modern history. GERP should assess compound drivers: conflict displacement intersecting with Lebanon's pre-existing economic collapse and climate-stressed agricultural sector.",
+        "detail": "Largest displacement by velocity in Lebanon's modern history. GERP should assess compound drivers: conflict displacement intersecting with Lebanon's pre-existing economic collapse and climate-stressed agricultural sector. Ceasefire nominal only as of Apr 26-27.",
         "structural_or_transient": "Structural while conflict continues",
         "status": "Active",
         "first_raised": "2026-03-30",
-        "unchanged_since": "2026-03-30",
+        "last_updated": "2026-04-28",
         "title": "I6 RED-band — 1M+ displaced (20% of Lebanon's population)",
-        "summary": "Largest displacement by velocity in Lebanon's modern history. GERP should assess compound drivers: conflict displacement intersecting with Lebanon's pre-existing economic collapse and climate-stressed agricultural sector.",
+        "summary": "1M+ displaced from Lebanon (20% of population). Ceasefire nominally only. GERP assess compound conflict-economic-climate drivers.",
         "monitors": [
           "Global Environmental Risks & Planetary Boundaries Monitor"
         ],
@@ -977,17 +2148,36 @@
         "conflict": "US–Israel vs Iran (C10)",
         "indicator": "I2",
         "signal": "F3 — CENTCOM 'capabilities dismantled' claim",
-        "detail": "CENTCOM claim of Iranian military capabilities 'totally dismantled' inconsistent with Iran continuing operations, Hormuz closure, Gulf attacks, and proxy activity. Classic F3 Capability Theatre by attacking party. FIMI hub should assess as information operation targeting domestic and allied audiences.",
+        "detail": "CENTCOM claim of Iranian military capabilities 'totally dismantled' inconsistent with Iran continuing operations, Hormuz closure, Gulf attacks, proxy activity, and Apr 27 proposal showing Iran retains leverage. Classic F3 Capability Theatre. FIMI hub should assess as information operation targeting domestic and allied audiences.",
         "structural_or_transient": "Transient (monitor for pattern evolution)",
         "status": "Active",
         "first_raised": "2026-03-30",
         "unchanged_since": "2026-03-30",
         "title": "F3 — CENTCOM 'capabilities dismantled' claim",
-        "summary": "CENTCOM claim of Iranian military capabilities 'totally dismantled' inconsistent with Iran continuing operations, Hormuz closure, Gulf attacks, and proxy activity. Classic F3 Capability Theatre by attacking party. FIMI hub should assess as information operation targeting domestic and allied audiences.",
+        "summary": "CENTCOM 'dismantled' claim inconsistent with Iran retaining operational leverage including Hormuz and nuclear stockpile.",
         "monitors": [
           "FIMI & Cognitive Warfare"
         ],
         "severity": "high"
+      },
+      {
+        "flag_id": "SCEM-MACRO-003",
+        "monitor": "Macro Monitor",
+        "monitor_url": "https://asym-intel.info/monitors/macro-monitor/dashboard.html",
+        "conflict": "Russia–Ukraine",
+        "indicator": "I4",
+        "signal": "Russia oil windfall from Iran war — bankrolling spring offensive",
+        "detail": "Kyiv Independent Mar 2026: Russia 'buoyed by oil money windfall from the war in Iran' — Hormuz closure driving elevated oil revenues sustaining Russian war economy. MACRO should assess petrodollar implications and Russia revenue model.",
+        "structural_or_transient": "Structural while Hormuz closed",
+        "status": "Active",
+        "first_raised": "2026-04-28",
+        "last_updated": "2026-04-28",
+        "title": "Russia oil windfall from Iran war — bankrolling spring offensive",
+        "summary": "Russia oil revenues elevated by Hormuz closure; sustaining spring-summer 2026 offensive. MACRO assess.",
+        "monitors": [
+          "Macro Monitor"
+        ],
+        "severity": "moderate"
       }
     ],
     "version_history": [
@@ -1000,6 +2190,11 @@
         "date": "2026-03-30",
         "change": "Added 4 new cross-monitor flags for C9 and C10 (retroactive correction)",
         "reason": "C9 and C10 retroactively added to active roster"
+      },
+      {
+        "date": "2026-04-28",
+        "change": "Updated flag details with Apr 2026 evidence; added SCEM-MACRO-003 (Russia oil windfall)",
+        "reason": "DR baseliner run scem-2026-04-28"
       }
     ]
   },
@@ -1016,6 +2211,14 @@
       {
         "name": "UCDP GED 2025",
         "url": "ucdp.uu.se"
+      },
+      {
+        "name": "ISW Daily Assessments",
+        "url": "understandingwar.org"
+      },
+      {
+        "name": "UN OCHA Humanitarian Reports",
+        "url": "ochaopt.org / reliefweb.int"
       }
     ],
     "t2_additions": [
@@ -1030,18 +2233,33 @@
       {
         "name": "UNHCR Operational Data Portal",
         "url": "data.unhcr.org"
+      },
+      {
+        "name": "Arms Control Association",
+        "url": "armscontrol.org"
+      },
+      {
+        "name": "Security Council Report",
+        "url": "securitycouncilreport.org"
+      },
+      {
+        "name": "CSIS China Power",
+        "url": "chinapower.csis.org"
       }
     ],
     "reliability_flags": {
       "telegram_ukraine_russia": "T4 maximum — velocity detection only. Fabricated PSYOP channels documented 2025.",
       "sudan_osint_x": "T3 (not T4) — civil society networks have been primary early-warning ahead of T1. CGTN Sudan = likely F3.",
-      "cgtn": "State media disinformation pattern documented — treat as F4 (state media flag)"
+      "cgtn": "State media disinformation pattern documented — treat as F4 (state media flag)",
+      "iran_state_media": "T4 — confirmed operational denial patterns (Hormuz closure claims, nuclear capability claims)",
+      "russian_milbloggers": "T3/T4 depending on channel — useful for velocity; ISW cross-check required for factual claims"
     }
   },
   "i5_calibration_2026": {
     "us_channel_weight": "reduced",
     "us_channel_note": "US withdrawal from 66+ multilateral institutions means US participation in multilateral forums is no longer a reliable I5 positive indicator for 2026. Weight EU/Gulf/African Union mediation channels more heavily in Gaza, Ukraine, Sudan theatres.",
-    "effective_date": "2026-04-02"
+    "effective_date": "2026-04-02",
+    "iran_war_note": "Iran war has diverted US diplomatic bandwidth from Sudan Quad mediation (non-operational since Sep 2025) and Ukraine trilateral talks (stalled since Feb 2026). Weight regional mediators (Oman, Pakistan, Qatar, Turkey) more heavily for Iran theatre."
   },
   "calibration_log": [
     {
@@ -1058,6 +2276,73 @@
         "Myanmar Civil War: Q2 recalc flag"
       ],
       "summary": "I2 drone theatre baselines, Russia doctrine shift persistent flag, Q2 recalc triggers, ACLED Priority 1+2 watchlist, T1/T2 source additions, I5 US channel de-weighting"
+    },
+    {
+      "date": "2026-04-28",
+      "source": "DR baseliner run scem-2026-04-28",
+      "applied_by": "computer-research-subagent",
+      "changes": [
+        "Added spec-mandated structural modules: conflict_pair_registry, order_of_battle, treaty_posture, escalation_thresholds, active_escalation_events, mediation_deescalation_architecture, alliance_security_architectures",
+        "Updated all conflict_baseline notes with Apr 2026 evidence",
+        "Added India-Pakistan to roster_watch",
+        "Added SCEM-MACRO-003 cross-monitor flag (Russia oil windfall)",
+        "Updated F-flag details with Apr 2026 corroboration",
+        "Added Iran war note to i5_calibration_2026",
+        "Extended source_hierarchy_2026 with ISW, OCHA, Arms Control Assoc, Security Council Report, CSIS ChinaPower",
+        "Schema upgraded from 1.0 to 2.0",
+        "last_issue set to 0 per baseliner spec"
+      ],
+      "summary": "Full structural baseline construction per SCEM spec. 13 conflict pairs registered. 6 OOB entries. 8 treaties. 7 escalation threshold sets. 20 windowed events. 6 mediation architectures. 6 alliances. All prior modules preserved by union."
+    }
+  ],
+  "gaps_register": [
+    {
+      "gap_id": "SCEM-GAP-001",
+      "description": "Venezuela-Guyana border dispute — in spec's conflict-pair scope but insufficient current evidence surfaced in this DR pass to populate escalation thresholds and OOB. Monitor for escalatory trajectory.",
+      "module_target": "conflict_pair_registry",
+      "date_noted": "2026-04-28"
+    },
+    {
+      "gap_id": "SCEM-GAP-002",
+      "description": "Armenia-Azerbaijan post-Karabakh — listed in spec scope; 2023 Karabakh offensive resolved in Azerbaijan's favour; current status unclear. Possible retirement candidate or active grey-zone watch.",
+      "module_target": "conflict_pair_registry",
+      "date_noted": "2026-04-28"
+    },
+    {
+      "gap_id": "SCEM-GAP-003",
+      "description": "Ethiopia-Eritrea relations — in spec scope; Ethiopia Northern Theatre on approaching_inclusion list; formal escalation threshold data not surfaced this pass.",
+      "module_target": "escalation_thresholds",
+      "date_noted": "2026-04-28"
+    },
+    {
+      "gap_id": "SCEM-GAP-004",
+      "description": "Sahel cluster (Mali/Burkina Faso/Niger — AES states) — in spec scope; ECOWAS military posture vis-a-vis AES; Wagner/Russia presence; not surfaced with sufficient depth this pass.",
+      "module_target": "conflict_pair_registry",
+      "date_noted": "2026-04-28"
+    },
+    {
+      "gap_id": "SCEM-GAP-005",
+      "description": "IISS Military Balance 2026 precise OOB figures — this pass used ISW/news sources; formal IISS data for standing forces, interceptor stocks, naval tonnage not retrieved. Recommend IISS fetch for next refresh.",
+      "module_target": "order_of_battle",
+      "date_noted": "2026-04-28"
+    },
+    {
+      "gap_id": "SCEM-GAP-006",
+      "description": "BWC/CWC compliance posture — listed in treaty spec scope; not fully populated this pass. Russia CWC use in Ukraine documented (Novichok Salisbury 2018; alleged use in Ukraine reported). Recommend dedicated fetch.",
+      "module_target": "treaty_posture",
+      "date_noted": "2026-04-28"
+    },
+    {
+      "gap_id": "SCEM-GAP-007",
+      "description": "Cyprus — in spec scope; Turkish-Greek-Cypriot dispute; reunification talks status; UN buffer zone UNFICYP status. Not surfaced this pass.",
+      "module_target": "conflict_pair_registry",
+      "date_noted": "2026-04-28"
+    },
+    {
+      "gap_id": "SCEM-GAP-008",
+      "description": "Houthi/Red Sea campaign detail — active escalation subset of Iran proxy theatre; specific OOB (Houthi naval drone + missile inventory) and Red Sea shipping disruption metrics not populated as separate module.",
+      "module_target": "order_of_battle",
+      "date_noted": "2026-04-28"
     }
   ]
 }

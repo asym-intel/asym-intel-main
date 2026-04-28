@@ -61,7 +61,11 @@ _PUBLISHER_SLUG = {
 
 for abbr, ga_abbr in [("WDM","wdm"), ("GMM","gmm"), ("ESA","esa"), ("FCW","fcw"),
                        ("AIM","agm"), ("ERM","erm"), ("SCEM","scem"), ("FIM","fim")]:
-    for stage in ["collector", "weekly-research", "reasoner", "synthesiser"]:
+    for stage in [
+        "collector", "weekly-research", "reasoner",
+        "interpreter", "reviewer", "composer", "applier", "curator",
+        "synthesiser",  # legacy — retained for backwards-read on monitors not yet migrated off
+    ]:
         WORKFLOW_FILES[(abbr, stage)] = f"{ga_abbr}-{stage}.yml"
     # Chatter is now unified — one workflow for all monitors (13 Apr 2026)
     WORKFLOW_FILES[(abbr, "chatter")] = "unified-chatter.yml"
@@ -196,7 +200,11 @@ def generate_status():
         stations = {}
 
         # GA pipeline stages
-        for stage in ["collector", "chatter", "weekly-research", "reasoner", "synthesiser"]:
+        for stage in [
+            "collector", "chatter", "weekly-research", "reasoner",
+            "interpreter", "reviewer", "composer", "applier", "curator",
+            "synthesiser",
+        ]:
             wf_file = WORKFLOW_FILES.get((abbr, stage))
             if wf_file:
                 stations[stage] = build_station_status(wf_file)
@@ -424,7 +432,12 @@ def detect_no_shows(status):
     no_show_count = 0
 
     # Stages that should fire on publish day (in order)
-    expected_stages = ["collector", "weekly-research", "reasoner", "synthesiser"]
+    expected_stages = [
+        "collector", "weekly-research", "reasoner",
+        "interpreter", "reviewer", "composer", "applier", "curator",
+    ]
+    # Note: "synthesiser" deliberately excluded from expected stages — legacy.
+    # Monitors emit either synthesiser OR the 5-stage cascade; expect the new chain.
 
     for abbr, meta in MONITORS.items():
         expected_dow = DAY_INDEX.get(meta["day"])

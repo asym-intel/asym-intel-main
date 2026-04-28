@@ -1,0 +1,1521 @@
+{
+  "_meta": {
+    "description": "Persistent knowledge base for the AI Governance Monitor. Updated only when material changes occur. Never delete entries — archive closed episodes instead.",
+    "last_updated": "2026-04-27T07:21:07Z",
+    "last_issue": 7,
+    "schema_version": "2.0",
+    "source_url": "https://asym-intel.info/monitors/ai-governance/2026-04-01-weekly-digest/",
+    "monitor_slug": "ai-governance",
+    "monitor_name": "AI Governance Monitor",
+    "publish_day": "Friday",
+    "publish_time_utc": "16:00",
+    "calibration": "EU AI Act 2026 / GPAI Code of Practice applied 2026-04-02",
+    "methodology_version": "agm-methodology-2026-Q2",
+    "required_modules": [
+      "module_5_standards_vacuum",
+      "module_5_ciyuan",
+      "module_7_risk_vectors",
+      "module_9_eu_ai_act_tracker",
+      "module_14_concentration_index",
+      "module_15_aisi_pipeline",
+      "eu_ai_act_tracker",
+      "gpai_compliance",
+      "risk_vectors_2026_baseline",
+      "concentration_index_2026",
+      "aisi_status_2026"
+    ]
+  },
+  "module_7_risk_vectors": [
+    {
+      "vector": "Governance Fragmentation",
+      "rating": "HIGH",
+      "first_rated": "2026-03-30",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "summary": "EU/US governance schism: EP Omnibus vote (569–45–23) vs White House nonbinding framework explicitly opposing new federal AI regulator. Domestic US patchwork (Colorado, New York, Texas, Georgia, Minnesota) cannot yet be federally preempted. Labs have structural incentive to route EU compliance through US legal entities.",
+      "sources": [
+        "https://www.europarl.europa.eu/news/en/press-room/20260323IPR38829/artificial-intelligence-act-delayed-application-ban-on-nudifier-apps",
+        "https://www.whitehouse.gov/releases/2026/03/president-donald-j-trump-unveils-national-ai-legislative-framework/"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated HIGH — initial entry",
+          "reason": "EU Parliament adopted Digital Omnibus position; White House released nonbinding AI framework in direct philosophical opposition",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "EU Omnibus trilogue opened (28 April target); White House federal preemption framework; GSA 'any lawful use' clause generalising Pentagon AI playbook to all federal procurement",
+          "prior_value": "EU/US governance schism: EP Omnibus vote (569–45–23) vs White House nonbinding framework explicitly "
+        }
+      ]
+    },
+    {
+      "vector": "Cyber Escalation",
+      "rating": "HIGH",
+      "first_rated": "2026-03-30",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "summary": "AI agent orchestration infrastructure (Langflow, LiteLLM, n8n) is established attack surface. CVE-2026-33017 (CVSS 9.3, Langflow) exploited within 20 hours of advisory — no public PoC required. CVE-2026-33634 (Trivy/LiteLLM supply chain) found in 36% of monitored cloud environments. CISA enforcement only applies to federal agencies; private sector exposure unaddressed.",
+      "sources": [
+        "https://securityaffairs.com/190018/security/u-s-cisa-adds-a-langflow-flaw-to-its-known-exploited-vulnerabilities-catalog.html",
+        "https://www.helpnetsecurity.com/2026/03/27/cve-2026-33017-cve-2026-33634-exploited/"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated HIGH — initial entry",
+          "reason": "Two AI-infrastructure CVEs added to CISA KEV catalog in same week; active exploitation of agentic orchestration layer confirmed",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "Langflow/LiteLLM/n8n confirmed as established AI attack surface (CVE-2026-33017/33634); Anthropic dual opsec failure (KAIROS/BUDDY undercover mode + Mythos CMS leak)",
+          "prior_value": "AI agent orchestration infrastructure (Langflow, LiteLLM, n8n) is established attack surface. CVE-20"
+        }
+      ]
+    },
+    {
+      "vector": "Platform Power",
+      "rating": "ELEVATED",
+      "first_rated": "2026-03-30",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "summary": "EU AI Act Omnibus implementation delays structurally benefit incumbent labs. SpaceX–xAI merger (Feb 2026) created entity combining Grok LLM + Starlink + DoD/NASA contracts + X social platform — no single regulator has comprehensive oversight. Hyperscaler capex approaching $750B in 2026.",
+      "sources": [
+        "https://www.reuters.com/legal/transactional/spacex-acquires-xai-key-facts-about-musk-owned-startups-2026-02-03/"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated ELEVATED — initial entry",
+          "reason": "SpaceX–xAI merger complete; EU implementation delays confirmed by Omnibus vote",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "OpenAI $852B valuation at 60x revenue; headcount doubling to ~8,000; Promptfoo acquisition; SpaceX-xAI merger creating combined Grok+Starlink+DoD/NASA+X entity",
+          "prior_value": "EU AI Act Omnibus implementation delays structurally benefit incumbent labs. SpaceX–xAI merger (Feb "
+        }
+      ]
+    },
+    {
+      "vector": "Export Controls",
+      "rating": "ELEVATED",
+      "first_rated": "2026-03-30",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "summary": "US Commerce Dept withdrew planned AI chip export rule (13 March 2026). No replacement rule published. Biden-era AI Diffusion Rule rescinded May 2025. 12–18 month enforcement vacuum for model weight exports. Cloud IaaS providers can currently serve Chinese customers via foreign data centers without triggering hardware export controls. Draft new regulations (5 March) not yet published as formal text.",
+      "sources": [
+        "https://www.reuters.com/business/us-commerce-department-withdraws-planned-rule-ai-chip-exports-government-website-2026-03-13/"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated ELEVATED — initial entry",
+          "reason": "Commerce Dept withdrew planned rule; no replacement issued; enforcement vacuum confirmed",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "US Commerce withdrew chip export rule with no replacement; bilateral GPU supply lock-in intensifying ($700B hyperscaler capex in 2026)",
+          "prior_value": "US Commerce Dept withdrew planned AI chip export rule (13 March 2026). No replacement rule published"
+        }
+      ]
+    },
+    {
+      "vector": "Disinfo Velocity",
+      "rating": "HIGH",
+      "first_rated": "2026-03-30",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "summary": "EEAS 4th Annual FIMI Report: 1 in 4 detected incidents in 2025 involved AI tools. AI deepfakes confirmed in 2026 US midterm campaigns (NRSC, Reuters 28 March). No federal law restricts AI in political advertising. Russia targeting Armenia ahead of June 2026 elections. FIMI/financial fraud convergence documented by Meta H1 2026 ATR.",
+      "sources": [
+        "https://www.eeas.europa.eu/eeas/4th-eeas-annual-report-foreign-information-manipulation-and-interference-threats_en",
+        "https://www.reuters.com/business/media-telecom/ai-deepfakes-blur-reality-2026-us-midterm-campaigns-2026-03-28/"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated HIGH — initial entry",
+          "reason": "EEAS FIMI report confirmed 25% AI-assisted rate; US midterm deepfakes confirmed active",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "EEAS 4th FIMI Report confirms agentic autonomous narrative attacks; AI deepfakes in 2026 US midterms; Stanford Internet Observatory dismantlement",
+          "prior_value": "EEAS 4th Annual FIMI Report: 1 in 4 detected incidents in 2025 involved AI tools. AI deepfakes confi"
+        }
+      ]
+    },
+    {
+      "vector": "Standards Vacuum",
+      "rating": "HIGH",
+      "summary": "Governance tools support EU AI Act compliance but no harmonised standards ahead of deadlines.",
+      "asymmetric": "Arbitrage for private standards in compliance vacuum.",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-04-19",
+      "sources": [
+        "agm-2026-05-02-003"
+      ],
+      "last_updated": "2026-04-27",
+      "version_history": [
+        {
+          "date": "2026-04-17",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-21",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-27",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "vector": "Regulatory Fragmentation",
+      "rating": "HIGH",
+      "summary": "Divergent regulatory approaches across jurisdictions creating compliance challenges for global AI deployment",
+      "asymmetric": "Fragmentation is accelerating innovation in regulatory arbitrage strategies as companies seek to optimize deployment across different regulatory environments",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-30",
+      "sources": [
+        "https://www.iso.org/committee/6794475.html"
+      ],
+      "last_updated": "2026-04-21",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "AI-Generated Harm",
+      "rating": "ELEVATED",
+      "summary": "Rapid increase in AI-generated child sexual abuse material and deepfake imagery abuse",
+      "asymmetric": "Detection challenges are creating new market opportunities for AI-powered content verification tools that can identify synthetic media",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-15",
+      "sources": [
+        "https://fortune.com/2026/04/03/internet-watch-foundation-260-fold-increase-ai-generated-csam/"
+      ],
+      "last_updated": "2026-04-21",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "Compute Concentration",
+      "rating": "ELEVATED",
+      "summary": "NVIDIA maintains dominant position in AI accelerator market with approximately 80% market share",
+      "asymmetric": "Compute concentration creates strategic vulnerability as geopolitical tensions could disrupt supply chains for critical AI infrastructure",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-20",
+      "sources": [
+        "https://www.morganstanley.com/insights/articles/ai-market-trends-institute-2026"
+      ],
+      "last_updated": "2026-04-21",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "AI Energy Demand",
+      "rating": "MODERATE",
+      "summary": "Rapid growth in data center electricity consumption driven by AI workloads",
+      "asymmetric": "Energy constraints may become a limiting factor for AI development in regions with constrained power infrastructure",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-04-01",
+      "sources": [
+        "https://www.brookings.edu/articles/global-energy-demands-within-the-ai-regulatory-landscape/"
+      ],
+      "last_updated": "2026-04-21",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "AI Labor Disruption",
+      "rating": "MODERATE",
+      "summary": "AI-related job cuts projected to increase nine times over in 2026 compared to 2025",
+      "asymmetric": "Labor disruption is creating pressure for workforce retraining programs focused on AI-augmented roles rather than AI replacement",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-03-10",
+      "sources": [
+        "https://www.youtube.com/watch?v=xsWaPdvCmy4"
+      ],
+      "last_updated": "2026-04-21",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "Benchmark-Reality Gap",
+      "rating": "ELEVATED",
+      "summary": "Real-world AI accuracy drops 20-40% below benchmarks due to data drift and edge cases.",
+      "asymmetric": "Amplifies unmonitored deployment risks in agentic systems",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-01-01",
+      "sources": [
+        "https://www.articsledge.com/post/ai-accuracy-rate"
+      ],
+      "last_updated": "2026-04-24",
+      "version_history": [
+        {
+          "date": "2026-04-24",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "Capability-Governance Velocity Gap",
+      "rating": "HIGH",
+      "summary": "Frontier jumps like Claude 4.6 outpace regulatory milestones.",
+      "asymmetric": "Regulatory frameworks calibrated for prior architectures become obsolete",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-01-01",
+      "sources": [
+        "https://www.understandingai.org/p/why-its-getting-harder-to-measure"
+      ],
+      "last_updated": "2026-04-24",
+      "version_history": [
+        {
+          "date": "2026-04-24",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    }
+  ],
+  "module_9_eu_ai_act_tracker": {
+    "last_updated": "2026-04-21",
+    "general_application_date": "2026-08-02",
+    "standards_vacuum_active": true,
+    "standards_vacuum_trigger": "CEN-CENELEC JTC21 harmonised standards still in draft; compliance obligations activate 2 August 2026 without technical safe harbour if Omnibus trilogue stalls",
+    "layers": [
+      {
+        "layer": 1,
+        "name": "AI Act Text",
+        "status": "Active",
+        "note": "Regulation (EU) 2024/1689 in force. General application 2 August 2026.",
+        "unchanged_since": "2026-03-30"
+      },
+      {
+        "layer": 2,
+        "name": "Delegated / Implementing Acts",
+        "status": "In progress",
+        "note": "Commission drafting. GPAI classification criteria and high-risk system list updates pending.",
+        "unchanged_since": "2026-03-30"
+      },
+      {
+        "layer": 3,
+        "name": "Harmonised Standards (CEN-CENELEC JTC21)",
+        "status": "Delayed",
+        "note": "JTC21 missed April 2025 delivery deadline. Standards expected Q4 2026. Until OJ citation, presumption of conformity unavailable for high-risk AI.",
+        "unchanged_since": "2026-03-30"
+      },
+      {
+        "layer": 4,
+        "name": "GPAI Code of Practice",
+        "status": "In progress",
+        "note": "Drafting ongoing with multi-stakeholder process. Not yet finalised.",
+        "unchanged_since": "2026-03-30"
+      },
+      {
+        "layer": 5,
+        "name": "National Enforcement (NCAs)",
+        "status": "Not yet active",
+        "note": "Member states designating NCAs. Most not yet operational for AI Act enforcement.",
+        "unchanged_since": "2026-03-30"
+      },
+      {
+        "layer": 6,
+        "name": "AI Office Supervisory Decisions",
+        "status": "Not yet active",
+        "note": "No formal supervisory decisions issued. AI Office operational but pre-enforcement.",
+        "unchanged_since": "2026-03-30"
+      },
+      {
+        "layer": 7,
+        "name": "Digital Omnibus Trilogue",
+        "status": "Active — in trilogue",
+        "note": "EP adopted position 26 March (569–45–23). Council position adopted 13 March. Trilogue begins April 2026. Target agreement 28 April. If not completed before 2 August, original obligations apply. Critical path: agreement April 28 → Parliament vote June → OJ July → entry into force 1 August.",
+        "unchanged_since": "2026-04-01"
+      }
+    ],
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Initial 7-layer tracker seeded from Issue 1 research",
+        "reason": "First issue; no prior state",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "Layer 7 updated — trilogue formally open; 28 April target added; 122 days to deadline",
+        "reason": "Issue 2 research — EP plenary vote confirmed; trilogue opened",
+        "prior_value": "Trilogue expected to open April 2026"
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — countdown updated (122 days to general application 2026-08-02); Omnibus trilogue opened; GSA 'any lawful use' clause added as federal procurement signal",
+        "reason": "Issue 4 research — Omnibus and GSA developments material to tracker",
+        "prior_value": null
+      }
+    ],
+    "current_days_to_deadline": 100,
+    "law_highlights": [
+      {}
+    ],
+    "standards_highlights": [
+      {}
+    ],
+    "litigation_highlights": [
+      {}
+    ],
+    "digest_note": "null"
+  },
+  "module_14_concentration_index": {
+    "last_updated": "2026-04-24",
+    "domains": []
+  },
+  "module_15_aisi_pipeline": {
+    "last_updated": "2026-04-21",
+    "pipeline_status": "No confirmed senior movements — structural leadership vacuum",
+    "institutional_note": "UK AISI on interim leadership since October 2025 (Adam Beaumont, ex-GCHQ; no permanent director). US NIST AISI restructured to CAISI with reduced capacity. EU AI Office: no new senior appointments. All three bodies in leadership transition approaching August 2026 enforcement deadline.",
+    "watch_list": [
+      {
+        "institution": "UK AI Security Institute",
+        "status": "Monitoring",
+        "last_checked": "2026-03-30",
+        "movements": []
+      },
+      {
+        "institution": "US NIST AI Safety",
+        "status": "Monitoring",
+        "last_checked": "2026-03-30",
+        "movements": []
+      },
+      {
+        "institution": "EU AI Office",
+        "status": "Monitoring",
+        "last_checked": "2026-03-30",
+        "movements": []
+      },
+      {
+        "institution": "Canadian CAISI",
+        "status": "Monitoring",
+        "last_checked": "2026-03-30",
+        "movements": []
+      }
+    ],
+    "closed_episodes": [],
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Initial entry — no confirmed movements in week 23–29 March 2026",
+        "reason": "Issue 1 research; institutional rebranding noted as tracking complication",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "AISI pipeline status updated: all three bodies in simultaneous leadership transition or reduced capacity",
+        "reason": "Issue 2 M15 research — UK interim director, US restructured, EU no new appointments",
+        "prior_value": "No confirmed senior movements; institutional rebranding complicating tracking"
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — all three principal AI safety bodies still in leadership transition; AISI on interim leadership (Beaumont); NIST AI Safety Inst under review; no permanent directors approaching August 2026 deadline",
+        "reason": "Issue 4 research — structural vacuum continues",
+        "prior_value": null
+      }
+    ],
+    "lab_movements": [
+      {}
+    ],
+    "government_ai_bodies": [
+      {}
+    ],
+    "revolving_door": [
+      {}
+    ]
+  },
+  "module_5_standards_vacuum": {
+    "last_updated": "2026-04-10",
+    "status": "ACTIVE",
+    "trigger_date": "2026-03-30",
+    "compliance_deadline": "2026-08-02",
+    "days_to_deadline_at_trigger": 125,
+    "detail": "CEN-CENELEC JTC21 harmonised standards still in draft. AI Act general application 2 August 2026. If Omnibus trilogue stalls, high-risk AI providers face compliance obligations without harmonised technical safe harbour.",
+    "omnibus_mitigation": "If trilogue agrees text before 2 Aug 2026, Annex III high-risk rules delayed to Dec 2027. Watermarking obligations activate Nov 2026 regardless.",
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Standards Vacuum flagged ACTIVE",
+        "reason": "Standards in draft; compliance deadline within 125 days; JTC21 missed April 2025 delivery",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "Days to deadline updated to 122; prEN 18281 advanced to Stage 40 (Enquiry) — standards vacuum remains ACTIVE",
+        "reason": "Issue 2 research — no harmonised standards in OJ; arithmetically impossible to close before August 2 regardless of Omnibus outcome",
+        "prior_value": "125 days to deadline"
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — CEN-CENELEC JTC21 standards still in draft; AI Act general application 2026-08-02 unchanged; Omnibus trilogue mitigation pathway opened",
+        "reason": "Issue 4 research — vacuum persists with Omnibus as partial mitigation",
+        "prior_value": null
+      }
+    ],
+    "current_days_to_deadline": 122
+  },
+  "module_5_ciyuan": {
+    "last_updated": "2026-04-10",
+    "status": "ACTIVE — Critical Signal",
+    "trigger_date": "2026-03-30",
+    "detail": "Liu Liehong (National Data Administration) adopted 'ciyuan' (词元) as official Mandarin for AI token at China Development Forum (24 March 2026), framing tokens as 'settlement unit of the intelligent era'. Daily token usage exceeded 140 trillion in March 2026. Alibaba launched Token Hub subsidiary. China National Committee for Terminology recommending ciyuan as standardised term.",
+    "watch_for": "Token-denominated pricing in bilateral AI trade agreements; Global South market positioning; Chinese AI service export metrics using ciyuan as unit",
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Ciyuan signal confirmed ACTIVE",
+        "reason": "First state-level formal adoption of ciyuan in policy speech by senior NDA official",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — carried forward, no new material developments in collection window",
+        "reason": "Monitoring continues",
+        "prior_value": null
+      }
+    ]
+  },
+  "ongoing_lab_postures": [
+    {
+      "actor": "Anthropic",
+      "posture": "KAIROS/BUDDY/undercover mode dual opsec failure; Mythos CMS leak; GPAI Code of Practice signatory; Pentagon litigation ongoing",
+      "last_material_change": "2026-04-10",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry: Pentagon injunction granted; RSP v3.0 pause commitment removed",
+          "reason": "Issue 1 research",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Injunction granted (26 March); Mythos/Capybara existence confirmed; Claude Code source-map leak (31 March)",
+          "reason": "Issue 2 research — three material events in window",
+          "prior_value": "Pentagon litigation active; RSP v3.0 pause commitment removed"
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 update — material new evidence",
+          "reason": "KAIROS/BUDDY/undercover mode dual opsec failure; Mythos CMS leak; GPAI Code of Practice signatory; Pentagon litigation ongoing",
+          "prior_value": "Pentagon litigation active (injunction granted 26 March); RSP v3.0 pause commitment removed; healthc"
+        }
+      ],
+      "safety_posture": "Leading",
+      "transparency": "HIGH",
+      "regulatory_engagement": "Proactive",
+      "trajectory": "Stable"
+    },
+    {
+      "actor": "OpenAI",
+      "posture": "$852B valuation at 60x revenue; headcount doubling to ~8,000; Promptfoo acquisition; GSA 'any lawful use' contract pathway; GPAI signatory",
+      "last_material_change": "2026-04-10",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry: Pentagon contract, Sora cancellation, rolling funding round noted",
+          "reason": "Issue 1 research",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Round confirmed closed at $852B (31 March); headcount doubling announced; Pentagon deal amended",
+          "reason": "Issue 2 research",
+          "prior_value": "Pentagon ‘any lawful use’ contract active; rolling $120B+ funding"
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 update — material new evidence",
+          "reason": "$852B valuation at 60x revenue; headcount doubling to ~8,000; Promptfoo acquisition; GSA 'any lawful use' contract pathway; GPAI signatory",
+          "prior_value": "Pentagon ‘any lawful use’ contract active (amended 3 March with surveillance red line); $122B round "
+        }
+      ],
+      "safety_posture": "Adequate",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Compliant",
+      "trajectory": "Stable"
+    },
+    {
+      "actor": "SpaceX/xAI",
+      "posture": "Non-GPAI signatory; merger complete; combined entity now Grok+Starlink+DoD/NASA+X platform",
+      "last_material_change": "2026-04-10",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry: SpaceX–xAI merger complete",
+          "reason": "Issue 1 research",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 update — material new evidence",
+          "reason": "Non-GPAI signatory; merger complete; combined entity now Grok+Starlink+DoD/NASA+X platform",
+          "prior_value": "Merger complete (Feb 2026). Combined entity: Grok LLM + Starlink + DoD/NASA contracts + X platform. "
+        }
+      ],
+      "safety_posture": "Opaque",
+      "transparency": "LOW",
+      "regulatory_engagement": "Absent",
+      "trajectory": "Stable"
+    },
+    {
+      "lab": "Anthropic",
+      "safety_posture": "Adequate",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Proactive",
+      "key_development": "Claude Opus 4.6 release",
+      "trajectory": "Stable",
+      "last_updated": "2026-04-24",
+      "version_history": [
+        {
+          "date": "2026-04-17",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-21",
+          "fields_changed": [
+            "safety_posture",
+            "transparency",
+            "regulatory_engagement",
+            "key_development"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "safety_posture",
+            "transparency",
+            "key_development"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "OpenAI",
+      "safety_posture": "Adequate",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Compliant",
+      "key_development": "No change",
+      "trajectory": "Stable",
+      "last_updated": "2026-04-24",
+      "version_history": [
+        {
+          "date": "2026-04-17",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-21",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "Google DeepMind",
+      "safety_posture": "Adequate",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Compliant",
+      "key_development": "No change",
+      "trajectory": "Stable",
+      "last_updated": "2026-04-24",
+      "version_history": [
+        {
+          "date": "2026-04-17",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-21",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "Meta",
+      "safety_posture": "Lagging",
+      "transparency": "HIGH",
+      "regulatory_engagement": "Resistant",
+      "key_development": "No change",
+      "trajectory": "Stable",
+      "last_updated": "2026-04-24",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "xAI",
+      "safety_posture": "Opaque",
+      "transparency": "LOW",
+      "regulatory_engagement": "Absent",
+      "key_development": "No change",
+      "trajectory": "Stable",
+      "last_updated": "2026-04-24",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "DeepSeek",
+      "safety_posture": "Opaque",
+      "transparency": "LOW",
+      "regulatory_engagement": "Absent",
+      "key_development": "Facing government bans across multiple jurisdictions citing security concerns",
+      "trajectory": "Deteriorating",
+      "last_updated": "2026-04-21",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "lab": "Mistral",
+      "safety_posture": "Adequate",
+      "transparency": "HIGH",
+      "regulatory_engagement": "Proactive",
+      "key_development": "Released Mistral Small 4 targeting efficiency-focused market segment",
+      "trajectory": "Stable",
+      "last_updated": "2026-04-21",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    }
+  ],
+  "cross_monitor_flags": {
+    "updated": "2026-04-10",
+    "flags": [
+      {
+        "id": "cmf-001",
+        "monitors_involved": [
+          "Global FIMI & Cognitive Warfare"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html",
+        "title": "AI-enabled FIMI: capability layer update — agentic autonomous narrative attacks confirmed",
+        "linkage": "EEAS 4th FIMI Report (10 March) and Blackbird.AI RAV3N confirm the transition from AI-assisted to AI-autonomous narrative attack operations. The AI Governance Monitor’s capability layer (agentic AI autonomous breach documented by Anthropic, Sep 2025; applied to narrative operations Feb 2026) directly feeds the FIMI monitor’s actor and campaign tracking.",
+        "ai_governance_perspective": "The capability collapse in narrative attack costs is a direct output of frontier model advances we track in M02 and M12. The FIMI monitor provides attribution and campaign-level context; we provide the underlying capability trajectory that determines how fast those campaigns will evolve.",
+        "type": "Structural — ongoing",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-04-01",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "EEAS FIMI + US midterm deepfakes",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Updated — agentic autonomous narrative attack capability confirmed in EEAS + Blackbird.AI reports",
+            "reason": "New primary evidence materially advances the capability assessment",
+            "prior_value": "FIMI using AI tools for content production"
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward; AI-enabled FIMI: capability layer update — agentic autonomou",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-10"
+      },
+      {
+        "id": "cmf-002",
+        "monitors_involved": [
+          "Democratic Integrity"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/democratic-integrity/dashboard.html",
+        "title": "AI deepfakes in 2026 US midterms + Stanford Internet Observatory dismantlement: dual democratic integrity stress",
+        "linkage": "The AI deepfake capability documented in M12 is now confirmed as active in US midterm campaigns (Reuters, 28 March). Simultaneously, the Stanford Internet Observatory — the primary independent monitoring infrastructure for US election disinformation — was dismantled under political pressure. The AI Governance Monitor tracks both the capability (deepfakes at scale) and the governance vacuum (no disclosure law, SIO gone); the Democratic Integrity monitor tracks the electoral environment they are being deployed into.",
+        "ai_governance_perspective": "The SIO dismantlement is itself a successful information operation targeting disinformation research infrastructure. The combination of deepfake capability + regulatory vacuum + destroyed monitoring capacity creates the conditions for the first US federal election cycle with unmonitored AI-generated political advertising at scale.",
+        "type": "Structural — ongoing through November 2026 midterms",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-04-01",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "Reuters confirmed AI deepfakes in midterm campaigns",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Updated — SIO dismantlement added as second structural component",
+            "reason": "SIO dismantlement creates structural detection gap for midterms; materially changes the risk assessment",
+            "prior_value": "Deepfakes in campaigns without disclosure law"
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward; AI deepfakes in 2026 US midterms + Stanford Internet Observa",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-10"
+      },
+      {
+        "id": "cmf-003",
+        "monitors_involved": [
+          "Strategic Conflict & Escalation Monitor"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/conflict-escalation/dashboard.html",
+        "title": "Military AI procurement two-tier market + autonomous weapons governance vacuum",
+        "linkage": "The Anthropic-Pentagon injunction (26 March) formally established that the executive branch can designate AI companies as national security supply chain risks for maintaining ethical use conditions. The OpenAI-Pentagon deal (amended 3 March) established the ‘any lawful use’ template. Sen. Gillibrand’s letter revealed DoD rejected guardrails on autonomous weapons. The AI Governance Monitor tracks the procurement architecture; the Strategic Conflict monitor tracks the operational deployment environment those systems enter.",
+        "ai_governance_perspective": "Our IHL friction analysis (DoD 3000.09 vs. hypersonic engagement timelines; DoD rejection of autonomous weapons guardrails) maps directly to escalation dynamics the conflict monitor tracks. The governance vacuum we document in M08 and M11 becomes operationally relevant when autonomous systems are deployed in active theatres.",
+        "type": "Structural — ongoing",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-04-01",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "Golden Dome + Anthropic Pentagon injunction",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Updated — DoD rejection of autonomous weapons guardrails added (Gillibrand letter)",
+            "reason": "Material new evidence on DoD’s explicit refusal to contractualise LAWS restrictions",
+            "prior_value": "Military AI procurement and autonomous weapons governance"
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward; Military AI procurement two-tier market + autonomous weapons",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-10"
+      },
+      {
+        "id": "cmf-004",
+        "monitors_involved": [
+          "Global Environmental Risks & Planetary Boundaries Monitor"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/environmental-risks/dashboard.html",
+        "title": "Hyperscalers as regulated utilities: AI energy infrastructure meets planetary boundaries",
+        "linkage": "Ratepayer Protection Pledge + PJM BTM rulemaking + EIA pilot survey = three-vector convergence toward treating hyperscalers as regulated energy utilities in a single quarter. $700B capex in 2026; 80% of $2.9T through 2028 still ahead. The AI Governance Monitor tracks the compute infrastructure decisions; the Environmental Risks monitor tracks whether they are compatible with grid stability, energy transition timelines, and planetary boundary constraints.",
+        "ai_governance_perspective": "We track who controls compute infrastructure and how energy lock-in creates competitive moats. The Environmental Risks monitor provides the planetary-boundary context. The Ratepayer Pledge converting hyperscalers into utility-style entities is the structural event that connects both monitors: it simultaneously constrains AI infrastructure investment returns and forces engagement with the energy transition.",
+        "type": "Structural — ongoing",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-04-01",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "EIA + hyperscaler PPA dominance",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Updated — Ratepayer Protection Pledge + PJM rulemaking added as concrete regulatory convergence",
+            "reason": "Three-vector regulatory convergence in Q1 2026 materially changes the assessment from ‘projected’ to ‘in progress’",
+            "prior_value": "AI energy demand as environmental stress"
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward; Hyperscalers as regulated utilities: AI energy infrastructur",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-10"
+      },
+      {
+        "id": "cmf-005",
+        "monitors_involved": [
+          "European Strategic Autonomy"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/european-strategic-autonomy/dashboard.html",
+        "title": "EU AI Act Omnibus 28 April trilogue target: European AI regulatory sovereignty at a deadline",
+        "linkage": "The Omnibus trilogue (opened 26 March; target 28 April agreement) is a European strategic autonomy event as much as a compliance event. The AI Act is Europe’s primary instrument for asserting AI governance sovereignty; the Omnibus is the mechanism for making that instrument workable. The EU AI Act Omnibus and the Standards Vacuum we track in M09 are directly relevant to the European Strategic Autonomy monitor’s tracking of European independence in technology governance.",
+        "ai_governance_perspective": "The Standards Vacuum (124 days to deadline, no harmonised standards in OJ) is not just a compliance problem — it is a strategic vulnerability. European companies facing compliance obligations without technical standards are disadvantaged relative to US labs with no equivalent framework. The 28 April deadline is the moment when European regulatory sovereignty either consolidates or fractures.",
+        "type": "Structural — acute (28 April deadline)",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-04-01",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "Omnibus vote + AMI Labs + Standards Vacuum",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Updated — 28 April trilogue target elevated to acute; White House federal preemption call as contrast frame",
+            "reason": "Omnibus now in trilogue with specific date; White House Framework provides the adversarial context",
+            "prior_value": "EU AI regulatory framework as strategic autonomy instrument"
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward; EU AI Act Omnibus 28 April trilogue target: European AI regu",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-10"
+      },
+      {
+        "id": "cmf-006",
+        "monitors_involved": [
+          "Macro Monitor"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/macro-monitor/dashboard.html",
+        "title": "OpenAI $852B valuation at 60x revenue: AI investment concentration and systemic financial risk",
+        "linkage": "OpenAI’s $122B round at $852B valuation (60x revenue) closed 31 March — the most extreme valuation/revenue ratio in tech history. SoftBank, sovereign wealth funds, and institutional allocators are all now exposed. The AI Governance Monitor tracks the strategic implications of this investment concentration; the Macro Monitor tracks debt, credit, market structure, and systemic risk. If confidence breaks in the AI valuation thesis, the macro implications are now large enough to be systemic.",
+        "ai_governance_perspective": "We track investment signals for what they reveal about strategic priorities. The retail investor tranche ($3B via banking channels) opening this round marks a potential democratisation of AI concentration risk. The Macro Monitor provides the financial stability framing for what a correction at this scale would mean for the AI infrastructure buildout.",
+        "type": "Structural — monitoring",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-04-01",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "OpenAI $120B+ rolling round; $14B projected loss; hyperscaler capex $750B",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Updated — round confirmed closed at $852B (60x revenue); retail investor tranche noted as new structural element",
+            "reason": "Round close confirmed; retail participation materially changes systemic risk profile",
+            "prior_value": "AI investment concentration monitoring"
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward; OpenAI $852B valuation at 60x revenue: AI investment concent",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-10"
+      }
+    ],
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Initialised with 6 active flags",
+        "reason": "Issue 1",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "All 6 flags carried forward with version history updates. No flags resolved. CMF-001 updated (agentic narrative attack confirmed). CMF-002 updated (SIO dismantlement added). CMF-003 updated (DoD autonomous weapons guardrails rejection added). CMF-004 updated (Ratepayer Pledge + PJM). CMF-005 updated (28 April deadline elevated). CMF-006 updated (round confirmed closed at $852B).",
+        "reason": "Issue 2 research — all flags have material new evidence; none resolved",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — all flags carried forward with version history updates. CMF-001 carried forward; CMF-002 carried forward; CMF-003 carried forward; CMF-004 carried forward; CMF-005 carried forward; CMF-006 carried forward.",
+        "reason": "Issue 4 research — all flags have continuing relevance",
+        "prior_value": null
+      }
+    ]
+  },
+  "eu_ai_act_tracker": {
+    "baseline_date": "2026-04-02",
+    "source": "EU AI Act OJ L 2024/1689 + AGM Enhancement Addendum",
+    "layers": {
+      "layer_1_text": {
+        "status": "confirmed",
+        "note": "OJ L 2024/1689 — baseline"
+      },
+      "layer_2_delegated_acts": {
+        "status": "in_progress",
+        "note": "High-risk AI classification list expected Q2 2026"
+      },
+      "layer_3_harmonised_standards": {
+        "status": "standards_vacuum_active",
+        "note": "No harmonised standards in OJ as of Q1 2026. Track CEN-CENELEC JTC 21 weekly."
+      },
+      "layer_4_gpai_code": {
+        "status": "first_general_release_published",
+        "note": "Final Code expected Q2 2026"
+      },
+      "layer_5_nca": {
+        "status": "mostly_designated",
+        "note": "Track NCA enforcement capacity monthly"
+      },
+      "layer_6_ai_office": {
+        "status": "operational",
+        "note": "First supervisory decision expected H1 2026 — landmark M09+M10 item"
+      },
+      "layer_7_digital_omnibus": {
+        "status": "monitoring",
+        "note": "EP plenary outcome affects AI Liability Directive"
+      }
+    },
+    "standards_vacuum_flag": "ACTIVE",
+    "standards_vacuum_note": "Do not downgrade until at least one harmonised standard published in OJ. Include in M09 every issue with days-to-compliance-deadline.",
+    "last_updated": "2026-04-10"
+  },
+  "gpai_compliance": {
+    "baseline_date": "2026-04-02",
+    "labs": [
+      {
+        "lab": "OpenAI",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Anthropic",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Google DeepMind",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Meta AI",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Open-weight compliance ambiguity"
+      },
+      {
+        "lab": "Mistral",
+        "signatory": true,
+        "transparency_report": false,
+        "compute_disclosure": "limited",
+        "assessment": "EU-based; higher NCA scrutiny expected"
+      },
+      {
+        "lab": "xAI (Grok)",
+        "signatory": false,
+        "transparency_report": false,
+        "compute_disclosure": "none",
+        "assessment": "non_compliant_track"
+      },
+      {
+        "lab": "Chinese labs (general)",
+        "signatory": false,
+        "transparency_report": false,
+        "compute_disclosure": "none",
+        "assessment": "Ciyuan Standards Vacuum flag — standing"
+      }
+    ]
+  },
+  "risk_vectors_2026_baseline": {
+    "baseline_date": "2026-04-02",
+    "vectors": {
+      "governance_fragmentation": {
+        "rating": "HIGH",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-10",
+        "note": "EU/US schism confirmed — deregulatory pivot. US/EU AI safety alignment collapsed."
+      },
+      "cyber_escalation": {
+        "rating": "ELEVATED",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-10"
+      },
+      "platform_power": {
+        "rating": "HIGH",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-10",
+        "note": "Big Five hyperscaler concentration; M&A activity"
+      },
+      "export_controls": {
+        "rating": "ELEVATED",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-10",
+        "note": "H20 chip ban (Nvidia) — check BIS Federal Register every issue"
+      },
+      "disinfo_velocity": {
+        "rating": "ELEVATED",
+        "confidence": "Probable",
+        "last_updated": "2026-04-10"
+      }
+    }
+  },
+  "concentration_index_2026": {
+    "baseline_date": "2026-04-02",
+    "domains": {
+      "compute_gpu": {
+        "rating": "Extreme",
+        "primary_actor": "NVIDIA (>80% data centre GPU)",
+        "watch_signal": "AMD/Intel market share gain >=5%"
+      },
+      "foundation_models": {
+        "rating": "High",
+        "primary_actor": "OpenAI, Google, Anthropic, Meta",
+        "watch_signal": "Open-weight releases; Chinese labs closing gap"
+      },
+      "ai_infrastructure": {
+        "rating": "High-Extreme",
+        "primary_actor": "AWS, Azure, GCP",
+        "watch_signal": "Behind-the-meter power agreements; nuclear PPAs"
+      },
+      "ai_applications": {
+        "rating": "Moderate",
+        "primary_actor": "Sector-specific",
+        "watch_signal": "Stealth deployment flags M04"
+      },
+      "ai_safety_oversight": {
+        "rating": "Low-Fragmented",
+        "primary_actor": "None dominant",
+        "watch_signal": "AI Office first enforcement action"
+      }
+    },
+    "critical_note": "Microsoft/OpenAI structural relationship (Microsoft ~49% revenue share via Azure) is most concentrated combination. Any restructuring = M14+M03 item.",
+    "last_updated": "2026-04-10"
+  },
+  "aisi_status_2026": {
+    "uk": {
+      "name": "AI Security Institute (rebranded from AISI, early 2025)",
+      "note": "Mandate shift: safety evaluation → security-focused oversight. Track staff changes — departures/appointments carry higher significance in unstable institutional period."
+    },
+    "us": {
+      "name": "NIST AI Safety (Biden-era framework)",
+      "note": "Trump admin deregulatory pivot. 2023 Biden EO substantially rescinded. NIST AI RMF 1.0 in effect but lacks executive enforcement mandate. M07 Governance Fragmentation: update toward HIGH if not done."
+    },
+    "eu": {
+      "name": "EU AI Office",
+      "url": "digital-strategy.ec.europa.eu/en/policies/ai-office",
+      "note": "Operational, no binding enforcement decisions yet. First supervisory decision = landmark M09+M10 item."
+    },
+    "last_updated": "2026-04-10"
+  },
+  "calibration_log": [
+    {
+      "date": "2026-04-02",
+      "source": "EU AI Act OJ L 2024/1689 + AGM Enhancement Addendum v1.0",
+      "applied_by": "Computer session",
+      "summary": "EU AI Act 7-layer tracker, Standards Vacuum ACTIVE flag, GPAI compliance table, M07 risk vector baselines, Concentration Index M14, AISI institutional update"
+    },
+    {
+      "date": "2026-04-10",
+      "action": "Issue 4 persistent state update — all sections refreshed with new synthesis data",
+      "fields_updated": [
+        "module_7_risk_vectors",
+        "module_9_eu_ai_act_tracker",
+        "module_14_concentration_index",
+        "module_15_aisi_pipeline",
+        "module_5_standards_vacuum",
+        "module_5_ciyuan",
+        "ongoing_lab_postures",
+        "cross_monitor_flags"
+      ]
+    }
+  ],
+  "last_updated": "2026-04-21T13:14:17.504859+00:00",
+  "last_issue": {
+    "slug": "2026-04-21",
+    "week_label": "W/E 21 April 2026",
+    "volume": 1,
+    "issue": 5,
+    "source_url": "https://ramparts.gi/ai-frontier-monitor-issue-2026-04-21/"
+  },
+  "country_grid_status": {
+    "_description": "Jurisdiction-level AI regulatory status. Each country is a persistent entry.",
+    "last_updated": "2026-03-26",
+    "jurisdictions": [
+      {
+        "jurisdiction": "EU",
+        "binding_law": "AI Act (GPAI Aug 2025; high-risk delayed to Dec 2027/Aug 2028 pending Omnibus)",
+        "status_icon": "🟡",
+        "last_updated": "26 Mar 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — AI Act (GPAI Aug 2025; high-risk delayed to Dec 2027/Aug 2028 pending Omnibus)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "USA",
+        "binding_law": "No federal law; state laws: CO ADMT (Jan 2027 if rewrite passes), TX TRAIGA, WA HB 2225/HB 1170 (signed), NY",
+        "status_icon": "🟠",
+        "last_updated": "20 Mar 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — No federal law; state laws: CO (Jun 2026), TX TRAIGA, NY, WA",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-03-26",
+            "change": "binding_law updated",
+            "reason": "Country grid entry changed in weekly report",
+            "prior_value": "No federal law; state laws: CO (Jun 2026), TX TRAIGA, NY, WA"
+          }
+        ]
+      },
+      {
+        "jurisdiction": "UK",
+        "binding_law": "No single statute; Data Use & Access Act 2025 (TDM provisions); ASGARD contracts operationalising AI targeting",
+        "status_icon": "🟠",
+        "last_updated": "18 Mar 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — No single statute; Data Use & Access Act 2025 (TDM provisions)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-03-26",
+            "change": "binding_law updated",
+            "reason": "Country grid entry changed in weekly report",
+            "prior_value": "No single statute; Data Use & Access Act 2025 (TDM provisions)"
+          }
+        ]
+      },
+      {
+        "jurisdiction": "China",
+        "binding_law": "GenAI Measures 2023; AI Content Labelling Sep 2025; CSL Jan 2026 (AI governance incorporated); Embodied AI Standard (effective Jun 1, 2026)",
+        "status_icon": "🟢",
+        "last_updated": "Sep 2025",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — GenAI Measures 2023; AI Content Labelling Sep 2025; CSL Jan 2026",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-03-26",
+            "change": "binding_law updated",
+            "reason": "Country grid entry changed in weekly report",
+            "prior_value": "GenAI Measures 2023; AI Content Labelling Sep 2025; CSL Jan 2026"
+          }
+        ]
+      },
+      {
+        "jurisdiction": "India",
+        "binding_law": "IT Rules 2026 (SGI, Feb 20)",
+        "status_icon": "🟠",
+        "last_updated": "20 Feb 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — IT Rules 2026 (SGI, Feb 20)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "Canada",
+        "binding_law": "AIDA dead; new AI strategy in development",
+        "status_icon": "🟠",
+        "last_updated": "Jan 2025",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — AIDA dead; new AI strategy in development",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "Brazil",
+        "binding_law": "PL 2338 in Chamber of Deputies (not yet law)",
+        "status_icon": "🟡",
+        "last_updated": "Dec 2024",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — PL 2338 in Chamber of Deputies (not yet law)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "South Korea",
+        "binding_law": "AI Basic Act in force Jan 22, 2026",
+        "status_icon": "🟢",
+        "last_updated": "Jan 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — AI Basic Act in force Jan 22, 2026",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "Japan",
+        "binding_law": "AI Promotion Act fully effective Sep 2025",
+        "status_icon": "🟢",
+        "last_updated": "Sep 2025",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — AI Promotion Act fully effective Sep 2025",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "Singapore",
+        "binding_law": "Model AI Governance Framework (voluntary)",
+        "status_icon": "🟠",
+        "last_updated": "Mar 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — Model AI Governance Framework (voluntary)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "Australia",
+        "binding_law": "Voluntary framework; mandatory in development",
+        "status_icon": "🟠",
+        "last_updated": "22 Mar 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — Voluntary framework; mandatory in development",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "UAE",
+        "binding_law": "UAE AI Act 2026 — in force Mar 2026 (grace to Sep 2026)",
+        "status_icon": "🟢",
+        "last_updated": "Mar 2026",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — UAE AI Act 2026 — in force Mar 2026 (grace to Sep 2026)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          }
+        ]
+      }
+    ]
+  }
+}
