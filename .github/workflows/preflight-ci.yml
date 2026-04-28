@@ -14,6 +14,9 @@ on:
       - 'tools/preflight_ui_shim.py'
       - 'tools/public_surface_audit.py'
       - 'tools/public_surface_audit.allowlist'
+      - 'tools/test_public_surface_audit.py'
+      - 'ops/update-pipeline-status.py'
+      - 'ops/test_update_pipeline_status.py'
       - 'static/**/*.css'
       - 'static/**/*.html'
       - 'assets/**/*.css'
@@ -76,8 +79,15 @@ jobs:
           fi
           echo "✓ nav.js MONITOR_REGISTRY in sync"
 
+      - name: Test public-surface scanner (L1–L7 unit tests)
+        run: python3 tools/test_public_surface_audit.py
+
+      - name: Test pipeline-status producer (derive_public_rollup unit tests)
+        run: python3 ops/test_update_pipeline_status.py
+
       - name: Run public-surface IP-leak audit (tools/public_surface_audit.py)
-        # Hard-fails if any L1/L2/L3/L5 redline pattern hits the public surface
-        # (static/, docs/). See tools/public_surface_audit.py header for rules.
+        # Hard-fails if any L1/L2/L3/L5/L7 redline pattern hits the public surface
+        # (static/). docs/ deferred to separate triage sprint. See
+        # tools/public_surface_audit.py header for rules.
         # Add legitimate exposures to tools/public_surface_audit.allowlist.
         run: python3 tools/public_surface_audit.py --root .

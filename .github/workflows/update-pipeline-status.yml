@@ -10,11 +10,11 @@ on:
 
 jobs:
   update-status:
-    name: Refresh pipeline-status.json + dashboard
+    name: Refresh pipeline-status.json (internal full-fidelity + public roll-up)
     runs-on: ubuntu-latest
     permissions:
       actions: read     # read own workflow runs
-      contents: write   # write to static/ops/ and docs/ops/
+      contents: write   # write to static/ops/pipeline-status.json
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}    # PAT for cross-repo write to asym-intel-internal
 
@@ -30,23 +30,25 @@ jobs:
           python-version: "3.12"
 
       - name: Run status updater
+        # Writes internal full-fidelity to pipeline-status.json (ws root) and
+        # commits to asym-intel-internal:ops/pipeline-status.json via PAT.
+        # Writes public roll-up (schema v3.0) to static/ops/pipeline-status.json.
+        # Writes internal dashboard to pipeline-dashboard.html (ws root) and
+        # commits to asym-intel-internal:ops/pipeline-dashboard.html via PAT.
+        # Sprint AZ BRIEF #1: no longer copies the internal dashboard onto
+        # the public surface. Public surface is methodology-free.
         run: python3 ops/update-pipeline-status.py
 
-      - name: Copy dashboard to public site
-        if: ${{ hashFiles('pipeline-dashboard.html') != '' }}
-        run: |
-          cp pipeline-dashboard.html static/ops/pipeline.html
-          cp pipeline-dashboard.html docs/ops/pipeline.html
-
-      - name: Deploy dashboard to public site
+      - name: Deploy public roll-up to asym-intel-main
         uses: ./.github/actions/authenticated-push
         with:
           gh-token: ${{ secrets.GH_TOKEN }}
-          commit-message: "ops: auto-update pipeline dashboard ($(date -u '+%Y-%m-%d %H:%M UTC')) [skip ci]"
-          add-paths: "static/ops/pipeline.html docs/ops/pipeline.html"
+          commit-message: "ops: auto-update public pipeline-status.json ($(date -u '+%Y-%m-%d %H:%M UTC')) [skip ci]"
+          add-paths: "static/ops/pipeline-status.json"
           bot-name: "github-actions[bot]"
           bot-email: "github-actions[bot]@users.noreply.github.com"
-        if: ${{ hashFiles('pipeline-dashboard.html') != '' }}
+        if: ${{ hashFiles('static/ops/pipeline-status.json') != '' }}
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -55,5 +57,5 @@ jobs:
           path: |
             pipeline-status.json
             pipeline-dashboard.html
+            static/ops/pipeline-status.json
           retention-days: 7
-

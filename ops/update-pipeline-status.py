@@ -1,14 +1,28 @@
 #!/usr/bin/env python3
 """
-Update pipeline-status.json and pipeline-dashboard.html from GitHub Actions API.
+Update pipeline-status.json (internal full-fidelity + public simplified) and
+internal pipeline-dashboard.html from GitHub Actions API.
 
 Runs as a GitHub Action in asym-intel-main. Reads its own workflow runs,
-generates fresh status JSON, injects it into the dashboard template,
-and commits both to asym-intel-internal via the GH_TOKEN PAT.
+generates fresh status JSON in two surfaces:
+
+  * INTERNAL  — full-fidelity per-station status for operators / Computer.
+                Committed to asym-intel-internal:ops/pipeline-status.json.
+  * PUBLIC    — simplified per-monitor green/amber/red roll-up + engine
+                roll-up. Schema v3.0. Written to
+                asym-intel-main:static/ops/pipeline-status.json so the
+                public dashboard can fetch it at runtime.
+
+Also injects the full-fidelity status into the internal dashboard template
+and commits to asym-intel-internal:ops/pipeline-dashboard.html.
 
 Environment variables required:
   GITHUB_TOKEN  — default token (reads own repo's workflow runs)
   GH_TOKEN      — PAT with write access to asym-intel-internal
+
+Sprint AZ BRIEF #1 (AD-2026-04-28-AZ): split internal full-fidelity from
+public simplified surface; add derive_public_rollup() helper; rename Phase B
+stations from legacy -er suffixes to canon names per PIPELINE-CANONICAL v1.2.
 """
 
 import json
@@ -31,6 +45,11 @@ except Exception:
 MAIN_REPO = "asym-intel/asym-intel-main"
 INTERNAL_REPO = "asym-intel/asym-intel-internal"
 
+# Repo-relative path where the public simplified status is written. Hugo serves
+# static/ as site root, so this path becomes https://asym-intel.info/ops/pipeline-status.json
+# Resolved relative to the script's parent-of-parent (repo root).
+PUBLIC_STATUS_PATH = "static/ops/pipeline-status.json"
+
 MONITORS = {
     "WDM": {"accent": "#61a5d2", "day": "Mon", "cron_time": "Mon 06:00 UTC"},
     "GMM": {"accent": "#22a0aa", "day": "Tue", "cron_time": "Tue 08:00 UTC"},
@@ -44,6 +63,20 @@ MONITORS = {
 
 # Day-of-week index for schedule matching (Mon=0 .. Sun=6)
 DAY_INDEX = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 6}
+
+# Canon station names per PIPELINE-CANONICAL v1.2:
+#   Phase A: collector, chatter, weekly-research, reasoner (legacy retained)
+#   Phase B: interpret, review, compose, apply, curate
+#   Legacy: synthesiser (retained for backwards-read on monitors not yet migrated)
+# The workflow YAML filenames on disk still use the historical -er suffixes
+# (e.g. agm-interpreter.yml). We map canon → filename here.
+PHASE_B_FILE_SUFFIX = {
+    "interpret": "interpreter",
+    "review":    "reviewer",
+    "compose":   "composer",
+    "apply":     "applier",
+    "curate":    "curator",
+}
 
 # Map (monitor_abbr, stage) -> workflow filename in asym-intel-main
 WORKFLOW_FILES = {}
@@ -61,12 +94,15 @@ _PUBLISHER_SLUG = {
 
 for abbr, ga_abbr in [("WDM","wdm"), ("GMM","gmm"), ("ESA","esa"), ("FCW","fcw"),
                        ("AIM","agm"), ("ERM","erm"), ("SCEM","scem"), ("FIM","fim")]:
+    # Phase A + legacy
     for stage in [
         "collector", "weekly-research", "reasoner",
-        "interpreter", "reviewer", "composer", "applier", "curator",
-        "synthesiser",  # legacy — retained for backwards-read on monitors not yet migrated off
+        "synthesiser",  # legacy — retained for backwards-read on monitors not yet migrated
     ]:
         WORKFLOW_FILES[(abbr, stage)] = f"{ga_abbr}-{stage}.yml"
+    # Phase B — canon stage names map to legacy -er filenames on disk
+    for canon_stage, file_suffix in PHASE_B_FILE_SUFFIX.items():
+        WORKFLOW_FILES[(abbr, canon_stage)] = f"{ga_abbr}-{file_suffix}.yml"
     # Chatter is now unified — one workflow for all monitors (13 Apr 2026)
     WORKFLOW_FILES[(abbr, "chatter")] = "unified-chatter.yml"
     # Publisher: tracked as a GA workflow (fixes published:never lie — BUG-002)
@@ -192,19 +228,29 @@ def _find_publish_message_as_station(commits, patterns):
 
 def generate_status():
     """Generate full pipeline-status.json from GitHub Actions API."""
-    print("Fetching workflow runs for all 8 monitors × 5 stages...")
+    print("Fetching workflow runs for all 8 monitors × 14 stations...")
     commits = get_recent_commits(100)
 
     status = {}
     for abbr, meta in MONITORS.items():
         stations = {}
 
-        # GA pipeline stages
+        # Phase A + legacy stages
         for stage in [
             "collector", "chatter", "weekly-research", "reasoner",
-            "interpreter", "reviewer", "composer", "applier", "curator",
             "synthesiser",
         ]:
+            wf_file = WORKFLOW_FILES.get((abbr, stage))
+            if wf_file:
+                stations[stage] = build_station_status(wf_file)
+                symbol = {"success": "✅", "failure": "❌", "running": "🔄", "never": "⬜"}.get(
+                    stations[stage]["last_conclusion"], "❓")
+                print(f"  {symbol} {abbr} {stage}: {stations[stage]['last_conclusion']}")
+            else:
+                stations[stage] = {"last_run": None, "last_conclusion": "never", "last_success": None}
+
+        # Phase B canon stages: interpret, review, compose, apply, curate
+        for stage in ["interpret", "review", "compose", "apply", "curate"]:
             wf_file = WORKFLOW_FILES.get((abbr, stage))
             if wf_file:
                 stations[stage] = build_station_status(wf_file)
@@ -247,14 +293,189 @@ def generate_status():
     return status
 
 
+# ─── Public roll-up derivation (Sprint AZ BRIEF #1) ─────────────
+
+# Stations included in the per-monitor roll-up. All canonical pipeline stages
+# plus publisher. We deliberately exclude legacy "synthesiser" and "dashboard"
+# (mirror) to avoid double-counting.
+ROLLUP_STATIONS = (
+    "collector", "chatter", "weekly-research",
+    "interpret", "review", "compose", "apply", "curate",
+    "published",
+)
+
+# Cadence windows (in days) before a successful station is considered stale-amber.
+# Mon-Sun publish cadence + a generous grace; FIM Tuesday-only. 9 days covers
+# any normal weekly + cron-skip + maintenance window without flapping amber.
+STALE_AMBER_DAYS = 9
+# Max tolerated lag for a "ran successfully recently" lookback. Beyond this,
+# absent any successful run, monitor is red.
+STALE_RED_DAYS = 21
+
+
+def _parse_iso(ts):
+    """Parse ISO timestamp ('...Z' or with offset). Return aware datetime or None."""
+    if not ts:
+        return None
+    try:
+        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+    except (ValueError, TypeError):
+        return None
+
+
+def _classify_station(station, now=None):
+    """Classify a single station's state for roll-up purposes.
+
+    Returns one of: 'green', 'amber', 'red', 'never', 'running', 'unknown'.
+
+    Rules:
+      - last_conclusion == 'failure'                                 -> red
+      - last_conclusion == 'never' and last_success is None          -> never
+      - last_conclusion == 'running' or 'in_progress' or 'queued'    -> running
+                                       (treated as green for roll-up)
+      - last_success within STALE_AMBER_DAYS                         -> green
+      - last_success within STALE_RED_DAYS but past STALE_AMBER_DAYS -> amber
+      - older or missing                                             -> red
+    """
+    now = now or datetime.now(timezone.utc)
+    if not station:
+        return "never"
+    conc = station.get("last_conclusion")
+    if conc == "failure":
+        return "red"
+    if conc == "never" and not station.get("last_success"):
+        return "never"
+    if conc in ("running", "in_progress", "queued"):
+        return "running"
+    last_success_dt = _parse_iso(station.get("last_success"))
+    if last_success_dt is None:
+        return "red"
+    age = now - last_success_dt
+    if age <= timedelta(days=STALE_AMBER_DAYS):
+        return "green"
+    if age <= timedelta(days=STALE_RED_DAYS):
+        return "amber"
+    return "red"
+
+
+def _classify_monitor(monitor_status, *, monitor_slug=None, now=None):
+    """Classify a monitor's overall roll-up colour.
+
+    green  — every roll-up station is green (or running/never on a non-canonical track).
+    amber  — at least one station is past STALE_AMBER_DAYS but none are red,
+             OR a station is in 'never' state on a non-canonical monitor (e.g. FIM).
+    red    — at least one station is red (failure or beyond STALE_RED_DAYS).
+    """
+    now = now or datetime.now(timezone.utc)
+    stations = (monitor_status or {}).get("stations", {})
+
+    # FIM is on a non-canonical track until financial-integrity ships — its
+    # 'never' states should surface as amber, not red.
+    is_canonical_track = monitor_slug != "FIM"
+
+    has_red = False
+    has_amber = False
+    for stage in ROLLUP_STATIONS:
+        station = stations.get(stage)
+        cls = _classify_station(station, now=now)
+        if cls == "red":
+            has_red = True
+        elif cls == "amber":
+            has_amber = True
+        elif cls == "never":
+            if is_canonical_track:
+                # Canonical monitor with a never-run station is a real gap — red.
+                has_red = True
+            else:
+                has_amber = True
+        # green / running / unknown contribute nothing
+    if has_red:
+        return "red"
+    if has_amber:
+        return "amber"
+    return "green"
+
+
+def _classify_engine(monitor_rollups):
+    """Engine-level roll-up: red if any monitor red; amber if any amber; else green."""
+    statuses = {m["status"] for m in monitor_rollups}
+    if "red" in statuses:
+        return "red"
+    if "amber" in statuses:
+        return "amber"
+    return "green"
+
+
+def _last_updated(monitor_status):
+    """Most recent last_run across roll-up stations, or None."""
+    stations = (monitor_status or {}).get("stations", {})
+    candidates = []
+    for stage in ROLLUP_STATIONS:
+        st = stations.get(stage) or {}
+        if st.get("last_run"):
+            candidates.append(st["last_run"])
+    if not candidates:
+        return None
+    return max(candidates)
+
+
+def derive_public_rollup(internal_status):
+    """Map full-fidelity internal status → simplified public schema v3.0.
+
+    Input shape: the dict returned by generate_status() — monitor abbr -> dict
+    with `accent`, `day`, `cron_time`, `stations` (all stations); plus `_meta`.
+
+    Output shape (schema v3.0):
+        {
+          "schema_version": "3.0",
+          "generated_at": "...Z",
+          "engine": {"status": "green|amber|red", "last_updated": "...Z"},
+          "monitors": [
+            {"slug": "WDM", "status": "...", "last_updated": "...Z|null"},
+            ...
+          ]
+        }
+
+    The roll-up logic is the ONLY place these rules are encoded. The public
+    HTML reads this JSON; it does not re-derive status.
+    """
+    now = datetime.now(timezone.utc)
+    monitor_rollups = []
+    for abbr in MONITORS.keys():
+        ms = internal_status.get(abbr) or {}
+        status = _classify_monitor(ms, monitor_slug=abbr, now=now)
+        monitor_rollups.append({
+            "slug": abbr,
+            "status": status,
+            "last_updated": _last_updated(ms),
+        })
+
+    engine_status = _classify_engine(monitor_rollups)
+    # Engine last_updated is the max of monitor last_updateds (or now if all null)
+    monitor_lus = [m["last_updated"] for m in monitor_rollups if m["last_updated"]]
+    engine_last_updated = max(monitor_lus) if monitor_lus else now.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    return {
+        "schema_version": "3.0",
+        "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "engine": {
+            "status": engine_status,
+            "last_updated": engine_last_updated,
+        },
+        "monitors": monitor_rollups,
+    }
+
+
 # ─── Dashboard generation ───────────────────────────────────────
 
 
-
-
-
 def generate_dashboard(status):
-    """Inject status JSON into dashboard HTML template."""
+    """Inject status JSON into INTERNAL dashboard HTML template.
+
+    Output is committed to asym-intel-internal:ops/pipeline-dashboard.html.
+    Methodology terms are allowed here (internal surface). The PUBLIC dashboard
+    at static/ops/pipeline.html reads the simplified JSON via fetch().
+    """
     template_path = Path(__file__).parent / "pipeline-dashboard-template.html"
     if not template_path.exists():
         print(f"  WARNING: Template not found at {template_path}", file=sys.stderr)
@@ -333,10 +554,9 @@ def detect_no_shows(status):
     """Detect monitors whose pipeline stages didn't fire when expected.
 
     Each monitor has a designated publish day. On that day the collector
-    should run by ~07:00 UTC and the cascade (research → reasoner →
-    synthesiser) should complete within a few hours. If this script runs
-    on or after the expected day and the last_run for a stage is older
-    than the start of that day, the stage is a no-show.
+    should run by ~07:00 UTC and the cascade should complete within a few
+    hours. If this script runs on or after the expected day and the last_run
+    for a stage is older than the start of that day, the stage is a no-show.
 
     FIM is special: runs on Tuesdays but on a later cron (16:00 UTC).
     For FIM we only flag no-show if checking after 18:00 UTC on Tuesday.
@@ -348,10 +568,10 @@ def detect_no_shows(status):
     today_dow = now.weekday()  # Mon=0 .. Sun=6
     no_show_count = 0
 
-    # Stages that should fire on publish day (in order)
+    # Stages that should fire on publish day (in order). Phase B uses canon names.
     expected_stages = [
         "collector", "weekly-research", "reasoner",
-        "interpreter", "reviewer", "composer", "applier", "curator",
+        "interpret", "review", "compose", "apply", "curate",
     ]
     # Note: "synthesiser" deliberately excluded from expected stages — legacy.
     # Monitors emit either synthesiser OR the 5-stage cascade; expect the new chain.
@@ -438,19 +658,31 @@ def detect_no_shows(status):
 def main():
     print(f"\n  Pipeline Status Update — {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}\n")
 
-    # Generate status
+    # Generate full-fidelity status (internal)
     status = generate_status()
 
-    # Write locally (for CI artifacts)
+    # Write internal full-fidelity locally (for CI artifacts and internal commit)
     status_json = json.dumps(status, indent=2)
     Path("pipeline-status.json").write_text(status_json)
-    print(f"\n  Generated pipeline-status.json ({len(status_json)} bytes)")
+    print(f"\n  Generated internal pipeline-status.json ({len(status_json)} bytes)")
 
-    # Generate dashboard
+    # Derive public roll-up (Sprint AZ BRIEF #1)
+    public_rollup = derive_public_rollup(status)
+    public_json = json.dumps(public_rollup, indent=2)
+    # Resolve repo root (script lives in <repo>/ops/, so parent.parent is repo root)
+    repo_root = Path(__file__).resolve().parent.parent
+    public_path = repo_root / PUBLIC_STATUS_PATH
+    public_path.parent.mkdir(parents=True, exist_ok=True)
+    public_path.write_text(public_json)
+    print(f"  Generated public {PUBLIC_STATUS_PATH} ({len(public_json)} bytes, schema v{public_rollup['schema_version']})")
+    print(f"    engine={public_rollup['engine']['status']}; "
+          f"monitors={[(m['slug'], m['status']) for m in public_rollup['monitors']]}")
+
+    # Generate internal dashboard
     html = generate_dashboard(status)
     if html:
         Path("pipeline-dashboard.html").write_text(html)
-        print(f"  Generated pipeline-dashboard.html ({len(html)} bytes)")
+        print(f"  Generated internal pipeline-dashboard.html ({len(html)} bytes)")
 
     # Detect no-shows and log incidents
     detect_no_shows(status)
@@ -462,6 +694,11 @@ def main():
     if html:
         commit_to_internal("ops/pipeline-dashboard.html", html,
                            f"ops: auto-update pipeline-dashboard.html ({now})")
+
+    # Public file (static/ops/pipeline-status.json) is NOT committed via PAT —
+    # it's a local file write in the same repo this script runs in. The GA
+    # workflow update-pipeline-status.yml is responsible for committing the
+    # workspace change back to asym-intel-main:main on each run.
 
     print("\n  Done.")
 

@@ -21,6 +21,16 @@ Redline categories (anchored to real 2026-04-20 incident + platform-config):
                                        "hallucinated_source", "credential rotated",
                                        "kj_with_sources", "kj_total", "structured_claims"
   L6 INTERNAL_PATH_REF    [warn]      "platform-config.md", "ENGINE-RULES.md", "notes-for-computer.md"
+  L7 METHODOLOGY_VOCAB    [hard-fail] pipeline methodology vocabulary on public surface:
+                                       "interpret", "interpreter", "compose", "composer",
+                                       "applier", "curate", "curator", "reasoner",
+                                       "synthesiser", "synthesizer", "chatter",
+                                       "weekly-research", "weekly_research",
+                                       "phase a", "phase b", "cascade", "challenger",
+                                       "pipeline-dispatcher", "dispatcher",
+                                       "sonar-pro", "sonar-deep-research", "sonar-reasoning"
+                                       Note: "review" and "apply" deliberately excluded
+                                       (too common in English; covered indirectly by L6 path patterns).
 
 Allowlist:
   Lines matching tools/public_surface_audit.allowlist (one regex per line) are skipped.
@@ -135,6 +145,37 @@ RULES: List[Rule] = [
         severity="warn",
         description="Reference to internal-only doc/config path",
         pattern=re.compile(r"\b(?:platform-config\.md|ENGINE-RULES\.md|notes-for-computer\.md|COMPUTER-core\.md)\b"),
+    ),
+    # L7 — Pipeline methodology vocabulary on public surface.
+    # Triggered by AD-2026-04-28-AZ (Sprint AZ public-surface simplification).
+    # The public surface MUST NOT name internal pipeline stations or models.
+    # Operator-facing surfaces (asym-intel-internal/, ops.asym-intel.info) are
+    # exempt by definition (they're not under static/).
+    #
+    # Note: "review" and "apply" are deliberately NOT in the term list — they
+    # are common English words and would generate too many false positives.
+    # The pipeline stations "review" and "apply" instead surface as the
+    # per-station JSON paths (e.g. `pipeline/monitors/{slug}/review/`) which
+    # L6 already covers under internal-doc-paths.
+    Rule(
+        id="L7_METHODOLOGY_VOCAB",
+        severity="hard-fail",
+        description="Pipeline methodology vocabulary on public surface",
+        pattern=re.compile(
+            r"\b(?:"
+            r"interpret|interpreter|"
+            r"compose|composer|"
+            r"applier|curate|curator|"
+            r"reasoner|synthesiser|synthesizer|"
+            r"chatter|"
+            r"weekly-research|weekly_research|"
+            r"phase\s+[ab]|cascade|"
+            r"challenger|"
+            r"pipeline-dispatcher|dispatcher|"
+            r"sonar-pro|sonar-deep-research|sonar-reasoning"
+            r")\b",
+            re.IGNORECASE,
+        ),
     ),
 ]
 
