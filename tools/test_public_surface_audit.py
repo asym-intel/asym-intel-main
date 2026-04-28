@@ -57,14 +57,26 @@ def make_repo(tmp: Path, files: dict) -> Path:
 
 # ─── L7 positive tests ─────────────────────────────────────────────────────
 
+# L7 term list narrowed 2026-04-28 per Architect call on PR #146.
+# Excluded: 'interpret', 'compose', 'curate' (canon station names exposed by
+# the public roll-up itself); 'chatter' (published feature); 'cascade' (public
+# concept word in published reports). 'review'/'apply' remain excluded as
+# common English verbs.
 L7_TERMS = [
-    "interpret", "interpreter", "compose", "composer",
-    "applier", "curate", "curator", "reasoner",
-    "synthesiser", "synthesizer", "chatter",
+    "interpreter", "composer", "applier", "curator",
+    "reasoner", "synthesiser", "synthesizer",
     "weekly-research", "weekly_research",
-    "phase a", "phase b", "cascade",
+    "phase a", "phase b",
     "challenger", "pipeline-dispatcher", "dispatcher",
     "sonar-pro", "sonar-deep-research", "sonar-reasoning",
+]
+
+# Words deliberately excluded from L7 (must NOT trip the rule).
+L7_EXCLUDED_TERMS = [
+    "interpret", "compose", "curate",  # canon roll-up station names
+    "chatter", "Chatter", "CHATTER",   # published feature
+    "cascade", "Cascade", "CASCADE",   # published concept word
+    "review", "apply",                 # common English verbs
 ]
 
 
@@ -110,10 +122,35 @@ def test_l7_negative_review_apply_pass():
         assert rc == 0, f"expected exit 0, got {rc}. stderr={stderr[:200]}"
 
 
+def test_l7_negative_excluded_terms_pass():
+    """Architect-excluded terms (Architect call 2026-04-28, PR #146) must NOT trip L7.
+
+    'interpret', 'compose', 'curate' — canon station names exposed by the public
+    roll-up itself (schema v3.0). 'chatter' — published feature. 'cascade' —
+    public concept word in published reports.
+    """
+    failures = []
+    with tempfile.TemporaryDirectory() as td:
+        for i, term in enumerate(L7_EXCLUDED_TERMS):
+            tmp = Path(td) / f"case_{i}"
+            tmp.mkdir()
+            root = make_repo(tmp, {
+                f"static/sample_{i}.html": f"<p>The {term} keyword should pass.</p>",
+            })
+            rc, data, stderr = run_scanner(root)
+            l7_hits = [
+                f for f in (data or {}).get("findings", [])
+                if f["rule_id"] == "L7_METHODOLOGY_VOCAB"
+            ]
+            if l7_hits:
+                failures.append(f"  term={term!r}: unexpected L7 hit: {l7_hits}")
+    assert not failures, "L7 fired on excluded terms:\n" + "\n".join(failures)
+
+
 def test_l7_case_insensitive():
     with tempfile.TemporaryDirectory() as td:
         root = make_repo(Path(td), {
-            "static/case.html": "<p>SYNTHESISER and Reasoner and ChAtTer</p>",
+            "static/case.html": "<p>SYNTHESISER and Reasoner and CuRaToR</p>",
         })
         rc, data, _ = run_scanner(root)
         l7_hits = [f for f in (data or {}).get("findings", []) if f["rule_id"] == "L7_METHODOLOGY_VOCAB"]
@@ -150,12 +187,12 @@ def test_l7_phase_b_phrase():
     """\"phase b\" with whitespace must trip; \"phaseboard\" must NOT (word boundary)."""
     with tempfile.TemporaryDirectory() as td:
         root = make_repo(Path(td), {
-            "static/with.html": "<p>Phase B cascade rolled out.</p>",
+            "static/with.html": "<p>Phase B reasoner rolled out.</p>",
             "static/without.html": "<p>The phaseboard is empty.</p>",
         })
         rc, data, _ = run_scanner(root)
         l7_files = {f["file"] for f in (data or {}).get("findings", []) if f["rule_id"] == "L7_METHODOLOGY_VOCAB"}
-        # 'cascade' AND 'phase b' both trip in with.html
+        # 'reasoner' AND 'phase b' both trip in with.html
         assert "static/with.html" in l7_files
         # 'phaseboard' should NOT trip
         assert "static/without.html" not in l7_files or all(
