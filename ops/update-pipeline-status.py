@@ -249,90 +249,12 @@ def generate_status():
 
 # ─── Dashboard generation ───────────────────────────────────────
 
-def extract_verification_data():
-    """Extract verification summary from each monitor's report-latest.json.
-
-    Reads local repo files (this runs inside a checkout). Returns a dict
-    keyed by monitor slug with verification summary for the Epistemic tab.
-    """
-    repo_root = pathlib.Path(__file__).resolve().parent.parent
-    slug_map = {
-        "WDM": "democratic-integrity", "GMM": "macro-monitor",
-        "ESA": "european-strategic-autonomy", "FCW": "fimi-cognitive-warfare",
-        "AIM": "ai-governance", "ERM": "environmental-risks",
-        "SCEM": "conflict-escalation", "FIM": "financial-integrity",
-    }
-    verif = {}
-
-    for abbr, slug in slug_map.items():
-        report_path = repo_root / f"static/monitors/{slug}/data/report-latest.json"
-        if not report_path.exists():
-            continue
-        try:
-            with open(report_path) as f:
-                report = json.load(f)
-        except (json.JSONDecodeError, OSError):
-            continue
-
-        kjs = report.get("key_judgments", [])
-        wbs = report.get("weekly_brief_sources", [])
-        meta = report.get("meta", {})
-
-        total_sources = len(wbs)
-        verified = sum(1 for s in wbs if isinstance(s, dict) and s.get("url"))
-        kj_with_sources = sum(1 for kj in kjs if isinstance(kj, dict) and kj.get("source_urls"))
-
-        verif[slug] = {
-            "total": total_sources,
-            "verified": verified,
-            "failed": 0,
-            "date_mismatch": 0,
-            "kj_with_sources": kj_with_sources,
-            "kj_total": len(kjs),
-            "run_date": meta.get("published", "")[:10] if meta.get("published") else None,
-            "issue": meta.get("issue"),
-        }
-
-    print(f"  Extracted verification data for {len(verif)} monitor(s)")
-    return verif
 
 
-def extract_incidents():
-    """Read incidents.jsonl and return as a list of dicts for the dashboard."""
-    repo_root = pathlib.Path(__file__).resolve().parent.parent
-    incidents_path = repo_root / "pipeline" / "incidents" / "incidents.jsonl"
-
-    if not incidents_path.exists():
-        print("  No incidents.jsonl found")
-        return []
-
-    incidents = []
-    for line in incidents_path.read_text().strip().splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            inc = json.loads(line)
-            incidents.append({
-                "ts": inc.get("ts", ""),
-                "monitor": inc.get("monitor", ""),
-                "stage": inc.get("stage", ""),
-                "type": inc.get("type", inc.get("incident_type", "")),
-                "severity": inc.get("severity", "info"),
-                "detail": inc.get("detail", ""),
-                "errors": inc.get("errors", []),
-                "resolution": inc.get("resolution", ""),
-                "resolved": inc.get("resolved", False),
-            })
-        except json.JSONDecodeError:
-            continue
-
-    print(f"  Loaded {len(incidents)} incident(s) from incidents.jsonl")
-    return incidents
 
 
 def generate_dashboard(status):
-    """Inject status JSON, verification data, and incidents into dashboard HTML template."""
+    """Inject status JSON into dashboard HTML template."""
     template_path = Path(__file__).parent / "pipeline-dashboard-template.html"
     if not template_path.exists():
         print(f"  WARNING: Template not found at {template_path}", file=sys.stderr)
@@ -344,14 +266,9 @@ def generate_dashboard(status):
     frontend_status = {k: v for k, v in status.items() if not k.startswith("_")}
     json_str = json.dumps(frontend_status)
 
-    # Extract epistemic data
-    verif_data = extract_verification_data()
-    incidents_data = extract_incidents()
 
     # Replace placeholders
     html = template.replace("__PIPELINE_DATA__", json_str)
-    html = html.replace("__VERIF_DATA__", json.dumps(verif_data) if verif_data else "null")
-    html = html.replace("__INCIDENTS_DATA__", json.dumps(incidents_data))
 
     # Update the "last updated" timestamp if present
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
