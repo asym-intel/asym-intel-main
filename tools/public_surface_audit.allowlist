@@ -31,3 +31,43 @@
 
 # integrity-manifest.json: "git_commit" fields are the file's purpose.
 ^static/monitors/shared/integrity-manifest\.json:.*"git_commit"
+
+# ─── L7 Sprint AZ — pre-existing methodology-vocab leaks (Architect-approved deferral, 2026-04-28) ───
+# Architect call on PR #146 (1(a) + 2(i)): narrow L7 scope to genuine internal
+# station vocabulary (done in tools/public_surface_audit.py), and allowlist
+# pre-existing leaks for follow-up brief. Each entry below is scoped tightly
+# (file pattern + matched-token context) so unrelated future leaks still trip.
+# TODO(BRIEF-1.5): producer-side scrub of these surfaces. Tracking issue on
+# AD-2026-04-28-AZ follow-up. Do NOT widen these patterns without Architect.
+
+# static/data/schema-registry.json — enumerates internal station/synthesiser/
+# prompt paths by design today. Producer needs to redact internal paths
+# before publishing to the public surface.
+^static/data/schema-registry\.json:
+
+# Cross-monitor synthesis JSONs — current shape leaks station vocabulary
+# ("reasoner", "synthesiser") in field names and notes. Follow-up will rename.
+^static/data/synthesis/synthesis-[0-9]{4}-[0-9]{2}-[0-9]{2}\.json:
+^static/data/synthesis-latest\.json:
+
+# Per-monitor report JSON exports — inherited fields name "reasoner" /
+# "synthesiser" / "interpreter" stations as keys/values. Follow-up: rename
+# at synthesiser output time. Existing dated reports are immutable
+# (architecture rule), so historical files remain allowlisted indefinitely;
+# rename only applies to new reports going forward.
+^static/monitors/[^/]+/data/report-(?:[0-9]{4}-[0-9]{2}-[0-9]{2}(?:-v[0-9]+)?|latest)\.json:
+^static/monitors/[^/]+/data/report-latest\.md:
+^static/monitors/[^/]+/data/report-[0-9]{4}-[0-9]{2}-[0-9]{2}\.md:
+
+# Conflict-impact baseline file — CEM-specific reference baseline that names
+# its source pipeline. Follow-up: rename source field at producer.
+^static/monitors/conflict-escalation/data/conflict-impact-baseline\.json:
+
+# Per-monitor user-facing copy that legitimately describes the synthesiser to
+# the reader ("the synthesiser reads every monitor's latest report…"). Scoped
+# narrowly so only these specific files are exempt; any new file with the
+# vocabulary will still trip.
+^static/monitors/ai-governance/dashboard\.html:.*synthesiser
+^static/monitors/ai-governance/report\.html:.*synthesiser
+^static/monitors/environmental-risks/dashboard\.html:.*synthesiser
+^static/synthesis/index\.html:.*synthesiser

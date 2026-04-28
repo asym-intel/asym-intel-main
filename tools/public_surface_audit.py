@@ -21,6 +21,19 @@ Redline categories (anchored to real 2026-04-20 incident + platform-config):
                                        "hallucinated_source", "credential rotated",
                                        "kj_with_sources", "kj_total", "structured_claims"
   L6 INTERNAL_PATH_REF    [warn]      "platform-config.md", "ENGINE-RULES.md", "notes-for-computer.md"
+  L7 METHODOLOGY_VOCAB    [hard-fail] pipeline methodology vocabulary on public surface:
+                                       "interpreter", "composer", "applier", "curator",
+                                       "reasoner", "synthesiser", "synthesizer",
+                                       "weekly-research", "weekly_research",
+                                       "phase a", "phase b", "challenger",
+                                       "pipeline-dispatcher", "dispatcher",
+                                       "sonar-pro", "sonar-deep-research", "sonar-reasoning"
+                                       Excluded by design (Architect call 2026-04-28, PR #146):
+                                       "review"/"apply" — common English verbs;
+                                       "interpret"/"compose"/"curate" — canon station names
+                                       exposed by the public roll-up itself;
+                                       "chatter" — published feature name;
+                                       "cascade" — public concept word in published reports.
 
 Allowlist:
   Lines matching tools/public_surface_audit.allowlist (one regex per line) are skipped.
@@ -135,6 +148,43 @@ RULES: List[Rule] = [
         severity="warn",
         description="Reference to internal-only doc/config path",
         pattern=re.compile(r"\b(?:platform-config\.md|ENGINE-RULES\.md|notes-for-computer\.md|COMPUTER-core\.md)\b"),
+    ),
+    # L7 — Pipeline methodology vocabulary on public surface.
+    # Triggered by AD-2026-04-28-AZ (Sprint AZ public-surface simplification).
+    # The public surface MUST NOT name internal pipeline stations or models.
+    # Operator-facing surfaces (asym-intel-internal/, ops.asym-intel.info) are
+    # exempt by definition (they're not under static/).
+    #
+    # Scope of L7 (narrowed 2026-04-28 per Architect call on PR #146):
+    # Only genuinely-internal pipeline machinery. Words deliberately EXCLUDED:
+    #   - 'review', 'apply' — common English verbs.
+    #   - 'interpret', 'compose', 'curate' — canon Phase B station names that
+    #     are exposed BY DESIGN in the public roll-up's per-station keys
+    #     (schema v3.0). The roll-up itself would trip the rule.
+    #   - 'chatter' — name of a published public feature
+    #     (static/monitors/<slug>/chatter.html). Removing it would delete
+    #     a shipped product surface.
+    #   - 'cascade' — appears in published reports as a public concept word
+    #     (e.g. "Fast Cascade scenario"); not internal pipeline vocabulary.
+    # Genuinely-internal terms (kept): the producer-side -er suffix variants,
+    # internal model names (sonar-*), dispatcher, challenger, weekly-research
+    # (the internal station/prompt name), and Phase A/B labels.
+    Rule(
+        id="L7_METHODOLOGY_VOCAB",
+        severity="hard-fail",
+        description="Pipeline methodology vocabulary on public surface",
+        pattern=re.compile(
+            r"\b(?:"
+            r"interpreter|composer|applier|curator|"
+            r"reasoner|synthesiser|synthesizer|"
+            r"weekly-research|weekly_research|"
+            r"phase\s+[ab]|"
+            r"challenger|"
+            r"pipeline-dispatcher|dispatcher|"
+            r"sonar-pro|sonar-deep-research|sonar-reasoning"
+            r")\b",
+            re.IGNORECASE,
+        ),
     ),
 ]
 
