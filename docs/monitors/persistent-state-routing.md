@@ -51,6 +51,13 @@ routes:
   mimicry_chains: Living Knowledge        # AsymSections.renderMimicryChains
   institutional_integrity_active_flags: Living Knowledge  # card grid
   calibration_log: Living Knowledge       # AsymSections.renderCalibrationLog (ref impl for others)
+  # DR baseline 2026-04-28 — held modules (Sprint AV BRIEF #2)
+  structural_facts: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  windowed_events: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  gaps_register: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
 ```
 
 ### GMM — macro-monitor
@@ -68,6 +75,17 @@ routes:
   imf_weo_status: Living Knowledge
   blind_spots: Living Knowledge
   calibration_log: Living Knowledge       # AsymSections.renderCalibrationLog (ref impl for others)
+  # DR baseline 2026-04-28 — held modules (Sprint AV BRIEF #2)
+  standing_supply_shock_drivers: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  regime_classification: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  us_fiscal_sustainability: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  recession_indicators: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  gaps_register: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
 ```
 
 ### FCW — fimi-cognitive-warfare
@@ -82,6 +100,13 @@ routes:
   disarm_version: Living Knowledge
   campaign_baselines_2026: Living Knowledge
   calibration_log: Living Knowledge       # inline (planned migration to AsymSections — Sprint 4 §1)
+  # DR baseline 2026-04-28 — held modules (Sprint AV BRIEF #2)
+  infrastructure_registry: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  regulatory_framework: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  gaps_register: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
 ```
 
 ### ESA — european-strategic-autonomy
@@ -96,6 +121,25 @@ routes:
   timeline_events: Living Knowledge
   lagrange_scoring_2026: Living Knowledge
   calibration_log: Living Knowledge       # AsymSections.renderCalibrationLog — LANDING §0
+  # DR baseline 2026-04-28 — held modules (Sprint AV BRIEF #2)
+  capability_domains: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  capability_programmes: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  capability_stocks: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  dependencies: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  partner_taxonomy: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  strategic_compass_milestones: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  trade_instruments: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  enlargement_cfsp: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  gaps_register: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
 ```
 
 ### AGM — ai-governance
@@ -124,6 +168,9 @@ routes:
     reason: "Publisher metadata for replay cross-reference. Read by build tools, not reader-facing."
   country_grid_status: Archive-only
     reason: "Jurisdiction grid — planned new section on persistent.html via AsymSections.renderJurisdictionsGrid in Sprint 4 §1+."
+  # DR baseline 2026-04-28 — held modules (Sprint AV BRIEF #2)
+  gaps_register: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
 ```
 
 ### ERM — environmental-risks
@@ -145,6 +192,27 @@ routes:
     reason: "Methodology anchor for tipping_system_flags. Sprint 4 §1+."
   attribution_gap_standing_flags: Archive-only
     reason: "Standing-flag methodology register. Deferred render — §1+."
+  # DR baseline 2026-04-28 — held modules (Sprint AV BRIEF #2)
+  climate_physics_anchors: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  regulatory_regimes: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  carbon_markets: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  corporate_disclosure: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  climate_litigation: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  active_disruption_events: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  energy_transition_stocks_flows: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  supply_chain_choke_points: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  nature_biodiversity: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  gaps_register: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
 ```
 
 ### SCEM — conflict-escalation
@@ -161,6 +229,23 @@ routes:
     reason: "Methodology anchor — Tier-1/2/3 source hierarchy snapshot. Deferred render — §1+."
   i5_calibration_2026: Archive-only
     reason: "I5 methodology calibration baseline. Deferred render — §1+."
+  # DR baseline 2026-04-28 — held modules (Sprint AV BRIEF #2)
+  conflict_pair_registry: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  order_of_battle: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  treaty_posture: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  escalation_thresholds: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  active_escalation_events: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  mediation_deescalation_architecture: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  alliance_security_architectures: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
+  gaps_register: Archive-only
+    reason: "Held reservoir per Sprint AV BRIEF #2 (DR baseline 2026-04-28). Render-surfacing deferred to post-pipeline-stable sprint."
 ```
 
 ## Grandfathered exemptions (Sprint 4 §1 burn-down)
