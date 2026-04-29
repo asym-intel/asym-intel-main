@@ -105,7 +105,7 @@
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 0.9rem;
   }
   .card {
@@ -115,13 +115,42 @@
     padding: 1rem 1.1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    min-height: 110px;
+    gap: 0.6rem;
+    min-height: 130px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 120ms ease, transform 120ms ease;
+  }
+  a.card:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+  a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card .head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .card .icon {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+  }
+  .card .icon img { width: 100%; height: 100%; display: block; }
+  .card .titles { display: flex; flex-direction: column; min-width: 0; }
+  .card .name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .card .slug {
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 0.1rem;
   }
   .card .since {
     color: var(--text-muted);
@@ -203,6 +232,25 @@
     return 'neutral';
   }
 
+  // Monitor presentation map — keyed by the abbreviation used in pipeline-status.json.
+  // Icon files live at /images/monitors/{abbr_lower}.svg (existing canonical set
+  // with accent colours baked in). URL slugs are the long-form monitor slugs
+  // used by the Hugo monitor pages.
+  const MONITORS = {
+    WDM:  { name: 'Democratic Integrity',       slug: 'democratic-integrity'        },
+    GMM:  { name: 'Macro Monitor',              slug: 'macro-monitor'               },
+    ESA:  { name: 'European Strategic Autonomy', slug: 'european-strategic-autonomy' },
+    FCW:  { name: 'FIMI / Cognitive Warfare',   slug: 'fimi-cognitive-warfare'      },
+    AIM:  { name: 'AI Governance',              slug: 'ai-governance'               },
+    ERM:  { name: 'Environmental Risks',        slug: 'environmental-risks'         },
+    SCEM: { name: 'Conflict Escalation',        slug: 'conflict-escalation'         },
+    FIM:  { name: 'Financial Integrity',        slug: 'financial-integrity'         }
+  };
+
+  function iconUrl(abbr) {
+    return '/images/monitors/' + abbr.toLowerCase() + '.svg';
+  }
+
   function render(data) {
     const updated = document.getElementById('updated');
     if (data.generated_at) {
@@ -217,13 +265,44 @@
     const monitorsEl = document.getElementById('monitors');
     monitorsEl.innerHTML = '';
     (data.monitors || []).forEach(function (m) {
-      const card = document.createElement('div');
-      card.className = 'card';
+      const meta = MONITORS[m.slug] || null;
 
+      // Wrap the card as a link to the monitor page when we know its slug;
+      // otherwise render an inert div so unknown monitors still surface.
+      const card = document.createElement(meta ? 'a' : 'div');
+      card.className = 'card';
+      if (meta) {
+        card.href = '/monitors/' + meta.slug + '/';
+        card.setAttribute('aria-label', meta.name + ' — status ' + (m.status || 'unknown'));
+      }
+
+      const head = document.createElement('div');
+      head.className = 'head';
+
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'icon';
+      if (meta) {
+        const img = document.createElement('img');
+        img.src = iconUrl(m.slug);
+        img.alt = '';
+        img.loading = 'lazy';
+        iconWrap.appendChild(img);
+      }
+      head.appendChild(iconWrap);
+
+      const titles = document.createElement('div');
+      titles.className = 'titles';
+      const name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = meta ? meta.name : m.slug;
+      titles.appendChild(name);
       const slug = document.createElement('div');
       slug.className = 'slug';
       slug.textContent = m.slug;
-      card.appendChild(slug);
+      titles.appendChild(slug);
+      head.appendChild(titles);
+
+      card.appendChild(head);
 
       const pill = document.createElement('span');
       pill.className = 'status-pill ' + classFor(m.status);
