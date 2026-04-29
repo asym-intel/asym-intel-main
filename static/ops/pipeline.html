@@ -6,6 +6,7 @@
 <title>Pipeline Health — Asymmetric Intelligence</title>
 <script src="../monitors/shared/js/theme.js"></script>
 <script src="../monitors/shared/js/nav.js"></script>
+<script src="../monitors/shared/js/monitor-urls.js"></script>
 <style>
   :root {
     --bg: #0e1116;
@@ -232,23 +233,14 @@
     return 'neutral';
   }
 
-  // Monitor presentation map — keyed by the abbreviation used in pipeline-status.json.
-  // Icon files live at /images/monitors/{abbr_lower}.svg (existing canonical set
-  // with accent colours baked in). URL slugs are the long-form monitor slugs
-  // used by the Hugo monitor pages.
-  const MONITORS = {
-    WDM:  { name: 'Democratic Integrity',       slug: 'democratic-integrity'        },
-    GMM:  { name: 'Macro Monitor',              slug: 'macro-monitor'               },
-    ESA:  { name: 'European Strategic Autonomy', slug: 'european-strategic-autonomy' },
-    FCW:  { name: 'FIMI / Cognitive Warfare',   slug: 'fimi-cognitive-warfare'      },
-    AIM:  { name: 'AI Governance',              slug: 'ai-governance'               },
-    ERM:  { name: 'Environmental Risks',        slug: 'environmental-risks'         },
-    SCEM: { name: 'Conflict Escalation',        slug: 'conflict-escalation'         },
-    FIM:  { name: 'Financial Integrity',        slug: 'financial-integrity'         }
-  };
-
-  function iconUrl(abbr) {
-    return '/images/monitors/' + abbr.toLowerCase() + '.svg';
+  // ENGINE-RULES §17: monitor URLs and icon paths come from the registry
+  // resolver (window.MonitorRegistry from monitor-urls.js), never from
+  // string concatenation. The pipeline-status.json `slug` field is the
+  // monitor abbreviation (e.g. "WDM", "AIM"); look it up via byAbbrSafe()
+  // so an unknown abbr renders as an inert chip without crashing.
+  function resolveMonitor(abbr) {
+    if (!window.MonitorRegistry) return null;
+    try { return window.MonitorRegistry.byAbbrSafe(abbr); } catch (e) { return null; }
   }
 
   function render(data) {
@@ -265,14 +257,14 @@
     const monitorsEl = document.getElementById('monitors');
     monitorsEl.innerHTML = '';
     (data.monitors || []).forEach(function (m) {
-      const meta = MONITORS[m.slug] || null;
+      const meta = resolveMonitor(m.slug);
 
-      // Wrap the card as a link to the monitor page when we know its slug;
+      // Wrap the card as a link to the monitor page when registry knows it;
       // otherwise render an inert div so unknown monitors still surface.
       const card = document.createElement(meta ? 'a' : 'div');
       card.className = 'card';
       if (meta) {
-        card.href = '/monitors/' + meta.slug + '/';
+        card.href = meta.url;
         card.setAttribute('aria-label', meta.name + ' — status ' + (m.status || 'unknown'));
       }
 
@@ -281,9 +273,9 @@
 
       const iconWrap = document.createElement('span');
       iconWrap.className = 'icon';
-      if (meta) {
+      if (meta && meta.svg_url) {
         const img = document.createElement('img');
-        img.src = iconUrl(m.slug);
+        img.src = meta.svg_url;
         img.alt = '';
         img.loading = 'lazy';
         iconWrap.appendChild(img);
@@ -330,12 +322,19 @@
     err.textContent = msg;
   }
 
-  fetch(STATUS_URL, { cache: 'no-store' })
-    .then(function (r) {
+  // Load the registry alongside pipeline-status. On registry-load failure,
+  // we still render with raw slugs (no links, no icons) so the page degrades
+  // gracefully rather than crashing.
+  Promise.all([
+    window.MonitorRegistry
+      ? window.MonitorRegistry.load().catch(function (e) { console.warn('[pipeline] registry load failed', e); return null; })
+      : Promise.resolve(null),
+    fetch(STATUS_URL, { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     })
-    .then(render)
+  ])
+    .then(function (results) { render(results[1]); })
     .catch(function (e) {
       showError('Status data is temporarily unavailable.');
       const ep = document.getElementById('engine-pill');
