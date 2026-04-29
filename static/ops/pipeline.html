@@ -6,6 +6,7 @@
 <title>Pipeline Health — Asymmetric Intelligence</title>
 <script src="../monitors/shared/js/theme.js"></script>
 <script src="../monitors/shared/js/nav.js"></script>
+<script src="../monitors/shared/js/monitor-urls.js"></script>
 <style>
   :root {
     --bg: #0e1116;
@@ -105,7 +106,7 @@
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 0.9rem;
   }
   .card {
@@ -115,13 +116,42 @@
     padding: 1rem 1.1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    min-height: 110px;
+    gap: 0.6rem;
+    min-height: 130px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 120ms ease, transform 120ms ease;
+  }
+  a.card:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+  a.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card .head {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .card .icon {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+  }
+  .card .icon img { width: 100%; height: 100%; display: block; }
+  .card .titles { display: flex; flex-direction: column; min-width: 0; }
+  .card .name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .card .slug {
-    font-size: 1rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 0.1rem;
   }
   .card .since {
     color: var(--text-muted);
@@ -203,6 +233,16 @@
     return 'neutral';
   }
 
+  // ENGINE-RULES §17: monitor URLs and icon paths come from the registry
+  // resolver (window.MonitorRegistry from monitor-urls.js), never from
+  // string concatenation. The pipeline-status.json `slug` field is the
+  // monitor abbreviation (e.g. "WDM", "AIM"); look it up via byAbbrSafe()
+  // so an unknown abbr renders as an inert chip without crashing.
+  function resolveMonitor(abbr) {
+    if (!window.MonitorRegistry) return null;
+    try { return window.MonitorRegistry.byAbbrSafe(abbr); } catch (e) { return null; }
+  }
+
   function render(data) {
     const updated = document.getElementById('updated');
     if (data.generated_at) {
@@ -217,13 +257,44 @@
     const monitorsEl = document.getElementById('monitors');
     monitorsEl.innerHTML = '';
     (data.monitors || []).forEach(function (m) {
-      const card = document.createElement('div');
-      card.className = 'card';
+      const meta = resolveMonitor(m.slug);
 
+      // Wrap the card as a link to the monitor page when registry knows it;
+      // otherwise render an inert div so unknown monitors still surface.
+      const card = document.createElement(meta ? 'a' : 'div');
+      card.className = 'card';
+      if (meta) {
+        card.href = meta.url;
+        card.setAttribute('aria-label', meta.name + ' — status ' + (m.status || 'unknown'));
+      }
+
+      const head = document.createElement('div');
+      head.className = 'head';
+
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'icon';
+      if (meta && meta.svg_url) {
+        const img = document.createElement('img');
+        img.src = meta.svg_url;
+        img.alt = '';
+        img.loading = 'lazy';
+        iconWrap.appendChild(img);
+      }
+      head.appendChild(iconWrap);
+
+      const titles = document.createElement('div');
+      titles.className = 'titles';
+      const name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = meta ? meta.name : m.slug;
+      titles.appendChild(name);
       const slug = document.createElement('div');
       slug.className = 'slug';
       slug.textContent = m.slug;
-      card.appendChild(slug);
+      titles.appendChild(slug);
+      head.appendChild(titles);
+
+      card.appendChild(head);
 
       const pill = document.createElement('span');
       pill.className = 'status-pill ' + classFor(m.status);
@@ -251,12 +322,19 @@
     err.textContent = msg;
   }
 
-  fetch(STATUS_URL, { cache: 'no-store' })
-    .then(function (r) {
+  // Load the registry alongside pipeline-status. On registry-load failure,
+  // we still render with raw slugs (no links, no icons) so the page degrades
+  // gracefully rather than crashing.
+  Promise.all([
+    window.MonitorRegistry
+      ? window.MonitorRegistry.load().catch(function (e) { console.warn('[pipeline] registry load failed', e); return null; })
+      : Promise.resolve(null),
+    fetch(STATUS_URL, { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
     })
-    .then(render)
+  ])
+    .then(function (results) { render(results[1]); })
     .catch(function (e) {
       showError('Status data is temporarily unavailable.');
       const ep = document.getElementById('engine-pill');

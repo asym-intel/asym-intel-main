@@ -288,26 +288,38 @@ def _read_cascade_file(monitor_slug, subdir, filename, repo_root=None):
         return None
 
 
-def build_phase_b_station_status(monitor_slug, stage, repo_root=None):
+def build_phase_b_station_status(monitor_slug, stage, repo_root=None,
+                                  discovery_misses=None):
     """Build station status for a Phase B stage from its cascade-output file.
 
     Returns dict with last_run / last_conclusion / last_success — same
     shape as build_station_status() so the consumer (operator surface) sees
     a uniform schema across Phase A + Phase B stations.
 
-    Conclusion semantics:
+    Conclusion semantics (Sprint AZ Tier 2 A-1, post-AD-2026-04-29-BC):
       - File missing                                  -> 'never'
+      - File present, timestamp field null/missing    -> 'never'
+        (the upstream stage didn't actually emit; treating this as 'success'
+        was the source of the contradictory `null timestamp + success` state
+        that caused all monitors to render red on the compose column)
       - File present, error field True                -> 'failure'
-      - File present, error field False or None       -> 'success'
-      - File present but timestamp field is null      -> still 'success' if
-        no error (the artefact landed; an upstream stage left the timestamp
-        unset, e.g. compose with composed_at=null in some monitors). In
-        that case last_run falls back to None.
+      - File present, error field False/None,
+        timestamp present                             -> 'success'
+
+    discovery_misses (optional list): when supplied, each (slug, stage, reason)
+    miss is appended for the caller to surface in _meta.station_discovery_misses.
     """
     subdir, filename = PHASE_B_CASCADE_FILES[stage]
     data = _read_cascade_file(monitor_slug, subdir, filename, repo_root=repo_root)
 
     if data is None:
+        if discovery_misses is not None:
+            discovery_misses.append({
+                "monitor": monitor_slug,
+                "stage": stage,
+                "file": f"pipeline/monitors/{monitor_slug}/{subdir}/{filename}",
+                "reason": "file_missing",
+            })
         return {"last_run": None, "last_conclusion": "never", "last_success": None}
 
     meta = data.get("_meta") or data.get("meta") or {}
@@ -318,15 +330,28 @@ def build_phase_b_station_status(monitor_slug, stage, repo_root=None):
     if isinstance(timestamp, str) and timestamp.strip().lower() in ("", "null"):
         timestamp = None
 
+    # A-1 fix: a null/missing timestamp means the stage didn't actually run
+    # cleanly even if the artefact file landed. Classify as 'never' so the
+    # operator surface doesn't show the contradictory `null + success` pair.
+    if timestamp is None:
+        if discovery_misses is not None:
+            discovery_misses.append({
+                "monitor": monitor_slug,
+                "stage": stage,
+                "file": f"pipeline/monitors/{monitor_slug}/{subdir}/{filename}",
+                "reason": "timestamp_null",
+            })
+        return {"last_run": None, "last_conclusion": "never", "last_success": None}
+
     if err_field is None:
-        # No explicit error field for this stage — presence = success
+        # No explicit error field for this stage — presence + timestamp = success
         conclusion = "success"
     else:
         err_val = meta.get(err_field)
         if err_val is True:
             conclusion = "failure"
         else:
-            # False, None, or missing — treat as success (file landed)
+            # False, None, or missing — treat as success (file landed with timestamp)
             conclusion = "success"
 
     last_success = timestamp if conclusion == "success" else None
@@ -355,10 +380,144 @@ def _find_publish_message_as_station(commits, patterns):
     return None
 
 
+# ─── Verification + incidents (internal-only) ──────────────────
+#
+# Sprint AZ Tier 2 B-1+B-2 re-instatement.
+#
+# These were stripped by PR #145 (DR baseliner, public-surface scrub) when the
+# epistemic dashboard panels were removed from the public surface. PR-A (Phase
+# B station derivation) on the same producer file was supposed to re-add them
+# as internal-only equivalents but didn't — leaving the operator surface with
+# no source for the verif/incidents panels. Re-adding here, surfaced under
+# `_verification` and `_incidents` top-level keys (underscore-prefixed so they
+# stay out of derive_public_rollup() which iterates per-monitor entries only).
+
+def extract_verification_data():
+    """Extract per-monitor verification summary from report-latest.json.
+
+    Reads each monitor's `static/monitors/<slug>/data/report-latest.json` and
+    returns a dict keyed by monitor slug:
+
+        {
+          "democratic-integrity": {
+            "total": <weekly_brief_sources length>,
+            "verified": <count with non-empty url>,
+            "failed": 0,
+            "date_mismatch": 0,
+            "kj_with_sources": <key_judgments count with source_urls>,
+            "kj_total": <key_judgments length>,
+            "run_date": <first 10 chars of meta.published>,
+            "issue": <meta.issue>
+          },
+          ...
+        }
+
+    Internal-only — written under `_verification` in pipeline-status.json so
+    the operator surface (ops.asym-intel.info) can render the Verification panel.
+    Distinguished by the front-end from `null` (producer not writing block) vs
+    empty dict (no monitors with reports yet).
+    """
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    slug_map = {
+        "WDM": "democratic-integrity", "GMM": "macro-monitor",
+        "ESA": "european-strategic-autonomy", "FCW": "fimi-cognitive-warfare",
+        "AIM": "ai-governance", "ERM": "environmental-risks",
+        "SCEM": "conflict-escalation", "FIM": "financial-integrity",
+    }
+    verif = {}
+
+    for abbr, slug in slug_map.items():
+        report_path = repo_root / f"static/monitors/{slug}/data/report-latest.json"
+        if not report_path.exists():
+            continue
+        try:
+            with open(report_path) as f:
+                report = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            continue
+
+        kjs = report.get("key_judgments", []) or []
+        wbs = report.get("weekly_brief_sources", []) or []
+        meta = report.get("meta", {}) or {}
+
+        total_sources = len(wbs)
+        verified = sum(1 for s in wbs if isinstance(s, dict) and s.get("url"))
+        kj_with_sources = sum(
+            1 for kj in kjs if isinstance(kj, dict) and kj.get("source_urls"))
+
+        verif[slug] = {
+            "total": total_sources,
+            "verified": verified,
+            "failed": 0,
+            "date_mismatch": 0,
+            "kj_with_sources": kj_with_sources,
+            "kj_total": len(kjs),
+            "run_date": meta.get("published", "")[:10] if meta.get("published") else None,
+            "issue": meta.get("issue"),
+        }
+
+    print(f"  Extracted verification data for {len(verif)} monitor(s)")
+    return verif
+
+
+def extract_incidents():
+    """Read pipeline/incidents/incidents.jsonl and return a list of dicts.
+
+    Internal-only — written under `_incidents` in pipeline-status.json. The
+    operator surface renders this in the Incidents panel. Returns an empty
+    list if the JSONL file is missing or unreadable; returns the parsed list
+    (possibly empty) when the file is present but has no entries.
+
+    Note: the front-end distinguishes a missing `_incidents` key (producer
+    not writing block — panel renders "data unavailable") from an empty
+    array (panel renders "no open incidents"). We always return a list here
+    so the key is always present after this producer runs; missing-key state
+    only occurs against a stale pre-Tier-2 pipeline-status.json.
+    """
+    repo_root = pathlib.Path(__file__).resolve().parent.parent
+    incidents_path = repo_root / "pipeline" / "incidents" / "incidents.jsonl"
+
+    if not incidents_path.exists():
+        print("  No incidents.jsonl found")
+        return []
+
+    incidents = []
+    try:
+        text = incidents_path.read_text()
+    except OSError:
+        return []
+    for line in text.strip().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            inc = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        incidents.append({
+            "ts": inc.get("ts", ""),
+            "monitor": inc.get("monitor", ""),
+            "stage": inc.get("stage", ""),
+            "type": inc.get("type", inc.get("incident_type", "")),
+            "severity": inc.get("severity", "info"),
+            "detail": inc.get("detail", ""),
+            "errors": inc.get("errors", []),
+            "resolution": inc.get("resolution", ""),
+            "resolved": inc.get("resolved", False),
+        })
+
+    print(f"  Loaded {len(incidents)} incident(s) from incidents.jsonl")
+    return incidents
+
+
 def generate_status():
     """Generate full pipeline-status.json from GitHub Actions API."""
     print("Fetching workflow runs for all 8 monitors × 14 stations...")
     commits = get_recent_commits(100)
+
+    # Sprint AZ Tier 2 A-1: collect Phase B station-discovery misses (file
+    # missing or timestamp null) for surfacing in _meta.station_discovery_misses.
+    discovery_misses = []
 
     status = {}
     for abbr, meta in MONITORS.items():
@@ -384,7 +543,8 @@ def generate_status():
         # runs (job-level signal). See PHASE_B_CASCADE_FILES + build_phase_b_station_status.
         monitor_slug = _PUBLISHER_SLUG.get(abbr, abbr.lower())
         for stage in ["interpret", "review", "compose", "apply", "curate"]:
-            stations[stage] = build_phase_b_station_status(monitor_slug, stage)
+            stations[stage] = build_phase_b_station_status(
+                monitor_slug, stage, discovery_misses=discovery_misses)
             symbol = {"success": "✅", "failure": "❌", "running": "🔄", "never": "⬜"}.get(
                 stations[stage]["last_conclusion"], "❓")
             print(f"  {symbol} {abbr} {stage}: {stations[stage]['last_conclusion']} (cascade)")
@@ -417,7 +577,18 @@ def generate_status():
     status["_meta"] = {
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "generator": "update-pipeline-status.yml",
+        "station_discovery_misses": discovery_misses,
     }
+
+    # Sprint AZ Tier 2 B-1+B-2: re-add verification + incidents as internal-only
+    # top-level keys (`_verification`, `_incidents`). These are written into the
+    # internal full-fidelity file (asym-intel-internal:ops/pipeline-status.json)
+    # only — derive_public_rollup() does NOT propagate underscore-prefixed keys,
+    # so the public roll-up at static/ops/pipeline-status.json stays clean per
+    # BRIEF #1. The L7 scanner only walks static/, so the methodology vocab in
+    # incident detail strings is out-of-scope by construction.
+    status["_verification"] = extract_verification_data()
+    status["_incidents"] = extract_incidents()
 
     return status
 
