@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       # Ramparts repo = canonical source of front-end HTML/CSS/JS and ramparts-v2/data.
       # The publisher invokes node scripts/generate-static.js inside this checkout,
@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: asym-intel/Ramparts
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           path: ramparts-checkout
           ref: main
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Fetch credentials from internal repo
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
         run: |
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
             -H "Accept: application/vnd.github.v3.raw" \
@@ -81,7 +81,7 @@ jobs:
           # WP_APP_PASS is already exported via $GITHUB_ENV and masked; do NOT
           # re-declare here — the explicit re-declare pattern was the surface
           # that echoed the secret in run 24654557432.
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
           BACKFILL: ${{ github.event.inputs.backfill }}
           RAMPARTS_REPO_CHECKOUT: ${{ github.workspace }}/ramparts-checkout
         run: python3 pipeline/publishers/ramparts-publisher.py

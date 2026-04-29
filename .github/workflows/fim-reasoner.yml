@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -26,7 +26,7 @@ jobs:
 
       - name: Fetch identity card from internal repo
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
         run: |
           mkdir -p docs/identity
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
@@ -39,7 +39,7 @@ jobs:
       - name: Run FIM Reasoner
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
         run: python pipeline/monitors/financial-integrity/fim-reasoner.py
 
       - name: Commit reasoner output

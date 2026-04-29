@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -29,7 +29,7 @@ jobs:
           MONITOR_SLUG: democratic-integrity
           # LINEAGE_WRITE_TOKEN: used by pipeline/shared/lineage.py to write provenance
           # envelopes to asym-intel-internal/archive/lineage/. Non-blocking if absent.
-          LINEAGE_WRITE_TOKEN: ${{ secrets.GH_TOKEN }}
+          LINEAGE_WRITE_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
         run: |
           python3 pipeline/publishers/publisher.py
           ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/democratic-integrity/data/report-latest.json"))["meta"]["issue"])')
@@ -39,7 +39,7 @@ jobs:
         uses: ./.github/actions/integrity-gate
         with:
           monitor-slug: democratic-integrity
-          gh-token: ${{ secrets.GH_TOKEN }}
+          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Commit published report
         run: |

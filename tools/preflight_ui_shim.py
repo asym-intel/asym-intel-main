@@ -2,7 +2,7 @@
 """
 preflight_ui_shim.py — asym-intel-main shim for engine-tools/preflight_ui.py.
 
-Fetches preflight_ui.py from asym-intel-internal via the ENGINE_INTERNAL_READ_TOKEN
+Fetches preflight_ui.py from asym-intel-internal via COMPUTER_SHIM_INTERNAL_READ (formerly ENGINE_INTERNAL_READ_TOKEN)
 secret, caches it in .engine-tools-cache/ (gitignored), and execs it against the
 current repo with --site asym-intel.info.
 
@@ -28,10 +28,10 @@ def _fetch_script() -> None:
     """Pull preflight_ui.py from asym-intel-internal into local cache."""
     CACHE_DIR.mkdir(exist_ok=True)
 
-    token = os.environ.get("ENGINE_INTERNAL_READ_TOKEN") or os.environ.get("GH_TOKEN")
+    token = os.environ.get("COMPUTER_SHIM_INTERNAL_READ") or os.environ.get("ENGINE_INTERNAL_READ_TOKEN") or os.environ.get("GH_TOKEN")
     if not token:
         print(
-            "preflight_ui_shim: ENGINE_INTERNAL_READ_TOKEN not set; "
+            "preflight_ui_shim: COMPUTER_SHIM_INTERNAL_READ not set; "
             "falling back to gh cli auth",
             file=sys.stderr,
         )

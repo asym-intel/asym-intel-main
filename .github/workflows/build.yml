@@ -46,7 +46,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Run Blueprint validator
         run: python3 .github/validate-blueprint.py
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
@@ -79,7 +79,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/asym-intel/asym-intel-main.git
+          git remote set-url origin https://x-access-token:${{ secrets.ASYM_INTEL_PIPELINE }}@github.com/asym-intel/asym-intel-main.git
           if git diff --quiet docs/; then
             echo "No changes to docs/ - skipping commit."
           else
@@ -115,7 +115,7 @@ jobs:
     needs: [build, deploy]
     if: github.ref_name == 'main' && always()
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
     steps:
       - name: Update _build block in pipeline-status.json

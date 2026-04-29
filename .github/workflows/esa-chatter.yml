@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -24,7 +24,7 @@ jobs:
       - name: Commit chatter output
         uses: ./.github/actions/authenticated-push
         with:
-          gh-token: ${{ secrets.GH_TOKEN }}
+          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           commit-message: "data(esa-chatter): daily signal — $(date -u +%Y-%m-%d)"
           add-paths: "static/monitors/european-strategic-autonomy/data/chatter*.json"
           bot-name: "ESA Chatter Bot"

@@ -14,14 +14,14 @@ jobs:
       - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
       - name: Checkout internal repo (engine + bespoke config)
         uses: actions/checkout@v5
         with:
           repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           path: internal
           sparse-checkout: |
             pipeline/engine
@@ -54,7 +54,7 @@ jobs:
         env:
           PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN:          ${{ secrets.GH_TOKEN }}
+          GH_TOKEN:          ${{ secrets.ASYM_INTEL_PIPELINE }}
           PYTHONPATH:        internal
         run: python -m pipeline.engine.weekly_research_base --monitor ai-governance
 
@@ -72,6 +72,6 @@ jobs:
       - name: Archive prompt exchanges to internal repo
         if: always()
         env:
-          GH_TOKEN:      ${{ secrets.GH_TOKEN }}
+          GH_TOKEN:      ${{ secrets.ASYM_INTEL_PIPELINE }}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: python tools/commit_exchange_log.py

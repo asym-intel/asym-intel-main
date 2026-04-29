@@ -33,7 +33,7 @@ jobs:
       - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           ref: main
           # Curator needs prior cycle history to compute T1/T4 windows.
           # Fetch full history so interpret-YYYY-MM-DD.json / chains-*.json
@@ -44,7 +44,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           path: internal
           sparse-checkout: |
             pipeline/engine
