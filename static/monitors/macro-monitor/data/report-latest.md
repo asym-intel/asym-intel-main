@@ -1,6 +1,6 @@
-# Global Macro Monitor — Issue 9
+# Global Macro Monitor — Issue 10
 
-**W/E 27 April 2026** | Published 2026-04-27T08:00:00Z
+**W/E 29 April 2026** | Published 2026-04-29T08:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -12,7 +12,7 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**ECB President Lagarde warns Strait of Hormuz closure represents largest oil supply disruption in history amid relentless shock cascade**
+**Strait of Hormuz closure creates largest oil supply disruption in history amid ongoing US tariff shock cascade.**
 
 System stress: GREEN — No systemic stress
 Direction: Stable
@@ -40,34 +40,34 @@ Source: https://www.ecb.europa.eu/press/key/date/2026/html/ecb.sp260420~cdf67402
 
 ## Lead Signal
 
-ECB President Lagarde warned that the Strait of Hormuz closure represents the largest oil supply disruption in history, framing the current period as a relentless shock cascade encompassing pandemic, land war, energy crisis, sweeping tariffs since the 1930s, and now this Hormuz event. This energy shock compounds the April 2 Liberation Day tariff package, forging dual supply-side shocks that lock in stagflation risk. ECB baseline projections assume contained conflict, yet adverse scenarios indicate prolonged disruption would significantly reduce growth and elevate inflation beyond baseline levels. The macro health composite score stands at 0.32, deteriorating under these pressures, with indicator domains flashing red across growth recession and inflation central bank categories.
+Military conflict has closed the Strait of Hormuz, creating the largest oil supply disruption in history. ECB President Lagarde confirmed this development, citing the International Energy Agency, in her speech on April 20. The closure of this critical energy chokepoint has doubled jet fuel prices and triggered airport rationing since early April. This shock compounds the ongoing US tariff cascade, now at an effective rate of 11.8 percent with multi-retaliation effects. The dual pressures signal a stagflationary regime shift in global macroeconomics.
 
-Euro area headline inflation rose to 2.6 percent in March from 1.9 percent in February, driven by an energy inflation spike, while ECB projects 2.6 percent inflation for 2026, up from December forecasts due to energy price increases. Core inflation eased slightly to 2.3 percent, and wage growth slowed to 3.7 percent in Q4 2025, with underlying indicators assessed consistent with the 2 percent medium-term target but carrying upside risk from the energy shock. This configuration signals entrenched inflationary pressures amid growth headwinds, as dual shocks from tariffs and energy create a stagflationary environment locking in downturn beyond typical cyclical patterns.
+ECB staff projections from March 19 revised 2026 inflation to 2.6 percent and growth to 0.9 percent due to the energy shock. These updates reflect structural stagflation confirmation amid the tariff and Hormuz disruptions. The macro health composite now shows heightened stress across energy markets and trade domains. Financial stability faces immediate threats from volatility in fuel costs and supply chains. Watch the FOMC meeting on April 28-29 for Federal Reserve forward guidance on tolerance to these dual shocks.
 
 ## Other Developments
 
-**Commodity Price Transmission escalates to HIGH.** ECB characterized the Strait of Hormuz closure as the largest oil supply disruption in history, with the energy shock compounding tariff cascade to create dual supply-side shocks locking stagflation risk. This vector rating changed this week, reflecting intensified transmission from geopolitical disruption to macroeconomic stress.
+**ECB Lagarde speech on April 20.** Lagarde described the Hormuz closure as the largest oil disruption and characterized the tariffs as the most sweeping since the 1930s. This assessment highlights asymmetric risks from dual shocks driving stagflation. The speech underscores the shift in the global stress regime.
 
-**EU-US Turnberry tariff deal locks 15 percent rate.** The deal secures a 15 percent tariff rate on EU exports, reducing uncertainty but eroding competitiveness as tariffs on rivals converge to similar levels. EU steel and aluminum face sustained 25 percent and 10 percent US Section 232 tariffs, imposing high costs on auto, machinery, and construction exporters. USTR 2026 Trade Policy Agenda doubles down on America First tariffs, enforcing existing measures and monitoring commitments, with tariff escalation rung stable at 3 but risks to rung 4 via USMCA review.
+**ECB staff projections update.** Released on March 19, these projections incorporate the energy shock effects, lifting inflation forecasts to 2.6 percent for 2026 while cutting growth to 0.9 percent. The revisions confirm a structural stagflationary path.
 
-**BIS warns crypto exchanges function as shadow banks.** BIS characterized major platforms including Binance, Coinbase, Bybit, OKX, Crypto.com, and MEXC as a shadow crypto financial system engaging in risk transformation, exposing users to credit, liquidity, and maturity risks without prudential safeguards. This assessment highlights systemic vulnerabilities in the private credit cascade vector rated MODERATE.
+**Federal Reserve FOMC meeting.** Scheduled for April 28, this marks the first policy meeting after the tariffs and Hormuz closure. Forward guidance will reveal the Fed response to compounded shocks on US and global growth.
 
-**ECB enhances EUREP liquidity facility amid volatility.** ECB introduced standing access for all central banks unless excluded for AML or sanctions reasons, reflecting a more uncertain and potentially volatile global environment with frequent financial disruptions. This move addresses liquidity fragmentation and currency regime stress, both rated ELEVATED, and speeds up liquidity provision in the financial stability domain rated Amber and worsening.
+**Federal Reserve FEDS Notes on tariffs.** Published on April 8, these notes detail real-time tariff pass-through methodology. The work institutionalizes tariff monitoring as a permanent feature of the macroeconomic regime.
 
-**G-7 central banks coordinate rate holds.** G-7 central banks held rates this week, watching energy costs and inflation risks, with policy rate divergence rated ELEVATED. Federal Reserve forward guidance notes tariff and energy uncertainty, while ECB held rates in March amid energy shock.
+**ECB EUREP liquidity facility.** Enhanced on February 14 for standing central bank access amid volatility. This precautionary measure signals elevated tail risks in liquidity conditions.
 
 ## Cross-Monitor Connections
 
-This week macro signals link to ESA via Turnberry deal and Parliament vote locking US-EU tariff friction as economic coercion, with ECB energy shock elevating EUR growth-inflation divergence. ERM connects through Hormuz closure as largest oil shock plus Section 232 steel and aluminum tariffs signaling energy and metals supply chain stress in commodity price transmission. SCEM ties emerge from USTR agenda enforcement and EM exporter tariff convergence risking sovereign stress spillover to conflict financing.
+The Strait of Hormuz closure links directly to SCEM monitor signals on sanctions and conflict escalation in the Middle East. Military actions disrupting this chokepoint amplify geopolitical tensions tracked there. Tariff cascades connect to ESA monitor developments on trade and strategic autonomy, as multi-retaliation erodes global supply resilience. WDM economic coercion themes intensify with US Liberation Day tariffs at 11.8 percent effective rate. ERM climate cost transmission faces compounding pressures from energy disruptions, while AIM compute-capex demand signals may weaken under stagflationary growth cuts to 0.9 percent.
 
 ## Outlook
 
-Next week watch national ratification status of EU-US trade deal, as pending approvals could destabilize tariff rung 3 or trigger escalation to rung 4. USMCA Joint Review progress will clarify escalation likelihood. Duration of Hormuz closure remains critical, with evidence needed to assess prolonged disruption scenario entailing significant growth reduction. G-7 rate decisions and inflation data will test stagflation lock-in under dual shocks.
+Central bank responses dominate next week. The FOMC meeting on April 28-29 will clarify Fed tolerance for dual oil and tariff shocks. ECB liquidity updates and further IEA assessments on Hormuz impacts warrant attention. Watch for capital flow reversals or reserve movements signaling flight to safety. Gaps in jurisdiction stress and sovereign debt modules persist; material shifts there could elevate the macro stress composite further.
 
 ## Cross-Monitor Flags
 
-- **** (AI Governance Monitor) — Active — verified (adjacent Issue 6)
-- **** (AI Governance Monitor) — Active — verified (adjacent Issue 6)
+- **** (AI Governance Monitor) — Active — verified (adjacent Issue 7)
+- **** (AI Governance Monitor) — Active — verified (adjacent Issue 7)
 - **** (Environmental Risks Monitor) — Active — verified (adjacent Issue 9)
 - **** (Strategic Conflict & Escalation Monitor) — Active — verified (adjacent Issue 8)
 - **** (FIMI & Cognitive Warfare Monitor) — NoSignal — verified (adjacent Issue 5)
@@ -77,13 +77,13 @@ Next week watch national ratification status of EU-US trade deal, as pending app
 - **Tariff escalation used to influence domestic policies in partner countries** (democratic-integrity) — Active — verified (adjacent Issue 12)
 - **Strait of Hormuz closure as escalation of US-Iran conflict** (conflict-escalation) — Active — verified (adjacent Issue 8)
 - **EU dependency on Middle Eastern commodities for agriculture** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **US using trade leverage to prevent spread of digital regulation** (ai-governance) — Active — verified (adjacent Issue 6)
+- **US using trade leverage to prevent spread of digital regulation** (ai-governance) — Active — verified (adjacent Issue 7)
 - **Energy supply shock impacting green transition commodities** (environmental-risks) — Active — verified (adjacent Issue 9)
 - **Tariff escalation as economic coercion tool** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
 - **Energy crisis impacting political stability** (democratic-integrity) — Active — verified (adjacent Issue 12)
 - **Iran-US conflict driving energy supply shock** (conflict-escalation) — Active — verified (adjacent Issue 8)
 - **EU energy security concerns driving strategic autonomy** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
-- **AI infrastructure spending boom requiring governance frameworks** (ai-governance) — Active — verified (adjacent Issue 6)
+- **AI infrastructure spending boom requiring governance frameworks** (ai-governance) — Active — verified (adjacent Issue 7)
 - **Energy crisis accelerating clean energy transition** (environmental-risks) — Active — verified (adjacent Issue 9)
 - **Turnberry deal locks 15 percent tariff rate embedding structural drag** (european-strategic-autonomy) — Active — verified (adjacent Issue 6)
 - **EU-Mercosur agreement accelerates EM trade realignment** (sceM) — Active — NEW
