@@ -20,11 +20,11 @@ jobs:
       - name: Checkout public repo
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Fetch audit scripts from internal repo
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
         run: |
           mkdir -p ops
           for script in engine_runtime_audit.py compile_audit_status.py; do
@@ -46,7 +46,7 @@ jobs:
           REPO_ROOT: ${{ github.workspace }}
           CF_ZONE_ID: "cc419b7519eba04ef0dc6a7b851930c7"
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
           GH_REPO: ${{ github.repository }}
         run: python3 ops/engine_runtime_audit.py
 

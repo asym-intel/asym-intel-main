@@ -20,7 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           fetch-depth: 0
 
       - name: Install image tools
@@ -76,7 +76,7 @@ jobs:
       - name: Commit compressed images
         uses: ./.github/actions/authenticated-push
         with:
-          gh-token: ${{ secrets.GH_TOKEN }}
+          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           commit-message: "perf: auto-compress images over 500KB [skip ci]"
           add-paths: "static/images/uploads/"
           bot-name: "github-actions[bot]"

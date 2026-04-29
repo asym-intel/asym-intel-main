@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Inject network bar into all monitor HTML pages
         run: |
@@ -81,7 +81,7 @@ jobs:
       - name: Commit cleaned pages
         uses: ./.github/actions/authenticated-push
         with:
-          gh-token: ${{ secrets.GH_TOKEN }}
+          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           commit-message: "build: strip stale inline network bars — nav.js handles injection [skip ci]"
           add-paths: "static/monitors/"
           bot-name: "github-actions[bot]"

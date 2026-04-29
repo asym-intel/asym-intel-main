@@ -16,13 +16,13 @@ jobs:
       actions: read     # read own workflow runs
       contents: write   # write to static/ops/pipeline-status.json
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}    # PAT for cross-repo write to asym-intel-internal
+      GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}    # PAT for cross-repo write to asym-intel-internal
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -42,7 +42,7 @@ jobs:
       - name: Deploy public roll-up to asym-intel-main
         uses: ./.github/actions/authenticated-push
         with:
-          gh-token: ${{ secrets.GH_TOKEN }}
+          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           commit-message: "ops: auto-update public pipeline-status.json ($(date -u '+%Y-%m-%d %H:%M UTC')) [skip ci]"
           add-paths: "static/ops/pipeline-status.json"
           bot-name: "github-actions[bot]"

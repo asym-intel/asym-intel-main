@@ -35,14 +35,14 @@ jobs:
       - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           ref: main
 
       - name: Checkout internal repo (engine + bespoke config)
         uses: actions/checkout@v5
         with:
           repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           path: internal
           sparse-checkout: |
             pipeline/engine
@@ -52,7 +52,7 @@ jobs:
 
       - name: Fetch ESA identity from internal repo
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
         run: |
           mkdir -p docs/identity
 
@@ -98,7 +98,7 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         env:
           PPLX_API_KEY:    ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:        ${{ secrets.GH_TOKEN }}
+          GH_TOKEN:        ${{ secrets.ASYM_INTEL_PIPELINE }}
           REPO_ROOT:       ${{ github.workspace }}
           REVIEW_MODEL:    ${{ github.event.inputs.model }}
           REVIEWER_NO_LLM: ${{ github.event.inputs.no_llm }}

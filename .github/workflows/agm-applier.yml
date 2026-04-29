@@ -41,7 +41,7 @@ jobs:
       - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           # workflow_run always starts from default branch HEAD; make that
           # explicit so we see the compose-latest.json the upstream job
           # just committed.
@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           path: internal
           sparse-checkout: |
             pipeline/engine

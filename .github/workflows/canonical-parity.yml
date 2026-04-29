@@ -64,6 +64,6 @@ jobs:
       # default `main` resolution applies.
       - name: Live scan — preflight_parity.py
         env:
-          GH_TOKEN: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+          GH_TOKEN: ${{ secrets.COMPUTER_SHIM_INTERNAL_READ }}
           ASYM_COUNTERPART_REF: ${{ github.event_name == 'pull_request' && github.head_ref || '' }}
         run: python3 tools/preflight_parity.py

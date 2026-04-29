@@ -59,7 +59,7 @@ jobs:
         # Advisory during warn-phase (spec §5). Promote by removing continue-on-error.
         continue-on-error: true
         env:
-          ENGINE_INTERNAL_READ_TOKEN: ${{ secrets.ENGINE_INTERNAL_READ_TOKEN }}
+          COMPUTER_SHIM_INTERNAL_READ: ${{ secrets.COMPUTER_SHIM_INTERNAL_READ }}
         run: python3 tools/preflight_ui_shim.py
 
       - name: Test monitor-links preflight regex (RX_CONCAT fixture suite)

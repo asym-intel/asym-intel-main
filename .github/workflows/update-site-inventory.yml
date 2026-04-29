@@ -12,13 +12,13 @@ jobs:
     permissions:
       contents: read
     env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Generate inventory
         run: |

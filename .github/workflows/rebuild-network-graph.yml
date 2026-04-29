@@ -34,7 +34,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -47,7 +47,7 @@ jobs:
       - name: Commit updated graph.json
         uses: ./.github/actions/authenticated-push
         with:
-          gh-token: ${{ secrets.GH_TOKEN }}
+          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           commit-message: "data(network): auto-update graph.json [skip ci]"
           add-paths: "static/network/data/graph.json docs/network/data/graph.json"
           bot-name: "github-actions[bot]"

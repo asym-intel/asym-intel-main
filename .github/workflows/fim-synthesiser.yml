@@ -12,7 +12,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v6
@@ -25,7 +25,7 @@ jobs:
 
       - name: Fetch identity card from internal repo
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
         run: |
           mkdir -p docs/identity
           curl -sf -H "Authorization: token ${GH_TOKEN}" \
