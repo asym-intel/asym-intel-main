@@ -174,9 +174,12 @@ class TestBuildPhaseBStationStatus(unittest.TestCase):
 
     # --- Edge cases ---
 
-    def test_compose_null_timestamp_still_success(self):
-        # Real-world case: compose-latest.json with composed_at=null but
-        # composer_error=false. File landed, upstream stage left timestamp unset.
+    def test_compose_null_timestamp_yields_never(self):
+        # A-1 fix (Sprint AZ Tier 2, AD-2026-04-29-BC):
+        # Pre-fix this case yielded {last_run: null, last_conclusion: "success"} —
+        # an internal contradiction that caused all monitors to render red on
+        # the compose column. New contract: a null/missing timestamp means the
+        # stage didn't actually run cleanly, classify as 'never'.
         _write_cascade_file(
             self.repo_root, "democratic-integrity", "synthesised", "compose-latest.json",
             {"_meta": {"composed_at": None,
@@ -185,15 +188,12 @@ class TestBuildPhaseBStationStatus(unittest.TestCase):
         result = ups.build_phase_b_station_status(
             "democratic-integrity", "compose", repo_root=self.repo_root
         )
-        self.assertEqual(result["last_conclusion"], "success")
+        self.assertEqual(result["last_conclusion"], "never")
         self.assertIsNone(result["last_run"])
-        self.assertIsNone(
-            result["last_success"],
-            "If timestamp is null, last_success is also None even on success",
-        )
+        self.assertIsNone(result["last_success"])
 
-    def test_string_null_timestamp_normalised_to_none(self):
-        # Some monitors emit the literal string "null" for unset timestamps
+    def test_string_null_timestamp_normalised_to_never(self):
+        # A-1 fix: literal string "null" is normalised to None and then yields 'never'.
         _write_cascade_file(
             self.repo_root, "democratic-integrity", "synthesised", "interpret-latest.json",
             {"_meta": {"synthesised_at": "null",
@@ -203,7 +203,7 @@ class TestBuildPhaseBStationStatus(unittest.TestCase):
             "democratic-integrity", "interpret", repo_root=self.repo_root
         )
         self.assertIsNone(result["last_run"])
-        self.assertEqual(result["last_conclusion"], "success")
+        self.assertEqual(result["last_conclusion"], "never")
 
     def test_malformed_json_treated_as_missing(self):
         target_dir = Path(self.repo_root) / "pipeline" / "monitors" / "macro-monitor" / "applied"
@@ -218,17 +218,61 @@ class TestBuildPhaseBStationStatus(unittest.TestCase):
             "Malformed JSON should be treated as missing, not crash",
         )
 
-    def test_empty_meta_present_success(self):
-        # File with no _meta at all — degenerate but possible during a partial write
+    def test_empty_meta_yields_never(self):
+        # A-1 fix: file with no _meta at all has no timestamp — classify as 'never'
+        # rather than the pre-fix 'success-with-null-timestamp' contradiction.
         _write_cascade_file(
             self.repo_root, "macro-monitor", "applied", "apply-latest.json", {},
         )
         result = ups.build_phase_b_station_status(
             "macro-monitor", "apply", repo_root=self.repo_root
         )
-        # No _meta means no error field present — success per spec
-        self.assertEqual(result["last_conclusion"], "success")
+        self.assertEqual(result["last_conclusion"], "never")
         self.assertIsNone(result["last_run"])
+
+    # --- A-1 discovery_misses diagnostic ---
+
+    def test_discovery_misses_records_file_missing(self):
+        misses = []
+        result = ups.build_phase_b_station_status(
+            "macro-monitor", "compose", repo_root=self.repo_root,
+            discovery_misses=misses,
+        )
+        self.assertEqual(result["last_conclusion"], "never")
+        self.assertEqual(len(misses), 1)
+        self.assertEqual(misses[0]["monitor"], "macro-monitor")
+        self.assertEqual(misses[0]["stage"], "compose")
+        self.assertEqual(misses[0]["reason"], "file_missing")
+        self.assertIn("compose-latest.json", misses[0]["file"])
+
+    def test_discovery_misses_records_timestamp_null(self):
+        _write_cascade_file(
+            self.repo_root, "democratic-integrity", "synthesised", "compose-latest.json",
+            {"_meta": {"composed_at": None, "composer_error": False}},
+        )
+        misses = []
+        result = ups.build_phase_b_station_status(
+            "democratic-integrity", "compose", repo_root=self.repo_root,
+            discovery_misses=misses,
+        )
+        self.assertEqual(result["last_conclusion"], "never")
+        self.assertEqual(len(misses), 1)
+        self.assertEqual(misses[0]["monitor"], "democratic-integrity")
+        self.assertEqual(misses[0]["reason"], "timestamp_null")
+
+    def test_discovery_misses_not_recorded_on_success(self):
+        _write_cascade_file(
+            self.repo_root, "macro-monitor", "synthesised", "interpret-latest.json",
+            {"_meta": {"synthesised_at": "2026-04-28T08:31:34Z",
+                       "cycle_disposition": "material_change"}},
+        )
+        misses = []
+        result = ups.build_phase_b_station_status(
+            "macro-monitor", "interpret", repo_root=self.repo_root,
+            discovery_misses=misses,
+        )
+        self.assertEqual(result["last_conclusion"], "success")
+        self.assertEqual(misses, [])
 
     # --- Schema mappings sanity ---
 
