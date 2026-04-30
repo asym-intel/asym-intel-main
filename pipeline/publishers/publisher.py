@@ -450,16 +450,22 @@ def build_campaigns(persistent: dict, synthesis: dict) -> list:
         elif isinstance(actor_campaigns, dict):
             campaigns.append(actor_campaigns)
 
+    # delta_strip is dict-shape on some monitors (FCW, SCEM legacy) and list-shape
+    # on others (AIM, GMM, WDM, ESA, ERM). Only the dict shape carries campaign
+    # deltas; list shape is the pre-ranked archive strip with no campaign data.
+    # Guard mirrors the pattern at build_archive_entry (L1645) and the FCW
+    # campaign-handling block at the publisher main (L1583).
     delta = synthesis.get("delta_strip", {})
-    for new_camp in delta.get("new_campaigns", []):
-        campaigns.append(new_camp)
-    for change in delta.get("status_changes", []):
-        cid = change.get("campaign_id", "")
-        for camp in campaigns:
-            if camp.get("id") == cid or camp.get("campaign_id") == cid:
-                if "new_status" in change:
-                    camp["status"] = change["new_status"]
-                break
+    if isinstance(delta, dict):
+        for new_camp in delta.get("new_campaigns", []):
+            campaigns.append(new_camp)
+        for change in delta.get("status_changes", []):
+            cid = change.get("campaign_id", "")
+            for camp in campaigns:
+                if camp.get("id") == cid or camp.get("campaign_id") == cid:
+                    if "new_status" in change:
+                        camp["status"] = change["new_status"]
+                    break
 
     return campaigns
 
