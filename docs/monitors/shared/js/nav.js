@@ -328,7 +328,6 @@
   var MONITOR_REGISTRY = {
     "democratic-integrity": {"abbr": "WDM", "name": "World Democracy Monitor", "accent": "#61a5d2", "url": "https://asym-intel.info/monitors/democratic-integrity/", "svg_url": "https://asym-intel.info/images/monitors/wdm.svg", "vb": "0 0 32 32", "strip_label": "World Democracy"},
     "macro-monitor": {"abbr": "GMM", "name": "Global Macro Monitor", "accent": "#22a0aa", "url": "https://asym-intel.info/monitors/macro-monitor/", "svg_url": "https://asym-intel.info/images/monitors/gmm.svg", "vb": "0 0 38 38", "strip_label": "Global Macro", "accent_2": "#e87040"},
-    "financial-integrity": {"abbr": "FIM", "name": "Financial Integrity Monitor", "accent": "#e6a817", "url": "https://asym-intel.info/monitors/financial-integrity/", "svg_url": "https://asym-intel.info/images/monitors/fim.svg", "vb": "0 0 36 36", "strip_label": "Financial Integrity"},
     "european-strategic-autonomy": {"abbr": "ESA", "name": "European Strategic Autonomy Monitor", "accent": "#5b8db0", "url": "https://asym-intel.info/monitors/european-strategic-autonomy/", "svg_url": "https://asym-intel.info/images/monitors/esa.svg", "vb": "0 0 36 36", "strip_label": "Strategic Autonomy"},
     "fimi-cognitive-warfare": {"abbr": "FCW", "name": "FIMI & Cognitive Warfare Monitor", "accent": "#38bdf8", "url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/", "svg_url": "https://asym-intel.info/images/monitors/fcw.svg", "vb": "0 0 36 36", "strip_label": "FIMI & Cognitive Warfare", "accent_2": "#dc2626"},
     "ai-governance": {"abbr": "AIM", "name": "AI Governance Monitor", "accent": "#3a7d5a", "url": "https://asym-intel.info/monitors/ai-governance/", "svg_url": "https://asym-intel.info/images/monitors/aim.svg", "vb": "0 0 36 36", "strip_label": "Artificial Intelligence"},
@@ -336,7 +335,7 @@
     "conflict-escalation": {"abbr": "SCEM", "name": "Strategic Conflict & Escalation Monitor", "accent": "#dc2626", "url": "https://asym-intel.info/monitors/conflict-escalation/", "svg_url": "https://asym-intel.info/images/monitors/scem.svg", "vb": "0 0 36 36", "strip_label": "Strategic Conflict"},
   };
 
-  var MONITOR_TRIAGE_ORDER = ["GMM", "SCEM", "FCW", "AIM", "WDM", "ESA", "FIM", "ERM"];
+  var MONITOR_TRIAGE_ORDER = ["GMM", "SCEM", "FCW", "AIM", "WDM", "ESA", "ERM"];
   /* END @REGISTRY_INLINE */
 
   // Inject strip at parse time for immediate render (same as network bar).
