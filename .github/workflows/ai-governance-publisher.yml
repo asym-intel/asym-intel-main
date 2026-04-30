@@ -60,7 +60,7 @@ jobs:
       - name: Purge Cloudflare cache
         if: success()
         env:
-          CF_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_TOKEN: ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
           CF_ZONE: cc419b7519eba04ef0dc6a7b851930c7
         run: |
           curl -s -X POST \
