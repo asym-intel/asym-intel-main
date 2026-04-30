@@ -1,29 +1,10 @@
-# FIMI & Cognitive Warfare Monitor — Issue 6
-
-**W/E 30 April 2026** | Published 2026-04-30T09:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**No new FIMI operations identified this week**
-
-Confidence: N/A
-Actor: UNKNOWN
-
-## Key Judgments
-
-1. **This week represents a null signal week rather than absence of FIMI activity. AI-FIMI campaigns may evade detection without Tier 1 forensic backing. Post-election lull following Slovenia parliamentary elections (March 22, 2026) may account for reduced observable activity. X/Twitter structural transparency gap creates persistent blind spot for all actors.**
-   - Confidence: Assessed
-   - Trajectory: Stable
-
-## Weekly Brief
+title: "FIMI & Cognitive Warfare Monitor — W/E 30 April 2026"
+date: 2026-04-30T09:00:00Z
+summary: "No new FIMI operations identified this week"
+draft: false
+monitor: "fimi-cognitive-warfare"
+---
 
 ## Lead Signal
 
@@ -48,21 +29,3 @@ This week's null signal aligns with continuity across sibling monitors. Democrat
 ## Outlook
 
 Monitor for platform quarterly disclosures from Meta and Google TAG, which may surface operations from this window. Watch X/Twitter for any ad hoc CIB announcements breaking the opacity pattern. Gulf/US/IL OSINT gaps require Tier 1-3 source expansion to achieve six-actor parity. DSA Article 40 enforcement capacity building remains critical path; VLO designations could accelerate platform compliance. Any actor posture shift from Monitoring would elevate risks across the matrix.
-
-## Cross-Monitor Flags
-
-- **FIMI as constitutive mechanism of democratic erosion — Hungary election FIMI density at critical level** (Democratic Integrity Monitor) — Active — verified (adjacent Issue 12)
-- **Cognitive warfare as operational preparation for European strategic paralysis — Hungary election as test case** (European Strategic Autonomy Monitor (EGHTM)) — Active — verified (adjacent Issue 7)
-- **AI-generated YouTube network (1.8B views) as operational proof of AI-FIMI convergence at scale** (AI Governance Monitor) — Active — verified (adjacent Issue 7)
-- **Post-election FIMI lull following Slovenia parliamentary elections (March 22, 2026) may precede escalation cycle targeting upcoming EU member state elections. Recommend forward-looking monitoring for FIMI activity targeting 2026-2027 electoral cycles.** (democratic-integrity) — Active — verified (adjacent Issue 12)
-- **Iranian FIMI operations targeting Israel-Palestine narratives remain active at baseline. No escalation detected this week, but recommend continued monitoring for FIMI activity correlated with Middle East conflict escalation events.** (conflict-escalation) — Active — verified (adjacent Issue 9)
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/fimi-cognitive-warfare/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/fimi-cognitive-warfare/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/fimi-cognitive-warfare/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/fimi-cognitive-warfare/methodology.html>
