@@ -1,38 +1,12 @@
-# Global Environmental Risks Monitor — Issue 10
-
-**W/E 30 April 2026** | Published 2026-04-30T05:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**AMOC projected to weaken 51% by 2100, 60% faster than models, approaching collapse threshold.**
-
-Confidence: N/A
-Actor: N/A
-Source: https://www.science.org/doi/10.1126/sciadv.adx4298
-
-## Key Judgments
-
-1. **AMOC weakening trajectory accelerated 60% beyond model projections**
-   - Confidence: High
-   - Trajectory: Worsening
-
-2. **Coral reef tipping point confirmed crossed with consecutive GBR bleaching**
-   - Confidence: High
-   - Trajectory: Worsening
-
-3. **Ocean acidification seventh boundary transgressed**
-   - Confidence: High
-   - Trajectory: Worsening
-
-## Weekly Brief
+title: "Global Environmental Risks Monitor — W/E 30 April 2026"
+date: 2026-04-30T05:00:00Z
+summary: "AMOC weakening trajectory accelerated 60% beyond model projections"
+draft: false
+monitor: "environmental-risks"
+brief_sources:
+  - url: "https://www.science.org/doi/10.1126/sciadv.adx4298"
+---
 
 ## Lead Signal
 
@@ -61,22 +35,3 @@ Regional coverage notes ocean systems emphasis, with Amazon inclusion but sub-Sa
 ## Outlook
 
 Next cycle prioritizes Tier 1 freshwater flux data for AMOC early warning, real-time Amazon degradation beyond INPE, and geopolitical mapping of displacement-conflict overlaps. El Niño mid-2026 forecast and ice sheet mass loss at 264 Gt/yr bear monitoring for non-linear departures. Permafrost methane emissions up 9% since 2002 and West Antarctic hysteresis vulnerability signal imminent risks. Material changes hinge on these gaps; stable boundaries offer no respite from approaching tipping proximities.
-
-## Cross-Monitor Flags
-
-- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 8)
-- **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 10)
-- **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 12)
-- **AMOC-driven African droughts** (scem) — Active — NEW
-- **Record climate displacement 83.4M** (scem) — Active — NEW
-- **US drought food insecurity** (gmm) — Active — NEW
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/environmental-risks/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/environmental-risks/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/environmental-risks/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/environmental-risks/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/environmental-risks/methodology.html>
