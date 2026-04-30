@@ -1,0 +1,139 @@
+name: "Commons Drift Lint"
+
+# Reusable workflow — ratified by AD-2026-04-30-BL (W3.5 Phase 0.5).
+#
+# Purpose
+# -------
+# Detect when a per-project repo (advennt, advennt-admin, payments-gi,
+# Ramparts, resilience, asymmetric-investor-gi) re-implements code that
+# should have come from asym-intel-main:fe-commons/ (the FE commons
+# substrate ratified by AD-2026-04-30-BK §D6(d)).
+#
+# Per-project repos opt in by adding a CI job:
+#
+#   jobs:
+#     commons-drift:
+#       uses: asym-intel/asym-intel-main/.github/workflows/commons-drift-lint.yml@main
+#       secrets:
+#         ASYM_INTEL_PIPELINE: ${{ secrets.ASYM_INTEL_PIPELINE }}
+#
+# Behaviour
+# ---------
+# Phase 0.5 observe-mode (default until 2026-05-14):
+#   - Scanner walks the calling repo for the eight AD-BK §D6(b) forbidden
+#     patterns (token systems, formatters, hydration helpers, empty-state
+#     components, three-layer encounter scaffolding, paywall-aware CTA
+#     scaffolding, methodology_mode/rationale_mode shell wiring, and
+#     engineering-exposure-zero filters).
+#   - All matches are reported in the PR check summary as advisory.
+#   - Scanner exits 0 unconditionally (observe-mode); does NOT block PRs.
+#
+# Enforcement-mode flip (2026-05-14):
+#   - Per AD-BL, observe-mode flips to enforcing only if (a) workflow has
+#     run cleanly on ≥3 per-project PRs during the observe window AND
+#     (b) fe-commons/ has ≥1 ratified primitive. Until both conditions
+#     clear, the `mode` input below remains "observe".
+#   - Enforcement-mode flip is a separate PR amending this workflow's
+#     default `mode` input from "observe" to "enforce" (and the AD-BL
+#     review trigger fires that decision).
+#
+# Inputs
+# ------
+#   mode                  observe | enforce   default: observe
+#   commons_ref           git ref of asym-intel-main to pull fe-commons/ from   default: main
+#   scan_paths            glob(s) to scan in the calling repo   default: "."
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: 'observe | enforce'
+        required: false
+        type: string
+        default: 'observe'
+      commons_ref:
+        description: 'asym-intel-main ref for fe-commons/ checkout'
+        required: false
+        type: string
+        default: 'main'
+      scan_paths:
+        description: 'Comma-separated glob paths to scan in the calling repo'
+        required: false
+        type: string
+        default: '.'
+    secrets:
+      ASYM_INTEL_PIPELINE:
+        description: 'PAT with read access to asym-intel/asym-intel-main'
+        required: true
+
+jobs:
+  commons-drift:
+    name: Commons Drift Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout calling repo
+        uses: actions/checkout@v4
+        with:
+          path: caller
+
+      - name: Fetch fe-commons + scanner from asym-intel-main
+        uses: actions/checkout@v4
+        with:
+          repository: asym-intel/asym-intel-main
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          ref: ${{ inputs.commons_ref }}
+          path: asym-intel-main-staging
+          sparse-checkout: |
+            fe-commons
+            tools/commons_drift_scan.py
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run commons-drift scanner (stub-and-walk, observe-mode)
+        id: scan
+        run: |
+          set -euo pipefail
+          mkdir -p caller/_commons-drift-out
+          python3 asym-intel-main-staging/tools/commons_drift_scan.py \
+            --calling-repo caller \
+            --commons-root asym-intel-main-staging/fe-commons \
+            --scan-paths "${{ inputs.scan_paths }}" \
+            --report-out caller/_commons-drift-out/commons-drift-report.json \
+            --mode "${{ inputs.mode }}" \
+          | tee caller/_commons-drift-out/commons-drift-summary.txt
+
+      - name: Upload drift report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: commons-drift-report
+          path: caller/_commons-drift-out/
+
+      - name: Append summary to PR check
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "## Commons Drift Lint — mode: ${{ inputs.mode }}"
+            echo ""
+            echo "Workflow: \`asym-intel/asym-intel-main/.github/workflows/commons-drift-lint.yml\`"
+            echo "Scanner:  \`asym-intel-main:tools/commons_drift_scan.py\`"
+            echo "Commons:  \`asym-intel-main:fe-commons/\` @ \`${{ inputs.commons_ref }}\`"
+            echo ""
+            if [ -f caller/_commons-drift-out/commons-drift-summary.txt ]; then
+              echo "### Scan summary"
+              echo ""
+              echo '```'
+              cat caller/_commons-drift-out/commons-drift-summary.txt
+              echo '```'
+            else
+              echo "_(no summary produced — scanner did not run)_"
+            fi
+            echo ""
+            echo "Mode \`observe\` is advisory until 2026-05-14 per AD-2026-04-30-BL."
+            echo "Mode \`enforce\` exits non-zero on re-implementation hits."
+          } >> "$GITHUB_STEP_SUMMARY"
