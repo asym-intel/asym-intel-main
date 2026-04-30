@@ -1217,7 +1217,40 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-  function buildDeltaItems(d) {
+    // ── Indicator display label map ─────────────────────────────────────
+  // Maps snake_case indicator keys to human-readable labels.
+  // Fallback: raw key is used if a new indicator appears without a mapping.
+  var INDICATOR_LABELS = {
+    'ai_infra_debt':             'AI Infrastructure Debt',
+    'cass_freight':              'CASS Freight Index',
+    'consumer_confidence':       'Consumer Confidence',
+    'cre_delinquency':           'CRE Delinquency Rate',
+    'custody_migration':         'Custody Migration',
+    'dollar_weaponization':      'Dollar Weaponisation',
+    'earnings_revisions':        'Earnings Revisions',
+    'em_sovereign_distress':     'EM Sovereign Distress',
+    'fed_sloos':                 'Fed SLOOS Survey',
+    'fx_swap_basis':             'FX Swap Basis',
+    'gold_reserve_ratio_em':     'EM Gold Reserve Ratio',
+    'gsib_capital':              'G-SIB Capital Buffers',
+    'iif_global_debt':           'IIF Global Debt',
+    'ism_pmi':                   'ISM PMI',
+    'japan_jgb_yields':          'Japan JGB Yields',
+    'jobless_claims':            'Jobless Claims',
+    'm2_money_supply':           'M2 Money Supply',
+    'margin_debt':               'Margin Debt',
+    'nfci':                      'NFCI (Chicago Fed)',
+    'oil_supply_shock':          'Oil Supply Shock',
+    'private_credit_nbfi':       'Private Credit / NBFI',
+    'stlfsi':                    'St. Louis FSI',
+    'treasury_market_liquidity': 'Treasury Market Liquidity',
+    'trump_tariffs':             'Tariff Escalation',
+    'us_debt_deficit':           'US Debt & Deficit',
+    'vix_term_structure':        'VIX Term Structure',
+    'zero_dte_volume':           '0-DTE Options Volume'
+  };
+
+function buildDeltaItems(d) {
     var items = [];
     var domains = d.domain_indicators || {};
     // If domain_indicators exists, use it
@@ -1227,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!Array.isArray(arr)) return;
         arr.forEach(function (ind) {
           if (ind.flag === 'WARNING' || ind.flag === 'ELEVATED') {
-            items.push({ title: ind.indicator, reading: ind.reading || '', flag: ind.flag, score: ind.score || 0 });
+            items.push({ title: INDICATOR_LABELS[ind.indicator] || ind.indicator, reading: ind.reading || '', flag: ind.flag, score: ind.score || 0 });
           }
         });
       });
@@ -1236,7 +1269,7 @@ document.addEventListener('DOMContentLoaded', function () {
       ['debt_dynamics','credit_stress','systemic_risk'].forEach(function(key) {
         (d[key] || []).forEach(function(ind) {
           if (ind.flag === 'WARNING' || ind.flag === 'ELEVATED') {
-            items.push({ title: ind.indicator, reading: ind.reading || '', flag: ind.flag, score: ind.score || 0 });
+            items.push({ title: INDICATOR_LABELS[ind.indicator] || ind.indicator, reading: ind.reading || '', flag: ind.flag, score: ind.score || 0 });
           }
         });
       });
