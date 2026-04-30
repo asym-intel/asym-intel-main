@@ -71,3 +71,19 @@
 ^static/monitors/ai-governance/report\.html:.*synthesiser
 ^static/monitors/environmental-risks/dashboard\.html:.*synthesiser
 ^static/synthesis/index\.html:.*synthesiser
+
+# ─── BH.2 BRIEF #2 (AD-2026-04-30-BJ) — _trigger_health workflow records ───
+# The pipeline-status.json public surface carries a `_trigger_health` block
+# (Sprint BH BRIEF #2 acceptance #2) that enumerates expected/actual/missed
+# fire records by literal workflow filename and trigger_id. Workflow filenames
+# legitimately end in '-reasoner.yml' / '-weekly-research.yml' and trigger_ids
+# embed the same tokens; this is the workflow's GitHub-API name, not internal
+# methodology vocabulary leaking through narrative copy.
+#
+# Architect call (operator direction, 2026-04-30): take Path B (allowlist
+# exception) over producer-side projection. Two tightly-scoped patterns,
+# matching only the JSON-key shapes that carry workflow names. Any future
+# leak in another shape (description, free text, station notes) inside this
+# file still trips. Do NOT widen these patterns without Architect approval.
+^static/ops/pipeline-status\.json:.*"workflow":\s*"[a-z0-9_-]*-(?:reasoner|weekly-research|synthesiser|synthesizer)\.yml"
+^static/ops/pipeline-status\.json:.*"trigger_id":\s*"[^"]*(?:reasoner|weekly-research|synthesiser|synthesizer)[^"]*"
