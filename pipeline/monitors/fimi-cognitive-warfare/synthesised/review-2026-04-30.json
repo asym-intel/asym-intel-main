@@ -1,0 +1,82 @@
+{
+  "_meta": {
+    "schema_version": "aim-review-v1.0",
+    "reviewer_model": "sonar-pro",
+    "monitor_slug": "fimi-cognitive-warfare",
+    "reviewed_at": "2026-04-30T19:36:59.612848+00:00",
+    "reviewed_from": "aim-interpret-v1.0",
+    "reviewed_from_file": "interpret-latest.json",
+    "interpret_meta": {
+      "null_signal_week": true,
+      "cycle_disposition": "null_cycle",
+      "week_ending": "2026-05-02"
+    },
+    "reviewer_flags": [],
+    "reviewer_error": false,
+    "reviewer_error_reason": null,
+    "independence_mechanism": {
+      "rule_engine_verdict_is_llm_independent": true
+    }
+  },
+  "verdict": "hold-for-review",
+  "verdict_legacy": "REJECT",
+  "verdict_reason": "hard-invariant FAIL: ['R1']",
+  "checks": [
+    {
+      "check_id": "R1",
+      "name": "schema_version == aim-interpret-v1.0",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "schema_version='fcw-interpret-v1.0' (expected 'aim-interpret-v1.0')"
+    },
+    {
+      "check_id": "R2",
+      "name": "_meta.cycle_disposition in enum",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "cycle_disposition=null_cycle"
+    },
+    {
+      "check_id": "R3",
+      "name": "structured_claims[] shape integrity",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "all 0 claims carry 8 required keys"
+    },
+    {
+      "check_id": "R4",
+      "name": "evidence_id non-empty on every claim",
+      "result": "SKIP",
+      "disposition_aware_skip": true,
+      "detail": "skipped under null_cycle"
+    },
+    {
+      "check_id": "R5",
+      "name": "gaps_register[] non-empty when null_signal_week",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "null_signal_week=true but gaps_register len=0"
+    },
+    {
+      "check_id": "R6",
+      "name": "triple_extraction_manifest self-consistent",
+      "result": "PASS",
+      "disposition_aware_skip": false,
+      "detail": "0 det + 0 llm = 0 claims"
+    },
+    {
+      "check_id": "R7",
+      "name": "persistent-state modules non-empty",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "empty modules: ['jurisdiction_risk_matrix', 'lab_posture_scorecard']"
+    }
+  ],
+  "claim_flags": [],
+  "advisory_notes": [
+    "R1 fail due to schema_version 'fcw-interpret-v1.0' mismatch with expected 'aim-interpret-v1.0'; rule engine using AGM schema on FCW output.",
+    "R5 fail: null_signal_week=true but missing gaps_register[] entirely (not even empty array).",
+    "R7 fail: checking absent FCW modules (actor_risk_matrix/platform_posture_scorecard present; expects AGM jurisdiction_risk_matrix/lab_posture_scorecard). Engine misconfigured for FCW schema."
+  ],
+  "patch_verdicts": []
+}
