@@ -538,12 +538,44 @@ def extract_incidents():
 # Authority: AD-2026-04-30-BH §BH.2 (BH.2 BRIEF). Schema v4.0.
 
 # Match tolerance: actual.started_at must be within
-#   [expected_at - TOL_LATE, expected_at + TOL_EARLY] inclusive
-# to count as a hit. CF Worker dispatch latency is typically < 60s; GA queue
-# latency on first scheduled-fire-of-the-day can stretch to ~3-4 minutes
-# under load. +5min late / -2min early is the BRIEF default.
-TRIGGER_TOLERANCE_LATE = timedelta(minutes=5)
+#   [expected_at - TOL_EARLY, expected_at + TOL_LATE_<source_kind>] inclusive
+# to count as a hit. "Early" = actual fired BEFORE expected; "late" = actual
+# fired AFTER expected. AD-2026-04-30-BJ §fix-forward 2 corrected this window
+# orientation: PR #153 had the arithmetic inverted (TOL_LATE was applied to
+# the lower bound), so any actual that fired AFTER the expected timestamp by
+# more than TOL_EARLY (2min) was marked as missed. That bug was masked by
+# CI passing with a synthetic fixture and only surfaced on live producer fires
+# where GA scheduled-cron arrival was 30-90min after expected.
+#
+# Tolerance splits per source_kind:
+#   * cf_dispatcher   → +5min: Cloudflare Worker scheduled() dispatch is
+#                        observed to fire within <60s of the cron tick. 5min
+#                        gives head-room for clock skew + producer queue.
+#   * github_native   → +60min: GA scheduled-cron has documented and observed
+#                        p95 latency of 30-90 minutes during peak hours.
+# TOL_EARLY (pre-expected) is 2min for both source_kinds — early-fire is rare
+# and small for both dispatchers.
+TRIGGER_TOLERANCE_LATE_CF = timedelta(minutes=5)
+TRIGGER_TOLERANCE_LATE_GH_NATIVE = timedelta(minutes=60)
 TRIGGER_TOLERANCE_EARLY = timedelta(minutes=2)
+
+# Widest late tolerance — used by the run-fetch window only (we cast a wider
+# net than any individual source_kind's tolerance, then narrow per-fire in
+# _match_expected_to_actual()).
+_TRIGGER_TOLERANCE_LATE_MAX = max(
+    TRIGGER_TOLERANCE_LATE_CF, TRIGGER_TOLERANCE_LATE_GH_NATIVE
+)
+
+
+def _tolerance_late_for(source_kind):
+    """Return the per-source_kind late-tolerance timedelta. Unknown source_kind
+    falls back to the wider value (fail-open: prefer reporting on-time over
+    spurious-missed during schema drift)."""
+    if source_kind == "cf_dispatcher":
+        return TRIGGER_TOLERANCE_LATE_CF
+    if source_kind == "github_native":
+        return TRIGGER_TOLERANCE_LATE_GH_NATIVE
+    return _TRIGGER_TOLERANCE_LATE_MAX
 
 # Internal schema version for the _trigger_health block itself. Independent
 # of derive_public_rollup() schema_version (which is the outer surface
@@ -582,10 +614,10 @@ def _trigger_window_actual_runs(workflow_file, repo, window_start, window_end,
             )
         except (ValueError, TypeError):
             continue
-        if started < window_start - TRIGGER_TOLERANCE_LATE:
+        if started < window_start - _TRIGGER_TOLERANCE_LATE_MAX:
             # GA returns runs newest-first; once past the window, stop walking.
             break
-        if started > window_end + TRIGGER_TOLERANCE_LATE:
+        if started > window_end + _TRIGGER_TOLERANCE_LATE_MAX:
             continue
         out.append({
             "workflow": workflow_file,
@@ -601,15 +633,22 @@ def _trigger_window_actual_runs(workflow_file, repo, window_start, window_end,
 
 
 def _match_expected_to_actual(expected, actual_runs):
-    """Return the first actual_run within tolerance of `expected`, or None."""
+    """Return the first actual_run within tolerance of `expected`, or None.
+
+    Tolerance is per-source_kind (cf_dispatcher: +5min, github_native: +60min)
+    to reflect observed dispatch-latency profiles. See module-level constants.
+    """
     try:
         expected_dt = datetime.fromisoformat(
             expected["expected_at"].replace("Z", "+00:00")
         )
     except (ValueError, TypeError, KeyError):
         return None
-    lo = expected_dt - TRIGGER_TOLERANCE_LATE
-    hi = expected_dt + TRIGGER_TOLERANCE_EARLY
+    tol_late = _tolerance_late_for(expected.get("source_kind"))
+    # Window: [expected - TOL_EARLY, expected + TOL_LATE]. "Late" extends
+    # the upper bound (actual fired AFTER expected); "early" the lower.
+    lo = expected_dt - TRIGGER_TOLERANCE_EARLY
+    hi = expected_dt + tol_late
     for run in actual_runs:
         if lo <= run["_started_dt"] <= hi:
             return run
@@ -639,7 +678,12 @@ def compute_trigger_health(window_days=7, now=None):
         "window_days": window_days,
         "computed_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "tolerance": {
-            "late_minutes": int(TRIGGER_TOLERANCE_LATE.total_seconds() // 60),
+            "late_minutes_cf_dispatcher": int(
+                TRIGGER_TOLERANCE_LATE_CF.total_seconds() // 60
+            ),
+            "late_minutes_github_native": int(
+                TRIGGER_TOLERANCE_LATE_GH_NATIVE.total_seconds() // 60
+            ),
             "early_minutes": int(TRIGGER_TOLERANCE_EARLY.total_seconds() // 60),
         },
         "manifest_loaded": False,

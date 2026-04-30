@@ -31,6 +31,11 @@ _spec.loader.exec_module(_module)
 derive_public_rollup = _module.derive_public_rollup
 _classify_station = _module._classify_station
 _classify_monitor = _module._classify_monitor
+_match_expected_to_actual = _module._match_expected_to_actual
+_tolerance_late_for = _module._tolerance_late_for
+TRIGGER_TOLERANCE_LATE_CF = _module.TRIGGER_TOLERANCE_LATE_CF
+TRIGGER_TOLERANCE_LATE_GH_NATIVE = _module.TRIGGER_TOLERANCE_LATE_GH_NATIVE
+TRIGGER_TOLERANCE_EARLY = _module.TRIGGER_TOLERANCE_EARLY
 
 
 # ─── Fixture builders ─────────────────────────────────────────────────────
@@ -255,6 +260,152 @@ def test_classify_station_stale_amber():
 
 def test_classify_station_very_stale_red():
     assert _classify_station(_stale_station(days_ago=30), now=NOW) == "red"
+
+
+# ─── Trigger-health tolerance split tests (Sprint BH BJ fix-forward 2) ───
+#
+# After PR #153 + #154 shipped a unified +5min late tolerance, live producer
+# fires showed the comparator marking 39 of 43 expected GA scheduled-cron fires
+# as missed — because GA's observed scheduled-cron p95 latency is 30-90 minutes
+# (well-documented community behaviour). The fix splits tolerance per
+# source_kind: cf_dispatcher keeps +5min (Worker dispatch <60s), github_native
+# moves to +60min. AD-2026-04-30-BJ records the empirical evidence and the
+# process learning (live-fire verification before merge-confirmation).
+
+def test_tolerance_late_for_cf_dispatcher_is_5min():
+    assert _tolerance_late_for("cf_dispatcher") == timedelta(minutes=5)
+    assert TRIGGER_TOLERANCE_LATE_CF == timedelta(minutes=5)
+
+
+def test_tolerance_late_for_github_native_is_60min():
+    assert _tolerance_late_for("github_native") == timedelta(minutes=60)
+    assert TRIGGER_TOLERANCE_LATE_GH_NATIVE == timedelta(minutes=60)
+
+
+def test_tolerance_late_for_unknown_falls_back_to_max():
+    # Fail-open: unknown/None source_kind uses the wider tolerance so schema
+    # drift can’t cause spurious-missed reports.
+    assert _tolerance_late_for(None) == timedelta(minutes=60)
+    assert _tolerance_late_for("") == timedelta(minutes=60)
+    assert _tolerance_late_for("some_future_kind") == timedelta(minutes=60)
+
+
+def _expected_fire(source_kind, expected_at, workflow="x.yml", repo="r/r"):
+    return {
+        "trigger_id": f"{source_kind}::{workflow}",
+        "source_kind": source_kind,
+        "workflow": workflow,
+        "repo": repo,
+        "cron": "0 8 * * *",
+        "expected_at": expected_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "monitor": "WDM",
+    }
+
+
+def _actual_run(started, workflow="x.yml", repo="r/r"):
+    return {
+        "workflow": workflow,
+        "repo": repo,
+        "started_at": started.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "_started_dt": started,
+        "conclusion": "success",
+        "event": "schedule",
+        "run_number": 1,
+        "html_url": "https://example/test",
+    }
+
+
+def test_match_cf_dispatcher_within_5min_late_matches():
+    expected_at = datetime(2026, 4, 30, 8, 0, 0, tzinfo=timezone.utc)
+    expected = _expected_fire("cf_dispatcher", expected_at)
+    # 4 minutes late — inside cf tolerance.
+    actual = _actual_run(expected_at + timedelta(minutes=4))
+    assert _match_expected_to_actual(expected, [actual]) is actual
+
+
+def test_match_cf_dispatcher_30min_late_does_not_match():
+    """cf_dispatcher must keep the tight 5min tolerance — the wider gh_native
+    tolerance must NOT leak into cf matching."""
+    expected_at = datetime(2026, 4, 30, 8, 0, 0, tzinfo=timezone.utc)
+    expected = _expected_fire("cf_dispatcher", expected_at)
+    actual = _actual_run(expected_at + timedelta(minutes=30))
+    assert _match_expected_to_actual(expected, [actual]) is None
+
+
+def test_match_github_native_30min_late_matches():
+    """GA scheduled-cron typically fires 30-60min late; must count as on-time."""
+    expected_at = datetime(2026, 4, 30, 8, 0, 0, tzinfo=timezone.utc)
+    expected = _expected_fire("github_native", expected_at)
+    actual = _actual_run(expected_at + timedelta(minutes=30))
+    assert _match_expected_to_actual(expected, [actual]) is actual
+
+
+def test_match_github_native_60min_late_matches():
+    """Boundary: 60min late is at the tolerance edge — must still match."""
+    expected_at = datetime(2026, 4, 30, 8, 0, 0, tzinfo=timezone.utc)
+    expected = _expected_fire("github_native", expected_at)
+    actual = _actual_run(expected_at + timedelta(minutes=60))
+    assert _match_expected_to_actual(expected, [actual]) is actual
+
+
+def test_match_github_native_61min_late_does_not_match():
+    """Beyond +60min, even GA fires count as missed."""
+    expected_at = datetime(2026, 4, 30, 8, 0, 0, tzinfo=timezone.utc)
+    expected = _expected_fire("github_native", expected_at)
+    actual = _actual_run(expected_at + timedelta(minutes=61))
+    assert _match_expected_to_actual(expected, [actual]) is None
+
+
+def test_match_early_tolerance_unchanged_per_source_kind():
+    """Early tolerance is 2min for both source_kinds."""
+    expected_at = datetime(2026, 4, 30, 8, 0, 0, tzinfo=timezone.utc)
+    for sk in ("cf_dispatcher", "github_native"):
+        expected = _expected_fire(sk, expected_at)
+        # 1 min early — should match
+        early_ok = _actual_run(expected_at - timedelta(minutes=1))
+        assert _match_expected_to_actual(expected, [early_ok]) is early_ok
+        # 3 min early — must not match
+        early_too_far = _actual_run(expected_at - timedelta(minutes=3))
+        assert _match_expected_to_actual(expected, [early_too_far]) is None
+
+
+def test_match_window_orientation_natural():
+    """Regression guard for AD-2026-04-30-BJ §fix-forward 2: the comparator
+    window must be [expected - TOL_EARLY, expected + TOL_LATE]. PR #153
+    shipped the arithmetic inverted; this test enforces the corrected
+    orientation so future refactors can't silently re-invert. A fire that is
+    later-than-expected by less than TOL_LATE must match; a fire that is
+    earlier-than-expected by more than TOL_EARLY must NOT match (the wider
+    LATE tolerance must NOT leak into the early-side bound)."""
+    expected_at = datetime(2026, 4, 30, 8, 0, 0, tzinfo=timezone.utc)
+    # github_native, +30min: must match (post-expected, inside +60min LATE).
+    e1 = _expected_fire("github_native", expected_at)
+    a1 = _actual_run(expected_at + timedelta(minutes=30))
+    assert _match_expected_to_actual(e1, [a1]) is a1
+    # github_native, -30min: must NOT match. If LATE leaked into the
+    # early-side bound (the PR #153 bug), this would falsely match.
+    a2 = _actual_run(expected_at - timedelta(minutes=30))
+    assert _match_expected_to_actual(e1, [a2]) is None
+
+
+def test_tolerance_block_serialises_both_source_kinds():
+    """compute_trigger_health() must emit both late tolerances in the
+    serialised tolerance dict so consumers can see the per-kind values."""
+    # Force degraded mode — we don’t need a manifest to inspect the base
+    # tolerance dict shape.
+    compute_trigger_health = _module.compute_trigger_health
+    _orig_avail = _module._TRIGGER_LOADER_AVAILABLE
+    _module._TRIGGER_LOADER_AVAILABLE = False
+    try:
+        out = compute_trigger_health(window_days=7, now=NOW)
+    finally:
+        _module._TRIGGER_LOADER_AVAILABLE = _orig_avail
+    tol = out["tolerance"]
+    assert tol["late_minutes_cf_dispatcher"] == 5
+    assert tol["late_minutes_github_native"] == 60
+    assert tol["early_minutes"] == 2
+    # Old key must be gone (schema change documented in AD-BJ).
+    assert "late_minutes" not in tol
 
 
 # ─── Test runner (no pytest required) ──────────────────────────────────────
