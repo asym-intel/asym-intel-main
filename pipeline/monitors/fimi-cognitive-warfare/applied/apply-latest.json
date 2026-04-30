@@ -1,0 +1,89 @@
+{
+  "_meta": {
+    "schema_version": "aim-apply-v1.0",
+    "monitor_slug": "fimi-cognitive-warfare",
+    "applied_at": "2026-04-30T19:39:09Z",
+    "applier_model": null,
+    "applier_deterministic": true,
+    "cycle_disposition": "null_cycle",
+    "applier_flags": [
+      "interpret_schema_mismatch:fcw-interpret-v1.0!=aim-interpret-v1.0",
+      "compose_schema_mismatch:fcw-compose-v1.0!=aim-compose-v1.0",
+      "interpret_no_claims",
+      "persistent_state_writeback_not_wired"
+    ],
+    "applier_error": false,
+    "applier_error_reason": null
+  },
+  "cycle_id": "fcw-2026-04-30",
+  "methodology_version": "fimi-cognitive-warfare-methodology-2026-Q2",
+  "week_ending": "2026-05-02",
+  "week_ending_source": "interpret._meta.week_ending",
+  "inputs": {
+    "interpret": {
+      "path": "pipeline/monitors/fimi-cognitive-warfare/synthesised/interpret-latest.json",
+      "content_sha1": "ecc58793b6459bee1a31542ab556170d2171e736",
+      "schema_version": "fcw-interpret-v1.0",
+      "claim_count": 0,
+      "null_signal_week": true,
+      "triple_extraction_manifest": {
+        "deterministic_extractions": 0,
+        "llm_fallback_extractions": 0,
+        "llm_fallback_temperature": null,
+        "llm_fallback_timestamp": null
+      }
+    },
+    "review": {
+      "path": "pipeline/monitors/fimi-cognitive-warfare/synthesised/review-latest.json",
+      "content_sha1": "030896305a4a007fd5c5d94f9888107e24d9316a",
+      "schema_version": "aim-review-v1.0",
+      "verdict": "hold-for-review",
+      "verdict_legacy": "REJECT",
+      "verdict_reason": "hard-invariant FAIL: ['R1']",
+      "check_summary": {
+        "PASS": 3,
+        "SKIP": 1,
+        "FAIL": 3
+      },
+      "advisory_note_count": 3,
+      "claim_flag_count": 0
+    },
+    "compose": {
+      "path": "pipeline/monitors/fimi-cognitive-warfare/synthesised/compose-latest.json",
+      "content_sha1": "7b92d0db41e269b8912bd57ea6292cd44ca01dad",
+      "schema_version": "fcw-compose-v1.0",
+      "composed_at": "2026-04-30T19:37:50.455991+00:00",
+      "claim_trace_count": 29,
+      "composer_error": false,
+      "reviewed_by": {
+        "verdict": "hold-for-review",
+        "reviewer_model": "sonar-pro",
+        "reviewed_at": "2026-04-30T19:36:59.612848+00:00",
+        "review_schema_version": "aim-review-v1.0"
+      }
+    }
+  },
+  "patches_applied": [],
+  "patches_rejected": [],
+  "patches_deferred": [],
+  "patches_looped_back": [],
+  "patches_apply_failed": [],
+  "patches_actually_applied": [],
+  "persistent_state_snapshot": null,
+  "publication": {
+    "ready_to_publish": false,
+    "hold_reason": "review_verdict:hold-for-review",
+    "publisher_artefacts": {
+      "weekly_brief_path": "content/monitors/fimi-cognitive-warfare/2026-05-02-weekly-brief.md",
+      "report_latest_path": "static/monitors/fimi-cognitive-warfare/data/report-latest.json"
+    }
+  },
+  "chains_artefact": {
+    "path": "pipeline/monitors/fimi-cognitive-warfare/applied/chains-latest.json",
+    "schema_version": "aim-chains-v1.1",
+    "chain_count": 0
+  },
+  "provenance": {
+    "applier_commit_sha": null
+  }
+}
