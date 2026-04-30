@@ -2,12 +2,18 @@
 """
 ops/produce_engine_status.py
 
-Reads the freshly-written `static/ops/pipeline-status.json` (the public
-roll-up produced by ops/update-pipeline-status.py earlier in this
-workflow) and produces a single KV entry consumed by the admin.advennt.io
-EngineBanner via /api/engine/status.
+Reads the freshly-written public roll-up `static/ops/pipeline-status.json`
+(produced by ops/update-pipeline-status.py earlier in this workflow) and
+writes a single KV entry consumed by the admin.advennt.io EngineBanner via
+/api/engine/status.
 
 Sprint H Item 2 — engine status banner data wiring (AD-2026-04-30-BG).
+Sprint BH disposition — engine-classifier convergence (AD-2026-04-30-BP):
+this script is now a **thin reader** of the canonical classifier's output;
+it does not re-classify. The single canonical engine classifier is
+`ops/update-pipeline-status.py:_classify_monitor` (lines 892–972), whose
+output is exposed in the public roll-up (schema v4.0+) under `engine.status`
+and per-monitor `monitors[].status`.
 
 Output shape — must match `EngineStatus` (less the `cached`/`fetched_at`/`source`
 runtime fields) declared in:
@@ -21,17 +27,8 @@ runtime fields) declared in:
     "green_count": <int>
   }
 
-Classifier (mirrors `classifyMonitor` in status.ts):
-  red    if any station.last_conclusion == 'failure'
-  amber  else if any station.last_conclusion == 'cancelled'
-  green  otherwise
-
-Engine roll-up:
-  red    if red_count > 0
-  amber  else if amber_count > 0
-  green  otherwise
-
-Skipped top-level keys (same as consumer): _meta, _verification, _incidents, _build.
+Engine roll-up: read directly from `engine.status` in the public roll-up.
+Per-monitor counts: tally `monitors[].status` ∈ {red, amber, green}.
 
 Writes to KV via Cloudflare API:
   PUT /accounts/{ACCOUNT_ID}/storage/kv/namespaces/{KV_ID}/values/engine:status:latest
@@ -42,7 +39,7 @@ Environment:
   CF_ACCOUNT_ID  — Cloudflare account id (passed by workflow)
   KV_NAMESPACE_ID — KV namespace id for ADMIN_PACKETS on advennt-admin Pages project
                     (passed by workflow)
-  STATUS_PATH     — path to the freshly-written pipeline-status.json
+  STATUS_PATH     — path to the freshly-written public roll-up
                     (default: static/ops/pipeline-status.json)
 """
 
@@ -52,54 +49,45 @@ import sys
 import urllib.request
 import urllib.error
 
-SKIP_KEYS = {"_meta", "_verification", "_incidents", "_build"}
-
-
-def classify_monitor(stations: dict) -> str:
-    has_failure = False
-    has_cancelled = False
-    for station in stations.values():
-        if not isinstance(station, dict):
-            continue
-        c = station.get("last_conclusion")
-        if c == "failure":
-            has_failure = True
-        elif c == "cancelled":
-            has_cancelled = True
-    if has_failure:
-        return "red"
-    if has_cancelled:
-        return "amber"
-    return "green"
-
 
 def derive_status(data: dict) -> dict:
+    """Read engine status from the public roll-up.
+
+    The public roll-up (schema v4.0+) exposes the canonical classifier's
+    output directly. This function is a thin reader, not a classifier
+    (per AD-2026-04-30-BP: convergence on `update-pipeline-status.py:_classify_monitor`).
+
+    Expected input shape:
+      {
+        "schema_version": "...",
+        "generated_at": "...",
+        "engine":   {"status": "red"|"amber"|"green", "last_updated": ISO8601|null},
+        "monitors": [{"slug": "...", "status": "red"|"amber"|"green", ...}, ...],
+        ...
+      }
+    """
+    engine_block = data.get("engine") or {}
+    if not isinstance(engine_block, dict):
+        engine_block = {}
+    engine = engine_block.get("status") or "unknown"
+    last_updated = engine_block.get("last_updated")
+
     red = amber = green = 0
-    for key, value in data.items():
-        if key in SKIP_KEYS:
-            continue
-        if not isinstance(value, dict):
-            continue
-        stations = value.get("stations")
-        if not isinstance(stations, dict):
-            continue
-        colour = classify_monitor(stations)
-        if colour == "red":
-            red += 1
-        elif colour == "amber":
-            amber += 1
-        else:
-            green += 1
-
-    if red > 0:
-        engine = "red"
-    elif amber > 0:
-        engine = "amber"
-    else:
-        engine = "green"
-
-    meta = data.get("_meta") or {}
-    last_updated = meta.get("generated") if isinstance(meta, dict) else None
+    monitors = data.get("monitors") or []
+    if isinstance(monitors, list):
+        for m in monitors:
+            if not isinstance(m, dict):
+                continue
+            status = m.get("status")
+            if status == "red":
+                red += 1
+            elif status == "amber":
+                amber += 1
+            elif status == "green":
+                green += 1
+            # Anything else (e.g. FIM-non-canonical states) is intentionally
+            # not counted into the green/amber/red totals; the canonical
+            # `engine.status` already accounts for them in its roll-up.
 
     return {
         "engine": engine,
