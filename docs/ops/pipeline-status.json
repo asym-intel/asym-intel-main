@@ -1,6 +1,6 @@
 {
   "schema_version": "4.0",
-  "generated_at": "2026-04-30T15:57:26Z",
+  "generated_at": "2026-04-30T16:11:50Z",
   "engine": {
     "status": "red",
     "last_updated": "2026-04-29T16:03:30Z"
@@ -50,9 +50,10 @@
   "_trigger_health": {
     "schema_version": "1.0",
     "window_days": 7,
-    "computed_at": "2026-04-30T15:57:11Z",
+    "computed_at": "2026-04-30T16:11:31Z",
     "tolerance": {
-      "late_minutes": 5,
+      "late_minutes_cf_dispatcher": 5,
+      "late_minutes_github_native": 60,
       "early_minutes": 2
     },
     "manifest_loaded": true,
@@ -536,8 +537,17 @@
       {
         "workflow": "update-pipeline-status.yml",
         "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T15:56:38Z",
+        "started_at": "2026-04-30T16:10:48Z",
         "conclusion": "in_progress",
+        "event": "workflow_dispatch",
+        "run_number": 76,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25176234962"
+      },
+      {
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-04-30T15:56:38Z",
+        "conclusion": "success",
         "event": "workflow_dispatch",
         "run_number": 75,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25175557057"
@@ -784,6 +794,15 @@
         "event": "schedule",
         "run_number": 48,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/24864257078"
+      },
+      {
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-04-23T15:46:44Z",
+        "conclusion": "success",
+        "event": "schedule",
+        "run_number": 47,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/24844726784"
       },
       {
         "workflow": "agm-weekly-research.yml",
@@ -1139,15 +1158,6 @@
     ],
     "missed_fires": [
       {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 23 * * *",
-        "expected_at": "2026-04-23T23:00:00Z",
-        "monitor": null
-      },
-      {
         "trigger_id": "cf:0,30 8 * * FRI:08:00:agm-weekly-research.yml",
         "source_kind": "cf_dispatcher",
         "workflow": "agm-weekly-research.yml",
@@ -1181,15 +1191,6 @@
         "repo": "asym-intel/asym-intel-main",
         "cron": "0 14 * * *",
         "expected_at": "2026-04-24T14:00:00Z",
-        "monitor": null
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 23 * * *",
-        "expected_at": "2026-04-24T23:00:00Z",
         "monitor": null
       },
       {
@@ -1229,24 +1230,6 @@
         "monitor": "erm"
       },
       {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 14 * * *",
-        "expected_at": "2026-04-25T14:00:00Z",
-        "monitor": null
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 23 * * *",
-        "expected_at": "2026-04-25T23:00:00Z",
-        "monitor": null
-      },
-      {
         "trigger_id": "cf:0,30 8 * * SUN:08:00:scem-weekly-research.yml",
         "source_kind": "cf_dispatcher",
         "workflow": "scem-weekly-research.yml",
@@ -1281,33 +1264,6 @@
         "cron": "30 9 * * SUN",
         "expected_at": "2026-04-26T09:30:00Z",
         "monitor": "scem"
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 14 * * *",
-        "expected_at": "2026-04-26T14:00:00Z",
-        "monitor": null
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:cross-monitor-synthesiser.yml:30 18 * * 0:18:30",
-        "source_kind": "github_native",
-        "workflow": "cross-monitor-synthesiser.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "30 18 * * 0",
-        "expected_at": "2026-04-26T18:30:00Z",
-        "monitor": null
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 23 * * *",
-        "expected_at": "2026-04-26T23:00:00Z",
-        "monitor": null
       },
       {
         "trigger_id": "gh:asym-intel/asym-intel-main:engine-runtime-audit.yml:0 6 * * 1:06:00",
@@ -1364,15 +1320,6 @@
         "monitor": null
       },
       {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 23 * * *",
-        "expected_at": "2026-04-27T23:00:00Z",
-        "monitor": null
-      },
-      {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
         "source_kind": "github_native",
         "workflow": "update-pipeline-status.yml",
@@ -1400,15 +1347,6 @@
         "monitor": null
       },
       {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 23 * * *",
-        "expected_at": "2026-04-28T23:00:00Z",
-        "monitor": null
-      },
-      {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
         "source_kind": "github_native",
         "workflow": "update-pipeline-status.yml",
@@ -1433,15 +1371,6 @@
         "repo": "asym-intel/asym-intel-main",
         "cron": "0 14 * * *",
         "expected_at": "2026-04-29T14:00:00Z",
-        "monitor": null
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 23 * * *",
-        "expected_at": "2026-04-29T23:00:00Z",
         "monitor": null
       },
       {
@@ -1479,17 +1408,8 @@
         "cron": "30 9 * * THU",
         "expected_at": "2026-04-30T09:30:00Z",
         "monitor": "fcw"
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 14 * * *",
-        "expected_at": "2026-04-30T14:00:00Z",
-        "monitor": null
       }
     ],
-    "last_fire_was_on_time": false
+    "last_fire_was_on_time": true
   }
 }
