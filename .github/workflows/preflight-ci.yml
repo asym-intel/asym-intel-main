@@ -46,7 +46,10 @@ jobs:
           python-version: "3.12"
 
       - name: Install preflight test deps
-        run: pip install pytest
+        # Sprint BH BRIEF #2 (AD-2026-04-30-BJ): pyyaml is needed for the
+        # ops/_pipeline_triggers_loader.py helper that the producer imports.
+        # Without it the test runner exercises only the degraded code path.
+        run: pip install pytest pyyaml
 
       - name: Run pipeline preflight
         run: python3 tools/preflight.py --verbose
