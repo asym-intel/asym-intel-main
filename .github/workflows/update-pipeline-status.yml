@@ -62,12 +62,15 @@ jobs:
         # project's ADMIN_PACKETS namespace. Consumed by /api/engine/status
         # on admin.advennt.io (EngineBanner, every page).
         # AD: asym-intel/asym-intel-internal docs/sprints/2026-04-30-H/AD-2026-04-30-BG.md
-        if: ${{ hashFiles('pipeline-status.json') != '' }}
+        # AD-2026-04-30-BP: STATUS_PATH points at the public roll-up (schema v4.0+)
+        # so produce_engine_status.py reads `engine.status` and `monitors[].status`
+        # from the canonical classifier's output (no in-script re-classification).
+        if: ${{ hashFiles('static/ops/pipeline-status.json') != '' }}
         env:
           CF_API_TOKEN:    ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
           CF_ACCOUNT_ID:   d5ccaabd2ba0bc8fe65d44a98e43a8f8
           KV_NAMESPACE_ID: 6e59bb13ba75479690e94bf42e70e185
-          STATUS_PATH:     pipeline-status.json
+          STATUS_PATH:     static/ops/pipeline-status.json
         run: python3 ops/produce_engine_status.py
 
       - name: Upload artifacts
