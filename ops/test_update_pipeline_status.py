@@ -9,6 +9,12 @@ or:
 Sprint AZ BRIEF #1: assert that the producer's derive_public_rollup() function
 correctly maps full-fidelity internal status to schema v3.0 simplified output,
 and that the per-monitor + engine roll-up colour rules behave as specified.
+
+Sprint BH BRIEF #2 amendment: schema bumped 3.0 → 4.0; public rollup now
+propagates the optional `_trigger_health` block from internal full-fidelity
+status. New tests verify (a) v4.0 shape, (b) `_trigger_health` round-trip,
+(c) other internal-only keys (`_verification`, `_incidents`, `_meta`) remain
+stripped from the public surface.
 """
 import importlib.util
 import sys
@@ -83,9 +89,11 @@ def _full_fidelity_status(monitor_overrides=None):
 
 # ─── Schema-shape tests ───────────────────────────────────────────────────
 
-def test_schema_v3_shape():
+def test_schema_v4_shape():
+    """Schema v4.0 (Sprint BH BRIEF #2): adds optional `_trigger_health` block
+    propagated from internal full-fidelity status. Other shape rules unchanged."""
     out = derive_public_rollup(_full_fidelity_status())
-    assert out["schema_version"] == "3.0"
+    assert out["schema_version"] == "4.0"
     assert "generated_at" in out
     assert "engine" in out and "status" in out["engine"] and "last_updated" in out["engine"]
     assert "monitors" in out and isinstance(out["monitors"], list)
@@ -97,7 +105,52 @@ def test_schema_v3_shape():
         assert m["status"] in ("green", "amber", "red")
 
 
-def test_schema_v3_no_methodology_keys():
+def test_schema_v4_trigger_health_propagation():
+    """Sprint BH BRIEF #2 acceptance #3: when internal status has a `_trigger_health`
+    block, derive_public_rollup() must propagate it to the public rollup unchanged.
+    When absent, the key must also be absent on the public side (no synthetic injection)."""
+    # Case 1: internal has _trigger_health → public must have it
+    internal = _full_fidelity_status()
+    internal["_trigger_health"] = {
+        "schema_version": "1.0",
+        "window_days": 7,
+        "manifest_loaded": True,
+        "expected_fires": 43,
+        "matched_fires": 41,
+        "missed_fires": [
+            {"trigger_id": "github_native::update-pipeline-status.yml",
+             "expected_at": "2026-04-29T08:00:00Z"},
+        ],
+        "last_fire_was_on_time": True,
+    }
+    out = derive_public_rollup(internal)
+    assert "_trigger_health" in out, "_trigger_health must propagate from internal to public"
+    assert out["_trigger_health"] == internal["_trigger_health"], \
+        "_trigger_health must propagate unchanged (no field stripping)"
+    # Case 2: internal lacks _trigger_health (degraded mode) → public must also lack it
+    internal_no_health = _full_fidelity_status()
+    out_no_health = derive_public_rollup(internal_no_health)
+    assert "_trigger_health" not in out_no_health, \
+        "public rollup must not synthesise _trigger_health when internal omits it"
+
+
+def test_schema_v4_internal_only_keys_excluded():
+    """Public rollup must keep _trigger_health (v4.0) but exclude other internal-only
+    keys: _meta, _verification, _incidents stay internal-only by construction."""
+    internal = _full_fidelity_status()
+    internal["_trigger_health"] = {"schema_version": "1.0", "manifest_loaded": True}
+    internal["_verification"] = {"checked_at": _iso(NOW)}
+    internal["_incidents"] = [{"id": "INC-001"}]
+    out = derive_public_rollup(internal)
+    assert "_trigger_health" in out, "_trigger_health must propagate (v4.0)"
+    assert "_verification" not in out, "_verification must remain internal-only"
+    assert "_incidents" not in out, "_incidents must remain internal-only"
+    # _meta in input is engine metadata; output uses generated_at — neither should
+    # leak the internal _meta block.
+    assert "_meta" not in out, "_meta must remain internal-only"
+
+
+def test_schema_v4_no_methodology_keys():
     """The output must not contain any per-station, model, or stage-name keys."""
     out = derive_public_rollup(_full_fidelity_status())
     out_text = str(out)
