@@ -57,7 +57,7 @@ jobs:
           TRIGGER_WORKFLOW: ${{ github.event.workflow_run.name || '' }}
           MONITOR_SLUG: ${{ github.event.inputs.monitor_slug || '' }}
           CF_ZONE_ID: "cc419b7519eba04ef0dc6a7b851930c7"
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_API_TOKEN: ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
           GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
           GH_REPO: ${{ github.repository }}
         run: python3 ops/engine_smoke_test.py
