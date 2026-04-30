@@ -1,0 +1,90 @@
+{
+  "_meta": {
+    "schema_version": "aim-apply-v1.0",
+    "monitor_slug": "conflict-escalation",
+    "applied_at": "2026-04-30T19:45:05Z",
+    "applier_model": null,
+    "applier_deterministic": true,
+    "cycle_disposition": "material_change",
+    "applier_flags": [
+      "interpret_schema_mismatch:scem-interpret-v1.0!=aim-interpret-v1.0",
+      "compose_schema_mismatch:scem-compose-v1.0!=aim-compose-v1.0",
+      "interpret_no_claims",
+      "persistent_state_writeback_not_wired"
+    ],
+    "applier_error": false,
+    "applier_error_reason": null
+  },
+  "cycle_id": "scem-2026-04-30",
+  "methodology_version": "conflict-escalation-methodology-2026-Q2",
+  "week_ending": "2026-05-02",
+  "week_ending_source": "interpret._meta.week_ending",
+  "inputs": {
+    "interpret": {
+      "path": "pipeline/monitors/conflict-escalation/synthesised/interpret-latest.json",
+      "content_sha1": "1adbc5e1de47de3aff3fba0ceca5d639081e1832",
+      "schema_version": "scem-interpret-v1.0",
+      "claim_count": 0,
+      "null_signal_week": false,
+      "triple_extraction_manifest": {
+        "deterministic_extractions": 24,
+        "llm_fallback_extractions": 12,
+        "llm_fallback_model": "perplexity",
+        "llm_fallback_temperature": 0.1,
+        "llm_fallback_timestamp": "2026-04-30T19:42:26Z"
+      }
+    },
+    "review": {
+      "path": "pipeline/monitors/conflict-escalation/synthesised/review-latest.json",
+      "content_sha1": "9baf1c9589f8c231b20d1e4a90d3cfcc6fbde2b0",
+      "schema_version": "aim-review-v1.0",
+      "verdict": "hold-for-review",
+      "verdict_legacy": "REJECT",
+      "verdict_reason": "hard-invariant FAIL: ['R1']",
+      "check_summary": {
+        "PASS": 3,
+        "SKIP": 1,
+        "FAIL": 3
+      },
+      "advisory_note_count": 3,
+      "claim_flag_count": 0
+    },
+    "compose": {
+      "path": "pipeline/monitors/conflict-escalation/synthesised/compose-latest.json",
+      "content_sha1": "33b4d15d744b44dbae68f56c2c6bafd82cba6d28",
+      "schema_version": "scem-compose-v1.0",
+      "composed_at": "2026-04-30T19:44:13.375671+00:00",
+      "claim_trace_count": 19,
+      "composer_error": false,
+      "reviewed_by": {
+        "verdict": "hold-for-review",
+        "reviewer_model": "sonar-pro",
+        "reviewed_at": "2026-04-30T19:43:14.298955+00:00",
+        "review_schema_version": "aim-review-v1.0"
+      }
+    }
+  },
+  "patches_applied": [],
+  "patches_rejected": [],
+  "patches_deferred": [],
+  "patches_looped_back": [],
+  "patches_apply_failed": [],
+  "patches_actually_applied": [],
+  "persistent_state_snapshot": null,
+  "publication": {
+    "ready_to_publish": false,
+    "hold_reason": "review_verdict:hold-for-review",
+    "publisher_artefacts": {
+      "weekly_brief_path": "content/monitors/conflict-escalation/2026-05-02-weekly-brief.md",
+      "report_latest_path": "static/monitors/conflict-escalation/data/report-latest.json"
+    }
+  },
+  "chains_artefact": {
+    "path": "pipeline/monitors/conflict-escalation/applied/chains-latest.json",
+    "schema_version": "aim-chains-v1.1",
+    "chain_count": 0
+  },
+  "provenance": {
+    "applier_commit_sha": null
+  }
+}
