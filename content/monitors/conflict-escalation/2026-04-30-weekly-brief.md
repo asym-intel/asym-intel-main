@@ -1,38 +1,12 @@
-# Strategic Conflict & Escalation Monitor — Issue 9
-
-**W/E 30 April 2026** | Published 2026-04-30T18:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**JNIM-Tuareg forces strike Mali capital Bamako killing Defense Minister in major Sahel escalation**
-
-Confidence: N/A
-Actor: N/A
-Source: https://www.aljazeera.com/news/2026/4/26/mali-rattled-by-ongoing-armed-attacks-what-to-know
-
-## Key Judgments
-
-1. **US-Israel-Iran episodic I2 spike risks regional cascade via Houthi trade chokepoint**
-   - Confidence: Assessed
-   - Trajectory: Escalating
-
-2. **Sudan I6 under-covered surge from systemic collapse**
-   - Confidence: High
-   - Trajectory: Stable
-
-3. **Gaza I6 habituation risk despite ceasefire claims**
-   - Confidence: Assessed
-   - Trajectory: Stable
-
-## Weekly Brief
+title: "Strategic Conflict & Escalation Monitor — W/E 30 April 2026"
+date: 2026-04-30T18:00:00Z
+summary: "JNIM-Tuareg forces strike Mali capital Bamako killing Defense Minister in major Sahel escalation"
+draft: false
+monitor: "conflict-escalation"
+brief_sources:
+  - url: "https://www.aljazeera.com/news/2026/4/26/mali-rattled-by-ongoing-armed-attacks-what-to-know"
+---
 
 ## Lead Signal
 
@@ -57,38 +31,3 @@ This week Sahel escalation links to FCW information warfare monitor through JNIM
 ## Outlook
 
 Next week monitor Russian Africa Corps response to JNIM expansion southwards and potential JNIM-FLA solidification, which could further elevate Sahel to I4 intensity. Watch Ukraine theatre for Ukrainian air defense adaptations post-Dnipro barrage and any Russian follow-on strikes. Gaps in arms control and other modules suggest stability unless doctrine shifts or treaty events emerge. Material change hinges on confirmation of Kidal control durability and Bamako aftermath.
-
-## Cross-Monitor Flags
-
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (European Geopolitical & Hybrid Threat Monitor) — Active
-- **** (Global Environmental Risks & Planetary Boundaries Monitor) — Active
-- **** (Macro Monitor) — Active
-- **** (Macro Monitor) — Active
-- **** (European Geopolitical & Hybrid Threat Monitor) — Active
-- **** (Global Environmental Risks & Planetary Boundaries Monitor) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **Sudan and Gaza food systems collapse with high displacement** (environmental-risks) — Active — verified (adjacent Issue 9)
-- **Multiple F flags active Russia-Ukraine Gaza DRC Israel-Lebanon US-Iran** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
-- **Hormuz closure I4 Crisis US-Israel-Iran; coltan coercion DRC** (macro-monitor) — Active — verified (adjacent Issue 10)
-- **I6 Crisis displacement Sudan Gaza Lebanon** (environmental-risks) — Active — verified (adjacent Issue 9)
-- **Hormuz closure I4=5 DRC coltan I4=3** (macro-monitor) — Active — verified (adjacent Issue 10)
-- **Sudan I6=5 Lebanon I6=5 Gaza I6=5** (environmental-risks) — Active — verified (adjacent Issue 9)
-- **F3/F4 active Iran Russia Gaza** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
-- **Ukraine I5 Myanmar fragmentation** (wdm) — Active — NEW
-- **F3/F4 in Iran I2/I5; FIMI strike signals** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 5)
-- **Houthi Red Sea threats risk trade disruption** (macro-monitor) — Active — verified (adjacent Issue 10)
-- **Sudan/Gaza I6 displacement surges** (environmental-risks) — Active — verified (adjacent Issue 9)
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/conflict-escalation/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/conflict-escalation/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/conflict-escalation/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/conflict-escalation/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/conflict-escalation/methodology.html>
