@@ -3,6 +3,8 @@
 {{/*
   Monitors section index — /monitors/
   Data source: canonical monitor-registry.json (ENGINE-RULES §17).
+  Card classes: monitor-directory / monitor-card-v2 (defined in main.css).
+  FIM (paused) is excluded from registry; this template renders all registry entries.
 */}}
 
 {{ $registry := resources.Get "monitors/monitor-registry.json" | transform.Unmarshal }}
@@ -13,19 +15,26 @@
     <p>Weekly intelligence across {{ len $registry.monitors }} thematic domains. Each monitor runs an autonomous collector / reasoner / synthesiser / publisher pipeline and publishes a dated brief on its scheduled day.</p>
   </header>
 
-  <div class="monitors-grid">
+  <div class="monitor-directory">
     {{ range $registry.monitors }}
-    <article class="monitor-card" data-monitor="{{ .abbr }}" style="--card-accent: {{ .accent }}">
-      <a href="{{ .url }}" class="monitor-card__link" aria-label="Open {{ .name }}">
-        <div class="monitor-card__header">
-          <img class="monitor-card__icon" src="{{ .svg_url }}" alt="" width="32" height="32" aria-hidden="true">
-          <div>
-            <h2 class="monitor-card__title">{{ .short_name }}</h2>
-            <p class="monitor-card__meta">{{ .abbr }} · {{ .publish_day }} {{ .publish_time_utc }} UTC</p>
-          </div>
+    <article class="monitor-card-v2" data-monitor="{{ .abbr }}" style="--card-accent: {{ .accent }}">
+      <div class="monitor-card-v2__top">
+        <div class="monitor-card-v2__logo">
+          <img src="{{ .svg_url }}" alt="" width="28" height="28" aria-hidden="true">
         </div>
-        <p class="monitor-card__desc">{{ .description }}</p>
-      </a>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:var(--space-1)">
+          <span class="monitor-card-v2__abbr" style="color:{{ .accent }}">{{ .abbr }}</span>
+          <span class="monitor-card-v2__day">{{ .publish_day }}</span>
+        </div>
+      </div>
+      <div>
+        <h2 class="monitor-card-v2__title"><a href="{{ .url }}">{{ .short_name }}</a></h2>
+        <p class="monitor-card-v2__description">{{ .description }}</p>
+      </div>
+      <div class="monitor-card-v2__actions">
+        <a class="monitor-card-v2__btn monitor-card-v2__btn--primary" href="{{ .url }}">Latest issue</a>
+        <a class="monitor-card-v2__btn monitor-card-v2__btn--secondary" href="{{ .url }}dashboard.html">Dashboard</a>
+      </div>
     </article>
     {{ end }}
   </div>
