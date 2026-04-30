@@ -259,6 +259,25 @@ def _expand_cf_dispatcher(manifest, window_start, window_end):
                 }
 
 
+def _normalise_repo(repo):
+    """Normalise a manifest `repo:` value to fully-qualified `{owner}/{repo}` form.
+
+    The manifest historically uses bare names like `"asym-intel-main"` for
+    github_native entries (which are unambiguous in human reading). The
+    GitHub API requires `{owner}/{repo}`; without normalisation the actual-runs
+    fetch returns an empty list and every expected fire is incorrectly logged
+    as missed. Sprint BH BRIEF #2 acceptance #5 fix-forward.
+    """
+    if not repo:
+        return MAIN_REPO
+    if "/" in repo:
+        return repo
+    # Bare repo name — prepend the canonical owner. asym-intel/* is the only
+    # owner the manifest references; if a future repo lives under a different
+    # owner the manifest entry must already use fully-qualified form.
+    return f"asym-intel/{repo}"
+
+
 def _expand_github_native(manifest, window_start, window_end):
     """Yield ExpectedFire records from github_native_schedules[]."""
     natives = (manifest or {}).get("github_native_schedules") or []
@@ -266,7 +285,7 @@ def _expand_github_native(manifest, window_start, window_end):
         if entry.get("state") == "disabled_manually":
             continue
         wf = entry.get("workflow") or ""
-        repo = entry.get("repo") or MAIN_REPO
+        repo = _normalise_repo(entry.get("repo"))
         # Each entry has either `cron:` (single) or `crons:` (list).
         crons = entry.get("crons") or ([entry["cron"]] if entry.get("cron") else [])
         for cron_str in crons:
@@ -469,6 +488,46 @@ def _self_test():
     _check("Quartz Sun (0) -> Python Sun (6)", _QUARTZ_TO_PY[0] == 6)
     _check("Quartz Mon (1) -> Python Mon (0)", _QUARTZ_TO_PY[1] == 0)
     _check("Quartz Sat (6) -> Python Sat (5)", _QUARTZ_TO_PY[6] == 5)
+
+    # Test 9: repo normalisation — BRIEF #2 acceptance #5 fix-forward.
+    # The canonical manifest uses bare names like 'asym-intel-main' for
+    # github_native entries; the actual-runs fetch needs `{owner}/{repo}`.
+    _check(
+        "_normalise_repo bare 'asym-intel-main' -> 'asym-intel/asym-intel-main'",
+        _normalise_repo("asym-intel-main") == "asym-intel/asym-intel-main",
+        detail=f"got {_normalise_repo('asym-intel-main')}",
+    )
+    _check(
+        "_normalise_repo passes already-qualified form unchanged",
+        _normalise_repo("asym-intel/asym-intel-main") == "asym-intel/asym-intel-main",
+    )
+    _check(
+        "_normalise_repo None -> MAIN_REPO",
+        _normalise_repo(None) == MAIN_REPO,
+    )
+    _check(
+        "_normalise_repo empty string -> MAIN_REPO",
+        _normalise_repo("") == MAIN_REPO,
+    )
+
+    # Test 10: github_native expand normalises bare-repo entries (the bug
+    # that caused 23 false-missed fires in the first post-merge run).
+    synth_bare = {
+        "github_native_schedules": [
+            {
+                "workflow": "update-pipeline-status.yml",
+                "repo": "asym-intel-main",  # bare — must be normalised
+                "cron": "0 8 * * *",
+            },
+        ],
+    }
+    bare_fires = iter_expected_fires(synth_bare, ws, we)
+    _check(
+        "github_native bare-repo entry emits fires with qualified repo",
+        len(bare_fires) == 7  # 7 days × 1 cron
+        and all(f["repo"] == "asym-intel/asym-intel-main" for f in bare_fires),
+        detail=f"got {[(f['repo'], f['expected_at']) for f in bare_fires]}",
+    )
 
     return passed, failed
 
