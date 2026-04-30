@@ -9,7 +9,7 @@ generates fresh status JSON in two surfaces:
   * INTERNAL  — full-fidelity per-station status for operators / Computer.
                 Committed to asym-intel-internal:ops/pipeline-status.json.
   * PUBLIC    — simplified per-monitor green/amber/red roll-up + engine
-                roll-up. Schema v3.0. Written to
+                roll-up + `_trigger_health` block. Schema v4.0. Written to
                 asym-intel-main:static/ops/pipeline-status.json so the
                 public dashboard can fetch it at runtime.
 
@@ -23,6 +23,10 @@ Environment variables required:
 Sprint AZ BRIEF #1 (AD-2026-04-28-AZ): split internal full-fidelity from
 public simplified surface; add derive_public_rollup() helper; rename Phase B
 stations from legacy -er suffixes to canon names per PIPELINE-CANONICAL v1.2.
+
+Sprint BH BH.2 (AD-2026-04-30-BJ): wire pipeline-triggers.yml into producer
+as the trigger-fire comparator; emit `_trigger_health` block; bump public
+schema v3.0 -> v4.0.
 """
 
 import json
@@ -39,6 +43,20 @@ try:
     from incident_log import log_incident
 except Exception:
     def log_incident(**kw): pass
+
+# Trigger-fire comparator (Sprint BH BH.2): read manifest, enumerate expected
+# fires, diff against actual GA run history. Helper module is co-located in
+# ops/ so it imports as a sibling. Graceful degradation: if PyYAML or the
+# helper is unavailable, _trigger_health degrades to manifest_loaded=false
+# and consumers can still parse the block.
+try:
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+    from _pipeline_triggers_loader import load_manifest, iter_expected_fires
+    _TRIGGER_LOADER_AVAILABLE = True
+except ImportError as _exc:
+    print(f"  WARNING: _pipeline_triggers_loader unavailable: {_exc}",
+          file=sys.stderr)
+    _TRIGGER_LOADER_AVAILABLE = False
 
 # ─── Configuration ──────────────────────────────────────────────
 
@@ -510,6 +528,204 @@ def extract_incidents():
     return incidents
 
 
+# ─── Trigger-fire comparator (Sprint BH BH.2) ───────────────────
+#
+# Reads asym-intel-internal:ops/pipeline-triggers.yml via the helper, enumerates
+# every expected fire in a sliding window, queries GA for actual runs of each
+# named workflow, and emits the `_trigger_health` block consumed by the ops
+# admin pipeline monitor + downstream FE-readiness gate Check F.
+#
+# Authority: AD-2026-04-30-BH §BH.2 (BH.2 BRIEF). Schema v4.0.
+
+# Match tolerance: actual.started_at must be within
+#   [expected_at - TOL_LATE, expected_at + TOL_EARLY] inclusive
+# to count as a hit. CF Worker dispatch latency is typically < 60s; GA queue
+# latency on first scheduled-fire-of-the-day can stretch to ~3-4 minutes
+# under load. +5min late / -2min early is the BRIEF default.
+TRIGGER_TOLERANCE_LATE = timedelta(minutes=5)
+TRIGGER_TOLERANCE_EARLY = timedelta(minutes=2)
+
+# Internal schema version for the _trigger_health block itself. Independent
+# of derive_public_rollup() schema_version (which is the outer surface
+# version). This nests inside that surface.
+TRIGGER_HEALTH_SCHEMA = "1.0"
+
+
+def _trigger_window_actual_runs(workflow_file, repo, window_start, window_end,
+                                 per_page=50):
+    """Fetch recent runs for `workflow_file` in `repo`, filtered to runs whose
+    started_at falls in [window_start - TOL_LATE, window_end + TOL_LATE].
+
+    Returns a list of normalised dicts. Reuses gh_api() (auto-paginates a
+    single page; per_page=50 is sufficient for any 7-day window since the
+    densest workflow fires 3×/day = 21 expected fires).
+    """
+    endpoint = f"/repos/{repo}/actions/workflows/{workflow_file}/runs?per_page={per_page}"
+    raw = gh_api(endpoint)
+    if not raw:
+        return []
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
+    out = []
+    for r in data.get("workflow_runs") or []:
+        # Prefer run_started_at (when the runner picked up the job) since
+        # that's closer to "fire time" than created_at (queue time). Fall
+        # back to created_at if run_started_at is missing.
+        started_raw = r.get("run_started_at") or r.get("created_at")
+        if not started_raw:
+            continue
+        try:
+            started = datetime.fromisoformat(
+                started_raw.replace("Z", "+00:00")
+            )
+        except (ValueError, TypeError):
+            continue
+        if started < window_start - TRIGGER_TOLERANCE_LATE:
+            # GA returns runs newest-first; once past the window, stop walking.
+            break
+        if started > window_end + TRIGGER_TOLERANCE_LATE:
+            continue
+        out.append({
+            "workflow": workflow_file,
+            "repo": repo,
+            "started_at": started.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "_started_dt": started,  # internal use; stripped before serialising
+            "conclusion": r.get("conclusion") or r.get("status") or "unknown",
+            "event": r.get("event"),
+            "run_number": r.get("run_number"),
+            "html_url": r.get("html_url"),
+        })
+    return out
+
+
+def _match_expected_to_actual(expected, actual_runs):
+    """Return the first actual_run within tolerance of `expected`, or None."""
+    try:
+        expected_dt = datetime.fromisoformat(
+            expected["expected_at"].replace("Z", "+00:00")
+        )
+    except (ValueError, TypeError, KeyError):
+        return None
+    lo = expected_dt - TRIGGER_TOLERANCE_LATE
+    hi = expected_dt + TRIGGER_TOLERANCE_EARLY
+    for run in actual_runs:
+        if lo <= run["_started_dt"] <= hi:
+            return run
+    return None
+
+
+def compute_trigger_health(window_days=7, now=None):
+    """Compute the `_trigger_health` block by diffing manifest expected fires
+    against actual GitHub Actions run history.
+
+    Returns a dict with keys:
+      schema_version, window_days, computed_at, tolerance,
+      manifest_loaded, manifest_version,
+      expected_fires, actual_fires, missed_fires, last_fire_was_on_time.
+
+    On loader unavailability or manifest fetch failure, returns a degraded
+    shape with `manifest_loaded: false` and empty arrays so consumers can
+    still parse the block (degrade-gracefully principle — same as the
+    log_incident fallback at module load).
+    """
+    now = now or datetime.now(timezone.utc)
+    window_end = now
+    window_start = now - timedelta(days=window_days)
+
+    base = {
+        "schema_version": TRIGGER_HEALTH_SCHEMA,
+        "window_days": window_days,
+        "computed_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "tolerance": {
+            "late_minutes": int(TRIGGER_TOLERANCE_LATE.total_seconds() // 60),
+            "early_minutes": int(TRIGGER_TOLERANCE_EARLY.total_seconds() // 60),
+        },
+        "manifest_loaded": False,
+        "manifest_version": None,
+        "expected_fires": [],
+        "actual_fires": [],
+        "missed_fires": [],
+        "last_fire_was_on_time": None,
+    }
+
+    if not _TRIGGER_LOADER_AVAILABLE:
+        return base
+
+    manifest = load_manifest()
+    if not manifest:
+        return base
+
+    base["manifest_loaded"] = True
+    base["manifest_version"] = manifest.get("manifest_version")
+
+    expected = iter_expected_fires(manifest, window_start, window_end)
+    base["expected_fires"] = expected
+    if not expected:
+        return base
+
+    # Fetch actual runs for every distinct (repo, workflow) in expected.
+    by_wf = {}
+    for fire in expected:
+        key = (fire["repo"], fire["workflow"])
+        by_wf.setdefault(key, []).append(fire)
+
+    all_actual = []
+    for (repo, wf), _ in by_wf.items():
+        all_actual.extend(
+            _trigger_window_actual_runs(wf, repo, window_start, window_end)
+        )
+
+    # Match each expected to an actual within tolerance.
+    missed = []
+    for fire in expected:
+        actual_for_wf = [
+            r for r in all_actual
+            if r["repo"] == fire["repo"] and r["workflow"] == fire["workflow"]
+        ]
+        match = _match_expected_to_actual(fire, actual_for_wf)
+        if match is None:
+            missed.append({
+                "trigger_id": fire["trigger_id"],
+                "source_kind": fire["source_kind"],
+                "workflow": fire["workflow"],
+                "repo": fire["repo"],
+                "cron": fire["cron"],
+                "expected_at": fire["expected_at"],
+                "monitor": fire.get("monitor"),
+            })
+
+    base["missed_fires"] = missed
+
+    # Strip internal _started_dt before serialising.
+    base["actual_fires"] = [
+        {k: v for k, v in r.items() if not k.startswith("_")}
+        for r in all_actual
+    ]
+
+    # last_fire_was_on_time: most recent expected fire in the past — was it
+    # matched? None if no expected fires are yet past `now`.
+    past_expected = [
+        f for f in expected
+        if datetime.fromisoformat(f["expected_at"].replace("Z", "+00:00")) <= now
+    ]
+    if past_expected:
+        most_recent = max(past_expected, key=lambda f: f["expected_at"])
+        actual_for_wf = [
+            r for r in all_actual
+            if r["repo"] == most_recent["repo"]
+            and r["workflow"] == most_recent["workflow"]
+        ]
+        base["last_fire_was_on_time"] = (
+            _match_expected_to_actual(most_recent, actual_for_wf) is not None
+        )
+    else:
+        base["last_fire_was_on_time"] = None
+
+    return base
+
+
 def generate_status():
     """Generate full pipeline-status.json from GitHub Actions API."""
     print("Fetching workflow runs for all 8 monitors × 14 stations...")
@@ -589,6 +805,12 @@ def generate_status():
     # incident detail strings is out-of-scope by construction.
     status["_verification"] = extract_verification_data()
     status["_incidents"] = extract_incidents()
+
+    # Sprint BH BH.2: trigger-fire comparator. Reads asym-intel-internal
+    # manifest, diffs expected vs actual GA fires in a 7-day window. Lands
+    # as a peer top-level key (not a sub-key of _meta) so consumers can read
+    # it without parsing _meta. Degrades gracefully on loader/manifest failure.
+    status["_trigger_health"] = compute_trigger_health(window_days=7)
 
     return status
 
@@ -720,24 +942,34 @@ def _last_updated(monitor_status):
 
 
 def derive_public_rollup(internal_status):
-    """Map full-fidelity internal status → simplified public schema v3.0.
+    """Map full-fidelity internal status → simplified public schema v4.0.
 
     Input shape: the dict returned by generate_status() — monitor abbr -> dict
-    with `accent`, `day`, `cron_time`, `stations` (all stations); plus `_meta`.
+    with `accent`, `day`, `cron_time`, `stations` (all stations); plus `_meta`,
+    `_verification`, `_incidents`, and (Sprint BH BH.2) `_trigger_health`.
 
-    Output shape (schema v3.0):
+    Output shape (schema v4.0):
         {
-          "schema_version": "3.0",
+          "schema_version": "4.0",
           "generated_at": "...Z",
           "engine": {"status": "green|amber|red", "last_updated": "...Z"},
           "monitors": [
             {"slug": "WDM", "status": "...", "last_updated": "...Z|null"},
             ...
-          ]
+          ],
+          "_trigger_health": {...}  # Sprint BH BH.2 — propagated from internal.
         }
 
+    Schema v3.0 -> v4.0 (Sprint BH BH.2): introduces `_trigger_health`. No
+    breaking change to the existing v3.0 keys; v4.0 is a strict superset.
+    Consumers reading v3.0 keys continue to work.
+
     The roll-up logic is the ONLY place these rules are encoded. The public
-    HTML reads this JSON; it does not re-derive status.
+    HTML reads this JSON; it does not re-derive status. `_meta`,
+    `_verification`, and `_incidents` remain internal-only by construction
+    (they are not added to this returned dict). `_trigger_health` is
+    deliberately propagated to the public surface per BH.2 BRIEF Architect
+    rec — operator-facing missed-fire visibility belongs on ops.asym-intel.info.
     """
     now = datetime.now(timezone.utc)
     monitor_rollups = []
@@ -755,8 +987,8 @@ def derive_public_rollup(internal_status):
     monitor_lus = [m["last_updated"] for m in monitor_rollups if m["last_updated"]]
     engine_last_updated = max(monitor_lus) if monitor_lus else now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    return {
-        "schema_version": "3.0",
+    out = {
+        "schema_version": "4.0",
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "engine": {
             "status": engine_status,
@@ -764,6 +996,13 @@ def derive_public_rollup(internal_status):
         },
         "monitors": monitor_rollups,
     }
+    # Sprint BH BH.2: propagate trigger-fire comparator block to public.
+    # This is the only `_`-prefixed key kept on the public surface — _meta,
+    # _verification, _incidents stay internal by construction.
+    trigger_health = internal_status.get("_trigger_health")
+    if trigger_health is not None:
+        out["_trigger_health"] = trigger_health
+    return out
 
 
 # ─── Dashboard generation ───────────────────────────────────────

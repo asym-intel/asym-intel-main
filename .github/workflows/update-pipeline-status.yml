@@ -29,6 +29,13 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Python deps
+        # Sprint BH BRIEF #2 (AD-2026-04-30-BJ): pyyaml required by the new
+        # ops/_pipeline_triggers_loader.py helper. Without it the helper
+        # degrades to manifest_loaded:false and the _trigger_health block
+        # cannot be populated (acceptance #2 fails).
+        run: pip install pyyaml
+
       - name: Run status updater
         # Writes internal full-fidelity to pipeline-status.json (ws root) and
         # commits to asym-intel-internal:ops/pipeline-status.json via PAT.
