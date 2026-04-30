@@ -100,7 +100,8 @@ def check_workflows(r: Results):
                      "engine-preflight.yml",  # script fetched from internal repo at runtime
                      "engine-post-deploy-smoke.yml",  # Layer B — script from internal repo
                      "engine-runtime-audit.yml",  # Layer C — script from internal repo
-                     "cf-speed-setup.yml"):  # script fetched from internal repo via sparse checkout
+                     "cf-speed-setup.yml",  # script fetched from internal repo via sparse checkout
+                     "commons-drift-lint.yml"):  # reusable workflow; runs in calling per-project repo, fetches scanner from this repo via sparse-checkout into a runtime staging dir (AD-2026-04-30-BL)
             continue
 
         content = wf_file.read_text()
