@@ -134,14 +134,14 @@ jobs:
             --arg now "$NOW" \
             --arg build "$BUILD_CONCLUSION" \
             --arg deploy "$DEPLOY_CONCLUSION" \
-            '._build = {"hugo_last_run": $now, "hugo_build_conclusion": $build, "deploy_conclusion": $deploy, "updated_by": "build.yml build_health job"}')
+            '._build = {"build_last_run": $now, "build_conclusion": $build, "deploy_conclusion": $deploy, "updated_by": "build.yml build_health job"}')
 
           ENCODED=$(echo "$UPDATED" | base64 -w0)
           gh api --method PUT \
             /repos/asym-intel/asym-intel-internal/contents/ops/pipeline-status.json \
-            -f message="ops: _build signal hugo=$BUILD_CONCLUSION deploy=$DEPLOY_CONCLUSION [skip ci]" \
+            -f message="ops: _build signal build=$BUILD_CONCLUSION deploy=$DEPLOY_CONCLUSION [skip ci]" \
             -f content="$ENCODED" \
             -f sha="$FILE_SHA" \
             -f branch="main" --silent
 
-          echo "Build health: hugo=$BUILD_CONCLUSION deploy=$DEPLOY_CONCLUSION at $NOW"
+          echo "Build health: build=$BUILD_CONCLUSION deploy=$DEPLOY_CONCLUSION at $NOW"
