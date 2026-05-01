@@ -25,7 +25,7 @@ in fe-commons/.
 Exit codes (mode-aware):
   observe-mode:  always 0  (advisory; PR not blocked)
   enforce-mode:  0 if no hits, 1 if any re-implementation hit, 2 internal
-                 error. Enforce-mode is gated by AD-BL's 2026-05-14 review
+                 error. Enforce-mode is gated by AD-BM's 2026-05-14 review
                  trigger and not the default at Phase 0.5.
 
 Usage (called by .github/workflows/commons-drift-lint.yml):
@@ -395,3 +395,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
