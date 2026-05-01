@@ -500,6 +500,26 @@ def load_content(source_root: Path) -> dict:
             ))
     topics.sort(key=lambda p: p.date, reverse=True)
 
+    # ── Report published dates (from report-latest.json meta.published) ────────
+    # Used by Dataset JSON-LD to set dateModified accurately for monitor sections.
+    report_published: dict[str, str] = {}
+    _monitor_slugs = [
+        "democratic-integrity", "macro-monitor", "european-strategic-autonomy",
+        "fimi-cognitive-warfare", "ai-governance", "environmental-risks",
+        "conflict-escalation",
+    ]
+    for _slug in _monitor_slugs:
+        _report_path = source_root / "static" / "monitors" / _slug / "data" / "report-latest.json"
+        if _report_path.exists():
+            try:
+                with _report_path.open() as _f:
+                    _report = json.load(_f)
+                _pub = (_report.get("meta") or {}).get("published", "")
+                if _pub:
+                    report_published[_slug] = _pub
+            except Exception:
+                pass
+
     return {
         "registry": registry,
         "faqs": faqs,
@@ -511,6 +531,7 @@ def load_content(source_root: Path) -> dict:
         "methodology": methodology,
         "topics_index": topics_index,
         "topics": topics,
+        "report_published": report_published,
     }
 
 
@@ -659,8 +680,15 @@ def render_head(page: Page, *, ctx: dict, css_cache_buster: str, alt_outputs: li
             "encodingFormat": "application/json",
             "contentUrl": f"https://asym-intel.info/monitors/{monitor_param}/data/report-latest.json",
         }]
-        if page.lastmod:
+        # Use report-latest.json meta.published as authoritative dateModified for monitor sections
+        report_published = (ctx.get("data", {}).get("report_published") or {}).get(slug)
+        if report_published:
+            # report_published is ISO 8601 string e.g. "2026-04-27T06:00:00Z" — take date part
+            dataset["dateModified"] = report_published[:10]
+        elif page.lastmod:
             dataset["dateModified"] = page.lastmod.strftime("%Y-%m-%d")
+        if report_published and "datePublished" not in dataset:
+            dataset["datePublished"] = report_published[:10]
         head_lines.append(f'<script type="application/ld+json">{jsonify_safe(dataset)}</script>')
 
         # FAQPage if FAQs exist
