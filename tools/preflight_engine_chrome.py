@@ -80,7 +80,7 @@ def check_forbidden_urls() -> list[str]:
 
 # ── F2: commons footer specifics ─────────────────────────────────────────────
 
-COMMONS_FOOTER = REPO_ROOT / "layouts" / "partials" / "footer.html"
+COMMONS_FOOTER = REPO_ROOT / "tools" / "build_site.py"
 
 FOOTER_REQUIRED = [
     "a-i.gi",
@@ -91,7 +91,7 @@ FOOTER_REQUIRED = [
 
 def check_commons_footer() -> list[str]:
     if not COMMONS_FOOTER.exists():
-        return ["F2 commons-footer: layouts/partials/footer.html missing"]
+        return ["F2 commons-footer: tools/build_site.py missing"]
     text = COMMONS_FOOTER.read_text(encoding="utf-8")
     violations = []
     for req in FOOTER_REQUIRED:
