@@ -1,0 +1,98 @@
+name: "FIM Applier"
+
+# ── Sprint AM — FIM Applier role ──
+# Triggered by FIM Composer via explicit `gh workflow run` (chain-depth
+# reset; mirrors AGM Applier topology, AD-2026-04-26-AM). Reads all three
+# upstream artefacts (interpret-latest.json, review-latest.json,
+# compose-latest.json) and produces:
+#   - apply-YYYY-MM-DD.json + apply-latest.json (cycle manifest)
+#   - chains-YYYY-MM-DD.json + chains-latest.json (public claim→review→
+#     patch→evidence chains, one per structured_claim)
+# LLM-FREE — deterministic stitching only. No PPLX_API_KEY needed.
+# No prompt/schema staging needed. Replay-safe.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  apply:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v5
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/policy
+            pipeline/monitors/financial-integrity
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      # Stage bespoke metadata. No prompt/schema staging (LLM-free).
+      # §15 IP boundary preserved — never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/financial-integrity
+          cp -v internal/pipeline/monitors/financial-integrity/metadata.yml \
+                pipeline/monitors/financial-integrity/
+
+      # Skip-on-missing guard. All three upstream artefacts required;
+      # if any is absent exit 0 so the chain doesn't block.
+      - name: Check upstream artefacts
+        id: check
+        run: |
+          I="pipeline/monitors/financial-integrity/synthesised/interpret-latest.json"
+          R="pipeline/monitors/financial-integrity/synthesised/review-latest.json"
+          C="pipeline/monitors/financial-integrity/synthesised/compose-latest.json"
+          MISSING=""
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          [ -f "$R" ] || MISSING="${MISSING} review-latest"
+          [ -f "$C" ] || MISSING="${MISSING} compose-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Applier."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run FIM applier (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:        ${{ github.workspace }}
+          monitor:          financial-integrity
+          PYTHONPATH:       internal
+          INTERPRET_RUN_ID: ${{ github.event.workflow_run.id }}
+          REVIEW_RUN_ID:    ${{ github.event.workflow_run.id }}
+          COMPOSE_RUN_ID:   ${{ github.event.workflow_run.id }}
+        run: python -m pipeline.engine.apply_base --monitor financial-integrity
+
+      - name: Commit applier output
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          rm -f pipeline/monitors/financial-integrity/applied/apply-debug-*.json
+          git add pipeline/monitors/financial-integrity/applied/
+          git diff --cached --quiet || git commit -m "chore(fim): applier run $(date -u +%Y-%m-%d)"
+          git pull --rebase --autostash origin main
+          git push
