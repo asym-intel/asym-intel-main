@@ -1690,7 +1690,7 @@ def build_archive_entry(meta: dict, signal: dict | None, synthesis: dict) -> dic
 
 # ── Hugo brief ────────────────────────────────────────────────────────────
 
-def build_hugo_brief(meta: dict, synthesis: dict, config: dict, brief_sources: list | None = None) -> str:
+def build_brief_frontmatter(meta: dict, synthesis: dict, config: dict, brief_sources: list | None = None) -> str:
     brief_body = synthesis.get("weekly_brief_draft", "No brief available this week.")
     signal_headline = ""
     signal_key = config.get("signal_key")
@@ -1701,6 +1701,15 @@ def build_hugo_brief(meta: dict, synthesis: dict, config: dict, brief_sources: l
 
     # Escape quotes in summary
     summary = signal_headline.replace('"', '\\"')[:200]
+
+    # Third fallback: first non-header, non-empty line of weekly_brief_draft
+    if not summary:
+        brief_draft = synthesis.get("weekly_brief_draft", "") or ""
+        for line in brief_draft.splitlines():
+            stripped = line.strip()
+            if stripped and not stripped.startswith("#"):
+                summary = stripped[:200]  # cap at 200 chars for front-matter
+                break
 
     # Build brief_sources YAML list for Hugo front-matter
     sources_yaml = ""
@@ -2190,7 +2199,7 @@ def main():
     archive.append(build_archive_entry(meta, signal, synthesis))
 
     # Hugo brief
-    hugo_brief = build_hugo_brief(meta, synthesis, config, brief_sources=report.get("weekly_brief_sources", []))
+    hugo_brief = build_brief_frontmatter(meta, synthesis, config, brief_sources=report.get("weekly_brief_sources", []))
 
     # AI-readable markdown (served at /monitors/{slug}/data/report-latest.md)
     report_md = build_report_markdown(report, config)
