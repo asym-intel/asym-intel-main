@@ -1,0 +1,80 @@
+{
+  "_meta": {
+    "schema_version": "aim-review-v1.0",
+    "reviewer_model": "sonar-pro",
+    "monitor_slug": "financial-integrity",
+    "reviewed_at": "2026-05-01T15:15:24.813961+00:00",
+    "reviewed_from": "aim-interpret-v1.0",
+    "reviewed_from_file": "interpret-latest.json",
+    "interpret_meta": {
+      "null_signal_week": true,
+      "cycle_disposition": "error_cycle",
+      "week_ending": null
+    },
+    "reviewer_flags": [],
+    "reviewer_error": false,
+    "reviewer_error_reason": null,
+    "independence_mechanism": {
+      "rule_engine_verdict_is_llm_independent": true,
+      "first_principles_source_re_read": true,
+      "distinct_system_prompt": true
+    }
+  },
+  "verdict": "defer-issue",
+  "verdict_legacy": "SKIP_ERROR_CYCLE",
+  "verdict_reason": "interpreter reported error_cycle — composer will skip",
+  "checks": [
+    {
+      "check_id": "R1",
+      "name": "schema shape integrity",
+      "result": "FAIL",
+      "disposition_aware_skip": false,
+      "detail": "missing top-level keys: ['structured_claims']"
+    },
+    {
+      "check_id": "R2",
+      "name": "_meta.cycle_disposition in enum",
+      "result": "SKIP",
+      "disposition_aware_skip": false,
+      "detail": "skipped — R1 structural FAIL"
+    },
+    {
+      "check_id": "R3",
+      "name": "structured_claims[] shape integrity",
+      "result": "SKIP",
+      "disposition_aware_skip": false,
+      "detail": "skipped — R1 structural FAIL"
+    },
+    {
+      "check_id": "R4",
+      "name": "evidence_id non-empty on every claim",
+      "result": "SKIP",
+      "disposition_aware_skip": false,
+      "detail": "skipped — R1 structural FAIL"
+    },
+    {
+      "check_id": "R5",
+      "name": "gaps_register[] non-empty when null_signal_week",
+      "result": "SKIP",
+      "disposition_aware_skip": false,
+      "detail": "skipped — R1 structural FAIL"
+    },
+    {
+      "check_id": "R6",
+      "name": "triple_extraction_manifest self-consistent",
+      "result": "SKIP",
+      "disposition_aware_skip": false,
+      "detail": "skipped — R1 structural FAIL"
+    },
+    {
+      "check_id": "R7",
+      "name": "persistent-state modules non-empty",
+      "result": "SKIP",
+      "disposition_aware_skip": false,
+      "detail": "skipped — R1 structural FAIL"
+    }
+  ],
+  "claim_flags": [],
+  "advisory_notes": [],
+  "patch_verdicts": []
+}
