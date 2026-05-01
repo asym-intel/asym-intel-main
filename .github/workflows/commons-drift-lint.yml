@@ -29,12 +29,12 @@ name: "Commons Drift Lint"
 #   - Scanner exits 0 unconditionally (observe-mode); does NOT block PRs.
 #
 # Enforcement-mode flip (2026-05-14):
-#   - Per AD-BL, observe-mode flips to enforcing only if (a) workflow has
+#   - Per AD-BM, observe-mode flips to enforcing only if (a) workflow has
 #     run cleanly on ≥3 per-project PRs during the observe window AND
 #     (b) fe-commons/ has ≥1 ratified primitive. Until both conditions
 #     clear, the `mode` input below remains "observe".
 #   - Enforcement-mode flip is a separate PR amending this workflow's
-#     default `mode` input from "observe" to "enforce" (and the AD-BL
+#     default `mode` input from "observe" to "enforce" (and the AD-BM
 #     review trigger fires that decision).
 #
 # Inputs
@@ -137,3 +137,4 @@ jobs:
             echo "Mode \`observe\` is advisory until 2026-05-14 per AD-2026-04-30-BL."
             echo "Mode \`enforce\` exits non-zero on re-implementation hits."
           } >> "$GITHUB_STEP_SUMMARY"
+

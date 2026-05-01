@@ -730,7 +730,7 @@ def render_site_header(page: Page) -> str:
 
 # Triage order for monitor strip — from monitor-strip.html template.
 # (Hugo template uses a hardcoded slice; if registry abbr matches, render.)
-_STRIP_TRIAGE = ["GMM", "SCEM", "FCW", "AIM", "WDM", "ESA", "FIM", "ERM"]
+_STRIP_TRIAGE = ["GMM", "SCEM", "FCW", "AIM", "WDM", "ESA", "ERM"]
 
 
 def render_monitor_strip(page: Page, registry: dict) -> str:
@@ -2105,3 +2105,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
