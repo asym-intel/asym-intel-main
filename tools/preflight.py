@@ -386,7 +386,7 @@ def check_monitor_completeness(r: Results):
             else:
                 r.fail(f"COMPLETENESS:{abbr}/_index.md:description", "Missing description — breaks Dataset structured data for GSC")
         else:
-            r.fail(f"COMPLETENESS:{abbr}/_index.md", "Missing _index.md — no Hugo section page")
+            r.fail(f"COMPLETENESS:{abbr}/_index.md", "Missing _index.md — no site section page")
 
 
 def check_frontend_patterns(r: Results):
