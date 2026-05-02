@@ -976,7 +976,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderAdditionalIntelligence(report) {
     renderRegulatoryFramework(report.regulatory_framework || []);
     // Defensive: support either `platform_transparency` or `platform_transparency_2026`
-    // since the FCW interpreter addendum is not yet merged and field naming is unconfirmed.
+    // since the field naming is not yet finalized upstream.
     var pt = report.platform_transparency;
     if (!Array.isArray(pt) || !pt.length) pt = report.platform_transparency_2026;
     renderPlatformTransparency(Array.isArray(pt) ? pt : []);
