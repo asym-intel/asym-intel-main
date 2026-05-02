@@ -608,6 +608,11 @@ PUBLISHER_RULES = {
     "test_sanitise_for_public.py": {
         "allowed_substrings": set(),
     },
+    # Unit test for publisher.check_publication_eligibility(). No archive
+    # interaction — reads apply-latest.json fixtures from tmp_path only.
+    "test_publication_eligibility.py": {
+        "allowed_substrings": set(),
+    },
 }
 
 _JS_PUBLISHERS_SKIPPED = {"generate-site.js", "generate-static.js"}
