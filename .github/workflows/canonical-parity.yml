@@ -9,6 +9,14 @@
 # Fixture:  tools/test_preflight_parity.py (runs before live scan — PREFLIGHT-KNOWHOW §2).
 #
 # Scope doc: asym-intel-internal:ops/scopes/canonical-parity-preflight-scope.md
+#
+# Bot-PR scope guard: dependabot PRs cannot read COMPUTER_SHIM_INTERNAL_READ
+# (cross-repo PAT), so the live scan would always fail with a noisy red check.
+# The Scope check step short-circuits to a passing no-op for dependabot, while
+# keeping the `parity` job and its check-run name reporting success — so the
+# context name remains stable if branch protection ever promotes it to required.
+# Invariant: tools/test_dependabot_skip_invariant.py forbids a top-level
+# job-level skip on the `parity` check name (which would erase the context).
 
 name: Canonical parity preflight
 
@@ -35,10 +43,28 @@ jobs:
   parity:
     runs-on: ubuntu-latest
     steps:
+      # Step 0 — Scope check. Dependabot bot PRs cannot access the cross-repo
+      # PAT (COMPUTER_SHIM_INTERNAL_READ), so the parity scan cannot run
+      # meaningfully. Mark them out-of-scope and short-circuit subsequent
+      # steps. The job still reports success under the `parity` check name.
+      - name: Scope check
+        id: scope
+        run: |
+          actor="${{ github.actor }}"
+          pr_user="${{ github.event.pull_request.user.login }}"
+          if [[ "$actor" == "dependabot[bot]" ]] || [[ "$pr_user" == "dependabot[bot]" ]]; then
+            echo "in_scope=false" >> "$GITHUB_OUTPUT"
+            echo "Out of scope: dependabot PR (cross-repo PAT unavailable). Reporting parity as a passing no-op."
+          else
+            echo "in_scope=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout main
+        if: steps.scope.outputs.in_scope == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Python
+        if: steps.scope.outputs.in_scope == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -47,6 +73,7 @@ jobs:
       # If the parser or check logic regresses, fixture fails first with a
       # clear test name; live scan failures are much harder to diagnose.
       - name: Fixture suite — tools/test_preflight_parity.py
+        if: steps.scope.outputs.in_scope == 'true'
         run: python3 tools/test_preflight_parity.py
 
       # Step 2 — live cross-repo scan. preflight_parity.py detects it is
@@ -63,6 +90,7 @@ jobs:
       # `push` / `workflow_dispatch` the env var is absent and the
       # default `main` resolution applies.
       - name: Live scan — preflight_parity.py
+        if: steps.scope.outputs.in_scope == 'true'
         env:
           GH_TOKEN: ${{ secrets.COMPUTER_SHIM_INTERNAL_READ }}
           ASYM_COUNTERPART_REF: ${{ github.event_name == 'pull_request' && github.head_ref || '' }}
