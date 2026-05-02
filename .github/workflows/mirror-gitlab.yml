@@ -17,6 +17,13 @@ jobs:
   mirror:
     name: Push mirror to GitLab
     runs-on: ubuntu-latest
+    # Dependabot-triggered runs (and any other context without access to the
+    # mirror PAT) can't authenticate the checkout or the GitLab push. Skip the
+    # job cleanly instead of failing the checkout step with "Input required and
+    # not supplied: token".
+    if: >-
+      github.actor != 'dependabot[bot]'
+      && github.event.sender.login != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@v6
         with:
