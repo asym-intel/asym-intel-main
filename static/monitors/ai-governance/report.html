@@ -306,8 +306,8 @@
 
         // M01 — Executive Insight
         var m1 = d.module_1 || {};
-        var mainstream = Array.isArray(m1.mainstream) ? m1.mainstream : [];
-        var underweighted = Array.isArray(m1.underweighted) ? m1.underweighted : [];
+        var mainstream = nonEmpty(m1.mainstream);
+        var underweighted = nonEmpty(m1.underweighted);
         var m1html = '';
         if (mainstream.length) {
           m1html += '<h3 class="subsection-title">Mainstream</h3>' +
@@ -321,7 +321,7 @@
 
         // M02 — Model Frontier (tier chart + intel list)
         var m2 = d.module_2 || {};
-        var models = Array.isArray(m2.models) ? m2.models : [];
+        var models = nonEmpty(m2.models);
         if (models.length) {
           // Tier chart visual
           var tierGroups = {1: [], 2: [], 3: []};
@@ -372,9 +372,9 @@
 
         // M03 — Investment & M&A
         var m3 = d.module_3 || {};
-        var fundingRounds = Array.isArray(m3.funding_rounds) ? m3.funding_rounds : [];
-        var strategicDeals = Array.isArray(m3.strategic_deals) ? m3.strategic_deals : [];
-        var energyWall = m3.energy_wall || null;
+        var fundingRounds = nonEmpty(m3.funding_rounds);
+        var strategicDeals = nonEmpty(m3.strategic_deals);
+        var energyWall = isMeaningful(m3.energy_wall) ? m3.energy_wall : null;
         var m3html = '';
         if (fundingRounds.length) {
           m3html += '<h3 class="subsection-title">Funding Rounds</h3>' +
@@ -386,18 +386,21 @@
         if (strategicDeals.length) {
           m3html += '<h3 class="subsection-title">Strategic Deals</h3>' + renderIntelItems(strategicDeals, ['title','summary','asymmetric']);
         }
-        if (Array.isArray(energyWall) && energyWall.length) {
+        if (Array.isArray(energyWall) && hasItems(energyWall)) {
           m3html += '<h3 class="subsection-title">Energy Wall</h3>' +
             renderIntelItems(energyWall, ['deal','signal','analysis']);
-        } else if (energyWall && typeof energyWall === 'object' && Object.keys(energyWall).length) {
-          m3html += '<h3 class="subsection-title">Energy Wall</h3>' +
-            '<div class="intel-item"><div class="intel-item__body">' + renderObj(energyWall) + '</div></div>';
+        } else if (energyWall && typeof energyWall === 'object' && !Array.isArray(energyWall) && isMeaningful(energyWall)) {
+          var ewBody = renderObj(energyWall);
+          if (ewBody) {
+            m3html += '<h3 class="subsection-title">Energy Wall</h3>' +
+              '<div class="intel-item"><div class="intel-item__body">' + ewBody + '</div></div>';
+          }
         }
         document.getElementById('m3-content').innerHTML = m3html || empty();
 
         // M04 — Sector Penetration
         var m4 = d.module_4 || {};
-        var sectors = Array.isArray(m4.sectors) ? m4.sectors : [];
+        var sectors = nonEmpty(m4.sectors);
         document.getElementById('m4-content').innerHTML = sectors.length
           ? renderIntelItems(sectors, ['sector','headline_developments','asymmetric'], function(item){
               return item.status ? '<span class="tag tag--status-' + statusClass(item.status) + '">' + esc(item.status) + '</span>' : '';
@@ -407,31 +410,33 @@
         // M05 — European & China
         var m5 = d.module_5 || {};
         var m5html = '';
-        if (m5.european && typeof m5.european === 'object') {
-          m5html += '<h3 class="subsection-title">European Watch</h3>' + renderSubsection(m5.european);
+        if (isMeaningful(m5.european)) {
+          var euBody = renderSubsection(m5.european);
+          if (euBody) m5html += '<h3 class="subsection-title">European Watch</h3>' + euBody;
         }
-        if (m5.china && typeof m5.china === 'object') {
-          m5html += '<h3 class="subsection-title">China Watch</h3>' + renderSubsection(m5.china);
+        if (isMeaningful(m5.china)) {
+          var cnBody = renderSubsection(m5.china);
+          if (cnBody) m5html += '<h3 class="subsection-title">China Watch</h3>' + cnBody;
         }
         document.getElementById('m5-content').innerHTML = m5html || empty();
 
         // M06 — AI in Science
         var m6 = d.module_6 || {};
         var m6html = '';
-        if (Array.isArray(m6.threshold_events) && m6.threshold_events.length) {
+        if (hasItems(m6.threshold_events)) {
           m6html += '<h3 class="subsection-title">Threshold Events</h3>' + renderIntelItems(m6.threshold_events, ['title','summary','asymmetric']);
         }
-        if (Array.isArray(m6.programme_updates) && m6.programme_updates.length) {
+        if (hasItems(m6.programme_updates)) {
           m6html += '<h3 class="subsection-title">Programme Updates</h3>' + renderIntelItems(m6.programme_updates, ['programme','update'], function(item){ return item.lab ? '<span class="intel-tag">' + esc(item.lab) + '</span>' : ''; });
         }
-        if (Array.isArray(m6.arxiv_highlights) && m6.arxiv_highlights.length) {
+        if (hasItems(m6.arxiv_highlights)) {
           m6html += '<h3 class="subsection-title">arXiv Highlights</h3>' + renderIntelItems(m6.arxiv_highlights, ['title','significance','asymmetric'], function(item){ var meta=''; if(item.published) meta+='<span class="intel-tag">'+esc(item.published)+'</span>'; if(item.venue) meta+='<span class="intel-tag">'+esc(item.venue)+'</span>'; if(item.tier) meta+='<span class="intel-tag intel-tag--tier">'+esc(item.tier)+'</span>'; return meta; });
         }
         document.getElementById('m6-content').innerHTML = m6html || empty();
 
         // M07 — Risk Indicators (heat grid)
         var m7 = d.module_7 || {};
-        var vectors = Array.isArray(m7.vectors) ? m7.vectors : [];
+        var vectors = nonEmpty(m7.vectors);
         if (vectors.length) {
           var m7html = '<div class="risk-heat-grid">';
           vectors.forEach(function(v) {
@@ -452,7 +457,7 @@
             if (v.unchanged_since) m7html += '<span>Unchanged since: ' + esc(v.unchanged_since) + '</span>';
             if (v.changed) m7html += '<span style="color:#3a7d5a;font-weight:600">↑ Changed this issue</span>';
             m7html += '</div>';
-            if (Array.isArray(v.sources) && v.sources.length) {
+            if (hasItems(v.sources)) {
               m7html += '<div style="margin-top:var(--space-2)">' + v.sources.map(function(s){
                 return AsymRenderer.sourceLink(s);
               }).join(' ') + '</div>';
@@ -467,7 +472,7 @@
 
         // M08 — Military AI
         var m8 = d.module_8 || {};
-        var m8items = Array.isArray(m8.items) ? m8.items : [];
+        var m8items = nonEmpty(m8.items);
         document.getElementById('m8-content').innerHTML = m8items.length
           ? renderIntelItems(m8items, ['title','summary','asymmetric'])
           : empty();
@@ -478,13 +483,13 @@
         if (m9.digest_note) {
           m9html += '<div class="digest-note">' + esc(m9.digest_note) + '</div>';
         }
-        if (Array.isArray(m9.law_highlights) && m9.law_highlights.length) {
+        if (hasItems(m9.law_highlights)) {
           m9html += '<h3 class="subsection-title">Law</h3>' + renderIntelItems(m9.law_highlights, ['title','summary','asymmetric']);
         }
-        if (Array.isArray(m9.standards_highlights) && m9.standards_highlights.length) {
+        if (hasItems(m9.standards_highlights)) {
           m9html += '<h3 class="subsection-title">Standards</h3>' + renderIntelItems(m9.standards_highlights, ['title','summary']);
         }
-        if (Array.isArray(m9.litigation_highlights) && m9.litigation_highlights.length) {
+        if (hasItems(m9.litigation_highlights)) {
           m9html += '<h3 class="subsection-title">Litigation</h3>' + renderIntelItems(m9.litigation_highlights, ['title','summary','asymmetric']);
         }
         document.getElementById('m9-content').innerHTML = m9html || empty();
@@ -492,26 +497,26 @@
         // M10 — AI Governance
         var m10 = d.module_10 || {};
         var m10html = '';
-        if (Array.isArray(m10.international_soft_law) && m10.international_soft_law.length) {
+        if (hasItems(m10.international_soft_law)) {
           m10html += '<h3 class="subsection-title">International Soft Law</h3>' + renderIntelItems(m10.international_soft_law, ['item','summary','asymmetric']);
         }
-        if (Array.isArray(m10.corporate_governance) && m10.corporate_governance.length) {
+        if (hasItems(m10.corporate_governance)) {
           m10html += '<h3 class="subsection-title">Corporate Governance</h3>' + renderIntelItems(m10.corporate_governance, ['item','summary']);
         }
-        if (Array.isArray(m10.product_liability) && m10.product_liability.length) {
+        if (hasItems(m10.product_liability)) {
           m10html += '<h3 class="subsection-title">Product Liability</h3>' + renderIntelItems(m10.product_liability, ['item','summary']);
         }
-        if (Array.isArray(m10.algorithmic_accountability) && m10.algorithmic_accountability.length) {
+        if (hasItems(m10.algorithmic_accountability)) {
           m10html += '<h3 class="subsection-title">Algorithmic Accountability</h3>' + renderIntelItems(m10.algorithmic_accountability, ['item','summary']);
         }
-        if (Array.isArray(m10.governance_gaps) && m10.governance_gaps.length) {
+        if (hasItems(m10.governance_gaps)) {
           m10html += '<h3 class="subsection-title">Governance Gaps</h3>' + renderIntelItems(m10.governance_gaps, ['gap','analysis','asymmetric']);
         }
         document.getElementById('m10-content').innerHTML = m10html || empty();
 
         // M11 — Ethics
         var m11 = d.module_11 || {};
-        var m11items = Array.isArray(m11.items) ? m11.items : [];
+        var m11items = nonEmpty(m11.items);
         document.getElementById('m11-content').innerHTML = m11items.length
           ? renderIntelItems(m11items, ['title','accountability_friction','asymmetric'], function(item){ return item.jurisdiction ? '<span class="intel-tag">' + esc(item.jurisdiction) + '</span>' : ''; })
           : empty();
@@ -519,13 +524,13 @@
         // M12 — Info Ops
         var m12 = d.module_12 || {};
         var m12html = '';
-        if (Array.isArray(m12.items) && m12.items.length) {
+        if (hasItems(m12.items)) {
           m12html += renderIntelItems(m12.items, ['title','summary','asymmetric']);
         }
-        if (Array.isArray(m12.capability_watch) && m12.capability_watch.length) {
+        if (hasItems(m12.capability_watch)) {
           m12html += '<h3 class="subsection-title">Capability Watch</h3>' + renderIntelItems(m12.capability_watch, ['capability','detail']);
         }
-        if (Array.isArray(m12.asymmetric_flags) && m12.asymmetric_flags.length) {
+        if (hasItems(m12.asymmetric_flags)) {
           m12html += '<h3 class="subsection-title">Asymmetric Flags</h3>' + renderFlagItems(m12.asymmetric_flags);
         }
         document.getElementById('m12-content').innerHTML = m12html || empty();
@@ -533,11 +538,11 @@
         // M13 — AI & Society
         var m13 = d.module_13 || {};
         var m13html = '';
-        if (Array.isArray(m13.items) && m13.items.length) {
+        if (hasItems(m13.items)) {
           m13html += renderIntelItems(m13.items, ['title','summary','asymmetric']);
         }
-        if (Array.isArray(m13.structural_trends) && m13.structural_trends.length) {
-          if (Array.isArray(m13.structural_trends) && m13.structural_trends.length) {
+        if (hasItems(m13.structural_trends)) {
+          if (hasItems(m13.structural_trends)) {
             var stHtml = m13.structural_trends.map(function(s) {
               var text = typeof s === 'string' ? s : (s.title || s.trend || JSON.stringify(s));
               return '<div class="intel-item"><div class="intel-item__body">' + esc(text) + '</div></div>';
@@ -545,7 +550,7 @@
             m13html += '<h3 class="subsection-title">Structural Trends</h3><div class="intel-list">' + stHtml + '</div>';
           }
         }
-        if (Array.isArray(m13.asymmetric_flags) && m13.asymmetric_flags.length) {
+        if (hasItems(m13.asymmetric_flags)) {
           m13html += '<h3 class="subsection-title">Asymmetric Flags</h3>' + renderFlagItems(m13.asymmetric_flags);
         }
         document.getElementById('m13-content').innerHTML = m13html || empty();
@@ -553,12 +558,12 @@
         // M14 — Power Structures
         var m14 = d.module_14 || {};
         var m14html = '';
-        if (Array.isArray(m14.items) && m14.items.length) {
+        if (hasItems(m14.items)) {
           m14html += renderIntelItems(m14.items, ['title','summary','asymmetric']);
         }
         if (m14.concentration_index && typeof m14.concentration_index === 'object') {
           var ci = m14.concentration_index;
-          var domains = Array.isArray(ci) ? ci : (Array.isArray(ci && ci.domains) ? ci.domains : []);
+          var domains = nonEmpty(Array.isArray(ci) ? ci : (Array.isArray(ci && ci.domains) ? ci.domains : []));
           if (domains.length) {
             m14html += '<h3 class="subsection-title">Concentration Index</h3>' +
               '<div class="intel-list">' +
@@ -577,7 +582,7 @@
               '</div>';
           }
         }
-        if (Array.isArray(m14.asymmetric_flags) && m14.asymmetric_flags.length) {
+        if (hasItems(m14.asymmetric_flags)) {
           m14html += '<h3 class="subsection-title">Asymmetric Flags</h3>' + renderFlagItems(m14.asymmetric_flags);
         }
         document.getElementById('m14-content').innerHTML = m14html || empty();
@@ -585,7 +590,7 @@
         // M15 — Personnel
         var m15 = d.module_15 || {};
         var m15html = '';
-        if (Array.isArray(m15.lab_movements) && m15.lab_movements.length) {
+        if (hasItems(m15.lab_movements)) {
           m15html += '<h3 class="subsection-title">Lab Movements</h3>' + renderIntelItems(m15.lab_movements, ['name','significance','asymmetric'], function(item){
             var meta = '';
             if (item.role_from) meta += '<span class="intel-tag">' + esc(item.role_from) + '</span>';
@@ -595,17 +600,17 @@
             return meta;
           });
         }
-        if (Array.isArray(m15.government_ai_bodies) && m15.government_ai_bodies.length) {
+        if (hasItems(m15.government_ai_bodies)) {
           m15html += '<h3 class="subsection-title">Government AI Bodies</h3>' + renderIntelItems(m15.government_ai_bodies, ['body','detail'], function(item){
             return item.status ? '<span class="intel-tag">' + esc(item.status) + '</span>' : '';
           });
         }
-        if (Array.isArray(m15.revolving_door) && m15.revolving_door.length) {
+        if (hasItems(m15.revolving_door)) {
           m15html += '<h3 class="subsection-title">Revolving Door</h3>' + renderIntelItems(m15.revolving_door, ['observation','detail'], function(item){
             return item['12_month_implication'] ? '<span class="intel-tag">12-month: ' + esc(item['12_month_implication']) + '</span>' : '';
           });
         }
-        if (Array.isArray(m15.asymmetric_flags) && m15.asymmetric_flags.length) {
+        if (hasItems(m15.asymmetric_flags)) {
           m15html += '<h3 class="subsection-title">Asymmetric Flags</h3>' + renderFlagItems(m15.asymmetric_flags);
         }
         document.getElementById('m15-content').innerHTML = m15html || empty();
@@ -614,7 +619,7 @@
         AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
 
         // Sprint 4: Key Judgments
-        var kjs = d.key_judgments || [];
+        var kjs = nonEmpty(d.key_judgments);
         if (kjs.length) {
           var kjHtml = '';
           kjs.forEach(function(kj) {
@@ -635,7 +640,7 @@
         }
 
         // Sprint 4: Jurisdiction Risk Matrix
-        var jrm = d.jurisdiction_risk_matrix || [];
+        var jrm = nonEmpty(d.jurisdiction_risk_matrix);
         if (jrm.length) {
           var jrHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">' +
             '<thead><tr><th>Jurisdiction</th><th>Reg. Readiness</th><th>Enforcement</th><th>AI Dependency</th><th>Overall Risk</th><th>Key Development</th><th>Trajectory</th></tr></thead><tbody>';
@@ -658,7 +663,7 @@
         }
 
         // Sprint 4: Lab Posture Scorecard
-        var lps = d.lab_posture_scorecard || [];
+        var lps = nonEmpty(d.lab_posture_scorecard);
         if (lps.length) {
           var lpHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">' +
             '<thead><tr><th>Lab</th><th>Safety Posture</th><th>Transparency</th><th>Reg. Engagement</th><th>Key Development</th><th>Trajectory</th></tr></thead><tbody>';
@@ -736,7 +741,29 @@
 
     function empty() { return '<p class="empty-state">No items this issue.</p>'; }
 
+    /* Filter out placeholder array entries — upstream data sometimes contains
+       `[{}]` (empty object) as a "no content this cycle" marker that still
+       passes the permissive interpret-stage schema. Without this, renderers
+       see a non-empty array and emit a section header + empty card shells. */
+    function isMeaningful(v) {
+      if (v == null) return false;
+      if (typeof v === 'string') return v.trim().length > 0;
+      if (typeof v === 'number' || typeof v === 'boolean') return true;
+      if (Array.isArray(v)) return v.some(isMeaningful);
+      if (typeof v === 'object') return Object.values(v).some(isMeaningful);
+      return false;
+    }
+    function nonEmpty(arr) {
+      if (!Array.isArray(arr)) return [];
+      return arr.filter(isMeaningful);
+    }
+    function hasItems(arr) {
+      return nonEmpty(arr).length > 0;
+    }
+
     function renderIntelItems(arr, fields, metaFn) {
+      arr = nonEmpty(arr);
+      if (!arr.length) return '';
       return '<div class="intel-list">' + arr.map(function (item) {
         var titleField = fields[0];
         var title = item[titleField] || item.title || item.headline || item.name || item.vector || item.company || item.sector || '';
@@ -759,25 +786,27 @@
     }
 
     function renderSubsection(obj) {
-      if (!obj || typeof obj !== 'object') return '';
+      if (!isMeaningful(obj)) return '';
       var html = '';
       Object.keys(obj).forEach(function (k) {
         var v = obj[k];
-        if (Array.isArray(v) && v.length) {
-          html += '<h4 class="sub-subsection-title">' + esc(k.replace(/_/g, ' ')) + '</h4>' +
-            renderIntelItems(v, ['title','summary','asymmetric']);
-        } else if (typeof v === 'string' && v) {
+        if (Array.isArray(v) && hasItems(v)) {
+          var rendered = renderIntelItems(v, ['title','summary','asymmetric']);
+          if (rendered) {
+            html += '<h4 class="sub-subsection-title">' + esc(k.replace(/_/g, ' ')) + '</h4>' + rendered;
+          }
+        } else if (typeof v === 'string' && v.trim()) {
           html += '<div class="intel-item"><div class="intel-item__field">' + esc(v) + '</div></div>';
         }
       });
-      return html || empty();
+      return html;
     }
 
     function renderObj(obj) {
-      if (!obj) return '';
+      if (!isMeaningful(obj)) return '';
       return Object.keys(obj).map(function (k) {
         var v = obj[k];
-        if (typeof v === 'string' && v) {
+        if (typeof v === 'string' && v.trim()) {
           return '<div class="obj-row"><span class="obj-key">' + esc(k.replace(/_/g,' ')) + ':</span> <span>' + esc(v) + '</span></div>';
         }
         return '';
@@ -785,6 +814,8 @@
     }
 
     function renderFlagItems(arr) {
+      arr = nonEmpty(arr);
+      if (!arr.length) return '';
       return '<ul class="flag-list">' + arr.map(function (f) {
         var text = typeof f === 'string' ? f : (f.flag || f.title || f.summary || JSON.stringify(f));
         return '<li class="flag-item">' + esc(text) + '</li>';
