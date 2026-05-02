@@ -156,6 +156,76 @@ def test_public_fields_survive():
     assert public["findings"][0]["sources"] == ["https://example.com/report"]
 
 
+def test_empty_dict_placeholders_pruned_from_lists():
+    """Empty-object placeholders ({}) MUST be dropped from list bodies.
+
+    Synthesisers occasionally emit `[{}]` for a sector with no data this cycle
+    (instead of `[]` / omitting the key). The public renderer treats truthy
+    `.length` as "has content" and emits a blank card. Pruning at the
+    sanitise_for_public boundary is the earliest safe shared fix and is
+    therefore class-correct across every monitor.
+    """
+    report = {
+        "module_3": {
+            "funding_rounds": [{}],
+            "strategic_deals": [{}, {"company": "Acme", "amount": "$100M"}],
+            "energy_wall": [],
+        },
+        "module_6": {
+            "threshold_events": [{}],
+            "programme_updates": [{"title": "Real item"}],
+        },
+        "items_all_blank": [{}, {}, {}],
+    }
+    public = sanitise_for_public(report)
+
+    # Pure-placeholder lists collapse to []
+    assert public["module_3"]["funding_rounds"] == [], \
+        "all-empty-dict list should collapse to [] so renderer emits noContent()"
+    assert public["module_6"]["threshold_events"] == []
+    assert public["items_all_blank"] == []
+
+    # Already-empty list stays []
+    assert public["module_3"]["energy_wall"] == []
+
+    # Mixed list keeps the data items, drops the {}
+    assert public["module_3"]["strategic_deals"] == [
+        {"company": "Acme", "amount": "$100M"}
+    ]
+    assert public["module_6"]["programme_updates"] == [{"title": "Real item"}]
+
+
+def test_empty_dict_pruning_does_not_touch_dict_values():
+    """Empty dicts as *values* of keys must survive — only list items are pruned.
+
+    A dict-shaped value (e.g. an empty `meta: {}`) carries the schema's intent
+    that the key exists; only sequence members where `{}` is a placeholder for
+    "no record" are removed.
+    """
+    report = {
+        "meta": {},
+        "totals": {"by_sector": {}},
+        "items": [{}],
+    }
+    public = sanitise_for_public(report)
+    assert public["meta"] == {}
+    assert public["totals"]["by_sector"] == {}
+    assert public["items"] == []
+
+
+def test_empty_dict_pruning_recurses_through_nested_lists():
+    """Pruning works at any depth, including lists nested inside dicts in lists."""
+    report = {
+        "outer": [
+            {"inner": [{}, {"k": "v"}]},
+            {"inner": [{}]},
+        ],
+    }
+    public = sanitise_for_public(report)
+    assert public["outer"][0]["inner"] == [{"k": "v"}]
+    assert public["outer"][1]["inner"] == []
+
+
 def test_input_not_mutated():
     """sanitise_for_public MUST return a deep copy — original untouched."""
     report = _fixture_report()

@@ -1892,6 +1892,22 @@ def sanitise_for_public(report: dict) -> dict:
         return obj
 
     r = strip_preliminary_keys(r)
+
+    # Drop empty-dict placeholders from list bodies. Synthesisers occasionally emit
+    # `[{}]` for a sector with no items this cycle (instead of `[]` or omitting the
+    # key) — the public renderer treats `length > 0` as "has content" and emits a
+    # blank card. Pruning here is the earliest safe shared boundary so the fix
+    # applies uniformly across every monitor without per-monitor renderer logic.
+    # Conservative: only `{}` is dropped — list items with any data survive.
+    def drop_empty_dict_placeholders(obj):
+        if isinstance(obj, dict):
+            return {k: drop_empty_dict_placeholders(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [drop_empty_dict_placeholders(i) for i in obj
+                    if not (isinstance(i, dict) and not i)]
+        return obj
+
+    r = drop_empty_dict_placeholders(r)
     return r
 
 def build_last_run_status(synthesis: dict, config: dict, issues: list = None,
