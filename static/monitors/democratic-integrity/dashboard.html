@@ -193,6 +193,25 @@
       <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- ── Additional Intelligence ──────────────────────────────── -->
+    <section class="module-section" id="section-additional-intelligence">
+      <div class="module-header">
+        <div class="module-title">Additional Intelligence</div>
+      </div>
+      <div class="module-section" id="ai-institutional-flags-block">
+        <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Institutional Integrity Flags</div></div>
+        <div id="ai-institutional-flags-content"><div class="loading-state">Loading…</div></div>
+      </div>
+      <div class="module-section" id="ai-mimicry-chains-block">
+        <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Mimicry Chains</div></div>
+        <div id="ai-mimicry-chains-content"><div class="loading-state">Loading…</div></div>
+      </div>
+      <div class="module-section" id="ai-open-findings-block">
+        <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Open Findings</div></div>
+        <div id="ai-open-findings-content"><div class="loading-state">Loading…</div></div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -207,6 +226,7 @@
       <li><a href="#geographic-view">Geographic View</a></li>
       <li><a href="#section-integrity-flags">Integrity Flags</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
+      <li><a href="#section-additional-intelligence">Additional Intelligence</a></li>
     </ul>
   </nav>
 </div>
@@ -595,6 +615,9 @@
           AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
         }
 
+        /* ── Additional Intelligence (BW-7) ─────────────────────── */
+        renderAdditionalIntelligence(d);
+
       })
       .catch(function(err){
         console.error('[WDM Dashboard]', err);
@@ -605,6 +628,106 @@
       });
 
   });
+
+  /* ══════════════════════════════════════════════════════════════════
+     ADDITIONAL INTELLIGENCE (BW-7) — renders three tiles from
+     report-latest.json fields: institutional_integrity_active_flags,
+     mimicry_chains, open_findings.
+     ══════════════════════════════════════════════════════════════════ */
+  function severityRank(s) {
+    var v = String(s || '').toLowerCase();
+    if (v.indexOf('high') === 0) return 3;
+    if (v.indexOf('med') === 0)  return 2;
+    if (v.indexOf('low') === 0)  return 1;
+    return 0;
+  }
+  function severityCellStyle(s) {
+    var v = String(s || '').toLowerCase();
+    if (v.indexOf('high') === 0) return 'background:rgba(220,38,38,0.12);color:#b91c1c;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v.indexOf('med') === 0)  return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v.indexOf('low') === 0)  return 'background:rgba(202,138,4,0.12);color:#854d0e;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function tierBadgeStyle(t) {
+    var v = String(t || '').toUpperCase();
+    if (v === 'T1') return 'background:rgba(5,150,105,0.12);color:#047857';
+    if (v === 'T2') return 'background:rgba(37,99,235,0.12);color:#1d4ed8';
+    if (v === 'T3') return 'background:rgba(100,116,139,0.15);color:#475569';
+    return 'background:rgba(100,116,139,0.10);color:#64748b';
+  }
+  function renderInstitutionalFlags(list) {
+    var el = document.getElementById('ai-institutional-flags-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No active flags this cycle</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){ return severityRank(b.severity) - severityRank(a.severity); });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr>' +
+        '<th>Country</th><th>Indicator</th><th>Severity</th><th>Lead Time</th>' +
+      '</tr></thead><tbody>';
+    sorted.forEach(function(f) {
+      html += '<tr>' +
+        '<td>' + escHtml(f.country || '') + '</td>' +
+        '<td>' + escHtml(f.indicator || '') + '</td>' +
+        '<td><span style="' + severityCellStyle(f.severity) + '">' + escHtml(f.severity || '') + '</span></td>' +
+        '<td>' + escHtml(f.lead_time || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderMimicryChains(list) {
+    var el = document.getElementById('ai-mimicry-chains-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No active chains identified</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(c) {
+      var linkCount = Array.isArray(c.links) ? c.links.length : 0;
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="font-weight:700">' + escHtml(c.headline || '') + '</div>' +
+        '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' +
+          escHtml(c.chain_id || '') + ' · ' + linkCount + ' link' + (linkCount === 1 ? '' : 's') +
+          (c.last_verified ? ' · last verified ' + escHtml(c.last_verified) : '') +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderOpenFindings(list) {
+    var el = document.getElementById('ai-open-findings-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No open findings this cycle</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(f) {
+      var tier = String(f.source_tier || '').toUpperCase();
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="font-weight:700">' + escHtml(f.headline || '') + '</div>' +
+        (f.why_it_matters ? '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(f.why_it_matters) + '</div>' : '') +
+        '<div style="margin-top:var(--space-1);font-size:var(--text-xs);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
+          (f.source_url
+            ? '<a href="' + escHtml(f.source_url) + '" target="_blank" rel="noopener" style="color:var(--monitor-accent)">' + escHtml(f.source_name || f.source_url) + '</a>'
+            : escHtml(f.source_name || '')) +
+          (tier ? ' <span style="' + tierBadgeStyle(tier) + ';font-weight:600;border-radius:3px;padding:1px 6px;font-size:var(--text-xs)">' + escHtml(tier) + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderAdditionalIntelligence(report) {
+    renderInstitutionalFlags(report.institutional_integrity_active_flags || []);
+    renderMimicryChains(report.mimicry_chains || []);
+    renderOpenFindings(report.open_findings || []);
+  }
 
 }());
 </script>

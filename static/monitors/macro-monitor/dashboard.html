@@ -293,6 +293,29 @@
         </div>
         <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
       </section>
+
+      <!-- Additional Intelligence (BW-7) -->
+      <section class="module-section" id="section-additional-intelligence">
+        <div class="module-header">
+          <div class="module-title">Additional Intelligence</div>
+        </div>
+        <div class="module-section" id="ai-conviction-history-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Conviction History</div></div>
+          <div id="ai-conviction-history-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-blind-spots-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Blind Spots</div></div>
+          <div id="ai-blind-spots-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-tactical-alerts-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Tactical Alerts</div></div>
+          <div id="ai-tactical-alerts-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-open-findings-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Open Findings</div></div>
+          <div id="ai-open-findings-content"><div class="loading-state">Loading…</div></div>
+        </div>
+      </section>
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -318,6 +341,7 @@
       <li><a href="#section-real-m2">Real M2</a></li>
       <li><a href="#section-score-history">Score History</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
+      <li><a href="#section-additional-intelligence">Additional Intelligence</a></li>
     </ul>
   </nav>
 </div>
@@ -677,6 +701,133 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
       AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
     }
+
+    // Additional Intelligence (BW-7)
+    renderAdditionalIntelligence(d);
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     ADDITIONAL INTELLIGENCE (BW-7) — Conviction History, Blind Spots,
+     Tactical Alerts, Open Findings.
+     ══════════════════════════════════════════════════════════════════ */
+  function aiConvictionStyle(c) {
+    var v = String(c || '').toUpperCase();
+    if (v === 'HIGH')   return 'background:rgba(5,150,105,0.12);color:#047857;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'MEDIUM' || v === 'MED') return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function aiAlertStateRank(s) {
+    var v = String(s || '').toUpperCase();
+    if (v === 'WARNING') return 0;
+    if (v === 'WATCH')   return 1;
+    if (v === 'CLEAR')   return 2;
+    return 3;
+  }
+  function aiAlertStateStyle(s) {
+    var v = String(s || '').toUpperCase();
+    if (v === 'WARNING') return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'WATCH')   return 'background:rgba(202,138,4,0.12);color:#854d0e;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'CLEAR')   return 'background:rgba(5,150,105,0.12);color:#047857;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function aiTierBadgeStyle(t) {
+    var v = String(t || '').toUpperCase();
+    if (v === 'T1') return 'background:rgba(5,150,105,0.12);color:#047857';
+    if (v === 'T2') return 'background:rgba(37,99,235,0.12);color:#1d4ed8';
+    if (v === 'T3') return 'background:rgba(100,116,139,0.15);color:#475569';
+    return 'background:rgba(100,116,139,0.10);color:#64748b';
+  }
+  function renderConvictionHistory(list) {
+    var el = document.getElementById('ai-conviction-history-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No conviction history available.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){
+      var ad = a.date || '', bd = b.date || '';
+      return ad < bd ? 1 : (ad > bd ? -1 : 0);
+    }).slice(0, 6);
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>Date</th><th>Regime</th><th>Conviction</th><th>Avg</th></tr></thead><tbody>';
+    sorted.forEach(function(row, idx) {
+      var rowStyle = idx === 0 ? 'border-top:2px solid var(--color-text);font-weight:600' : '';
+      html += '<tr style="' + rowStyle + '">' +
+        '<td>' + escHtml(row.date || '') + '</td>' +
+        '<td>' + escHtml(row.regime || '') + '</td>' +
+        '<td><span style="' + aiConvictionStyle(row.conviction) + '">' + escHtml(row.conviction || '') + '</span></td>' +
+        '<td>' + escHtml(row.avg != null ? row.avg : '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderBlindSpots(list) {
+    var el = document.getElementById('ai-blind-spots-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No blind spots identified</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(b) {
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="font-weight:700">' + escHtml(b.name || '') + '</div>' +
+        (b.description ? '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(b.description) + '</div>' : '') +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderTacticalAlerts(list) {
+    var el = document.getElementById('ai-tactical-alerts-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No tactical alerts active.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){ return aiAlertStateRank(a.state) - aiAlertStateRank(b.state); });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>Alert</th><th>State</th><th>Since</th></tr></thead><tbody>';
+    sorted.forEach(function(a) {
+      html += '<tr>' +
+        '<td>' + escHtml(a.alert || '') + '</td>' +
+        '<td><span style="' + aiAlertStateStyle(a.state) + '">' + escHtml(a.state || '') + '</span></td>' +
+        '<td>' + escHtml(a.since || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderOpenFindings(list) {
+    var el = document.getElementById('ai-open-findings-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No open findings this cycle</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(f) {
+      var tier = String(f.source_tier || '').toUpperCase();
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="font-weight:700">' + escHtml(f.headline || '') + '</div>' +
+        (f.why_it_matters ? '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(f.why_it_matters) + '</div>' : '') +
+        '<div style="margin-top:var(--space-1);font-size:var(--text-xs);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
+          (f.source_url
+            ? '<a href="' + escHtml(f.source_url) + '" target="_blank" rel="noopener">' + escHtml(f.source_name || f.source_url) + '</a>'
+            : escHtml(f.source_name || '')) +
+          (tier ? ' <span style="' + aiTierBadgeStyle(tier) + ';font-weight:600;border-radius:3px;padding:1px 6px;font-size:var(--text-xs)">' + escHtml(tier) + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderAdditionalIntelligence(report) {
+    renderConvictionHistory(report.conviction_history || []);
+    renderBlindSpots(report.blind_spots || []);
+    renderTacticalAlerts(report.active_tactical_alerts || []);
+    renderOpenFindings(report.open_findings || []);
   }
 
   // ── Macro Scenarios renderer ─────────────────────────────────────────
