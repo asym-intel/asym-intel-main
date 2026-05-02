@@ -393,6 +393,29 @@
         </div>
         <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
       </section>
+
+      <!-- Additional Intelligence (BW-7) -->
+      <section class="module-section" id="section-additional-intelligence">
+        <div class="module-header">
+          <div class="module-title">Additional Intelligence</div>
+        </div>
+        <div class="module-section" id="ai-regulatory-framework-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Regulatory Framework</div></div>
+          <div id="ai-regulatory-framework-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-platform-transparency-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Platform Transparency</div></div>
+          <div id="ai-platform-transparency-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-infrastructure-registry-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Infrastructure Registry</div></div>
+          <div id="ai-infrastructure-registry-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-open-findings-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Open Findings</div></div>
+          <div id="ai-open-findings-content"><div class="loading-state">Loading…</div></div>
+        </div>
+      </section>
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -407,6 +430,7 @@
       <li><a href="#section-intel-highlights">Intel Highlights</a></li>
       <li><a href="#section-cognitive-warfare">Cognitive Warfare</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
+      <li><a href="#section-additional-intelligence">Additional Intelligence</a></li>
     </ul>
   </nav>
 
@@ -817,11 +841,148 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Cross-monitor flags
       AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
+
+      // Additional Intelligence (BW-7)
+      renderAdditionalIntelligence(d);
     })
     .catch(function (err) {
       console.error(err);
       document.getElementById('triage-container').innerHTML = '<div class="error-state">Failed to load data.</div>';
     });
+
+  /* ══════════════════════════════════════════════════════════════════
+     ADDITIONAL INTELLIGENCE (BW-7) — Regulatory Framework, Platform
+     Transparency, Infrastructure Registry, Open Findings.
+     ══════════════════════════════════════════════════════════════════ */
+  function aiTierBadgeStyle(t) {
+    var v = String(t || '').toUpperCase();
+    if (v === 'T1') return 'background:rgba(5,150,105,0.12);color:#047857';
+    if (v === 'T2') return 'background:rgba(37,99,235,0.12);color:#1d4ed8';
+    if (v === 'T3') return 'background:rgba(100,116,139,0.15);color:#475569';
+    return 'background:rgba(100,116,139,0.10);color:#64748b';
+  }
+  function aiStatusStyle(s) {
+    var v = String(s || '').toLowerCase();
+    if (v === 'in force' || v === 'active' || v === 'enforced' || v === 'leading') return 'background:rgba(5,150,105,0.12);color:#047857;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'pending' || v === 'proposed' || v === 'adequate' || v === 'partial') return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'gap' || v === 'absent' || v === 'lagging' || v === 'opaque' || v === 'blocked') return 'background:rgba(220,38,38,0.12);color:#b91c1c;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function renderRegulatoryFramework(list) {
+    var el = document.getElementById('ai-regulatory-framework-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No regulatory framework data this cycle.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){
+      var ad = a.last_update || a.last_material_change || '', bd = b.last_update || b.last_material_change || '';
+      return ad < bd ? 1 : (ad > bd ? -1 : 0);
+    });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>Instrument</th><th>Jurisdiction</th><th>Status</th><th>Last Update</th></tr></thead><tbody>';
+    sorted.forEach(function(row) {
+      var instrumentCell = row.source_url
+        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(row.instrument || row.framework || '') + '</a>'
+        : escHtml(row.instrument || row.framework || '');
+      html += '<tr>' +
+        '<td>' + instrumentCell + '</td>' +
+        '<td>' + escHtml(row.jurisdiction || '') + '</td>' +
+        '<td><span style="' + aiStatusStyle(row.status) + '">' + escHtml(row.status || '') + '</span></td>' +
+        '<td>' + escHtml(row.last_update || row.last_material_change || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderPlatformTransparency(list) {
+    var el = document.getElementById('ai-platform-transparency-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No platform transparency data this cycle.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){
+      var an = String(a.platform || '').toLowerCase();
+      var bn = String(b.platform || '').toLowerCase();
+      return an < bn ? -1 : (an > bn ? 1 : 0);
+    });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>Platform</th><th>Posture</th><th>Disclosure Cadence</th><th>DSA Compliance</th><th>Trajectory</th></tr></thead><tbody>';
+    sorted.forEach(function(row) {
+      html += '<tr>' +
+        '<td>' + escHtml(row.platform || '') + '</td>' +
+        '<td><span style="' + aiStatusStyle(row.transparency_posture || row.posture) + '">' + escHtml(row.transparency_posture || row.posture || '') + '</span></td>' +
+        '<td>' + escHtml(row.disclosure_cadence || '') + '</td>' +
+        '<td><span style="' + aiStatusStyle(row.dsa_compliance) + '">' + escHtml(row.dsa_compliance || '') + '</span></td>' +
+        '<td>' + escHtml(row.trajectory || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderInfrastructureRegistry(list) {
+    var el = document.getElementById('ai-infrastructure-registry-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No infrastructure registry data this cycle.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){
+      var ad = a.last_update || a.last_observed || '', bd = b.last_update || b.last_observed || '';
+      return ad < bd ? 1 : (ad > bd ? -1 : 0);
+    });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>Asset</th><th>Operator</th><th>Type</th><th>Status</th><th>Last Observed</th></tr></thead><tbody>';
+    sorted.forEach(function(row) {
+      var assetCell = row.source_url
+        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(row.asset || row.name || '') + '</a>'
+        : escHtml(row.asset || row.name || '');
+      html += '<tr>' +
+        '<td>' + assetCell + '</td>' +
+        '<td>' + escHtml(row.operator || row.actor || '') + '</td>' +
+        '<td>' + escHtml(row.type || row.asset_type || '') + '</td>' +
+        '<td><span style="' + aiStatusStyle(row.status) + '">' + escHtml(row.status || '') + '</span></td>' +
+        '<td>' + escHtml(row.last_observed || row.last_update || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderOpenFindings(list) {
+    var el = document.getElementById('ai-open-findings-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No open findings this cycle</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(f) {
+      var tier = String(f.source_tier || '').toUpperCase();
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="font-weight:700">' + escHtml(f.headline || '') + '</div>' +
+        (f.why_it_matters ? '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(f.why_it_matters) + '</div>' : '') +
+        '<div style="margin-top:var(--space-1);font-size:var(--text-xs);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
+          (f.source_url
+            ? '<a href="' + escHtml(f.source_url) + '" target="_blank" rel="noopener">' + escHtml(f.source_name || f.source_url) + '</a>'
+            : escHtml(f.source_name || '')) +
+          (tier ? ' <span style="' + aiTierBadgeStyle(tier) + ';font-weight:600;border-radius:3px;padding:1px 6px;font-size:var(--text-xs)">' + escHtml(tier) + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderAdditionalIntelligence(report) {
+    renderRegulatoryFramework(report.regulatory_framework || []);
+    // Defensive: support either `platform_transparency` or `platform_transparency_2026`
+    // since the FCW interpreter addendum is not yet merged and field naming is unconfirmed.
+    var pt = report.platform_transparency;
+    if (!Array.isArray(pt) || !pt.length) pt = report.platform_transparency_2026;
+    renderPlatformTransparency(Array.isArray(pt) ? pt : []);
+    renderInfrastructureRegistry(report.infrastructure_registry || []);
+    renderOpenFindings(report.open_findings || []);
+  }
 });
 
   // renderCrossMonitor removed — now handled by AsymSections.renderCrossMonitorFlags
