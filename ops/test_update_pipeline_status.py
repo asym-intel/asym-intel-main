@@ -669,6 +669,124 @@ def test_resolve_skips_commons_monitor():
     assert closed == []
 
 
+def test_resolve_closes_label_less_producer_issue():
+    """Regression for #173/#174: real producer-poll issues lack the
+    `pipeline-failure` label because the open-path's `--field labels[]=...`
+    invocation didn't always set it. The resolver must still find and close
+    them via body-marker matching, since the body-marker is the authoritative
+    provenance signal."""
+    issue = _producer_issue(
+        number=173, abbr="ADVENNT", station="published",
+        created_at="2026-05-02T09:15:03Z",
+    )
+    issue["labels"] = []  # the actual on-prod shape for #173/#174
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "published": {
+                    "last_run": "2026-05-02T11:10:29Z",
+                    "last_conclusion": "success",
+                    "last_success": "2026-05-02T11:10:29Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(
+            status, issues=[issue],
+            now=datetime(2026, 5, 2, 14, 0, tzinfo=timezone.utc),
+        )
+    finally:
+        _module.subprocess.run = orig
+    assert closed == [173], f"expected #173 closed, got {closed}"
+
+
+def test_emit_creates_issue_with_labels_array():
+    """Regression for #173/#174 root cause: the open path must send `labels`
+    as a real JSON array, not as a string `--field`. We verify by capturing
+    the payload sent through stdin and asserting the JSON shape includes
+    `labels: ["pipeline-failure"]`."""
+    _emit = _module._emit_cross_repo_failure_alerts
+    # Bypass the existing-titles check by injecting a fresh status with a
+    # recent failure on a cross-repo monitor.
+    now_iso = (datetime.now(timezone.utc) - timedelta(hours=1)).strftime(
+        "%Y-%m-%dT%H:%M:%SZ"
+    )
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "published": {
+                    "last_run": now_iso,
+                    "last_conclusion": "failure",
+                    "last_success": None,
+                },
+            },
+        },
+    }
+    captured = {}
+
+    def fake_gh_api(endpoint, token=None):
+        # _list_open_pipeline_failure_issues() returns []
+        return "[]"
+
+    def fake_run(cmd, *args, **kwargs):
+        captured["cmd"] = cmd
+        captured["input"] = kwargs.get("input")
+        return _FakeRun(returncode=0)
+
+    orig_gh, orig_run = _module.gh_api, _module.subprocess.run
+    _module.gh_api = fake_gh_api
+    _module.subprocess.run = fake_run
+    try:
+        _emit(status)
+    finally:
+        _module.gh_api = orig_gh
+        _module.subprocess.run = orig_run
+
+    assert "input" in captured and captured["input"], (
+        "expected JSON payload piped via --input -"
+    )
+    import json as _json
+    payload = _json.loads(captured["input"])
+    assert payload.get("labels") == ["pipeline-failure"], (
+        f"labels must be a JSON array, got {payload.get('labels')!r}"
+    )
+    assert "--input" in captured["cmd"], (
+        "open path must use `--input -` (gh-documented array form), "
+        "not legacy `--field labels[]=...`"
+    )
+
+
+def test_list_open_pipeline_failure_issues_filters_pull_requests():
+    """The /issues endpoint returns PRs too; the helper must strip them so
+    the resolver doesn't try to body-parse a PR description."""
+    _list = _module._list_open_pipeline_failure_issues
+    fake_payload = _json_dumps_for_test([
+        {"number": 1, "title": "issue", "body": "x"},
+        {"number": 2, "title": "PR", "body": "y", "pull_request": {"url": "..."}},
+    ])
+
+    def fake_gh_api(endpoint, token=None):
+        return fake_payload
+
+    orig = _module.gh_api
+    _module.gh_api = fake_gh_api
+    try:
+        out = _list()
+    finally:
+        _module.gh_api = orig
+    nums = [i.get("number") for i in out]
+    assert nums == [1], f"PRs must be stripped, got {nums}"
+
+
+def _json_dumps_for_test(obj):
+    import json as _json
+    return _json.dumps(obj)
+
+
 def test_resolve_does_not_close_if_comment_fails():
     """If posting the recovery comment fails, the issue must stay open — no
     silent close that would erase the audit trail."""

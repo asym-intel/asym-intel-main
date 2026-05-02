@@ -816,12 +816,26 @@ def compute_trigger_health(window_days=7, now=None):
 
 
 def _list_open_pipeline_failure_issues():
-    """Return list of open issues with the `pipeline-failure` label.
+    """Return list of open issues that may be producer-poll failure alerts.
 
     Returns [] on API failure (degrade gracefully — same as other gh_api callers).
+
+    Historically this filtered server-side by `labels=pipeline-failure`, but
+    issues #173/#174 surfaced that the open-path's `gh api --field labels[]=...`
+    invocation does not always reliably attach the label (varies with gh CLI
+    version; the field is sent as a string rather than a JSON array unless
+    `-F`/`--input` is used). Result: label-less issues invisible to the
+    auto-close path.
+
+    The body-marker check in _parse_producer_issue_body() is the authoritative
+    provenance signal — only issues whose body contains the producer-poll
+    marker can ever be auto-closed. So it is safe to drop the server-side
+    label filter and let the marker check be the gate; we just have to fetch
+    a wider net of open issues. We cap at 100 and walk newest-first which is
+    sufficient for the producer-poll volume (≤ a few open at any time).
     """
     raw = gh_api(
-        f"/repos/{MAIN_REPO}/issues?state=open&labels=pipeline-failure&per_page=50"
+        f"/repos/{MAIN_REPO}/issues?state=open&per_page=100"
     )
     if not raw:
         return []
@@ -829,7 +843,11 @@ def _list_open_pipeline_failure_issues():
         data = json.loads(raw)
     except (json.JSONDecodeError, TypeError):
         return []
-    return data if isinstance(data, list) else []
+    if not isinstance(data, list):
+        return []
+    # The /issues endpoint returns PRs too; strip them so callers don't have
+    # to. PRs always carry a `pull_request` key.
+    return [i for i in data if isinstance(i, dict) and "pull_request" not in i]
 
 
 # Marker line written into auto-created cross-repo failure issues. Used by
@@ -948,16 +966,27 @@ def _emit_cross_repo_failure_alerts(status):
                 f"canonical mechanism for cross-repo monitors.\n"
                 f"\nClose when resolved."
             )
+            # Build the request body as explicit JSON and pipe via --input.
+            # Earlier code used `--field labels[]=pipeline-failure`, which sent
+            # `labels` as a string field on some gh versions and produced the
+            # label-less issues #173/#174 (visible via `gh issue view --json labels`).
+            # The auto-close path then could not find them because it filters
+            # open issues by the `pipeline-failure` label. JSON-on-stdin is the
+            # gh-documented array form and is version-stable.
+            payload = json.dumps({
+                "title": issue_title,
+                "body": issue_body,
+                "labels": ["pipeline-failure"],
+            })
             create_raw = subprocess.run(
                 [
                     "gh", "api",
                     f"/repos/{MAIN_REPO}/issues",
                     "--method", "POST",
-                    "--field", f"title={issue_title}",
-                    "--field", f"body={issue_body}",
-                    "--field", "labels[]=pipeline-failure",
+                    "--input", "-",
                 ],
-                capture_output=True, text=True
+                input=payload,
+                capture_output=True, text=True,
             )
             if create_raw.returncode == 0:
                 print(f"  🔴 {abbr} {station}: created failure alert issue", file=sys.stderr)
