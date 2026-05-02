@@ -24,7 +24,14 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from publisher import sanitise_for_public, _is_empty_placeholder, _strip_empty_placeholders  # noqa: E402
+from publisher import (  # noqa: E402
+    sanitise_for_public,
+    _is_empty_placeholder,
+    _strip_empty_placeholders,
+    _annotate_empty_modules,
+    _find_unprovenanced_empty_modules,
+    _module_body_is_empty,
+)
 
 
 # ── Fixture ────────────────────────────────────────────────────────────────
@@ -258,6 +265,257 @@ def test_strip_does_not_collapse_zero_or_false():
     report = {"items": [{"score": 0, "active": False}]}
     cleaned = _strip_empty_placeholders(report)
     assert cleaned == {"items": [{"score": 0, "active": False}]}
+
+
+# ── Module-level null-signal provenance contract ──────────────────────────
+#
+# Live AIM artefact (commit 6e867f3f) has 10 modules of the form
+# {title, <field>: [], <field>: [], ...}. The contract: every empty-shaped
+# module reaching the public report MUST carry null_signal/empty_reason/
+# fallback_message before publication.
+
+
+def test_string_null_treated_as_empty():
+    """LLM-emitted "null" string sentinel (AIM module_9 digest_note) is empty."""
+    assert _is_empty_placeholder("null") is True
+    assert _is_empty_placeholder("NULL") is True
+    assert _is_empty_placeholder("  null  ") is True
+    # Real content containing "null" is not.
+    assert _is_empty_placeholder("nullable type") is False
+
+
+def test_module_body_is_empty_recognises_title_plus_empty_arrays():
+    """AIM module_3 shape after [{}] strip — title plus empty arrays — is empty."""
+    m = {
+        "title": "Investment and M&A",
+        "funding_rounds": [],
+        "strategic_deals": [],
+        "energy_wall": [],
+    }
+    assert _module_body_is_empty(m) is True
+
+
+def test_module_body_is_empty_recognises_placeholder_arrays():
+    """Pre-strip module_3 shape with [{}] placeholders is also empty."""
+    m = {
+        "title": "Investment and M&A",
+        "funding_rounds": [{}],
+        "strategic_deals": [{}],
+    }
+    assert _module_body_is_empty(m) is True
+
+
+def test_module_body_is_empty_recognises_string_null_field():
+    """AIM module_9 with digest_note: "null" plus empty arrays is empty."""
+    m = {
+        "title": "Law and Litigation",
+        "digest_note": "null",
+        "law_highlights": [],
+        "standards_highlights": [],
+        "litigation_highlights": [],
+    }
+    assert _module_body_is_empty(m) is True
+
+
+def test_module_body_is_empty_rejects_non_empty():
+    """A module with any meaningful content is not empty."""
+    m = {
+        "title": "Investment and M&A",
+        "funding_rounds": [{"company": "Acme", "amount": "$100M"}],
+    }
+    assert _module_body_is_empty(m) is False
+
+
+def test_annotate_empty_modules_stamps_no_material_content_for_null_cycle():
+    """When interpret-stage marks a null/partial cycle, empty modules get
+    explicit no_material_content provenance and a reader-facing fallback."""
+    report = {
+        "module_3": {
+            "title": "Investment and M&A",
+            "funding_rounds": [],
+            "strategic_deals": [],
+            "energy_wall": [],
+        },
+    }
+    meta = {"null_signal_week": True, "cycle_disposition": "null_cycle"}
+    out = _annotate_empty_modules(report, source_meta=meta)
+    m = out["module_3"]
+    assert m["null_signal"] is True
+    assert m["empty_reason"] == "no_material_content"
+    assert isinstance(m["fallback_message"], str) and m["fallback_message"]
+
+
+def test_annotate_empty_modules_stamps_unknown_when_overall_material():
+    """The exact AIM data-quality break: overall null_signal_week=false /
+    cycle_disposition=material_change but a module_* is structurally empty.
+    Provenance MUST be unknown (preserved as explicit unknown, not silent)."""
+    report = {
+        "module_6": {
+            "title": "AI in Science",
+            "threshold_events": [],
+            "programme_updates": [],
+            "arxiv_highlights": [],
+        },
+    }
+    meta = {
+        "null_signal_week": False,
+        "cycle_disposition": "material_change",
+        "null_signal_reason": "multiple material developments this week",
+    }
+    out = _annotate_empty_modules(report, source_meta=meta)
+    m = out["module_6"]
+    assert m["null_signal"] is True
+    assert m["empty_reason"] == "unknown"
+    assert "could not determine" in m["fallback_message"].lower() \
+        or "review" in m["fallback_message"].lower()
+
+
+def test_annotate_empty_modules_replaces_string_null_field():
+    """AIM module_9 digest_note: "null" must not survive into the public report
+    as the literal four-letter word — annotation drops it to empty string."""
+    report = {
+        "module_9": {
+            "title": "Law and Litigation",
+            "digest_note": "null",
+            "law_highlights": [],
+            "standards_highlights": [],
+            "litigation_highlights": [],
+        },
+    }
+    meta = {"null_signal_week": False, "cycle_disposition": "material_change"}
+    out = _annotate_empty_modules(report, source_meta=meta)
+    m = out["module_9"]
+    assert m["null_signal"] is True
+    assert m["digest_note"] == ""
+
+
+def test_annotate_empty_modules_preserves_non_empty_modules():
+    """Modules with real content MUST NOT be touched."""
+    report = {
+        "module_0": {
+            "title": "Lead Signal",
+            "headline": "Real headline",
+            "items": [{"id": "x", "summary": "real"}],
+        },
+        "module_3": {
+            "title": "Empty M&A",
+            "funding_rounds": [],
+        },
+    }
+    meta = {"null_signal_week": False, "cycle_disposition": "material_change"}
+    out = _annotate_empty_modules(report, source_meta=meta)
+    assert "null_signal" not in out["module_0"]
+    assert out["module_0"]["headline"] == "Real headline"
+    assert out["module_0"]["items"][0]["summary"] == "real"
+    assert out["module_3"]["null_signal"] is True
+
+
+def test_annotate_empty_modules_does_not_overwrite_existing_provenance():
+    """If the upstream stage already wrote provenance, respect it."""
+    report = {
+        "module_3": {
+            "title": "Investment and M&A",
+            "funding_rounds": [],
+            "null_signal": True,
+            "empty_reason": "synthesis_skipped",
+            "fallback_message": "Upstream skipped this module.",
+        },
+    }
+    out = _annotate_empty_modules(report, source_meta={})
+    m = out["module_3"]
+    assert m["empty_reason"] == "synthesis_skipped"
+    assert m["fallback_message"] == "Upstream skipped this module."
+
+
+def test_sanitise_for_public_end_to_end_with_aim_module_3_pattern():
+    """End-to-end: AIM-shaped report with [{}] placeholders, string "null",
+    and overall null_signal_week=false. Public report has clean arrays AND
+    explicit module-level provenance for the empty modules."""
+    report = {
+        "title": "AIM Issue 12",
+        "_meta": {
+            "null_signal_week": False,
+            "cycle_disposition": "material_change",
+        },
+        "module_0": {
+            "title": "Lead Signal",
+            "items": [{"id": "lead-1", "summary": "real lead"}],
+        },
+        "module_3": {
+            "title": "Investment and M&A",
+            "funding_rounds": [{}],
+            "strategic_deals": [{}],
+            "energy_wall": [{}],
+        },
+        "module_6": {
+            "title": "AI in Science",
+            "threshold_events": [{}],
+            "programme_updates": [{}],
+            "arxiv_highlights": [{}],
+        },
+        "module_9": {
+            "title": "Law and Litigation",
+            "digest_note": "null",
+            "law_highlights": [{}],
+            "standards_highlights": [{}],
+            "litigation_highlights": [{}],
+        },
+    }
+    public = sanitise_for_public(report)
+
+    # Real content survives untouched
+    assert public["module_0"]["items"][0]["summary"] == "real lead"
+    assert "null_signal" not in public["module_0"]
+
+    # Empty modules carry provenance
+    for k in ("module_3", "module_6", "module_9"):
+        m = public[k]
+        assert m["null_signal"] is True, f"{k} missing null_signal"
+        assert m["empty_reason"] in {"unknown", "no_material_content"}, \
+            f"{k} empty_reason missing"
+        assert isinstance(m["fallback_message"], str) and m["fallback_message"], \
+            f"{k} fallback_message missing"
+
+    # Placeholder [{}] arrays became empty arrays
+    assert public["module_3"]["funding_rounds"] == []
+    assert public["module_3"]["strategic_deals"] == []
+    assert public["module_9"]["law_highlights"] == []
+
+    # "null" string sentinel did not leak through
+    assert public["module_9"]["digest_note"] != "null"
+
+
+def test_find_unprovenanced_empty_modules_flags_bare_empty():
+    """Defense-in-depth gate: bare empty modules are reported."""
+    report = {
+        "module_3": {"title": "Empty", "funding_rounds": [], "strategic_deals": []},
+        "module_6": {
+            "title": "Provenanced empty",
+            "threshold_events": [],
+            "null_signal": True,
+            "empty_reason": "no_material_content",
+            "fallback_message": "OK.",
+        },
+        "module_0": {"title": "Real", "items": [{"id": "x"}]},
+    }
+    bad = _find_unprovenanced_empty_modules(report)
+    assert bad == ["module_3"]
+
+
+def test_find_unprovenanced_empty_modules_passes_after_annotate():
+    """Round-trip: annotate then validate — public report should pass."""
+    report = {
+        "module_3": {
+            "title": "Investment and M&A",
+            "funding_rounds": [],
+            "strategic_deals": [],
+        },
+    }
+    annotated = _annotate_empty_modules(report, source_meta={
+        "null_signal_week": False,
+        "cycle_disposition": "material_change",
+    })
+    assert _find_unprovenanced_empty_modules(annotated) == []
 
 
 if __name__ == "__main__":
