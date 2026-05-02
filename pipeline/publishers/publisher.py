@@ -8,6 +8,12 @@ and publish schedule. The core logic is identical across all 7 monitors.
 Usage:
   REPO_ROOT=. MONITOR_SLUG=fimi-cognitive-warfare python3 publisher.py
   REPO_ROOT=. MONITOR_SLUG=macro-monitor python3 publisher.py
+  REPO_ROOT=. MONITOR_SLUG=ai-governance PUBLISH_DATE=2026-05-01 python3 publisher.py
+
+Optional env vars:
+  PUBLISH_DATE — override the output date (YYYY-MM-DD). Defaults to today (UTC). Use when
+                 re-running the publisher for a past cycle date (e.g. after a compose failure).
+                 Must be a valid ISO date string. If malformed, publisher exits with an error.
 
 Inputs (per monitor):
   pipeline/monitors/{slug}/synthesised/synthesis-latest.json
@@ -2039,7 +2045,17 @@ def main():
         sys.exit(1)
     print("  ✓ synthesis is fresh and valid")
 
-    publish_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    _publish_date_override = os.environ.get("PUBLISH_DATE", "").strip()
+    if _publish_date_override:
+        try:
+            datetime.strptime(_publish_date_override, "%Y-%m-%d")
+            publish_date = _publish_date_override
+            print(f"  ℹ PUBLISH_DATE override active: {publish_date}")
+        except ValueError:
+            print(f"  ✗ PUBLISH_DATE '{_publish_date_override}' is not a valid YYYY-MM-DD date — aborting")
+            sys.exit(1)
+    else:
+        publish_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     # Build report
     print("\n[3/6] Assembling report...")

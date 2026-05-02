@@ -2,7 +2,13 @@ name: FIM Publisher — Weekly Report
 
 on:
   # Schedule: Monday 18:00 UTC (after synthesiser completes)
-  workflow_dispatch:          # manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      publish_date:
+        description: "Override output date (YYYY-MM-DD). Leave blank to use today (UTC). Use when re-running for a past cycle."
+        required: false
+        default: ""
+        type: string
 
 jobs:
   publish:

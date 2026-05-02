@@ -2,7 +2,13 @@ name: SCEM Publisher — Weekly Report
 
 on:
   # Schedule: Sunday 18:00 UTC (after synthesiser completes)
-  workflow_dispatch:          # manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      publish_date:
+        description: "Override output date (YYYY-MM-DD). Leave blank to use today (UTC). Use when re-running for a past cycle."
+        required: false
+        default: ""
+        type: string
 
 jobs:
   publish:
@@ -30,6 +36,8 @@ jobs:
           # LINEAGE_WRITE_TOKEN: used by pipeline/shared/lineage.py to write provenance
           # envelopes to asym-intel-internal/archive/lineage/. Non-blocking if absent.
           LINEAGE_WRITE_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          # Optional: override publish date for re-runs on past cycle dates
+          PUBLISH_DATE: ${{ inputs.publish_date }}
         run: |
           python3 pipeline/publishers/publisher.py
           ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/conflict-escalation/data/report-latest.json"))["meta"]["issue"])')
