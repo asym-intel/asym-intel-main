@@ -55,6 +55,18 @@ CRITICAL RULES:
   contradictory. A quiet week lead_signal should carry confidence_preliminary: "N/A"
   and a headline of "No new FIMI operations identified this week — see coverage notes."
 
+TARGETED RESEARCH (REQUIRED — feeds new structured fields):
+- Regulatory developments this week: EU DSA enforcement (fines, investigations, Article 40 obligations), EEAS Rapid Alert System / FIMI Toolbox releases (annual reports, new advisories), IRGC EU terrorist designation effects (sanctions, judicial rulings), NATO StratCom Centre of Excellence outputs.
+- Platform transparency cadence this week: CIB report releases (Meta, Google TAG, MSTIC), DSA fines or commitments (X/Twitter, Meta, Google, TikTok), structural transparency-gap notes (X/Twitter has no CIB equivalent — record absence-of-disclosure separately from absence-of-activity).
+- Infrastructure attribution this week: new entity attributions (state contractors, hosting providers, front organisations), sanctions designations or removals, named-operator reporting in Tier 1–3 sources.
+
+OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
+run one additional broad search: "what else happened this week in FIMI, cognitive warfare, platform integrity, or information manipulation that a
+sophisticated analyst would flag as significant?" Return findings as open_findings[]
+with no schema constraint beyond the fields shown. Minimum 1 entry, no maximum.
+This is not a catch-all for things that didn't fit above — it is a deliberate
+breadth pass to surface novel signals the structured schema may not have anticipated.
+
 OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences.
 
 {
@@ -154,7 +166,17 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences.
     "sources_with_findings": ["<sources that returned relevant new material>"],
     "x_twitter_gap_note": "<note on X/Twitter coverage limitations this week>",
     "coverage_gaps": ["<any domains or actors where coverage was structurally thin>"]
-  }
+  },
+  "open_findings": [
+    {
+      "headline": "<one sentence — what happened>",
+      "why_it_matters": "<one sentence — analytical significance for FIMI, cognitive warfare, platform integrity, or information manipulation>",
+      "source_url": "<direct URL>",
+      "source_name": "<publication or institution>",
+      "source_tier": "<1|2|3>"
+    }
+  ]
 }
 
 # Version: v1.1 | Updated: 2026-04-26 | Change: Added evidence_id + retrieval_timestamp to campaigns[] (engine-stamped, LLM must not invent). Closes Sprint AM Finding A per AD-2026-04-26-AM. Mirrors AGM v1.1.
+# Version: +open_findings | Updated: 2026-05-02 | Change: Added open_findings[] catch-all + targeted research prompts for regulatory_framework / platform_transparency_2026 / infrastructure_registry per AD-2026-05-02-BW. Schema-free breadth pass at end of each weekly collection cycle.
