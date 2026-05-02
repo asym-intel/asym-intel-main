@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
@@ -26,7 +26,7 @@ jobs:
       # The publisher invokes node scripts/generate-static.js inside this checkout,
       # then POSTs the rendered HTML to WordPress.
       - name: Checkout Ramparts repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: asym-intel/Ramparts
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}

@@ -12,13 +12,13 @@ jobs:
 
     steps:
       - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       # ── Phase B Step 5 cutover — engine + bespoke config live in internal ──
       - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: asym-intel/asym-intel-internal
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}

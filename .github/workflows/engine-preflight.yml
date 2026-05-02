@@ -41,7 +41,7 @@ jobs:
     outputs:
       run_preflight: ${{ steps.filter.outputs.reports }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           # On PR events, fetch enough history to diff against base.
           # On push, depth 0 lets us reach event.before reliably.
@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout public repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Fetch preflight script from internal repo
         env:

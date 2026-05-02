@@ -32,13 +32,13 @@ jobs:
 
     steps:
       - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           ref: main
 
       - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: asym-intel/asym-intel-internal
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
