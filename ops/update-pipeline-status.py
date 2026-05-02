@@ -815,6 +815,65 @@ def compute_trigger_health(window_days=7, now=None):
     return base
 
 
+def _list_open_pipeline_failure_issues():
+    """Return list of open issues with the `pipeline-failure` label.
+
+    Returns [] on API failure (degrade gracefully — same as other gh_api callers).
+    """
+    raw = gh_api(
+        f"/repos/{MAIN_REPO}/issues?state=open&labels=pipeline-failure&per_page=50"
+    )
+    if not raw:
+        return []
+    try:
+        data = json.loads(raw)
+    except (json.JSONDecodeError, TypeError):
+        return []
+    return data if isinstance(data, list) else []
+
+
+# Marker line written into auto-created cross-repo failure issues. Used by
+# _resolve_cross_repo_failure_alerts() to scope auto-close to issues this
+# function created — never touches manually-filed issues that happen to share
+# the `pipeline-failure` label. The phrase appears verbatim in the body
+# template emitted by _emit_cross_repo_failure_alerts().
+_PRODUCER_POLL_BODY_MARKER = "producer poll (BU.4 cross-repo alert path)"
+
+
+def _parse_producer_issue_body(body):
+    """Extract (monitor_abbr, station) from a producer-poll issue body.
+
+    The body template starts with:
+        **Monitor:** ABBR (org/repo)
+        **Station:** stationname
+        ...
+        **Detected by:** producer poll (BU.4 cross-repo alert path)
+
+    Returns (abbr, station) or (None, None) if the body isn't a producer-poll
+    body or the fields can't be parsed. Strict parser by design — the auto-close
+    path must not act on issues whose provenance it can't confirm.
+    """
+    if not body or _PRODUCER_POLL_BODY_MARKER not in body:
+        return None, None
+    abbr = None
+    station = None
+    for line in body.splitlines():
+        line = line.strip()
+        if line.startswith("**Monitor:**"):
+            # "**Monitor:** ABBR (org/repo)"
+            rest = line[len("**Monitor:**"):].strip()
+            abbr_token = rest.split()[0] if rest else ""
+            if abbr_token:
+                abbr = abbr_token
+        elif line.startswith("**Station:**"):
+            rest = line[len("**Station:**"):].strip()
+            if rest:
+                station = rest.split()[0]
+        if abbr and station:
+            break
+    return abbr, station
+
+
 def _emit_cross_repo_failure_alerts(status):
     """Emit GitHub Issue alerts for cross-repo monitor failures.
 
@@ -831,9 +890,12 @@ def _emit_cross_repo_failure_alerts(status):
     This is the canonical approach for cross-repo consumers per
     ops/PIPELINE-OBSERVABILITY-DOCTRINE.md (BU.4).
     """
-    from datetime import timezone as _tz
     now_utc = datetime.now(timezone.utc)
     alert_window_hours = 6  # alert on failures in the last 6h
+
+    # Fetch open alerts once, not per-station, to avoid 9×14 GET amplification.
+    existing = _list_open_pipeline_failure_issues()
+    existing_titles = {i.get("title") for i in existing if isinstance(i, dict)}
 
     for abbr, meta in MONITORS.items():
         monitor_repo = meta.get("repo")
@@ -867,19 +929,9 @@ def _emit_cross_repo_failure_alerts(status):
             wf_file = WORKFLOW_FILES.get((abbr, station), "unknown")
             issue_title = f"🔴 Pipeline failure: {abbr} {station} ({wf_file})"
 
-            # Check for existing open issue with this title (avoid duplicates)
-            # Uses GH_TOKEN via gh CLI
-            existing_raw = gh_api(
-                f"/repos/{MAIN_REPO}/issues?state=open&labels=pipeline-failure&per_page=50"
-            )
-            if existing_raw:
-                try:
-                    existing = json.loads(existing_raw)
-                    if any(i.get("title") == issue_title for i in existing):
-                        print(f"  ⚠️  {abbr} {station}: alert already open, skipping", file=sys.stderr)
-                        continue
-                except (json.JSONDecodeError, TypeError):
-                    pass
+            if issue_title in existing_titles:
+                print(f"  ⚠️  {abbr} {station}: alert already open, skipping", file=sys.stderr)
+                continue
 
             # Create the issue
             issue_body = (
@@ -887,7 +939,7 @@ def _emit_cross_repo_failure_alerts(status):
                 f"**Station:** {station}\n"
                 f"**Workflow:** {wf_file}\n"
                 f"**Last run:** {last_run_str}\n"
-                f"**Detected by:** producer poll (BU.4 cross-repo alert path)\n"
+                f"**Detected by:** {_PRODUCER_POLL_BODY_MARKER}\n"
                 f"\n"
                 f"This issue was auto-created by `update-pipeline-status.py` "
                 f"(cross-repo failure-alert path, Sprint BU BU.4).\n"
@@ -909,8 +961,127 @@ def _emit_cross_repo_failure_alerts(status):
             )
             if create_raw.returncode == 0:
                 print(f"  🔴 {abbr} {station}: created failure alert issue", file=sys.stderr)
+                existing_titles.add(issue_title)
             else:
                 print(f"  ⚠️  {abbr} {station}: failed to create issue: {create_raw.stderr[:200]}", file=sys.stderr)
+
+
+def _resolve_cross_repo_failure_alerts(status, *, issues=None, now=None):
+    """Auto-close producer-poll failure issues whose station has since recovered.
+
+    Closes the lifecycle gap behind asym-intel-main#173/#174: when a cross-repo
+    publisher (e.g. ADVENNT) fails on one run and the producer opens a failure
+    issue, then the next publisher run succeeds, the next producer run sees a
+    `success` last_conclusion but had no path to clear the existing issue —
+    so the red alert persisted forever and required manual close.
+
+    Scope (deliberately narrow to avoid masking active failures or touching
+    issues this script didn't create):
+
+      * Issue must have the `pipeline-failure` label (already filtered by caller).
+      * Issue body must contain the producer-poll marker line; manually-filed
+        issues with the same label are left alone.
+      * Body must parse to (monitor_abbr, station) and that monitor must be a
+        cross-repo monitor in MONITORS (has a `repo` field).
+      * Current `status[abbr]["stations"][station]["last_conclusion"]` must be
+        `success` — never close on `running`/`never`/`failure`/missing.
+      * Current `last_run` must be ≥ the issue's `created_at`. This guards
+        against closing on a stale cached success that predates the failure.
+
+    `issues` and `now` are injected for testability; defaults pull live data.
+    Returns the list of closed issue numbers (for logging/test assertions).
+    """
+    now_utc = now or datetime.now(timezone.utc)
+    if issues is None:
+        issues = _list_open_pipeline_failure_issues()
+
+    cross_repo_abbrs = {abbr for abbr, m in MONITORS.items() if m.get("repo")}
+    closed = []
+
+    for issue in issues:
+        if not isinstance(issue, dict):
+            continue
+        number = issue.get("number")
+        if not number:
+            continue
+        body = issue.get("body") or ""
+        abbr, station = _parse_producer_issue_body(body)
+        if not abbr or not station:
+            continue  # not a producer-poll issue we own
+        if abbr not in cross_repo_abbrs:
+            continue  # commons monitor — owned by pipeline-failure-alert.yml lifecycle
+        station_data = (
+            status.get(abbr, {}).get("stations", {}).get(station)
+            if isinstance(status.get(abbr), dict) else None
+        )
+        if not isinstance(station_data, dict):
+            continue
+        if station_data.get("last_conclusion") != "success":
+            continue
+        last_run_str = station_data.get("last_run")
+        if not last_run_str:
+            continue
+        try:
+            last_run_dt = datetime.fromisoformat(last_run_str.replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            continue
+        created_at_str = issue.get("created_at")
+        if not created_at_str:
+            continue
+        try:
+            created_dt = datetime.fromisoformat(created_at_str.replace("Z", "+00:00"))
+        except (ValueError, TypeError):
+            continue
+        if last_run_dt < created_dt:
+            # Cached success predates the failure that triggered this issue —
+            # not yet evidence of recovery.
+            continue
+
+        # Post recovery comment, then close. Comment first so the audit trail
+        # survives even if the close call fails.
+        comment_body = (
+            f"✅ Auto-resolved by `update-pipeline-status.py`: "
+            f"{abbr} {station} returned to success at {last_run_str} "
+            f"(checked at {now_utc.strftime('%Y-%m-%dT%H:%M:%SZ')}).\n"
+            f"\nClosing as recovered. Re-opens automatically if a future run fails."
+        )
+        comment_res = subprocess.run(
+            [
+                "gh", "api",
+                f"/repos/{MAIN_REPO}/issues/{number}/comments",
+                "--method", "POST",
+                "--field", f"body={comment_body}",
+            ],
+            capture_output=True, text=True,
+        )
+        if comment_res.returncode != 0:
+            print(
+                f"  ⚠️  #{number}: recovery comment failed: {comment_res.stderr[:200]}",
+                file=sys.stderr,
+            )
+            # Don't close if we couldn't even comment — fail loud, not silent.
+            continue
+
+        close_res = subprocess.run(
+            [
+                "gh", "api",
+                f"/repos/{MAIN_REPO}/issues/{number}",
+                "--method", "PATCH",
+                "--field", "state=closed",
+                "--field", "state_reason=completed",
+            ],
+            capture_output=True, text=True,
+        )
+        if close_res.returncode == 0:
+            print(f"  ✅ #{number}: auto-closed ({abbr} {station} recovered)", file=sys.stderr)
+            closed.append(number)
+        else:
+            print(
+                f"  ⚠️  #{number}: close failed: {close_res.stderr[:200]}",
+                file=sys.stderr,
+            )
+
+    return closed
 
 
 def generate_status():
@@ -1005,6 +1176,14 @@ def generate_status():
     # monitors for recent failures and emit a GitHub Issue alert matching the
     # existing pipeline-failure-alert.yml format (labels: pipeline-failure).
     _emit_cross_repo_failure_alerts(status)
+
+    # Lifecycle close for cross-repo alerts: same producer-poll path that opens
+    # alerts must also close them when the station has recovered. Without this,
+    # a one-shot publisher failure (e.g. ADVENNT 2026-05-02 #173/#174) leaves a
+    # red issue open even after subsequent successful runs, requiring manual
+    # close. Strict guards in _resolve_cross_repo_failure_alerts ensure we only
+    # close issues this script created and only when the current run is success.
+    _resolve_cross_repo_failure_alerts(status)
 
     # Add metadata
     status["_meta"] = {
