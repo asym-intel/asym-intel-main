@@ -78,17 +78,47 @@ jobs:
 
       - name: Commit docs
         if: github.ref_name == 'main'
+        # GA-010: publisher-bot commits and this job's docs commit can race.
+        # On non-fast-forward, rebase the local docs commit onto fresh origin/main
+        # and retry; only the push is retried, not the build.
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.ASYM_INTEL_PIPELINE }}@github.com/asym-intel/asym-intel-main.git
           if git diff --quiet docs/; then
             echo "No changes to docs/ - skipping commit."
-          else
-            git add docs/
-            git commit -m "build: auto-rebuild [skip ci]"
-            git push origin main
+            exit 0
           fi
+          git add docs/
+          git commit -m "build: auto-rebuild [skip ci]"
+          attempt=1
+          max_attempts=5
+          while true; do
+            if git push origin main; then
+              echo "Pushed docs commit on attempt $attempt."
+              break
+            fi
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "Push failed after $attempt attempts; giving up." >&2
+              exit 1
+            fi
+            sleep_for=$(( attempt * 5 ))
+            echo "Push attempt $attempt failed (likely non-fast-forward). Fetching and rebasing in ${sleep_for}s..."
+            sleep "$sleep_for"
+            git fetch origin main
+            # Rebase our single docs commit onto the updated remote tip. Our
+            # changes only touch docs/ (regenerated output), so conflicts with
+            # publisher-bot data writes are not expected; if a rebase ever does
+            # conflict, abort cleanly so the job fails loudly rather than
+            # pushing a half-resolved state.
+            if ! git rebase origin/main; then
+              echo "Rebase produced conflicts; aborting and failing." >&2
+              git rebase --abort || true
+              exit 1
+            fi
+            attempt=$(( attempt + 1 ))
+          done
 
       - name: Upload Pages artifact
         if: github.ref_name == 'main'
