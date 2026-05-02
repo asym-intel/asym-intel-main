@@ -10,6 +10,10 @@ Sprint AZ BRIEF #1: assert that the producer's derive_public_rollup() function
 correctly maps full-fidelity internal status to schema v3.0 simplified output,
 and that the per-monitor + engine roll-up colour rules behave as specified.
 
+Sprint BU BU.4: schema bumped 4.0 → 4.1; ADVENNT added as 9th monitor;
+_full_fidelity_status() fixture expanded to 9 monitors; test_schema_v4_shape
+updated for new count + slug list + version string.
+
 Sprint BH BRIEF #2 amendment: schema bumped 3.0 → 4.0; public rollup now
 propagates the optional `_trigger_health` block from internal full-fidelity
 status. New tests verify (a) v4.0 shape, (b) `_trigger_health` round-trip,
@@ -83,10 +87,16 @@ def _all_green_monitor(slug="WDM"):
 
 
 def _full_fidelity_status(monitor_overrides=None):
-    """Build a full-fidelity status dict for all 8 monitors, optionally overriding some."""
+    """Build a full-fidelity status dict for all 9 monitors, optionally overriding some.
+
+    Sprint BU BU.4: added ADVENNT as 9th monitor. The default entry is all-green
+    so cross-monitor tests (engine roll-up colour rules) are not perturbed by
+    ADVENNT's presence. Tests that exercise ADVENNT-specific behaviour should
+    override it explicitly.
+    """
     overrides = monitor_overrides or {}
     status = {}
-    for slug in ["WDM", "GMM", "ESA", "FCW", "AIM", "ERM", "SCEM", "FIM"]:
+    for slug in ["WDM", "GMM", "ESA", "FCW", "AIM", "ERM", "SCEM", "FIM", "ADVENNT"]:
         status[slug] = overrides.get(slug, _all_green_monitor(slug))
     status["_meta"] = {"generated": _iso(NOW), "generator": "test"}
     return status
@@ -98,13 +108,14 @@ def test_schema_v4_shape():
     """Schema v4.0 (Sprint BH BRIEF #2): adds optional `_trigger_health` block
     propagated from internal full-fidelity status. Other shape rules unchanged."""
     out = derive_public_rollup(_full_fidelity_status())
-    assert out["schema_version"] == "4.0"
+    # Sprint BU BU.4: schema bumped 4.0 → 4.1 (ADVENNT as 9th monitor)
+    assert out["schema_version"] == "4.1", f"expected 4.1 (BU.4 bump), got {out['schema_version']}"
     assert "generated_at" in out
     assert "engine" in out and "status" in out["engine"] and "last_updated" in out["engine"]
     assert "monitors" in out and isinstance(out["monitors"], list)
-    assert len(out["monitors"]) == 8
+    assert len(out["monitors"]) == 9, f"expected 9 monitors (BU.4: +ADVENNT), got {len(out['monitors'])}: {[m['slug'] for m in out['monitors']]}"
     slugs = [m["slug"] for m in out["monitors"]]
-    assert slugs == ["WDM", "GMM", "ESA", "FCW", "AIM", "ERM", "SCEM", "FIM"]
+    assert slugs == ["WDM", "GMM", "ESA", "FCW", "AIM", "ERM", "SCEM", "FIM", "ADVENNT"]
     for m in out["monitors"]:
         assert set(m.keys()) == {"slug", "status", "last_updated"}
         assert m["status"] in ("green", "amber", "red")

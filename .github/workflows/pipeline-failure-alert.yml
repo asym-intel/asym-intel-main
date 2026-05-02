@@ -1,5 +1,16 @@
 name: "Pipeline Failure Alert"
 
+# Sprint BU BU.4 note: GitHub Actions `workflow_run` triggers are scoped to
+# the same repo. Cross-repo monitors (e.g. Advennt in asym-intel/advennt)
+# cannot be listed here — they would never fire. The canonical mechanism for
+# cross-repo monitors is the producer-poll path: ops/update-pipeline-status.py
+# calls _emit_cross_repo_failure_alerts() and creates GitHub Issues here
+# using GH_TOKEN (PAT, org-scoped). See ops/PIPELINE-OBSERVABILITY-DOCTRINE.md.
+#
+# This file covers same-repo monitors: WDM, GMM, ESA, FCW, AGM/AIM, ERM, SCEM.
+# FIM is not yet listed (FIM workflows not yet running on cron). Add FIM here
+# when FIM cron is activated.
+
 on:
   workflow_run:
     workflows:

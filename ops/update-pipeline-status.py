@@ -27,6 +27,10 @@ stations from legacy -er suffixes to canon names per PIPELINE-CANONICAL v1.2.
 Sprint BH BH.2 (AD-2026-04-30-BJ): wire pipeline-triggers.yml into producer
 as the trigger-fire comparator; emit `_trigger_health` block; bump public
 schema v3.0 -> v4.0.
+
+Sprint BU BU.4 (AD-2026-05-02-BU): register Advennt as 9th monitor; add
+cross-repo workflow-run reads (repo field on MONITORS entry); add producer-poll
+failure-alert emission for cross-repo monitors; bump public schema v4.0 -> v4.1.
 """
 
 import json
@@ -77,6 +81,16 @@ MONITORS = {
     "ERM": {"accent": "#4caf7d", "day": "Sat", "cron_time": "Sat 05:00 UTC"},
     "SCEM": {"accent": "#dc2626", "day": "Sun", "cron_time": "Sun 18:00 UTC"},
     "FIM":  {"accent": "#e6a817", "day": "Tue", "cron_time": "Tue 16:00 UTC"},
+    # Sprint BU BU.4: Advennt registered as 9th monitor (cross-repo).
+    # `repo` field tells the producer which repo to read workflow runs from.
+    # `slug` is the Advennt-side workflow filename prefix (differs from commons pattern).
+    "ADVENNT": {
+        "accent": "#f5a524",
+        "day":    "Wed",
+        "cron_time": "Wed 09:00 UTC",
+        "repo":   "asym-intel/advennt",  # cross-repo read — BU.4
+        "slug":   "advennt",
+    },
 }
 
 # Day-of-week index for schedule matching (Mon=0 .. Sun=6)
@@ -107,7 +121,8 @@ _PUBLISHER_SLUG = {
     "AIM": "ai-governance",
     "ERM": "environmental-risks",
     "SCEM": "conflict-escalation",
-    "FIM": "financial-integrity",
+    "FIM":    "financial-integrity",
+    "ADVENNT": "advennt",  # BU.4 — publisher.yml in asym-intel/advennt
 }
 
 for abbr, ga_abbr in [("WDM","wdm"), ("GMM","gmm"), ("ESA","esa"), ("FCW","fcw"),
@@ -127,6 +142,23 @@ for abbr, ga_abbr in [("WDM","wdm"), ("GMM","gmm"), ("ESA","esa"), ("FCW","fcw")
     slug = _PUBLISHER_SLUG.get(abbr, ga_abbr)
     WORKFLOW_FILES[(abbr, "publisher")] = f"{slug}-publisher.yml"
 
+# Sprint BU BU.4: Advennt workflow-file mapping (cross-repo).
+# Advennt workflows live in asym-intel/advennt with different filename conventions
+# from the commons monitors. Mapped explicitly — do NOT use the commons loop above.
+# All Phase A workflows are in the advennt repo:
+WORKFLOW_FILES[("ADVENNT", "weekly-research")] = "advennt-weekly-research.yml"
+WORKFLOW_FILES[("ADVENNT", "collector")]        = "collector.yml"
+WORKFLOW_FILES[("ADVENNT", "chatter")]          = "chatter.yml"
+WORKFLOW_FILES[("ADVENNT", "reasoner")]         = "advennt-reasoner.yml"
+# Phase B (Advennt uses advennt-* prefix for Phase B workflows):
+WORKFLOW_FILES[("ADVENNT", "interpret")]        = "advennt-interpreter.yml"
+WORKFLOW_FILES[("ADVENNT", "review")]           = "advennt-reviewer.yml"
+WORKFLOW_FILES[("ADVENNT", "compose")]          = "advennt-composer.yml"
+WORKFLOW_FILES[("ADVENNT", "apply")]            = "advennt-applier.yml"
+WORKFLOW_FILES[("ADVENNT", "curate")]           = "advennt-curator.yml"
+# Publisher:
+WORKFLOW_FILES[("ADVENNT", "publisher")]        = "publisher.yml"
+
 # Published/dashboard detection: commit message patterns per monitor
 PUBLISH_PATTERNS = {
     "WDM": ["data(wdm)", "democratic-integrity", "content(wdm)"],
@@ -136,7 +168,8 @@ PUBLISH_PATTERNS = {
     "AIM": ["data(agm)", "data(aim)", "ai-governance", "content(agm)"],
     "ERM": ["data(erm)", "environmental-risks", "content(erm)"],
     "SCEM": ["data(scem)", "conflict-escalation", "content(scem)"],
-    "FIM":  ["data(fim)", "financial-integrity", "content(fim)"],
+    "FIM":     ["data(fim)", "financial-integrity", "content(fim)"],
+    "ADVENNT": ["data(advennt)", "advennt", "content(advennt)"],  # BU.4
 }
 
 # ─── GitHub API helpers ─────────────────────────────────────────
@@ -154,9 +187,17 @@ def gh_api(endpoint, token=None):
     return result.stdout
 
 
-def get_workflow_runs(workflow_file, count=5):
-    """Get recent runs for a specific workflow file."""
-    raw = gh_api(f"/repos/{MAIN_REPO}/actions/workflows/{workflow_file}/runs?per_page={count}")
+def get_workflow_runs(workflow_file, count=5, repo=None):
+    """Get recent runs for a specific workflow file.
+
+    Sprint BU BU.4: added optional `repo` parameter for cross-repo reads.
+    When `repo` is supplied (e.g. "asym-intel/advennt"), uses that repo;
+    otherwise defaults to MAIN_REPO for backwards compatibility.
+    Reads use GH_TOKEN (PAT, org-scoped) so cross-repo reads succeed without
+    any workflow permission change.
+    """
+    target_repo = repo or MAIN_REPO
+    raw = gh_api(f"/repos/{target_repo}/actions/workflows/{workflow_file}/runs?per_page={count}")
     if not raw:
         return []
     try:
@@ -179,9 +220,13 @@ def get_recent_commits(count=100):
 
 # ─── Status generation ──────────────────────────────────────────
 
-def build_station_status(workflow_file):
-    """Build status for a single pipeline station from its workflow runs."""
-    runs = get_workflow_runs(workflow_file)
+def build_station_status(workflow_file, repo=None):
+    """Build status for a single pipeline station from its workflow runs.
+
+    Sprint BU BU.4: added optional `repo` parameter forwarded to
+    get_workflow_runs() for cross-repo monitors (e.g. ADVENNT).
+    """
+    runs = get_workflow_runs(workflow_file, repo=repo)
     if not runs:
         return {"last_run": None, "last_conclusion": "never", "last_success": None}
 
@@ -770,9 +815,107 @@ def compute_trigger_health(window_days=7, now=None):
     return base
 
 
+def _emit_cross_repo_failure_alerts(status):
+    """Emit GitHub Issue alerts for cross-repo monitor failures.
+
+    Sprint BU BU.4: pipeline-failure-alert.yml uses workflow_run triggers which
+    are scoped to the same repo (GitHub Actions constraint). For cross-repo
+    monitors (those with a `repo` field in MONITORS), the listener cannot fire.
+    This function compensates: runs after the producer has fetched all run data,
+    checks for recent failures in cross-repo monitors, and creates GitHub Issues
+    in asym-intel-main matching the existing pipeline-failure-alert.yml format.
+
+    Uses GH_TOKEN (PAT, org-scoped) — same credential used for internal-repo writes.
+    Deduplicates by issue title (same as the listener workflow).
+
+    This is the canonical approach for cross-repo consumers per
+    ops/PIPELINE-OBSERVABILITY-DOCTRINE.md (BU.4).
+    """
+    from datetime import timezone as _tz
+    now_utc = datetime.now(timezone.utc)
+    alert_window_hours = 6  # alert on failures in the last 6h
+
+    for abbr, meta in MONITORS.items():
+        monitor_repo = meta.get("repo")
+        if not monitor_repo:
+            continue  # commons monitors covered by pipeline-failure-alert.yml
+
+        # Scan all stations for recent failures
+        monitor_status = status.get(abbr, {})
+        monitor_stations = monitor_status.get("stations", {}) if isinstance(monitor_status, dict) else {}
+
+        for station, station_data in monitor_stations.items():
+            if not isinstance(station_data, dict):
+                continue
+            if station_data.get("last_conclusion") != "failure":
+                continue
+            last_run_str = station_data.get("last_run")
+            if not last_run_str:
+                continue
+
+            # Parse the timestamp
+            try:
+                last_run_dt = datetime.fromisoformat(last_run_str.replace("Z", "+00:00"))
+            except (ValueError, TypeError):
+                continue
+
+            age_hours = (now_utc - last_run_dt).total_seconds() / 3600
+            if age_hours > alert_window_hours:
+                continue  # outside alert window
+
+            # Find the workflow filename for this station
+            wf_file = WORKFLOW_FILES.get((abbr, station), "unknown")
+            issue_title = f"🔴 Pipeline failure: {abbr} {station} ({wf_file})"
+
+            # Check for existing open issue with this title (avoid duplicates)
+            # Uses GH_TOKEN via gh CLI
+            existing_raw = gh_api(
+                f"/repos/{MAIN_REPO}/issues?state=open&labels=pipeline-failure&per_page=50"
+            )
+            if existing_raw:
+                try:
+                    existing = json.loads(existing_raw)
+                    if any(i.get("title") == issue_title for i in existing):
+                        print(f"  ⚠️  {abbr} {station}: alert already open, skipping", file=sys.stderr)
+                        continue
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+            # Create the issue
+            issue_body = (
+                f"**Monitor:** {abbr} ({monitor_repo})\n"
+                f"**Station:** {station}\n"
+                f"**Workflow:** {wf_file}\n"
+                f"**Last run:** {last_run_str}\n"
+                f"**Detected by:** producer poll (BU.4 cross-repo alert path)\n"
+                f"\n"
+                f"This issue was auto-created by `update-pipeline-status.py` "
+                f"(cross-repo failure-alert path, Sprint BU BU.4).\n"
+                f"The standard `pipeline-failure-alert.yml` workflow_run trigger "
+                f"cannot reach `{monitor_repo}` — this producer-poll path is the "
+                f"canonical mechanism for cross-repo monitors.\n"
+                f"\nClose when resolved."
+            )
+            create_raw = subprocess.run(
+                [
+                    "gh", "api",
+                    f"/repos/{MAIN_REPO}/issues",
+                    "--method", "POST",
+                    "--field", f"title={issue_title}",
+                    "--field", f"body={issue_body}",
+                    "--field", "labels[]=pipeline-failure",
+                ],
+                capture_output=True, text=True
+            )
+            if create_raw.returncode == 0:
+                print(f"  🔴 {abbr} {station}: created failure alert issue", file=sys.stderr)
+            else:
+                print(f"  ⚠️  {abbr} {station}: failed to create issue: {create_raw.stderr[:200]}", file=sys.stderr)
+
+
 def generate_status():
     """Generate full pipeline-status.json from GitHub Actions API."""
-    print("Fetching workflow runs for all 8 monitors × 14 stations...")
+    print("Fetching workflow runs for all 9 monitors × 14 stations...")
     commits = get_recent_commits(100)
 
     # Sprint AZ Tier 2 A-1: collect Phase B station-discovery misses (file
@@ -784,13 +927,15 @@ def generate_status():
         stations = {}
 
         # Phase A + legacy stages
+        # Sprint BU BU.4: pass monitor_repo for cross-repo monitors (e.g. ADVENNT).
+        monitor_repo = meta.get("repo")  # None for commons monitors (uses MAIN_REPO default)
         for stage in [
             "collector", "chatter", "weekly-research", "reasoner",
             "synthesiser",
         ]:
             wf_file = WORKFLOW_FILES.get((abbr, stage))
             if wf_file:
-                stations[stage] = build_station_status(wf_file)
+                stations[stage] = build_station_status(wf_file, repo=monitor_repo)
                 symbol = {"success": "✅", "failure": "❌", "running": "🔄", "never": "⬜"}.get(
                     stations[stage]["last_conclusion"], "❓")
                 print(f"  {symbol} {abbr} {stage}: {stations[stage]['last_conclusion']}")
@@ -799,26 +944,46 @@ def generate_status():
 
         # Phase B canon stages: interpret, review, compose, apply, curate.
         # Per BRIEF-2 v2 §2, Phase B stations are derived from cascade-output
-        # *-latest.json artefacts (content-level signal), NOT from GA workflow
-        # runs (job-level signal). See PHASE_B_CASCADE_FILES + build_phase_b_station_status.
+        # *-latest.json artefacts (content-level signal) for commons monitors.
+        # Sprint BU BU.4: for cross-repo monitors (ADVENNT), Phase B cascade
+        # files are in the external repo — the producer cannot directly read them
+        # via filesystem. For cross-repo monitors, fall back to GA workflow-run
+        # signal (same as Phase A). This is a deliberate accuracy/scope trade-off:
+        # cascade-file signal for ADVENNT requires a separate checkout step; using
+        # GA run signal gives job-level visibility which is sufficient for the
+        # observability surface at BU.4. Document in PIPELINE-OBSERVABILITY-DOCTRINE.
         monitor_slug = _PUBLISHER_SLUG.get(abbr, abbr.lower())
         for stage in ["interpret", "review", "compose", "apply", "curate"]:
-            stations[stage] = build_phase_b_station_status(
-                monitor_slug, stage, discovery_misses=discovery_misses)
+            if monitor_repo:
+                # Cross-repo monitor: use GA workflow-run signal (no filesystem access)
+                wf_file = WORKFLOW_FILES.get((abbr, stage))
+                if wf_file:
+                    stations[stage] = build_station_status(wf_file, repo=monitor_repo)
+                    signal_type = "ga-run"
+                else:
+                    stations[stage] = {"last_run": None, "last_conclusion": "never", "last_success": None}
+                    signal_type = "no-wf-mapping"
+            else:
+                stations[stage] = build_phase_b_station_status(
+                    monitor_slug, stage, discovery_misses=discovery_misses)
+                signal_type = "cascade"
             symbol = {"success": "✅", "failure": "❌", "running": "🔄", "never": "⬜"}.get(
                 stations[stage]["last_conclusion"], "❓")
-            print(f"  {symbol} {abbr} {stage}: {stations[stage]['last_conclusion']} (cascade)")
+            print(f"  {symbol} {abbr} {stage}: {stations[stage]['last_conclusion']} ({signal_type})")
 
         # Published — read from GA workflow runs (same as other stages)
         # BUG-002 fix: publisher workflows are tracked in GA; commit-scan
         # was limited to 100 commits and missed older publishes.
+        # Sprint BU BU.4: pass monitor_repo for cross-repo publisher reads.
         pub_wf = WORKFLOW_FILES.get((abbr, "publisher"))
         if pub_wf:
-            pub_station = build_station_status(pub_wf)
-            # Enrich with commit message if available
-            commit_msg = _find_publish_message(commits, PUBLISH_PATTERNS.get(abbr, []))
-            if commit_msg:
-                pub_station["message"] = commit_msg
+            pub_station = build_station_status(pub_wf, repo=monitor_repo)
+            # Enrich with commit message if available (commons monitors only —
+            # cross-repo commit scan not implemented at BU.4)
+            if not monitor_repo:
+                commit_msg = _find_publish_message(commits, PUBLISH_PATTERNS.get(abbr, []))
+                if commit_msg:
+                    pub_station["message"] = commit_msg
             stations["published"] = pub_station
         else:
             stations["published"] = {"last_run": None, "last_conclusion": "never", "last_success": None}
@@ -832,6 +997,14 @@ def generate_status():
             "cron_time": meta["cron_time"],
             "stations": stations,
         }
+
+    # Sprint BU BU.4: cross-repo failure detection.
+    # For cross-repo monitors (e.g. ADVENNT), the pipeline-failure-alert.yml
+    # workflow_run trigger cannot listen to their repos (GH Actions constraint).
+    # The producer compensates: after fetching all run data, check cross-repo
+    # monitors for recent failures and emit a GitHub Issue alert matching the
+    # existing pipeline-failure-alert.yml format (labels: pipeline-failure).
+    _emit_cross_repo_failure_alerts(status)
 
     # Add metadata
     status["_meta"] = {
@@ -992,9 +1165,9 @@ def derive_public_rollup(internal_status):
     with `accent`, `day`, `cron_time`, `stations` (all stations); plus `_meta`,
     `_verification`, `_incidents`, and (Sprint BH BH.2) `_trigger_health`.
 
-    Output shape (schema v4.0):
+    Output shape (schema v4.1):
         {
-          "schema_version": "4.0",
+          "schema_version": "4.1",
           "generated_at": "...Z",
           "engine": {"status": "green|amber|red", "last_updated": "...Z"},
           "monitors": [
@@ -1007,6 +1180,11 @@ def derive_public_rollup(internal_status):
     Schema v3.0 -> v4.0 (Sprint BH BH.2): introduces `_trigger_health`. No
     breaking change to the existing v3.0 keys; v4.0 is a strict superset.
     Consumers reading v3.0 keys continue to work.
+
+    Schema v4.0 -> v4.1 (Sprint BU BU.4): adds ADVENNT as 9th monitor in the
+    `monitors[]` list. Additive — consumers reading v4.0 shape continue to work;
+    they will see a new entry with slug "ADVENNT". Consumers explicitly checking
+    monitor count or hard-coding 8 monitors will need updating.
 
     The roll-up logic is the ONLY place these rules are encoded. The public
     HTML reads this JSON; it does not re-derive status. `_meta`,
@@ -1032,7 +1210,7 @@ def derive_public_rollup(internal_status):
     engine_last_updated = max(monitor_lus) if monitor_lus else now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     out = {
-        "schema_version": "4.0",
+        "schema_version": "4.1",  # BU.4: bumped from 4.0 (ADVENNT as 9th monitor)
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "engine": {
             "status": engine_status,
