@@ -1,4 +1,4 @@
-# Artificial Intelligence Monitor — Issue 9
+# Artificial Intelligence Monitor — Issue 10
 
 **W/E 2 May 2026** | Published 2026-05-02T09:00:00Z
 
