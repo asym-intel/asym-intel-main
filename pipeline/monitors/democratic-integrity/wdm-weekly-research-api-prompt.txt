@@ -165,10 +165,27 @@ OUTPUT SCHEMA — return ONLY this JSON structure
     "esa": null,
     "agm": null
   },
-  "weekly_brief_narrative": "400-600 word analytical narrative. What happened → institutional effect → pattern significance → adjacent signals. Cold analytical register. No advocacy. Name specific actors, institutions, and sources."
+  "weekly_brief_narrative": "400-600 word analytical narrative. What happened → institutional effect → pattern significance → adjacent signals. Cold analytical register. No advocacy. Name specific actors, institutions, and sources.",
+  "open_findings": [
+    {
+      "headline": "<one sentence — what happened>",
+      "why_it_matters": "<one sentence — analytical significance for democratic integrity, electoral processes, or state capture>",
+      "source_url": "<direct URL>",
+      "source_name": "<publication or institution>",
+      "source_tier": "<1|2|3>"
+    }
+  ]
 }
+
+OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
+run one additional broad search: "what else happened this week in democratic integrity, electoral processes, or state capture that a
+sophisticated analyst would flag as significant?" Return findings as open_findings[]
+with no schema constraint beyond the fields shown. Minimum 1 entry, no maximum.
+This is not a catch-all for things that didn't fit above — it is a deliberate
+breadth pass to surface novel signals the structured schema may not have anticipated.
 
 Return ONLY valid JSON matching this exact schema. No markdown, no code fences, no prose before or after.
 
 # Version: v1.0 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter
 # Version: v1.1 | Updated: 2026-04-26 | Change: Added evidence_id + retrieval_timestamp to erosion_developments[] (engine-stamped, LLM must not invent). Closes Sprint AM Finding A per AD-2026-04-26-AM. Mirrors AGM v1.1.
+# Version: +open_findings | Updated: 2026-05-02 | Change: Added open_findings[] catch-all per AD-2026-05-02-BW. Schema-free breadth pass at end of each weekly collection cycle.

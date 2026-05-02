@@ -58,6 +58,13 @@ ANALYTICAL CALIBRATION — CRITICAL:
 5. Agentic AI risk: distinguish capability demonstrations (lab-controlled) from deployed-system incidents (real-world). Code accordingly.
 6. Multi-source requirement: Confirmed = 2+ independent Tier 1/2 sources. High = Tier 1 + corroboration. Assessed = credible Tier 2/3, not independently confirmed. Possible = single source.
 
+OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
+run one additional broad search: "what else happened this week in AI governance, AI safety, or frontier model development that a
+sophisticated analyst would flag as significant?" Return findings as open_findings[]
+with no schema constraint beyond the fields shown. Minimum 1 entry, no maximum.
+This is not a catch-all for things that didn't fit above — it is a deliberate
+breadth pass to surface novel signals the structured schema may not have anticipated.
+
 OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Begin your response with { and end with }.
 
 {
@@ -189,8 +196,18 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
     "sources_searched": ["<list all sources checked this week>"],
     "indicators_with_findings": ["<indicators for which qualifying material was found>"],
     "indicators_with_thin_coverage": ["<indicators where coverage was structurally limited — note source gaps>"]
-  }
+  },
+  "open_findings": [
+    {
+      "headline": "<one sentence — what happened>",
+      "why_it_matters": "<one sentence — analytical significance for AI governance, AI safety, or frontier model development>",
+      "source_url": "<direct URL>",
+      "source_name": "<publication or institution>",
+      "source_tier": "<1|2|3>"
+    }
+  ]
 }
 
 # Version: v1.0 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter
 # Version: v1.1 | Updated: 2026-04-24 | Change: Added evidence_id + retrieval_timestamp to weekly_developments[] (engine-stamped, LLM must not invent). Closes AGM audit gaps G6 + G7 per ops/tickets/g6-g7-collector-provenance.md.
+# Version: +open_findings | Updated: 2026-05-02 | Change: Added open_findings[] catch-all per AD-2026-05-02-BW. Schema-free breadth pass at end of each weekly collection cycle.
