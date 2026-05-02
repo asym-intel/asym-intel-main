@@ -24,7 +24,7 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from publisher import sanitise_for_public  # noqa: E402
+from publisher import sanitise_for_public, _is_empty_placeholder, _strip_empty_placeholders  # noqa: E402
 
 
 # ── Fixture ────────────────────────────────────────────────────────────────
@@ -168,6 +168,96 @@ def test_input_not_mutated():
     assert "_meta" in report
     assert "cross_monitor_candidates" in report
     assert report["findings"][0]["severity_preliminary"] == "high"
+
+
+# ── Empty-placeholder pruning ─────────────────────────────────────────────
+
+
+def test_is_empty_placeholder_basics():
+    assert _is_empty_placeholder({}) is True
+    assert _is_empty_placeholder({"a": None, "b": ""}) is True
+    assert _is_empty_placeholder([{}]) is True
+    assert _is_empty_placeholder([]) is True
+    assert _is_empty_placeholder(None) is True
+    assert _is_empty_placeholder("") is True
+    assert _is_empty_placeholder("   ") is True
+
+    assert _is_empty_placeholder({"a": "x"}) is False
+    assert _is_empty_placeholder([{"a": "x"}]) is False
+    assert _is_empty_placeholder("x") is False
+    assert _is_empty_placeholder(0) is False
+    assert _is_empty_placeholder(False) is False
+
+
+def test_strip_empty_placeholders_drops_aim_module_3_pattern():
+    """AIM module_3 ships [{}] for funding_rounds when the LLM has nothing —
+    publisher must drop those before public write."""
+    report = {
+        "module_3": {
+            "title": "Investment and M&A",
+            "funding_rounds": [{}],
+            "strategic_deals": [{}],
+            "energy_wall": [{}],
+        },
+    }
+    cleaned = _strip_empty_placeholders(report)
+    assert cleaned["module_3"]["title"] == "Investment and M&A"
+    assert cleaned["module_3"]["funding_rounds"] == []
+    assert cleaned["module_3"]["strategic_deals"] == []
+    assert cleaned["module_3"]["energy_wall"] == []
+
+
+def test_strip_empty_placeholders_preserves_real_entries():
+    report = {
+        "module_3": {
+            "funding_rounds": [
+                {},
+                {"company": "Acme", "amount": "$100M"},
+                {"company": "", "amount": ""},  # all-empty values
+                {"company": "Beta"},
+            ],
+        },
+    }
+    cleaned = _strip_empty_placeholders(report)
+    rounds = cleaned["module_3"]["funding_rounds"]
+    assert len(rounds) == 2
+    assert rounds[0]["company"] == "Acme"
+    assert rounds[1]["company"] == "Beta"
+
+
+def test_sanitise_for_public_strips_empty_module_arrays():
+    """End-to-end: an AIM-shaped report with [{}] placeholders comes out clean."""
+    report = {
+        "title": "AIM Issue 12",
+        "module_3": {
+            "title": "Investment and M&A",
+            "funding_rounds": [{}],
+            "strategic_deals": [{}],
+            "energy_wall": [{}],
+        },
+        "module_5": {"european": [{}], "china": [{}]},
+        "module_6": {
+            "threshold_events": [{}],
+            "programme_updates": [{}],
+            "arxiv_highlights": [{}],
+        },
+    }
+    public = sanitise_for_public(report)
+    assert public["module_3"]["funding_rounds"] == []
+    assert public["module_3"]["strategic_deals"] == []
+    assert public["module_3"]["energy_wall"] == []
+    assert public["module_5"]["european"] == []
+    assert public["module_5"]["china"] == []
+    assert public["module_6"]["threshold_events"] == []
+    assert public["module_6"]["programme_updates"] == []
+    assert public["module_6"]["arxiv_highlights"] == []
+
+
+def test_strip_does_not_collapse_zero_or_false():
+    """Numbers and booleans count as content even when falsy — protect them."""
+    report = {"items": [{"score": 0, "active": False}]}
+    cleaned = _strip_empty_placeholders(report)
+    assert cleaned == {"items": [{"score": 0, "active": False}]}
 
 
 if __name__ == "__main__":

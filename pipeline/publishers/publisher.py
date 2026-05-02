@@ -1848,6 +1848,51 @@ def build_report_markdown(report: dict, config: dict) -> str:
 # ── Last run status ──────────────────────────────────────────────────────
 
 
+def _is_empty_placeholder(v) -> bool:
+    """True if v is a placeholder with no meaningful content.
+
+    The interpret-stage schema for AIM (and other monitors) declares array
+    items as bare `type: object` with no required fields, so the LLM can
+    legally emit `[{}]` as a "no content this cycle" marker. Those reach the
+    rendered report as section-label + empty card shells. This helper is the
+    structural test the publisher uses to drop them before write.
+
+    A value is "empty" if:
+      - None
+      - empty string (after strip)
+      - empty list / dict
+      - dict with all-empty values (recursive)
+      - list with all-empty entries (recursive)
+    Numbers and booleans are always meaningful.
+    """
+    if v is None:
+        return True
+    if isinstance(v, str):
+        return not v.strip()
+    if isinstance(v, (int, float, bool)):
+        return False
+    if isinstance(v, dict):
+        return all(_is_empty_placeholder(x) for x in v.values())
+    if isinstance(v, list):
+        return all(_is_empty_placeholder(x) for x in v)
+    return False
+
+
+def _strip_empty_placeholders(obj):
+    """Recursively prune empty-placeholder entries from arrays.
+
+    Applied after merge, before public write. Drops `[{}]`-style placeholders
+    so renderers, RSS, and AI-readable markdown all see a clean (possibly
+    empty) array rather than an array with a single empty object.
+    """
+    if isinstance(obj, dict):
+        return {k: _strip_empty_placeholders(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        cleaned = [_strip_empty_placeholders(x) for x in obj]
+        return [x for x in cleaned if not _is_empty_placeholder(x)]
+    return obj
+
+
 def sanitise_for_public(report: dict) -> dict:
     """Return a deep copy of report with internal fields stripped (ENGINE-RULES §16).
 
@@ -1863,6 +1908,7 @@ def sanitise_for_public(report: dict) -> dict:
         under the canonical key by publisher normalisation; where not yet normalised,
         the _preliminary value is the best available and should be published without
         the internal suffix)
+      - Placeholder array entries (`[{}]` and similar) — see _strip_empty_placeholders.
     """
     import copy, re
     r = copy.deepcopy(report)
@@ -1892,6 +1938,7 @@ def sanitise_for_public(report: dict) -> dict:
         return obj
 
     r = strip_preliminary_keys(r)
+    r = _strip_empty_placeholders(r)
     return r
 
 def build_last_run_status(synthesis: dict, config: dict, issues: list = None,

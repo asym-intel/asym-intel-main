@@ -35,6 +35,28 @@ function noContent(msg) {
   return `<p class="loading-state">${esc(msg || 'No material developments this week.')}</p>`;
 }
 
+/* Filter out placeholder array entries — upstream data sometimes contains `[{}]`
+   (empty object) as a "no content this cycle" marker that still passes the
+   permissive schema validation. Without this, renderers see a non-empty
+   array and emit a section header + an empty card shell.
+
+   An entry is "non-empty" if it's a primitive (string/number/bool) with any
+   value, or an object/array with at least one own key whose value is itself
+   non-empty (recursive). Strings are trimmed before the empty-check. */
+function isMeaningful(v) {
+  if (v == null) return false;
+  if (typeof v === 'string') return v.trim().length > 0;
+  if (typeof v === 'number' || typeof v === 'boolean') return true;
+  if (Array.isArray(v)) return v.some(isMeaningful);
+  if (typeof v === 'object') return Object.values(v).some(isMeaningful);
+  return false;
+}
+
+function nonEmpty(arr) {
+  if (!Array.isArray(arr)) return [];
+  return arr.filter(isMeaningful);
+}
+
 /* ── M00 — The Signal ──────────────────────────────────────── */
 function renderM0(data) {
   const m = data.module_0;
@@ -51,7 +73,8 @@ function renderM1(data) {
   if (!m) return noContent();
 
   function renderItems(items, offset) {
-    if (!items || !items.length) return '<p class="text-muted text-sm">None this week.</p>';
+    items = nonEmpty(items);
+    if (!items.length) return '<p class="text-muted text-sm">None this week.</p>';
     return items.map(function (item, i) {
       const src = item.source_url
         ? `<a class="source-link" href="${esc(item.source_url)}" target="_blank" rel="noopener">${esc(item.source_label || 'Source')}</a>`
@@ -84,10 +107,11 @@ function renderM2(data) {
   if (!m) return noContent();
   let html = '';
 
-  if (!m.models || m.models.length === 0) {
+  const models = nonEmpty(m.models);
+  if (models.length === 0) {
     html += noContent('No confirmed model releases this week.');
   } else {
-    html += m.models.map(function (model) {
+    html += models.map(function (model) {
       const src = model.source_url
         ? `<a class="source-link" href="${esc(model.source_url)}" target="_blank" rel="noopener">${esc(model.source_label || 'Source')}</a>`
         : '';
@@ -104,7 +128,8 @@ function renderM2(data) {
     }).join('');
   }
 
-  if (m.benchmarks_table && m.benchmarks_table.length) {
+  const benchmarks = nonEmpty(m.benchmarks_table);
+  if (benchmarks.length) {
     html += `<div class="divider"></div>
     <div class="section-label">Benchmark Movements</div>
     <table class="data-table">
@@ -112,7 +137,7 @@ function renderM2(data) {
         <th>Model</th><th>Benchmark</th><th>Score</th><th>Prior</th><th>Source</th>
       </tr></thead>
       <tbody>
-        ${m.benchmarks_table.map(function (row) {
+        ${benchmarks.map(function (row) {
           return `<tr>
             <td class="mono">${esc(row.model)}</td>
             <td>${esc(row.benchmark)}</td>
@@ -134,9 +159,13 @@ function renderM3(data) {
   if (!m) return noContent();
   let html = '';
 
-  if (m.funding_rounds && m.funding_rounds.length) {
+  const fundingRounds = nonEmpty(m.funding_rounds);
+  const strategicDeals = nonEmpty(m.strategic_deals);
+  const energyWall = nonEmpty(m.energy_wall);
+
+  if (fundingRounds.length) {
     html += `<div class="section-label">Funding Rounds (&gt;$50M)</div>`;
-    html += m.funding_rounds.map(function (round) {
+    html += fundingRounds.map(function (round) {
       const src = round.source_url ? sourceLink(round.source_label || 'Source', round.source_url) : '';
       return `<div class="card">
         <div class="card__label">${esc(round.sector || '')} · ${esc(round.stage || '')} · ${esc(round.date || '')}</div>
@@ -148,9 +177,9 @@ function renderM3(data) {
     }).join('');
   }
 
-  if (m.strategic_deals && m.strategic_deals.length) {
+  if (strategicDeals.length) {
     html += `<div class="divider"></div><div class="section-label">Strategic Deals & M&A</div>`;
-    html += m.strategic_deals.map(function (deal) {
+    html += strategicDeals.map(function (deal) {
       return `<div class="card">
         <div class="card__label">${esc(deal.type || 'Deal')} · ${esc(deal.date || '')}</div>
         <div class="card__title">${esc(deal.parties || deal.title)}</div>
@@ -160,9 +189,9 @@ function renderM3(data) {
     }).join('');
   }
 
-  if (m.energy_wall && m.energy_wall.length) {
+  if (energyWall.length) {
     html += `<div class="divider"></div><div class="section-label">⚡ Energy Wall</div>`;
-    html += m.energy_wall.map(function (item) {
+    html += energyWall.map(function (item) {
       return `<div class="card">
         <div class="card__label">${esc(item.category || 'Infrastructure')}</div>
         <div class="card__title">${esc(item.company)} — ${esc(item.amount || item.description || '')}</div>
@@ -177,11 +206,13 @@ function renderM3(data) {
 /* ── M04 — Sector Penetration ──────────────────────────────── */
 function renderM4(data) {
   const m = data.module_4;
-  if (!m || !m.sectors || !m.sectors.length) return noContent();
+  if (!m) return noContent();
+  const sectors = nonEmpty(m.sectors);
+  if (!sectors.length) return noContent();
 
   const statusClass = { 'Accelerating': 'signal', 'Stalling': 'amber', 'Emerging': 'primary', 'Monitoring': 'muted' };
 
-  return m.sectors.map(function (sector) {
+  return sectors.map(function (sector) {
     const cls = statusClass[sector.status] || 'muted';
     return `<div class="card">
       <div class="card__label">${esc(sector.name)} ${badge(sector.status || '', cls)}</div>
@@ -198,9 +229,12 @@ function renderM5(data) {
   if (!m) return noContent();
   let html = '';
 
-  if (m.european && m.european.length) {
+  const european = nonEmpty(m.european);
+  const china = nonEmpty(m.china);
+
+  if (european.length) {
     html += `<div class="section-label">European Watch</div>`;
-    html += m.european.map(function (item) {
+    html += european.map(function (item) {
       return `<div class="card">
         <div class="card__label">${esc(item.jurisdiction || 'EU')} · ${esc(item.category || '')}</div>
         <div class="card__title">${esc(item.title)}</div>
@@ -211,9 +245,9 @@ function renderM5(data) {
     }).join('');
   }
 
-  if (m.china && m.china.length) {
+  if (china.length) {
     html += `<div class="divider"></div><div class="section-label">China Watch</div>`;
-    html += m.china.map(function (item) {
+    html += china.map(function (item) {
       return `<div class="card">
         <div class="card__label">China · ${esc(item.category || '')}</div>
         <div class="card__title">${esc(item.title)}</div>
@@ -248,21 +282,26 @@ function renderM6(data) {
     </div>`;
   }
 
-  if (m.threshold_events && m.threshold_events.length) {
+  const thresholdEvents = nonEmpty(m.threshold_events);
+  const programmeUpdates = nonEmpty(m.programme_updates);
+  const arxivHighlights = nonEmpty(m.arxiv_highlights);
+  const drillDownResults = nonEmpty(m.drill_down_results);
+
+  if (thresholdEvents.length) {
     html += `<div class="section-label">Threshold Events</div>`;
-    html += m.threshold_events.map(renderSciItem).join('');
+    html += thresholdEvents.map(renderSciItem).join('');
   }
-  if (m.programme_updates && m.programme_updates.length) {
+  if (programmeUpdates.length) {
     html += `<div class="divider"></div><div class="section-label">Programme Updates</div>`;
-    html += m.programme_updates.map(renderSciItem).join('');
+    html += programmeUpdates.map(renderSciItem).join('');
   }
-  if (m.arxiv_highlights && m.arxiv_highlights.length) {
+  if (arxivHighlights.length) {
     html += `<div class="divider"></div><div class="section-label">arXiv / Preprint Highlights</div>`;
-    html += m.arxiv_highlights.map(renderSciItem).join('');
+    html += arxivHighlights.map(renderSciItem).join('');
   }
-  if (m.drill_down_results && m.drill_down_results.length) {
+  if (drillDownResults.length) {
     html += `<div class="divider"></div><div class="section-label">Drill-Down Results</div>`;
-    html += m.drill_down_results.map(renderSciItem).join('');
+    html += drillDownResults.map(renderSciItem).join('');
   }
 
   return html || noContent();
@@ -271,12 +310,14 @@ function renderM6(data) {
 /* ── M07 — Risk Indicators: 2028 ──────────────────────────── */
 function renderM7(data) {
   const m = data.module_7;
-  if (!m || !m.vectors || !m.vectors.length) return noContent();
+  if (!m) return noContent();
+  const vectors = nonEmpty(m.vectors);
+  if (!vectors.length) return noContent();
 
   const riskCls = { 'HIGH': 'high', 'ELEVATED': 'elevated', 'VACUUM': 'vacuum' };
 
   return `<div class="risk-grid">
-    ${m.vectors.map(function (v) {
+    ${vectors.map(function (v) {
       const cls = riskCls[v.level] || 'elevated';
       return `<div class="risk-card risk-card--${cls}">
         <div class="risk-card__vector">${badge(v.level || '', 'risk-' + cls)} ${esc(v.vector)}</div>
@@ -290,11 +331,13 @@ function renderM7(data) {
 /* ── M08 — Military AI Watch ───────────────────────────────── */
 function renderM8_Military(data) {
   const m = data.module_8;
-  if (!m || !m.items || !m.items.length) return noContent();
+  if (!m) return noContent();
+  const items = nonEmpty(m.items);
+  if (!items.length) return noContent();
 
   const catBadge = { procurement: 'muted', doctrine: 'primary', capability: 'amber', international: 'signal' };
 
-  return m.items.map(function (item) {
+  return items.map(function (item) {
     const cat = item.category || 'procurement';
     return `<div class="card">
       <div class="card__label">${badge(cat, catBadge[cat] || 'muted')} ${esc(item.jurisdiction || '')}</div>
@@ -313,7 +356,8 @@ function renderM9(data) {
   let html = '';
 
   function renderItemList(items, sectionLabel) {
-    if (!items || !items.length) return '';
+    items = nonEmpty(items);
+    if (!items.length) return '';
     let out = sectionLabel ? `<div class="section-label">${sectionLabel}</div>` : '';
     out += items.map(function (item) {
       return `<div class="card">
@@ -334,17 +378,22 @@ function renderM9(data) {
 
   // Support both new schema (law_highlights / standards_highlights / litigation_highlights)
   // and legacy schema (new_developments)
-  if (m.law_highlights && m.law_highlights.length) {
-    html += renderItemList(m.law_highlights, 'Law');
+  const lawHighlights = nonEmpty(m.law_highlights);
+  const standardsHighlights = nonEmpty(m.standards_highlights);
+  const litigationHighlights = nonEmpty(m.litigation_highlights);
+  const newDevelopments = nonEmpty(m.new_developments);
+
+  if (lawHighlights.length) {
+    html += renderItemList(lawHighlights, 'Law');
   }
-  if (m.standards_highlights && m.standards_highlights.length) {
-    html += `<div class="divider"></div>` + renderItemList(m.standards_highlights, 'Standards');
+  if (standardsHighlights.length) {
+    html += `<div class="divider"></div>` + renderItemList(standardsHighlights, 'Standards');
   }
-  if (m.litigation_highlights && m.litigation_highlights.length) {
-    html += `<div class="divider"></div>` + renderItemList(m.litigation_highlights, 'Litigation');
+  if (litigationHighlights.length) {
+    html += `<div class="divider"></div>` + renderItemList(litigationHighlights, 'Litigation');
   }
-  if (!m.law_highlights && m.new_developments && m.new_developments.length) {
-    html += renderItemList(m.new_developments, '');
+  if (!lawHighlights.length && newDevelopments.length) {
+    html += renderItemList(newDevelopments, '');
   }
   // EU AI Act Layered System
   if (m.eu_ai_act_layered) {
@@ -370,7 +419,8 @@ function renderM9(data) {
   }
 
   // Country Grid
-  if (data.country_grid && data.country_grid.length) {
+  const countryGrid = nonEmpty(data.country_grid);
+  if (countryGrid.length) {
     html += `<div class="divider"></div>
     <div class="section-label" id="country-grid">Country Grid</div>
     <table class="country-grid-table data-table">
@@ -378,7 +428,7 @@ function renderM9(data) {
         <th>Country</th><th>Status</th><th>Key Development</th><th>Change</th><th>Source</th>
       </tr></thead>
       <tbody>
-        ${data.country_grid.map(function (row) {
+        ${countryGrid.map(function (row) {
           return `<tr>
             <td>${esc(row.country)}</td>
             <td>${row.status ? badge(row.status, row.status === 'Active' ? 'signal' : 'muted') : '—'}</td>
@@ -391,13 +441,14 @@ function renderM9(data) {
     </table>`;
   }
 
-  if (data.country_grid_watch && data.country_grid_watch.length) {
+  const countryGridWatch = nonEmpty(data.country_grid_watch);
+  if (countryGridWatch.length) {
     html += `<div class="divider"></div>
     <div class="section-label">Country Grid Watch</div>
     <table class="data-table">
       <thead><tr><th>Country</th><th>Signal</th><th>Note</th></tr></thead>
       <tbody>
-        ${data.country_grid_watch.map(function (row) {
+        ${countryGridWatch.map(function (row) {
           return `<tr>
             <td>${esc(row.country)}</td>
             <td>${badge(row.signal || 'Watch', 'amber')}</td>
@@ -418,7 +469,8 @@ function renderM10_AIG(data) {
   let html = '';
 
   function renderGovItems(items, label) {
-    if (!items || !items.length) return '';
+    items = nonEmpty(items);
+    if (!items.length) return '';
     return `<div class="section-label">${esc(label)}</div>` +
       items.map(function (item) {
         return `<div class="card">
@@ -432,13 +484,13 @@ function renderM10_AIG(data) {
   }
 
   html += renderGovItems(m.international_soft_law, 'International Soft Law');
-  if (m.corporate_governance && m.corporate_governance.length) html += '<div class="divider"></div>';
+  if (nonEmpty(m.corporate_governance).length) html += '<div class="divider"></div>';
   html += renderGovItems(m.corporate_governance, 'Corporate Governance');
-  if (m.product_liability && m.product_liability.length) html += '<div class="divider"></div>';
+  if (nonEmpty(m.product_liability).length) html += '<div class="divider"></div>';
   html += renderGovItems(m.product_liability, 'Product Liability Tracker');
-  if (m.algorithmic_accountability && m.algorithmic_accountability.length) html += '<div class="divider"></div>';
+  if (nonEmpty(m.algorithmic_accountability).length) html += '<div class="divider"></div>';
   html += renderGovItems(m.algorithmic_accountability, 'Algorithmic Accountability');
-  if (m.governance_gaps && m.governance_gaps.length) html += '<div class="divider"></div>';
+  if (nonEmpty(m.governance_gaps).length) html += '<div class="divider"></div>';
   html += renderGovItems(m.governance_gaps, 'Governance Gaps');
 
   return html || noContent();
@@ -447,7 +499,9 @@ function renderM10_AIG(data) {
 /* ── M11 — Ethics & Accountability ────────────────────────── */
 function renderM11_Ethics(data) {
   const m = data.module_11;
-  if (!m || !m.items || !m.items.length) return noContent();
+  if (!m) return noContent();
+  const items = nonEmpty(m.items);
+  if (!items.length) return noContent();
 
   const catCls = {
     corporate_accountability: 'threshold',
@@ -456,7 +510,7 @@ function renderM11_Ethics(data) {
     research: 'signal'
   };
 
-  return m.items.map(function (item) {
+  return items.map(function (item) {
     const cls = catCls[item.category] || 'muted';
     return `<div class="card">
       <div class="card__label">${badge(item.category || 'ethics', cls)}</div>
@@ -479,8 +533,9 @@ function renderM12(data) {
     platform_response: 'signal', detection: 'primary'
   };
 
-  if (m.items && m.items.length) {
-    html += m.items.map(function (item) {
+  const m12Items = nonEmpty(m.items);
+  if (m12Items.length) {
+    html += m12Items.map(function (item) {
       const cls = actorCls[item.category] || 'muted';
       return `<div class="card">
         <div class="card__label">
@@ -495,9 +550,10 @@ function renderM12(data) {
     }).join('');
   }
 
-  if (m.capability_watch && m.capability_watch.length) {
+  const capabilityWatch = nonEmpty(m.capability_watch);
+  if (capabilityWatch.length) {
     html += `<div class="divider"></div><div class="section-label">Capability Watch</div>`;
-    html += m.capability_watch.map(function (item) {
+    html += capabilityWatch.map(function (item) {
       return `<div class="card">
         <div class="card__label">${esc(item.capability || '')}</div>
         <div class="card__body">${esc(item.detail || '')} ${item.source_url ? sourceLink('Source', item.source_url) : ''}</div>
@@ -505,11 +561,12 @@ function renderM12(data) {
     }).join('');
   }
 
-  if (m.asymmetric_flags && m.asymmetric_flags.length) {
+  const m12Flags = nonEmpty(m.asymmetric_flags);
+  if (m12Flags.length) {
     html += `<div class="divider"></div>
     <div class="section-label">Asymmetric Flags</div>
     <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
-      ${m.asymmetric_flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
+      ${m12Flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
     </ul>`;
   }
 
@@ -527,8 +584,9 @@ function renderM13(data) {
     social_cohesion: 'primary', inequality: 'red', demographic: 'muted'
   };
 
-  if (m.items && m.items.length) {
-    html += m.items.map(function (item) {
+  const m13Items = nonEmpty(m.items);
+  if (m13Items.length) {
+    html += m13Items.map(function (item) {
       const cls = catCls[item.category] || 'muted';
       return `<div class="card">
         <div class="card__label">
@@ -542,19 +600,21 @@ function renderM13(data) {
     }).join('');
   }
 
-  if (m.structural_trends && m.structural_trends.length) {
+  const structuralTrends = nonEmpty(m.structural_trends);
+  if (structuralTrends.length) {
     html += `<div class="divider"></div>
     <div class="section-label">Structural Trends</div>
     <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
-      ${m.structural_trends.map(function (t) { return `<li>${esc(t)}</li>`; }).join('')}
+      ${structuralTrends.map(function (t) { return `<li>${esc(t)}</li>`; }).join('')}
     </ul>`;
   }
 
-  if (m.asymmetric_flags && m.asymmetric_flags.length) {
+  const m13Flags = nonEmpty(m.asymmetric_flags);
+  if (m13Flags.length) {
     html += `<div class="divider"></div>
     <div class="section-label">Asymmetric Flags</div>
     <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
-      ${m.asymmetric_flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
+      ${m13Flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
     </ul>`;
   }
 
@@ -577,8 +637,9 @@ function renderM14(data) {
     market_structure: 'muted'
   };
 
-  if (m.items && m.items.length) {
-    html += m.items.map(function (item) {
+  const m14Items = nonEmpty(m.items);
+  if (m14Items.length) {
+    html += m14Items.map(function (item) {
       const cls = catCls[item.category] || 'muted';
       return `<div class="card">
         <div class="card__label">${badge(item.category || '', cls)} ${esc(item.actors || item.region || '')}</div>
@@ -590,12 +651,13 @@ function renderM14(data) {
     }).join('');
   }
 
-  if (m.concentration_index && m.concentration_index.length) {
+  const concentrationIndex = nonEmpty(m.concentration_index);
+  if (concentrationIndex.length) {
     html += `<div class="divider"></div><div class="section-label">Concentration Index</div>
     <table class="data-table">
       <thead><tr><th>Domain</th><th>Top Actors</th><th>Trend</th><th>Note</th></tr></thead>
       <tbody>
-        ${m.concentration_index.map(function (row) {
+        ${concentrationIndex.map(function (row) {
           const trendCls = row.trend === 'Concentrating' ? 'red' : row.trend === 'Fragmenting' ? 'signal' : 'muted';
           return `<tr>
             <td class="mono">${esc(row.domain)}</td>
@@ -608,11 +670,12 @@ function renderM14(data) {
     </table>`;
   }
 
-  if (m.asymmetric_flags && m.asymmetric_flags.length) {
+  const m14Flags = nonEmpty(m.asymmetric_flags);
+  if (m14Flags.length) {
     html += `<div class="divider"></div>
     <div class="section-label">Asymmetric Flags</div>
     <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
-      ${m.asymmetric_flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
+      ${m14Flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
     </ul>`;
   }
 
@@ -626,7 +689,8 @@ function renderM15(data) {
   let html = '';
 
   function renderMovements(items, label) {
-    if (!items || !items.length) return '';
+    items = nonEmpty(items);
+    if (!items.length) return '';
     const typeCls = { appointment: 'signal', departure: 'amber', strategic_signal: 'threshold' };
     return `<div class="section-label">${esc(label)}</div>` +
       items.map(function (item) {
@@ -650,16 +714,17 @@ function renderM15(data) {
   }
 
   html += renderMovements(m.lab_movements, 'Lab Movements');
-  if (m.government_ai_bodies && m.government_ai_bodies.length) html += '<div class="divider"></div>';
+  if (nonEmpty(m.government_ai_bodies).length) html += '<div class="divider"></div>';
   html += renderMovements(m.government_ai_bodies, 'Government AI Bodies');
-  if (m.revolving_door && m.revolving_door.length) html += '<div class="divider"></div>';
+  if (nonEmpty(m.revolving_door).length) html += '<div class="divider"></div>';
   html += renderMovements(m.revolving_door, 'Revolving Door');
 
-  if (m.asymmetric_flags && m.asymmetric_flags.length) {
+  const m15Flags = nonEmpty(m.asymmetric_flags);
+  if (m15Flags.length) {
     html += `<div class="divider"></div>
     <div class="section-label">Asymmetric Flags</div>
     <ul style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.8">
-      ${m.asymmetric_flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
+      ${m15Flags.map(function (f) { return `<li>${esc(f)}</li>`; }).join('')}
     </ul>`;
   }
 
@@ -694,7 +759,7 @@ function renderCrossMonitor(data) {
   const cmf = data.cross_monitor_flags;
   if (!cmf) return '<p class="text-muted text-sm">No material cross-monitor signals identified in this period.</p>';
 
-  const flags = cmf.flags || [];
+  const flags = nonEmpty(cmf.flags);
   if (!flags.length) {
     return '<p class="text-muted text-sm">No material cross-monitor signals identified in this period.</p>';
   }
