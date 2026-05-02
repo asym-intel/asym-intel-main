@@ -106,6 +106,29 @@
         </div>
         <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
       </section>
+
+      <!-- Additional Intelligence (BW-7) -->
+      <section class="module-section" id="section-additional-intelligence">
+        <div class="module-header">
+          <div class="module-title">Additional Intelligence</div>
+        </div>
+        <div class="module-section" id="ai-legislation-tracker-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Legislation Tracker</div></div>
+          <div id="ai-legislation-tracker-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-state-capture-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">State Capture Cases</div></div>
+          <div id="ai-state-capture-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-actor-campaigns-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Active Actor Campaigns</div></div>
+          <div id="ai-actor-campaigns-content"><div class="loading-state">Loading…</div></div>
+        </div>
+        <div class="module-section" id="ai-open-findings-block">
+          <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Open Findings</div></div>
+          <div id="ai-open-findings-content"><div class="loading-state">Loading…</div></div>
+        </div>
+      </section>
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -119,6 +142,7 @@
       <li><a href="#section-member-states">Member State Tracker</a></li>
       <li><a href="#section-key-judgments">Key Judgments</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
+      <li><a href="#section-additional-intelligence">Additional Intelligence</a></li>
     </ul>
   </nav>
 
@@ -229,6 +253,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
       AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
     }
+
+      // Additional Intelligence (BW-7)
+      renderAdditionalIntelligence(d);
     })
     .catch(function (err) {
       console.error(err);
@@ -317,6 +344,149 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(function(err) {
       console.error('Persistent state load error:', err);
     });
+
+  /* ══════════════════════════════════════════════════════════════════
+     ADDITIONAL INTELLIGENCE (BW-7) — Legislation Tracker, State Capture,
+     Active Actor Campaigns, Open Findings.
+     ══════════════════════════════════════════════════════════════════ */
+  function aiSeverityNum(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+  function aiSeverityStyle(v) {
+    var n = aiSeverityNum(v);
+    if (n >= 4.0) return 'background:rgba(220,38,38,0.12);color:#b91c1c;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (n >= 3.0) return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (n >= 1.0) return 'background:rgba(5,150,105,0.12);color:#047857;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function aiCampaignStatusStyle(s) {
+    var v = String(s || '').toUpperCase();
+    if (v === 'ACTIVE')    return 'background:rgba(220,38,38,0.12);color:#b91c1c;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'SUSPENDED') return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'CONCLUDED') return 'background:rgba(100,116,139,0.15);color:#475569;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function aiTierBadgeStyle(t) {
+    var v = String(t || '').toUpperCase();
+    if (v === 'T1') return 'background:rgba(5,150,105,0.12);color:#047857';
+    if (v === 'T2') return 'background:rgba(37,99,235,0.12);color:#1d4ed8';
+    if (v === 'T3') return 'background:rgba(100,116,139,0.15);color:#475569';
+    return 'background:rgba(100,116,139,0.10);color:#64748b';
+  }
+  function renderLegislationTracker(list) {
+    var el = document.getElementById('ai-legislation-tracker-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No legislation tracked this cycle.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){
+      var ad = a.last_update || '', bd = b.last_update || '';
+      return ad < bd ? 1 : (ad > bd ? -1 : 0);
+    });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>Instrument</th><th>Status</th><th>Last Update</th></tr></thead><tbody>';
+    sorted.forEach(function(row) {
+      var instrumentCell = row.source_url
+        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(row.instrument || '') + '</a>'
+        : escHtml(row.instrument || '');
+      html += '<tr>' +
+        '<td>' + instrumentCell + '</td>' +
+        '<td>' + escHtml(row.status || '') + '</td>' +
+        '<td>' + escHtml(row.last_update || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderStateCapture(list) {
+    var el = document.getElementById('ai-state-capture-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No state capture cases tracked.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){ return aiSeverityNum(b.severity) - aiSeverityNum(a.severity); });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>Country</th><th>Severity</th><th>Status</th><th>Direction</th><th>Key Indicator</th></tr></thead><tbody>';
+    sorted.forEach(function(row) {
+      html += '<tr>' +
+        '<td>' + escHtml(row.country || '') + '</td>' +
+        '<td><span style="' + aiSeverityStyle(row.severity) + '">' + escHtml(row.severity != null ? row.severity : '') + '</span></td>' +
+        '<td>' + escHtml(row.status || '') + '</td>' +
+        '<td>' + escHtml(row.arrow || '') + '</td>' +
+        '<td>' + escHtml(row.key_indicator || '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderActorCampaigns(obj) {
+    var el = document.getElementById('ai-actor-campaigns-content');
+    if (!el) return;
+    if (!obj || typeof obj !== 'object' || !Object.keys(obj).length) {
+      el.innerHTML = '<p class="text-muted text-sm">No active actor campaigns this cycle.</p>';
+      return;
+    }
+    var html = '';
+    Object.entries(obj).forEach(function(entry) {
+      var actorKey = entry[0];
+      var actorVal = entry[1] || {};
+      var label = actorVal.actor || actorKey;
+      var campaigns = Array.isArray(actorVal.campaigns) ? actorVal.campaigns : (Array.isArray(actorVal) ? actorVal : []);
+      var sorted = campaigns.slice().sort(function(a,b){
+        var av = String(a.status || '').toUpperCase() === 'ACTIVE' ? 0 : 1;
+        var bv = String(b.status || '').toUpperCase() === 'ACTIVE' ? 0 : 1;
+        return av - bv;
+      });
+      html += '<div style="margin-bottom:var(--space-4)">' +
+        '<div style="font-weight:700;margin-bottom:var(--space-2)">' + escHtml(label) + '</div>';
+      if (!sorted.length) {
+        html += '<p class="text-muted text-sm">No campaigns recorded.</p>';
+      } else {
+        html += '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+          '<thead><tr><th>Campaign</th><th>Status</th><th>Target</th></tr></thead><tbody>';
+        sorted.forEach(function(c) {
+          html += '<tr>' +
+            '<td>' + escHtml(c.campaign || c.name || '') + '</td>' +
+            '<td><span style="' + aiCampaignStatusStyle(c.status) + '">' + escHtml(c.status || '') + '</span></td>' +
+            '<td>' + escHtml(c.target || '') + '</td>' +
+          '</tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+      html += '</div>';
+    });
+    el.innerHTML = html;
+  }
+  function renderOpenFindings(list) {
+    var el = document.getElementById('ai-open-findings-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No open findings this cycle</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(f) {
+      var tier = String(f.source_tier || '').toUpperCase();
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="font-weight:700">' + escHtml(f.headline || '') + '</div>' +
+        (f.why_it_matters ? '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(f.why_it_matters) + '</div>' : '') +
+        '<div style="margin-top:var(--space-1);font-size:var(--text-xs);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
+          (f.source_url
+            ? '<a href="' + escHtml(f.source_url) + '" target="_blank" rel="noopener">' + escHtml(f.source_name || f.source_url) + '</a>'
+            : escHtml(f.source_name || '')) +
+          (tier ? ' <span style="' + aiTierBadgeStyle(tier) + ';font-weight:600;border-radius:3px;padding:1px 6px;font-size:var(--text-xs)">' + escHtml(tier) + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderAdditionalIntelligence(report) {
+    renderLegislationTracker(report.eu_legislation_tracker || []);
+    renderStateCapture(report.state_capture_cases || []);
+    renderActorCampaigns(report.active_actor_campaigns || {});
+    renderOpenFindings(report.open_findings || []);
+  }
 });
 
 </script>

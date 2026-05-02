@@ -353,6 +353,25 @@
       <div id="cross-monitor-content"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- 13. Additional Intelligence (BW-7) -->
+    <section class="module-section" id="section-additional-intelligence">
+      <div class="module-header">
+        <div class="module-title">Additional Intelligence</div>
+      </div>
+      <div class="module-section" id="ai-tipping-flags-block">
+        <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Tipping System Flags</div></div>
+        <div id="ai-tipping-flags-content"><div class="loading-state">Loading…</div></div>
+      </div>
+      <div class="module-section" id="ai-cascade-chains-block">
+        <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Regional Cascade Chains</div></div>
+        <div id="ai-cascade-chains-content"><div class="loading-state">Loading…</div></div>
+      </div>
+      <div class="module-section" id="ai-open-findings-block">
+        <div class="module-header"><div class="module-title" style="font-size:var(--text-base)">Open Findings</div></div>
+        <div id="ai-open-findings-content"><div class="loading-state">Loading…</div></div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -370,6 +389,7 @@
       <li><a href="#section-loss-damage">Loss &amp; Damage</a></li>
       <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
+      <li><a href="#section-additional-intelligence">Additional Intelligence</a></li>
     </ul>
   </nav>
 </div>
@@ -619,6 +639,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (typeof AsymSections !== 'undefined' && AsymSections.renderCrossMonitorFlags) {
         AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
       }
+
+      /* ── Additional Intelligence (BW-7) ── */
+      renderAdditionalIntelligence(d);
     })
     .catch(function (e) {
       console.error('ERM dashboard data load failed:', e);
@@ -824,6 +847,116 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     html += '</div><p style="margin-top:var(--space-2);font-size:var(--text-min);color:var(--color-text-muted);font-style:italic">Proximity derived from status classification. Quantified scores will appear once schema is updated.</p>';
     wrap.innerHTML = html;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     ADDITIONAL INTELLIGENCE (BW-7) — Tipping System Flags, Regional
+     Cascade Chains, Open Findings.
+     ══════════════════════════════════════════════════════════════════ */
+  function aiTippingStatusRank(s) {
+    var v = String(s || '').toLowerCase();
+    if (v === 'critical') return 0;
+    if (v === 'high')     return 1;
+    if (v === 'elevated') return 2;
+    if (v === 'moderate') return 3;
+    return 4;
+  }
+  function aiTippingStatusStyle(s) {
+    var v = String(s || '').toLowerCase();
+    if (v === 'critical') return 'background:rgba(220,38,38,0.12);color:#b91c1c;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'high')     return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'elevated') return 'background:rgba(202,138,4,0.12);color:#854d0e;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'moderate') return 'background:rgba(5,150,105,0.12);color:#047857;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function aiCascadeStatusStyle(s) {
+    var v = String(s || '').toLowerCase();
+    if (v === 'active')     return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'monitoring') return 'background:rgba(100,116,139,0.15);color:#475569;font-weight:600;border-radius:3px;padding:2px 8px';
+    return 'color:var(--color-text-muted)';
+  }
+  function aiTierBadgeStyle(t) {
+    var v = String(t || '').toUpperCase();
+    if (v === 'T1') return 'background:rgba(5,150,105,0.12);color:#047857';
+    if (v === 'T2') return 'background:rgba(37,99,235,0.12);color:#1d4ed8';
+    if (v === 'T3') return 'background:rgba(100,116,139,0.15);color:#475569';
+    return 'background:rgba(100,116,139,0.10);color:#64748b';
+  }
+  function aiTruncate(str, n) {
+    var s = String(str || '');
+    if (s.length <= n) return s;
+    return s.slice(0, n) + '…';
+  }
+  function renderTippingFlags(list) {
+    var el = document.getElementById('ai-tipping-flags-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No tipping system flags this cycle.</p>';
+      return;
+    }
+    var sorted = list.slice().sort(function(a,b){ return aiTippingStatusRank(a.status) - aiTippingStatusRank(b.status); });
+    var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
+      '<thead><tr><th>System</th><th>Status</th><th>Proxy</th><th>Current Value</th></tr></thead><tbody>';
+    sorted.forEach(function(row) {
+      html += '<tr>' +
+        '<td>' + escHtml(row.system || '') + '</td>' +
+        '<td><span style="' + aiTippingStatusStyle(row.status) + '">' + escHtml(row.status || '') + '</span></td>' +
+        '<td>' + escHtml(row.proxy || '') + '</td>' +
+        '<td>' + escHtml(row.current_value != null ? row.current_value : '') + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+  function renderCascadeChains(list) {
+    var el = document.getElementById('ai-cascade-chains-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No regional cascade chains this cycle.</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(c) {
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
+          '<span style="font-weight:700">' + escHtml(c.region || '') + '</span>' +
+          (c.current_stage ? '<span style="background:rgba(100,116,139,0.12);color:#475569;border-radius:3px;padding:1px 6px;font-size:var(--text-xs);font-weight:600">' + escHtml(c.current_stage) + '</span>' : '') +
+          (c.status ? '<span style="' + aiCascadeStatusStyle(c.status) + ';font-size:var(--text-xs)">' + escHtml(c.status) + '</span>' : '') +
+        '</div>' +
+        (c.chain ? '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(aiTruncate(c.chain, 120)) + '</div>' : '') +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderOpenFindings(list) {
+    var el = document.getElementById('ai-open-findings-content');
+    if (!el) return;
+    if (!Array.isArray(list) || !list.length) {
+      el.innerHTML = '<p class="text-muted text-sm">No open findings this cycle</p>';
+      return;
+    }
+    var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+    list.forEach(function(f) {
+      var tier = String(f.source_tier || '').toUpperCase();
+      html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
+        '<div style="font-weight:700">' + escHtml(f.headline || '') + '</div>' +
+        (f.why_it_matters ? '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + escHtml(f.why_it_matters) + '</div>' : '') +
+        '<div style="margin-top:var(--space-1);font-size:var(--text-xs);display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">' +
+          (f.source_url
+            ? '<a href="' + escHtml(f.source_url) + '" target="_blank" rel="noopener">' + escHtml(f.source_name || f.source_url) + '</a>'
+            : escHtml(f.source_name || '')) +
+          (tier ? ' <span style="' + aiTierBadgeStyle(tier) + ';font-weight:600;border-radius:3px;padding:1px 6px;font-size:var(--text-xs)">' + escHtml(tier) + '</span>' : '') +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+  function renderAdditionalIntelligence(report) {
+    renderTippingFlags(report.tipping_system_flags || []);
+    renderCascadeChains(report.regional_cascade_chains || []);
+    renderOpenFindings(report.open_findings || []);
   }
 });
 </script>
