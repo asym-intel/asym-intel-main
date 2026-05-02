@@ -30,12 +30,12 @@ jobs:
 
     steps:
       - name: Checkout public repo (write target)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Checkout internal repo (read-only, engine IP)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: asym-intel/asym-intel-internal
           token: ${{ secrets.COMPUTER_SHIM_INTERNAL_READ }}
