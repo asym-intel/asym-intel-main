@@ -1,38 +1,12 @@
-# Artificial Intelligence Monitor — Issue 9
-
-**W/E 2 May 2026** | Published 2026-05-02T09:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**OpenAI releases GPT-5.5 with agentic capabilities while EU AI Act high-risk obligations face potential delay to December 2027 via Digital Omnibus negotiations**
-
-Confidence: N/A
-Actor: N/A
-Source: https://openai.com/index/introducing-gpt-5-5/
-
-## Key Judgments
-
-1. **The EU AI Act standards vacuum represents the most immediate governance risk as high-risk compliance deadline approaches without sufficient harmonised standards**
-   - Confidence: High
-   - Trajectory: Advancing
-
-2. **Regulatory fragmentation is accelerating innovation in regulatory arbitrage strategies as companies optimize deployment across different regulatory environments**
-   - Confidence: Assessed
-   - Trajectory: Advancing
-
-3. **AI-generated child sexual abuse material presents the most urgent societal harm requiring coordinated technical and regulatory responses**
-   - Confidence: High
-   - Trajectory: Advancing
-
-## Weekly Brief
+title: "Artificial Intelligence Monitor — W/E 2 May 2026"
+date: 2026-05-02T09:00:00Z
+summary: "OpenAI released GPT-5.5 on 2026-04-23, marking a significant advancement in agentic AI capabilities with enhanced coding and multi-tool task execution. This release coincides with OpenAI diversifying "
+draft: false
+monitor: "ai-governance"
+brief_sources:
+  - url: "https://openai.com/index/introducing-gpt-5-5/"
+---
 
 ## Lead Signal
 
@@ -57,29 +31,3 @@ This week's frontier model releases and standards delays intersect with FCW AI-g
 ## Outlook
 
 Next week, monitor EU Digital Omnibus negotiation outcomes, as final delay decisions could solidify the standards vacuum. Track enterprise adoption metrics for GPT-5.5 Pro and DeepSeek V4 cost efficiencies, potentially shifting market concentration. Watch Anthropic Mythos Preview cybersecurity applications for safety gap implications. Jurisdiction developments in China draft rules and US defence integrations warrant attention for fragmentation trends. Governance health may deteriorate further absent harmonized standards progress.
-
-## Cross-Monitor Flags
-
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **** () — Active
-- **EU AI Act standards vacuum risks tech sovereignty in high-risk compliance** (european-strategic-autonomy) — Active — verified (adjacent Issue 7)
-- **EU AI Act standards vacuum** (european-strategic-autonomy) — Active — verified (adjacent Issue 7)
-- **AI-generated child sexual abuse material surge connects to cognitive warfare risks** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 6)
-- **Pentagon's AI procurement shifts could accelerate military AI development** (conflict-escalation) — Active — verified (adjacent Issue 9)
-- **EU AI Act standards vacuum threatens European tech sovereignty** (european-strategic-autonomy) — Active — verified (adjacent Issue 7)
-- **AI energy demands growing faster than efficiency gains** (environmental-risks) — Active — verified (adjacent Issue 10)
-- **EU AI Act Standards Vacuum active** (european-strategic-autonomy) — Active — verified (adjacent Issue 7)
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/ai-governance/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/ai-governance/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/ai-governance/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/ai-governance/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/ai-governance/methodology.html>
