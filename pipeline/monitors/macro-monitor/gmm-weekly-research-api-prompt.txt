@@ -60,6 +60,13 @@ Return 8-10 top developments. Do not stop at the headline tariff event. Actively
 - Earnings guidance revisions from major corporates
 - Multilateral institution assessments and warnings
 
+OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
+run one additional broad search: "what else happened this week in global macro, financial stability, or economic risk that a
+sophisticated analyst would flag as significant?" Return findings as open_findings[]
+with no schema constraint beyond the fields shown. Minimum 1 entry, no maximum.
+This is not a catch-all for things that didn't fit above — it is a deliberate
+breadth pass to surface novel signals the structured schema may not have anticipated.
+
 OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Begin your response with { and end with }.
 
 {
@@ -137,8 +144,18 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
     "sources_searched": ["<list all sources checked this week>"],
     "sources_with_findings": ["<sources that returned relevant new material>"],
     "coverage_gaps": ["<any domains, asset classes, or institutions where coverage was structurally thin>"]
-  }
+  },
+  "open_findings": [
+    {
+      "headline": "<one sentence — what happened>",
+      "why_it_matters": "<one sentence — analytical significance for global macro, financial stability, or economic risk>",
+      "source_url": "<direct URL>",
+      "source_name": "<publication or institution>",
+      "source_tier": "<1|2|3>"
+    }
+  ]
 }
 
 # Version: v1.0 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter
 # Version: v1.1 | Updated: 2026-04-26 | Change: Added evidence_id + retrieval_timestamp to top_developments[] (engine-stamped, LLM must not invent). Closes Sprint AM Finding A per AD-2026-04-26-AM. Mirrors AGM v1.1.
+# Version: +open_findings | Updated: 2026-05-02 | Change: Added open_findings[] catch-all per AD-2026-05-02-BW. Schema-free breadth pass at end of each weekly collection cycle.
