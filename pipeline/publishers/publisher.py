@@ -2139,6 +2139,171 @@ def validate_report(report: dict, prev_report: dict | None = None) -> list[str]:
     return errors
 
 
+# ── Upstream publication-eligibility gate (apply/review verdict enforcement) ──
+#
+# The applier (where present) emits an artefact at
+#   pipeline/monitors/{slug}/applied/apply-latest.json
+# whose `publication.ready_to_publish` is the canonical signal of whether the
+# upstream review verdict allows publication. When the reviewer holds or
+# rejects the cycle, the applier writes ready_to_publish=false and a
+# machine-readable hold_reason (e.g. "review_verdict:hold-for-review").
+#
+# Prior to this gate the publisher ignored that signal and silently wrote the
+# live report regardless. The gate below makes the publisher honour the
+# upstream verdict at write time, so a held cycle blocks publish loudly with
+# an incident, instead of leaking to readers. See task brief: stage-contract
+# break observed in run 25256774146 on AIM 2026-05-02.
+#
+# Behaviour:
+#   - apply-latest.json absent           → permitted (legacy monitors not yet
+#                                          on the apply pipeline). Logged at
+#                                          info severity.
+#   - publication missing / malformed    → permitted, info incident (don't
+#                                          regress monitors mid-rollout).
+#   - ready_to_publish is False          → BLOCK with critical incident.
+#   - ready_to_publish is True           → permitted.
+#   - ready_to_publish absent but review
+#     verdict is hold/reject/blocking    → BLOCK (defensive — apply artefact
+#                                          shouldn't reach this state, but if
+#                                          it does, treat the verdict as the
+#                                          source of truth).
+
+# Review verdicts that block publication regardless of ready_to_publish.
+# Mirrors the applier's own logic: hold-for-review and the legacy REJECT are
+# always non-publishing states.
+_BLOCKING_REVIEW_VERDICTS = frozenset({
+    "hold-for-review",
+    "reject",
+    "REJECT",
+})
+
+
+def load_publication_eligibility(monitor_slug: str, repo_root: Path) -> dict:
+    """Load upstream publication-eligibility signal for `monitor_slug`.
+
+    Returns a dict with keys:
+      apply_path:        Path checked for the apply artefact.
+      apply_present:     bool — whether the artefact exists.
+      ready_to_publish:  bool | None — value from apply.publication, or None.
+      hold_reason:       str | None — value from apply.publication, or None.
+      review_verdict:    str | None — value from apply.inputs.review.verdict.
+      malformed:         bool — True if the artefact existed but did not parse
+                         into the expected shape.
+      error:             str | None — error message when malformed.
+    """
+    apply_path = repo_root / f"pipeline/monitors/{monitor_slug}/applied/apply-latest.json"
+    result = {
+        "apply_path": apply_path,
+        "apply_present": False,
+        "ready_to_publish": None,
+        "hold_reason": None,
+        "review_verdict": None,
+        "malformed": False,
+        "error": None,
+    }
+    if not apply_path.exists():
+        return result
+    result["apply_present"] = True
+    try:
+        applied = load_json(apply_path)
+    except Exception as e:
+        result["malformed"] = True
+        result["error"] = f"apply-latest.json could not be loaded: {e}"
+        return result
+    if not isinstance(applied, dict):
+        result["malformed"] = True
+        result["error"] = "apply-latest.json is not a JSON object"
+        return result
+    publication = applied.get("publication")
+    if not isinstance(publication, dict):
+        result["malformed"] = True
+        result["error"] = "apply-latest.json missing 'publication' object"
+        return result
+    result["ready_to_publish"] = publication.get("ready_to_publish")
+    result["hold_reason"] = publication.get("hold_reason")
+    review = applied.get("inputs", {}).get("review", {})
+    if isinstance(review, dict):
+        result["review_verdict"] = review.get("verdict")
+    return result
+
+
+def check_publication_eligibility(
+    monitor_slug: str,
+    repo_root: Path,
+    log_incident_fn=None,
+) -> tuple[bool, dict]:
+    """Decide whether the upstream verdict allows the publisher to proceed.
+
+    Returns (should_block, eligibility) where `eligibility` is the dict from
+    `load_publication_eligibility` plus a `decision` key
+    ("publish" | "block" | "publish_no_apply" | "publish_malformed").
+
+    When should_block is True, an incident has already been logged via
+    log_incident_fn (when provided). Callers should print a user-facing line
+    and exit non-zero. When should_block is False, callers may publish.
+    """
+    eligibility = load_publication_eligibility(monitor_slug, repo_root)
+    log = log_incident_fn or (lambda **kw: None)
+
+    if not eligibility["apply_present"]:
+        eligibility["decision"] = "publish_no_apply"
+        log(
+            monitor=monitor_slug, stage="publisher",
+            incident_type="guard_skip", severity="info",
+            detail=(
+                "publication-eligibility gate: apply-latest.json absent — "
+                "monitor not yet on the apply pipeline; permitting publish."
+            ),
+        )
+        return False, eligibility
+
+    if eligibility["malformed"]:
+        eligibility["decision"] = "publish_malformed"
+        log(
+            monitor=monitor_slug, stage="publisher",
+            incident_type="quality_failure", severity="warning",
+            detail=(
+                "publication-eligibility gate: apply-latest.json malformed "
+                f"({eligibility['error']}); permitting publish to avoid "
+                "regression mid-rollout."
+            ),
+        )
+        return False, eligibility
+
+    review_verdict = eligibility["review_verdict"]
+    ready = eligibility["ready_to_publish"]
+
+    if ready is False:
+        eligibility["decision"] = "block"
+        log(
+            monitor=monitor_slug, stage="publisher",
+            incident_type="publisher_skip", severity="critical",
+            detail=(
+                "publication-eligibility gate: upstream apply artefact reports "
+                f"ready_to_publish=false (hold_reason="
+                f"{eligibility['hold_reason']!r}, review_verdict="
+                f"{review_verdict!r}); blocking publish."
+            ),
+        )
+        return True, eligibility
+
+    if ready is None and review_verdict in _BLOCKING_REVIEW_VERDICTS:
+        eligibility["decision"] = "block"
+        log(
+            monitor=monitor_slug, stage="publisher",
+            incident_type="publisher_skip", severity="critical",
+            detail=(
+                "publication-eligibility gate: apply-latest.json has no "
+                "ready_to_publish flag but review verdict "
+                f"{review_verdict!r} is blocking; refusing to publish."
+            ),
+        )
+        return True, eligibility
+
+    eligibility["decision"] = "publish"
+    return False, eligibility
+
+
 # ── Main ─────────────────────────────────────────────────────────────────
 
 def main():
@@ -2235,6 +2400,42 @@ def main():
     if not check_synthesis_valid(synthesis):
         sys.exit(1)
     print("  ✓ synthesis is fresh and valid")
+
+    # Upstream publication-eligibility gate (apply/review verdict).
+    # Honours apply-latest.json publication.ready_to_publish so a held cycle
+    # does not silently publish (stage-contract break observed in run
+    # 25256774146 on AIM 2026-05-02). Monitors not yet on the apply pipeline
+    # are permitted, with an info-level guard_skip incident.
+    _block_publish, _eligibility = check_publication_eligibility(
+        MONITOR_SLUG, REPO_ROOT, log_incident_fn=log_incident,
+    )
+    if not _eligibility["apply_present"]:
+        print(
+            "  ℹ publication-eligibility gate: no apply-latest.json — "
+            "monitor not on apply pipeline, permitting publish"
+        )
+    elif _eligibility["malformed"]:
+        print(
+            "  ⚠ publication-eligibility gate: apply-latest.json malformed "
+            f"({_eligibility['error']}) — permitting publish"
+        )
+    elif _block_publish:
+        print(
+            "🚫 PUBLICATION GATE: upstream verdict blocks publish — refusing to write"
+        )
+        print(f"   ready_to_publish: {_eligibility['ready_to_publish']}")
+        print(f"   hold_reason:      {_eligibility['hold_reason']}")
+        print(f"   review_verdict:   {_eligibility['review_verdict']}")
+        print(
+            "   Fix: resolve the review hold/reject upstream and re-run "
+            "the apply stage; the publisher will pick up ready_to_publish=true."
+        )
+        sys.exit(1)
+    else:
+        print(
+            "  ✓ publication-eligibility gate: ready_to_publish=true "
+            f"(review_verdict={_eligibility['review_verdict']!r})"
+        )
 
     _publish_date_override = os.environ.get("PUBLISH_DATE", "").strip()
     if _publish_date_override:
