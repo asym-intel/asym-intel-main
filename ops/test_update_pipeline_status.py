@@ -37,6 +37,9 @@ _classify_station = _module._classify_station
 _classify_monitor = _module._classify_monitor
 _match_expected_to_actual = _module._match_expected_to_actual
 _tolerance_late_for = _module._tolerance_late_for
+_parse_producer_issue_body = _module._parse_producer_issue_body
+_resolve_cross_repo_failure_alerts = _module._resolve_cross_repo_failure_alerts
+_PRODUCER_POLL_BODY_MARKER = _module._PRODUCER_POLL_BODY_MARKER
 TRIGGER_TOLERANCE_LATE_CF = _module.TRIGGER_TOLERANCE_LATE_CF
 TRIGGER_TOLERANCE_LATE_GH_NATIVE = _module.TRIGGER_TOLERANCE_LATE_GH_NATIVE
 TRIGGER_TOLERANCE_EARLY = _module.TRIGGER_TOLERANCE_EARLY
@@ -417,6 +420,284 @@ def test_tolerance_block_serialises_both_source_kinds():
     assert tol["early_minutes"] == 2
     # Old key must be gone (schema change documented in AD-BJ).
     assert "late_minutes" not in tol
+
+
+# ─── Cross-repo failure-issue lifecycle tests ─────────────────────────────
+#
+# Regression coverage for asym-intel-main#173/#174: producer auto-opens cross-
+# repo failure issues but never auto-closed them on recovery. Tests confirm
+# the new resolve path closes only producer-poll issues whose station has
+# returned to success on the CURRENT producer run.
+
+
+def _producer_issue(*, number, abbr, station, created_at, body_extra=""):
+    """Build a fixture issue dict matching the GitHub /issues API shape that
+    _resolve_cross_repo_failure_alerts() consumes."""
+    body = (
+        f"**Monitor:** {abbr} (asym-intel/advennt)\n"
+        f"**Station:** {station}\n"
+        f"**Workflow:** publisher.yml\n"
+        f"**Last run:** 2026-05-02T08:33:01Z\n"
+        f"**Detected by:** {_PRODUCER_POLL_BODY_MARKER}\n"
+        f"\nClose when resolved.{body_extra}"
+    )
+    return {
+        "number": number,
+        "title": f"🔴 Pipeline failure: {abbr} {station} (publisher.yml)",
+        "state": "open",
+        "created_at": created_at,
+        "body": body,
+        "labels": [{"name": "pipeline-failure"}],
+    }
+
+
+def test_parse_producer_issue_body_extracts_monitor_and_station():
+    body = (
+        "**Monitor:** ADVENNT (asym-intel/advennt)\n"
+        "**Station:** published\n"
+        "**Workflow:** publisher.yml\n"
+        f"**Detected by:** {_PRODUCER_POLL_BODY_MARKER}\n"
+    )
+    abbr, station = _parse_producer_issue_body(body)
+    assert abbr == "ADVENNT"
+    assert station == "published"
+
+
+def test_parse_producer_issue_body_rejects_non_producer():
+    """Issues without the producer-poll marker must NOT be parsed — they may
+    be manually-filed pipeline-failure issues we must never auto-close."""
+    body = "**Monitor:** ADVENNT\n**Station:** published\nManually filed.\n"
+    abbr, station = _parse_producer_issue_body(body)
+    assert abbr is None and station is None
+
+
+class _FakeRun:
+    def __init__(self, returncode=0, stderr=""):
+        self.returncode = returncode
+        self.stderr = stderr
+        self.stdout = ""
+
+
+def _patch_subprocess(call_log, *, comment_rc=0, close_rc=0):
+    """Replace _module.subprocess.run with a recorder that returns success."""
+    def fake_run(cmd, *args, **kwargs):
+        call_log.append(cmd)
+        if any("comments" in p for p in cmd):
+            return _FakeRun(returncode=comment_rc)
+        return _FakeRun(returncode=close_rc)
+    return fake_run
+
+
+def test_resolve_closes_when_station_recovered():
+    """The lifecycle gap behind #173/#174: when current run shows success and
+    last_run > issue.created_at, the resolver must close the issue."""
+    issue = _producer_issue(
+        number=173, abbr="ADVENNT", station="published",
+        created_at="2026-05-02T09:15:03Z",
+    )
+    # Current status: publisher succeeded at 11:10 (after the 09:15 issue).
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "published": {
+                    "last_run": "2026-05-02T11:10:29Z",
+                    "last_conclusion": "success",
+                    "last_success": "2026-05-02T11:10:29Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(
+            status, issues=[issue],
+            now=datetime(2026, 5, 2, 14, 0, tzinfo=timezone.utc),
+        )
+    finally:
+        _module.subprocess.run = orig
+    assert closed == [173], f"expected #173 closed, got {closed}"
+    # Two API calls: comment + PATCH state=closed
+    assert len(calls) == 2
+    assert any("comments" in p for p in calls[0])
+    assert any("state=closed" in p for p in calls[1])
+
+
+def test_resolve_skips_when_station_still_failing():
+    """Active failure must NOT be auto-closed — that would mask the alert."""
+    issue = _producer_issue(
+        number=173, abbr="ADVENNT", station="published",
+        created_at="2026-05-02T09:15:03Z",
+    )
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "published": {
+                    "last_run": "2026-05-02T10:00:00Z",
+                    "last_conclusion": "failure",
+                    "last_success": "2026-05-01T11:10:29Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(status, issues=[issue])
+    finally:
+        _module.subprocess.run = orig
+    assert closed == []
+    assert calls == [], "no API calls expected when station is still failing"
+
+
+def test_resolve_skips_when_success_predates_issue():
+    """If last_run on the current snapshot is OLDER than the issue's created_at,
+    the success is stale evidence — don't close yet."""
+    issue = _producer_issue(
+        number=173, abbr="ADVENNT", station="published",
+        created_at="2026-05-02T09:15:03Z",
+    )
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "published": {
+                    "last_run": "2026-05-01T08:00:00Z",  # before the issue
+                    "last_conclusion": "success",
+                    "last_success": "2026-05-01T08:00:00Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(status, issues=[issue])
+    finally:
+        _module.subprocess.run = orig
+    assert closed == []
+
+
+def test_resolve_skips_running_status():
+    """`running`/`queued` is NOT recovery — don't close mid-flight."""
+    issue = _producer_issue(
+        number=174, abbr="ADVENNT", station="dashboard",
+        created_at="2026-05-02T09:15:03Z",
+    )
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "dashboard": {
+                    "last_run": "2026-05-02T11:10:29Z",
+                    "last_conclusion": "running",
+                    "last_success": "2026-05-01T11:10:29Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(status, issues=[issue])
+    finally:
+        _module.subprocess.run = orig
+    assert closed == []
+
+
+def test_resolve_skips_non_producer_issue():
+    """Issues without the producer-poll marker (e.g. manually-filed) must be
+    left alone, even if labelled `pipeline-failure`."""
+    manual = {
+        "number": 999,
+        "title": "🔴 Pipeline failure: ADVENNT published",
+        "state": "open",
+        "created_at": "2026-05-02T09:15:03Z",
+        "body": "Filed manually by operator. ADVENNT published is broken.",
+        "labels": [{"name": "pipeline-failure"}],
+    }
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "published": {
+                    "last_run": "2026-05-02T11:10:29Z",
+                    "last_conclusion": "success",
+                    "last_success": "2026-05-02T11:10:29Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(status, issues=[manual])
+    finally:
+        _module.subprocess.run = orig
+    assert closed == []
+    assert calls == []
+
+
+def test_resolve_skips_commons_monitor():
+    """Commons monitors are owned by pipeline-failure-alert.yml, not the
+    producer-poll path. Even if a producer-style body somehow names a commons
+    monitor, the resolver must not act on it."""
+    fake = _producer_issue(
+        number=200, abbr="WDM", station="published",
+        created_at="2026-05-02T09:00:00Z",
+    )
+    status = {
+        "WDM": {
+            "stations": {
+                "published": {
+                    "last_run": "2026-05-02T11:00:00Z",
+                    "last_conclusion": "success",
+                    "last_success": "2026-05-02T11:00:00Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(status, issues=[fake])
+    finally:
+        _module.subprocess.run = orig
+    assert closed == []
+
+
+def test_resolve_does_not_close_if_comment_fails():
+    """If posting the recovery comment fails, the issue must stay open — no
+    silent close that would erase the audit trail."""
+    issue = _producer_issue(
+        number=173, abbr="ADVENNT", station="published",
+        created_at="2026-05-02T09:15:03Z",
+    )
+    status = {
+        "ADVENNT": {
+            "stations": {
+                "published": {
+                    "last_run": "2026-05-02T11:10:29Z",
+                    "last_conclusion": "success",
+                    "last_success": "2026-05-02T11:10:29Z",
+                },
+            },
+        },
+    }
+    calls = []
+    orig = _module.subprocess.run
+    _module.subprocess.run = _patch_subprocess(calls, comment_rc=1)
+    try:
+        closed = _resolve_cross_repo_failure_alerts(status, issues=[issue])
+    finally:
+        _module.subprocess.run = orig
+    assert closed == []
+    # Comment was attempted, close was NOT.
+    assert len(calls) == 1
+    assert any("comments" in p for p in calls[0])
 
 
 # ─── Test runner (no pytest required) ──────────────────────────────────────
