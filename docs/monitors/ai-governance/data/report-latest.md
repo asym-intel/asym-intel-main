@@ -1,6 +1,6 @@
-# Artificial Intelligence Monitor — Issue 11
+# Artificial Intelligence Monitor — Issue 12
 
-**W/E 1 May 2026** | Published 2026-05-01T09:00:00Z
+**W/E 2 May 2026** | Published 2026-05-02T09:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
