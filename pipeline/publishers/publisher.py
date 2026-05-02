@@ -1860,6 +1860,10 @@ def _is_empty_placeholder(v) -> bool:
     A value is "empty" if:
       - None
       - empty string (after strip)
+      - the literal string "null" (case-insensitive, after strip) — LLM-emitted
+        sentinel observed in AIM module_9 digest_note (see SCOPE: published
+        monitor data-quality contract). Treated as empty so it cannot mask a
+        bare-empty module from provenance annotation.
       - empty list / dict
       - dict with all-empty values (recursive)
       - list with all-empty entries (recursive)
@@ -1868,7 +1872,12 @@ def _is_empty_placeholder(v) -> bool:
     if v is None:
         return True
     if isinstance(v, str):
-        return not v.strip()
+        s = v.strip()
+        if not s:
+            return True
+        if s.lower() == "null":
+            return True
+        return False
     if isinstance(v, (int, float, bool)):
         return False
     if isinstance(v, dict):
@@ -1891,6 +1900,137 @@ def _strip_empty_placeholders(obj):
         cleaned = [_strip_empty_placeholders(x) for x in obj]
         return [x for x in cleaned if not _is_empty_placeholder(x)]
     return obj
+
+
+# ── Module-level null-signal provenance ────────────────────────────────────
+#
+# Empty-module data-quality contract (live evidence: 33 silent-empty modules
+# across 6/7 indexed monitors as of 2026-05-02). Every module-shaped object
+# that is otherwise structurally empty after placeholder stripping MUST
+# carry an explicit module-level null/empty state before publication, so the
+# reader (and downstream consumers) can tell "no material content this cycle"
+# from "the pipeline silently dropped this module".
+#
+# The contract uses three fields, written into the module dict in-place:
+#   - null_signal: bool — true when the module body is structurally empty.
+#   - empty_reason: str — machine-readable reason. "no_material_content" when
+#     interpret-stage marks this cycle null/partial; "unknown" when the engine
+#     cannot determine why (preserved as explicit unknown, never silent).
+#   - fallback_message: str — short reader-facing sentence the front-end may
+#     display in lieu of empty card shells. Renderers are free to ignore it.
+#
+# Existing non-empty modules are left untouched. Modules already carrying
+# null_signal are not overwritten.
+
+_EMPTY_REASON_NO_CONTENT = "no_material_content"
+_EMPTY_REASON_UNKNOWN = "unknown"
+_FALLBACK_NO_CONTENT = (
+    "No material developments observed in this module for the current cycle."
+)
+_FALLBACK_UNKNOWN = (
+    "No content was emitted for this module this cycle. "
+    "The pipeline could not determine the cause; flagged for review."
+)
+
+
+def _module_body_is_empty(module: dict) -> bool:
+    """True if a module-shape dict has only structurally-empty fields beyond title.
+
+    `title` and any pre-existing provenance fields (null_signal, empty_reason,
+    fallback_message) are excluded from the empty test. Everything else is
+    run through _is_empty_placeholder. A module with no non-meta fields at
+    all (just `{"title": ...}`) is also considered empty.
+    """
+    if not isinstance(module, dict):
+        return False
+    meta_keys = {"title", "null_signal", "empty_reason", "fallback_message"}
+    body = {k: v for k, v in module.items() if k not in meta_keys}
+    if not body:
+        return True
+    return all(_is_empty_placeholder(v) for v in body.values())
+
+
+def _infer_empty_reason(report_meta: dict) -> tuple[str, str]:
+    """Pick (empty_reason, fallback_message) from interpret-stage _meta if available.
+
+    interpret-stage emits null_signal_week / cycle_disposition; these tell us
+    whether an empty module is expected (null_cycle / partial_cycle) or
+    unexplained. Unknown is preferred over a confident wrong answer.
+    """
+    if not isinstance(report_meta, dict):
+        return _EMPTY_REASON_UNKNOWN, _FALLBACK_UNKNOWN
+    cycle = (report_meta.get("cycle_disposition") or "").strip().lower()
+    if cycle in {"null_cycle", "partial_cycle"}:
+        return _EMPTY_REASON_NO_CONTENT, _FALLBACK_NO_CONTENT
+    if report_meta.get("null_signal_week") is True:
+        return _EMPTY_REASON_NO_CONTENT, _FALLBACK_NO_CONTENT
+    # cycle_disposition == "material_change" with an empty module is the
+    # exact data-quality break described in the live AIM artefacts: an
+    # overall material cycle but a silently-empty module. Mark unknown so
+    # downstream consumers can surface it for review rather than swallowing.
+    return _EMPTY_REASON_UNKNOWN, _FALLBACK_UNKNOWN
+
+
+def _annotate_empty_modules(report: dict, source_meta: dict | None = None) -> dict:
+    """Stamp module-level null-signal provenance on bare-empty top-level modules.
+
+    Walks top-level keys named `module_*`. For each dict-shaped module whose
+    body is structurally empty, writes null_signal/empty_reason/fallback_message
+    if not already present. Existing non-empty modules and modules that already
+    carry null_signal are left untouched.
+
+    Mutates and returns the supplied report dict; callers that need an
+    untouched original should deep-copy first (sanitise_for_public does).
+    """
+    if not isinstance(report, dict):
+        return report
+    meta = source_meta if source_meta is not None else report.get("_meta", {})
+    for key, value in list(report.items()):
+        if not key.startswith("module_"):
+            continue
+        if not isinstance(value, dict):
+            continue
+        if not _module_body_is_empty(value):
+            continue
+        if value.get("null_signal") is True and value.get("empty_reason"):
+            continue
+        reason, fallback = _infer_empty_reason(meta)
+        value["null_signal"] = True
+        value.setdefault("empty_reason", reason)
+        value.setdefault("fallback_message", fallback)
+        # Drop the LLM-emitted "null" sentinel string fields (e.g. AIM
+        # module_9 digest_note: "null") — they are now redundant against
+        # the explicit provenance and would otherwise reach renderers as
+        # the literal four-letter word.
+        for k2, v2 in list(value.items()):
+            if k2 in {"title", "null_signal", "empty_reason", "fallback_message"}:
+                continue
+            if isinstance(v2, str) and v2.strip().lower() == "null":
+                value[k2] = ""
+    return report
+
+
+def _find_unprovenanced_empty_modules(report: dict) -> list[str]:
+    """Return module keys that are structurally empty but lack null_signal provenance.
+
+    Used by validate_report as defense-in-depth: if a module reaches the
+    publisher write path without provenance and without content, fail loudly
+    rather than silently publish a bare empty shell.
+    """
+    if not isinstance(report, dict):
+        return []
+    bad = []
+    for key, value in report.items():
+        if not key.startswith("module_"):
+            continue
+        if not isinstance(value, dict):
+            continue
+        if not _module_body_is_empty(value):
+            continue
+        if value.get("null_signal") is True and value.get("empty_reason"):
+            continue
+        bad.append(key)
+    return bad
 
 
 def sanitise_for_public(report: dict) -> dict:
@@ -1938,7 +2078,11 @@ def sanitise_for_public(report: dict) -> dict:
         return obj
 
     r = strip_preliminary_keys(r)
+    # Capture interpret-stage _meta before it is dropped — empty-module
+    # provenance keys off cycle_disposition / null_signal_week.
+    _source_meta = report.get("_meta") if isinstance(report, dict) else None
     r = _strip_empty_placeholders(r)
+    r = _annotate_empty_modules(r, source_meta=_source_meta)
     return r
 
 def build_last_run_status(synthesis: dict, config: dict, issues: list = None,
@@ -2271,6 +2415,30 @@ def main():
     print("\n[6/6] Writing outputs...")
     # Sanitise before any public write (ENGINE-RULES §16 — strip _meta, _preliminary, internal fields)
     public_report = sanitise_for_public(report)
+
+    # Module-level null-signal provenance gate (data-quality contract).
+    # Any top-level module_* dict whose body is structurally empty MUST
+    # carry null_signal/empty_reason/fallback_message. _annotate_empty_modules
+    # is invoked inside sanitise_for_public; this is the defense-in-depth
+    # check that the contract actually holds at write time. Fail loudly
+    # rather than silently publish bare empty module shells.
+    _empty_no_provenance = _find_unprovenanced_empty_modules(public_report)
+    if _empty_no_provenance:
+        log_incident(
+            monitor=MONITOR_SLUG, stage="publisher",
+            incident_type="schema_violation", severity="critical",
+            detail=(
+                "Empty modules without null_signal provenance reached the "
+                "public-report write path"
+            ),
+            modules=_empty_no_provenance,
+        )
+        print(
+            "  ✗ BLOCKING: empty modules without null_signal provenance: "
+            f"{_empty_no_provenance}"
+        )
+        sys.exit(1)
+
     dated_report_path = data_dir / f"report-{publish_date}.json"
     write_json(dated_report_path, public_report)
     write_json(data_dir / "report-latest.json", public_report)
