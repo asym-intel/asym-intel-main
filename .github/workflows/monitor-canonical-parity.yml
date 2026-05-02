@@ -28,6 +28,17 @@ on:
 jobs:
   parity-003:
     name: PARITY-003 Monitor Canonical
+    # Bot-PR scope guard: dependabot PRs cannot read COMPUTER_SHIM_INTERNAL_READ
+    # (cross-repo PAT), so the canonical-monitors fetch always fails with a
+    # noisy red check. PARITY-003 is currently in advisory (warn) mode and is
+    # NOT a required status context, so a job-level skip is safe here.
+    # When PARITY-003 is promoted to a blocking gate, the skip pattern must
+    # move inside the job (mirror the canonical-parity.yml Scope step) so the
+    # check-run name keeps reporting success. tools/test_dependabot_skip_invariant.py
+    # enforces that constraint on required / future-required parity workflows.
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main
