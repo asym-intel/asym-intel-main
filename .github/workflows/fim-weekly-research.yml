@@ -11,10 +11,23 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repo
+      - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+
+      # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/policy
+            pipeline/monitors/financial-integrity
+          sparse-checkout-cone-mode: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -22,19 +35,43 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests pyyaml anthropic
 
-      - name: Run weekly deep research
+      # The engine reads bespoke files via paths like
+      # `pipeline/monitors/{slug}/weekly-research-prompt.txt`, resolved
+      # relative to the process CWD (public-main root). Stage those files
+      # from the internal checkout into the expected public-root path.
+      # §15 IP boundary preserved — they are never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/financial-integrity
+          cp -v internal/pipeline/monitors/financial-integrity/metadata.yml                pipeline/monitors/financial-integrity/
+          cp -v internal/pipeline/monitors/financial-integrity/weekly-research-prompt.txt  pipeline/monitors/financial-integrity/
+          cp -v internal/pipeline/monitors/financial-integrity/weekly-research-domain.md   pipeline/monitors/financial-integrity/ || true
+          cp -v internal/pipeline/monitors/financial-integrity/weekly-research-schema.json pipeline/monitors/financial-integrity/ || true
+
+      - name: Run weekly deep research (engine dispatch)
         env:
-          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-        run: python pipeline/monitors/financial-integrity/weekly-research.py
+          PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN:          ${{ secrets.ASYM_INTEL_PIPELINE }}
+          PYTHONPATH:        internal
+        run: python -m pipeline.engine.weekly_research_base --monitor financial-integrity
 
       - name: Commit research output
         run: |
           git config user.name  "FIM Research Bot"
           git config user.email "fim-research@asym-intel.info"
+          git pull --rebase --autostash origin main
+          # Only stage output dirs — bespoke files in-tree are ephemeral-runtime only
           git add pipeline/monitors/financial-integrity/weekly/
           git diff --staged --quiet && echo "No research output to commit" && exit 0
           git commit -m "data(fim-research): weekly deep research — $(date -u +%Y-%m-%d)"
-          git pull --rebase --autostash origin main
           git push
+
+      - name: Archive prompt exchanges to internal repo
+        if: always()
+        env:
+          GH_TOKEN:      ${{ secrets.ASYM_INTEL_PIPELINE }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: python tools/commit_exchange_log.py

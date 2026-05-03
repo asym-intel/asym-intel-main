@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
 """
 FIM Weekly Research — GitHub Actions script
-Calls Perplexity sonar-pro API with the FIM weekly research prompt,
-validates schema, and writes output to pipeline/monitors/financial-integrity/weekly/
+
+Legacy entry point — the canonical Phase B path is
+`python -m pipeline.engine.weekly_research_base --monitor financial-integrity`,
+which reads the model and provider from `pipeline/engine/model_routing.yml`
+at runtime. This script is preserved for direct invocation only when the
+caller has already resolved routing and injected MODEL via environment.
+
+Validates schema and writes output to
+pipeline/monitors/financial-integrity/weekly/
 
 Runs: Wednesday 15:00 UTC (scheduled by cron dispatcher)
 
 Environment variables required:
   PPLX_API_KEY  — Perplexity API key (GitHub repository secret)
+  MODEL         — model identifier injected by the caller / engine
+                  (no default; raises RuntimeError if absent)
 """
 
 import os
@@ -30,7 +39,13 @@ except ImportError:
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY     = os.environ["PPLX_API_KEY"]
-MODEL       = "sonar-pro"             # sonar-pro: live web search with deeper synthesis
+MODEL       = os.environ.get("MODEL", "")
+if not MODEL:
+    raise RuntimeError(
+        "MODEL env var not set — model routing must inject this value. "
+        "Do not call weekly-research.py directly; use the engine dispatch "
+        "via fim-weekly-research.yml."
+    )
 TODAY       = datetime.date.today()
 TODAY_STR   = TODAY.isoformat()
 
@@ -65,7 +80,7 @@ prompt += f"\n\nCurrent date: {TODAY_STR}. Week ending (Saturday): {WEEK_ENDING}
 # ── Call Perplexity API ────────────────────────────────────────────────────────
 
 print(f"Calling Perplexity API ({MODEL}) for week ending {WEEK_ENDING}...")
-print("Note: sonar-pro may take 10-30 seconds...")
+print(f"Note: {MODEL} may take 10-30 seconds...")
 
 response = requests.post(
     "https://api.perplexity.ai/chat/completions",
