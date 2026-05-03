@@ -49,6 +49,27 @@ ANALYTICAL RULES:
 3. Sudan/Myanmar/DRC structural gap: flag any week where fewer than 3 combined findings come from these theatres — this is a coverage failure, not an absence of events.
 4. Episodic vs. structural: tag episodic_flag: true for one-off statements, single incidents, or events without clear trajectory signal. Only sustained patterns across 3+ reporting cycles upgrade to structural.
 
+STANDING TRACKERS — SCEM
+
+Check every week regardless of news volume. These must always be updated.
+
+### Arms Control and Treaty Status Tracker
+- New START / nuclear arms control architecture: status of any negotiations, breaches, notifications, or expiry movements
+- Chemical weapons: OPCW findings, any new use allegations or confirmed incidents
+- Biological weapons: BWC implementation, any outbreak-conflict interface events
+- Conventional arms: UN arms embargo status changes, illicit supply route disruptions or confirmations (focus: Ukraine theatre, Middle East, West Africa)
+- Space and cyber norms: any new state-level violations, bilateral agreements, or multilateral framework changes
+- For each tracker item: current status, change from previous week (if any), source URL
+
+If no change to a tracker item this week: return { "status": "unchanged", "as_of": "<date>" }
+
+### Escalation Threshold Tracker
+- Nuclear: any movement on alert levels, deployment posture changes, or doctrine statements from P5 or threshold states
+- Conventional: any new front openings, ceasefire breaches, or force mobilisation signals in active theatres
+- Hybrid: any confirmed state-on-state cyber operations above the detection threshold
+
+For each item: current level (stable / elevated / critical), direction (stable / escalating / de-escalating), key evidence this week, source URL.
+
 PERSONNEL WATCH (REQUIRED — standing weekly):
 Track significant personnel movements, appointments, departures, and leadership changes in organisations that shape strategic conflict, escalation, and military command policy, capability, or governance. This is a standing sweep — check named sources every week regardless of news volume. Return findings in the personnel_watch[] array in the output schema.
 
