@@ -150,16 +150,16 @@
   /* ── Site Bar Injection ──────────────────────────────────────
      About | Search | [theme toggle] | Subscribe
      Injected on ALL pages below the network bar.
-     Replaces old site-header partial on site pages.
+     Replaces Hugo site-header.html partial on Hugo pages.
      On monitor pages, sits between network bar and monitor strip.
      ──────────────────────────────────────────────────────────── */
   function injectSiteBar() {
     // Skip if already present (idempotent)
     if (document.querySelector('.site-bar')) return;
 
-    // Hide old site-header if it exists (nav.js now owns this bar)
-    var siteNav = document.querySelector('.site-nav');
-    if (siteNav) siteNav.style.display = 'none';
+    // Hide Hugo site-header if it exists (nav.js now owns this bar)
+    var hugoSiteNav = document.querySelector('.site-nav');
+    if (hugoSiteNav) hugoSiteNav.style.display = 'none';
 
     var bar = document.createElement('nav');
     bar.className = 'site-bar';
@@ -545,7 +545,7 @@
   }
 
 
-  /* ── Site-nav hamburger ─────────────────────────────── */
+  /* ── Hugo site-nav hamburger ─────────────────────────────── */
   function setupSiteNavHamburger() {
     var btn   = document.querySelector('.site-nav__hamburger');
     var links = document.querySelector('.site-nav__links');

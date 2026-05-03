@@ -1,0 +1,1968 @@
+{
+  "_meta": {
+    "description": "Persistent knowledge base for the AI Governance Monitor. Updated only when material changes occur. Never delete entries — archive closed episodes instead.",
+    "last_updated": "2026-05-02T16:23:47Z",
+    "last_issue": 12,
+    "schema_version": "2.0",
+    "source_url": "https://asym-intel.info/monitors/ai-governance/2026-04-01-weekly-digest/",
+    "monitor_slug": "ai-governance",
+    "monitor_name": "AI Governance Monitor",
+    "publish_day": "Friday",
+    "publish_time_utc": "16:00",
+    "calibration": "EU AI Act 2026 / GPAI Code of Practice applied 2026-04-02",
+    "methodology_version": "agm-methodology-2026-Q2",
+    "required_modules": [
+      "module_5_standards_vacuum",
+      "module_5_ciyuan",
+      "module_7_risk_vectors",
+      "module_9_eu_ai_act_tracker",
+      "module_14_concentration_index",
+      "module_15_aisi_pipeline",
+      "eu_ai_act_tracker",
+      "gpai_compliance",
+      "risk_vectors_2026_baseline",
+      "concentration_index_2026",
+      "aisi_status_2026"
+    ],
+    "baseline_method": "dr-computer-2026-04-28-reverify",
+    "baseline_window_months": 18,
+    "baseline_run_id": "agm-2026-04-28",
+    "baseline_dispatched_at": "2026-04-28T00:00:00Z",
+    "baseline_model": "computer-research-subagent",
+    "predecessor_archive": "persistent-state-2026-04-27-pre-baseliner.json"
+  },
+  "module_7_risk_vectors": [
+    {
+      "vector": "Governance Fragmentation",
+      "rating": "HIGH",
+      "first_rated": "2026-03-30",
+      "confidence": "High",
+      "unchanged_since": "2026-04-01",
+      "last_verified": "2026-04-28",
+      "summary": "Divergent regulatory approaches across jurisdictions create compliance challenges for global AI deployment",
+      "sources": [
+        "https://www.osborneclarke.com/insights/regulatory-outlook-january-2026-artificial-intelligence",
+        "https://www.resemble.ai/resources/the-eu-ai-act-what-generative-ai-companies-need-to-know-in-2026"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated HIGH — initial entry",
+          "reason": "EU Parliament adopted Digital Omnibus position; White House released nonbinding AI framework in direct philosophical opposition",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "EU Omnibus trilogue opened (28 April target); White House federal preemption framework; GSA 'any lawful use' clause generalising Pentagon AI playbook to all federal procurement",
+          "prior_value": "EU/US governance schism: EP Omnibus vote (569–45–23) vs White House nonbinding framework explicitly "
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "Trump National Policy Framework (Mar 20 2026) confirmed at whitehouse.gov/releases/2026/03; Illinois competing AI liability bills (SB 3444/SB 3261) confirm ongoing state-level fragmentation; Digital Omnibus trilogue April 28 political meeting underway per A&O Shearman 2026-04-09 and Ropes Gray 2026-04-24",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "changed",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ],
+      "asymmetric": "Governance fragmentation is accelerating as jurisdictions implement different risk classifications and compliance requirements, creating significant barriers to global AI deployment",
+      "changed": true,
+      "last_updated": "2026-05-02"
+    },
+    {
+      "vector": "Cyber Escalation",
+      "rating": "HIGH",
+      "first_rated": "2026-03-30",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "last_verified": "2026-04-28",
+      "summary": "AI agent orchestration infrastructure (Langflow, LiteLLM, n8n) is established attack surface. CVE-2026-33017 (CVSS 9.3, Langflow) exploited within 20 hours of advisory — no public PoC required. CVE-2026-33634 (Trivy/LiteLLM supply chain) found in 36% of monitored cloud environments. CISA enforcement only applies to federal agencies; private sector exposure unaddressed. Grok 4 evaluated by AISI as capable of providing chemical/biological uplift to non-experts.",
+      "sources": [
+        "https://securityaffairs.com/190018/security/u-s-cisa-adds-a-langflow-flaw-to-its-known-exploited-vulnerabilities-catalog.html",
+        "https://www.helpnetsecurity.com/2026/03/27/cve-2026-33017-cve-2026-33634-exploited/",
+        "https://ailabwatch.substack.com/p/xais-new-safety-framework-is-dreadful"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated HIGH — initial entry",
+          "reason": "Two AI-infrastructure CVEs added to CISA KEV catalog in same week; active exploitation of agentic orchestration layer confirmed",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "Langflow/LiteLLM/n8n confirmed as established AI attack surface (CVE-2026-33017/33634); Anthropic dual opsec failure (KAIROS/BUDDY undercover mode + Mythos CMS leak)",
+          "prior_value": "AI agent orchestration infrastructure (Langflow, LiteLLM, n8n) is established attack surface. CVE-20"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "AISI evaluation of Grok 4 (via ailabwatch) confirms frontier models provide chemical/biological uplift risk; no reduction in attack surface reported; IAPP April 2026 article confirms Anthropic Claude Mythos cyber escalation concern persists",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "vector": "Platform Power",
+      "rating": "ELEVATED",
+      "first_rated": "2026-03-30",
+      "confidence": "High",
+      "unchanged_since": "2026-02-20",
+      "last_verified": "2026-04-28",
+      "summary": "Concentration of AI capabilities among major platforms creates power imbalances",
+      "sources": [
+        "https://www.wilsonsonsini.com/insights/2026-antitrust-year-in-preview-ai",
+        "https://www.morganstanley.com/insights/articles/ai-market-trends-institute-2026"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated ELEVATED — initial entry",
+          "reason": "SpaceX–xAI merger complete; EU implementation delays confirmed by Omnibus vote",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "OpenAI $852B valuation at 60x revenue; headcount doubling to ~8,000; Promptfoo acquisition; SpaceX-xAI merger creating combined Grok+Starlink+DoD/NASA+X entity",
+          "prior_value": "EU AI Act Omnibus implementation delays structurally benefit incumbent labs. SpaceX–xAI merger (Feb "
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified + new windowed event added",
+          "reason": "Musk v. Altman trial commenced April 28 (AP News, CNBC confirmed); OpenAI valuation at $852B confirmed at trial commencement; OpenAI new principles published April 26 (Business Insider) removing co-assistance commitment to rival safety-focused AGI projects",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "changed",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ],
+      "asymmetric": "Platform power is creating significant power imbalances as major tech companies control access to frontier AI capabilities and infrastructure",
+      "changed": false,
+      "last_updated": "2026-05-02"
+    },
+    {
+      "vector": "Export Controls",
+      "rating": "ELEVATED",
+      "first_rated": "2026-03-30",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "last_verified": "2026-04-28",
+      "summary": "US Commerce Dept withdrew planned AI chip export rule (13 March 2026). No replacement rule published. Biden-era AI Diffusion Rule rescinded May 2025. H20 chip requires BIS export license indefinitely (April 2025, Nvidia filing). H200 approved for China with 50% of US domestic sales cap (January 2026, Trump administration). Bilateral supply lock-in intensifying; cloud IaaS providers can serve Chinese customers via foreign data centers without triggering hardware export controls.",
+      "sources": [
+        "https://www.reuters.com/business/us-commerce-department-withdraws-planned-rule-ai-chip-exports-government-website-2026-03-13/",
+        "https://techcrunch.com/2025/04/15/nvidia-h20-chip-exports-hit-with-license-requirement-by-us-government/",
+        "https://techwireasia.com/2026/01/nvidia-h200-chip-exports-china-restrictions/"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated ELEVATED — initial entry",
+          "reason": "Commerce Dept withdrew planned rule; no replacement issued; enforcement vacuum confirmed",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "US Commerce withdrew chip export rule with no replacement; bilateral GPU supply lock-in intensifying ($700B hyperscaler capex in 2026)",
+          "prior_value": "US Commerce Dept withdrew planned AI chip export rule (13 March 2026). No replacement rule published"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "H20 BIS license requirement confirmed (TechCrunch April 2025); H200 50% cap confirmed (Tech Wire Asia January 2026); no new replacement for withdrawn Commerce rule per search results; export controls regime still in enforcement vacuum confirmed",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "vector": "Disinfo Velocity",
+      "rating": "ELEVATED",
+      "first_rated": "2026-03-30",
+      "confidence": "High",
+      "unchanged_since": "2026-03-01",
+      "last_verified": "2026-04-28",
+      "summary": "AI-generated content accelerates the speed and scale of disinformation campaigns",
+      "sources": [
+        "https://www.resemble.ai/resources/the-eu-ai-act-what-generative-ai-companies-need-to-know-in-2026",
+        "https://www.lemonde.fr/en/international/article/2026/03/21/french-prosecutors-suspect-musk-encouraged-deepfakes-controversy-to-inflate-x-value_6751680_4.html"
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Rated HIGH — initial entry",
+          "reason": "EEAS FIMI report confirmed 25% AI-assisted rate; US midterm deepfakes confirmed active",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 — carried forward, new evidence added",
+          "reason": "EEAS 4th FIMI Report confirms agentic autonomous narrative attacks; AI deepfakes in 2026 US midterms; Stanford Internet Observatory dismantlement",
+          "prior_value": "EEAS 4th Annual FIMI Report: 1 in 4 detected incidents in 2025 involved AI tools. AI deepfakes confi"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "No new downgrade signals found. Illinois SB 3261 (Anthropic-backed) creates incident reporting for catastrophic risk but no federal law change; EEAS FIMI structural trajectory unchanged",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "rating",
+            "summary",
+            "asymmetric",
+            "confidence",
+            "changed",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ],
+      "asymmetric": "Disinfo velocity is creating challenges for detection and response as AI-generated content becomes increasingly sophisticated and difficult to distinguish from authentic content",
+      "changed": false,
+      "last_updated": "2026-05-02"
+    },
+    {
+      "vector": "Standards Vacuum",
+      "rating": "HIGH",
+      "summary": "Lack of harmonized standards creates implementation challenges for regulatory compliance",
+      "asymmetric": "Standards vacuum is creating significant implementation challenges for the EU AI Act as harmonized standards remain unavailable despite approaching compliance deadlines",
+      "confidence": "High",
+      "changed": true,
+      "unchanged_since": "2026-03-15",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.cencenelec.eu/areas-of-work/cen-cenelec-topics/artificial-intelligence/",
+        "https://www.osborneclarke.com/insights/regulatory-outlook-january-2026-artificial-intelligence"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-17",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-21",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-27",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "confidence",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "CEN-CENELEC JTC21 confirmed still in draft as of Oct 2025; exceptional acceleration measures adopted Oct 2025 targeting Q4 2026 delivery — still after Aug 2 deadline; artificialintelligenceact.eu confirmed standards expected after 2 Aug 2026 legal requirements take effect",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "changed",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "vector": "Regulatory Fragmentation",
+      "rating": "HIGH",
+      "summary": "Divergent regulatory approaches across jurisdictions create compliance challenges for global AI deployment",
+      "asymmetric": "Regulatory fragmentation is accelerating as jurisdictions implement different risk classifications and compliance requirements, creating significant barriers to global AI deployment",
+      "confidence": "High",
+      "changed": true,
+      "unchanged_since": "2026-04-01",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.osborneclarke.com/insights/regulatory-outlook-january-2026-artificial-intelligence",
+        "https://www.resemble.ai/resources/the-eu-ai-act-what-generative-ai-companies-need-to-know-in-2026"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "Morgan Lewis April 2026 report 'AI Enforcement Accelerates as Federal Policy Stalls and States Step In' confirms ongoing regulatory fragmentation with state AGs coordinating with FTC; Illinois competing bills (SB 3444/SB 3261) directly evidence intra-state fragmentation",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "changed",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "vector": "AI-Generated Harm",
+      "rating": "ELEVATED",
+      "summary": "Non-consensual deepfakes and other AI-generated content create new forms of harm",
+      "asymmetric": "AI-generated harm is creating new challenges for legal frameworks as non-consensual deepfakes and other AI-generated content cause psychological and reputational damage",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-10",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.lemonde.fr/en/international/article/2026/03/21/french-prosecutors-suspect-musk-encouraged-deepfakes-controversy-to-inflate-x-value_6751680_4.html",
+        "https://www.mayerbrown.com/en/insights/publications/2026/04/china-issues-draft-rules-on-interactive-ai-services"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified + new evidence",
+          "reason": "xAI Grok image tool safety crisis (Jan 2026) at buildfastwithai.com confirms ELEVATED rating; Illinois SB 3261 child safety component (Fortune Apr 17) confirms legislative response; no downgrade signal found",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "vector": "Compute Concentration",
+      "rating": "ELEVATED",
+      "summary": "GPU shortages and price increases continue to concentrate compute resources among well-funded entities",
+      "asymmetric": "GPU shortages are creating a compute divide that favors well-funded entities while limiting access for smaller organizations and researchers",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-15",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.fusionww.com/insights/gpu-shortage-and-price-increases-in-2026",
+        "https://www.bloombergnef.com/insights/commodities/ai-data-center-build-advances-at-full-speed-five-things-to-know/"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "H20 BIS license and H200 50% cap confirmed; NVIDIA dominance structural fact unchanged; no new AMD/Intel market share gain >5% reported",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "summary",
+            "asymmetric",
+            "unchanged_since",
+            "sources"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "vector": "AI Energy Demand",
+      "rating": "MODERATE",
+      "summary": "Rapid growth in data center electricity consumption driven by AI workloads",
+      "asymmetric": "Energy constraints may become a limiting factor for AI development in regions with constrained power infrastructure",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-04-01",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.brookings.edu/articles/global-energy-demands-within-the-ai-regulatory-landscape/"
+      ],
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "No material change signal found in April 2026 searches; MODERATE rating maintained pending next quarterly refresh",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "vector": "AI Labor Disruption",
+      "rating": "MODERATE",
+      "summary": "AI-related job cuts projected to increase nine times over in 2026 compared to 2025",
+      "asymmetric": "Labor disruption is creating pressure for workforce retraining programs focused on AI-augmented roles rather than AI replacement",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-03-10",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.youtube.com/watch?v=xsWaPdvCmy4"
+      ],
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-21",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "No new primary-source evidence found to upgrade or downgrade within April 21–28 window; MODERATE rating maintained",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "vector": "Benchmark-Reality Gap",
+      "rating": "ELEVATED",
+      "summary": "Real-world AI accuracy drops 20-40% below benchmarks due to data drift and edge cases.",
+      "asymmetric": "Amplifies unmonitored deployment risks in agentic systems",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-01-01",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.articsledge.com/post/ai-accuracy-rate"
+      ],
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-24",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "No new primary-source evidence in April 28 window; ELEVATED maintained",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "vector": "Capability-Governance Velocity Gap",
+      "rating": "HIGH",
+      "summary": "Frontier jumps like Claude 4.6 outpace regulatory milestones. Anthropic RSP v3.1 (April 2, 2026) and OpenAI updated principles (April 26, 2026) both reflect voluntary frameworks struggling to keep pace with capability advances approaching August 2026 enforcement deadline.",
+      "asymmetric": "Regulatory frameworks calibrated for prior architectures become obsolete",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-01-01",
+      "last_verified": "2026-04-28",
+      "sources": [
+        "https://www.understandingai.org/p/why-its-getting-harder-to-measure",
+        "https://www-cdn.anthropic.com/files/4zrzovbb/website/bf04581e4f329735fd90634f6a1962c13c0bd351.pdf",
+        "https://sg.finance.yahoo.com/news/openai-just-updated-principles-heres-041316239.html"
+      ],
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-24",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified + new supporting evidence",
+          "reason": "Anthropic RSP v3.1 (April 2 2026) confirmed at anthropic.com CDN — separate lab commitments from industry recommendations acknowledges collective action problem. OpenAI updated principles (April 26 2026, Yahoo Finance/Business Insider) removes AGI co-assistance commitment to rivals — governance velocity gap widening confirmed",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "vector": "Safety Gap",
+      "rating": "ELEVATED",
+      "summary": "Rapid capability advancement outpaces safety research and evaluation frameworks",
+      "asymmetric": "The safety gap is widening as frontier models advance more rapidly than safety evaluation frameworks can be developed and validated",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-01",
+      "sources": [
+        "https://www.nist.gov/itl/ai-risk-management-framework",
+        "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-05-02",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "Talent Drain",
+      "rating": "MODERATE",
+      "summary": "Intense competition for AI talent creates challenges for smaller organizations and academic institutions",
+      "asymmetric": "Talent drain is creating a two-tier AI ecosystem where well-funded entities attract top talent while smaller organizations and academic institutions struggle to retain expertise",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-02-15",
+      "sources": [
+        "https://www.bcg.com/publications/2026/ai-will-reshape-more-jobs-than-it-replaces",
+        "https://www.morganstanley.com/insights/articles/ai-market-trends-institute-2026"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-05-02",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "Energy Constraint",
+      "rating": "ELEVATED",
+      "summary": "Rapid growth in data center capacity creates significant energy demand and sustainability challenges",
+      "asymmetric": "Energy constraints are becoming a critical bottleneck for AI development as data center growth outpaces renewable energy infrastructure development",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-20",
+      "sources": [
+        "https://www.spglobal.com/market-intelligence/en/news-insights/research/2026/04/surging-energy-demand-puts-us-utility-capex-forecast-near-1-3t-in-2026-30",
+        "https://fortune.com/2026/03/29/big-tech-climate-change-goals-data-centers-ai-fossil-fuels/"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-05-02",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "IP Regime Collapse",
+      "rating": "MODERATE",
+      "summary": "Copyright litigation around AI training data creates uncertainty for model development",
+      "asymmetric": "IP regime collapse is creating legal uncertainty that may stifle innovation while favoring entities with access to licensed training data",
+      "confidence": "Assessed",
+      "changed": false,
+      "unchanged_since": "2026-02-10",
+      "sources": [
+        "https://www.bakerlaw.com/services/artificial-intelligence-ai/case-tracker-artificial-intelligence-copyrights-and-class-actions/",
+        "https://www.wilsonsonsini.com/insights/2026-antitrust-year-in-preview-ai"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-05-02",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "vector": "Labor Disruption",
+      "rating": "ELEVATED",
+      "summary": "AI reshapes job roles faster than workforce can adapt",
+      "asymmetric": "Labor disruption is accelerating as AI reshapes job roles faster than workforce training programs can adapt, creating skills gaps and economic inequality",
+      "confidence": "High",
+      "changed": false,
+      "unchanged_since": "2026-03-05",
+      "sources": [
+        "https://www.bcg.com/publications/2026/ai-will-reshape-more-jobs-than-it-replaces",
+        "https://www.morganstanley.com/insights/articles/ai-market-trends-institute-2026"
+      ],
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-05-02",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    }
+  ],
+  "module_9_eu_ai_act_tracker": {
+    "last_updated": "2026-05-02",
+    "general_application_date": "2026-08-02",
+    "standards_vacuum_active": true,
+    "standards_vacuum_trigger": "CEN-CENELEC JTC21 harmonised standards still in draft; compliance obligations activate 2 August 2026 without technical safe harbour if Omnibus trilogue stalls",
+    "layers": [
+      {
+        "layer": 1,
+        "name": "AI Act Text",
+        "status": "Active",
+        "note": "Regulation (EU) 2024/1689 in force. General application 2 August 2026.",
+        "unchanged_since": "2026-03-30",
+        "last_verified": "2026-04-28"
+      },
+      {
+        "layer": 2,
+        "name": "Delegated / Implementing Acts",
+        "status": "In progress",
+        "note": "Commission drafting. Article 6 high-risk classification guidelines published February 2026. GPAI classification criteria and high-risk system list updates pending.",
+        "unchanged_since": "2026-03-30",
+        "last_verified": "2026-04-28"
+      },
+      {
+        "layer": 3,
+        "name": "Harmonised Standards (CEN-CENELEC JTC21)",
+        "status": "Delayed — exceptional acceleration measures active",
+        "note": "JTC21 missed April 2025 delivery deadline. CEN-CENELEC Boards adopted exceptional package Oct 14-16 2025 to accelerate delivery targeting Q4 2026 — after Aug 2 deadline. Until OJ citation, presumption of conformity unavailable for high-risk AI. Standards will not provide pre-August safe harbour.",
+        "unchanged_since": "2026-03-30",
+        "last_verified": "2026-04-28",
+        "verification_source": "https://www.cencenelec.eu/news-events/news/2025/brief-news/2025-10-23-ai-standardization/",
+        "verification_date": "2026-04-28"
+      },
+      {
+        "layer": 4,
+        "name": "GPAI Code of Practice",
+        "status": "Final published — Commission adequacy assessment pending",
+        "note": "Final GPAI CoP published July 10, 2025 (digital-strategy.ec.europa.eu). Three chapters: Transparency, Copyright, Safety and Security. Commission and AI Board confirmed it is an adequate voluntary tool. Not yet adopted as implementing act. Enforcement of GPAI obligations begins August 2, 2026.",
+        "unchanged_since": "2026-03-30",
+        "last_verified": "2026-04-28",
+        "verification_source": "https://digital-strategy.ec.europa.eu/en/policies/contents-code-gpai",
+        "verification_date": "2026-04-28"
+      },
+      {
+        "layer": 5,
+        "name": "National Enforcement (NCAs)",
+        "status": "Mostly designated — enforcement capacity variable",
+        "note": "Member states designation slower than expected — may affect early enforcement consistency. Most not yet fully operational for AI Act enforcement. Track NCA enforcement capacity monthly.",
+        "unchanged_since": "2026-03-30",
+        "last_verified": "2026-04-28"
+      },
+      {
+        "layer": 6,
+        "name": "AI Office Supervisory Decisions",
+        "status": "Not yet active",
+        "note": "No formal supervisory decisions issued. AI Office operational but pre-enforcement. First supervisory decision = landmark M09+M10 item. Full enforcement authority for GPAI models from August 2, 2026.",
+        "unchanged_since": "2026-03-30",
+        "last_verified": "2026-04-28"
+      },
+      {
+        "layer": 7,
+        "name": "Digital Omnibus Trilogue",
+        "status": "Active — political agreement meeting TODAY (April 28)",
+        "note": "EP adopted position 26 March (569–45–23). Council position adopted 13 March. Second political trilogue scheduled April 28, 2026 — political agreement expected at this meeting per A&O Shearman (April 9) and Ropes Gray (April 24). If agreement reached: Parliament vote May, Council June, OJ July, entry into force 1 August. Convergence: fixed high-risk dates Dec 2, 2027 (Annex III) and Aug 2, 2028 (Annex I) both institutions agree. New prohibitions on nudifier AI and CSAM tools agreed by both. Divergence: AI literacy binding vs soft, synthetic content timing (Nov 2026 Parliament vs Feb 2027 Council), sectoral integration.",
+        "unchanged_since": "2026-04-28",
+        "last_verified": "2026-04-28",
+        "verification_source_1": "https://www.aoshearman.com/en/insights/digital-omnibus-on-ai-what-is-really-on-the-table-as-trilogues-begin",
+        "verification_source_2": "https://www.ropesgray.com/en/insights/viewpoints/102mquz/ai-omnibus-trilogue-underwaywhat-to-expect-as-negotiations-progress",
+        "verification_date": "2026-04-28"
+      }
+    ],
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Initial 7-layer tracker seeded from Issue 1 research",
+        "reason": "First issue; no prior state",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "Layer 7 updated — trilogue formally open; 28 April target added; 122 days to deadline",
+        "reason": "Issue 2 research — EP plenary vote confirmed; trilogue opened",
+        "prior_value": "Trilogue expected to open April 2026"
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — countdown updated (122 days to general application 2026-08-02); Omnibus trilogue opened; GSA 'any lawful use' clause added as federal procurement signal",
+        "reason": "Issue 4 research — Omnibus and GSA developments material to tracker",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-28",
+        "change": "carry-forward-verified + Layer 3, 4, 7 updates",
+        "reason": "Layer 3: CEN-CENELEC Oct 2025 acceleration measures confirmed (cencenelec.eu); Layer 4: GPAI CoP final publication July 10 2025 confirmed (digital-strategy.ec.europa.eu); Layer 7: April 28 political meeting confirmed by A&O Shearman and Ropes Gray — result unknown at time of writing; convergence positions documented",
+        "prior_value": null
+      }
+    ],
+    "current_days_to_deadline": 92,
+    "law_highlights": [
+      {}
+    ],
+    "standards_highlights": [
+      {}
+    ],
+    "litigation_highlights": [
+      {}
+    ],
+    "digest_note": "null"
+  },
+  "module_14_concentration_index": {
+    "last_updated": "2026-05-02",
+    "last_verified": "2026-04-28",
+    "domains": [
+      {
+        "domain": "Compute",
+        "trend": "Concentrating",
+        "top_actors": [
+          "Amazon",
+          "Microsoft",
+          "Google"
+        ],
+        "note": "Compute concentration accelerating as major cloud providers expand AI infrastructure",
+        "unchanged_since": "2026-03-15"
+      },
+      {
+        "domain": "Models",
+        "trend": "Stable",
+        "top_actors": [
+          "OpenAI",
+          "Anthropic",
+          "Google DeepMind"
+        ],
+        "note": "Model development remains concentrated among major labs but open-source alternatives gaining traction",
+        "unchanged_since": "2026-02-20"
+      },
+      {
+        "domain": "Data",
+        "trend": "Concentrating",
+        "top_actors": [
+          "Meta",
+          "Google",
+          "Microsoft"
+        ],
+        "note": "Data concentration accelerating as major platforms control access to large training datasets",
+        "unchanged_since": "2026-03-01"
+      },
+      {
+        "domain": "Talent",
+        "trend": "Concentrating",
+        "top_actors": [
+          "OpenAI",
+          "Anthropic",
+          "Google DeepMind"
+        ],
+        "note": "Talent concentration accelerating as major labs attract top researchers with competitive compensation",
+        "unchanged_since": "2026-02-15"
+      },
+      {
+        "domain": "Capital",
+        "trend": "Stable",
+        "top_actors": [
+          "Venture Capital",
+          "Corporate Investment",
+          "Government Funding"
+        ],
+        "note": "Capital distribution remains relatively stable with significant investment across private and public sectors",
+        "unchanged_since": "2026-03-10"
+      },
+      {
+        "domain": "Regulatory Access",
+        "trend": "Concentrating",
+        "top_actors": [
+          "US",
+          "EU",
+          "China"
+        ],
+        "note": "Regulatory access concentration accelerating as major jurisdictions establish dominant frameworks",
+        "unchanged_since": "2026-04-01"
+      }
+    ]
+  },
+  "module_15_aisi_pipeline": {
+    "last_updated": "2026-05-02",
+    "last_verified": "2026-04-28",
+    "pipeline_status": "No confirmed senior permanent appointments — structural leadership vacuum persists approaching August 2026 enforcement deadline",
+    "institutional_note": "UK AISI: Adam Beaumont (ex-GCHQ Chief AI Officer) confirmed as Interim Director October 2025 — replacing Oliver Ilott (promoted to interim DG AI at DSIT). No permanent director appointment confirmed as of April 28, 2026. US NIST CAISI: active with MOU with GSA (March 2026) and CRADA with OpenMined (March 2026); AI Agent Standards Initiative launched February 2026. EU AI Office: no new senior appointments; full enforcement authority from August 2, 2026.",
+    "watch_list": [
+      {
+        "institution": "UK AI Security Institute",
+        "status": "Interim Director confirmed: Adam Beaumont (ex-GCHQ CAO)",
+        "last_checked": "2026-04-28",
+        "movements": [
+          {
+            "name": "Adam Beaumont",
+            "role": "Interim Director",
+            "effective_date": "2025-10",
+            "from": "GCHQ (Chief AI Officer)",
+            "source": "https://www.transformernews.ai/p/exclusive-uk-aisi-hires-gchq-chief-adam-beaumont",
+            "retrieval_date": "2026-04-28"
+          }
+        ]
+      },
+      {
+        "institution": "US NIST AI Safety (CAISI)",
+        "status": "Active — new partnerships and standards initiatives in 2026",
+        "last_checked": "2026-04-28",
+        "movements": []
+      },
+      {
+        "institution": "EU AI Office",
+        "status": "Monitoring — no permanent senior appointments; full enforcement from Aug 2, 2026",
+        "last_checked": "2026-04-28",
+        "movements": []
+      },
+      {
+        "institution": "Canadian CAISI",
+        "status": "Monitoring",
+        "last_checked": "2026-04-28",
+        "movements": []
+      }
+    ],
+    "closed_episodes": [],
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Initial entry — no confirmed movements in week 23–29 March 2026",
+        "reason": "Issue 1 research; institutional rebranding noted as tracking complication",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "AISI pipeline status updated: all three bodies in simultaneous leadership transition or reduced capacity",
+        "reason": "Issue 2 M15 research — UK interim director, US restructured, EU no new appointments",
+        "prior_value": "No confirmed senior movements; institutional rebranding complicating tracking"
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — all three principal AI safety bodies still in leadership transition; AISI on interim leadership (Beaumont); NIST AI Safety Inst under review; no permanent directors approaching August 2026 deadline",
+        "reason": "Issue 4 research — structural vacuum continues",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-28",
+        "change": "carry-forward-verified + CAISI activity update",
+        "reason": "UK AISI: Adam Beaumont Interim Director confirmed (transformernews.ai Oct 2025; LinkedIn AISI Oct 2025) — no permanent appointment. US CAISI: MOU with GSA March 18 2026 (nist.gov), CRADA with OpenMined March 27 2026 (nist.gov), AI Agent Standards Initiative Feb 17 2026 (nist.gov) — active institution with reduced safety mandate vs Biden-era. EU AI Office: no enforcement decisions yet; full authority from Aug 2 2026.",
+        "prior_value": null
+      }
+    ],
+    "lab_movements": [
+      {}
+    ],
+    "government_ai_bodies": [
+      {}
+    ],
+    "revolving_door": [
+      {}
+    ]
+  },
+  "module_5_standards_vacuum": {
+    "last_updated": "2026-04-28",
+    "last_verified": "2026-04-28",
+    "status": "ACTIVE",
+    "trigger_date": "2026-03-30",
+    "compliance_deadline": "2026-08-02",
+    "days_to_deadline_at_trigger": 125,
+    "current_days_to_deadline": 96,
+    "detail": "CEN-CENELEC JTC21 harmonised standards still in draft. AI Act general application 2 August 2026. Exceptional acceleration package adopted October 2025 targeting Q4 2026 delivery — still after August 2 deadline. High-risk AI providers face compliance obligations without harmonised technical safe harbour regardless of Omnibus outcome for the August 2 window.",
+    "omnibus_mitigation": "If trilogue agrees text before 2 Aug 2026, Annex III high-risk rules delayed to Dec 2027. Watermarking obligations activate Nov 2026 (Parliament) or Feb 2027 (Council) regardless. April 28 political meeting underway — result unknown at time of writing.",
+    "cen_cenelec_acceleration": {
+      "description": "CEN-CENELEC Boards Oct 14-16 2025 adopted exceptional package: direct publication after positive Enquiry vote (skipping Formal Vote); small drafting group to finalize 6 most-delayed drafts",
+      "target_delivery": "Q4 2026",
+      "implications": "Q4 2026 delivery is after August 2 deadline — vacuum persists for high-risk obligations. Standards will cover compliance pathway only for prospective post-August 2026 market entries.",
+      "source_url": "https://www.cencenelec.eu/news-events/news/2025/brief-news/2025-10-23-ai-standardization/",
+      "retrieval_date": "2026-04-28"
+    },
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Standards Vacuum flagged ACTIVE",
+        "reason": "Standards in draft; compliance deadline within 125 days; JTC21 missed April 2025 delivery",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "Days to deadline updated to 122; prEN 18281 advanced to Stage 40 (Enquiry) — standards vacuum remains ACTIVE",
+        "reason": "Issue 2 research — no harmonised standards in OJ; arithmetically impossible to close before August 2 regardless of Omnibus outcome",
+        "prior_value": "125 days to deadline"
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — CEN-CENELEC JTC21 standards still in draft; AI Act general application 2026-08-02 unchanged; Omnibus trilogue mitigation pathway opened",
+        "reason": "Issue 4 research — vacuum persists with Omnibus as partial mitigation",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-28",
+        "change": "carry-forward-verified + CEN-CENELEC acceleration details added",
+        "reason": "CEN-CENELEC Oct 2025 exceptional acceleration measures confirmed at cencenelec.eu — Q4 2026 target after August 2 deadline. artificialintelligenceact.eu confirms standards expected after law's legal requirements take effect. Vacuum ACTIVE status confirmed. Days to deadline updated to 96.",
+        "prior_value": "122 days to deadline"
+      }
+    ]
+  },
+  "module_5_ciyuan": {
+    "last_updated": "2026-04-28",
+    "last_verified": "2026-04-28",
+    "status": "ACTIVE — Critical Signal",
+    "trigger_date": "2026-03-30",
+    "detail": "Liu Liehong (National Data Administration) adopted 'ciyuan' (词元) as official Mandarin for AI token at China Development Forum (24 March 2026), framing tokens as 'settlement unit of the intelligent era'. Daily token usage exceeded 140 trillion in March 2026. Alibaba launched Token Hub subsidiary. China National Committee for Terminology recommending ciyuan as standardised term.",
+    "watch_for": "Token-denominated pricing in bilateral AI trade agreements; Global South market positioning; Chinese AI service export metrics using ciyuan as unit",
+    "version_history": [
+      {
+        "date": "2026-03-30",
+        "change": "Ciyuan signal confirmed ACTIVE",
+        "reason": "First state-level formal adoption of ciyuan in policy speech by senior NDA official",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 — carried forward",
+        "reason": "No new primary-source evidence in window; signal persists",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-28",
+        "change": "carry-forward-verified",
+        "reason": "No new primary-source evidence found in April 21-28 window contradicting ciyuan signal; structural adoption confirmed in prior week research. gpai_compliance confirms Chinese labs remain non-signatories — consistent with ciyuan as parallel standards track.",
+        "prior_value": null
+      }
+    ]
+  },
+  "ongoing_lab_postures": [
+    {
+      "actor": "Anthropic",
+      "posture": "RSP v3.1 (April 2, 2026) — separate company commitments from industry recommendations; GPAI Code of Practice signatory; Illinois SB 3261 backer; Mythos CMS rollout ongoing; Pentagon litigation ongoing",
+      "last_material_change": "2026-04-10",
+      "last_verified": "2026-04-28",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry: Pentagon injunction granted; RSP v3.0 pause commitment removed",
+          "reason": "Issue 1 research",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Injunction granted (26 March); Mythos/Capybara existence confirmed; Claude Code source-map leak (31 March)",
+          "reason": "Issue 2 research — three material events in window",
+          "prior_value": "Pentagon litigation active; RSP v3.0 pause commitment removed"
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 update — material new evidence",
+          "reason": "KAIROS/BUDDY/undercover mode dual opsec failure; Mythos CMS leak; GPAI Code of Practice signatory; Pentagon litigation ongoing",
+          "prior_value": "Pentagon litigation active (injunction granted 26 March); RSP v3.0 pause commitment removed; healthc"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified + RSP v3.1 confirmed",
+          "reason": "Anthropic RSP v3.1 confirmed at anthropic.com CDN (April 2 2026) — clarifies AI R&D capability threshold, separates company vs industry obligations. Illinois SB 3261 backing confirmed (Fortune April 17). Mythos cyber escalation concern active per IAPP April 10. Hybrid Horizons Substack April 26 confirms April 2026 RSP v3.1 update.",
+          "prior_value": null
+        }
+      ],
+      "safety_posture": "Leading",
+      "transparency": "HIGH",
+      "regulatory_engagement": "Proactive",
+      "trajectory": "Stable",
+      "rsp_version": "3.1",
+      "rsp_date": "2026-04-02",
+      "rsp_url": "https://www-cdn.anthropic.com/files/4zrzovbb/website/bf04581e4f329735fd90634f6a1962c13c0bd351.pdf"
+    },
+    {
+      "actor": "OpenAI",
+      "posture": "$852B valuation at 60x revenue; Musk v. Altman trial commenced April 28 (jury selection); new principles published April 26 — removes AGI co-assistance to rival safety projects; GPAI signatory; Illinois SB 3444 backer",
+      "last_material_change": "2026-04-28",
+      "last_verified": "2026-04-28",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry: Pentagon contract, Sora cancellation, rolling funding round noted",
+          "reason": "Issue 1 research",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Round confirmed closed at $852B (31 March); headcount doubling announced; Pentagon deal amended",
+          "reason": "Issue 2 research",
+          "prior_value": "Pentagon 'any lawful use' contract active; rolling $120B+ funding"
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 update — material new evidence",
+          "reason": "$852B valuation at 60x revenue; headcount doubling to ~8,000; Promptfoo acquisition; GSA 'any lawful use' contract pathway; GPAI signatory",
+          "prior_value": "Pentagon 'any lawful use' contract active (amended 3 March with surveillance red line); $122B round "
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified + new material events April 26-28",
+          "reason": "OpenAI new principles (April 26) confirmed at Yahoo Finance/Business Insider — removes AGI co-assistance commitment; Musk v. Altman trial jury selection commenced April 28 (AP News, CNBC, NYT); Illinois SB 3444 backing confirmed (Quartz, Fortune April 2026)",
+          "prior_value": null
+        }
+      ],
+      "safety_posture": "Adequate",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Compliant",
+      "trajectory": "Stable",
+      "openai_principles_update": {
+        "date": "2026-04-26",
+        "summary": "Five new principles published — focus on democratization and universal prosperity. Removes 2018 Charter commitment to assist rival AGI projects. Shifts from AGI-centric to broad AI deployment mandate. Still lists 2018 Charter on website creating conflicting obligations.",
+        "source_url": "https://sg.finance.yahoo.com/news/openai-just-updated-principles-heres-041316239.html",
+        "retrieval_date": "2026-04-28"
+      }
+    },
+    {
+      "actor": "SpaceX/xAI",
+      "posture": "Non-GPAI signatory; SpaceX merger complete; combined entity Grok+Starlink+DoD/NASA+X platform; Grok 4 evaluated by UK AISI as capable of chemical/biological uplift to non-experts; Risk Management Framework published Sept 2025 (widely criticized as inadequate)",
+      "last_material_change": "2026-04-10",
+      "last_verified": "2026-04-28",
+      "confidence": "Confirmed",
+      "unchanged_since": "2026-03-30",
+      "version_history": [
+        {
+          "date": "2026-03-30",
+          "change": "Initial entry: SpaceX–xAI merger complete",
+          "reason": "Issue 1 research",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-10",
+          "change": "Issue 4 update — material new evidence",
+          "reason": "Non-GPAI signatory; merger complete; combined entity now Grok+Starlink+DoD/NASA+X platform",
+          "prior_value": "Merger complete (Feb 2026). Combined entity: Grok LLM + Starlink + DoD/NASA contracts + X platform. "
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified + xAI safety framework assessment added",
+          "reason": "xAI RMF (Sept 2025) criticized as inadequate by AI Lab Watch (ailabwatch.substack.com); Grok 4 AISI evaluation confirms chemical/biological uplift risk to non-experts; Grok image tool safety crisis (Jan 2026) at buildfastwithai.com confirms governance failures",
+          "prior_value": null
+        }
+      ],
+      "safety_posture": "Opaque",
+      "transparency": "LOW",
+      "regulatory_engagement": "Absent",
+      "trajectory": "Stable"
+    },
+    {
+      "lab": "Anthropic",
+      "safety_posture": "Leading",
+      "transparency": "HIGH",
+      "regulatory_engagement": "Proactive",
+      "key_development": "Released Claude Mythos Preview with cybersecurity capabilities",
+      "trajectory": "Improving",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-17",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-21",
+          "fields_changed": [
+            "safety_posture",
+            "transparency",
+            "regulatory_engagement",
+            "key_development"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "safety_posture",
+            "transparency",
+            "key_development"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "RSP v3.1 April 2 2026 confirmed at anthropic.com; SB 3261 backing confirmed",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "OpenAI",
+      "safety_posture": "Leading",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Proactive",
+      "key_development": "Released GPT-5.5 with agentic capabilities and amended Microsoft partnership",
+      "trajectory": "Improving",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-17",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-21",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-24",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified + new key_development",
+          "reason": "New principles April 26 confirmed; trial commenced April 28 confirmed AP News/CNBC",
+          "prior_value": "No change"
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "safety_posture",
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "Google DeepMind",
+      "safety_posture": "Adequate",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Compliant",
+      "key_development": "Released Gemini 3.1 Pro with multimodal capabilities",
+      "trajectory": "Stable",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "New entry — FSF v3.0 confirmed via Google DeepMind blog",
+          "reason": "Google DeepMind FSF update (Feb 4 2025 blog + Sept 22 2025 FSF v3.0 per Facebook/social confirmation); Google AI Responsibility Update 2026 PDF confirms FSF central to 2026 approach",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "regulatory_engagement",
+            "key_development"
+          ],
+          "source": "publisher-auto"
+        }
+      ],
+      "fsf_version": "3.0",
+      "fsf_date": "2025-09-22",
+      "fsf_source": "https://deepmind.google/blog/updating-the-frontier-safety-framework/"
+    },
+    {
+      "lab": "xAI",
+      "safety_posture": "Opaque",
+      "transparency": "LOW",
+      "regulatory_engagement": "Resistant",
+      "key_development": "Signed only Safety and Security chapter of EU GPAI Code of Practice",
+      "trajectory": "Deteriorating",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "New entry — xAI safety posture documented",
+          "reason": "AI Lab Watch critique of xAI RMF (ailabwatch.substack.com Sept 2025); buildfastwithai.com Jan 2026 Grok image crisis; Forbes Jan 2026 governance failure analysis",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "safety_posture",
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "Meta AI",
+      "safety_posture": "Adequate",
+      "transparency": "MEDIUM",
+      "regulatory_engagement": "Compliant",
+      "key_development": "GPAI CoP signatory; open-weight compliance ambiguity under EU AI Act",
+      "trajectory": "Stable",
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "Prior lab skeleton entry preserved per consolidation rules; no new material events in April 21-28 window; Meta GPAI signatory status confirmed in gpai_compliance module",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "lab": "DeepSeek",
+      "safety_posture": "Adequate",
+      "transparency": "HIGH",
+      "regulatory_engagement": "Compliant",
+      "key_development": "Released DeepSeek V4 with mixture-of-experts architecture",
+      "trajectory": "Improving",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "Prior lab skeleton entry preserved per consolidation rules; no new material events in April 21-28 window",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "safety_posture",
+            "transparency",
+            "regulatory_engagement",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "Mistral",
+      "safety_posture": "Adequate",
+      "transparency": "HIGH",
+      "regulatory_engagement": "Proactive",
+      "key_development": "Advocating for European AI sovereignty through playbook",
+      "trajectory": "Improving",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "carry-forward-verified",
+          "reason": "Prior lab skeleton entry preserved per consolidation rules; GPAI signatory status confirmed in gpai_compliance module (transparency_report: false, compute_disclosure: limited)",
+          "prior_value": null
+        },
+        {
+          "date": "2026-05-02",
+          "fields_changed": [
+            "transparency",
+            "key_development",
+            "trajectory"
+          ],
+          "source": "publisher-auto"
+        }
+      ]
+    },
+    {
+      "lab": "Meta",
+      "safety_posture": "Lagging",
+      "transparency": "LOW",
+      "regulatory_engagement": "Resistant",
+      "key_development": "Preparing to release new AI models under Alexandr Wang",
+      "trajectory": "Deteriorating",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-05-02",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    },
+    {
+      "lab": "Baidu",
+      "safety_posture": "Lagging",
+      "transparency": "LOW",
+      "regulatory_engagement": "Resistant",
+      "key_development": "No significant developments this week",
+      "trajectory": "Stable",
+      "last_updated": "2026-05-02",
+      "version_history": [
+        {
+          "date": "2026-05-02",
+          "source": "publisher-auto",
+          "note": "first entry"
+        }
+      ]
+    }
+  ],
+  "cross_monitor_flags": {
+    "updated": "2026-04-28",
+    "last_verified": "2026-04-28",
+    "flags": [
+      {
+        "id": "cmf-001",
+        "monitors_involved": [
+          "Global FIMI & Cognitive Warfare"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html",
+        "title": "AI-enabled FIMI: capability layer update — agentic autonomous narrative attacks confirmed",
+        "linkage": "EEAS 4th FIMI Report (10 March) and Blackbird.AI RAV3N confirm the transition from AI-assisted to AI-autonomous narrative attack operations. The AI Governance Monitor's capability layer (agentic AI autonomous breach documented by Anthropic, Sep 2025; applied to narrative operations Feb 2026) directly feeds the FIMI monitor's actor and campaign tracking.",
+        "ai_governance_perspective": "The capability collapse in narrative attack costs is a direct output of frontier model advances we track in M02 and M12. The FIMI monitor provides attribution and campaign-level context; we provide the underlying capability trajectory that determines how fast those campaigns will evolve.",
+        "type": "Structural — ongoing",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-04-01",
+        "last_verified": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "EEAS FIMI + US midterm deepfakes",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Updated — agentic autonomous narrative attack capability confirmed in EEAS + Blackbird.AI reports",
+            "reason": "New primary evidence materially advances the capability assessment",
+            "prior_value": "FIMI using AI tools for content production"
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-28",
+            "change": "carry-forward-verified",
+            "reason": "No downgrade signal; Disinfo Velocity still rated HIGH in module_7; agentic FIMI structural trajectory unchanged",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-28"
+      },
+      {
+        "id": "cmf-002",
+        "monitors_involved": [
+          "Democratic Integrity"
+        ],
+        "monitor_url": "https://asym-intel.info/monitors/democratic-integrity/dashboard.html",
+        "title": "AI deepfakes in 2026 US midterms + Stanford Internet Observatory dismantlement: dual democratic integrity stress",
+        "linkage": "The AI deepfake capability documented in M12 is now confirmed as active in US midterm campaigns (Reuters, 28 March). Simultaneously, the Stanford Internet Observatory — the primary independent monitoring infrastructure for US election disinformation — was dismantled under political pressure. The AI Governance Monitor tracks both the capability (deepfakes at scale) and the governance vacuum (no disclosure law, SIO gone); the Democratic Integrity monitor tracks the electoral environment they are being deployed into.",
+        "ai_governance_perspective": "The SIO dismantlement is itself a governance failure — defunding the primary academic monitoring body that would detect AI-enabled election interference removes early-warning capacity just as the capability is deployed.",
+        "type": "Structural — ongoing",
+        "status": "Active",
+        "first_flagged": "2026-03-30",
+        "unchanged_since": "2026-03-30",
+        "last_verified": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Initial flag",
+            "reason": "Deepfakes in midterms + SIO dismantlement",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-10",
+            "change": "Issue 4 — carried forward",
+            "reason": "Issue 4 research",
+            "prior_value": null
+          },
+          {
+            "date": "2026-04-28",
+            "change": "carry-forward-verified",
+            "reason": "No new signals in April 21-28 window materially changing the democratic integrity stress assessment; Disinfo Velocity still HIGH",
+            "prior_value": null
+          }
+        ],
+        "updated": "2026-04-28"
+      }
+    ],
+    "version_history": [
+      {
+        "date": "2026-04-10",
+        "change": "Issue 4 cross_monitor_flags updated",
+        "reason": "Issue 4 research",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-28",
+        "change": "carry-forward-verified",
+        "reason": "Both flags confirmed active; no new cross-monitor flag additions identified in April 21-28 window",
+        "prior_value": null
+      }
+    ]
+  },
+  "eu_ai_act_tracker": {
+    "baseline_date": "2026-04-02",
+    "last_verified": "2026-04-28",
+    "source": "EU AI Act OJ L 2024/1689 + AGM Enhancement Addendum",
+    "layers": {
+      "layer_1_text": {
+        "status": "confirmed",
+        "note": "OJ L 2024/1689 — baseline"
+      },
+      "layer_2_delegated_acts": {
+        "status": "in_progress",
+        "note": "Article 6 high-risk classification guidelines published February 2026. High-risk AI classification list expected Q2 2026."
+      },
+      "layer_3_harmonised_standards": {
+        "status": "standards_vacuum_active",
+        "note": "No harmonised standards in OJ as of April 28 2026. CEN-CENELEC Oct 2025 exceptional acceleration targets Q4 2026 — after Aug 2 deadline. Track CEN-CENELEC JTC21 weekly.",
+        "verification_source": "https://www.cencenelec.eu/news-events/news/2025/brief-news/2025-10-23-ai-standardization/",
+        "verification_date": "2026-04-28"
+      },
+      "layer_4_gpai_code": {
+        "status": "final_published_july_2025",
+        "note": "Final GPAI CoP published July 10, 2025. Commission and AI Board confirmed adequate voluntary tool. Not yet adopted as implementing act. Enforcement of GPAI obligations begins August 2, 2026.",
+        "verification_source": "https://digital-strategy.ec.europa.eu/en/policies/contents-code-gpai",
+        "verification_date": "2026-04-28"
+      },
+      "layer_5_nca": {
+        "status": "mostly_designated",
+        "note": "Designation slower than expected; enforcement capacity variable across member states. Track NCA enforcement capacity monthly."
+      },
+      "layer_6_ai_office": {
+        "status": "operational",
+        "note": "No enforcement decisions yet. Full enforcement authority from August 2, 2026. First supervisory decision = landmark M09+M10 item."
+      },
+      "layer_7_digital_omnibus": {
+        "status": "trilogue_active",
+        "note": "Political agreement meeting April 28, 2026. If agreement reached today: Parliament vote May, Council June, OJ July. Fixed high-risk dates (Dec 2027/Aug 2028) agreed by both institutions. New NCII/CSAM prohibitions agreed. Remaining divergence: literacy obligation, synthetic content timing, sectoral integration.",
+        "verification_source": "https://www.aoshearman.com/en/insights/digital-omnibus-on-ai-what-is-really-on-the-table-as-trilogues-begin",
+        "verification_date": "2026-04-28"
+      }
+    },
+    "standards_vacuum_flag": "ACTIVE",
+    "standards_vacuum_note": "Do not downgrade until at least one harmonised standard published in OJ. Include in M09 every issue with days-to-compliance-deadline.",
+    "last_updated": "2026-04-28"
+  },
+  "gpai_compliance": {
+    "baseline_date": "2026-04-02",
+    "last_verified": "2026-04-28",
+    "labs": [
+      {
+        "lab": "OpenAI",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Anthropic",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Google DeepMind",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Monitor for completeness"
+      },
+      {
+        "lab": "Meta AI",
+        "signatory": true,
+        "transparency_report": true,
+        "compute_disclosure": "partial",
+        "assessment": "Open-weight compliance ambiguity"
+      },
+      {
+        "lab": "Mistral",
+        "signatory": true,
+        "transparency_report": false,
+        "compute_disclosure": "limited",
+        "assessment": "EU-based; higher NCA scrutiny expected"
+      },
+      {
+        "lab": "xAI (Grok)",
+        "signatory": false,
+        "transparency_report": false,
+        "compute_disclosure": "none",
+        "assessment": "non_compliant_track — Risk Management Framework published Sept 2025 but widely criticized as inadequate"
+      },
+      {
+        "lab": "Chinese labs (general)",
+        "signatory": false,
+        "transparency_report": false,
+        "compute_disclosure": "none",
+        "assessment": "Ciyuan Standards Vacuum flag — standing; parallel Chinese AI governance track (GenAI Measures, Ciyuan token standard)"
+      }
+    ],
+    "version_history": [
+      {
+        "date": "2026-04-28",
+        "change": "carry-forward-verified",
+        "reason": "GPAI CoP final publication July 10 2025 confirmed (digital-strategy.ec.europa.eu); signatories unchanged per available public sources; xAI non-compliant posture confirmed via RSP/GPAI absences",
+        "prior_value": null
+      }
+    ]
+  },
+  "risk_vectors_2026_baseline": {
+    "baseline_date": "2026-04-02",
+    "last_verified": "2026-04-28",
+    "vectors": {
+      "governance_fragmentation": {
+        "rating": "HIGH",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-28",
+        "note": "EU/US schism confirmed — deregulatory pivot. Trump National Policy Framework (March 20 2026) nonbinding; federal preemption proposals not enacted. Illinois competing bills evidence intra-state fragmentation."
+      },
+      "cyber_escalation": {
+        "rating": "ELEVATED",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-28",
+        "note": "AI-infrastructure CVEs active (Langflow/LiteLLM). Grok 4 AISI-evaluated as CBRN capable."
+      },
+      "platform_power": {
+        "rating": "HIGH",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-28",
+        "note": "Big Five hyperscaler concentration; SpaceX-xAI merger; Musk v. Altman trial structural validation"
+      },
+      "export_controls": {
+        "rating": "ELEVATED",
+        "confidence": "Confirmed",
+        "last_updated": "2026-04-28",
+        "note": "H20 BIS license required; H200 50% cap; no replacement for withdrawn Commerce rule — enforcement vacuum confirmed"
+      },
+      "disinfo_velocity": {
+        "rating": "ELEVATED",
+        "confidence": "Probable",
+        "last_updated": "2026-04-28",
+        "note": "AI deepfakes in 2026 US midterms confirmed; no federal disclosure law"
+      }
+    }
+  },
+  "concentration_index_2026": {
+    "baseline_date": "2026-04-02",
+    "last_verified": "2026-04-28",
+    "domains": {
+      "compute_gpu": {
+        "rating": "Extreme",
+        "primary_actor": "NVIDIA (>80% data centre GPU)",
+        "watch_signal": "AMD/Intel market share gain >=5%"
+      },
+      "foundation_models": {
+        "rating": "High",
+        "primary_actor": "OpenAI, Google, Anthropic, Meta",
+        "watch_signal": "Open-weight releases; Chinese labs closing gap"
+      },
+      "ai_infrastructure": {
+        "rating": "High-Extreme",
+        "primary_actor": "AWS, Azure, GCP",
+        "watch_signal": "Behind-the-meter power agreements; nuclear PPAs"
+      },
+      "ai_applications": {
+        "rating": "Moderate",
+        "primary_actor": "Sector-specific",
+        "watch_signal": "Stealth deployment flags M04"
+      },
+      "ai_safety_oversight": {
+        "rating": "Low-Fragmented",
+        "primary_actor": "None dominant",
+        "watch_signal": "AI Office first enforcement action — August 2026"
+      }
+    },
+    "critical_note": "Microsoft/OpenAI structural relationship (Microsoft ~49% revenue share via Azure) is most concentrated combination. Musk v. Altman trial outcome could restructure OpenAI governance. Any restructuring = M14+M03 item.",
+    "last_updated": "2026-04-28",
+    "version_history": [
+      {
+        "date": "2026-04-28",
+        "change": "carry-forward-verified + trial note added",
+        "reason": "NVIDIA dominance unchanged; hyperscaler Big Three unchanged; Musk v. Altman trial could restructure OpenAI governance — added as watch signal",
+        "prior_value": null
+      }
+    ]
+  },
+  "aisi_status_2026": {
+    "uk": {
+      "name": "AI Security Institute (rebranded from AISI, early 2025)",
+      "note": "Adam Beaumont confirmed as Interim Director (October 2025) — ex-GCHQ Chief AI Officer. No permanent director. Mandate shift: safety evaluation → security-focused oversight. Conducted Grok 4 evaluation (CBRN uplift confirmed). Track staff changes — departures/appointments carry higher significance in unstable institutional period.",
+      "last_verified": "2026-04-28",
+      "verification_source": "https://www.transformernews.ai/p/exclusive-uk-aisi-hires-gchq-chief-adam-beaumont"
+    },
+    "us": {
+      "name": "NIST CAISI (Center for AI Standards and Innovation) — rebranded from AI Safety Institute",
+      "note": "Active in 2026: AI Agent Standards Initiative (Feb 17), MOU with GSA for USAi federal procurement (Mar 18), CRADA with OpenMined (Mar 27). Trump deregulatory pivot reduced enforcement mandate vs Biden era. NIST AI RMF 1.0 in effect but lacks executive enforcement mandate.",
+      "last_verified": "2026-04-28",
+      "verification_sources": [
+        "https://www.nist.gov/news-events/news/2026/02/announcing-ai-agent-standards-initiative-interoperable-and-secure",
+        "https://www.nist.gov/news-events/news/2026/03/caisi-signs-mou-gsa-boost-ai-evaluation-science-federal-procurement-through"
+      ]
+    },
+    "eu": {
+      "name": "EU AI Office",
+      "url": "digital-strategy.ec.europa.eu/en/policies/ai-office",
+      "note": "Operational, no binding enforcement decisions yet. Full enforcement authority from August 2, 2026. First supervisory decision = landmark M09+M10 item. GPAI obligations have been enforceable since August 2025; enforcement actions begin August 2026.",
+      "last_verified": "2026-04-28"
+    },
+    "last_updated": "2026-04-28"
+  },
+  "calibration_log": [
+    {
+      "date": "2026-04-02",
+      "source": "EU AI Act OJ L 2024/1689 + AGM Enhancement Addendum v1.0",
+      "applied_by": "Computer session",
+      "summary": "EU AI Act 7-layer tracker, Standards Vacuum ACTIVE flag, GPAI compliance table, M07 risk vector baselines, Concentration Index M14, AISI institutional update"
+    },
+    {
+      "date": "2026-04-10",
+      "action": "Issue 4 persistent state update — all sections refreshed with new synthesis data",
+      "fields_updated": [
+        "module_7_risk_vectors",
+        "module_9_eu_ai_act_tracker",
+        "module_14_concentration_index",
+        "module_15_aisi_pipeline",
+        "module_5_standards_vacuum",
+        "module_5_ciyuan",
+        "ongoing_lab_postures",
+        "cross_monitor_flags"
+      ]
+    },
+    {
+      "date": "2026-04-28",
+      "action": "Baseliner re-verification run — AGM — carry-forward-verified",
+      "applied_by": "dr-computer-research-subagent",
+      "run_id": "agm-2026-04-28",
+      "fields_updated": "all modules carry-forward-verified; new entries added for RSP v3.1, OpenAI principles April 26, Musk v. Altman trial commencement, UK AISI Beaumont appointment, CAISI activities, CEN-CENELEC acceleration measures, GPAI CoP final publication details, Omnibus April 28 meeting status",
+      "summary": "Re-verification pass. Core ratings unchanged. Key updates: Anthropic RSP v3.1 (Apr 2), OpenAI principles update (Apr 26, removes AGI co-assistance), Musk v. Altman trial commenced (Apr 28), GPAI CoP final confirmed (Jul 2025), CEN-CENELEC exceptional acceleration confirmed (Oct 2025), UK AISI Beaumont interim confirmed, CAISI AI Agent Standards Initiative + GSA MOU + OpenMined CRADA."
+    }
+  ],
+  "last_updated": {
+    "slug": "2026-04-21",
+    "week_label": "W/E 21 April 2026",
+    "volume": 1,
+    "issue": 5,
+    "source_url": "https://ramparts.gi/ai-frontier-monitor-issue-2026-04-21/"
+  },
+  "last_issue": {
+    "slug": "2026-04-21",
+    "week_label": "W/E 21 April 2026",
+    "volume": 1,
+    "issue": 5,
+    "source_url": "https://ramparts.gi/ai-frontier-monitor-issue-2026-04-21/"
+  },
+  "country_grid_status": {
+    "_description": "Jurisdiction-level AI regulatory status. Each country is a persistent entry.",
+    "last_updated": "2026-04-28",
+    "last_verified": "2026-04-28",
+    "jurisdictions": [
+      {
+        "jurisdiction": "EU",
+        "binding_law": "AI Act (GPAI Aug 2025; high-risk delayed to Dec 2027/Aug 2028 pending Omnibus — political agreement meeting April 28)",
+        "status_icon": "🟡",
+        "last_updated": "2026-04-28",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — AI Act (GPAI Aug 2025; high-risk delayed to Dec 2027/Aug 2028 pending Omnibus)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-04-28",
+            "change": "carry-forward-verified — Omnibus April 28 political meeting noted",
+            "reason": "A&O Shearman April 9 and Ropes Gray April 24 confirm April 28 political agreement meeting; result unknown at time of writing",
+            "prior_value": "AI Act (GPAI Aug 2025; high-risk delayed to Dec 2027/Aug 2028 pending Omnibus)"
+          }
+        ]
+      },
+      {
+        "jurisdiction": "USA",
+        "binding_law": "No federal law; Trump National Policy Framework (March 20, 2026) proposes federal preemption — not enacted; state laws: CO ADMT (Jan 2027 if rewrite passes), TX TRAIGA, WA HB 2225/HB 1170 (signed), NY; Illinois SB 3444/SB 3261 active",
+        "status_icon": "🟠",
+        "last_updated": "2026-04-28",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — No federal law; state laws: CO (Jun 2026), TX TRAIGA, NY, WA",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-03-26",
+            "change": "binding_law updated",
+            "reason": "Country grid entry changed in weekly report",
+            "prior_value": "No federal law; state laws: CO (Jun 2026), TX TRAIGA, NY, WA"
+          },
+          {
+            "version": 3,
+            "date": "2026-04-28",
+            "change": "carry-forward-verified — Trump framework and Illinois bills added",
+            "reason": "Trump National Policy Framework March 20 2026 confirmed at whitehouse.gov; Illinois SB 3444/SB 3261 confirmed (Fortune, Quartz April 2026); Morgan Lewis April 2026 confirms FTC enforcement acceleration",
+            "prior_value": "No federal law; state laws: CO ADMT (Jan 2027 if rewrite passes), TX TRAIGA, WA HB 2225/HB 1170 (signed), NY"
+          }
+        ]
+      },
+      {
+        "jurisdiction": "UK",
+        "binding_law": "No single statute; Data Use & Access Act 2025 (commenced Feb 5, 2026); AI Bill delayed — earliest realistic introduction King's Speech May 2026; ASGARD contracts operationalising AI targeting",
+        "status_icon": "🟠",
+        "last_updated": "2026-04-28",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — No single statute; Data Use & Access Act 2025 (TDM provisions)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-03-26",
+            "change": "binding_law updated",
+            "reason": "Country grid entry changed in weekly report",
+            "prior_value": "No single statute; Data Use & Access Act 2025 (TDM provisions)"
+          },
+          {
+            "version": 3,
+            "date": "2026-04-28",
+            "change": "carry-forward-verified — AI Bill status and Data Use Act commencement updated",
+            "reason": "blog.innovate247.ai April 16 2026 confirms AI Bill delayed, earliest King's Speech May 2026. Data (Use and Access) Act 2025 commenced Feb 5 2026. UK copyright reform deferred (Lewis Silkin March 19).",
+            "prior_value": "No single statute; Data Use & Access Act 2025 (TDM provisions); ASGARD contracts operationalising AI targeting"
+          }
+        ]
+      },
+      {
+        "jurisdiction": "China",
+        "binding_law": "GenAI Measures 2023; AI Content Labelling Sep 2025; CSL Jan 2026 (AI governance incorporated); Embodied AI Standard (effective Jun 1, 2026)",
+        "status_icon": "🟢",
+        "last_updated": "2026-04-28",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — GenAI Measures 2023; AI Content Labelling Sep 2025; CSL Jan 2026",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-03-26",
+            "change": "binding_law updated",
+            "reason": "Country grid entry changed in weekly report",
+            "prior_value": "GenAI Measures 2023; AI Content Labelling Sep 2025; CSL Jan 2026"
+          },
+          {
+            "version": 3,
+            "date": "2026-04-28",
+            "change": "carry-forward-verified",
+            "reason": "No new China regulatory framework changes found in April 21-28 window; Embodied AI Standard effective June 1 2026 watch date approaching; ciyuan module_5 signal consistent with ongoing parallel standards track",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "India",
+        "binding_law": "IT Rules 2026 (SGI, Feb 20)",
+        "status_icon": "🟠",
+        "last_updated": "2026-04-28",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — IT Rules 2026 (SGI, Feb 20)",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-04-28",
+            "change": "carry-forward-verified",
+            "reason": "No new India AI regulatory events found in April 21-28 window",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "Canada",
+        "binding_law": "AIDA dead; new AI strategy in development",
+        "status_icon": "🟠",
+        "last_updated": "2026-04-28",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — AIDA dead; new AI strategy in development",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-04-28",
+            "change": "carry-forward-verified",
+            "reason": "No new Canada AI regulatory events in April 21-28 window",
+            "prior_value": null
+          }
+        ]
+      },
+      {
+        "jurisdiction": "Brazil",
+        "binding_law": "PL 2338 in Chamber of Deputies (not yet law)",
+        "status_icon": "🟡",
+        "last_updated": "2026-04-28",
+        "persistence": "persistent",
+        "confidence": "Confirmed",
+        "first_seen": "2026-03-26",
+        "last_material_change": "2026-03-26",
+        "version_history": [
+          {
+            "version": 1,
+            "date": "2026-03-26",
+            "change": "Initial entry — PL 2338 in Chamber of Deputies",
+            "reason": "Initial seeding from Issue 1",
+            "prior_value": null
+          },
+          {
+            "version": 2,
+            "date": "2026-04-28",
+            "change": "carry-forward-verified",
+            "reason": "No new Brazil AI regulatory events in April 21-28 window",
+            "prior_value": null
+          }
+        ]
+      }
+    ]
+  },
+  "gaps_register": [
+    {
+      "gap_id": "AGM-GAP-001",
+      "date_added": "2026-04-28",
+      "finding": "FTC AI enforcement April 2026 — three enforcement tracks (Section 5 deception, automated decision disclosure, AI-generated content deception) active with consent orders. Source: aipolicydesk.com April 22 2026 and morganlewis.com April 2 2026. Specific named consent orders not individually verified at FTC.gov primary source in this pass.",
+      "suggested_module": "module_7_risk_vectors (Regulatory Fragmentation) or module_9_eu_ai_act_tracker (windowed_events)",
+      "source_url": "https://www.aipolicydesk.com/blog/ftc-ai-enforcement-actions-april-2026",
+      "source_type": "news-of-record",
+      "retrieval_date": "2026-04-28",
+      "action_required": "Verify individual FTC consent orders at ftc.gov primary source; add to windowed_events if module_9 scope extended to US enforcement, or add Regulatory Fragmentation vector footnote"
+    },
+    {
+      "gap_id": "AGM-GAP-002",
+      "date_added": "2026-04-28",
+      "finding": "Google DeepMind Frontier Safety Framework v3.0 confirmed September 22, 2025. Third FSF version adds harmful manipulation risk, deceptive alignment risk, shutdown resistance protocols. Source: Facebook/social report confirms FSF 3.0 Sept 22 2025; Google AI Responsibility Update 2026 PDF (ai.google) confirms FSF central to 2026 approach. Not yet in module_2 (lab registry) as no module_2 present in current state.",
+      "suggested_module": "module_2 (lab registry) — not present in current state; added to ongoing_lab_postures as new entry instead",
+      "source_url": "https://deepmind.google/blog/updating-the-frontier-safety-framework/",
+      "source_type": "lab-primary",
+      "retrieval_date": "2026-04-28",
+      "action_required": "Consider adding module_2 lab registry module in next operator review if scope expansion warranted; Google DeepMind FSF v3.0 is material structural fact"
+    },
+    {
+      "gap_id": "AGM-GAP-003",
+      "date_added": "2026-04-28",
+      "finding": "Illinois AI legislation: SB 3444 (OpenAI-backed — liability shield) and SB 3261 (Anthropic-backed — incident reporting + child safety) both active in April 2026. Illustrates lab-backed divergence in US state AI liability frameworks. Source: Fortune April 17, Quartz April 10.",
+      "suggested_module": "module_7_risk_vectors (Governance Fragmentation windowed events) or country_grid_status (USA)",
+      "source_url": "https://fortune.com/2026/04/17/illinois-openai-anthropic-ai-catastrophe-liability-bills/",
+      "source_type": "news-of-record",
+      "retrieval_date": "2026-04-28",
+      "action_required": "Consider adding Illinois bills as windowed event in Governance Fragmentation vector or USA country grid note. Partially incorporated in USA country_grid_status binding_law field in this pass."
+    },
+    {
+      "gap_id": "AGM-GAP-004",
+      "date_added": "2026-04-28",
+      "finding": "Musk v. Altman trial commenced April 28, 2026 in Oakland federal court. Jury selection started; opening statements expected April 29. Trial through mid-May. Jury advisory, final ruling by Judge Gonzalez Rogers. Seeks $134B damages + reversal of OpenAI for-profit conversion. Key witnesses: Musk, Altman, Satya Nadella, Mira Murati (former OpenAI COO).",
+      "suggested_module": "module_7_risk_vectors (Platform Power windowed event) — high importance for OpenAI governance structural facts",
+      "source_url": "https://apnews.com/article/musk-altman-artificial-intelligence-trial-openai-eb854fa682675f70267abd8a7b9a6a43",
+      "source_type": "news-of-record",
+      "retrieval_date": "2026-04-28",
+      "action_required": "Add as windowed event to Platform Power vector. Outcome potentially material to concentration_index_2026 (OpenAI governance structure). Monitor through May 2026. Partially incorporated in ongoing_lab_postures OpenAI entry in this pass."
+    },
+    {
+      "gap_id": "AGM-GAP-005",
+      "date_added": "2026-04-28",
+      "finding": "UK copyright reform deferred indefinitely (March 19, 2026). Government published report and impact assessment but concluded 'no longer has a preferred option' for legislative reform on AI training — further consultation period opened. Creates regulatory uncertainty for UK AI training data governance.",
+      "suggested_module": "country_grid_status (UK) or module_7_risk_vectors (Regulatory Fragmentation)",
+      "source_url": "https://www.lewissilkin.com/insights/2026/03/19/unfinished-works-uk-government-kicks-ai-copyright-reform-down-the-road-102mnep",
+      "source_type": "news-of-record",
+      "retrieval_date": "2026-04-28",
+      "action_required": "Add to UK country_grid_status as copyright uncertainty note. Important for AGM's litigation/enforcement windowed events when court cases proceed on existing law."
+    }
+  ]
+}

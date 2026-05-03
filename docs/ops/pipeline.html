@@ -176,6 +176,93 @@
     color: var(--text);
     font-size: 0.9rem;
   }
+  .fq-section { margin-top: 2.5rem; }
+  .fq-section h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    letter-spacing: -0.005em;
+  }
+  .fq-section .fq-sub {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  .fq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .fq-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--neutral);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .fq-row .fq-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .fq-row .fq-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .fq-row .fq-counts {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .fq-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    letter-spacing: 0.02em;
+  }
+  .fq-count.green   { color: var(--green);   background: rgba(34,197,94,0.10);  border-color: rgba(34,197,94,0.30); }
+  .fq-count.amber   { color: var(--amber);   background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.30); }
+  .fq-count.red     { color: var(--red);     background: rgba(239,68,68,0.10);  border-color: rgba(239,68,68,0.30); }
+  .fq-count.neutral { color: var(--neutral); background: rgba(107,114,128,0.10); border-color: rgba(107,114,128,0.30); }
+  .fq-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .fq-pill {
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 3px;
+    background: var(--neutral);
+    opacity: 0.85;
+  }
+  .fq-pill.present          { background: var(--green); }
+  .fq-pill.absent_explained { background: var(--neutral); }
+  .fq-pill.absent_unknown   { background: var(--amber); }
+  .fq-pill.blocked          { background: var(--red); }
+  .fq-pill.missing_artifact { background: var(--neutral); opacity: 0.5; }
+  .fq-empty {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    text-align: center;
+  }
+  .fq-generated {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    margin-top: 0.6rem;
+    text-align: right;
+  }
 </style>
 </head>
 <body>
@@ -201,6 +288,14 @@
     <div id="err" class="err" hidden></div>
   </section>
 
+  <section class="fq-section" aria-label="Flow quality">
+    <h2>Flow Quality</h2>
+    <div class="fq-sub">Per-module content state at the publish stage. Amber means at least one module came back empty without a traceable reason.</div>
+    <div id="fq-list" class="fq-list"></div>
+    <div id="fq-empty" class="fq-empty" hidden>Flow quality data not yet generated.</div>
+    <div id="fq-generated" class="fq-generated"></div>
+  </section>
+
   <footer class="page">
     <a href="/">asym-intel.info</a>
     &nbsp;·&nbsp;
@@ -211,6 +306,7 @@
 <script>
 (function () {
   const STATUS_URL = 'pipeline-status.json';
+  const FLOW_QUALITY_URL = 'flow-quality-status.json';
 
   function relTime(iso) {
     if (!iso) return 'no data yet';
@@ -322,6 +418,108 @@
     err.textContent = msg;
   }
 
+  // Per-monitor flow-quality summary. Keys are monitor slugs (e.g.
+  // "ai-governance"); values carry the publish-stage counts and a
+  // module_detail map. Render order follows the registry so visual order
+  // matches the existing monitor grid above.
+  function renderFlowQuality(fq) {
+    const list = document.getElementById('fq-list');
+    const empty = document.getElementById('fq-empty');
+    const generated = document.getElementById('fq-generated');
+    list.innerHTML = '';
+
+    const monitors = (fq && fq.monitors) || {};
+    const slugs = Object.keys(monitors);
+    if (!fq || slugs.length === 0) {
+      empty.hidden = false;
+      generated.textContent = '';
+      return;
+    }
+    empty.hidden = true;
+
+    const ordered = window.MonitorRegistry && window.MonitorRegistry.slugs
+      ? (function () {
+          try {
+            const reg = window.MonitorRegistry.slugs();
+            const known = reg.filter(function (s) { return slugs.indexOf(s) !== -1; });
+            const extras = slugs.filter(function (s) { return reg.indexOf(s) === -1; });
+            return known.concat(extras);
+          } catch (e) { return slugs; }
+        })()
+      : slugs;
+
+    ordered.forEach(function (slug) {
+      const m = monitors[slug];
+      if (!m) return;
+
+      const meta = (window.MonitorRegistry && window.MonitorRegistry.bySlugSafe)
+        ? window.MonitorRegistry.bySlugSafe(slug)
+        : null;
+
+      const row = document.createElement('div');
+      row.className = 'fq-row';
+      if (meta && meta.accent) {
+        row.style.borderLeftColor = meta.accent;
+      }
+
+      const head = document.createElement('div');
+      head.className = 'fq-head';
+
+      const name = document.createElement('div');
+      name.className = 'fq-name';
+      name.textContent = meta ? (meta.name + ' (' + meta.abbr + ')') : slug;
+      head.appendChild(name);
+
+      const counts = document.createElement('div');
+      counts.className = 'fq-counts';
+      const countDefs = [
+        { key: 'present',          label: 'present',  cls: 'green' },
+        { key: 'absent_explained', label: 'explained', cls: 'neutral' },
+        { key: 'absent_unknown',   label: 'unknown',   cls: 'amber' },
+        { key: 'blocked',          label: 'blocked',   cls: 'red' }
+      ];
+      countDefs.forEach(function (c) {
+        const v = m[c.key] || 0;
+        if (v === 0 && c.key !== 'present') return;
+        const span = document.createElement('span');
+        span.className = 'fq-count ' + c.cls;
+        span.textContent = v + ' ' + c.label;
+        counts.appendChild(span);
+      });
+      head.appendChild(counts);
+      row.appendChild(head);
+
+      const detail = m.module_detail || {};
+      const moduleIds = Object.keys(detail).sort(function (a, b) {
+        const na = parseInt(String(a).replace(/\D/g, ''), 10);
+        const nb = parseInt(String(b).replace(/\D/g, ''), 10);
+        if (!isNaN(na) && !isNaN(nb)) return na - nb;
+        return a < b ? -1 : a > b ? 1 : 0;
+      });
+      if (moduleIds.length > 0) {
+        const pills = document.createElement('div');
+        pills.className = 'fq-pills';
+        moduleIds.forEach(function (mid) {
+          const state = detail[mid] || 'missing_artifact';
+          const pill = document.createElement('span');
+          pill.className = 'fq-pill ' + state;
+          pill.title = mid + ': ' + state;
+          pills.appendChild(pill);
+        });
+        row.appendChild(pills);
+      }
+
+      list.appendChild(row);
+    });
+
+    const meta = fq._meta || {};
+    if (meta.generated_at) {
+      generated.textContent = 'Generated ' + relTime(meta.generated_at);
+    } else {
+      generated.textContent = '';
+    }
+  }
+
   // Load the registry alongside pipeline-status. On registry-load failure,
   // we still render with raw slugs (no links, no icons) so the page degrades
   // gracefully rather than crashing.
@@ -332,14 +530,22 @@
     fetch(STATUS_URL, { cache: 'no-store' }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
-    })
+    }),
+    fetch(FLOW_QUALITY_URL, { cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function (e) { console.warn('[pipeline] flow-quality load failed', e); return null; })
   ])
-    .then(function (results) { render(results[1]); })
+    .then(function (results) {
+      render(results[1]);
+      try { renderFlowQuality(results[2]); }
+      catch (e) { console.warn('[pipeline] flow-quality render failed', e); renderFlowQuality(null); }
+    })
     .catch(function (e) {
       showError('Status data is temporarily unavailable.');
       const ep = document.getElementById('engine-pill');
       ep.className = 'status-pill neutral large';
       ep.querySelector('.text').textContent = 'unknown';
+      try { renderFlowQuality(null); } catch (err) { /* swallow */ }
     });
 })();
 </script>
