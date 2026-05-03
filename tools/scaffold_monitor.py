@@ -145,7 +145,7 @@ on:
 
 jobs:
   research:
-    name: {ABBR} Weekly Deep Research (sonar-deep-research)
+    name: {ABBR} Weekly Deep Research
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -228,7 +228,7 @@ on:
 
 jobs:
   reason:
-    name: {ABBR} Deterioration Pattern Reasoning (sonar-deep-research)
+    name: {ABBR} Deterioration Pattern Reasoning
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -317,7 +317,7 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override model (default: sonar-deep-research)'
+        description: 'Override model (optional; blank = use metadata.yml default)'
         required: false
         default: ''
 
@@ -435,7 +435,7 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override model (default: sonar-pro)'
+        description: 'Override model (optional; blank = use metadata.yml default)'
         required: false
         default: ''
       weekly-file:
@@ -563,7 +563,7 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override reviewer model (default: sonar-pro)'
+        description: 'Override reviewer model (optional; blank = use metadata.yml default)'
         required: false
         default: ''
       no_llm:
@@ -697,7 +697,7 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override composer model (default: sonar-pro)'
+        description: 'Override composer model (optional; blank = use metadata.yml default)'
         required: false
         default: ''
   workflow_run:

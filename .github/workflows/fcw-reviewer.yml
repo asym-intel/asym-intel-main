@@ -7,7 +7,7 @@ name: "FIMI & Cognitive Warfare Monitor Reviewer"
 # LLM-advisory notes[]. The Composer downstream honours the verdict.
 #
 # Independence mechanism: rule_engine_verdict_is_llm_independent — the
-# verdict path is LLM-free even when Interpreter and Reviewer share sonar-pro.
+# verdict path is LLM-free even when Interpreter and Reviewer share a model.
 # No cron schedule — workflow_dispatch only at Sprint AM merge time.
 # No ANTHROPIC_API_KEY — stays on Sonar per D1 §7.1.
 #
@@ -19,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override reviewer model (default: sonar-pro)'
+        description: 'Override reviewer model (optional; blank = use metadata.yml default)'
         required: false
         default: ''
       no_llm:
