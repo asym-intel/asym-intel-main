@@ -7,9 +7,7 @@ name: "Pipeline Failure Alert"
 # calls _emit_cross_repo_failure_alerts() and creates GitHub Issues here
 # using GH_TOKEN (PAT, org-scoped). See ops/PIPELINE-OBSERVABILITY-DOCTRINE.md.
 #
-# This file covers same-repo monitors: WDM, GMM, ESA, FCW, AGM/AIM, ERM, SCEM.
-# FIM is not yet listed (FIM workflows not yet running on cron). Add FIM here
-# when FIM cron is activated.
+# This file covers same-repo monitors: WDM, GMM, ESA, FCW, AGM/AIM, ERM, SCEM, FIM.
 
 on:
   workflow_run:
@@ -49,6 +47,17 @@ on:
       - "ESA Synthesiser"
       - "AGM Synthesiser"
       - "ERM Synthesiser"
+      # FIM — Financial Integrity Monitor
+      - "FIM Collector — Tier 0 daily financial integrity pre-verification"
+      - "FIM Chatter — Standalone fallback (emergency single-monitor re-run)"
+      - "FIM Weekly Deep Research"
+      - "FIM Reasoner — Financial Integrity Architecture Analysis"
+      - "Financial Integrity Monitor Synthesiser"
+      - "FIM Interpreter"
+      - "FIM Reviewer"
+      - "FIM Composer"
+      - "FIM Applier"
+      - "FIM Curator"
     types: [completed]
 
 jobs:
