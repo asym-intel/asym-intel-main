@@ -584,3 +584,62 @@ All string values must avoid apostrophes and contractions — use full words onl
 
 
 # Version: v1.0 | Updated: 2026-04-24 | Change: NEW FILE — Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). Adapted from AIM Interpreter v2.3. ESA topic-adaptation: 16 modules remapped to six ECFR autonomy domains; module_2 = Capability Milestones; module_4 = Dependency Concentration (risk heat grid); module_7 = Sovereignty/Dependency Risk Indicators; module_14 = External Actor Posture; dependency_index replaces concentration_index; autonomy_health_composite replaces governance_health_composite; member_state_risk_matrix replaces jurisdiction_risk_matrix; actor_posture_scorecard replaces lab_posture_scorecard; claim_id prefix esa-int-* not aim-int-*; gap_id prefix esa-int-*-G*.
+
+29. **Rule 29 — `eu_legislation_tracker`**
+
+Populate `eu_legislation_tracker` as a list of EU legislative and regulatory instruments relevant to strategic autonomy. Each entry must include:
+- `id` (string): stable identifier, e.g. `"EUL-001"`
+- `name` (string): full name or short title of the instrument
+- `status` (string): current legislative status (e.g. `"In Force"`, `"Trilogues"`, `"Commission Proposal"`, `"Council Position"`, `"EP Vote Pending"`)
+- `last_update` (string): ISO 8601 date of the most recent status change or significant development
+- `source_url` (string): URL to official source (EUR-Lex, EP, Council) or `""` if unavailable
+
+Each cycle: update `status` and `last_update` for instruments where new developments are evidenced in the research bundle. Add new instruments when identified. Do not remove instruments — change status to `"Superseded"` or `"Withdrawn"` if relevant.
+
+When material changes occur, propose a patch:
+proposed_patches[].target_kb_path = "eu_legislation_tracker"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+30. **Rule 30 — `state_capture_cases`**
+
+Populate `state_capture_cases` as a list of per-country state-capture assessments within the EU/candidate space. Each entry must include:
+- `country` (string): country name
+- `severity` (float): current severity score from 1.0 (minimal) to 5.0 (critical)
+- `status` (string): current characterisation, e.g. `"Acute"`, `"Consolidating"`, `"Receding"`, `"Stable"`
+- `arrow` (string): direction of travel — exactly one of `"↑"`, `"→"`, `"↓"`
+- `key_indicator` (string): the single most diagnostic current indicator
+
+Each cycle: update `severity`, `status`, `arrow`, and `key_indicator` for each country based on new evidence. Add new countries when relevant. When material changes occur, propose a patch:
+proposed_patches[].target_kb_path = "state_capture_cases"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+31. **Rule 31 — `active_actor_campaigns`**
+
+Populate `active_actor_campaigns` as a dict keyed by actor code (e.g. `"RU"`, `"CN"`, `"US"`, `"IL"`, `"TR"`, `"GCC"`). Each actor maps to a list of campaign objects. Each campaign must include:
+- `id` (string): stable identifier, e.g. `"RU-CAM-003"`
+- `name` (string): campaign name or label
+- `status` (string): exactly one of `"ACTIVE"`, `"SUSPENDED"`, `"CONCLUDED"`
+- `target` (string): primary target (country, institution, or sector)
+
+Each cycle: update `status` for existing campaigns based on new evidence. Add new campaigns when identified. Do not delete campaigns — mark as `"CONCLUDED"` when relevant. When material changes occur, propose a patch:
+proposed_patches[].target_kb_path = "active_actor_campaigns"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full dict>
+proposed_patches[].rationale = <one sentence>
+
+32. **Rule 32 — `open_findings`**
+
+Populate `open_findings` as a list of the most salient ESA-relevant findings from the weekly research bundle not captured in other structured fields. Each entry must include:
+- `headline` (string): one-sentence finding
+- `why_it_matters` (string): one-sentence significance
+- `source_url` (string): direct URL to primary source
+- `source_name` (string): publication or organisation name
+- `source_tier` (string): exactly one of `"T1"`, `"T2"`, `"T3"` (T1 = primary/official, T2 = established media/think-tank, T3 = secondary/aggregator)
+
+Emit 3-8 entries per cycle. Replace the full list each cycle.
+
+# v: sprint-bw — added rules for eu_legislation_tracker, state_capture_cases, active_actor_campaigns, open_findings

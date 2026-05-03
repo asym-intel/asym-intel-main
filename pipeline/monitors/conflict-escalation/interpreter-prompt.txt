@@ -687,3 +687,77 @@ When an F-flag is detected on any indicator, note which indicator it affects and
 28. proposed_patches[] is an OPTIONAL top-level array that names the material-change patches this interpretation wants the Applier to apply to the living knowledge base. Each patch MUST contain five fields: (a) rule_applied; (b) evidence_ids — array of evidence IDs from the weekly-research bundle or KB that support the patch (must be non-empty); (c) confidence; (d) material_change_justification — one-sentence rationale for why this change is material; (e) target_kb_path — the KB path being updated. NULL-CYCLE CONTRACT: if the evidence bundle carries no material change, emit proposed_patches: [] (empty array), not an omitted field.
 
 # Version: v1.0 | Updated: 2026-04-24 | Change: Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). Adapted from AGM interpreter-prompt.txt. Topic-adapted for SCEM: conflict/escalation indicators replace AI governance indicators; theatre_risk_matrix replaces jurisdiction_risk_matrix; actor_posture_scorecard replaces lab_posture_scorecard; stability_health_composite replaces governance_health_composite; I1-I6 indicator rubrics and F-flag matrix preserved from legacy synthesiser-prompt. Sixteen-module architecture aligned to AGM shape. structured_claims[] triple store, cycle_disposition, gaps_register added per spec §1.1 step 1.
+
+29. **Rule 29 — `active_escalation_events`**
+
+Populate `active_escalation_events` as a chronological log of significant escalation events. This field is **additive** — append new events each cycle; never replace or truncate prior events. Each entry must include:
+- `event_id` (string): stable unique identifier, e.g. `"EE-2024-047"`
+- `conflict_id` (string): identifier of the parent conflict, consistent with existing conflict tracking
+- `event_date` (string): ISO 8601 date of the event
+- `event` (string): concise factual description of what occurred
+- `strategic_significance` (string): one-sentence assessment of the event's strategic weight
+- `source_url` (string): URL to primary source or `""` if unavailable
+
+For each new event identified in the weekly research bundle, append a new entry. Do not remove prior entries. When new events are appended, propose a patch:
+proposed_patches[].target_kb_path = "active_escalation_events"
+proposed_patches[].operation = "append"
+proposed_patches[].value = [<array of new entries only>]
+proposed_patches[].rationale = <one sentence>
+
+30. **Rule 30 — `f_flag_history`**
+
+Populate `f_flag_history` as a log of Fragility flags (F1-F4) applied to conflicts. This field is **additive** for new flags; existing entries may have their `status` updated. Each entry must include:
+- `flag` (string): exactly one of `"F1"`, `"F2"`, `"F3"`, `"F4"`
+- `conflict` (string): conflict identifier or name
+- `indicator` (string): the triggering indicator — exactly one of `"I1"`, `"I2"`, `"I3"`, `"I4"`, `"I5"`, `"I6"`
+- `detail` (string): one sentence describing the specific triggering evidence
+- `applied` (string): ISO 8601 date when this flag was applied
+- `status` (string): exactly one of `"Active"`, `"Resolved"`
+
+Each cycle: append new flags applied this cycle. Update `status` to `"Resolved"` for flags where resolution evidence is present. When changes occur, propose a patch:
+proposed_patches[].target_kb_path = "f_flag_history"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <full updated list>
+proposed_patches[].rationale = <one sentence>
+
+31. **Rule 31 — `mediation_deescalation_architecture`**
+
+Populate `mediation_deescalation_architecture` as a per-conflict-pair assessment of active mediation and de-escalation mechanisms. Each entry must include:
+- `conflict_id` (string): conflict pair identifier
+- `frameworks` (array of strings): list of active or proposed mediation frameworks (e.g. `["Minsk III", "IGAD Process"]`)
+- `un_security_council` (string): current UNSC posture on this conflict — free-form string (e.g. `"Deadlocked — RU veto; humanitarian resolution pending"`)
+- `evidence_id` (string): reference to the research bundle item supporting this assessment
+
+Each cycle: update `frameworks`, `un_security_council`, and `evidence_id` for each conflict based on new evidence. Add new conflict entries when relevant. When material changes occur, propose a patch:
+proposed_patches[].target_kb_path = "mediation_deescalation_architecture"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+32. **Rule 32 — `treaty_posture`**
+
+Populate `treaty_posture` as a list of treaties relevant to active or monitored conflicts. Each entry must include:
+- `treaty` (string): full treaty name or commonly used short title
+- `parties` (array of strings): list of state parties
+- `status` (string): exactly one of `"in-force"`, `"lapsed"`, `"denounced"`, `"suspended"`
+- `expiry_date` (string): ISO 8601 date if applicable, or `""` if not time-limited
+- `details` (string): one sentence on current significance or recent developments
+
+Each cycle: update `status` and `details` when treaty events occur (expiry, suspension, renewal, denunciation). Add new treaties when newly relevant. When material changes occur, propose a patch:
+proposed_patches[].target_kb_path = "treaty_posture"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+33. **Rule 33 — `open_findings`**
+
+Populate `open_findings` as a list of the most salient conflict-escalation findings from the weekly research bundle not captured in other structured fields. Each entry must include:
+- `headline` (string): one-sentence finding
+- `why_it_matters` (string): one-sentence significance
+- `source_url` (string): direct URL to primary source
+- `source_name` (string): publication or organisation name
+- `source_tier` (string): exactly one of `"T1"`, `"T2"`, `"T3"` (T1 = primary/official, T2 = established media/think-tank, T3 = secondary/aggregator)
+
+Emit 3-8 entries per cycle. Replace the full list each cycle.
+
+# v: sprint-bw — added Rules 29–33: active_escalation_events, f_flag_history, mediation_deescalation_architecture, treaty_posture, open_findings
