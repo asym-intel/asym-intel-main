@@ -465,3 +465,52 @@ Baseline status from persistent state:
 - Methane: GERP +15-20% upward revision active
 
 # Version: v1.0 | Updated: 2026-04-24 | Change: NEW file. Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). Topic-adapted from AGM interpreter-prompt.txt shape. ERM-specific domain: planetary boundaries, tipping systems, climate security, environmental governance. No provider/model/client references per AD-24n §1.
+
+19. **Rule 19 — `tipping_system_flags`**
+
+Populate `tipping_system_flags` as a list of Earth-system tipping point assessments. Each entry must include:
+- `system` (string): name of the tipping system (e.g. `"West Antarctic Ice Sheet"`, `"Amazon Dieback"`, `"AMOC Weakening"`)
+- `status` (string): current alert status — **exactly one of** `"Critical"`, `"High"`, `"Elevated"`, `"Moderate"` — **no other values permitted**
+- `proxy_metric` (string): the primary observable proxy being tracked (e.g. `"summer sea ice extent"`, `"deforestation rate"`)
+- `proxy_value` (string): most recent observed value with unit and date, e.g. `"3.1M km2 (Sep 2024)"`
+- `collapse_probability_range` (string): current expert consensus probability range, e.g. `"15-25% by 2100"` or `"uncertain"` if not available
+
+Each cycle: update `status` and `proxy_value` for each system based on new data in the research bundle. Update `status` only when new evidence justifies a change. When any status changes or proxy values are materially updated, propose a patch:
+proposed_patches[].target_kb_path = "tipping_system_flags"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+Status definitions:
+- `Critical`: threshold breach imminent or already occurring; irreversible dynamics likely initiated
+- `High`: multiple reinforcing signals; crossing within 10-30 years plausible
+- `Elevated`: concerning trend; monitoring required; crossing within 30-50 years possible
+- `Moderate`: current trajectory tracked; no near-term threshold concern
+
+20. **Rule 20 — `regional_cascade_chains`**
+
+Populate `regional_cascade_chains` as a list of identified physical to human to political cascade chains by region. Each entry must include:
+- `region` (string): geographic region (e.g. `"Sahel"`, `"South Asia"`, `"Arctic"`)
+- `chain` (string): narrative description of the cascade sequence in the form `"physical trigger → human impact → political consequence"`, e.g. `"rainfall failure → crop collapse → mass displacement → governance breakdown"`
+- `status` (string): exactly one of `"Active"`, `"Monitoring"`
+- `current_stage` (string): which stage of the chain is currently manifesting, e.g. `"human impact"` or `"physical trigger"`
+- `reverse_cascade` (string): description of potential positive-feedback reversal or `"none identified"`
+
+Each cycle: update `current_stage` and `reverse_cascade` for each chain based on new evidence. Add new chains when identified. Mark chains `"Monitoring"` when they are not currently progressing. When material changes occur, propose a patch:
+proposed_patches[].target_kb_path = "regional_cascade_chains"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+21. **Rule 21 — `open_findings`**
+
+Populate `open_findings` as a list of the most salient environmental-risk findings from the weekly research bundle not captured in other structured fields. Each entry must include:
+- `headline` (string): one-sentence finding
+- `why_it_matters` (string): one-sentence significance
+- `source_url` (string): direct URL to primary source
+- `source_name` (string): publication or organisation name
+- `source_tier` (string): exactly one of `"T1"`, `"T2"`, `"T3"` (T1 = primary/official, T2 = established media/think-tank, T3 = secondary/aggregator)
+
+Emit 3-8 entries per cycle. Replace the full list each cycle.
+
+# v: sprint-bw — added rules for tipping_system_flags, regional_cascade_chains, open_findings

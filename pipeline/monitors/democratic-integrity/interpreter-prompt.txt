@@ -625,3 +625,50 @@ All string values must avoid apostrophes and contractions — use full words onl
 
 
 # Version: v1.0 | Updated: 2026-04-24 | Change: NEW file — Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). Topic-adapted from AGM interpreter-prompt.txt. WDM domain: electoral integrity / democratic backsliding. AGM->WDM reword map applied per monitor-guidance.md.
+28. **Rule 28 — `institutional_integrity_active_flags`**
+
+Populate `institutional_integrity_active_flags` as a list of currently active institutional-integrity signal flags drawn from the weekly research bundle. Each entry must include:
+- `country` (string): ISO country name or code
+- `indicator` (string): the specific democratic indicator being flagged
+- `severity` (string): exactly one of `"High"`, `"Med"`, `"Low"`
+- `signal` (string): concise description of the observed signal
+- `lead_time` (string): estimated lead time to systemic impact, e.g. `"3-6 months"` or `"immediate"`
+- `first_seen` (string): ISO 8601 date when this flag was first identified
+
+Only include flags with current evidentiary support in the research bundle. Remove flags no longer supported by evidence. If no flags are active, emit an empty list.
+
+When a material change is detected in any flag (new flag, severity escalation, new evidence), propose a patch:
+proposed_patches[].target_kb_path = "institutional_integrity_active_flags"
+proposed_patches[].operation = "replace"   // full list replacement
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+29. **Rule 29 — `mimicry_chains`**
+
+Populate `mimicry_chains` as a list of documented influence/narrative-mimicry chains identified in the weekly research bundle. Each entry must include:
+- `chain_id` (string): stable identifier, e.g. `"MC-001"`
+- `headline` (string): one-line summary of the chain
+- `links` (array of strings): ordered list of chain steps (actor → platform/mechanism → target)
+- `first_documented` (string): ISO 8601 date
+- `last_verified` (string): ISO 8601 date of most recent verification
+
+Update `last_verified` for existing chains when new evidence is present. Add new chains when identified. Do not remove chains unless explicitly marked concluded.
+
+When material changes occur, propose a patch:
+proposed_patches[].target_kb_path = "mimicry_chains"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+30. **Rule 30 — `open_findings`**
+
+Populate `open_findings` as a list of the most salient findings from the weekly research bundle that do not fit neatly into other structured fields. Each entry must include:
+- `headline` (string): one-sentence finding
+- `why_it_matters` (string): one-sentence significance
+- `source_url` (string): direct URL to primary source
+- `source_name` (string): publication or organisation name
+- `source_tier` (string): exactly one of `"T1"`, `"T2"`, `"T3"` (T1 = primary/official, T2 = established media/think-tank, T3 = secondary/aggregator)
+
+Emit 3-8 entries per cycle. Replace the full list each cycle with current findings.
+
+# v: sprint-bw — added rules for institutional_integrity_active_flags, mimicry_chains, open_findings

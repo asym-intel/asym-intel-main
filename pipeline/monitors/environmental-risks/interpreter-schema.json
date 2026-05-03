@@ -1,4 +1,5 @@
 {
+  "$comment": "sprint-bw: added tipping_system_flags, regional_cascade_chains, open_findings",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ERM Interpreter Output Schema (erm-interpret-v1.0)",
   "description": "Output schema for the ERM Interpreter stage. Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). Consumed by ERM Composer (weekly_brief_draft + claim_trace) and ERM Reviewer gate.",
@@ -443,6 +444,54 @@
     },
     "aerosol_dual_risk_flag": {
       "type": "array"
+    },
+  "tipping_system_flags": {
+    "type": "array",
+    "description": "Earth-system tipping point assessments with status and proxy metrics.",
+    "items": {
+      "type": "object",
+      "required": ["system", "status", "proxy_metric", "proxy_value", "collapse_probability_range"],
+      "properties": {
+        "system":                     { "type": "string" },
+        "status":                     {
+          "type": "string",
+          "enum": ["Critical", "High", "Elevated", "Moderate"]
+        },
+        "proxy_metric":               { "type": "string" },
+        "proxy_value":                { "type": "string" },
+        "collapse_probability_range": { "type": "string" }
+      }
     }
+  },
+  "regional_cascade_chains": {
+    "type": "array",
+    "description": "Physical to human to political cascade chains by region.",
+    "items": {
+      "type": "object",
+      "required": ["region", "chain", "status", "current_stage", "reverse_cascade"],
+      "properties": {
+        "region":          { "type": "string" },
+        "chain":           { "type": "string" },
+        "status":          { "type": "string", "enum": ["Active", "Monitoring"] },
+        "current_stage":   { "type": "string" },
+        "reverse_cascade": { "type": "string" }
+      }
+    }
+  },
+  "open_findings": {
+    "type": "array",
+    "description": "Salient environmental findings from the weekly research bundle not captured in other structured fields.",
+    "items": {
+      "type": "object",
+      "required": ["headline", "why_it_matters", "source_url", "source_name", "source_tier"],
+      "properties": {
+        "headline":       { "type": "string" },
+        "why_it_matters": { "type": "string" },
+        "source_url":     { "type": "string", "format": "uri" },
+        "source_name":    { "type": "string" },
+        "source_tier":    { "type": "string", "enum": ["T1", "T2", "T3"] }
+      }
+    }
+  }
   }
 }

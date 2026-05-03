@@ -528,6 +528,121 @@ All string values must avoid apostrophes and contractions — use full words onl
     }
   ],
 
+  "regulatory_framework": {
+    "eu_dsa": {
+      "status": "active | in_force | in_progress | announced | lapsed | contested",
+      "summary": "1-2 sentences on EU DSA FIMI provisions, recent enforcement, fines",
+      "last_verified": "YYYY-MM-DD",
+      "last_material_change": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    },
+    "eeas_ras_fimi": {
+      "status": "active | in_force | in_progress | announced | lapsed | contested",
+      "summary": "EEAS Rapid Alert System / FIMI Toolbox status, latest annual report stats",
+      "last_verified": "YYYY-MM-DD",
+      "last_material_change": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    },
+    "irgc_eu_terrorist_designation": {
+      "status": "active | in_force | in_progress | announced | lapsed | contested",
+      "summary": "IRGC EU terrorist designation status and operational effects",
+      "last_verified": "YYYY-MM-DD",
+      "last_material_change": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    },
+    "nato_stratcom_coe": {
+      "status": "active | in_force | in_progress | announced | lapsed | contested",
+      "summary": "NATO StratCom Centre of Excellence FIMI activity",
+      "last_verified": "YYYY-MM-DD",
+      "last_material_change": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    }
+  },
+
+  "platform_transparency_2026": {
+    "x_twitter": {
+      "status": "active | structurally_degraded | dsa_commitments_accepted | opaque | reporting",
+      "last_disclosure": "YYYY-MM-DD",
+      "disclosure_cadence": "monthly | quarterly | annual | ad_hoc | none",
+      "dsa_action": "string | null — DSA enforcement action summary",
+      "reading_protocol": "One-sentence note on how this platform's disclosures should be read",
+      "last_verified": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    },
+    "meta": {
+      "status": "active | structurally_degraded | dsa_commitments_accepted | opaque | reporting",
+      "last_disclosure": "YYYY-MM-DD",
+      "disclosure_cadence": "monthly | quarterly | annual | ad_hoc | none",
+      "dsa_action": "string | null",
+      "reading_protocol": "One-sentence note",
+      "last_verified": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    },
+    "google_tag": {
+      "status": "active | structurally_degraded | dsa_commitments_accepted | opaque | reporting",
+      "last_disclosure": "YYYY-MM-DD",
+      "disclosure_cadence": "monthly | quarterly | annual | ad_hoc | none",
+      "dsa_action": "string | null",
+      "reading_protocol": "One-sentence note",
+      "last_verified": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    },
+    "mstic": {
+      "status": "active | structurally_degraded | dsa_commitments_accepted | opaque | reporting",
+      "last_disclosure": "YYYY-MM-DD",
+      "disclosure_cadence": "monthly | quarterly | annual | ad_hoc | none",
+      "dsa_action": "string | null",
+      "reading_protocol": "One-sentence note",
+      "last_verified": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    },
+    "tiktok": {
+      "status": "active | structurally_degraded | dsa_commitments_accepted | opaque | reporting",
+      "last_disclosure": "YYYY-MM-DD",
+      "disclosure_cadence": "monthly | quarterly | annual | ad_hoc | none",
+      "dsa_action": "string | null",
+      "reading_protocol": "One-sentence note",
+      "last_verified": "YYYY-MM-DD",
+      "source_url": "string",
+      "source_tier": "T1 | T2 | T3 | T4"
+    }
+  },
+
+  "infrastructure_registry": {
+    "entries": [
+      {
+        "id": "FCW-BASE-INFRA-NNN",
+        "entity_name": "string — primary name of the entity",
+        "entity_type": "state_contractor | hosting_provider | front_organisation | private_intelligence | platform_operator | other",
+        "affiliated_actor": "RU | CN | IR | GULF | US | IL | COMMERCIAL | UNKNOWN",
+        "operator": "string — named operating individual or controlling body, or empty string",
+        "hosting_notes": "string — jurisdictional / hosting / infrastructure notes",
+        "sanctions_status": "sanctioned | designated | unsanctioned | under_investigation | unknown",
+        "evidence_id": "string — references KB or weekly-research evidence",
+        "source_url": "string",
+        "retrieval_date": "YYYY-MM-DD"
+      }
+    ]
+  },
+
+  "open_findings": [
+    {
+      "headline": "<one sentence — what happened>",
+      "why_it_matters": "<one sentence — analytical significance for FIMI, cognitive warfare, platform integrity, or information manipulation>",
+      "source_url": "<direct URL>",
+      "source_name": "<publication or organisation name>",
+      "source_tier": "T1 | T2 | T3"
+    }
+  ],
+
   "cross_monitor_candidates": [
     {
       "target_monitor": "democratic-integrity | conflict-escalation | european-strategic-autonomy | macro-monitor | ai-governance | environmental-risks",
@@ -574,6 +689,11 @@ All string values must avoid apostrophes and contractions — use full words onl
 27. Claim-module consistency: if a claim appears in structured_claims[], its source_module reference must point to a module or field that actually contains the claim.
 28. gaps_register[] is recommended when Possible confidence dominates a module or when attribution is Unattributed — name the evidence that would upgrade.
 29. proposed_patches[] is an OPTIONAL top-level array naming material-change patches for the Applier. Each patch MUST contain five fields: (a) rule_applied; (b) evidence_ids (non-empty array); (c) confidence; (d) material_change_justification; (e) target_kb_path. NULL-CYCLE CONTRACT: if evidence bundle carries no material change, emit proposed_patches: [] (empty array). Never manufacture a patch under a null cycle.
+30. regulatory_framework: populate as a structured dict of regulatory pillars governing FIMI. Required pillar keys: eu_dsa, eeas_ras_fimi, irgc_eu_terrorist_designation, nato_stratcom_coe. Each pillar object includes status (one of: active, in_force, in_progress, announced, lapsed, contested), last_verified (ISO date — update each cycle), last_material_change (ISO date — update only on material change), summary (1-2 sentences), source_url, source_tier. Pillars may include additional structured fields where data is available (e.g. first_fine_amount_eur, incidents_2025, report_release_date). When a pillar changes materially, propose a patch: target_kb_path = "regulatory_framework", operation = "replace", value = updated full dict, rationale = one sentence. Complements narrative module_9 — does not replace it.
+31. platform_transparency_2026: populate as a structured dict of per-platform transparency posture. Field name retains _2026 suffix to match persistent-state key for deterministic proposed_patches target_kb_path. Required platform keys: x_twitter, meta, google_tag, mstic, tiktok. Each platform object includes status (one of: active, structurally_degraded, dsa_commitments_accepted, opaque, reporting), last_disclosure (ISO date), disclosure_cadence (one of: monthly, quarterly, annual, ad_hoc, none), dsa_action (string or null), reading_protocol (one-sentence note on how disclosures should be read), last_verified (ISO date — update each cycle), source_url, source_tier. When a platform's posture changes materially, propose a patch: target_kb_path = "platform_transparency_2026", operation = "replace", value = updated full dict, rationale = one sentence. The X/Twitter standing structural gap (no CIB equivalent, degraded DSA coordination) must be reflected in its reading_protocol and dsa_action fields.
+32. infrastructure_registry: populate as a structured registry of named FIMI infrastructure entities (state contractors, hosting providers, attribution-relevant operators). The field is a dict with a single key "entries" containing a list. Each entry includes id (format FCW-BASE-INFRA-NNN), entity_name, entity_type (one of: state_contractor, hosting_provider, front_organisation, private_intelligence, platform_operator, other), affiliated_actor (RU, CN, IR, GULF, US, IL, COMMERCIAL, UNKNOWN), operator, hosting_notes, sanctions_status (one of: sanctioned, designated, unsanctioned, under_investigation, unknown), evidence_id, source_url, retrieval_date. Append on new entity, replace on update. When entries change materially, propose a patch: target_kb_path = "infrastructure_registry", operation = "replace", value = updated full dict with entries, rationale = one sentence.
+33. open_findings: populate as a list of the most salient FIMI / cognitive-warfare findings from the weekly research bundle not captured in other structured fields or modules. Each entry includes headline (one sentence), why_it_matters (one sentence), source_url, source_name, source_tier (T1, T2, or T3 — T1 = primary/official, T2 = established media/think-tank, T3 = secondary/aggregator). Emit 3-8 entries per cycle. Replace the full list each cycle. No proposed_patches rule needed.
 
 
 # Version: v1.0 | Created: 2026-04-24 | Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). FCW interpreter split from fused synthesiser. 16-module schema. structured_claims[] triple store. cycle_disposition decision. actor_risk_matrix, platform_posture_scorecard, information_integrity_composite replacing AGM-specific governance-health fields. MF-flag discipline integrated. Six-actor-parity rule embedded.
+# v: sprint-bw — added rules 30–33 for regulatory_framework, platform_transparency_2026, infrastructure_registry, open_findings
