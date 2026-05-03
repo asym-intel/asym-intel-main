@@ -1898,10 +1898,28 @@ def build(source_root: Path, output_root: Path) -> None:
         shutil.copyfile(css_src, css_dst)
         print(f"  copied {css_src} -> {css_dst}")
 
-    # ── Static assets pass-through (assets/monitors/ etc) ─────────────────────
-    # Only the registry JSON is consumed at build; the SVG icons/logos are
-    # already published via static/ → docs/ from other pipeline tooling. We
-    # do NOT copy assets/monitors/ because Hugo did not either.
+    # ── static/ → docs/ pass-through (Hugo-equivalent) ────────────────────────
+    # Hugo automatically mounted static/ at the site root; the Python port
+    # initially relied on "other pipeline tooling" to mirror static/ → docs/,
+    # but only rebuild-network-graph.yml does that. As a result, files written
+    # only to static/ — notably static/ops/pipeline-status.json (refreshed by
+    # update-pipeline-status.yml), static/data/synthesis-latest.json, and the
+    # static/ai-context.json / llms.txt feeds — never propagate to docs/, so
+    # asym-intel.info serves stale content. Mirror static/ → docs/ here, before
+    # the generator writes its outputs, so generated pages still override.
+    # assets/monitors/ is intentionally NOT copied (Hugo did not either).
+    static_root = source_root / "static"
+    if static_root.exists():
+        copied = 0
+        for src in static_root.rglob("*"):
+            if not src.is_file():
+                continue
+            rel = src.relative_to(static_root)
+            dst = output_root / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(src, dst)
+            copied += 1
+        print(f"  mirrored {copied} files from static/ to {output_root}/")
 
     # ── Track sitemap-eligible pages ──────────────────────────────────────────
     sitemap_pages: list[Page] = []
