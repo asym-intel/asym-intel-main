@@ -1,4 +1,5 @@
 {
+  "$comment": "sprint-bw: added conviction_history, blind_spots, active_tactical_alerts, open_findings",
   "type": "object",
   "properties": {
     "_meta": {
@@ -25,10 +26,7 @@
           "type": "boolean"
         },
         "null_signal_reason": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "cycle_disposition": {
           "type": "string",
@@ -41,10 +39,7 @@
           "description": "Interpreter's judgment on the cycle. 'material_change' = at least one module has new content; 'null_cycle' = evidence bundle carries no material change; 'partial_cycle' = mixed; 'error_cycle' = reserved for engine-level failure paths (engine stamps, prompt does not emit)."
         },
         "cycle_disposition_reason": {
-          "type": [
-            "string",
-            "null"
-          ],
+          "type": ["string", "null"],
           "description": "One-sentence justification. Required for null_cycle and partial_cycle; optional otherwise."
         },
         "triple_extraction_manifest": {
@@ -60,10 +55,7 @@
               "minimum": 0
             },
             "llm_fallback_timestamp": {
-              "type": [
-                "string",
-                "null"
-              ]
+              "type": ["string", "null"]
             }
           },
           "additionalProperties": false
@@ -85,10 +77,7 @@
               "description": "ISO-8601 date (YYYY-MM-DD). Copied from the override bundle's _meta.week_ending."
             }
           },
-          "required": [
-            "start",
-            "end"
-          ]
+          "required": ["start", "end"]
         }
       }
     },
@@ -142,6 +131,19 @@
         "body": {
           "type": "string"
         }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
       }
     },
     "module_1": {
@@ -158,6 +160,19 @@
           "items": {
             "type": "object"
           }
+        }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
         }
       }
     },
@@ -193,6 +208,19 @@
             }
           }
         }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
       }
     },
     "module_3": {
@@ -218,6 +246,19 @@
           "items": {
             "type": "object"
           }
+        }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
         }
       }
     },
@@ -245,20 +286,11 @@
               },
               "stress_level": {
                 "type": "string",
-                "enum": [
-                  "Green",
-                  "Amber",
-                  "Red",
-                  "Crisis"
-                ]
+                "enum": ["Green", "Amber", "Red", "Crisis"]
               },
               "direction": {
                 "type": "string",
-                "enum": [
-                  "Worsening",
-                  "Stable",
-                  "Improving"
-                ]
+                "enum": ["Worsening", "Stable", "Improving"]
               },
               "headline_developments": {
                 "type": "array",
@@ -281,6 +313,19 @@
             }
           }
         }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
       }
     },
     "module_5": {
@@ -294,6 +339,19 @@
         },
         "sovereign_debt": {
           "type": "object"
+        }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
         }
       }
     },
@@ -315,6 +373,19 @@
             "type": "object"
           }
         }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
       }
     },
     "module_7": {
@@ -333,12 +404,7 @@
               },
               "rating": {
                 "type": "string",
-                "enum": [
-                  "HIGH",
-                  "ELEVATED",
-                  "MODERATE",
-                  "LOW"
-                ]
+                "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
               },
               "summary": {
                 "type": "string"
@@ -348,20 +414,13 @@
               },
               "confidence": {
                 "type": "string",
-                "enum": [
-                  "High",
-                  "Assessed",
-                  "Possible"
-                ]
+                "enum": ["High", "Assessed", "Possible"]
               },
               "changed": {
                 "type": "boolean"
               },
               "unchanged_since": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "sources": {
                 "type": "array",
@@ -371,6 +430,19 @@
               }
             }
           }
+        }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
         }
       }
     },
@@ -386,6 +458,19 @@
             "type": "object"
           }
         }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
       }
     },
     "module_9": {
@@ -395,10 +480,7 @@
           "type": "string"
         },
         "digest_note": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": ["string", "null"]
         },
         "new_developments": {
           "type": "array",
@@ -423,6 +505,19 @@
           "items": {
             "type": "object"
           }
+        }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
         }
       }
     },
@@ -455,6 +550,19 @@
           "items": {
             "type": "object"
           }
+        }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
         }
       }
     },
@@ -490,6 +598,19 @@
             "type": "string"
           }
         }
+      ,
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
       }
     },
     "delta_strip": {
@@ -508,48 +629,26 @@
           },
           "monetary_policy_stance": {
             "type": "string",
-            "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
-            ]
+            "enum": ["Tightening", "Neutral", "Easing", "Emergency"]
           },
           "fiscal_sustainability": {
             "type": "string",
-            "enum": [
-              "Stable",
-              "Deteriorating",
-              "Improving"
-            ]
+            "enum": ["Stable", "Deteriorating", "Improving"]
           },
           "external_vulnerability": {
             "type": "string",
-            "enum": [
-              "HIGH",
-              "MEDIUM",
-              "LOW"
-            ]
+            "enum": ["HIGH", "MEDIUM", "LOW"]
           },
           "overall_stress": {
             "type": "string",
-            "enum": [
-              "HIGH",
-              "ELEVATED",
-              "MODERATE",
-              "LOW"
-            ]
+            "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
           },
           "key_development": {
             "type": "string"
           },
           "trajectory": {
             "type": "string",
-            "enum": [
-              "Improving",
-              "Stable",
-              "Deteriorating"
-            ]
+            "enum": ["Improving", "Stable", "Deteriorating"]
           }
         }
       }
@@ -564,35 +663,20 @@
           },
           "posture": {
             "type": "string",
-            "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
-            ]
+            "enum": ["Tightening", "Neutral", "Easing", "Emergency"]
           },
           "last_action": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "forward_guidance": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           },
           "key_development": {
             "type": "string"
           },
           "trajectory": {
             "type": "string",
-            "enum": [
-              "Hawkish",
-              "Stable",
-              "Dovish"
-            ]
+            "enum": ["Hawkish", "Stable", "Dovish"]
           }
         }
       }
@@ -605,11 +689,7 @@
         },
         "direction": {
           "type": "string",
-          "enum": [
-            "Improving",
-            "Stable",
-            "Deteriorating"
-          ]
+          "enum": ["Improving", "Stable", "Deteriorating"]
         },
         "components": {
           "type": "object",
@@ -649,22 +729,14 @@
           },
           "confidence_preliminary": {
             "type": "string",
-            "enum": [
-              "High",
-              "Assessed",
-              "Possible"
-            ]
+            "enum": ["High", "Assessed", "Possible"]
           },
           "stress_domain": {
             "type": "string"
           },
           "trajectory": {
             "type": "string",
-            "enum": [
-              "Worsening",
-              "Stable",
-              "Improving"
-            ]
+            "enum": ["Worsening", "Stable", "Improving"]
           },
           "source_urls": {
             "type": "array",
@@ -691,11 +763,7 @@
           },
           "confidence_preliminary": {
             "type": "string",
-            "enum": [
-              "Low",
-              "Medium",
-              "High"
-            ]
+            "enum": ["Low", "Medium", "High"]
           }
         }
       }
@@ -730,18 +798,10 @@
           },
           "value": {
             "oneOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "number"
-              },
-              {
-                "type": "object"
-              },
-              {
-                "type": "array"
-              }
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "object"},
+              {"type": "array"}
             ],
             "description": "The asserted value. Accept string/number/object/array."
           },
@@ -752,22 +812,14 @@
           },
           "confidence": {
             "type": "string",
-            "enum": [
-              "Confirmed",
-              "High",
-              "Assessed",
-              "Possible"
-            ]
+            "enum": ["Confirmed", "High", "Assessed", "Possible"]
           },
           "source_module": {
             "type": "string",
             "description": "Which module or field the claim first appears in."
           },
           "notes": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         },
         "additionalProperties": false
@@ -828,12 +880,7 @@
           },
           "confidence": {
             "type": "string",
-            "enum": [
-              "Confirmed",
-              "High",
-              "Assessed",
-              "Possible"
-            ]
+            "enum": ["Confirmed", "High", "Assessed", "Possible"]
           },
           "material_change_justification": {
             "type": "string",
@@ -848,176 +895,79 @@
           },
           "operation": {
             "type": "string",
-            "enum": [
-              "create",
-              "update",
-              "archive",
-              "carry-forward-verified"
-            ]
+            "enum": ["create", "update", "archive", "carry-forward-verified"]
           },
           "prior_value": {},
           "new_value": {},
           "notes": {
-            "type": [
-              "string",
-              "null"
-            ]
+            "type": ["string", "null"]
           }
         },
         "additionalProperties": true
       }
-    },
-    "conviction_history": {
-      "type": "array",
-      "description": "Chronological weekly conviction assessments \u2014 append only.",
-      "items": {
-        "type": "object",
-        "required": [
-          "date",
-          "system_average",
-          "conviction",
-          "regime",
-          "regime_conviction",
-          "rationale"
-        ],
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "system_average": {
-            "type": "number",
-            "minimum": 0.0,
-            "maximum": 1.0
-          },
-          "conviction": {
-            "type": "string",
-            "enum": [
-              "MEDIUM",
-              "HIGH"
-            ]
-          },
-          "regime": {
-            "type": "string"
-          },
-          "regime_conviction": {
-            "type": "string",
-            "enum": [
-              "MEDIUM",
-              "HIGH"
-            ]
-          },
-          "rationale": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "blind_spots": {
-      "type": "array",
-      "description": "Identified structural gaps in data coverage or analytical scope.",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "description",
-          "evidence_id",
-          "source_url"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "evidence_id": {
-            "type": "string"
-          },
-          "source_url": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "active_tactical_alerts": {
-      "type": "array",
-      "description": "Named tactical alert conditions with traffic-light state.",
-      "items": {
-        "type": "object",
-        "required": [
-          "alert_id",
-          "name",
-          "current_state",
-          "last_state_change",
-          "description"
-        ],
-        "properties": {
-          "alert_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "current_state": {
-            "type": "string",
-            "enum": [
-              "WARNING",
-              "WATCH",
-              "CLEAR"
-            ]
-          },
-          "last_state_change": {
-            "type": "string",
-            "format": "date"
-          },
-          "description": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "open_findings": {
-      "type": "array",
-      "description": "Salient macro findings from the weekly research bundle not captured in other structured fields.",
-      "items": {
-        "type": "object",
-        "required": [
-          "headline",
-          "why_it_matters",
-          "source_url",
-          "source_name",
-          "source_tier"
-        ],
-        "properties": {
-          "headline": {
-            "type": "string"
-          },
-          "why_it_matters": {
-            "type": "string"
-          },
-          "source_url": {
-            "type": "string",
-            "format": "uri"
-          },
-          "source_name": {
-            "type": "string"
-          },
-          "source_tier": {
-            "type": "string",
-            "enum": [
-              "T1",
-              "T2",
-              "T3"
-            ]
-          }
-        }
+    }
+,
+  "conviction_history": {
+    "type": "array",
+    "description": "Chronological weekly conviction assessments — append only.",
+    "items": {
+      "type": "object",
+      "required": ["date", "system_average", "conviction", "regime", "regime_conviction", "rationale"],
+      "properties": {
+        "date":              { "type": "string", "format": "date" },
+        "system_average":    { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "conviction":        { "type": "string", "enum": ["MEDIUM", "HIGH"] },
+        "regime":            { "type": "string" },
+        "regime_conviction": { "type": "string", "enum": ["MEDIUM", "HIGH"] },
+        "rationale":         { "type": "string" }
       }
     }
+  },
+  "blind_spots": {
+    "type": "array",
+    "description": "Identified structural gaps in data coverage or analytical scope.",
+    "items": {
+      "type": "object",
+      "required": ["id", "name", "description", "evidence_id", "source_url"],
+      "properties": {
+        "id":          { "type": "string" },
+        "name":        { "type": "string" },
+        "description": { "type": "string" },
+        "evidence_id": { "type": "string" },
+        "source_url":  { "type": "string" }
+      }
+    }
+  },
+  "active_tactical_alerts": {
+    "type": "array",
+    "description": "Named tactical alert conditions with traffic-light state.",
+    "items": {
+      "type": "object",
+      "required": ["alert_id", "name", "current_state", "last_state_change", "description"],
+      "properties": {
+        "alert_id":          { "type": "string" },
+        "name":              { "type": "string" },
+        "current_state":     { "type": "string", "enum": ["WARNING", "WATCH", "CLEAR"] },
+        "last_state_change": { "type": "string", "format": "date" },
+        "description":       { "type": "string" }
+      }
+    }
+  },
+  "open_findings": {
+    "type": "array",
+    "description": "Salient macro findings from the weekly research bundle not captured in other structured fields.",
+    "items": {
+      "type": "object",
+      "required": ["headline", "why_it_matters", "source_url", "source_name", "source_tier"],
+      "properties": {
+        "headline":       { "type": "string" },
+        "why_it_matters": { "type": "string" },
+        "source_url":     { "type": "string", "format": "uri" },
+        "source_name":    { "type": "string" },
+        "source_tier":    { "type": "string", "enum": ["T1", "T2", "T3"] }
+      }
+    }
+  }
   },
   "required": [
     "_meta",
