@@ -1,123 +1,25 @@
 name: "European Strategic Autonomy Monitor Reviewer"
-
-# ── Sprint AN — ESA Reviewer role — AD-2026-04-26-AN ──
-# workflow_run trigger added (Sprint AN WS-AN-1) so Interpreter success
-# auto-chains into Reviewer. Mirrors AGM topology.
-# Reads interpret-latest.json and produces review-latest.json with a
-# deterministic verdict (rule engine R1–R7 in review_base.py) plus
-# LLM-advisory notes[]. Topology mirrors AGM reviewer.
-# Independence mechanism: rule_engine_verdict_is_llm_independent per
-# metadata.yml reviewer: block.
-
+# Sprint CD — thin caller. Reusable body: _reusable-reviewer.yml
 on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override reviewer model (optional; blank = use metadata.yml default)'
+        description: 'Override reviewer model (optional)'
         required: false
         default: ''
       no_llm:
-        description: 'Skip LLM call (rule engine only) — "1" to enable'
+        description: 'Skip LLM call — "1" to enable'
         required: false
         default: ''
   workflow_run:
     workflows: ["European Strategic Autonomy Monitor Interpreter"]
-    types:
-      - completed
-
+    types: [completed]
 jobs:
-  review:
+  call:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          ref: main
-
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/european-strategic-autonomy
-          sparse-checkout-cone-mode: false
-
-      - name: Fetch ESA identity from internal repo
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          mkdir -p docs/identity
-
-          # Identity card (analytical quality standard — shared across roles)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-ESA.md" \
-            -o docs/identity/esa-identity.md \
-            && echo "Identity card fetched ($(wc -c < docs/identity/esa-identity.md) bytes)" \
-            || echo "WARNING: Identity card not found — continuing without it"
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install requests pyyaml
-
-      # §15 IP boundary preserved — bespoke files staged but never committed back.
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/european-strategic-autonomy
-          cp -v internal/pipeline/monitors/european-strategic-autonomy/metadata.yml         pipeline/monitors/european-strategic-autonomy/
-          cp -v internal/pipeline/monitors/european-strategic-autonomy/reviewer-prompt.txt  pipeline/monitors/european-strategic-autonomy/
-          cp -v internal/pipeline/monitors/european-strategic-autonomy/reviewer-schema.json pipeline/monitors/european-strategic-autonomy/
-
-      # Skip-on-missing guard. If upstream Interpreter didn't produce
-      # interpret-latest.json, exit 0 so the chain doesn't block.
-      - name: Check upstream interpret output
-        id: check
-        run: |
-          INTERPRET_PATH="pipeline/monitors/european-strategic-autonomy/synthesised/interpret-latest.json"
-          if [ ! -f "$INTERPRET_PATH" ]; then
-            echo "skip=true"   >> "$GITHUB_OUTPUT"
-            echo "reason=missing-interpret-latest" >> "$GITHUB_OUTPUT"
-            echo "No interpret-latest.json found — skipping Reviewer."
-            exit 0
-          fi
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-
-      - name: Run ESA reviewer (engine dispatch)
-        if: steps.check.outputs.skip != 'true'
-        env:
-          PPLX_API_KEY:    ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:        ${{ secrets.ASYM_INTEL_PIPELINE }}
-          REPO_ROOT:       ${{ github.workspace }}
-          REVIEW_MODEL:    ${{ github.event.inputs.model }}
-          REVIEWER_NO_LLM: ${{ github.event.inputs.no_llm }}
-          monitor:         european-strategic-autonomy
-          PYTHONPATH:      internal
-        run: python -m pipeline.engine.review_base --monitor european-strategic-autonomy
-
-      - name: Commit review output
-        if: steps.check.outputs.skip != 'true'
-        run: |
-          git config user.name  "monitor-bot"
-          git config user.email "monitor-bot@asym-intel.info"
-          git add pipeline/monitors/european-strategic-autonomy/synthesised/
-          git diff --cached --quiet || git commit -m "chore(esa): reviewer run $(date -u +%Y-%m-%d)"
-          # Retry loop guards against concurrent bot pushes losing this stage's
-          # output: a successful rebase can still be followed by a push race.
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
+    uses: ./.github/workflows/_reusable-reviewer.yml
+    with:
+      slug: european-strategic-autonomy
+      model: ${{ inputs.model || '' }}
+      no_llm: ${{ inputs.no_llm || '' }}
+    secrets: inherit
