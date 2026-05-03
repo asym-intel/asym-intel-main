@@ -60,21 +60,6 @@ TARGETED RESEARCH (REQUIRED — feeds new structured fields):
 - Platform transparency cadence this week: CIB report releases (Meta, Google TAG, MSTIC), DSA fines or commitments (X/Twitter, Meta, Google, TikTok), structural transparency-gap notes (X/Twitter has no CIB equivalent — record absence-of-disclosure separately from absence-of-activity).
 - Infrastructure attribution this week: new entity attributions (state contractors, hosting providers, front organisations), sanctions designations or removals, named-operator reporting in Tier 1–3 sources.
 
-PERSONNEL WATCH (REQUIRED — standing weekly):
-Track significant personnel movements, appointments, departures, and leadership changes in organisations that shape FIMI attribution, platform integrity, and information security policy, capability, or governance. This is a standing sweep — check named sources every week regardless of news volume. Return findings in the personnel_watch[] array in the output schema.
-
-Minimum: check all named sources below and return at least a "no significant changes" null entry if nothing material found. Do not omit.
-
-Named sources (check every week):
-- EEAS (European External Action Service): eeas.europa.eu — StratCom leadership, East StratCom Task Force staffing
-- EU DSA enforcement body (OFCOM/equivalent per member state): executive appointments, team leads
-- Hybrid CoE (Helsinki): hybridcoe.fi — director, senior fellow appointments
-- Meta Trust & Safety / Oversight Board: newsroom.fb.com — VP/director level T&S changes, Oversight Board membership
-- Google Trust & Safety / TAG: blog.google — lead researcher appointments, team changes
-- NATO StratCom COE: stratcomcoe.org — leadership changes
-- Stanford Internet Observatory leadership: cyber.fsi.stanford.edu
-- Track: movement between government and platform T&S roles; departures from counter-FIMI positions
-
 OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
 run one additional broad search: "what else happened this week in FIMI, cognitive warfare, platform integrity, or information manipulation that a
 sophisticated analyst would flag as significant?" Return findings as open_findings[]
@@ -176,17 +161,6 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences.
     "agm": "<AI capabilities newly observed in FIMI operations this week, or null>"
   },
   "weekly_brief_narrative": "<400-600 word analytical narrative for the Hugo weekly brief. Cover: lead development, actor posture changes, platform enforcement highlights, notable absences or gaps in coverage. If quiet week: structured absence-of-signal assessment explaining sources searched and gaps. Analytical register: cold, structured, no advocacy.>",
-  "personnel_watch": [
-    {
-      "organisation": "<institution or company>",
-      "person": "<name or 'No significant changes this week'>",
-      "role_from": "<prior role or null>",
-      "role_to": "<new role or 'n/a — no change'>",
-      "significance": "<why this matters for FIMI monitoring or null>",
-      "source_url": "<direct URL or null>",
-      "null_entry": "<true if no significant changes found at this organisation>"
-    }
-  ],
   "research_coverage": {
     "sources_searched": ["<list of all sources checked>"],
     "sources_with_findings": ["<sources that returned relevant new material>"],

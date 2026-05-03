@@ -43,21 +43,6 @@ ANALYTICAL RULES:
 CALIBRATION NOTE:
 The annual ECFR/ESA calibration file (methodology/european-strategic-autonomy-ecfr-2026.md) is injected by the Python pipeline script below this prompt. Use it to anchor autonomy score baselines per domain. Where calibration rules apply to a specific domain score or threshold, reference them explicitly in your confidence_basis.
 
-PERSONNEL WATCH (REQUIRED — standing weekly):
-Track significant personnel movements, appointments, departures, and leadership changes in organisations that shape European strategic autonomy, defence, and sovereignty policy, capability, or governance. This is a standing sweep — check named sources every week regardless of news volume. Return findings in the personnel_watch[] array in the output schema.
-
-Minimum: check all named sources below and return at least a "no significant changes" null entry if nothing material found. Do not omit.
-
-Named sources (check every week):
-- EU AI Office leadership: digital-strategy.ec.europa.eu/en/policies/ai-office
-- EDIP (European Defence Industrial Programme) leadership: defence.ec.europa.eu
-- EDA (European Defence Agency): eda.europa.eu — CEO, capability director appointments
-- ReArm Europe / SAFE programme leadership: council.europa.eu
-- PESCO Secretariat: pesco.europa.eu — coordination changes
-- NATO DIANA and NATO Innovation Fund: nato.int — director appointments
-- Key member state defence minister / national armaments director changes for: France, Germany, Poland, Romania
-- Track: movement between industry and EU defence institution roles; CSDP mission leadership changes
-
 OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
 run one additional broad search: "what else happened this week in European strategic autonomy, defence, or hybrid threats that a
 sophisticated analyst would flag as significant?" Return findings as open_findings[]
@@ -185,17 +170,6 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
     "agm": "<technology dependency, AI governance, or dual-use tech developments, or null>"
   },
   "weekly_brief_narrative": "<400-600 word analytical narrative for the ESA Hugo weekly brief. Cover: (1) lead strategic autonomy development and why it is the week's dominant signal; (2) trajectory summary for each active domain — defence, energy, tech, trade, diplomatic; (3) hybrid threat environment highlights — notable incidents, actor patterns; (4) US-EU and NATO-EU dynamics; (5) what to watch in the coming 7 days — specific triggers, votes, exercises, or thresholds to monitor. Analytical register: cold, structured, no advocacy. Do not begin with 'This week'.>",
-  "personnel_watch": [
-    {
-      "organisation": "<institution or country>",
-      "person": "<name or 'No significant changes this week'>",
-      "role_from": "<prior role or null>",
-      "role_to": "<new role or 'n/a — no change'>",
-      "significance": "<why this matters for European strategic autonomy or null>",
-      "source_url": "<direct URL or null>",
-      "null_entry": "<true if no significant changes found at this organisation>"
-    }
-  ],
   "research_coverage": {
     "sources_searched": ["<list all sources checked this week>"],
     "indicators_with_findings": ["<indicators for which qualifying material was found>"],
