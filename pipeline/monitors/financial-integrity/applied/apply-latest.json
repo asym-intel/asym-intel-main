@@ -1,0 +1,89 @@
+{
+  "_meta": {
+    "schema_version": "aim-apply-v1.0",
+    "monitor_slug": "financial-integrity",
+    "applied_at": "2026-05-03T11:32:49Z",
+    "applier_model": null,
+    "applier_deterministic": true,
+    "cycle_disposition": "material_change",
+    "applier_flags": [
+      "weekly_artefact_load_failed",
+      "interpret_schema_mismatch:fim-interpret-v1.0!=aim-interpret-v1.0",
+      "compose_schema_mismatch:fim-compose-v1.0!=aim-compose-v1.0"
+    ],
+    "schema_canonicalizations": [],
+    "applier_error": false,
+    "applier_error_reason": null
+  },
+  "cycle_id": "fim-2026-05-03",
+  "methodology_version": "fim-methodology-v1.1",
+  "week_ending": "2026-05-03",
+  "week_ending_source": "interpret._meta.week_ending",
+  "inputs": {
+    "interpret": {
+      "path": "pipeline/monitors/financial-integrity/synthesised/interpret-latest.json",
+      "content_sha1": "d14c0e3c4454edd69280a542c083cd09df80a027",
+      "schema_version": "fim-interpret-v1.0",
+      "claim_count": 42,
+      "null_signal_week": false,
+      "triple_extraction_manifest": {
+        "deterministic_extractions": 42,
+        "llm_fallback_extractions": 0,
+        "llm_fallback_model": null,
+        "llm_fallback_timestamp": null
+      }
+    },
+    "review": {
+      "path": "pipeline/monitors/financial-integrity/synthesised/review-latest.json",
+      "content_sha1": "e6d27c64343a76f701c52d4a3a20a07de44f2d94",
+      "schema_version": "aim-review-v1.0",
+      "verdict": "hold-for-review",
+      "verdict_legacy": "REJECT",
+      "verdict_reason": "hard-invariant FAIL: ['R3']",
+      "check_summary": {
+        "PASS": 5,
+        "SKIP": 1,
+        "FAIL": 2
+      },
+      "advisory_note_count": 3,
+      "claim_flag_count": 42
+    },
+    "compose": {
+      "path": "pipeline/monitors/financial-integrity/synthesised/compose-latest.json",
+      "content_sha1": "a0d317386b5b8a0cd6b71221260157ecd3d62206",
+      "schema_version": "fim-compose-v1.0",
+      "composed_at": "2026-05-03T11:32:26.863100+00:00",
+      "claim_trace_count": 38,
+      "composer_error": false,
+      "reviewed_by": {
+        "verdict": "hold-for-review",
+        "reviewer_model": "sonar-pro",
+        "reviewed_at": "2026-05-03T11:31:17.230006+00:00",
+        "review_schema_version": "aim-review-v1.0"
+      }
+    }
+  },
+  "patches_applied": [],
+  "patches_rejected": [],
+  "patches_deferred": [],
+  "patches_looped_back": [],
+  "patches_apply_failed": [],
+  "patches_actually_applied": [],
+  "persistent_state_snapshot": null,
+  "publication": {
+    "ready_to_publish": false,
+    "hold_reason": "review_verdict:hold-for-review",
+    "publisher_artefacts": {
+      "weekly_brief_path": "content/monitors/financial-integrity/2026-05-03-weekly-brief.md",
+      "report_latest_path": "static/monitors/financial-integrity/data/report-latest.json"
+    }
+  },
+  "chains_artefact": {
+    "path": "pipeline/monitors/financial-integrity/applied/chains-latest.json",
+    "schema_version": "aim-chains-v1.1",
+    "chain_count": 42
+  },
+  "provenance": {
+    "applier_commit_sha": null
+  }
+}
