@@ -2141,27 +2141,53 @@ def validate_report(report: dict, prev_report: dict | None = None) -> list[str]:
 
 # ── Upstream publication-eligibility gate (apply/review verdict enforcement) ──
 #
-# The applier (where present) emits an artefact at
-#   pipeline/monitors/{slug}/applied/apply-latest.json
-# whose `publication.ready_to_publish` is the canonical signal of whether the
-# upstream review verdict allows publication. When the reviewer holds or
-# rejects the cycle, the applier writes ready_to_publish=false and a
-# machine-readable hold_reason (e.g. "review_verdict:hold-for-review").
+# The applier (where present) emits two artefacts side-by-side per cycle:
+#   pipeline/monitors/{slug}/applied/apply-{YYYY-MM-DD}.json   (dated, immutable)
+#   pipeline/monitors/{slug}/applied/apply-latest.json         (mirror of most-recent)
+# Both carry the same `publication.ready_to_publish` shape — the canonical
+# signal of whether the upstream review verdict allows publication for that
+# cycle. When the reviewer holds or rejects, the applier writes
+# ready_to_publish=false and a machine-readable hold_reason (e.g.
+# "review_verdict:hold-for-review").
 #
-# Prior to this gate the publisher ignored that signal and silently wrote the
-# live report regardless. The gate below makes the publisher honour the
-# upstream verdict at write time, so a held cycle blocks publish loudly with
-# an incident, instead of leaking to readers. See task brief: stage-contract
-# break observed in run 25256774146 on AIM 2026-05-02.
+# Prior to this gate the publisher ignored the signal entirely. PR #186 fixed
+# that for the live (today) case but always read apply-latest.json. That
+# created a follow-on defect for backfills: a re-run with PUBLISH_DATE set
+# would gate against the *latest* apply artefact rather than the artefact
+# matching that cycle date, so a backfilled run could mis-decide based on a
+# newer held cycle (or a newer permitted cycle masking a held past one).
 #
-# Behaviour:
-#   - apply-latest.json absent           → permitted (legacy monitors not yet
-#                                          on the apply pipeline). Logged at
-#                                          info severity.
-#   - publication missing / malformed    → permitted, info incident (don't
+# This module reads the apply artefact keyed on the publish date when one is
+# supplied (PUBLISH_DATE override) and falls back to apply-latest.json only
+# when no override is given. That keeps the live (today) path identical to
+# PR #186 and makes backfills decide against the correct cycle's verdict.
+#
+# Behaviour (publish_date=None, i.e. live runs):
+#   - apply-latest.json present   → check ready_to_publish on latest.
+#   - apply-latest.json absent    → permit (legacy monitor not on apply
+#                                    pipeline yet). guard_skip / info incident.
+#
+# Behaviour (publish_date="YYYY-MM-DD", i.e. backfills):
+#   - apply-{date}.json present                  → check ready_to_publish on
+#                                                  that dated artefact.
+#   - apply-{date}.json absent, apply-latest
+#     also absent                                → permit (legacy monitor).
+#                                                  guard_skip / info.
+#   - apply-{date}.json absent BUT apply-latest
+#     present (i.e. monitor IS on the apply
+#     pipeline, but no apply ran for that date)  → BLOCK with a critical
+#                                                  apply_date_missing incident.
+#                                                  Reusing apply-latest would
+#                                                  gate against a different
+#                                                  cycle — refuse rather than
+#                                                  guess. Operator fix: re-run
+#                                                  the applier for that date.
+#
+# Common to both:
+#   - publication missing / malformed    → permit, warning incident (don't
 #                                          regress monitors mid-rollout).
 #   - ready_to_publish is False          → BLOCK with critical incident.
-#   - ready_to_publish is True           → permitted.
+#   - ready_to_publish is True           → permit.
 #   - ready_to_publish absent but review
 #     verdict is hold/reject/blocking    → BLOCK (defensive — apply artefact
 #                                          shouldn't reach this state, but if
@@ -2178,20 +2204,47 @@ _BLOCKING_REVIEW_VERDICTS = frozenset({
 })
 
 
-def load_publication_eligibility(monitor_slug: str, repo_root: Path) -> dict:
+def load_publication_eligibility(
+    monitor_slug: str,
+    repo_root: Path,
+    publish_date: str | None = None,
+) -> dict:
     """Load upstream publication-eligibility signal for `monitor_slug`.
 
+    When `publish_date` (YYYY-MM-DD) is supplied the dated artefact
+    `applied/apply-{publish_date}.json` is preferred. If the dated artefact
+    is missing the loader does NOT silently fall back to apply-latest.json —
+    instead it reports `apply_present=False` with `dated_lookup_used=True`,
+    and signals via `latest_present` whether the monitor is otherwise on the
+    apply pipeline. The decision (block vs permit) is then taken by
+    `check_publication_eligibility` which has the policy.
+
+    When `publish_date` is None the loader behaves exactly as before:
+    reads apply-latest.json.
+
     Returns a dict with keys:
-      apply_path:        Path checked for the apply artefact.
-      apply_present:     bool — whether the artefact exists.
-      ready_to_publish:  bool | None — value from apply.publication, or None.
-      hold_reason:       str | None — value from apply.publication, or None.
-      review_verdict:    str | None — value from apply.inputs.review.verdict.
-      malformed:         bool — True if the artefact existed but did not parse
-                         into the expected shape.
-      error:             str | None — error message when malformed.
+      apply_path:         Path checked for the apply artefact (dated or latest).
+      apply_present:      bool — whether the chosen artefact exists.
+      ready_to_publish:   bool | None — value from apply.publication, or None.
+      hold_reason:        str | None — value from apply.publication, or None.
+      review_verdict:     str | None — value from apply.inputs.review.verdict.
+      malformed:          bool — True if the artefact existed but did not parse
+                          into the expected shape.
+      error:              str | None — error message when malformed.
+      dated_lookup_used:  bool — True iff publish_date was supplied (i.e. the
+                          date-keyed code path was taken). Lets the caller
+                          distinguish "no apply pipeline" (legacy monitor)
+                          from "no apply for this date" (backfill gap).
+      latest_present:     bool — True iff apply-latest.json exists. Only
+                          populated when dated_lookup_used is True; lets the
+                          caller decide block-vs-permit when the dated
+                          artefact is missing.
     """
-    apply_path = repo_root / f"pipeline/monitors/{monitor_slug}/applied/apply-latest.json"
+    applied_dir = repo_root / f"pipeline/monitors/{monitor_slug}/applied"
+    if publish_date:
+        apply_path = applied_dir / f"apply-{publish_date}.json"
+    else:
+        apply_path = applied_dir / "apply-latest.json"
     result = {
         "apply_path": apply_path,
         "apply_present": False,
@@ -2200,24 +2253,29 @@ def load_publication_eligibility(monitor_slug: str, repo_root: Path) -> dict:
         "review_verdict": None,
         "malformed": False,
         "error": None,
+        "dated_lookup_used": bool(publish_date),
+        "latest_present": False,
     }
+    if publish_date:
+        result["latest_present"] = (applied_dir / "apply-latest.json").exists()
     if not apply_path.exists():
         return result
     result["apply_present"] = True
+    artefact_label = apply_path.name
     try:
         applied = load_json(apply_path)
     except Exception as e:
         result["malformed"] = True
-        result["error"] = f"apply-latest.json could not be loaded: {e}"
+        result["error"] = f"{artefact_label} could not be loaded: {e}"
         return result
     if not isinstance(applied, dict):
         result["malformed"] = True
-        result["error"] = "apply-latest.json is not a JSON object"
+        result["error"] = f"{artefact_label} is not a JSON object"
         return result
     publication = applied.get("publication")
     if not isinstance(publication, dict):
         result["malformed"] = True
-        result["error"] = "apply-latest.json missing 'publication' object"
+        result["error"] = f"{artefact_label} missing 'publication' object"
         return result
     result["ready_to_publish"] = publication.get("ready_to_publish")
     result["hold_reason"] = publication.get("hold_reason")
@@ -2231,8 +2289,14 @@ def check_publication_eligibility(
     monitor_slug: str,
     repo_root: Path,
     log_incident_fn=None,
+    publish_date: str | None = None,
 ) -> tuple[bool, dict]:
     """Decide whether the upstream verdict allows the publisher to proceed.
+
+    `publish_date` (YYYY-MM-DD) selects the dated apply artefact when set —
+    so a backfill run gates against the verdict for that cycle, not the
+    latest one. When None, the live (today) path reads apply-latest.json
+    exactly as PR #186 did.
 
     Returns (should_block, eligibility) where `eligibility` is the dict from
     `load_publication_eligibility` plus a `decision` key
@@ -2242,16 +2306,41 @@ def check_publication_eligibility(
     log_incident_fn (when provided). Callers should print a user-facing line
     and exit non-zero. When should_block is False, callers may publish.
     """
-    eligibility = load_publication_eligibility(monitor_slug, repo_root)
+    eligibility = load_publication_eligibility(
+        monitor_slug, repo_root, publish_date=publish_date,
+    )
     log = log_incident_fn or (lambda **kw: None)
+    artefact_label = eligibility["apply_path"].name
 
     if not eligibility["apply_present"]:
+        # Two distinct sub-cases:
+        #   1. dated lookup, but apply-latest.json IS present → the monitor is
+        #      on the apply pipeline; the dated apply for this cycle is just
+        #      missing. Reusing apply-latest would gate against a different
+        #      cycle, so refuse rather than guess.
+        #   2. apply-latest.json also absent → legacy monitor not on the apply
+        #      pipeline. Permit (matches PR #186 behaviour for live runs).
+        if eligibility["dated_lookup_used"] and eligibility["latest_present"]:
+            eligibility["decision"] = "block"
+            log(
+                monitor=monitor_slug, stage="publisher",
+                incident_type="apply_date_missing", severity="critical",
+                detail=(
+                    f"publication-eligibility gate: {artefact_label} not found "
+                    f"for PUBLISH_DATE={publish_date!r}, but apply-latest.json "
+                    "exists — monitor is on the apply pipeline yet no apply "
+                    "artefact was produced for this cycle date. Refusing to "
+                    "fall back to apply-latest (different cycle). Re-run the "
+                    "applier for that date and retry."
+                ),
+            )
+            return True, eligibility
         eligibility["decision"] = "publish_no_apply"
         log(
             monitor=monitor_slug, stage="publisher",
             incident_type="guard_skip", severity="info",
             detail=(
-                "publication-eligibility gate: apply-latest.json absent — "
+                f"publication-eligibility gate: {artefact_label} absent — "
                 "monitor not yet on the apply pipeline; permitting publish."
             ),
         )
@@ -2263,7 +2352,7 @@ def check_publication_eligibility(
             monitor=monitor_slug, stage="publisher",
             incident_type="quality_failure", severity="warning",
             detail=(
-                "publication-eligibility gate: apply-latest.json malformed "
+                f"publication-eligibility gate: {artefact_label} malformed "
                 f"({eligibility['error']}); permitting publish to avoid "
                 "regression mid-rollout."
             ),
@@ -2279,7 +2368,7 @@ def check_publication_eligibility(
             monitor=monitor_slug, stage="publisher",
             incident_type="publisher_skip", severity="critical",
             detail=(
-                "publication-eligibility gate: upstream apply artefact reports "
+                f"publication-eligibility gate: {artefact_label} reports "
                 f"ready_to_publish=false (hold_reason="
                 f"{eligibility['hold_reason']!r}, review_verdict="
                 f"{review_verdict!r}); blocking publish."
@@ -2293,7 +2382,7 @@ def check_publication_eligibility(
             monitor=monitor_slug, stage="publisher",
             incident_type="publisher_skip", severity="critical",
             detail=(
-                "publication-eligibility gate: apply-latest.json has no "
+                f"publication-eligibility gate: {artefact_label} has no "
                 "ready_to_publish flag but review verdict "
                 f"{review_verdict!r} is blocking; refusing to publish."
             ),
@@ -2401,42 +2490,9 @@ def main():
         sys.exit(1)
     print("  ✓ synthesis is fresh and valid")
 
-    # Upstream publication-eligibility gate (apply/review verdict).
-    # Honours apply-latest.json publication.ready_to_publish so a held cycle
-    # does not silently publish (stage-contract break observed in run
-    # 25256774146 on AIM 2026-05-02). Monitors not yet on the apply pipeline
-    # are permitted, with an info-level guard_skip incident.
-    _block_publish, _eligibility = check_publication_eligibility(
-        MONITOR_SLUG, REPO_ROOT, log_incident_fn=log_incident,
-    )
-    if not _eligibility["apply_present"]:
-        print(
-            "  ℹ publication-eligibility gate: no apply-latest.json — "
-            "monitor not on apply pipeline, permitting publish"
-        )
-    elif _eligibility["malformed"]:
-        print(
-            "  ⚠ publication-eligibility gate: apply-latest.json malformed "
-            f"({_eligibility['error']}) — permitting publish"
-        )
-    elif _block_publish:
-        print(
-            "🚫 PUBLICATION GATE: upstream verdict blocks publish — refusing to write"
-        )
-        print(f"   ready_to_publish: {_eligibility['ready_to_publish']}")
-        print(f"   hold_reason:      {_eligibility['hold_reason']}")
-        print(f"   review_verdict:   {_eligibility['review_verdict']}")
-        print(
-            "   Fix: resolve the review hold/reject upstream and re-run "
-            "the apply stage; the publisher will pick up ready_to_publish=true."
-        )
-        sys.exit(1)
-    else:
-        print(
-            "  ✓ publication-eligibility gate: ready_to_publish=true "
-            f"(review_verdict={_eligibility['review_verdict']!r})"
-        )
-
+    # Resolve publish date BEFORE the eligibility gate, so backfill runs gate
+    # against the apply artefact for that cycle (apply-{date}.json) rather
+    # than apply-latest.json (a different, possibly newer cycle).
     _publish_date_override = os.environ.get("PUBLISH_DATE", "").strip()
     if _publish_date_override:
         try:
@@ -2448,6 +2504,67 @@ def main():
             sys.exit(1)
     else:
         publish_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Upstream publication-eligibility gate (apply/review verdict).
+    # Honours publication.ready_to_publish on the apply artefact for the
+    # cycle being published (apply-{publish_date}.json when PUBLISH_DATE is
+    # set, otherwise apply-latest.json) so a held cycle does not silently
+    # publish — including on backfill runs. Monitors not yet on the apply
+    # pipeline are permitted with an info-level guard_skip incident.
+    _gate_publish_date = _publish_date_override or None
+    _block_publish, _eligibility = check_publication_eligibility(
+        MONITOR_SLUG, REPO_ROOT,
+        log_incident_fn=log_incident,
+        publish_date=_gate_publish_date,
+    )
+    _artefact_label = _eligibility["apply_path"].name
+    if (not _eligibility["apply_present"]
+            and _eligibility["dated_lookup_used"]
+            and _eligibility["latest_present"]):
+        # Backfill gap: monitor IS on the apply pipeline but no apply ran
+        # for this cycle date. The gate refuses rather than silently using
+        # apply-latest.json (which represents a different cycle).
+        print(
+            f"🚫 PUBLICATION GATE: {_artefact_label} not found for "
+            f"PUBLISH_DATE={publish_date!r}, but apply-latest.json exists."
+        )
+        print(
+            "   Refusing to fall back to apply-latest.json (would gate "
+            "against a different cycle)."
+        )
+        print(
+            "   Fix: re-run the applier for this date, then retry the "
+            "publisher with the same PUBLISH_DATE."
+        )
+        sys.exit(1)
+    elif not _eligibility["apply_present"]:
+        print(
+            f"  ℹ publication-eligibility gate: no {_artefact_label} — "
+            "monitor not on apply pipeline, permitting publish"
+        )
+    elif _eligibility["malformed"]:
+        print(
+            f"  ⚠ publication-eligibility gate: {_artefact_label} malformed "
+            f"({_eligibility['error']}) — permitting publish"
+        )
+    elif _block_publish:
+        print(
+            "🚫 PUBLICATION GATE: upstream verdict blocks publish — refusing to write"
+        )
+        print(f"   apply artefact:   {_artefact_label}")
+        print(f"   ready_to_publish: {_eligibility['ready_to_publish']}")
+        print(f"   hold_reason:      {_eligibility['hold_reason']}")
+        print(f"   review_verdict:   {_eligibility['review_verdict']}")
+        print(
+            "   Fix: resolve the review hold/reject upstream and re-run "
+            "the apply stage; the publisher will pick up ready_to_publish=true."
+        )
+        sys.exit(1)
+    else:
+        print(
+            f"  ✓ publication-eligibility gate: {_artefact_label} reports "
+            f"ready_to_publish=true (review_verdict={_eligibility['review_verdict']!r})"
+        )
 
     # Build report
     print("\n[3/6] Assembling report...")
