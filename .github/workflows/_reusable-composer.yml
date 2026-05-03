@@ -1,0 +1,213 @@
+name: "_reusable-composer"
+# Reusable composer workflow — called by 8 per-monitor thin callers.
+# Sprint CD, AD-2026-05-03-CD.
+# DO NOT add workflow_dispatch or workflow_run triggers here.
+# DO NOT hardcode any monitor slug. All slug-specific values derive from `inputs.slug`.
+#
+# Reviewer verdict handling (per AD-2026-04-23i):
+#   APPROVE / APPROVE_WITH_FLAGS / SKIP_NULL_CYCLE → normal render.
+#   REJECT / SKIP_ERROR_CYCLE                     → skip (publisher fallback).
+#   Missing review-latest.json                    → proceed on interpreter disposition alone.
+#
+# Chain-depth reset: cron path is dispatcher → Reasoner [dispatch] →
+# Interpreter [wf_run-1] → Reviewer [wf_run-2] → Composer [wf_run-3 — LIMIT].
+# A wf_run trigger on Applier would silently never fire. Composer therefore
+# triggers Applier via `gh workflow run` (depth-0 dispatch) using the
+# per-caller `applier_workflow` input.
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        description: 'Monitor slug (e.g. ai-governance, financial-integrity)'
+        type: string
+        required: true
+      applier_workflow:
+        description: 'Applier workflow filename (e.g. agm-applier.yml). Used for chain-depth reset.'
+        type: string
+        required: true
+      # NOTE: no `default_model` input. Per-monitor composer routing is owned
+      # by pipeline/engine/model_routing.yml; the workflow layer must not shadow
+      # it with a per-caller default. `model` below is an OPERATOR override only.
+      model:
+        description: 'Operator model override (workflow_dispatch only). Empty = defer to metadata + central registry.'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      ASYM_INTEL_PIPELINE:
+        required: true
+      PPLX_API_KEY:
+        required: true
+      ANTHROPIC_API_KEY:
+        required: false
+
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          # workflow_run always starts from default branch HEAD; make that
+          # explicit so we see the interpret-latest.json + review-latest.json
+          # the upstream jobs just committed.
+          ref: main
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/policy
+            pipeline/monitors/${{ inputs.slug }}
+          sparse-checkout-cone-mode: false
+
+      - name: Derive slug-to-identity mapping
+        id: slug_map
+        run: |
+          case "${{ inputs.slug }}" in
+            ai-governance)               SLUG_ID="AGM" ;;
+            financial-integrity)         SLUG_ID="FIM" ;;
+            fimi-cognitive-warfare)      SLUG_ID="FCW" ;;
+            european-strategic-autonomy) SLUG_ID="ESA" ;;
+            democratic-integrity)        SLUG_ID="WDM" ;;
+            macro-monitor)               SLUG_ID="GMM" ;;
+            environmental-risks)         SLUG_ID="ERM" ;;
+            conflict-escalation)         SLUG_ID="SCEM" ;;
+            *) echo "Unknown slug: ${{ inputs.slug }}"; exit 1 ;;
+          esac
+          echo "slug_id=${SLUG_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch identity from internal repo
+        env:
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          SLUG_ID: ${{ steps.slug_map.outputs.slug_id }}
+        run: |
+          mkdir -p docs/identity
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-${SLUG_ID}.md" \
+            -o "docs/identity/${SLUG_ID,,}-identity.md" \
+            && echo "Identity card fetched ($(wc -c < "docs/identity/${SLUG_ID,,}-identity.md") bytes)" \
+            || echo "WARNING: Identity card not found — continuing without it"
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests pyyaml anthropic
+
+      - name: Stage bespoke config into expected paths
+        env:
+          SLUG: ${{ inputs.slug }}
+        run: |
+          mkdir -p "pipeline/monitors/${SLUG}"
+          cp -v "internal/pipeline/monitors/${SLUG}/metadata.yml"          "pipeline/monitors/${SLUG}/"
+          cp -v "internal/pipeline/monitors/${SLUG}/composer-prompt.txt"   "pipeline/monitors/${SLUG}/"
+          cp -v "internal/pipeline/monitors/${SLUG}/composer-schema.json"  "pipeline/monitors/${SLUG}/"
+
+      # Skip-on-disposition guard. Two layers (workflow + engine) keep the
+      # chain honest. This step surfaces the reason in the UI before
+      # spinning up the model call.
+      - name: Check interpreter disposition + reviewer verdict
+        id: disposition
+        env:
+          SLUG: ${{ inputs.slug }}
+        run: |
+          INTERPRET_PATH="pipeline/monitors/${SLUG}/synthesised/interpret-latest.json"
+          REVIEW_PATH="pipeline/monitors/${SLUG}/synthesised/review-latest.json"
+
+          if [ ! -f "$INTERPRET_PATH" ]; then
+            echo "skip=true"       >> "$GITHUB_OUTPUT"
+            echo "reason=missing-interpret-latest" >> "$GITHUB_OUTPUT"
+            echo "No interpret-latest.json found — skipping Composer (will fall back to legacy synthesis read in Publisher)."
+            exit 0
+          fi
+          DISPOSITION=$(python -c "import json; d=json.load(open('$INTERPRET_PATH')); print((d.get('_meta') or {}).get('cycle_disposition',''))")
+          echo "disposition=$DISPOSITION"
+          if [ "$DISPOSITION" = "error_cycle" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=error_cycle" >> "$GITHUB_OUTPUT"
+            echo "Interpreter reported error_cycle — skipping Composer."
+            exit 0
+          fi
+
+          if [ -f "$REVIEW_PATH" ]; then
+            VERDICT=$(python -c "import json; d=json.load(open('$REVIEW_PATH')); print(d.get('verdict',''))")
+            echo "verdict=$VERDICT"
+            if [ "$VERDICT" = "REJECT" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "reason=reviewer_reject" >> "$GITHUB_OUTPUT"
+              echo "Reviewer verdict=REJECT — skipping Composer."
+              exit 0
+            fi
+            if [ "$VERDICT" = "SKIP_ERROR_CYCLE" ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "reason=reviewer_skip_error_cycle" >> "$GITHUB_OUTPUT"
+              echo "Reviewer verdict=SKIP_ERROR_CYCLE — skipping Composer."
+              exit 0
+            fi
+          else
+            echo "verdict=(no review-latest.json; proceeding on Interpreter disposition alone)"
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "reason=ok"  >> "$GITHUB_OUTPUT"
+
+      - name: Run composer (engine dispatch)
+        # SYNTH_MODEL is set ONLY when the operator passes an explicit `model`
+        # via workflow_dispatch. Empty `inputs.model` => SYNTH_MODEL unset =>
+        # compose_base.py resolves model via metadata + pipeline/engine/
+        # model_routing.yml (central registry). DO NOT reintroduce a per-caller
+        # default here.
+        if: steps.disposition.outputs.skip != 'true'
+        env:
+          PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN:          ${{ secrets.ASYM_INTEL_PIPELINE }}
+          REPO_ROOT:         ${{ github.workspace }}
+          SYNTH_MODEL:       ${{ inputs.model }}
+          PYTHONPATH:        internal
+        run: python -m pipeline.engine.compose_base --monitor ${{ inputs.slug }}
+
+      - name: Commit compose output
+        if: steps.disposition.outputs.skip != 'true'
+        env:
+          SLUG: ${{ inputs.slug }}
+          SLUG_ID: ${{ steps.slug_map.outputs.slug_id }}
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add "pipeline/monitors/${SLUG}/synthesised/"
+          git diff --cached --quiet || git commit -m "chore(${SLUG_ID,,}): composer run $(date -u +%Y-%m-%d)"
+          # Retry loop guards against concurrent bot pushes losing this stage's
+          # output: a successful rebase can still be followed by a push race.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
+
+      # Trigger Applier via direct API dispatch (NOT workflow_run).
+      # GitHub limits workflow_run-triggered chains to 3 levels deep. Calling
+      # `gh workflow run` here resets the chain depth so Applier runs as a
+      # fresh dispatch (depth 0), enabling Applier→Curator [wf_run-1] to
+      # complete. Each caller passes its own `applier_workflow` filename.
+      - name: Trigger Applier (chain-depth reset)
+        if: steps.disposition.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
+        run: |
+          gh workflow run "${{ inputs.applier_workflow }}" \
+            --repo ${{ github.repository }} \
+            --ref main

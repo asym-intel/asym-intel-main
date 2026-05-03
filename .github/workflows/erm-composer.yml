@@ -1,14 +1,5 @@
 name: "Environmental Risks Monitor Composer"
-
-# ── Sprint AN — ERM Composer role ── AD-2026-04-26-AN
-# workflow_run trigger on ERM Reviewer added (Sprint AN, step-an-erm).
-# Mirrors AGM composer topology: workflow_run fires on Reviewer success;
-# workflow_dispatch always passes the job guard.
-# Reads interpret-latest.json + review-latest.json and composes a
-# grounded weekly brief draft (no new claims; claim_trace[] tied to
-# interpreter claim IDs).
-# No ANTHROPIC_API_KEY — stays on Sonar per D1 §7.1.
-
+# Sprint CD — thin caller. Reusable body: _reusable-composer.yml
 on:
   workflow_dispatch:
     inputs:
@@ -18,153 +9,13 @@ on:
         default: ''
   workflow_run:
     workflows: ["Environmental Risks Monitor Reviewer"]
-    types:
-      - completed
-
+    types: [completed]
 jobs:
-  compose:
-    # Gate: only run if the upstream reviewer workflow actually succeeded
-    # (workflow_dispatch runs always pass this guard).
+  call:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    env:
-      monitor: environmental-risks
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          ref: main
-
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/environmental-risks
-          sparse-checkout-cone-mode: false
-
-      - name: Fetch ERM identity from internal repo
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          mkdir -p docs/identity
-
-          # Identity card (analytical quality standard — shared across roles)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-ERM.md" \
-            -o docs/identity/erm-identity.md \
-            && echo "Identity card fetched ($(wc -c < docs/identity/erm-identity.md) bytes)" \
-            || echo "WARNING: Identity card not found — continuing without it"
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install requests pyyaml
-
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/environmental-risks
-          cp -v internal/pipeline/monitors/environmental-risks/metadata.yml          pipeline/monitors/environmental-risks/
-          cp -v internal/pipeline/monitors/environmental-risks/composer-prompt.txt   pipeline/monitors/environmental-risks/
-          cp -v internal/pipeline/monitors/environmental-risks/composer-schema.json  pipeline/monitors/environmental-risks/
-
-      # Skip-on-disposition guard: mirrors AGM composer pattern.
-      # Interpreter disposition:
-      #   error_cycle            → skip (publisher fallback).
-      # Reviewer verdict:
-      #   REJECT                 → skip (publisher fallback).
-      #   SKIP_ERROR_CYCLE       → skip (publisher fallback).
-      #   APPROVE / APPROVE_WITH_FLAGS / SKIP_NULL_CYCLE → proceed.
-      # Missing review-latest.json → proceed (pre-reviewer behaviour).
-      - name: Check interpreter disposition + reviewer verdict
-        id: disposition
-        run: |
-          INTERPRET_PATH="pipeline/monitors/environmental-risks/synthesised/interpret-latest.json"
-          REVIEW_PATH="pipeline/monitors/environmental-risks/synthesised/review-latest.json"
-
-          if [ ! -f "$INTERPRET_PATH" ]; then
-            echo "skip=true"       >> "$GITHUB_OUTPUT"
-            echo "reason=missing-interpret-latest" >> "$GITHUB_OUTPUT"
-            echo "No interpret-latest.json found — skipping Composer."
-            exit 0
-          fi
-          DISPOSITION=$(python -c "import json; d=json.load(open('$INTERPRET_PATH')); print((d.get('_meta') or {}).get('cycle_disposition',''))")
-          echo "disposition=$DISPOSITION"
-          if [ "$DISPOSITION" = "error_cycle" ]; then
-            echo "skip=true"   >> "$GITHUB_OUTPUT"
-            echo "reason=error_cycle" >> "$GITHUB_OUTPUT"
-            echo "Interpreter reported error_cycle — skipping Composer."
-            exit 0
-          fi
-
-          if [ -f "$REVIEW_PATH" ]; then
-            VERDICT=$(python -c "import json; d=json.load(open('$REVIEW_PATH')); print(d.get('verdict',''))")
-            echo "verdict=$VERDICT"
-            if [ "$VERDICT" = "REJECT" ]; then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "reason=reviewer_reject" >> "$GITHUB_OUTPUT"
-              echo "Reviewer verdict=REJECT — skipping Composer."
-              exit 0
-            fi
-            if [ "$VERDICT" = "SKIP_ERROR_CYCLE" ]; then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "reason=reviewer_skip_error_cycle" >> "$GITHUB_OUTPUT"
-              echo "Reviewer verdict=SKIP_ERROR_CYCLE — skipping Composer."
-              exit 0
-            fi
-          else
-            echo "verdict=(no review-latest.json; proceeding on Interpreter disposition alone)"
-          fi
-
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "reason=ok"  >> "$GITHUB_OUTPUT"
-
-      - name: Run ERM composer (engine dispatch)
-        if: steps.disposition.outputs.skip != 'true'
-        env:
-          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:     ${{ secrets.ASYM_INTEL_PIPELINE }}
-          REPO_ROOT:    ${{ github.workspace }}
-          SYNTH_MODEL:  ${{ github.event.inputs.model }}
-          PYTHONPATH:   internal
-        run: python -m pipeline.engine.compose_base --monitor environmental-risks
-
-      - name: Commit compose output
-        if: steps.disposition.outputs.skip != 'true'
-        run: |
-          git config user.name  "monitor-bot"
-          git config user.email "monitor-bot@asym-intel.info"
-          git add pipeline/monitors/environmental-risks/synthesised/
-          git diff --cached --quiet || git commit -m "chore(erm): composer run $(date -u +%Y-%m-%d)"
-          # Retry loop guards against concurrent bot pushes losing this stage's
-          # output: a successful rebase can still be followed by a push race.
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
-
-      # Trigger Applier via direct API dispatch (chain-depth reset).
-      # Mirrors AGM: composer triggers applier via gh workflow run to reset
-      # GitHub's 3-level workflow_run nesting limit (verified 2026-04-26).
-      - name: Trigger Applier (chain-depth reset)
-        if: steps.disposition.outputs.skip != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          gh workflow run erm-applier.yml \
-            --repo ${{ github.repository }} \
-            --ref main
+    uses: ./.github/workflows/_reusable-composer.yml
+    with:
+      slug: environmental-risks
+      applier_workflow: erm-applier.yml
+      model: ${{ inputs.model || '' }}
+    secrets: inherit

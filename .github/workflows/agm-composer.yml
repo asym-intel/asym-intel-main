@@ -1,19 +1,5 @@
 name: "AI Governance Monitor Composer"
-
-# ── Sprint 3 Step 1 — Composer role ──
-# Chained after Reviewer success (Sprint 3 Step 2b, AD-2026-04-23i).
-# Reads interpret-latest.json + review-latest.json and composes a
-# grounded weekly brief draft (no new claims; claim_trace[] tied to
-# interpreter claim IDs).
-#
-# Reviewer verdict handling:
-#   APPROVE / APPROVE_WITH_FLAGS / SKIP_NULL_CYCLE → normal render.
-#   REJECT / SKIP_ERROR_CYCLE                     → skip (publisher fallback).
-#
-# §5 acceptance gate: on first post-unpause AGM cycle, claim #47 (NVIDIA
-# $3.2T) must fail interpreter structured-claim extraction, so Composer
-# must not fabricate it into the brief either.
-
+# Sprint CD — thin caller. Reusable body: _reusable-composer.yml
 on:
   workflow_dispatch:
     inputs:
@@ -22,167 +8,14 @@ on:
         required: false
         default: ''
   workflow_run:
-    # Sprint 3 Step 2b: chain now points at Reviewer, not Interpreter.
-    # Reviewer is itself chained on Interpreter success, so the
-    # Interpreter → Reviewer → Composer sequence is preserved.
     workflows: ["AI Governance Monitor Reviewer"]
-    types:
-      - completed
-
+    types: [completed]
 jobs:
-  compose:
-    # Gate: only run if the upstream interpreter workflow actually succeeded
-    # (workflow_dispatch runs always pass this guard).
+  call:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          # workflow_run always starts from default branch HEAD; make that
-          # explicit so we see the interpret-latest.json the upstream job
-          # just committed.
-          ref: main
-
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/ai-governance
-          sparse-checkout-cone-mode: false
-
-      - name: Fetch AGM identity from internal repo
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          mkdir -p docs/identity
-
-          # Identity card (analytical quality standard — shared across roles)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-AGM.md" \
-            -o docs/identity/agm-identity.md \
-            && echo "Identity card fetched ($(wc -c < docs/identity/agm-identity.md) bytes)" \
-            || echo "WARNING: Identity card not found — continuing without it"
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install requests pyyaml anthropic
-
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/ai-governance
-          cp -v internal/pipeline/monitors/ai-governance/metadata.yml          pipeline/monitors/ai-governance/
-          cp -v internal/pipeline/monitors/ai-governance/composer-prompt.txt   pipeline/monitors/ai-governance/
-          cp -v internal/pipeline/monitors/ai-governance/composer-schema.json  pipeline/monitors/ai-governance/
-
-      # Skip-on-disposition guard. Two layers (workflow + engine) keep the
-      # chain honest. This step surfaces the reason in the UI before
-      # spinning up the model call.
-      #
-      # Interpreter disposition (pre-reviewer pattern — retained):
-      #   error_cycle            → skip (publisher fallback).
-      # Reviewer verdict (Sprint 3 Step 2b — additive):
-      #   REJECT                 → skip (publisher fallback).
-      #   SKIP_ERROR_CYCLE       → skip (publisher fallback).
-      #   APPROVE / APPROVE_WITH_FLAGS / SKIP_NULL_CYCLE → proceed.
-      # Missing review-latest.json → proceed (pre-reviewer behaviour).
-      - name: Check interpreter disposition + reviewer verdict
-        id: disposition
-        run: |
-          INTERPRET_PATH="pipeline/monitors/ai-governance/synthesised/interpret-latest.json"
-          REVIEW_PATH="pipeline/monitors/ai-governance/synthesised/review-latest.json"
-
-          if [ ! -f "$INTERPRET_PATH" ]; then
-            echo "skip=true"       >> "$GITHUB_OUTPUT"
-            echo "reason=missing-interpret-latest" >> "$GITHUB_OUTPUT"
-            echo "No interpret-latest.json found — skipping Composer (will fall back to legacy synthesis read in Publisher)."
-            exit 0
-          fi
-          DISPOSITION=$(python -c "import json; d=json.load(open('$INTERPRET_PATH')); print((d.get('_meta') or {}).get('cycle_disposition',''))")
-          echo "disposition=$DISPOSITION"
-          if [ "$DISPOSITION" = "error_cycle" ]; then
-            echo "skip=true"   >> "$GITHUB_OUTPUT"
-            echo "reason=error_cycle" >> "$GITHUB_OUTPUT"
-            echo "Interpreter reported error_cycle — skipping Composer."
-            exit 0
-          fi
-
-          if [ -f "$REVIEW_PATH" ]; then
-            VERDICT=$(python -c "import json; d=json.load(open('$REVIEW_PATH')); print(d.get('verdict',''))")
-            echo "verdict=$VERDICT"
-            if [ "$VERDICT" = "REJECT" ]; then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "reason=reviewer_reject" >> "$GITHUB_OUTPUT"
-              echo "Reviewer verdict=REJECT — skipping Composer."
-              exit 0
-            fi
-            if [ "$VERDICT" = "SKIP_ERROR_CYCLE" ]; then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "reason=reviewer_skip_error_cycle" >> "$GITHUB_OUTPUT"
-              echo "Reviewer verdict=SKIP_ERROR_CYCLE — skipping Composer."
-              exit 0
-            fi
-          else
-            echo "verdict=(no review-latest.json; proceeding on Interpreter disposition alone)"
-          fi
-
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "reason=ok"  >> "$GITHUB_OUTPUT"
-
-      - name: Run AGM composer (engine dispatch)
-        if: steps.disposition.outputs.skip != 'true'
-        env:
-          PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN:          ${{ secrets.ASYM_INTEL_PIPELINE }}
-          REPO_ROOT:         ${{ github.workspace }}
-          SYNTH_MODEL:       ${{ github.event.inputs.model }}
-          PYTHONPATH:        internal
-        run: python -m pipeline.engine.compose_base --monitor ai-governance
-
-      - name: Commit compose output
-        if: steps.disposition.outputs.skip != 'true'
-        run: |
-          git config user.name  "monitor-bot"
-          git config user.email "monitor-bot@asym-intel.info"
-          git add pipeline/monitors/ai-governance/synthesised/
-          git diff --cached --quiet || git commit -m "chore(agm): composer run $(date -u +%Y-%m-%d)"
-          # Retry loop guards against concurrent bot pushes losing this stage's
-          # output: a successful rebase can still be followed by a push race.
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
-
-      # Trigger Applier via direct API dispatch (NOT workflow_run).
-      # GitHub limits workflow_run-triggered chains to 3 levels deep. The cron
-      # path is: dispatcher→Reasoner [dispatch] → Interpreter [wf_run-1] →
-      # Reviewer [wf_run-2] → Composer [wf_run-3 — LIMIT]. A wf_run trigger on
-      # Applier would silently never fire (verified 2026-04-26 manual cascade).
-      # Calling `gh workflow run` here resets the chain depth so Applier runs
-      # as a fresh dispatch (depth 0), enabling Applier→Curator [wf_run-1] to
-      # complete. Applier's `workflow_run` trigger has been removed in tandem;
-      # this step is the sole automatic path from Composer to Applier.
-      - name: Trigger Applier (chain-depth reset)
-        if: steps.disposition.outputs.skip != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          gh workflow run agm-applier.yml \
-            --repo ${{ github.repository }} \
-            --ref main
+    uses: ./.github/workflows/_reusable-composer.yml
+    with:
+      slug: ai-governance
+      applier_workflow: agm-applier.yml
+      model: ${{ inputs.model || '' }}
+    secrets: inherit

@@ -1,15 +1,5 @@
 name: "Global Macro Monitor Composer"
-
-# ── Sprint AN (AD-2026-04-26-AN) — GMM Composer role ──
-# Cascade-trio wire for Global Macro Monitor (GMM). Mirrors AGM topology.
-# Sprint AN: added workflow_run trigger on GMM Reviewer so cron-dispatched
-# runs cascade end-to-end (Reasoner → Interpreter → Reviewer → Composer).
-# Sonar-only per D1 §7.1 (no Anthropic env var injection).
-#
-# Reviewer verdict handling:
-#   APPROVE / APPROVE_WITH_FLAGS / SKIP_NULL_CYCLE → normal render.
-#   REJECT / SKIP_ERROR_CYCLE                     → skip (publisher fallback).
-
+# Sprint CD — thin caller. Reusable body: _reusable-composer.yml
 on:
   workflow_dispatch:
     inputs:
@@ -19,127 +9,13 @@ on:
         default: ''
   workflow_run:
     workflows: ["Global Macro Monitor Reviewer"]
-    types:
-      - completed
-
+    types: [completed]
 jobs:
-  compose:
+  call:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          ref: main
-
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/macro-monitor
-          sparse-checkout-cone-mode: false
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install requests pyyaml
-
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/macro-monitor
-          cp -v internal/pipeline/monitors/macro-monitor/metadata.yml          pipeline/monitors/macro-monitor/
-          cp -v internal/pipeline/monitors/macro-monitor/composer-prompt.txt   pipeline/monitors/macro-monitor/
-          cp -v internal/pipeline/monitors/macro-monitor/composer-schema.json  pipeline/monitors/macro-monitor/
-
-      - name: Check interpreter disposition + reviewer verdict
-        id: disposition
-        run: |
-          INTERPRET_PATH="pipeline/monitors/macro-monitor/synthesised/interpret-latest.json"
-          REVIEW_PATH="pipeline/monitors/macro-monitor/synthesised/review-latest.json"
-
-          if [ ! -f "$INTERPRET_PATH" ]; then
-            echo "skip=true"       >> "$GITHUB_OUTPUT"
-            echo "reason=missing-interpret-latest" >> "$GITHUB_OUTPUT"
-            echo "No interpret-latest.json found — skipping Composer."
-            exit 0
-          fi
-          DISPOSITION=$(python -c "import json; d=json.load(open('$INTERPRET_PATH')); print((d.get('_meta') or {}).get('cycle_disposition',''))")
-          echo "disposition=$DISPOSITION"
-          if [ "$DISPOSITION" = "error_cycle" ]; then
-            echo "skip=true"   >> "$GITHUB_OUTPUT"
-            echo "reason=error_cycle" >> "$GITHUB_OUTPUT"
-            echo "Interpreter reported error_cycle — skipping Composer."
-            exit 0
-          fi
-
-          if [ -f "$REVIEW_PATH" ]; then
-            VERDICT=$(python -c "import json; d=json.load(open('$REVIEW_PATH')); print(d.get('verdict',''))")
-            echo "verdict=$VERDICT"
-            if [ "$VERDICT" = "REJECT" ]; then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "reason=reviewer_reject" >> "$GITHUB_OUTPUT"
-              echo "Reviewer verdict=REJECT — skipping Composer."
-              exit 0
-            fi
-            if [ "$VERDICT" = "SKIP_ERROR_CYCLE" ]; then
-              echo "skip=true" >> "$GITHUB_OUTPUT"
-              echo "reason=reviewer_skip_error_cycle" >> "$GITHUB_OUTPUT"
-              echo "Reviewer verdict=SKIP_ERROR_CYCLE — skipping Composer."
-              exit 0
-            fi
-          else
-            echo "verdict=(no review-latest.json; proceeding on Interpreter disposition alone)"
-          fi
-
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "reason=ok"  >> "$GITHUB_OUTPUT"
-
-      - name: Run GMM composer (engine dispatch)
-        if: steps.disposition.outputs.skip != 'true'
-        env:
-          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:     ${{ secrets.ASYM_INTEL_PIPELINE }}
-          REPO_ROOT:    ${{ github.workspace }}
-          monitor:      macro-monitor
-          SYNTH_MODEL:  ${{ github.event.inputs.model }}
-          PYTHONPATH:   internal
-        run: python -m pipeline.engine.compose_base --monitor macro-monitor
-
-      - name: Commit compose output
-        if: steps.disposition.outputs.skip != 'true'
-        run: |
-          git config user.name  "monitor-bot"
-          git config user.email "monitor-bot@asym-intel.info"
-          git add pipeline/monitors/macro-monitor/synthesised/
-          git diff --cached --quiet || git commit -m "chore(gmm): composer run $(date -u +%Y-%m-%d)"
-          # Retry loop guards against concurrent bot pushes losing this stage's
-          # output: a successful rebase can still be followed by a push race.
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
-
-      # Trigger Applier via direct API dispatch (chain-depth reset).
-      # Mirrors AGM composer chain-depth reset pattern (verified 2026-04-26).
-      # workflow_run on Applier would be a 4th-level hop and silently never fires.
-      - name: Trigger Applier (chain-depth reset)
-        if: steps.disposition.outputs.skip != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          gh workflow run gmm-applier.yml \
-            --repo ${{ github.repository }} \
-            --ref main
+    uses: ./.github/workflows/_reusable-composer.yml
+    with:
+      slug: macro-monitor
+      applier_workflow: gmm-applier.yml
+      model: ${{ inputs.model || '' }}
+    secrets: inherit
