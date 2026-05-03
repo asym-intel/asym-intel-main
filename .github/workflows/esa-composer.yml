@@ -144,8 +144,14 @@ jobs:
           git config user.email "monitor-bot@asym-intel.info"
           git add pipeline/monitors/european-strategic-autonomy/synthesised/
           git diff --cached --quiet || git commit -m "chore(esa): composer run $(date -u +%Y-%m-%d)"
-          git pull --rebase --autostash origin main
-          git push
+          # Retry loop guards against concurrent bot pushes losing this stage's
+          # output: a successful rebase can still be followed by a push race.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            git push && break
+            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
 
       # Trigger Applier via direct API dispatch (NOT workflow_run).
       # GitHub limits workflow_run-triggered chains to 3 levels deep.
