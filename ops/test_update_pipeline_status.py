@@ -818,6 +818,140 @@ def test_resolve_does_not_close_if_comment_fails():
     assert any("comments" in p for p in calls[0])
 
 
+# ─── CE-2 — declared-but-missing required-field provenance ───────────────
+
+
+def _ce2_make_repo_root(tmp_path, slug, schema_required, interpret_top_level):
+    """Build a synthetic repo skeleton at tmp_path for compute_absent_required_fields."""
+    import json as _json
+    from pathlib import Path as _P
+    base = _P(tmp_path) / "pipeline" / "monitors" / slug
+    (base / "synthesised").mkdir(parents=True, exist_ok=True)
+    schema = {"type": "object", "required": schema_required}
+    (base / "interpreter-schema.json").write_text(_json.dumps(schema))
+    (base / "synthesised" / "interpret-latest.json").write_text(
+        _json.dumps(interpret_top_level)
+    )
+    return str(_P(tmp_path))
+
+
+def test_ce2_filter_excludes_meta_lead_and_module_n():
+    f = _module._ce2_filter_required(
+        ["_meta", "lead_signal", "module_0", "module_5", "module_15",
+         "gpai_compliance", "ongoing_lab_postures", "structured_claims"]
+    )
+    assert f == ["gpai_compliance", "ongoing_lab_postures", "structured_claims"], f
+
+
+def test_ce2_filter_handles_non_list_input():
+    assert _module._ce2_filter_required(None) == []
+    assert _module._ce2_filter_required({}) == []
+
+
+def test_ce2_compute_returns_sorted_absent_fields():
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        root = _ce2_make_repo_root(
+            td, "test-monitor",
+            schema_required=[
+                "_meta", "lead_signal", "module_0", "module_1",
+                "delta_strip", "key_judgments", "ongoing_lab_postures",
+                "structured_claims",
+            ],
+            interpret_top_level={
+                "_meta": {}, "lead_signal": {}, "module_0": {}, "module_1": {},
+                "structured_claims": [],
+                # delta_strip, key_judgments, ongoing_lab_postures absent
+            },
+        )
+        absent = _module.compute_absent_required_fields(
+            "test-monitor", repo_root=root,
+        )
+        assert absent == [
+            "delta_strip", "key_judgments", "ongoing_lab_postures",
+        ], absent
+
+
+def test_ce2_compute_returns_empty_when_all_present():
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        root = _ce2_make_repo_root(
+            td, "happy-monitor",
+            schema_required=["_meta", "module_0", "key_judgments"],
+            interpret_top_level={
+                "_meta": {}, "module_0": {}, "key_judgments": [],
+            },
+        )
+        absent = _module.compute_absent_required_fields(
+            "happy-monitor", repo_root=root,
+        )
+        assert absent == [], absent
+
+
+def test_ce2_compute_ignores_module_n_even_if_absent_in_artefact():
+    """CE-2 surfaces *new* declared fields, not module presence —
+    the existing pipeline_flow_audit / _flow_quality.absent_unknown logic
+    owns module-level state."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        root = _ce2_make_repo_root(
+            td, "module-monitor",
+            schema_required=["_meta", "module_0", "module_1", "module_2",
+                             "key_judgments"],
+            interpret_top_level={
+                "_meta": {},
+                # module_0/1/2 missing — must NOT appear in absent_required_fields
+                "key_judgments": [],
+            },
+        )
+        absent = _module.compute_absent_required_fields(
+            "module-monitor", repo_root=root,
+        )
+        assert absent == [], absent
+
+
+def test_ce2_compute_returns_empty_when_schema_missing():
+    """Missing schema file must not raise — observability-only."""
+    import tempfile
+    from pathlib import Path as _P
+    with tempfile.TemporaryDirectory() as td:
+        (_P(td) / "pipeline" / "monitors" / "no-schema").mkdir(parents=True)
+        absent = _module.compute_absent_required_fields(
+            "no-schema", repo_root=str(td),
+        )
+        assert absent == []
+
+
+def test_ce2_compute_returns_empty_when_interpret_missing():
+    """Missing interpret-latest must not synthesise everything-absent."""
+    import tempfile, json as _json
+    from pathlib import Path as _P
+    with tempfile.TemporaryDirectory() as td:
+        base = _P(td) / "pipeline" / "monitors" / "no-interpret"
+        base.mkdir(parents=True, exist_ok=True)
+        (base / "interpreter-schema.json").write_text(
+            _json.dumps({"required": ["delta_strip", "key_judgments"]})
+        )
+        absent = _module.compute_absent_required_fields(
+            "no-interpret", repo_root=str(td),
+        )
+        assert absent == []
+
+
+def test_ce2_compute_returns_empty_when_schema_unparseable():
+    """Malformed schema JSON must return [] (not crash the producer)."""
+    import tempfile
+    from pathlib import Path as _P
+    with tempfile.TemporaryDirectory() as td:
+        base = _P(td) / "pipeline" / "monitors" / "broken-schema"
+        base.mkdir(parents=True, exist_ok=True)
+        (base / "interpreter-schema.json").write_text("not-valid-json{")
+        absent = _module.compute_absent_required_fields(
+            "broken-schema", repo_root=str(td),
+        )
+        assert absent == []
+
+
 # ─── Test runner (no pytest required) ──────────────────────────────────────
 
 def main():

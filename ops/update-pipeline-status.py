@@ -353,6 +353,80 @@ def _read_cascade_file(monitor_slug, subdir, filename, repo_root=None):
         return None
 
 
+# ── CE-2 — declared-but-missing required-field detection ─────────────────
+# AD-2026-05-03-CE Fix 2. Surfaces fields present in a monitor's
+# interpreter-schema.json `required[]` but absent from the monitor's
+# interpret-latest.json artefact. Output is consumed by the ops dashboard
+# (not the reviewer / applier — observability-only addition).
+#
+# Excludes _meta, lead_signal, and module_N from the comparison: those
+# are tracked separately by the existing `absent_unknown` module-state
+# logic in pipeline_flow_audit.py / _flow_quality. CE-2 only surfaces
+# *new* declared top-level fields (e.g. ongoing_lab_postures,
+# gpai_compliance) that the LLM omits without provenance.
+import re as _ce2_re
+
+_CE2_MODULE_PATTERN = _ce2_re.compile(r"^module_\d+$")
+_CE2_EXCLUDED_REQUIRED = {"_meta", "lead_signal"}
+
+
+def _ce2_filter_required(required):
+    """Return the subset of required[] entries that CE-2 tracks."""
+    if not isinstance(required, list):
+        return []
+    return [
+        f for f in required
+        if isinstance(f, str)
+        and f not in _CE2_EXCLUDED_REQUIRED
+        and not _CE2_MODULE_PATTERN.match(f)
+    ]
+
+
+def compute_absent_required_fields(monitor_slug, repo_root=None):
+    """Detect required[] fields absent from the live interpret-latest.json.
+
+    Returns a sorted list of field names in the monitor's interpreter-schema
+    `required[]` (after the CE-2 filter) that are NOT keys at the top level
+    of `interpret-latest.json`. Returns [] on any I/O / parse error so that
+    a missing schema or artefact does not block the rest of the producer.
+
+    Args:
+        monitor_slug:  Canonical slug under pipeline/monitors/<slug>/.
+        repo_root:     Override for tests; defaults to cwd.
+    """
+    import os
+    root = repo_root if repo_root is not None else os.getcwd()
+    schema_path = os.path.join(
+        root, "pipeline", "monitors", monitor_slug, "interpreter-schema.json"
+    )
+    if not os.path.exists(schema_path):
+        return []
+    try:
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    required = _ce2_filter_required(schema.get("required") or [])
+    if not required:
+        return []
+
+    interpret = _read_cascade_file(
+        monitor_slug, "synthesised", "interpret-latest.json", repo_root=root,
+    )
+    if interpret is None:
+        # No interpret-latest yet (e.g. monitor not yet run on Phase B). Per
+        # BRIEF: observability-only — return [] rather than synthesising a
+        # full-required-list "everything missing" signal that would falsely
+        # trip downstream consumers before the first real cycle.
+        return []
+    if not isinstance(interpret, dict):
+        return []
+
+    present = set(interpret.keys())
+    return sorted(f for f in required if f not in present)
+
+
 def build_phase_b_station_status(monitor_slug, stage, repo_root=None,
                                   discovery_misses=None):
     """Build station status for a Phase B stage from its cascade-output file.
@@ -1206,6 +1280,19 @@ def generate_status():
             "cron_time": meta["cron_time"],
             "stations": stations,
         }
+
+        # ── CE-2 — declared-but-missing required-field provenance ────────
+        # Compare the monitor's interpreter-schema.json required[] against
+        # the keys present in its interpret-latest.json. Fields absent are
+        # surfaced as `absent_required_fields` (list[str]) and a derived
+        # `has_absent_required_fields` boolean is set on the monitor's
+        # block. Cross-repo monitors (e.g. ADVENNT) are skipped — their
+        # schema/artefact pair is in another checkout the producer cannot
+        # reach via filesystem. Observability-only; never raises.
+        if not monitor_repo:
+            absent_required = compute_absent_required_fields(monitor_slug)
+            status[abbr]["absent_required_fields"] = absent_required
+            status[abbr]["has_absent_required_fields"] = bool(absent_required)
 
     # Sprint BU BU.4: cross-repo failure detection.
     # For cross-repo monitors (e.g. ADVENNT), the pipeline-failure-alert.yml
