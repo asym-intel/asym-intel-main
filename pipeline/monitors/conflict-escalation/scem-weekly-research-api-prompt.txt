@@ -56,6 +56,14 @@ with no schema constraint beyond the fields shown. Minimum 1 entry, no maximum.
 This is not a catch-all for things that didn't fit above — it is a deliberate
 breadth pass to surface novel signals the structured schema may not have anticipated.
 
+REVERSE-CASCADE CHECK (REQUIRED): Populate reverse_cascade_check at the top level of the output.
+- checked: true if any geopolitical event in the current reporting window is assessed as capable of reversing a conflict escalation trajectory; false otherwise.
+- accelerates_boundary: true if the event materially accelerates a de-escalation or re-escalation boundary shift.
+- affected_boundary: the named boundary or treaty framework affected (null if none).
+- cascade_description: a 1-2 sentence description of the cascade mechanism (null if checked is false).
+- geopolitical_event: short identifier of the event (null if checked is false).
+- note: mandatory analyst summary note (1 sentence minimum). When no qualifying event is identified this cycle, set checked: false and note: "No reverse-cascade event identified this cycle."
+
 OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Begin your response with { and end with }.
 
 {
@@ -146,9 +154,18 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
       "source_name": "<publication or institution>",
       "source_tier": "<1|2|3>"
     }
-  ]
+  ],
+  "reverse_cascade_check": {
+    "checked": "<true|false — true if any geopolitical event this cycle can reverse a conflict escalation trajectory>",
+    "geopolitical_event": "<short event identifier, or null if checked is false>",
+    "accelerates_boundary": "<true|false — true if event materially accelerates a de-escalation or re-escalation boundary shift>",
+    "affected_boundary": "<named boundary or treaty framework affected, or null>",
+    "cascade_description": "<1-2 sentences describing the cascade mechanism, or null if checked is false>",
+    "note": "<mandatory 1-sentence-minimum analyst summary; if no qualifying event this cycle, set: 'No reverse-cascade event identified this cycle.'>"
+  }
 }
 
 # Version: v1.0 (preamble-fix) | Updated: 2026-04-08 | Change: Removed structured preamble header that triggered sonar safety filter
 # Version: v1.1 | Updated: 2026-04-26 | Change: Added evidence_id + retrieval_timestamp to conflict_updates[] (engine-stamped, LLM must not invent). Closes Sprint AM Finding A per AD-2026-04-26-AM. Mirrors AGM v1.1.
 # Version: +open_findings | Updated: 2026-05-02 | Change: Added open_findings[] catch-all per AD-2026-05-02-BW. Schema-free breadth pass at end of each weekly collection cycle.
+# Version: +reverse_cascade_check | Updated: 2026-05-04 | Change: Added reverse_cascade_check directive and JSON field per BRIEF-CH-1. Aligns SCEM with ERM reverse-cascade pattern. §CC sync with asym-intel-internal interpreter-schema.json.
