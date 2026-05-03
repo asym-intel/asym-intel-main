@@ -73,7 +73,7 @@ _CRON_TO_PY = {0: 6, 7: 6, 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5}
 
 # ─── Manifest fetch ─────────────────────────────────────────────
 
-_MANIFEST_CACHE = {"data": None}
+_MANIFEST_CACHE = {"data": None, "sha": None}
 
 
 def _gh_api_raw(endpoint, token=None):
@@ -129,7 +129,23 @@ def load_manifest(token=None, force=False):
         return None
 
     _MANIFEST_CACHE["data"] = manifest
+    # Capture the contents-envelope `sha` (git blob SHA of the manifest at
+    # read time). Useful for drift detection on the consumer side: the
+    # `manifest_version` field inside the YAML is editable and only bumped
+    # by intent; the blob SHA changes on every byte-level edit and is the
+    # right key for "did the manifest I read match what I read last time".
+    _MANIFEST_CACHE["sha"] = envelope.get("sha")
     return manifest
+
+
+def manifest_sha():
+    """Return the git blob SHA of the manifest as last loaded.
+
+    Returns None if `load_manifest` has not yet been called or the last
+    fetch did not return a sha (degraded path). Always reflects the most
+    recent successful load.
+    """
+    return _MANIFEST_CACHE.get("sha")
 
 
 # ─── Cron parsing ───────────────────────────────────────────────

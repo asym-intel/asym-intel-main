@@ -55,7 +55,9 @@ except Exception:
 # and consumers can still parse the block.
 try:
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-    from _pipeline_triggers_loader import load_manifest, iter_expected_fires
+    from _pipeline_triggers_loader import (
+        load_manifest, iter_expected_fires, manifest_sha,
+    )
     _TRIGGER_LOADER_AVAILABLE = True
 except ImportError as _exc:
     print(f"  WARNING: _pipeline_triggers_loader unavailable: {_exc}",
@@ -733,6 +735,7 @@ def compute_trigger_health(window_days=7, now=None):
         },
         "manifest_loaded": False,
         "manifest_version": None,
+        "manifest_sha": None,
         "expected_fires": [],
         "actual_fires": [],
         "missed_fires": [],
@@ -748,6 +751,12 @@ def compute_trigger_health(window_days=7, now=None):
 
     base["manifest_loaded"] = True
     base["manifest_version"] = manifest.get("manifest_version")
+    # Git blob SHA of the manifest at read time. Captured by the loader from
+    # the GH contents-API envelope; drives manifest-drift detection on the
+    # consumer side (the in-YAML `manifest_version` field is bumped by
+    # intent; the blob SHA changes on every byte-level edit). Per BH.2
+    # BRIEF: emit `manifest_sha` alongside `manifest_version`.
+    base["manifest_sha"] = manifest_sha()
 
     expected = iter_expected_fires(manifest, window_start, window_end)
     base["expected_fires"] = expected
