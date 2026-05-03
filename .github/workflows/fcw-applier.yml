@@ -1,110 +1,11 @@
 name: "FIMI & Cognitive Warfare Monitor Applier"
-
-# ── Sprint AM (AD-2026-04-26-AM) — FCW Applier role ──
-# LLM-FREE — deterministic stitching only. Reads interpret-latest.json,
-# review-latest.json, compose-latest.json and produces:
-#   - apply-YYYY-MM-DD.json + apply-latest.json (cycle manifest)
-#   - chains-YYYY-MM-DD.json + chains-latest.json (public claim→review→
-#     patch→evidence chains)
-#
-# Triggered exclusively via workflow_dispatch — reached from Composer
-# via explicit `gh workflow run` (chain-depth reset) since the cron
-# chain reaches GitHub's 3-level workflow_run nesting limit at Composer.
-# Applier→Curator wf_run hop remains valid (depth 0 → 1). Mirrors AGM
-# 2026-04-26 amendment pattern.
-#
-# No cron schedule — workflow_dispatch only at Sprint AM merge time.
-# No ANTHROPIC_API_KEY — LLM-free stage, no API key needed.
-# No PPLX_API_KEY — LLM-free stage.
-#
-# Topology mirrors AGM applier.yml (Sprint 3 Step 3, AD-2026-04-23j).
-# Paired with asym-intel-internal:pipeline/monitors/fimi-cognitive-warfare/
-# cascade-trio artefacts wired in Sprint AM (AD-2026-04-26-AM).
-
+# Sprint CD — thin caller. Reusable body: _reusable-applier.yml
 on:
   workflow_dispatch: {}
-
 jobs:
-  apply:
+  call:
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          ref: main
-
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/fimi-cognitive-warfare
-          sparse-checkout-cone-mode: false
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install pyyaml
-
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/fimi-cognitive-warfare
-          cp -v internal/pipeline/monitors/fimi-cognitive-warfare/metadata.yml \
-                pipeline/monitors/fimi-cognitive-warfare/
-
-      - name: Check upstream artefacts
-        id: check
-        run: |
-          I="pipeline/monitors/fimi-cognitive-warfare/synthesised/interpret-latest.json"
-          R="pipeline/monitors/fimi-cognitive-warfare/synthesised/review-latest.json"
-          C="pipeline/monitors/fimi-cognitive-warfare/synthesised/compose-latest.json"
-          MISSING=""
-          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
-          [ -f "$R" ] || MISSING="${MISSING} review-latest"
-          [ -f "$C" ] || MISSING="${MISSING} compose-latest"
-          if [ -n "$MISSING" ]; then
-            echo "skip=true"   >> "$GITHUB_OUTPUT"
-            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
-            echo "Missing upstream artefacts:${MISSING} — skipping Applier."
-            exit 0
-          fi
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-
-      - name: Run FCW applier (engine dispatch)
-        if: steps.check.outputs.skip != 'true'
-        env:
-          REPO_ROOT:        ${{ github.workspace }}
-          monitor:          fimi-cognitive-warfare
-          PYTHONPATH:       internal
-          INTERPRET_RUN_ID: ${{ github.event.workflow_run.id }}
-          REVIEW_RUN_ID:    ${{ github.event.workflow_run.id }}
-          COMPOSE_RUN_ID:   ${{ github.event.workflow_run.id }}
-        run: python -m pipeline.engine.apply_base --monitor fimi-cognitive-warfare
-
-      - name: Commit applier output
-        if: steps.check.outputs.skip != 'true'
-        run: |
-          git config user.name  "monitor-bot"
-          git config user.email "monitor-bot@asym-intel.info"
-          rm -f pipeline/monitors/fimi-cognitive-warfare/applied/apply-debug-*.json
-          git add pipeline/monitors/fimi-cognitive-warfare/applied/
-          git diff --cached --quiet || git commit -m "chore(fcw): applier run $(date -u +%Y-%m-%d)"
-          # Retry loop guards against concurrent bot pushes losing this stage's
-          # output: a successful rebase can still be followed by a push race.
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
+    uses: ./.github/workflows/_reusable-applier.yml
+    with:
+      slug: fimi-cognitive-warfare
+    secrets: inherit
