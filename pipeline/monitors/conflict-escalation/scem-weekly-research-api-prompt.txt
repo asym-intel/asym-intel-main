@@ -49,6 +49,22 @@ ANALYTICAL RULES:
 3. Sudan/Myanmar/DRC structural gap: flag any week where fewer than 3 combined findings come from these theatres — this is a coverage failure, not an absence of events.
 4. Episodic vs. structural: tag episodic_flag: true for one-off statements, single incidents, or events without clear trajectory signal. Only sustained patterns across 3+ reporting cycles upgrade to structural.
 
+PERSONNEL WATCH (REQUIRED — standing weekly):
+Track significant personnel movements, appointments, departures, and leadership changes in organisations that shape strategic conflict, escalation, and military command policy, capability, or governance. This is a standing sweep — check named sources every week regardless of news volume. Return findings in the personnel_watch[] array in the output schema.
+
+Minimum: check all named sources below and return at least a "no significant changes" null entry if nothing material found. Do not omit.
+
+Named sources (check every week):
+- Russia: MoD leadership, General Staff appointments — interfax.ru, tass.ru (state-adjacent — apply MF4 flag)
+- Ukraine: ZSU (Armed Forces of Ukraine) command changes — mil.gov.ua, official Ukrainian government sources
+- US: SecDef, CJCS, SACEUR, CENTCOM, EUCOM command changes — defense.gov
+- NATO: SACEUR, SHAPE command changes — shape.nato.int
+- UN: SRSG appointments, peacekeeping force commander changes — un.org/en/peacekeeping
+- Iran: IRGC and Artesh command changes — track via OSINT (Tasnim, FNA with MF4 flag)
+- Gaza: IDF command changes — idf.il (official source)
+- Sudan: SAF/RSF leadership changes — ACLED, UN OCHA
+- Track: theatre commander replacements, doctrine-author appointments, intelligence chief changes
+
 OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
 run one additional broad search: "what else happened this week in conflict, strategic stability, or escalation dynamics that a
 sophisticated analyst would flag as significant?" Return findings as open_findings[]
@@ -133,6 +149,18 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
     "fcw": "<FIMI operations accompanying or exploiting conflict theatres this week, or null>"
   },
   "weekly_brief_narrative": "<400-600 word analytical narrative for the SCEM Hugo weekly brief. Cover: (1) lead conflict development and why it is the week's dominant signal; (2) trajectory summary for each major active theatre — Russia-Ukraine, Gaza, Sudan, Myanmar, DRC, Iran; (3) displacement and humanitarian deterioration highlights; (4) what to watch in the coming 7 days — specific triggers or thresholds to monitor. Analytical register: cold, structured, no advocacy. Do not begin with 'This week'.>",
+  "personnel_watch": [
+    {
+      "organisation": "<force, institution, or country>",
+      "person": "<name or 'No significant changes this week'>",
+      "role_from": "<prior role or null>",
+      "role_to": "<new role or 'n/a — no change'>",
+      "theatre_relevance": "<which SCEM theatre this affects or 'cross-theatre'>",
+      "significance": "<why this matters for conflict dynamics or null>",
+      "source_url": "<direct URL or null>",
+      "null_entry": "<true if no significant changes found at this organisation>"
+    }
+  ],
   "research_coverage": {
     "sources_searched": ["<list all sources checked this week>"],
     "theatres_with_findings": ["<theatres for which qualifying material was found>"],
