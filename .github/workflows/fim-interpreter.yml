@@ -1,123 +1,48 @@
 name: "FIM Interpreter"
-
-# ── Sprint AN — FIM Interpreter role ──
-# Chained after FIM Reasoner success, extending the cron-dispatched
-# chain. Reads weekly-latest.json + reasoner-latest.json (the two
-# artefacts the Interpreter consumes via paths.weekly_latest +
-# paths.reasoner_latest) and produces interpret-latest.json.
-# Topology mirrors AGM Interpreter (AD-2026-04-26-AN).
-# Sprint AN adds workflow_run trigger on FIM Reasoner so cron-dispatched
-# FIM runs cascade automatically: Reasoner → Interpreter → Reviewer →
-# Composer → Applier → Curator end-to-end.
-# FIM publishes Monday 06:00 UTC (cron-dispatched separately).
-
+# Sprint CD — thin caller. Reusable body: _reusable-interpreter.yml
 on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override model (optional; blank = use metadata.yml default)'
+        description: 'Operator override (optional; blank = defer to metadata + central model_routing.yml)'
         required: false
         default: ''
       weekly-file:
-        description: 'Override weekly bundle filename (e.g. weekly-2026-04-28.json). Empty = use weekly-latest.json.'
+        description: 'Override weekly bundle filename. Empty = use weekly-latest.json.'
+        required: false
+        default: ''
+      force:
+        description: 'Bypass E5 same-day guard.'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+      force-reason:
+        required: false
+        default: ''
+      force-ad:
+        required: false
+        default: ''
+      force-operator:
         required: false
         default: ''
   workflow_run:
     workflows: ["FIM Reasoner — Financial Integrity Architecture Analysis"]
-    types:
-      - completed
-
+    types: [completed]
 jobs:
-  interpret:
-    # Gate: only run if upstream reasoner actually succeeded.
-    # workflow_dispatch runs always pass this guard.
+  call:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          ref: main
-
-      # ── FIM Interpreter — engine + bespoke config live in internal repo ──
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/financial-integrity
-          sparse-checkout-cone-mode: false
-
-      - name: Fetch FIM methodology + identity from internal repo
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          mkdir -p docs/methodology docs/identity
-
-          # Identity card (analytical quality standard)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-FIM.md" \
-            -o docs/identity/fim-identity.md \
-            && echo "Identity card fetched ($(wc -c < docs/identity/fim-identity.md) bytes)" \
-            || echo "WARNING: Identity card not found — continuing without it"
-
-          # Methodology (private IP — stays in internal repo)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/financial-integrity-full.md" \
-            -o docs/methodology/financial-integrity-full.md
-          echo "FIM methodology fetched ($(wc -c < docs/methodology/financial-integrity-full.md) bytes)"
-
-          # Addendum (optional — don't fail if absent)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/financial-integrity-addendum.md" \
-            -o docs/methodology/financial-integrity-addendum.md \
-            && echo "FIM addendum fetched ($(wc -c < docs/methodology/financial-integrity-addendum.md) bytes)" \
-            || echo "No addendum found — continuing without it"
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install requests pyyaml
-
-      # The engine reads bespoke files via paths resolved relative to CWD
-      # (public-main root). Stage the internal checkout's bespoke files there.
-      # §15 IP boundary preserved — they are never committed back.
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/financial-integrity
-          cp -v internal/pipeline/monitors/financial-integrity/metadata.yml             pipeline/monitors/financial-integrity/
-          cp -v internal/pipeline/monitors/financial-integrity/interpreter-prompt.txt   pipeline/monitors/financial-integrity/
-          cp -v internal/pipeline/monitors/financial-integrity/interpreter-schema.json  pipeline/monitors/financial-integrity/
-
-      - name: Run FIM interpreter (engine dispatch)
-        env:
-          PPLX_API_KEY:             ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:                 ${{ secrets.ASYM_INTEL_PIPELINE }}
-          REPO_ROOT:                ${{ github.workspace }}
-          SYNTH_MODEL:              ${{ github.event.inputs.model }}
-          WEEKLY_FILE_OVERRIDE:     ${{ github.event.inputs.weekly-file }}
-          monitor:                  financial-integrity
-          PYTHONPATH:               internal
-        run: python -m pipeline.engine.interpret_base --monitor financial-integrity
-
-      - name: Commit interpret output
-        run: |
-          git config user.name  "monitor-bot"
-          git config user.email "monitor-bot@asym-intel.info"
-          git add pipeline/monitors/financial-integrity/synthesised/
-          git diff --cached --quiet || git commit -m "chore(fim): interpreter run $(date -u +%Y-%m-%d)"
-          git pull --rebase --autostash origin main
-          git push
+    uses: ./.github/workflows/_reusable-interpreter.yml
+    with:
+      slug: financial-integrity
+      # No default_model: FIM's transitional Sonar interpret pin is recorded
+      # as a registry override (provenance: AD-2026-04-27-AT-FIM-TRANSITIONAL)
+      # in pipeline/engine/model_routing.yml — the workflow layer must not
+      # restate it. The override is removed when the FIM v2.4 schema cut lands.
+      model: ${{ inputs.model || '' }}
+      weekly_file: ${{ inputs['weekly-file'] || '' }}
+      force: ${{ inputs.force || 'false' }}
+      force_reason: ${{ inputs['force-reason'] || '' }}
+      force_ad: ${{ inputs['force-ad'] || '' }}
+      force_operator: ${{ inputs['force-operator'] || '' }}
+    secrets: inherit
