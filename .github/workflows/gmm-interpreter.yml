@@ -17,6 +17,26 @@ on:
         description: 'Override weekly bundle filename (e.g. weekly-2026-05-01.json). Empty = use weekly-latest.json.'
         required: false
         default: ''
+      force:
+        description: 'Bypass E5 same-day guard. Requires force-reason, force-ad, force-operator.'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+      force-reason:
+        description: 'Justification (required when force=true). Logged to AD trail.'
+        required: false
+        default: ''
+      force-ad:
+        description: 'Architectural Decision authorising the force-reissue (e.g. AD-2026-04-27-AT).'
+        required: false
+        default: ''
+      force-operator:
+        description: 'Operator handle authorising the force-reissue (e.g. Peter-Pink-Howitt).'
+        required: false
+        default: ''
   workflow_run:
     workflows: ["GMM Reasoner — Macro Regime Analysis"]
     types:
@@ -70,8 +90,18 @@ jobs:
           monitor:              macro-monitor
           SYNTH_MODEL:          ${{ github.event.inputs.model }}
           WEEKLY_FILE_OVERRIDE: ${{ github.event.inputs.weekly-file }}
+          FORCE_FLAG:           ${{ github.event.inputs.force }}
+          FORCE_REASON:         ${{ github.event.inputs.force-reason }}
+          FORCE_AD:             ${{ github.event.inputs.force-ad }}
+          FORCE_OPERATOR:       ${{ github.event.inputs.force-operator }}
           PYTHONPATH:           internal
-        run: python -m pipeline.engine.interpret_base --monitor macro-monitor
+        run: |
+          ARGS=(--monitor macro-monitor)
+          if [ "${FORCE_FLAG}" = "true" ]; then
+            ARGS+=(--force --force-reason "${FORCE_REASON}" --force-ad "${FORCE_AD}" --force-operator "${FORCE_OPERATOR}")
+            echo "::notice::Force-reissue requested: ad=${FORCE_AD} operator=${FORCE_OPERATOR}"
+          fi
+          python -m pipeline.engine.interpret_base "${ARGS[@]}"
 
       - name: Commit interpret output
         run: |
