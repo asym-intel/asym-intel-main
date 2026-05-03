@@ -34,28 +34,6 @@ I6 Tipping Points — AMOC circulation, ice sheet dynamics, permafrost methane f
 MINIMUM COVERAGE REQUIREMENT:
 Return comprehensive updates across all six indicators. At minimum, every indicator must have at least one substantive entry in weekly_developments[]. Tipping point signals (I1/I6) and climate governance (I4) are systematically under-covered in general media — actively search PIK, Stockholm Resilience Centre, Copernicus, and Carbon Brief for these. Do not allow a week to pass without at least one qualifying finding per indicator even if the trajectory appears stable. Do not cluster coverage on extreme weather alone: I3, I4, and I5 require equal attention.
 
-STANDING TRACKERS (REQUIRED — FM-ERM-03 — update every cycle regardless of news volume):
-
-1. ICJ CLIMATE ADVISORY OPINION TRACKER
-   Source: https://www.icj-cij.org/case/187
-   What to check: Current proceedings status, any new submissions, advisory opinion publication date (if set), state compliance developments since last issue.
-   Return in icj_tracker{} in the output schema. A status-only entry with no new developments is valid and required. Never omit.
-
-2. LOSS & DAMAGE FINANCE MECHANISM TRACKER
-   Source: https://unfccc.int/topics/adaptation-and-resilience/workstreams/loss-and-damage-ld/loss-and-damage-fund — also UNFCCC official news
-   What to check: Latest disbursement figures vs. commitments, Board meeting outcomes, new contributor pledges or withdrawals, operationalisation milestones.
-   Return in loss_damage_tracker{} in the output schema. A status-only entry with no new developments is valid and required. Never omit.
-
-REVERSE CASCADE CHECK (REQUIRED — FM-ERM-04 — mandatory analytical operation every cycle):
-After completing all indicator research, apply the reverse cascade check:
-- Review all this week's tipping point and boundary trajectory signals
-- Ask: Is there any evidence this week that a previously-deteriorating trajectory is decelerating or reversing?
-- Sources to check specifically for reversal signals: Stockholm Resilience Centre (stockholmresilience.org), PIK (pik-potsdam.de), Copernicus (climate.copernicus.eu)
-- Return in reverse_cascade_check{} in the output schema:
-  - If reversal signals found: document with source and mechanism
-  - If no reversal signals found: return { "result": "no_reversal_signals", "trajectories_checked": ["list of tipping systems checked"], "notes": "brief note" }
-  Never omit — a null-result entry is required.
-
 PLANETARY BOUNDARY COVERAGE:
 Track status across all nine boundaries. Weekly changes are typically incremental — report trajectory signals, not binary crossings unless explicitly confirmed by a Tier 1 scientific source:
 - Climate change (atmospheric CO₂ / radiative forcing)
@@ -202,26 +180,6 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
       "key_indicator_this_week": "<null or signal>",
       "notes": "<null or note>"
     }
-  },
-  "icj_tracker": {
-    "status": "<Active proceedings | Advisory opinion issued | Awaiting publication | No new developments>",
-    "last_development": "<date YYYY-MM-DD or null>",
-    "summary": "<1-2 sentences on current status — required even if no new developments>",
-    "source_url": "https://www.icj-cij.org/case/187"
-  },
-  "loss_damage_tracker": {
-    "status": "<Operational | Board meeting scheduled | Disbursements active | No new developments>",
-    "commitments_usd_bn": "<float or null if not updated this week>",
-    "disbursements_usd_bn": "<float or null if not updated this week>",
-    "last_development": "<date YYYY-MM-DD or null>",
-    "summary": "<1-2 sentences on current status — required even if no new developments>",
-    "source_url": "<UNFCCC Loss & Damage Fund URL>"
-  },
-  "reverse_cascade_check": {
-    "result": "<reversal_signals_found | no_reversal_signals>",
-    "trajectories_checked": ["<list of tipping systems or boundaries assessed>"],
-    "reversal_evidence": "<null or description of reversal signal with source>",
-    "notes": "<brief analytical note>"
   },
   "tipping_point_tracker": {
     "AMOC": {

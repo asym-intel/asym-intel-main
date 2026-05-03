@@ -10,18 +10,10 @@ Tier 1 (central banks + multilateral institutions):
   - IMF: https://www.imf.org/en/News
   - WTO: https://www.wto.org/english/news_e/
   - USTR: https://ustr.gov/
-  - IIF (Institute of International Finance): iif.com — capital flow reports, EM debt tracker, Global Debt Monitor
-  - BIS (Bank for International Settlements): bis.org — quarterly review, research papers, FX and OTC derivatives data, CGFS reports
-  - FSB (Financial Stability Board): fsb.org — systemic risk monitoring, NBFI progress reports, crypto-asset monitoring
-  - Fed SLOOS (Senior Loan Officer Opinion Survey): federalreserve.gov/releases/sloos/ — quarterly lending standards; check for new release
 
 Tier 2 (research institutions + policy):
   - Peterson Institute PIIE: https://www.piie.com/
   - World Bank: https://www.worldbank.org/en/news
-  - BofA Global Fund Manager Survey: bofa.com/en-us/content/research — updated monthly (mid-month); when available, note cross-asset positioning changes and cash level shifts
-  - Goldman Sachs Research (public summaries): goldmansachs.com/insights — top macro calls and scenario framing
-  - Macquarie Research (non-consensus calls): where publicly accessible — track divergence from consensus
-  Note: IB research is for positioning and sentiment signal (MATT framework), not for primary indicator data. Flag IB views where they diverge materially from GMM's own indicator assessment.
 
 Tier 3 (financial press):
   - Reuters financial: https://www.reuters.com/business/finance/
@@ -55,18 +47,6 @@ GMM ANALYTICAL RULES — apply before classifying any finding:
 
 MATT FRAMEWORK — flag divergences:
 Where market pricing (as of this week) appears to diverge from GMM's analytical assessment of regime fundamentals, note this explicitly in the relevant finding or in the weekly_brief_narrative. Example: "Market is pricing X; GMM assessment suggests Y divergence based on Z."
-
-SCENARIO MAINTENANCE (REQUIRED — update probability weights when material evidence warrants):
-The GMM maintains three scenarios with explicit probability weights. Check each scenario against this week's evidence and update if a material development shifts relative likelihood. Document any probability change with a rationale.
-
-Current scenario framework:
-- Base Case — Slow Burn: Grinding deterioration; no clean cascade trigger
-- De-escalation: Hormuz de-escalation + tariff retreat + AI productivity materialising; bull case
-- Fast Cascade: Hormuz closure 30+ days OR private credit redemption gate event → NBFI cascade
-
-Return in regime_assessment.scenario_probabilities:
-{ "base_slow_burn_pct": <int>, "de_escalation_pct": <int>, "fast_cascade_pct": <int>, "probability_change_this_week": "<null or rationale for any change>" }
-Probabilities must sum to 100.
 
 COMPREHENSIVE COVERAGE REQUIREMENT:
 Return 8-10 top developments. Do not stop at the headline tariff event. Actively check:
@@ -151,13 +131,7 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
   "regime_assessment": {
     "current_regime": "<Stagflation|Deflationary|Inflationary|Transitional|Unclear>",
     "conviction": "<High|Medium|Low>",
-    "conviction_history_note": "<note on how this week's findings shift, confirm, or complicate prior regime conviction — reference prior week if relevant>",
-    "scenario_probabilities": {
-      "base_slow_burn_pct": "<int — Base Case: grinding deterioration, no clean cascade trigger>",
-      "de_escalation_pct": "<int — De-escalation: Hormuz de-escalation + tariff retreat + AI productivity materialising>",
-      "fast_cascade_pct": "<int — Fast Cascade: Hormuz closure 30+ days OR private credit redemption gate event → NBFI cascade>",
-      "probability_change_this_week": "<null or rationale for any probability change relative to prior week>"
-    }
+    "conviction_history_note": "<note on how this week's findings shift, confirm, or complicate prior regime conviction — reference prior week if relevant>"
   },
   "weekly_brief_narrative": "<400-600 word analytical narrative for the GMM Hugo weekly brief. Cover: (1) current macro regime and conviction level; (2) tariff shock cascade — escalation rung, retaliation dynamics, and market contagion; (3) asset class implications across all eight classes; (4) MATT divergences where market pricing does not match GMM analytical assessment; (5) what to watch in the coming 7 days. Analytical register: cold, structured, no advocacy. Do not begin with 'This week'.>",
   "cross_monitor_signals": {
