@@ -5,7 +5,7 @@ on:
 
 jobs:
   test:
-    name: GMM Weekly sonar-pro test
+    name: GMM Weekly research sample test
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,7 +25,7 @@ jobs:
         uses: ./.github/actions/authenticated-push
         with:
           gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          commit-message: "test(gmm): weekly sonar-pro sample output"
+          commit-message: "test(gmm): weekly research sample output"
           add-paths: "pipeline/monitors/macro-monitor/weekly/"
           bot-name: "Test Bot"
           bot-email: "test@asym-intel.info"
