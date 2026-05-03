@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "schema_version": "aim-curator-drift-v1.0",
+    "monitor_slug": "financial-integrity",
+    "cycle_id": "fim-2026-05-03",
+    "methodology_version": "fim-methodology-v1.1",
+    "curator_deterministic": true,
+    "curator_model": null,
+    "curator_commit_sha": "fb0bba835dc14309903ca023fcc00da03fe1d633",
+    "computed_at": "2026-05-03T11:33:06+00:00",
+    "input_provenance": {
+      "prior_cycle_ids": [],
+      "window_size": 4
+    }
+  },
+  "triggers_fired": [
+    {
+      "trigger": "T1",
+      "severity": "advisory",
+      "evidence": {
+        "unsanctioned_shape_change_count": 3,
+        "details": [
+          {
+            "cycle_index": 1,
+            "shape_fingerprint_new": "dc5e0aa8a49f",
+            "shape_fingerprint_prior": "dc3772ecb60c",
+            "methodology_version": ""
+          },
+          {
+            "cycle_index": 2,
+            "shape_fingerprint_new": "dc3772ecb60c",
+            "shape_fingerprint_prior": "dc5e0aa8a49f",
+            "methodology_version": ""
+          },
+          {
+            "cycle_index": 3,
+            "shape_fingerprint_new": "dc5e0aa8a49f",
+            "shape_fingerprint_prior": "dc3772ecb60c",
+            "methodology_version": ""
+          }
+        ]
+      }
+    },
+    {
+      "trigger": "T4",
+      "severity": "advisory",
+      "evidence": {
+        "carry_forward_rate": 1.0,
+        "threshold": 0.8,
+        "carried_over_count": 42,
+        "total_count": 42
+      }
+    }
+  ],
+  "cycle_summary": {
+    "structured_claims_count": 42,
+    "entity_registry_size": 21,
+    "carry_forward_rate": 1.0,
+    "shape_fingerprint": "dc5e0aa8a49f73eb2fef60eb8dfe05dc8ce99bc0",
+    "methodology_version": "fim-methodology-v1.1",
+    "methodology_drift_status": {
+      "uninitialised": true,
+      "drift_present": null,
+      "reason": "persistent-state lacks _meta.required_modules"
+    }
+  },
+  "curator_error": false,
+  "curator_flags": [
+    "interpret_schema_mismatch:fim-interpret-v1.0",
+    "chains_schema_mismatch:aim-chains-v1.1"
+  ],
+  "schema_canonicalizations": []
+}
