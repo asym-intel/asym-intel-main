@@ -1,148 +1,45 @@
 name: "Environmental Risks Monitor Interpreter"
-
-# ── Sprint AN — ERM Interpreter role ── AD-2026-04-26-AN
-# workflow_run trigger on ERM Reasoner added (Sprint AN, step-an-erm).
-# Mirrors AGM interpreter topology: workflow_run fires on Reasoner success;
-# workflow_dispatch always passes the job guard.
-# No ANTHROPIC_API_KEY — all 5 ERM role-chain stages stay on Sonar per D1 §7.1.
-
+# Sprint CD — thin caller. Reusable body: _reusable-interpreter.yml
 on:
   workflow_dispatch:
     inputs:
       model:
-        description: 'Override model (optional; blank = use metadata.yml default)'
+        description: 'Operator override (optional; blank = defer to metadata + central model_routing.yml)'
         required: false
         default: ''
       weekly-file:
-        description: 'Override weekly bundle filename (e.g. weekly-2026-04-10.json). Empty = use weekly-latest.json.'
+        description: 'Override weekly bundle filename. Empty = use weekly-latest.json.'
         required: false
         default: ''
       force:
-        description: 'Bypass E5 same-day guard. Requires force-reason, force-ad, force-operator.'
+        description: 'Bypass E5 same-day guard.'
         required: false
         default: 'false'
         type: choice
-        options:
-          - 'false'
-          - 'true'
+        options: ['false', 'true']
       force-reason:
-        description: 'Justification (required when force=true). Logged to AD trail.'
         required: false
         default: ''
       force-ad:
-        description: 'Architectural Decision authorising the force-reissue (e.g. AD-2026-04-27-AT).'
         required: false
         default: ''
       force-operator:
-        description: 'Operator handle authorising the force-reissue (e.g. Peter-Pink-Howitt).'
         required: false
         default: ''
   workflow_run:
     workflows: ["ERM Reasoner — ERM Earth System Reasoning"]
-    types:
-      - completed
-
+    types: [completed]
 jobs:
-  interpret:
-    # Gate: only run if upstream reasoner actually succeeded.
-    # workflow_dispatch runs always pass this guard.
+  call:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    env:
-      monitor: environmental-risks
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          ref: main
-
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/environmental-risks
-          sparse-checkout-cone-mode: false
-
-      - name: Fetch ERM methodology + identity from internal repo
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          mkdir -p docs/methodology docs/identity
-
-          # Identity card (analytical quality standard)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-ERM.md" \
-            -o docs/identity/erm-identity.md \
-            && echo "Identity card fetched ($(wc -c < docs/identity/erm-identity.md) bytes)" \
-            || echo "WARNING: Identity card not found — continuing without it"
-
-          # Methodology (private IP — stays in internal repo)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/environmental-risks-full.md" \
-            -o docs/methodology/environmental-risks-full.md \
-            && echo "ERM methodology fetched ($(wc -c < docs/methodology/environmental-risks-full.md) bytes)" \
-            || echo "WARNING: Methodology not found — continuing without it"
-
-          # Addendum (optional — don't fail if absent)
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/methodology/environmental-risks-addendum.md" \
-            -o docs/methodology/environmental-risks-addendum.md \
-            && echo "ERM addendum fetched ($(wc -c < docs/methodology/environmental-risks-addendum.md) bytes)" \
-            || echo "No addendum found — continuing without it"
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install requests pyyaml
-
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/environmental-risks
-          cp -v internal/pipeline/monitors/environmental-risks/metadata.yml             pipeline/monitors/environmental-risks/
-          cp -v internal/pipeline/monitors/environmental-risks/interpreter-prompt.txt   pipeline/monitors/environmental-risks/
-          cp -v internal/pipeline/monitors/environmental-risks/interpreter-schema.json  pipeline/monitors/environmental-risks/
-          cp -v internal/pipeline/monitors/environmental-risks/synthesiser-domain.md    pipeline/monitors/environmental-risks/ || true
-
-      - name: Run ERM interpreter (engine dispatch)
-        env:
-          PPLX_API_KEY:         ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:             ${{ secrets.ASYM_INTEL_PIPELINE }}
-          REPO_ROOT:            ${{ github.workspace }}
-          SYNTH_MODEL:          ${{ github.event.inputs.model }}
-          WEEKLY_FILE_OVERRIDE: ${{ github.event.inputs.weekly-file }}
-          FORCE_FLAG:           ${{ github.event.inputs.force }}
-          FORCE_REASON:         ${{ github.event.inputs.force-reason }}
-          FORCE_AD:             ${{ github.event.inputs.force-ad }}
-          FORCE_OPERATOR:       ${{ github.event.inputs.force-operator }}
-          PYTHONPATH:           internal
-        run: |
-          ARGS=(--monitor environmental-risks)
-          if [ "${FORCE_FLAG}" = "true" ]; then
-            ARGS+=(--force --force-reason "${FORCE_REASON}" --force-ad "${FORCE_AD}" --force-operator "${FORCE_OPERATOR}")
-            echo "::notice::Force-reissue requested: ad=${FORCE_AD} operator=${FORCE_OPERATOR}"
-          fi
-          python -m pipeline.engine.interpret_base "${ARGS[@]}"
-
-      - name: Commit interpret output
-        run: |
-          git config user.name  "monitor-bot"
-          git config user.email "monitor-bot@asym-intel.info"
-          git add pipeline/monitors/environmental-risks/synthesised/
-          git diff --cached --quiet || git commit -m "chore(erm): interpreter run $(date -u +%Y-%m-%d)"
-          git pull --rebase --autostash origin main
-          git push
+    uses: ./.github/workflows/_reusable-interpreter.yml
+    with:
+      slug: environmental-risks
+      # No default_model: routing owned by pipeline/engine/model_routing.yml.
+      model: ${{ inputs.model || '' }}
+      weekly_file: ${{ inputs['weekly-file'] || '' }}
+      force: ${{ inputs.force || 'false' }}
+      force_reason: ${{ inputs['force-reason'] || '' }}
+      force_ad: ${{ inputs['force-ad'] || '' }}
+      force_operator: ${{ inputs['force-operator'] || '' }}
+    secrets: inherit
