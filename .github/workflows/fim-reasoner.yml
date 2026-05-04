@@ -1,4 +1,4 @@
-name: FIM Reasoner — Financial Integrity Architecture Analysis
+name: FIM Reasoner — Financial Integrity Risk Analysis
 
 on:
   workflow_dispatch:        # allow manual trigger from Actions tab
@@ -11,10 +11,23 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repo
+      - name: Checkout public repo (asym-intel-main)
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+
+      # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/policy
+            pipeline/monitors/financial-integrity
+          sparse-checkout-cone-mode: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -22,7 +35,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests pyyaml
 
       - name: Fetch identity card from internal repo
         env:
@@ -36,11 +49,23 @@ jobs:
             && echo "Identity card fetched ($(wc -c < docs/identity/fim-identity.md) bytes)" \
             || echo "WARNING: Identity card not found — continuing without it"
 
-      - name: Run FIM Reasoner
+      # The engine reads bespoke files via paths resolved relative to CWD
+      # (public-main root). Stage the internal checkout's bespoke files there.
+      # §15 IP boundary preserved — they are never committed back.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/financial-integrity
+          cp -v internal/pipeline/monitors/financial-integrity/metadata.yml             pipeline/monitors/financial-integrity/
+          cp -v internal/pipeline/monitors/financial-integrity/reasoner-prompt.txt      pipeline/monitors/financial-integrity/ || true
+          cp -v internal/pipeline/monitors/financial-integrity/reasoner-instructions.md pipeline/monitors/financial-integrity/ || true
+          cp -v internal/pipeline/monitors/financial-integrity/reasoner-schema.json     pipeline/monitors/financial-integrity/ || true
+
+      - name: Run FIM Reasoner (engine dispatch)
         env:
           PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: python pipeline/monitors/financial-integrity/fim-reasoner.py
+          GH_TOKEN:     ${{ secrets.ASYM_INTEL_PIPELINE }}
+          PYTHONPATH:   internal
+        run: python -m pipeline.engine.reasoner_base --monitor financial-integrity
 
       - name: Commit reasoner output
         run: |
@@ -48,7 +73,7 @@ jobs:
           git config user.email "fim-reasoner@asym-intel.info"
           git add pipeline/monitors/financial-integrity/reasoner/
           git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
-          git commit -m "data(fim-reasoner): financial integrity analysis — $(date -u +%Y-%m-%d)"
+          git commit -m "data(fim-reasoner): financial integrity risk analysis — $(date -u +%Y-%m-%d)"
           for attempt in 1 2 3; do
             git pull --rebase --autostash origin main
             git push && break
