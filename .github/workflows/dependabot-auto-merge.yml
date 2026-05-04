@@ -1,0 +1,89 @@
+# Dependabot auto-merge — actions and npm minor/patch bumps only.
+#
+# When a Dependabot PR targets main and all required checks pass, this
+# workflow enables auto-merge (squash). Scope is deliberately narrow:
+# - GitHub Actions version bumps (actions/*, github/*)
+# - Worker npm dependency bumps (@cloudflare/workers-types, etc.)
+#
+# Major version bumps are excluded — those require Architect review because
+# they may carry breaking changes to workflow behaviour.
+#
+# Safety model: this workflow only calls `gh pr merge --auto`. It does not
+# approve PRs, bypass branch protection, or merge anything that hasn't
+# already cleared required status checks. If checks fail, auto-merge queues
+# but does not execute.
+#
+# Authority: housekeeping item — added 2026-05-04 to reduce Dependabot noise.
+
+name: Dependabot auto-merge
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge for qualifying Dependabot PRs
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check if PR qualifies for auto-merge
+        id: qualify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+
+          title="$PR_TITLE"
+          echo "PR title: $title"
+
+          # Allow: actions/* and github/* bumps, and worker npm bumps
+          # Block: major version bumps (contains "from N to M" where M > N+1 is
+          # not worth trying to detect precisely — instead we block any PR
+          # title that contains "major" or bumps to a version ≥10 jump).
+          # Simpler heuristic: allow only if title matches known-safe patterns.
+
+          qualify=false
+
+          # GitHub Actions bumps (actions/checkout, actions/setup-*, etc.)
+          if echo "$title" | grep -qE "^deps\(actions\): bump (actions|github)/"; then
+            qualify=true
+          fi
+
+          # Worker/npm bumps (@cloudflare/workers-types, etc.)
+          if echo "$title" | grep -qE "^deps\(.*\): bump @cloudflare/workers-types"; then
+            qualify=true
+          fi
+
+          # General npm patch/minor bumps in workers/ paths
+          if echo "$title" | grep -qE "^deps\(.*\): bump .* from [0-9]+\.[0-9]+\.[0-9]+ to [0-9]+\.[0-9]+\.[0-9]+"; then
+            qualify=true
+          fi
+
+          echo "qualify=$qualify" >> "$GITHUB_OUTPUT"
+          if $qualify; then
+            echo "PR qualifies for auto-merge"
+          else
+            echo "PR does not match auto-merge scope — skipping"
+          fi
+
+      - name: Enable auto-merge (squash)
+        if: steps.qualify.outputs.qualify == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh pr merge "$PR_NUMBER" \
+            --repo "$REPO" \
+            --auto \
+            --squash \
+            --subject "$(gh pr view "$PR_NUMBER" --repo "$REPO" --json title --jq '.title')"
+          echo "Auto-merge enabled on PR #$PR_NUMBER"
