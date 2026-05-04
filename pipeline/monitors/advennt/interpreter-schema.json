@@ -1,0 +1,401 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Advennt Interpreter Response Schema (advennt-interpreter-response-v1.0)",
+  "description": "Structured-output schema for the Advennt Interpreter stage. Matches the OUTPUT SCHEMA section of pipeline/monitors/advennt/interpreter-prompt.txt (v2.4). Required fields are pinned; optional fields are loose to give the LLM room. Reviewer rule R1 validates against this schema id.",
+  "type": "object",
+  "required": [
+    "_meta",
+    "lead_signal",
+    "regulatory_pulse",
+    "category_interpretations",
+    "structured_claims"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "monitor_slug",
+        "jurisdiction_id",
+        "cycle_disposition"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": [
+            "advennt-interpreter-response-v1.0"
+          ]
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "advennt"
+        },
+        "jurisdiction_id": {
+          "type": "string"
+        },
+        "research_model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "interpreted_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "synthesised_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "run_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cycle_disposition": {
+          "type": "string",
+          "enum": [
+            "material_change",
+            "null_cycle",
+            "partial_cycle",
+            "error_cycle"
+          ]
+        },
+        "cycle_disposition_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "lead_signal": {
+      "type": "object",
+      "required": [
+        "headline",
+        "category",
+        "confidence_preliminary"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "headline": {
+          "type": "string",
+          "maxLength": 240
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "overview",
+            "licensing_and_regulation",
+            "marketing",
+            "enforcement",
+            "fees",
+            "taxes",
+            "outlook",
+            "payments_banking",
+            "technical_compliance",
+            "distribution_platform_rules",
+            "market_entry_practicality"
+          ]
+        },
+        "confidence_preliminary": {
+          "type": "string",
+          "enum": [
+            "Confirmed",
+            "Probable",
+            "Uncertain",
+            "Speculative"
+          ]
+        },
+        "source_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "regulatory_pulse": {
+      "type": "object",
+      "required": [
+        "overall_direction",
+        "conviction",
+        "category_signals"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "overall_direction": {
+          "type": "string",
+          "enum": [
+            "Tightening",
+            "Stable",
+            "Liberalising",
+            "Mixed"
+          ]
+        },
+        "conviction": {
+          "type": "string",
+          "enum": [
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ]
+        },
+        "category_signals": {
+          "type": "array",
+          "minItems": 11,
+          "maxItems": 11,
+          "items": {
+            "type": "object",
+            "required": [
+              "category",
+              "signal",
+              "direction",
+              "stress_level"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "category": {
+                "type": "string",
+                "enum": [
+                  "overview",
+                  "licensing_and_regulation",
+                  "marketing",
+                  "enforcement",
+                  "fees",
+                  "taxes",
+                  "outlook",
+                  "payments_banking",
+                  "technical_compliance",
+                  "distribution_platform_rules",
+                  "market_entry_practicality"
+                ]
+              },
+              "signal": {
+                "type": "string"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "Tightening",
+                  "Stable",
+                  "Liberalising",
+                  "Mixed"
+                ]
+              },
+              "stress_level": {
+                "type": "string",
+                "enum": [
+                  "green",
+                  "amber",
+                  "red"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "category_interpretations": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "One key per regulatory category. Each value is an object with summary, key_claim_ids, baseline_stable, traffic_light_proposed."
+    },
+    "structured_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "confidence",
+          "durability",
+          "entity",
+          "evidence_id",
+          "predicate",
+          "source_module",
+          "source_tier",
+          "value"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "claim_id": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "predicate": {
+            "type": "string"
+          },
+          "value": {},
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "Probable",
+              "Uncertain",
+              "Speculative"
+            ]
+          },
+          "source_tier": {
+            "type": "string",
+            "enum": [
+              "T1",
+              "T2",
+              "T3"
+            ]
+          },
+          "durability": {
+            "type": "string",
+            "enum": [
+              "DURABLE",
+              "FRAGILE",
+              "MIXED",
+              "n/a"
+            ]
+          },
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_module": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "cross_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "proposed_baseline_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "change_id": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "field_path": {
+            "type": "string"
+          },
+          "prior_value": {},
+          "proposed_value": {},
+          "rationale": {
+            "type": "string"
+          },
+          "supporting_claim_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence_tier": {
+            "type": "string",
+            "enum": [
+              "T1",
+              "T2",
+              "mixed"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft"
+            ]
+          },
+          "requires_lawyer_review": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "key_judgments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "judgment": {
+            "type": "string"
+          },
+          "confidence_preliminary": {
+            "type": "string",
+            "enum": [
+              "Confirmed",
+              "Probable",
+              "Uncertain",
+              "Speculative"
+            ]
+          },
+          "category": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": [
+              "Deteriorating",
+              "Stable",
+              "Improving"
+            ]
+          }
+        }
+      }
+    },
+    "gaps_register": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "gap_id": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "affected_claim_ids": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
