@@ -16,7 +16,26 @@ name: "FIM Curator"
 # NON-BLOCKING (advisory only). Mirrors AGM Curator topology (AD-2026-04-26-AM).
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Bypass curator same-day / re-emit guards. Requires force-reason, force-ad, force-operator.'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+      force-reason:
+        description: 'Justification (required when force=true). Logged to AD trail and stamped into _meta.force_reissue.'
+        required: false
+        default: ''
+      force-ad:
+        description: 'Architectural Decision authorising the force-reissue.'
+        required: false
+        default: ''
+      force-operator:
+        description: 'Operator handle authorising the force-reissue.'
+        required: false
+        default: ''
   workflow_run:
     workflows: ["FIM Applier"]
     types:
@@ -93,7 +112,17 @@ jobs:
           PYTHONPATH:     internal
           CURATOR_RUN_ID: ${{ github.event.workflow_run.id }}
           GITHUB_SHA:     ${{ github.sha }}
-        run: python -m pipeline.engine.curator_base --monitor financial-integrity
+          FORCE_FLAG:     ${{ inputs.force }}
+          FORCE_REASON:   ${{ inputs['force-reason'] }}
+          FORCE_AD:       ${{ inputs['force-ad'] }}
+          FORCE_OPERATOR: ${{ inputs['force-operator'] }}
+        run: |
+          ARGS=(--monitor financial-integrity)
+          if [ "${FORCE_FLAG}" = "true" ]; then
+            ARGS+=(--force --force-reason "${FORCE_REASON}" --force-ad "${FORCE_AD}" --force-operator "${FORCE_OPERATOR}")
+            echo "::notice::Force-reissue requested: ad=${FORCE_AD} operator=${FORCE_OPERATOR}"
+          fi
+          python -m pipeline.engine.curator_base "${ARGS[@]}"
 
       - name: Commit curator output
         if: steps.check.outputs.skip != 'true'
