@@ -47,10 +47,21 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     steps:
-      - name: Checkout
+      - name: Checkout main (PR repo)
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      # Sprint CL — load the canonical class contract from asym-intel-internal
+      # at runtime so this gate and the internal consumer_readiness tool agree
+      # on the same machine-readable manifest. Authority: AD-2026-05-04-CK.
+      - name: Checkout asym-intel-internal (read-only)
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.COMPUTER_SHIM_INTERNAL_READ }}
+          path: _internal
+          fetch-depth: 1
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -64,7 +75,8 @@ jobs:
 
       - name: Check canonical pipeline review sign-off
         run: |
-          python3 tools/check_canonical_pipeline_deviation.py \
+          python3 _internal/tools/check_canonical_pipeline_deviation.py \
             --base "${{ github.event.pull_request.base.sha }}" \
             --head "${{ github.event.pull_request.head.sha }}" \
-            --body-file /tmp/pr-body.md
+            --body-file /tmp/pr-body.md \
+            --manifest _internal/ops/generic-pipeline-class.yml
