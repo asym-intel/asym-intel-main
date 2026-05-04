@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
 FIM Reasoner — Financial Integrity Architecture & Risk Analysis
-GitHub Actions script. Runs Saturday 09:00 UTC.
+
+LEGACY — superseded by pipeline.engine.reasoner_base (Phase B). Retained as
+reference only. fim-reasoner.yml now dispatches the engine; this script is
+no longer called on cron and must not be imported by other code.
 
 Loads:
   - persistent-state.json (jurisdiction baselines, scheme inventory,
@@ -9,18 +12,19 @@ Loads:
   - pipeline/weekly/weekly-latest.json (this week's deep research)
   - pipeline/daily/daily-latest.json (most recent Collector findings)
 
-Feeds all three as context to sonar-deep-research for financial integrity
+Feeds all three as context to a Perplexity model for financial integrity
 reasoning. Outputs structured analytical recommendations to:
   pipeline/monitors/financial-integrity/reasoner/reasoner-latest.json
   pipeline/monitors/financial-integrity/reasoner/reasoner-YYYY-MM-DD.json
 
 The FIM Synthesiser reads this at Step 0E before applying methodology.
 
-sonar-pro is correct here: it reasons over documents YOU provide.
-It does NOT search the web. The structured JSON is the document.
+The reasoner is appropriate here because it reasons over documents YOU
+provide; it does NOT search the web. The structured JSON is the document.
 
 Environment variables required:
   PPLX_API_KEY  — Perplexity API key (GitHub repository secret)
+  MODEL         — model identifier (no default; routing must inject)
   GH_TOKEN      — GitHub PAT for internal repo access (identity card)
 """
 
@@ -45,7 +49,18 @@ except ImportError:
 # ── Configuration ──────────────────────────────────────────────────────────────
 
 API_KEY   = os.environ["PPLX_API_KEY"]
-MODEL     = "sonar-pro"
+MODEL = os.environ.get("MODEL", "")
+# NOTE: This script is superseded by pipeline.engine.reasoner_base (Phase B).
+# It is retained as reference only. fim-reasoner.yml now calls the engine.
+# Do not call this script directly.
+if not MODEL:
+    import warnings
+    warnings.warn(
+        "MODEL env var not set. This script is legacy — use fim-reasoner.yml "
+        "which dispatches pipeline.engine.reasoner_base.",
+        DeprecationWarning,
+        stacklevel=1,
+    )
 TODAY_STR = datetime.date.today().isoformat()
 OUT_DIR   = pathlib.Path("pipeline/monitors/financial-integrity/reasoner")
 OUT_LATEST = OUT_DIR / "reasoner-latest.json"
