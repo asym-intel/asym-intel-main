@@ -776,7 +776,7 @@ def render_monitor_strip(page: Page, registry: dict) -> str:
         pills.append(
             f'  <a class="monitor-strip__pill" data-monitor="{html.escape(m["abbr"])}" '
             f'href="{html.escape(m["url"], quote=True)}" style="--pill-accent: {html.escape(m["accent"])}">\n'
-            f'    <img class="monitor-strip__icon" src="{html.escape(m["svg_url"], quote=True)}" '
+            f'    <img class="monitor-strip__icon" src="{html.escape(m.get("svg_url") or "", quote=True)}" '
             f'alt="" width="16" height="16" aria-hidden="true">\n'
             f'    <span>{html.escape(m["short_name"])}</span>\n'
             f'  </a>'
@@ -1097,7 +1097,7 @@ def render_monitors_index_main(ctx: dict) -> str:
         parts.append(f"""    <article class="monitor-card-v2" data-monitor="{html.escape(m['abbr'])}" style="--card-accent: {html.escape(m['accent'])}">
       <div class="monitor-card-v2__top">
         <div class="monitor-card-v2__logo">
-          <img src="{html.escape(m['svg_url'], quote=True)}" alt="" width="28" height="28" aria-hidden="true">
+          <img src="{html.escape(m.get('svg_url') or '', quote=True)}" alt="" width="28" height="28" aria-hidden="true">
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:var(--space-1)">
           <span class="monitor-card-v2__abbr" style="color:{html.escape(m['accent'])}">{html.escape(m['abbr'])}</span>
