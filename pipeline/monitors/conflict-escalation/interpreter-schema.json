@@ -1226,6 +1226,18 @@
         "source_tier":    { "type": "string", "enum": ["T1", "T2", "T3"] }
       }
     }
+  },
+  "reverse_cascade_check": {
+    "type": "object",
+    "required": ["checked", "note"],
+    "properties": {
+      "checked": { "type": "boolean" },
+      "geopolitical_event": { "type": ["string", "null"] },
+      "accelerates_boundary": { "type": "boolean" },
+      "affected_boundary": { "type": ["string", "null"] },
+      "cascade_description": { "type": ["string", "null"] },
+      "note": { "type": "string" }
+    }
   }
   },
   "required": [
@@ -1253,11 +1265,6 @@
     "stability_health_composite",
     "key_judgments",
     "cross_monitor_candidates",
-    "structured_claims",
-    "active_escalation_events",
-    "f_flag_history",
-    "mediation_deescalation_architecture",
-    "treaty_posture",
-    "open_findings"
+    "structured_claims"
   ]
 }
