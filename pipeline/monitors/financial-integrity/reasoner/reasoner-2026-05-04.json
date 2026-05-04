@@ -1,0 +1,336 @@
+{
+  "_meta": {
+    "schema_version": "reasoner-v1.0",
+    "monitor_slug": "financial-integrity",
+    "job_type": "financial-integrity-reasoning",
+    "generated_at": "2026-05-04T08:11:58.685631Z",
+    "data_date": "2026-05-04",
+    "domains_reviewed": 5,
+    "jurisdictions_assessed": 4
+  },
+  "domain_assessments": [
+    {
+      "domain": "D1",
+      "domain_name": "Sanctions Architecture",
+      "current_trajectory": "stable",
+      "key_development": "SEC enforcement highlights market manipulation undermining sanctions but limited cross-border focus; US Treasury operationalizes BO filing targeting real estate AML gaps.",
+      "architecture_vs_incident": "mixed",
+      "reasoning": "SEC actions expose US markets as conduits despite enforcement, indicating persistent architecture. Treasury BO implementation addresses enabler gaps structurally but implementation unproven. No new evasion corridors identified."
+    },
+    {
+      "domain": "D2",
+      "domain_name": "Beneficial Ownership",
+      "current_trajectory": "adapting",
+      "key_development": "SEC targets biopharma disclosure failures exemplifying BO opacity; Treasury advances CTA filing amid real estate vulnerabilities.",
+      "architecture_vs_incident": "architecture",
+      "reasoning": "Cases reveal gap between US CTA framework and operational reality in corporate/health sectors. Persistent opacity in disclosures enables concealment despite regulatory pushes. Cayman funds show global registry gaps persisting."
+    },
+    {
+      "domain": "D3",
+      "domain_name": "Enabler Jurisdictions",
+      "current_trajectory": "increasing",
+      "key_development": "NCUA deregulation widens credit union oversight gaps; Kenya TBML via mobile money highlights capacity deficits.",
+      "architecture_vs_incident": "architecture",
+      "reasoning": "US deregulation signals choice-based permissive frameworks for professionals. Kenya exposes under-regulated mobile channels as enablers by capacity. Professional impunity patterns continue without structural scrutiny."
+    },
+    {
+      "domain": "D4",
+      "domain_name": "Conflict Finance",
+      "current_trajectory": "stable",
+      "key_development": "HRSA audits flag program integrity gaps; FinCEN severs Huione for SE Asia scam laundering; FATF consults on wire transfers.",
+      "architecture_vs_incident": "mixed",
+      "reasoning": "US federal gaps and SE Asia TCO conduits indicate persistent channels. FATF consultation potential closes TBML infrastructure. Kenya Al-Shabaab TBML shows underweighted CTF architecture."
+    },
+    {
+      "domain": "D5",
+      "domain_name": "Digital Assets",
+      "current_trajectory": "stable",
+      "key_development": "FinCEN notes BSA role in crypto risks; Tornado Cash trial underscores mixer sanctions evasion.",
+      "architecture_vs_incident": "architecture",
+      "reasoning": "Trials expose enduring DeFi laundering despite enforcement. No new constraints; innovation outpaces action. Huione crypto-scam links reinforce digital facilitation nodes."
+    }
+  ],
+  "jurisdiction_risk_assessments": [
+    {
+      "jurisdiction": "United States",
+      "tier": "A",
+      "risk_direction": "stable",
+      "risk_basis": "mixed",
+      "domains_driving": [
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5"
+      ],
+      "enforcement_vs_enablement": "mixed",
+      "key_finding": "High enforcement volume (SEC $17.9B penalties) coexists with deregulation (NCUA) and opacity gaps (biopharma BO, real estate).",
+      "confidence": "Confirmed"
+    },
+    {
+      "jurisdiction": "Cayman Islands",
+      "tier": "C",
+      "risk_direction": "stable",
+      "risk_basis": "structural",
+      "domains_driving": [
+        "D2"
+      ],
+      "enforcement_vs_enablement": "enablement_dominant",
+      "key_finding": "Fund structures maintain BO opacity despite registry rollout.",
+      "confidence": "Assessed"
+    },
+    {
+      "jurisdiction": "Kenya",
+      "tier": "D",
+      "risk_direction": "increasing",
+      "risk_basis": "architecture",
+      "domains_driving": [
+        "D3",
+        "D4"
+      ],
+      "enforcement_vs_enablement": "enablement_dominant",
+      "key_finding": "TBML via mobile money enables Al-Shabaab, revealing capacity-driven enabler role.",
+      "confidence": "Assessed"
+    },
+    {
+      "jurisdiction": "Global",
+      "tier": "A",
+      "risk_direction": "decreasing",
+      "risk_basis": "structural",
+      "domains_driving": [
+        "D4"
+      ],
+      "enforcement_vs_enablement": "enforcement_dominant",
+      "key_finding": "FATF wire transfer consultation targets cross-border opacity.",
+      "confidence": "Confirmed"
+    }
+  ],
+  "standing_tracker_synthesis": [
+    {
+      "tracker": "T1",
+      "tracker_name": "Russian Sanctions Evasion",
+      "trajectory": "stable",
+      "key_development": "No new designations or rerouting reports.",
+      "reasoning": "Absence of Tier 1/2 signals indicates no adaptation detected. US SEC focus diverts from evasion infrastructure. Architecture persists without visible shifts."
+    },
+    {
+      "tracker": "T2",
+      "tracker_name": "EU AML/AMLA",
+      "trajectory": "stable",
+      "key_development": "No transposition or implementation updates.",
+      "reasoning": "Implementation on track per baseline; no member-state gaps flagged. Monitoring for slippage."
+    },
+    {
+      "tracker": "T3",
+      "tracker_name": "FATF Grey List",
+      "trajectory": "stable",
+      "key_development": "No plenary or evaluation developments.",
+      "reasoning": "No listing/delisting signals; stable trajectory."
+    },
+    {
+      "tracker": "T4",
+      "tracker_name": "BO Registry Status",
+      "trajectory": "adapting",
+      "key_development": "US SEC actions expose ongoing corporate opacity.",
+      "reasoning": "Global registries remain performative; US CTA advances but gaps in practice persist. Architecture of opacity endures."
+    },
+    {
+      "tracker": "T5",
+      "tracker_name": "Crypto Integrity",
+      "trajectory": "stable",
+      "key_development": "FinCEN reaffirms BSA but no new actions.",
+      "reasoning": "Enforcement lags innovation; mixer trials highlight gaps. No MiCA trajectory shift."
+    }
+  ],
+  "severity_reviews": [
+    {
+      "scheme_or_development": "US Biopharma BO Disclosure Failures",
+      "current_severity": "HIGH",
+      "recommended_severity": "HIGH",
+      "change_warranted": false,
+      "architecture_vs_incident": "architecture",
+      "reasoning": "Persistent corporate veil gaps enable concealment; strategic for BO regimes despite enforcement."
+    },
+    {
+      "scheme_or_development": "NCUA Deregulation",
+      "current_severity": "MONITORED",
+      "recommended_severity": "ELEVATED",
+      "change_warranted": true,
+      "architecture_vs_incident": "architecture",
+      "reasoning": "Structural permissive shift risks TBML enablers; elevates beyond monitored."
+    },
+    {
+      "scheme_or_development": "Kenya TBML Al-Shabaab",
+      "current_severity": "ELEVATED",
+      "recommended_severity": "ELEVATED",
+      "change_warranted": false,
+      "architecture_vs_incident": "architecture",
+      "reasoning": "Complete source-channel-deployment trace; underweighted CTF with conflict impact."
+    },
+    {
+      "scheme_or_development": "Tornado Cash Trial",
+      "current_severity": "HIGH",
+      "recommended_severity": "HIGH",
+      "change_warranted": false,
+      "architecture_vs_incident": "architecture",
+      "reasoning": "Enduring mixer infrastructure despite sanctions; strategic crypto evasion."
+    }
+  ],
+  "filter_review": [
+    {
+      "filter": "F2",
+      "finding_reference": "SEC FY2025 D1 update",
+      "assessment": "correctly_applied",
+      "correction": null
+    },
+    {
+      "filter": "F3",
+      "finding_reference": "NCUA D3 update",
+      "assessment": "correctly_applied",
+      "correction": null
+    },
+    {
+      "filter": "F4",
+      "finding_reference": "HRSA D4 update",
+      "assessment": "incomplete",
+      "correction": "Complete source-channel-deployment trace for health/extractive overlaps."
+    },
+    {
+      "filter": "F3",
+      "finding_reference": "fim-2026-04-21-006 Kenya",
+      "assessment": "correctly_applied",
+      "correction": null
+    }
+  ],
+  "cross_monitor_flags": [
+    {
+      "target_monitor": "scem",
+      "flag_type": "conflict_finance",
+      "summary": "Kenya TBML-mobile money channels funding Al-Shabaab; HRSA gaps in health/extractive.",
+      "source_finding": "fim-2026-04-21-006, HRSA D4",
+      "urgency": "HIGH"
+    },
+    {
+      "target_monitor": "wdm",
+      "flag_type": "state_capture",
+      "summary": "US D2 biopharma opacity and institutional BO reforms.",
+      "source_finding": "SEC D2, fim-2026-04-21-001",
+      "urgency": "MEDIUM"
+    },
+    {
+      "target_monitor": "esa",
+      "flag_type": "eu_regulatory_gap",
+      "summary": "FATF wire transfer consultation aligns with EU payment transparency.",
+      "source_finding": "fim-2026-04-21-004",
+      "urgency": "MEDIUM"
+    },
+    {
+      "target_monitor": "fcw",
+      "flag_type": "fimi_funding",
+      "summary": "Al-Shabaab terrorist revenue via TBML.",
+      "source_finding": "fim-2026-04-21-006",
+      "urgency": "HIGH"
+    }
+  ],
+  "tooling_outputs": {
+    "jurisdiction_risk_movements": [
+      {
+        "jurisdiction": "United States",
+        "direction": "stable",
+        "basis": "Enforcement continuity (SEC/FinCEN) offset by deregulation (NCUA) and gaps (BO opacity).",
+        "confidence": "Confirmed"
+      },
+      {
+        "jurisdiction": "Kenya",
+        "direction": "increasing",
+        "basis": "TBML Al-Shabaab channels via mobile money.",
+        "confidence": "Assessed"
+      }
+    ],
+    "active_scheme_inventory": [
+      {
+        "scheme_name": "US Biopharma Disclosure Opacity",
+        "severity": "HIGH",
+        "jurisdictions": [
+          "United States"
+        ],
+        "pillar": "AML",
+        "confidence": "Confirmed"
+      },
+      {
+        "scheme_name": "SE Asia Scam Laundering (Huione)",
+        "severity": "HIGH",
+        "jurisdictions": [
+          "United States"
+        ],
+        "pillar": "multiple",
+        "confidence": "High"
+      },
+      {
+        "scheme_name": "Tornado Cash Mixer",
+        "severity": "HIGH",
+        "jurisdictions": [
+          "United States"
+        ],
+        "pillar": "AML",
+        "confidence": "Assessed"
+      },
+      {
+        "scheme_name": "Kenya TBML Al-Shabaab",
+        "severity": "ELEVATED",
+        "jurisdictions": [
+          "Kenya"
+        ],
+        "pillar": "CTF",
+        "confidence": "Assessed"
+      }
+    ],
+    "enforcement_gap_signals": [
+      {
+        "jurisdiction": "United States",
+        "gap_description": "Cross-border evasion infrastructure despite SEC actions; crypto mixer persistence.",
+        "significance": "High enforcement with ongoing enablement yields mixed signal."
+      },
+      {
+        "jurisdiction": "Kenya",
+        "gap_description": "Absence of TBML/mobile money enforcement.",
+        "significance": "Enables conflict finance in under-regulated region."
+      }
+    ],
+    "regulatory_horizon": [
+      {
+        "development": "US Treasury BO Filing / Real Estate AML Rules",
+        "stage": "proposal",
+        "estimated_impact_date": "2026-Q3",
+        "affected_entities": "Investment advisers, real estate professionals"
+      },
+      {
+        "development": "FATF Wire Transfer Recommendation Consultation",
+        "stage": "consultation",
+        "estimated_impact_date": "2026-Q4",
+        "affected_entities": "Global correspondent banks, payment providers"
+      },
+      {
+        "development": "NCUA Deregulation Review",
+        "stage": "adoption",
+        "estimated_impact_date": "2026-Q2",
+        "affected_entities": "US credit unions"
+      }
+    ],
+    "ctf_cpf_flags": [
+      {
+        "pillar": "CTF",
+        "signal": "TBML via mobile money funding Al-Shabaab.",
+        "jurisdiction": "Kenya",
+        "confidence": "Assessed"
+      },
+      {
+        "pillar": "CPF",
+        "signal": "FinCEN highlights crypto risks in BSA data.",
+        "jurisdiction": "United States",
+        "confidence": "Confirmed"
+      }
+    ]
+  },
+  "analyst_briefing": "US dominates signals with SEC FY2025 enforcement ($17.9B penalties) exposing D1-D5 gaps: biopharma BO opacity (HIGH, architecture), NCUA deregulation (ELEVATED, structural enabler risk), HRSA program vulnerabilities. Mixed Tier A signal—high enforcement coexists with persistent enablement, per architecture-over-incident. Kenya emerges as D3/D4 concern: TBML-mobile Al-Shabaab channels (ELEVATED, capacity-driven). Cayman funds perpetuate D2 opacity. Standing trackers stable except T4 adapting on BO gaps. Severity upgrades NCUA to ELEVATED for framework shift. Cross-flags: SCEM/FCW on Kenya CTF, WDM on US BO. Tooling ready: US stable, Kenya increasing; inventory prioritizes mixers/scams/TBML. No critical systemic shifts; enforcement episodes do not alter enabler architectures."
+}
