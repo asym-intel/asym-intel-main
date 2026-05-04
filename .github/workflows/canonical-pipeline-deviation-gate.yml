@@ -60,7 +60,7 @@ jobs:
         with:
           repository: asym-intel/asym-intel-internal
           token: ${{ secrets.COMPUTER_SHIM_INTERNAL_READ }}
-          path: .asym-intel-internal
+          path: _internal
           fetch-depth: 1
 
       - name: Set up Python
@@ -75,8 +75,8 @@ jobs:
 
       - name: Check canonical pipeline review sign-off
         run: |
-          python3 .asym-intel-internal/tools/check_canonical_pipeline_deviation.py \
+          python3 _internal/tools/check_canonical_pipeline_deviation.py \
             --base "${{ github.event.pull_request.base.sha }}" \
             --head "${{ github.event.pull_request.head.sha }}" \
             --body-file /tmp/pr-body.md \
-            --manifest .asym-intel-internal/ops/generic-pipeline-class.yml
+            --manifest _internal/ops/generic-pipeline-class.yml
