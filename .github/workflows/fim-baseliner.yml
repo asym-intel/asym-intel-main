@@ -1,0 +1,91 @@
+# fim-baseliner.yml — FIM Deep Research baselining pass
+#
+# Sprint FIM-BASELINE. Triggered manually via pipeline-dispatcher Worker
+# (slot: fim-baseliner) or direct workflow_dispatch.
+#
+# Purpose: populate static/monitors/financial-integrity/data/persistent-state.json
+# with a first-principles DR baseline before the FIM publisher is enabled.
+#
+# DR posture (enforced in collect_base.py — not configurable here):
+#   model: claude-opus-4-7
+#   enable_web_search: true
+#   web_search_max_uses: 3
+#   tool_choice: {type: tool, name: web_search}
+#
+# Depends on: collect_base.py landing in asym-intel-internal (FIM-BASE-1).
+# The reusable checkout pattern used here is consistent with all other
+# commons monitor workflows that need asym-intel-internal sources.
+
+name: FIM baseliner (DR pass)
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "dry_run: set to 'true' to parse and validate without writing persistent-state.json"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write   # write persistent-state.json back to asym-intel-main
+
+concurrency:
+  group: fim-baseliner
+  cancel-in-progress: false   # never cancel a running baseline pass
+
+jobs:
+  baseline:
+    name: FIM DR baselining pass
+    runs-on: ubuntu-latest
+    timeout-minutes: 60   # opus + web_search passes can take 20-40 min
+
+    steps:
+      - name: Checkout asym-intel-main
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: main
+
+      - name: Checkout asym-intel-internal (engine + spec)
+        uses: actions/checkout@v4
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.INTERNAL_REPO_PAT }}
+          path: internal
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install anthropic pyyaml
+
+      - name: Run DR baselining pass
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        working-directory: internal
+        run: |
+          python -m pipeline.engine.collect_base \
+            --monitor financial-integrity \
+            --spec pipeline/monitors/_baseliner/financial-integrity-baseline-spec.md \
+            --repo-root ../main
+
+      - name: Commit persistent-state.json
+        if: inputs.dry_run != 'true'
+        working-directory: main
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add static/monitors/financial-integrity/data/persistent-state.json
+          git diff --cached --stat
+          git commit -m "data(fim): DR baselining pass — $(date -u +%Y-%m-%d)" \
+            || echo "nothing to commit"
+          git push
+
+      - name: Dry run summary
+        if: inputs.dry_run == 'true'
+        run: |
+          echo "DRY RUN — persistent-state.json was NOT written."
+          echo "Check collect_base output above for parse errors."
