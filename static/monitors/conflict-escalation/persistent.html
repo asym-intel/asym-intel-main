@@ -735,6 +735,136 @@
       </div>
     </section>
 
+    <!-- R-REWIRE: module_0 — Lead Signal narrative body -->
+    <section class="module-section" id="section-m0-lead">
+      <div class="module-header">
+        <div class="module-title">Lead Signal Narrative</div>
+      </div>
+      <div id="m0-lead-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_1 — Source Synthesis -->
+    <section class="module-section" id="section-m1-synthesis">
+      <div class="module-header">
+        <div class="module-title">Source Synthesis</div>
+      </div>
+      <div id="m1-synthesis-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_2 — Force Posture Events -->
+    <section class="module-section" id="section-m2-posture">
+      <div class="module-header">
+        <div class="module-title">Force Posture Events</div>
+      </div>
+      <div id="m2-posture-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_4 — Theatre Penetration -->
+    <section class="module-section" id="section-m4-theatre">
+      <div class="module-header">
+        <div class="module-title">Theatre Penetration</div>
+      </div>
+      <div id="m4-theatre-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_5 — European + Indo-Pacific Watch -->
+    <section class="module-section" id="section-m5-regional">
+      <div class="module-header">
+        <div class="module-title">European and Indo-Pacific Theatre Watch</div>
+      </div>
+      <div id="m5-regional-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_6 — Strategic Assessments -->
+    <section class="module-section" id="section-m6-strategic">
+      <div class="module-header">
+        <div class="module-title">Strategic and Academic Assessments</div>
+      </div>
+      <div id="m6-strategic-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_7 — Escalation Risk Indicators -->
+    <section class="module-section" id="section-m7-risk">
+      <div class="module-header">
+        <div class="module-title">Escalation Risk Indicators</div>
+      </div>
+      <div id="m7-risk-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_8 — Proxy / Non-State Actor Dynamics -->
+    <section class="module-section" id="section-m8-proxy">
+      <div class="module-header">
+        <div class="module-title">Proxy and Non-State Actor Dynamics</div>
+      </div>
+      <div id="m8-proxy-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_10 — Strategic Stability Governance -->
+    <section class="module-section" id="section-m10-governance">
+      <div class="module-header">
+        <div class="module-title">Strategic Stability Governance</div>
+      </div>
+      <div id="m10-governance-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_11 — Humanitarian / IHL -->
+    <section class="module-section" id="section-m11-humanitarian">
+      <div class="module-header">
+        <div class="module-title">Humanitarian and IHL Dimensions</div>
+      </div>
+      <div id="m11-humanitarian-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_12 — Hybrid Warfare / Cognitive -->
+    <section class="module-section" id="section-m12-hybrid">
+      <div class="module-header">
+        <div class="module-title">Hybrid Warfare and Cognitive Dimensions</div>
+      </div>
+      <div id="m12-hybrid-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_13 — Civil Society / Displacement -->
+    <section class="module-section" id="section-m13-civil">
+      <div class="module-header">
+        <div class="module-title">Civil Society, Displacement, and Conflict-Societal Interface</div>
+      </div>
+      <div id="m13-civil-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- R-REWIRE: module_14 — Power Structures / Alliances -->
+    <section class="module-section" id="section-m14-power">
+      <div class="module-header">
+        <div class="module-title">Power Structures and Alliance Dynamics</div>
+      </div>
+      <div id="m14-power-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -849,6 +979,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (report.escalation_indicators)    ps._report_esc_indicators  = report.escalation_indicators;
     if (report.acled_reference)          ps._report_acled           = report.acled_reference;
     if (impact)                          ps._impact_baseline        = impact;
+    /* R-REWIRE: attach module_N from report-latest for new section bindings */
+    ps._report_modules = report || {};
 
     renderPersistent(ps);
   }).catch(function (e) {
@@ -1084,6 +1216,402 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* Re-init nav */
     if (window.AsymNav) AsymNav.init();
+
+    /* ═════════════════════════════════════════════════════════════════
+       R-REWIRE: module_N → new section bindings (SCEM)
+       Reads d.module_N populated by interpreter (schema 2.0).
+       Skips module_3, module_9, module_15 (null_signal / no data).
+    ═════════════════════════════════════════════════════════════════ */
+
+    /* R-REWIRE: module_0 → Lead Signal Narrative */
+    var _m0 = (d._report_modules || {}).module_0 || {};
+    var m0El = document.getElementById('m0-lead-content');
+    if (m0El) {
+      var m0Html = '';
+      if (_m0.body) {
+        if (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
+          m0Html = '<div class="weekly-brief-block" style="line-height:1.75;font-size:var(--text-sm)">' + AsymRenderer.renderMarkdown(_m0.body) + '</div>';
+        } else {
+          m0Html = '<div style="line-height:1.75;font-size:var(--text-sm)">' + escHtml(_m0.body) + '</div>';
+        }
+      }
+      m0El.innerHTML = m0Html || '<p class="text-muted">No lead-signal narrative this issue.</p>';
+    }
+
+    /* R-REWIRE: module_1 → Source Synthesis (mainstream + underweighted ranked lists) */
+    var _m1 = (d._report_modules || {}).module_1 || {};
+    var m1El = document.getElementById('m1-synthesis-content');
+    if (m1El) {
+      function _renderM1Item(it) {
+        var h = '<div class="card" style="margin-bottom:var(--space-3)">';
+        h += '<div class="card__label">';
+        if (it.rank) h += '#' + escHtml(String(it.rank));
+        if (it.date) h += (it.rank ? ' · ' : '') + escHtml(it.date);
+        h += '</div>';
+        if (it.headline) h += '<div class="card__title">' + escHtml(it.headline) + '</div>';
+        if (it.why_it_matters) h += '<div class="card__body" style="font-style:italic;margin-bottom:var(--space-2)">' + escHtml(it.why_it_matters) + '</div>';
+        if (it.body) {
+          if (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
+            h += '<div class="card__body">' + AsymRenderer.renderMarkdown(it.body) + '</div>';
+          } else {
+            h += '<div class="card__body">' + escHtml(it.body) + '</div>';
+          }
+        }
+        if (it.asymmetric) h += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) h += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">' + escHtml(it.source_label || 'Source') + ' →</a></div>';
+        h += '</div>';
+        return h;
+      }
+      var m1Html = '';
+      var ms = (_m1.mainstream || []).slice().sort(function(a,b){ return (a.rank||0) - (b.rank||0); });
+      var uw = (_m1.underweighted || []).slice().sort(function(a,b){ return (a.rank||0) - (b.rank||0); });
+      if (ms.length) {
+        m1Html += '<div class="section-label" style="margin-bottom:var(--space-3)">Mainstream</div>';
+        ms.forEach(function(it){ m1Html += _renderM1Item(it); });
+      }
+      if (uw.length) {
+        m1Html += '<div class="section-label" style="margin:var(--space-4) 0 var(--space-3)">Underweighted</div>';
+        uw.forEach(function(it){ m1Html += _renderM1Item(it); });
+      }
+      m1El.innerHTML = m1Html || '<p class="text-muted">No source synthesis data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_2 → Force Posture Events */
+    var _m2 = (d._report_modules || {}).module_2 || {};
+    var m2El = document.getElementById('m2-posture-content');
+    if (m2El) {
+      var m2Html = '';
+      var fpe = _m2.force_posture_events || [];
+      if (fpe.length) {
+        fpe.forEach(function(ev) {
+          m2Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+          m2Html += '<div class="card__label">';
+          if (ev.tier) m2Html += '<span class="badge">' + escHtml(ev.tier) + '</span> ';
+          if (ev.actor) m2Html += escHtml(ev.actor);
+          if (ev.reported) m2Html += (ev.actor ? ' · ' : '') + escHtml(ev.reported);
+          m2Html += '</div>';
+          if (ev.name) m2Html += '<div class="card__title">' + escHtml(ev.name) + '</div>';
+          if (ev.headline) m2Html += '<div class="card__body">' + escHtml(ev.headline) + '</div>';
+          if (ev.asymmetric) m2Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(ev.asymmetric) + '</div>';
+          m2Html += '</div>';
+        });
+      }
+      m2El.innerHTML = m2Html || '<p class="text-muted">No force posture events this issue.</p>';
+    }
+
+    /* R-REWIRE: module_4 → Theatre Penetration */
+    var _m4 = (d._report_modules || {}).module_4 || {};
+    var m4El = document.getElementById('m4-theatre-content');
+    if (m4El) {
+      var m4Html = '';
+      (_m4.theatres || []).forEach(function(t) {
+        m4Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+        m4Html += '<div class="card__label">';
+        if (t.theatre) m4Html += '<strong>' + escHtml(t.theatre) + '</strong>';
+        if (t.intensity) m4Html += ' · <span class="badge">Intensity: ' + escHtml(t.intensity) + '</span>';
+        if (t.intensity_delta) m4Html += ' <span class="badge">' + escHtml(t.intensity_delta) + '</span>';
+        if (t.stealth_flag) m4Html += ' <span class="badge">Stealth</span>';
+        m4Html += '</div>';
+        if (t.headline_developments) m4Html += '<div class="card__body">' + escHtml(t.headline_developments) + '</div>';
+        if (t.deterrence_to_escalation_gap) m4Html += '<div style="margin-top:var(--space-2);font-size:var(--text-sm)"><strong>Deterrence-to-escalation gap:</strong> ' + escHtml(t.deterrence_to_escalation_gap) + '</div>';
+        if (t.asymmetric) m4Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(t.asymmetric) + '</div>';
+        if (Array.isArray(t.sources) && t.sources.length) {
+          m4Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs)">';
+          t.sources.forEach(function(s, i) {
+            if (typeof s === 'string') {
+              m4Html += (i ? ' · ' : '') + '<a class="source-link" href="' + escHtml(s) + '" target="_blank" rel="noopener">Source ' + (i+1) + '</a>';
+            } else if (s && s.url) {
+              m4Html += (i ? ' · ' : '') + '<a class="source-link" href="' + escHtml(s.url) + '" target="_blank" rel="noopener">' + escHtml(s.label || ('Source ' + (i+1))) + '</a>';
+            }
+          });
+          m4Html += '</div>';
+        }
+        m4Html += '</div>';
+      });
+      m4El.innerHTML = m4Html || '<p class="text-muted">No theatre penetration data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_5 → European + Indo-Pacific Watch */
+    var _m5 = (d._report_modules || {}).module_5 || {};
+    var m5El = document.getElementById('m5-regional-content');
+    if (m5El) {
+      function _renderM5Region(label, region) {
+        if (!region || (typeof region !== 'object')) return '';
+        var h = '<div class="card" style="margin-bottom:var(--space-4)">';
+        h += '<div class="card__label">' + escHtml(label) + '</div>';
+        if (region.headline) h += '<div class="card__title">' + escHtml(region.headline) + '</div>';
+        Object.keys(region).forEach(function(k) {
+          if (k === 'headline') return;
+          var val = region[k];
+          var keyLabel = k.replace(/_/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+          if (typeof val === 'string' && val) {
+            h += '<div style="margin-top:var(--space-2);font-size:var(--text-sm)"><strong>' + escHtml(keyLabel) + ':</strong> ' + escHtml(val) + '</div>';
+          } else if (Array.isArray(val) && val.length) {
+            h += '<div style="margin-top:var(--space-2);font-size:var(--text-sm)"><strong>' + escHtml(keyLabel) + ':</strong><ul style="margin-top:var(--space-1)">';
+            val.forEach(function(v) {
+              if (typeof v === 'string') {
+                h += '<li>' + escHtml(v) + '</li>';
+              } else if (v && typeof v === 'object') {
+                h += '<li>' + escHtml(v.headline || v.title || v.summary || JSON.stringify(v)) + '</li>';
+              }
+            });
+            h += '</ul></div>';
+          }
+        });
+        h += '</div>';
+        return h;
+      }
+      var m5Html = '';
+      m5Html += _renderM5Region('European', _m5.european);
+      m5Html += _renderM5Region('Indo-Pacific', _m5.indo_pacific);
+      m5El.innerHTML = m5Html || '<p class="text-muted">No regional watch data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_6 → Strategic Assessments */
+    var _m6 = (d._report_modules || {}).module_6 || {};
+    var m6El = document.getElementById('m6-strategic-content');
+    if (m6El) {
+      function _renderM6Item(it) {
+        var h = '<div class="card" style="margin-bottom:var(--space-3)">';
+        h += '<div class="card__label">';
+        if (it.institution) h += escHtml(it.institution);
+        if (it.domain) h += (it.institution ? ' · ' : '') + '<span class="badge">' + escHtml(it.domain) + '</span>';
+        if (it.date) h += (it.institution || it.domain ? ' · ' : '') + escHtml(it.date);
+        h += '</div>';
+        if (it.title) h += '<div class="card__title">' + escHtml(it.title) + '</div>';
+        if (it.summary) h += '<div class="card__body">' + escHtml(it.summary) + '</div>';
+        if (it.asymmetric) h += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) h += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>';
+        h += '</div>';
+        return h;
+      }
+      var m6Html = '';
+      var groups6 = [
+        ['Threshold Events', _m6.threshold_events || []],
+        ['Programme Updates', _m6.programme_updates || []],
+        ['Research Highlights', _m6.research_highlights || []]
+      ];
+      groups6.forEach(function(g) {
+        if (g[1].length) {
+          m6Html += '<div class="section-label" style="margin:var(--space-3) 0">' + escHtml(g[0]) + '</div>';
+          g[1].forEach(function(it){ m6Html += _renderM6Item(it); });
+        }
+      });
+      m6El.innerHTML = m6Html || '<p class="text-muted">No strategic assessments data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_7 → Escalation Risk Indicators (badge cards by vector) */
+    var _m7 = (d._report_modules || {}).module_7 || {};
+    var m7El = document.getElementById('m7-risk-content');
+    if (m7El) {
+      var m7Html = '';
+      (_m7.vectors || []).forEach(function(v) {
+        var color = (v.color || '').toLowerCase();
+        var sevCls = color === 'red' ? 'critical' : color === 'amber' ? 'high' : color === 'green' ? 'positive' : 'moderate';
+        m7Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+        m7Html += '<div class="card__label" style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">';
+        m7Html += '<strong>' + escHtml(v.name || v.vector || '') + '</strong>';
+        if (v.rating) m7Html += '<span class="severity-badge severity-badge--' + sevCls + '">' + escHtml(v.rating) + '</span>';
+        if (v.level && v.level !== v.rating) m7Html += '<span class="badge">Level ' + escHtml(String(v.level)) + '</span>';
+        if (v.confidence) m7Html += '<span class="badge">' + escHtml(v.confidence) + '</span>';
+        if (v.changed === false || v.changed === 'false') m7Html += '<span class="badge">Unchanged</span>';
+        m7Html += '</div>';
+        if (v.headline) m7Html += '<div class="card__title" style="margin-top:var(--space-1)">' + escHtml(v.headline) + '</div>';
+        if (v.summary) m7Html += '<div class="card__body">' + escHtml(v.summary) + '</div>';
+        if (v.detail) m7Html += '<div style="margin-top:var(--space-2);font-size:var(--text-sm);color:var(--color-text-secondary)">' + escHtml(v.detail) + '</div>';
+        if (v.asymmetric) m7Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(v.asymmetric) + '</div>';
+        if (v.unchanged_since) m7Html += '<div style="margin-top:var(--space-1);font-size:var(--text-xs);color:var(--color-text-muted)">Unchanged since: ' + escHtml(v.unchanged_since) + '</div>';
+        if (Array.isArray(v.sources) && v.sources.length) {
+          m7Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs)">';
+          v.sources.forEach(function(s, i) {
+            if (typeof s === 'string') {
+              m7Html += (i ? ' · ' : '') + '<a class="source-link" href="' + escHtml(s) + '" target="_blank" rel="noopener">Source ' + (i+1) + '</a>';
+            } else if (s && s.url) {
+              m7Html += (i ? ' · ' : '') + '<a class="source-link" href="' + escHtml(s.url) + '" target="_blank" rel="noopener">' + escHtml(s.label || ('Source ' + (i+1))) + '</a>';
+            }
+          });
+          m7Html += '</div>';
+        }
+        m7Html += '</div>';
+      });
+      m7El.innerHTML = m7Html || '<p class="text-muted">No risk indicator data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_8 → Proxy / Non-State Actor Dynamics */
+    var _m8 = (d._report_modules || {}).module_8 || {};
+    var m8El = document.getElementById('m8-proxy-content');
+    if (m8El) {
+      var m8Html = '';
+      (_m8.items || []).forEach(function(it) {
+        m8Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+        if (it.title) m8Html += '<div class="card__title">' + escHtml(it.title) + '</div>';
+        if (it.summary) m8Html += '<div class="card__body">' + escHtml(it.summary) + '</div>';
+        if (it.asymmetric) m8Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) m8Html += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>';
+        m8Html += '</div>';
+      });
+      m8El.innerHTML = m8Html || '<p class="text-muted">No proxy / non-state actor data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_10 → Strategic Stability Governance */
+    var _m10 = (d._report_modules || {}).module_10 || {};
+    var m10El = document.getElementById('m10-governance-content');
+    if (m10El) {
+      function _renderM10Item(it, titleField) {
+        var h = '<div class="card" style="margin-bottom:var(--space-3)">';
+        var t = it[titleField] || it.item || it.gap || '';
+        if (t) h += '<div class="card__title">' + escHtml(t) + '</div>';
+        var b = it.summary || it.analysis || '';
+        if (b) h += '<div class="card__body">' + escHtml(b) + '</div>';
+        if (it.asymmetric) h += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) h += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>';
+        h += '</div>';
+        return h;
+      }
+      var m10Html = '';
+      var groups10 = [
+        ['International Frameworks', _m10.international_frameworks || [], 'item'],
+        ['Crisis Management Mechanisms', _m10.crisis_management_mechanisms || [], 'item'],
+        ['Ceasefire Negotiations', _m10.ceasefire_negotiations || [], 'item'],
+        ['Stability Gaps', _m10.stability_gaps || [], 'gap']
+      ];
+      groups10.forEach(function(g) {
+        if (g[1].length) {
+          m10Html += '<div class="section-label" style="margin:var(--space-3) 0">' + escHtml(g[0]) + '</div>';
+          g[1].forEach(function(it){ m10Html += _renderM10Item(it, g[2]); });
+        }
+      });
+      m10El.innerHTML = m10Html || '<p class="text-muted">No stability governance data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_11 → Humanitarian / IHL */
+    var _m11 = (d._report_modules || {}).module_11 || {};
+    var m11El = document.getElementById('m11-humanitarian-content');
+    if (m11El) {
+      var m11Html = '';
+      (_m11.items || []).forEach(function(it) {
+        m11Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+        m11Html += '<div class="card__label">';
+        if (it.jurisdiction) m11Html += '<span class="badge">' + escHtml(it.jurisdiction) + '</span> ';
+        m11Html += '</div>';
+        if (it.title) m11Html += '<div class="card__title">' + escHtml(it.title) + '</div>';
+        if (it.accountability_friction) m11Html += '<div class="card__body"><strong>Accountability friction:</strong> ' + escHtml(it.accountability_friction) + '</div>';
+        if (it.asymmetric) m11Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) m11Html += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>';
+        m11Html += '</div>';
+      });
+      m11El.innerHTML = m11Html || '<p class="text-muted">No humanitarian / IHL data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_12 → Hybrid Warfare / Cognitive */
+    var _m12 = (d._report_modules || {}).module_12 || {};
+    var m12El = document.getElementById('m12-hybrid-content');
+    if (m12El) {
+      var m12Html = '';
+      (_m12.items || []).forEach(function(it) {
+        m12Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+        if (it.title) m12Html += '<div class="card__title">' + escHtml(it.title) + '</div>';
+        if (it.summary) m12Html += '<div class="card__body">' + escHtml(it.summary) + '</div>';
+        if (it.asymmetric) m12Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) m12Html += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>';
+        m12Html += '</div>';
+      });
+      if ((_m12.f_flag_watch || []).length) {
+        m12Html += '<div class="section-label" style="margin:var(--space-3) 0">F-Flag Watch</div>';
+        _m12.f_flag_watch.forEach(function(f) {
+          m12Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+          m12Html += '<div class="card__label">';
+          if (f.flag) m12Html += '<span class="badge">' + escHtml(f.flag) + '</span> ';
+          if (f.theatre_affected) m12Html += escHtml(f.theatre_affected);
+          m12Html += '</div>';
+          if (f.indicator_affected) m12Html += '<div style="font-size:var(--text-sm)"><strong>Indicator:</strong> ' + escHtml(f.indicator_affected) + '</div>';
+          if (f.description) m12Html += '<div class="card__body">' + escHtml(f.description) + '</div>';
+          if (f.fcw_link) m12Html += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(f.fcw_link) + '" target="_blank" rel="noopener">FCW link →</a></div>';
+          m12Html += '</div>';
+        });
+      }
+      if ((_m12.asymmetric_flags || []).length) {
+        m12Html += '<div class="section-label" style="margin:var(--space-3) 0">Asymmetric Flags</div><ul>';
+        _m12.asymmetric_flags.forEach(function(s) {
+          m12Html += '<li style="margin-bottom:var(--space-2)">' + escHtml(typeof s === 'string' ? s : (s.text || JSON.stringify(s))) + '</li>';
+        });
+        m12Html += '</ul>';
+      }
+      m12El.innerHTML = m12Html || '<p class="text-muted">No hybrid warfare data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_13 → Civil Society / Displacement */
+    var _m13 = (d._report_modules || {}).module_13 || {};
+    var m13El = document.getElementById('m13-civil-content');
+    if (m13El) {
+      var m13Html = '';
+      (_m13.items || []).forEach(function(it) {
+        m13Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+        if (it.title) m13Html += '<div class="card__title">' + escHtml(it.title) + '</div>';
+        if (it.summary) m13Html += '<div class="card__body">' + escHtml(it.summary) + '</div>';
+        if (it.asymmetric) m13Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) m13Html += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>';
+        m13Html += '</div>';
+      });
+      if ((_m13.structural_trends || []).length) {
+        m13Html += '<div class="section-label" style="margin:var(--space-3) 0">Structural Trends</div>';
+        _m13.structural_trends.forEach(function(t) {
+          m13Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+          if (t.title) m13Html += '<div class="card__title">' + escHtml(t.title) + '</div>';
+          if (t.trend) m13Html += '<div class="card__body">' + escHtml(t.trend) + '</div>';
+          m13Html += '</div>';
+        });
+      }
+      if ((_m13.asymmetric_flags || []).length) {
+        m13Html += '<div class="section-label" style="margin:var(--space-3) 0">Asymmetric Flags</div><ul>';
+        _m13.asymmetric_flags.forEach(function(s) {
+          m13Html += '<li style="margin-bottom:var(--space-2)">' + escHtml(typeof s === 'string' ? s : (s.text || JSON.stringify(s))) + '</li>';
+        });
+        m13Html += '</ul>';
+      }
+      m13El.innerHTML = m13Html || '<p class="text-muted">No civil society data this issue.</p>';
+    }
+
+    /* R-REWIRE: module_14 → Power Structures / Alliances */
+    var _m14 = (d._report_modules || {}).module_14 || {};
+    var m14El = document.getElementById('m14-power-content');
+    if (m14El) {
+      var m14Html = '';
+      (_m14.items || []).forEach(function(it) {
+        m14Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+        if (it.title) m14Html += '<div class="card__title">' + escHtml(it.title) + '</div>';
+        if (it.summary) m14Html += '<div class="card__body">' + escHtml(it.summary) + '</div>';
+        if (it.asymmetric) m14Html += '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)"><strong>Asymmetric:</strong> ' + escHtml(it.asymmetric) + '</div>';
+        if (it.source_url) m14Html += '<div style="margin-top:var(--space-2)"><a class="source-link" href="' + escHtml(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>';
+        m14Html += '</div>';
+      });
+      var ci = _m14.concentration_index || {};
+      if ((ci.domains || []).length) {
+        m14Html += '<div class="section-label" style="margin:var(--space-3) 0">Concentration Index</div>';
+        ci.domains.forEach(function(dom) {
+          m14Html += '<div class="card" style="margin-bottom:var(--space-3)">';
+          m14Html += '<div class="card__label">';
+          if (dom.domain) m14Html += '<strong>' + escHtml(dom.domain) + '</strong>';
+          if (dom.trend) m14Html += ' · <span class="badge">' + escHtml(dom.trend) + '</span>';
+          m14Html += '</div>';
+          if (Array.isArray(dom.top_actors) && dom.top_actors.length) {
+            m14Html += '<div style="margin-top:var(--space-1);font-size:var(--text-sm)"><strong>Top actors:</strong> ' + dom.top_actors.map(escHtml).join(', ') + '</div>';
+          }
+          if (dom.note) m14Html += '<div class="card__body">' + escHtml(dom.note) + '</div>';
+          if (dom.unchanged_since) m14Html += '<div style="margin-top:var(--space-1);font-size:var(--text-xs);color:var(--color-text-muted)">Unchanged since: ' + escHtml(dom.unchanged_since) + '</div>';
+          m14Html += '</div>';
+        });
+      }
+      if ((_m14.asymmetric_flags || []).length) {
+        m14Html += '<div class="section-label" style="margin:var(--space-3) 0">Asymmetric Flags</div><ul>';
+        _m14.asymmetric_flags.forEach(function(s) {
+          m14Html += '<li style="margin-bottom:var(--space-2)">' + escHtml(typeof s === 'string' ? s : (s.text || JSON.stringify(s))) + '</li>';
+        });
+        m14Html += '</ul>';
+      }
+      m14El.innerHTML = m14Html || '<p class="text-muted">No power structures data this issue.</p>';
+    }
+
   }
 
   /* ── SCEM-specific: conflict context renderer ───────────────────────── */
