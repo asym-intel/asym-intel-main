@@ -862,11 +862,27 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'background:rgba(100,116,139,0.10);color:#64748b';
   }
   function aiStatusStyle(s) {
-    var v = String(s || '').toLowerCase();
+    var v = String(s || '').toLowerCase().replace(/[_-]+/g, ' ');
     if (v === 'in force' || v === 'active' || v === 'enforced' || v === 'leading') return 'background:rgba(5,150,105,0.12);color:#047857;font-weight:600;border-radius:3px;padding:2px 8px';
-    if (v === 'pending' || v === 'proposed' || v === 'adequate' || v === 'partial') return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
-    if (v === 'gap' || v === 'absent' || v === 'lagging' || v === 'opaque' || v === 'blocked') return 'background:rgba(220,38,38,0.12);color:#b91c1c;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'pending' || v === 'proposed' || v === 'adequate' || v === 'partial' || v === 'in progress' || v === 'dsa commitments accepted') return 'background:rgba(217,119,6,0.12);color:#b45309;font-weight:600;border-radius:3px;padding:2px 8px';
+    if (v === 'gap' || v === 'absent' || v === 'lagging' || v === 'opaque' || v === 'blocked' || v === 'structurally degraded') return 'background:rgba(220,38,38,0.12);color:#b91c1c;font-weight:600;border-radius:3px;padding:2px 8px';
     return 'color:var(--color-text-muted)';
+  }
+  function aiTitleFromKey(key) {
+    return String(key || '')
+      .replace(/[_-]+/g, ' ')
+      .replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+  }
+  function aiObjectToRows(value, labelField) {
+    if (Array.isArray(value)) return value;
+    if (value && Array.isArray(value.entries)) return value.entries;
+    if (!value || typeof value !== 'object') return [];
+    return Object.keys(value).map(function(key) {
+      var row = value[key] && typeof value[key] === 'object' ? Object.assign({}, value[key]) : { value: value[key] };
+      if (!row[labelField]) row[labelField] = aiTitleFromKey(key);
+      if (!row.id) row.id = key;
+      return row;
+    });
   }
   function renderRegulatoryFramework(list) {
     var el = document.getElementById('ai-regulatory-framework-content');
@@ -876,20 +892,21 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     var sorted = list.slice().sort(function(a,b){
-      var ad = a.last_update || a.last_material_change || '', bd = b.last_update || b.last_material_change || '';
+      var ad = a.last_update || a.last_material_change || a.last_verified || '', bd = b.last_update || b.last_material_change || b.last_verified || '';
       return ad < bd ? 1 : (ad > bd ? -1 : 0);
     });
     var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
       '<thead><tr><th>Instrument</th><th>Jurisdiction</th><th>Status</th><th>Last Update</th></tr></thead><tbody>';
     sorted.forEach(function(row) {
+      var instrument = row.instrument || row.framework || row.name || row.id || '';
       var instrumentCell = row.source_url
-        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(row.instrument || row.framework || '') + '</a>'
-        : escHtml(row.instrument || row.framework || '');
+        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(instrument) + '</a>'
+        : escHtml(instrument);
       html += '<tr>' +
         '<td>' + instrumentCell + '</td>' +
         '<td>' + escHtml(row.jurisdiction || '') + '</td>' +
         '<td><span style="' + aiStatusStyle(row.status) + '">' + escHtml(row.status || '') + '</span></td>' +
-        '<td>' + escHtml(row.last_update || row.last_material_change || '') + '</td>' +
+        '<td>' + escHtml(row.last_update || row.last_material_change || row.last_verified || '') + '</td>' +
       '</tr>';
     });
     html += '</tbody></table></div>';
@@ -910,12 +927,15 @@ document.addEventListener('DOMContentLoaded', function () {
     var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
       '<thead><tr><th>Platform</th><th>Posture</th><th>Disclosure Cadence</th><th>DSA Compliance</th><th>Trajectory</th></tr></thead><tbody>';
     sorted.forEach(function(row) {
+      var platform = row.platform || row.name || row.id || '';
+      var posture = row.transparency_posture || row.posture || row.status || '';
+      var dsa = row.dsa_compliance || row.dsa_action || '';
       html += '<tr>' +
-        '<td>' + escHtml(row.platform || '') + '</td>' +
-        '<td><span style="' + aiStatusStyle(row.transparency_posture || row.posture) + '">' + escHtml(row.transparency_posture || row.posture || '') + '</span></td>' +
+        '<td>' + escHtml(platform) + '</td>' +
+        '<td><span style="' + aiStatusStyle(posture) + '">' + escHtml(posture) + '</span></td>' +
         '<td>' + escHtml(row.disclosure_cadence || '') + '</td>' +
-        '<td><span style="' + aiStatusStyle(row.dsa_compliance) + '">' + escHtml(row.dsa_compliance || '') + '</span></td>' +
-        '<td>' + escHtml(row.trajectory || '') + '</td>' +
+        '<td><span style="' + aiStatusStyle(dsa) + '">' + escHtml(dsa) + '</span></td>' +
+        '<td>' + escHtml(row.trajectory || row.reading_protocol || '') + '</td>' +
       '</tr>';
     });
     html += '</tbody></table></div>';
@@ -929,21 +949,22 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     var sorted = list.slice().sort(function(a,b){
-      var ad = a.last_update || a.last_observed || '', bd = b.last_update || b.last_observed || '';
+      var ad = a.last_update || a.last_observed || a.retrieval_date || '', bd = b.last_update || b.last_observed || b.retrieval_date || '';
       return ad < bd ? 1 : (ad > bd ? -1 : 0);
     });
     var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
       '<thead><tr><th>Asset</th><th>Operator</th><th>Type</th><th>Status</th><th>Last Observed</th></tr></thead><tbody>';
     sorted.forEach(function(row) {
+      var asset = row.asset || row.name || row.entity_name || row.id || '';
       var assetCell = row.source_url
-        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(row.asset || row.name || '') + '</a>'
-        : escHtml(row.asset || row.name || '');
+        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(asset) + '</a>'
+        : escHtml(asset);
       html += '<tr>' +
         '<td>' + assetCell + '</td>' +
-        '<td>' + escHtml(row.operator || row.actor || '') + '</td>' +
-        '<td>' + escHtml(row.type || row.asset_type || '') + '</td>' +
-        '<td><span style="' + aiStatusStyle(row.status) + '">' + escHtml(row.status || '') + '</span></td>' +
-        '<td>' + escHtml(row.last_observed || row.last_update || '') + '</td>' +
+        '<td>' + escHtml(row.operator || row.actor || row.affiliated_actor || '') + '</td>' +
+        '<td>' + escHtml(row.type || row.asset_type || row.entity_type || '') + '</td>' +
+        '<td><span style="' + aiStatusStyle(row.status || row.sanctions_status) + '">' + escHtml(row.status || row.sanctions_status || '') + '</span></td>' +
+        '<td>' + escHtml(row.last_observed || row.last_update || row.retrieval_date || '') + '</td>' +
       '</tr>';
     });
     html += '</tbody></table></div>';
@@ -974,13 +995,13 @@ document.addEventListener('DOMContentLoaded', function () {
     el.innerHTML = html;
   }
   function renderAdditionalIntelligence(report) {
-    renderRegulatoryFramework(report.regulatory_framework || []);
+    renderRegulatoryFramework(aiObjectToRows(report.regulatory_framework, 'instrument'));
     // Defensive: support either `platform_transparency` or `platform_transparency_2026`
     // since the field naming is not yet finalized upstream.
     var pt = report.platform_transparency;
     if (!Array.isArray(pt) || !pt.length) pt = report.platform_transparency_2026;
-    renderPlatformTransparency(Array.isArray(pt) ? pt : []);
-    renderInfrastructureRegistry(report.infrastructure_registry || []);
+    renderPlatformTransparency(aiObjectToRows(pt, 'platform'));
+    renderInfrastructureRegistry(aiObjectToRows(report.infrastructure_registry, 'asset'));
     renderOpenFindings(report.open_findings || []);
   }
 });
