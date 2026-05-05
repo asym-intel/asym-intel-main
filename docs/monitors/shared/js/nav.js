@@ -333,10 +333,9 @@
     "ai-governance": {"abbr": "AIM", "name": "AI Governance Monitor", "accent": "#3a7d5a", "url": "https://asym-intel.info/monitors/ai-governance/", "svg_url": "https://asym-intel.info/images/monitors/aim.svg", "vb": "0 0 36 36", "strip_label": "Artificial Intelligence"},
     "environmental-risks": {"abbr": "ERM", "name": "Environmental Risks Monitor", "accent": "#4caf7d", "url": "https://asym-intel.info/monitors/environmental-risks/", "svg_url": "https://asym-intel.info/images/monitors/erm.svg", "vb": "0 0 36 36", "strip_label": "Environmental Risks"},
     "conflict-escalation": {"abbr": "SCEM", "name": "Strategic Conflict & Escalation Monitor", "accent": "#dc2626", "url": "https://asym-intel.info/monitors/conflict-escalation/", "svg_url": "https://asym-intel.info/images/monitors/scem.svg", "vb": "0 0 36 36", "strip_label": "Strategic Conflict"},
-    "advennt": {"abbr": "ADVENNT", "name": "Advennt \u2014 Gambling Regulatory Intelligence", "accent": "#f5a524", "url": "https://advennt.io/", "svg_url": null, "vb": null, "strip_label": "Advennt"},
   };
 
-  var MONITOR_TRIAGE_ORDER = ["GMM", "SCEM", "FCW", "AIM", "WDM", "ESA", "ERM", "ADVENNT"];
+  var MONITOR_TRIAGE_ORDER = ["GMM", "SCEM", "FCW", "AIM", "WDM", "ESA", "ERM"];
   /* END @REGISTRY_INLINE */
 
   // Inject strip at parse time for immediate render (same as network bar).
