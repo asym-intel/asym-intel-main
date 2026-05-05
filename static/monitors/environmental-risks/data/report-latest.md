@@ -1,6 +1,6 @@
-# Global Environmental Risks Monitor — Issue 12
+# Global Environmental Risks Monitor — Issue 13
 
-**W/E 5 May 2026** | Published 2026-05-05T05:00:00Z
+**W/E 9 May 2026** | Published 2026-05-09T05:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -64,21 +64,21 @@ Next week requires Tier 1 in-water coral bleaching surveys from NOAA Coral Reef 
 
 ## Cross-Monitor Flags
 
-- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 9)
-- **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 10)
-- **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 12)
+- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 10)
+- **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 11)
+- **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 13)
 - **AMOC-driven African droughts** (scem) — Active — NEW
 - **Record climate displacement 83.4M** (scem) — Active — NEW
 - **US drought food insecurity** (gmm) — Active — NEW
-- **AMOC weakening El Nino drought elevate Europe Asia food energy conflict risks** (conflict-escalation) — Active — verified (adjacent Issue 9)
-- **AMOC trajectory acceleration El Nino commodity risks Europe infrastructure stress** (macro-monitor) — Active — verified (adjacent Issue 10)
-- **Governance lag versus 1.5C exceedance AMOC signals** (democratic-integrity) — Active — verified (adjacent Issue 12)
-- **AMOC collapse carbon feedback quantified at 47-83 ppm CO2 would materially alter long-run physical risk pricing and stranded asset timelines across fossil fuel and coastal real estate sectors** (macro-monitor) — Active — NEW
-- **El Niño drought forecast escalates food insecurity and displacement pressure in Central America Dry Corridor, with historical links to northward migration surges and political instability** (conflict-escalation) — Active — NEW
-- **AMOC slowdown-driven tropical rainfall redistribution would intensify drought in Sahel and monsoon disruption in South Asia, amplifying food insecurity and conflict risk** (conflict-escalation) — Active — NEW
-- **Accelerating 1.5C trajectory undermines NDC credibility and creates political pressure on governments with weak climate commitments, potentially triggering democratic accountability crises** (democratic-integrity) — Active — NEW
-- **AMOC tipping point science and C3S 1.5C exceedance findings are documented targets of climate disinformation campaigns; new bistability findings may trigger coordinated counter-messaging** (fimi-cognitive-warfare) — Active — NEW
-- **C3S multi-system seasonal forecast ensemble represents operational AI-assisted climate prediction infrastructure; forecast skill under El Niño onset conditions is benchmark test for ensemble reliability** (ai-governance) — Active — NEW
+- **AMOC weakening El Nino drought elevate Europe Asia food energy conflict risks** (conflict-escalation) — Active — verified (adjacent Issue 10)
+- **AMOC trajectory acceleration El Nino commodity risks Europe infrastructure stress** (macro-monitor) — Active — verified (adjacent Issue 11)
+- **Governance lag versus 1.5C exceedance AMOC signals** (democratic-integrity) — Active — verified (adjacent Issue 13)
+- **AMOC collapse carbon feedback quantified at 47-83 ppm CO2 would materially alter long-run physical risk pricing and stranded asset timelines across fossil fuel and coastal real estate sectors** (macro-monitor) — Active — verified (adjacent Issue 11)
+- **El Niño drought forecast escalates food insecurity and displacement pressure in Central America Dry Corridor, with historical links to northward migration surges and political instability** (conflict-escalation) — Active — verified (adjacent Issue 10)
+- **AMOC slowdown-driven tropical rainfall redistribution would intensify drought in Sahel and monsoon disruption in South Asia, amplifying food insecurity and conflict risk** (conflict-escalation) — Active — verified (adjacent Issue 10)
+- **Accelerating 1.5C trajectory undermines NDC credibility and creates political pressure on governments with weak climate commitments, potentially triggering democratic accountability crises** (democratic-integrity) — Active — verified (adjacent Issue 13)
+- **AMOC tipping point science and C3S 1.5C exceedance findings are documented targets of climate disinformation campaigns; new bistability findings may trigger coordinated counter-messaging** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
+- **C3S multi-system seasonal forecast ensemble represents operational AI-assisted climate prediction infrastructure; forecast skill under El Niño onset conditions is benchmark test for ensemble reliability** (ai-governance) — Active — verified (adjacent Issue 13)
 
 ---
 
