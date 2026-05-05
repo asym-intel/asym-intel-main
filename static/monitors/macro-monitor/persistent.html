@@ -341,6 +341,126 @@
       <div id="ps-cmf"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- module_0 — Lead Signal -->
+    <section class="module-section" id="section-m0-lead">
+      <div class="module-header">
+        <div class="module-title">Lead Signal</div>
+      </div>
+      <div id="m0-lead-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_1 — Source Synthesis -->
+    <section class="module-section" id="section-m1-synthesis">
+      <div class="module-header">
+        <div class="module-title">Source Synthesis</div>
+      </div>
+      <div id="m1-synthesis-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_2 — Policy Announcements / Data Releases -->
+    <section class="module-section" id="section-m2-policy">
+      <div class="module-header">
+        <div class="module-title">Policy Announcements / Data Releases</div>
+      </div>
+      <div id="m2-policy-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_3 — Capital Flows / Liquidity -->
+    <section class="module-section" id="section-m3-capital">
+      <div class="module-header">
+        <div class="module-title">Capital Flows / Liquidity</div>
+      </div>
+      <div id="m3-capital-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_4 — Indicator Domain Coverage -->
+    <section class="module-section" id="section-m4-indicators">
+      <div class="module-header">
+        <div class="module-title">Indicator Domain Coverage</div>
+      </div>
+      <div id="m4-indicators-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_5 — Currency / Sovereign Debt -->
+    <section class="module-section" id="section-m5-currency">
+      <div class="module-header">
+        <div class="module-title">Currency / Sovereign Debt</div>
+      </div>
+      <div id="m5-currency-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_6 — Research / Institutional Assessments -->
+    <section class="module-section" id="section-m6-research">
+      <div class="module-header">
+        <div class="module-title">Research / Institutional Assessments</div>
+      </div>
+      <div id="m6-research-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_7 — Risk Indicators -->
+    <section class="module-section" id="section-m7-risk">
+      <div class="module-header">
+        <div class="module-title">Risk Indicators</div>
+      </div>
+      <div id="m7-risk-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_8 — Financial System Stress -->
+    <section class="module-section" id="section-m8-stress">
+      <div class="module-header">
+        <div class="module-title">Financial System Stress</div>
+      </div>
+      <div id="m8-stress-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_9 — Trade / Tariff Policy Watch -->
+    <section class="module-section" id="section-m9-trade">
+      <div class="module-header">
+        <div class="module-title">Trade / Tariff Policy Watch</div>
+      </div>
+      <div id="m9-trade-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_10 — Macroeconomic Governance -->
+    <section class="module-section" id="section-m10-governance">
+      <div class="module-header">
+        <div class="module-title">Macroeconomic Governance</div>
+      </div>
+      <div id="m10-governance-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <!-- module_11 — Scenario / Tail Risk -->
+    <section class="module-section" id="section-m11-scenario">
+      <div class="module-header">
+        <div class="module-title">Scenario / Tail Risk</div>
+      </div>
+      <div id="m11-scenario-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -705,6 +825,257 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.AsymSections && AsymSections.renderCrossMonitorFlags) {
       AsymSections.renderCrossMonitorFlags(report.cross_monitor_flags || {}, 'ps-cmf');
     }
+
+    /* ── R-REWIRE: module_0 – module_11 bindings (sourced from report-latest.json) ── */
+    var d = report || {};
+    function md(text) {
+      if (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown) {
+        return AsymRenderer.renderMarkdown(String(text == null ? '' : text));
+      }
+      return esc(text);
+    }
+    function srcLink(url, label) {
+      if (!url) return '';
+      return '<a class="source-link" href="' + esc(url) + '" target="_blank" rel="noopener">' + esc(label || 'Source') + ' →</a>';
+    }
+    function emptyMsg(msg) { return '<p class="text-muted text-sm">' + esc(msg || 'No data this issue.') + '</p>'; }
+
+    function renderCardList(arr, opts) {
+      opts = opts || {};
+      if (!arr || !arr.length) return emptyMsg(opts.empty);
+      var html = '';
+      arr.forEach(function(item) {
+        if (!item) return;
+        var title = item.title || item.headline || item.event || item.item || item.gap || item.name || item.vector || '';
+        var label = item.institution || item.category || item.segment || item.market || item.domain || item.scenario_type || item.actor || item.actors || item.venue || '';
+        var summary = item.summary || item.note || item.analysis || item.trend || item.detail || item.body || item.macro_impact || '';
+        var asym = item.asymmetric || '';
+        var srcUrl = item.source_url || '';
+        var srcLabel = item.source_label || item.source || '';
+        var dateBit = item.released ? ' · ' + esc(item.released) : item.date ? ' · ' + esc(item.date) : item.published ? ' · ' + esc(item.published) : item.effective_date ? ' · ' + esc(item.effective_date) : '';
+        html += '<div class="card" style="margin-bottom:var(--space-3)">' +
+          (label ? '<div class="card__label">' + esc(label) + dateBit + '</div>' : (dateBit ? '<div class="card__label">' + dateBit.replace(/^ · /, '') + '</div>' : '')) +
+          (title ? '<div class="card__title">' + esc(title) + '</div>' : '') +
+          (summary ? '<div class="card__body">' + esc(summary) + '</div>' : '') +
+          (item.significance ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Significance:</strong> ' + esc(item.significance) + '</div>' : '') +
+          (item.enforcement ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Enforcement:</strong> ' + esc(item.enforcement) + '</div>' : '') +
+          (item.status ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Status:</strong> ' + esc(item.status) + '</div>' : '') +
+          (item.target ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Target:</strong> ' + esc(item.target) + '</div>' : '') +
+          (item.measure ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Measure:</strong> ' + esc(item.measure) + '</div>' : '') +
+          (item.probability_delta ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Probability Δ:</strong> ' + esc(item.probability_delta) + '</div>' : '') +
+          (asym ? '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);background:var(--color-bg-alt);border-radius:var(--radius-sm);font-size:var(--text-xs);line-height:1.5"><strong>Asymmetric:</strong> ' + esc(asym) + '</div>' : '') +
+          (srcUrl ? '<div class="card__footer" style="margin-top:var(--space-2)">' + srcLink(srcUrl, srcLabel) + '</div>' : (srcLabel ? '<div class="card__footer" style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(srcLabel) + '</div>' : '')) +
+        '</div>';
+      });
+      return html;
+    }
+
+    /* module_0 — Lead Signal */
+    var m0 = d.module_0 || {};
+    var m0El = document.getElementById('m0-lead-content');
+    if (m0El) m0El.innerHTML = m0.body
+      ? '<div class="signal-block"><div class="signal-block__body" style="line-height:1.7">' + md(m0.body) + '</div></div>'
+      : emptyMsg('No lead signal this issue.');
+
+    /* module_1 — Source Synthesis */
+    var m1 = d.module_1 || {};
+    function renderRankedList(arr, label) {
+      if (!arr || !arr.length) return '';
+      var html = '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">' + esc(label) + '</div>';
+      arr.forEach(function(item) {
+        var rank = item.rank != null ? item.rank : '';
+        html += '<div class="card" style="margin-bottom:var(--space-3)">' +
+          '<div class="card__label">' + (rank !== '' ? '#' + esc(rank) : '') + (item.date ? ' · ' + esc(item.date) : '') + (item.source_label ? ' · ' + esc(item.source_label) : '') + '</div>' +
+          (item.headline ? '<div class="card__title">' + esc(item.headline) + '</div>' : '') +
+          (item.why_it_matters ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Why it matters:</strong> ' + esc(item.why_it_matters) + '</div>' : '') +
+          (item.body ? '<div class="card__body" style="margin-top:var(--space-2)">' + md(item.body) + '</div>' : '') +
+          (item.asymmetric ? '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);background:var(--color-bg-alt);border-radius:var(--radius-sm);font-size:var(--text-xs);line-height:1.5"><strong>Asymmetric:</strong> ' + esc(item.asymmetric) + '</div>' : '') +
+          (item.source_url ? '<div class="card__footer" style="margin-top:var(--space-2)">' + srcLink(item.source_url, item.source_label) + '</div>' : '') +
+        '</div>';
+      });
+      return html;
+    }
+    var m1Html = renderRankedList(m1.mainstream || [], 'Mainstream') + renderRankedList(m1.underweighted || [], 'Underweighted');
+    var m1El = document.getElementById('m1-synthesis-content');
+    if (m1El) m1El.innerHTML = m1Html || emptyMsg('No source synthesis this issue.');
+
+    /* module_2 — Policy Announcements */
+    var m2 = d.module_2 || {};
+    var m2El = document.getElementById('m2-policy-content');
+    if (m2El) m2El.innerHTML = renderCardList((m2.announcements || []).filter(Boolean), { empty: 'No policy announcements this issue.' });
+
+    /* module_3 — Capital Flows / Liquidity */
+    var m3 = d.module_3 || {};
+    var m3Html = '';
+    if ((m3.flow_events || []).filter(Boolean).length) {
+      m3Html += '<div class="section-label" style="margin-bottom:var(--space-3)">Flow Events</div>' + renderCardList((m3.flow_events || []).filter(Boolean));
+    }
+    if ((m3.liquidity_conditions || []).filter(Boolean).length) {
+      m3Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Liquidity Conditions</div>' + renderCardList((m3.liquidity_conditions || []).filter(Boolean));
+    }
+    if ((m3.reserve_movements || []).filter(Boolean).length) {
+      m3Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Reserve Movements</div>' + renderCardList((m3.reserve_movements || []).filter(Boolean));
+    }
+    var m3El = document.getElementById('m3-capital-content');
+    if (m3El) m3El.innerHTML = m3Html || emptyMsg('No capital flow or liquidity items this issue.');
+
+    /* module_4 — Indicator Domain Coverage */
+    var m4 = d.module_4 || {};
+    var m4Arr = (m4.domains || []).filter(Boolean);
+    var m4El = document.getElementById('m4-indicators-content');
+    if (m4El) {
+      if (!m4Arr.length) {
+        m4El.innerHTML = emptyMsg('No indicator domains this issue.');
+      } else {
+        var m4Html = '';
+        m4Arr.forEach(function(dom) {
+          var headlines = Array.isArray(dom.headline_developments) ? dom.headline_developments : [];
+          var sources = Array.isArray(dom.sources) ? dom.sources : [];
+          var stressFlag = dom.stress_level === 'Red' ? 'WARNING' : dom.stress_level === 'Amber' ? 'ELEVATED' : dom.stress_level === 'Green' ? 'GREEN' : '';
+          m4Html += '<div class="card" style="margin-bottom:var(--space-3)">' +
+            '<div class="card__label">' + esc(dom.domain || '') + (dom.stress_level ? ' · <span class="flag-badge flag-badge--' + flagClass(stressFlag) + '">' + esc(dom.stress_level) + '</span>' : '') + (dom.direction ? ' · ' + esc(dom.direction) : '') + '</div>' +
+            (headlines.length ? '<ul style="margin-top:var(--space-2);padding-left:var(--space-4)">' + headlines.map(function(h){ return '<li style="margin-bottom:var(--space-1)">' + esc(h) + '</li>'; }).join('') + '</ul>' : '') +
+            (dom.key_data_point ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)"><strong>Key data:</strong> ' + esc(dom.key_data_point) + '</div>' : '') +
+            (dom.asymmetric ? '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);background:var(--color-bg-alt);border-radius:var(--radius-sm);font-size:var(--text-xs);line-height:1.5"><strong>Asymmetric:</strong> ' + esc(dom.asymmetric) + '</div>' : '') +
+            (sources.length ? '<div class="card__footer" style="margin-top:var(--space-2);display:flex;flex-wrap:wrap;gap:var(--space-2)">' + sources.map(function(s){ return srcLink(s, 'Source'); }).join('') + '</div>' : '') +
+          '</div>';
+        });
+        m4El.innerHTML = m4Html;
+      }
+    }
+
+    /* module_5 — Currency / Sovereign Debt */
+    var m5 = d.module_5 || {};
+    var m5Html = '';
+    var m5Cur = (m5.currency_signals || []).filter(Boolean);
+    var m5Sov = (m5.sovereign_debt || []).filter(Boolean);
+    if (m5Cur.length) {
+      m5Html += '<div class="section-label" style="margin-bottom:var(--space-3)">Currency Signals</div>' + renderCardList(m5Cur);
+    }
+    if (m5Sov.length) {
+      m5Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Sovereign Debt</div>' + renderCardList(m5Sov);
+    }
+    var m5El = document.getElementById('m5-currency-content');
+    if (m5El) m5El.innerHTML = m5Html || emptyMsg('No currency or sovereign debt items this issue.');
+
+    /* module_6 — Research / Institutional Assessments */
+    var m6 = d.module_6 || {};
+    var m6Html = '';
+    var m6Th = (m6.threshold_assessments || []).filter(Boolean);
+    var m6Re = (m6.research_highlights || []).filter(Boolean);
+    if (m6Th.length) {
+      m6Html += '<div class="section-label" style="margin-bottom:var(--space-3)">Threshold Assessments</div>' + renderCardList(m6Th);
+    }
+    if (m6Re.length) {
+      m6Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Research Highlights</div>' + renderCardList(m6Re);
+    }
+    var m6El = document.getElementById('m6-research-content');
+    if (m6El) m6El.innerHTML = m6Html || emptyMsg('No research items this issue.');
+
+    /* module_7 — Risk Indicators */
+    var m7 = d.module_7 || {};
+    var m7Arr = (m7.vectors || []).filter(Boolean);
+    var m7El = document.getElementById('m7-risk-content');
+    if (m7El) {
+      if (!m7Arr.length) {
+        m7El.innerHTML = emptyMsg('No risk vectors this issue.');
+      } else {
+        var m7Html = '<div style="display:grid;gap:var(--space-3)">';
+        m7Arr.forEach(function(v) {
+          var rating = v.rating || v.level || '';
+          var ratingCls = /high|critical|red/i.test(rating) ? 'critical' : /medium|elevated|amber/i.test(rating) ? 'moderate' : /low|green/i.test(rating) ? 'positive' : 'moderate';
+          m7Html += '<div class="card">' +
+            '<div class="card__label">' + esc(v.name || v.vector || '') + (rating ? ' <span class="severity-badge severity-badge--' + ratingCls + '">' + esc(rating) + '</span>' : '') + '</div>' +
+            (v.headline ? '<div class="card__title">' + esc(v.headline) + '</div>' : '') +
+            (v.summary ? '<div class="card__body">' + esc(v.summary) + '</div>' : '') +
+            (v.detail ? '<div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin-top:var(--space-2)">' + esc(v.detail) + '</div>' : '') +
+            (v.asymmetric ? '<div style="margin-top:var(--space-3);padding:var(--space-2) var(--space-3);background:var(--color-bg-alt);border-radius:var(--radius-sm);font-size:var(--text-xs);line-height:1.5"><strong>Asymmetric:</strong> ' + esc(v.asymmetric) + '</div>' : '') +
+            (v.source_url ? '<div class="card__footer" style="margin-top:var(--space-2)">' + srcLink(v.source_url, v.source_label) + '</div>' : '') +
+          '</div>';
+        });
+        m7Html += '</div>';
+        m7El.innerHTML = m7Html;
+      }
+    }
+
+    /* module_8 — Financial System Stress */
+    var m8 = d.module_8 || {};
+    var m8El = document.getElementById('m8-stress-content');
+    if (m8El) m8El.innerHTML = renderCardList((m8.items || []).filter(Boolean), { empty: 'No financial stress items this issue.' });
+
+    /* module_9 — Trade / Tariff Policy Watch */
+    var m9 = d.module_9 || {};
+    var m9Html = '';
+    if (m9.digest_note) {
+      m9Html += '<div class="signal-block" style="margin-bottom:var(--space-4)"><div class="signal-block__body">' + esc(m9.digest_note) + '</div></div>';
+    }
+    if (m9.tariff_escalation_rung) {
+      m9Html += '<div class="card" style="margin-bottom:var(--space-3)">' +
+        '<div class="card__label">Tariff Escalation Rung</div>' +
+        '<div class="card__body">' + esc(m9.tariff_escalation_rung) + '</div>' +
+      '</div>';
+    }
+    var m9New = (m9.new_developments || []).filter(Boolean);
+    if (m9New.length) {
+      m9Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">New Developments</div>' + renderCardList(m9New);
+    }
+    var m9NoCh = (m9.no_change || []).filter(Boolean);
+    if (m9NoCh.length) {
+      m9Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">No Change</div>' + renderCardList(m9NoCh);
+    }
+    if (m9.friction_analysis) {
+      m9Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Friction Analysis</div>' +
+        '<div class="card"><div class="card__body">' + esc(m9.friction_analysis) + '</div></div>';
+    }
+    var m9Ret = (m9.retaliation_chain || []).filter(Boolean);
+    if (m9Ret.length) {
+      m9Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Retaliation Chain</div>' + renderCardList(m9Ret);
+    }
+    var m9El = document.getElementById('m9-trade-content');
+    if (m9El) m9El.innerHTML = m9Html || emptyMsg('No trade or tariff items this issue.');
+
+    /* module_10 — Macroeconomic Governance */
+    var m10 = d.module_10 || {};
+    var m10Html = '';
+    var m10Mul = (m10.multilateral_signals || []).filter(Boolean);
+    if (m10Mul.length) {
+      m10Html += '<div class="section-label" style="margin-bottom:var(--space-3)">Multilateral Signals</div>' + renderCardList(m10Mul);
+    }
+    var m10Cb = (m10.central_bank_coordination || []).filter(Boolean);
+    if (m10Cb.length) {
+      m10Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Central Bank Coordination</div>' + renderCardList(m10Cb);
+    }
+    var m10Fis = (m10.fiscal_governance || []).filter(Boolean);
+    if (m10Fis.length) {
+      m10Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Fiscal Governance</div>' + renderCardList(m10Fis);
+    }
+    var m10Gap = (m10.governance_gaps || []).filter(Boolean);
+    if (m10Gap.length) {
+      m10Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Governance Gaps</div>' + renderCardList(m10Gap);
+    }
+    var m10El = document.getElementById('m10-governance-content');
+    if (m10El) m10El.innerHTML = m10Html || emptyMsg('No governance items this issue.');
+
+    /* module_11 — Scenario / Tail Risk */
+    var m11 = d.module_11 || {};
+    var m11Html = '';
+    var m11Items = (m11.items || []).filter(Boolean);
+    if (m11Items.length) {
+      m11Html += '<div class="section-label" style="margin-bottom:var(--space-3)">Scenarios</div>' + renderCardList(m11Items);
+    }
+    var m11Str = (m11.structural_trends || []).filter(Boolean);
+    if (m11Str.length) {
+      m11Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Structural Trends</div>' + renderCardList(m11Str);
+    }
+    var m11Flags = (m11.asymmetric_flags || []).filter(function(f){ return f != null && f !== ''; });
+    if (m11Flags.length) {
+      m11Html += '<div class="section-label" style="margin-top:var(--space-4);margin-bottom:var(--space-3)">Asymmetric Flags</div>' +
+        '<ul style="padding-left:var(--space-4);margin:0">' +
+        m11Flags.map(function(f){ return '<li style="margin-bottom:var(--space-2);font-size:var(--text-sm);line-height:1.6">' + (typeof f === 'string' ? esc(f) : esc(f.flag || f.headline || f.summary || JSON.stringify(f))) + '</li>'; }).join('') +
+        '</ul>';
+    }
+    var m11El = document.getElementById('m11-scenario-content');
+    if (m11El) m11El.innerHTML = m11Html || emptyMsg('No scenario or tail risk items this issue.');
   }
 
   // ── Conviction Chart (P1 — improved: auto-scale, gradient, zero line, score labels) ────
