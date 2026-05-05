@@ -686,8 +686,11 @@
     var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
       '<thead><tr><th>Lab</th><th>Posture</th><th>Last Change</th><th>Confidence</th></tr></thead><tbody>';
     sorted.forEach(function(row) {
+      // Engine emits `actor` for ongoing_lab_postures rows; accept `lab` as a fallback
+      // so the renderer survives an upstream rename without re-shipping the dashboard.
+      var labName = row.actor || row.lab || '';
       html += '<tr>' +
-        '<td>' + escHtml(row.lab || '') + '</td>' +
+        '<td>' + escHtml(labName) + '</td>' +
         '<td>' + escHtml(aiTruncate(row.posture, 120)) + '</td>' +
         '<td>' + escHtml(row.last_material_change || '') + '</td>' +
         '<td><span style="' + aiConfidenceStyle(row.confidence) + '">' + escHtml(row.confidence || '') + '</span></td>' +
