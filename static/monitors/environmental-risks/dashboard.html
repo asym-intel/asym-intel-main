@@ -898,11 +898,14 @@ document.addEventListener('DOMContentLoaded', function () {
     var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
       '<thead><tr><th>System</th><th>Status</th><th>Proxy</th><th>Current Value</th></tr></thead><tbody>';
     sorted.forEach(function(row) {
+      var proxy = row.proxy_metric || row.proxy || '';
+      var currentValue = row.proxy_value != null ? row.proxy_value
+                        : (row.current_value != null ? row.current_value : '');
       html += '<tr>' +
         '<td>' + escHtml(row.system || '') + '</td>' +
         '<td><span style="' + aiTippingStatusStyle(row.status) + '">' + escHtml(row.status || '') + '</span></td>' +
-        '<td>' + escHtml(row.proxy || '') + '</td>' +
-        '<td>' + escHtml(row.current_value != null ? row.current_value : '') + '</td>' +
+        '<td>' + escHtml(proxy) + '</td>' +
+        '<td>' + escHtml(currentValue) + '</td>' +
       '</tr>';
     });
     html += '</tbody></table></div>';
