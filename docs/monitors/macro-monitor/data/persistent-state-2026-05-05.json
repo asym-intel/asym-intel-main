@@ -1,0 +1,1296 @@
+{
+  "_meta": {
+    "description": "Persistent living knowledge for the Global Macro monitor (GMM). Carries forward asset class baselines, active tactical alerts, standing supply shock drivers, blind spot overrides, and conviction history across weekly issues.",
+    "last_updated": "2026-04-29T16:03:43Z",
+    "last_issue": 10,
+    "schema_version": "2.0",
+    "baseline_method": "dr-computer-2026-04-28",
+    "baseline_window_months": 18,
+    "baseline_run_id": "gmm-2026-04-28",
+    "baseline_dispatched_at": "2026-04-28T08:00:00Z",
+    "baseline_model": "computer-research-subagent",
+    "predecessor_archive": "persistent-state-2026-04-28-pre-baseliner.json"
+  },
+  "asset_class_baseline": [
+    {
+      "asset_class": "Metals",
+      "current_score": -0.58,
+      "current_flag": "BEARISH",
+      "current_direction": "HIGH",
+      "baseline_score": -0.58,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-001",
+          "description": "Metals under sustained pressure from tariff-driven demand destruction (11.8% effective US tariff rate as of Apr 8 2026), Hormuz closure cutting Gulf metal flows, and dollar safe-haven bid. Section 232 metals tariffs restructured Apr 6 2026 with multi-rate system (50% high-content, 25% most derivatives).",
+          "source_url": "https://budgetlab.yale.edu/research/state-us-tariffs-april-8-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "statistics-agency"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-002",
+          "description": "IMF WEO April 2026 projects base metals prices broadly flat in 2026 reference scenario; adverse scenario sees broader commodity price destruction as demand contracts. EM demand for metals (esp. China) critical variable.",
+          "source_url": "https://www.imf.org/en/publications/weo/issues/2026/04/14/world-economic-outlook-april-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "official"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-003",
+          "description": "China LPR held at 3.0% (1yr) / 3.5% (5yr) for eleventh consecutive month as of Apr 20 2026; PBoC 'moderately loose' stance supports domestic metals demand but war-related oil cost surge and external uncertainty weigh on industrial activity.",
+          "source_url": "https://www.cnbc.com/2026/04/20/china-keeps-benchmark-lending-rates-unchanged-as-economic-growth-revs-up-amid-mounting-middle-east-risk-mount-.html",
+          "retrieval_date": "2026-04-28",
+          "source_type": "central-bank"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.31",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.41",
+          "reason": "Direction multipliers applied; all indicators Deteriorating",
+          "prior_value": -0.31
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Score updated to -0.446 (MILD NEGATIVE)",
+          "reason": "Issue 2 scoring run: Liberation Day tariffs, consumer confidence 53.3, Hormuz escalation, private credit gate events confirmed",
+          "prior_value": -0.41
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.588 (BEARISH)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.446
+        },
+        {
+          "date": "2026-04-17",
+          "old_score": -0.588,
+          "new_score": -0.58,
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.58 → -0.58, reason: score confirmed; tariff regime (11.8% effective rate), Hormuz status partially open but fragile, China metals demand supported by PBoC loose stance but geopolitical premium sustained. Score held.",
+          "prior_value": -0.58,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "asset_class": "Energy",
+      "current_score": -0.87,
+      "current_flag": "BEARISH",
+      "current_direction": "HIGH",
+      "baseline_score": -0.87,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-004",
+          "description": "Strait of Hormuz partially open as of Apr 17-24 2026 with ceasefire extended but fragile; Iran asserting IRGC permission requirement for all transits. Prior to conflict ~138 vessels/day transited; now 5-10/day. IEA head Birol: 'most significant energy security threat in history' — 13M bpd lost globally.",
+          "source_url": "https://www.unitedagainstnucleariran.com/blog/iran-war-shipping-update-april-23-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-005",
+          "description": "Brent crude at ~$104 as of Apr 24 2026 (down from ~$120 peak in mid-March); WTI ~$94. Oil up >55% since Iran war began Feb 28 2026. RSM GDP forecast for 2026 revised down to 1.7%. Oxford Economics threshold: oil must average $115-$125/bbl for full quarter to trigger global GDP contraction — approaching red line in Q2.",
+          "source_url": "https://www.cnbc.com/2026/04/24/oil-price-wti-brent-after-israel-lebanon-ceasefire-extension.html",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-006",
+          "description": "IMF WEO April 2026 reference scenario: oil prices increase 21.4% on Middle East disruption; average petroleum spot price $82/bbl for year. Adverse scenario: 80% further oil price increase from Q2 baseline. Energy inflation component in US CPI March 2026: +12.5% YoY (+21.2% gasoline MoM).",
+          "source_url": "https://www.imf.org/-/media/files/publications/weo/2026/april/english/ch1.pdf",
+          "retrieval_date": "2026-04-28",
+          "source_type": "official"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.70",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.73",
+          "reason": "Direction multipliers; oil_supply_shock active disruption",
+          "prior_value": -0.7
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Score updated to -0.785 (BEARISH)",
+          "reason": "Issue 2 scoring run: Liberation Day tariffs, consumer confidence 53.3, Hormuz escalation, private credit gate events confirmed",
+          "prior_value": -0.73
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.865 (BEARISH)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.785
+        },
+        {
+          "date": "2026-04-17",
+          "old_score": -0.865,
+          "new_score": -0.87,
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.87 → -0.87, reason: Hormuz still effectively closed (5-10 ships/day vs 138 normal); Brent ~$104 Apr 24; ceasefire tenuous; energy remains primary inflation driver. Score confirmed BEARISH HIGH.",
+          "prior_value": -0.87,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "asset_class": "Bonds",
+      "current_score": -0.68,
+      "current_flag": "BEARISH",
+      "current_direction": "HIGH",
+      "baseline_score": -0.68,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-007",
+          "description": "US 10yr Treasury yield ~4.35% as of Apr 27 2026; 30yr at ~4.91%. $9.8 trillion maturity wall in 2026 (one-third of all publicly held Treasury debt); ~$800bn/month refinancing. Net interest costs exceeding $1 trillion in FY2026 (~14% of total federal outlays). CBO: deficit $1.9T (5.8% GDP) FY2026, debt 101% GDP.",
+          "source_url": "https://www.cbo.gov/publication/61882",
+          "retrieval_date": "2026-04-28",
+          "source_type": "official"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-008",
+          "description": "NY Fed Liberty Street: Treasury market liquidity improved to best since 2021 in early 2026 before Iran war outbreak; post-war volatility elevated but not disorderly. Apr 8 10yr note auction cleared at 4.282% (6bps higher than prior month). Bank reserves at $3.2T — ample funding cushion.",
+          "source_url": "https://libertystreeteconomics.newyorkfed.org/2026/04/treasury-market-liquidity-since-april-2025/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "central-bank"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-009",
+          "description": "Fed held rates at 3.5-3.75% at March 18 2026 FOMC; FOMC minutes (Apr 8) show 'almost all participants' supported hold; dot plot projects single cut in 2026; 7 of 19 members see no cuts in 2026. FOMC Apr 28-29 meeting: market consensus 99.8% probability of no change (Polymarket).",
+          "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260318.htm",
+          "retrieval_date": "2026-04-28",
+          "source_type": "central-bank"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.34",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.40",
+          "reason": "JGB deterioration; direction multipliers applied",
+          "prior_value": -0.34
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Score updated to -0.39 (MILD NEGATIVE)",
+          "reason": "Issue 2 scoring run: Liberation Day tariffs, consumer confidence 53.3, Hormuz escalation, private credit gate events confirmed",
+          "prior_value": -0.4
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.677 (BEARISH)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.39
+        },
+        {
+          "date": "2026-04-17",
+          "old_score": -0.677,
+          "new_score": -0.68,
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.68 → -0.68, reason: 10yr at 4.35%, $9.8T maturity wall, $1T+ annual interest cost, 30yr weak auction Apr 9. Treasury market not in crisis but structural supply/demand imbalance remains. Score confirmed BEARISH HIGH.",
+          "prior_value": -0.68,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "asset_class": "Crypto",
+      "current_score": -0.44,
+      "current_flag": "MILD NEGATIVE",
+      "current_direction": "MEDIUM",
+      "baseline_score": -0.44,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-010",
+          "description": "Crypto in risk-off environment driven by Iran war, energy shock, tariff uncertainty. Real M2 deteriorating (nominal M2 ~1.8-2.0% YoY per Fed H.6 mid-Apr 2026, but real M2 negative after CPI). Blind Spot 2 (Nominal M2 Mirage) active.",
+          "source_url": "https://www.federalreserve.gov/releases/h6/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "central-bank"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-011",
+          "description": "DXY at 98.50 Apr 27 2026; safe-haven demand from Iran war providing partial USD support that compresses crypto risk appetite. 10Y-2Y spread 57bps. G5 liquidity carrier wave peaking in early-mid 2026 per macro models — negative for risk assets incl. crypto into late 2026.",
+          "source_url": "https://ahasignals.com/dxy-forecast-april-2026/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.40",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.42",
+          "reason": "Direction multipliers; m2 deteriorating",
+          "prior_value": -0.4
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Score updated to -0.427 (MILD NEGATIVE)",
+          "reason": "Issue 2 scoring run: Liberation Day tariffs, consumer confidence 53.3, Hormuz escalation, private credit gate events confirmed",
+          "prior_value": -0.42
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.438 (MILD NEGATIVE)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.427
+        },
+        {
+          "date": "2026-04-17",
+          "old_score": -0.438,
+          "new_score": -0.44,
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.44 → -0.44, reason: risk-off environment, real M2 negative, safe-haven DXY compression. MILD NEGATIVE MEDIUM confirmed.",
+          "prior_value": -0.44,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "asset_class": "Tech",
+      "current_score": -0.28,
+      "current_flag": "MILD NEGATIVE",
+      "current_direction": "Bifurcated",
+      "baseline_score": -0.28,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-012",
+          "description": "Tech bifurcated: AI capex acceleration (hyperscalers $300-400bn combined annual) vs. tariff headwinds on hardware supply chains. Blind Spot 7 active: Q1 earnings pre-date Liberation Day; pre-tariff beats mask Q2 guidance deterioration. EPS revision breadth negative (~-15% per FactSet challenge finding f-003).",
+          "source_url": "https://budgetlab.yale.edu/research/state-us-tariffs-april-8-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "statistics-agency"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-013",
+          "description": "US government shutdown in Q4 2025 cut public expenditure; US GDP growth slowed to 0.5% annualized in Q4 2025 (IMF WEO). Expansion in US technology-related spending remained strong in Q4 but high import share offset GDP contribution. AI infrastructure investment driving business spending resilience into Q1 2026.",
+          "source_url": "https://www.imf.org/-/media/files/publications/weo/2026/april/english/ch1.pdf",
+          "retrieval_date": "2026-04-28",
+          "source_type": "official"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.29",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.31",
+          "reason": "Direction multipliers applied",
+          "prior_value": -0.29
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Score updated to -0.334 (MILD NEGATIVE)",
+          "reason": "Issue 2 scoring run: Liberation Day tariffs, consumer confidence 53.3, Hormuz escalation, private credit gate events confirmed",
+          "prior_value": -0.31
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.28 (MILD NEGATIVE)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.334
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.28 → -0.28, reason: bifurcated signal confirmed; AI capex accelerating ($300-400bn hyperscalers) but tariff headwinds and Q2 guidance season risk active. MILD NEGATIVE Bifurcated confirmed.",
+          "prior_value": -0.28,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "asset_class": "Consumer Staples",
+      "current_score": -0.78,
+      "current_flag": "BEARISH",
+      "current_direction": "Deteriorating",
+      "baseline_score": -0.78,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-014",
+          "description": "Consumer confidence crushed by energy/food price shock. University of Michigan survey historically correlated: energy-driven CPI surges suppress consumer confidence sharply. US CPI March 2026 +3.3% YoY (energy +12.5%, food +2.7%). 57% of Americans say economy in recession per Harris/Guardian survey despite official data.",
+          "source_url": "https://www.bls.gov/news.release/cpi.nr0.htm",
+          "retrieval_date": "2026-04-28",
+          "source_type": "statistics-agency"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-015",
+          "description": "RSM GDP forecast for US 2026 revised to 1.7% (from 2.4%); 30% recession probability over next 12 months. Consumer real purchasing power compressed by energy/food cost surge plus tariff pass-through. Blind Spot 5 active: tariff-driven earnings beats mask underlying consumer stress.",
+          "source_url": "https://realeconomy.rsmus.com/rsm-lowers-gdp-forecast-for-2026-to-1-7/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.83",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.88",
+          "reason": "Consumer confidence at GFC trough; direction multipliers",
+          "prior_value": -0.83
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Score updated to -0.908 (BEARISH)",
+          "reason": "Issue 2 scoring run: Liberation Day tariffs, consumer confidence 53.3, Hormuz escalation, private credit gate events confirmed",
+          "prior_value": -0.88
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.78 (BEARISH)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.908
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.78 → -0.78, reason: CPI 3.3% YoY March, energy +12.5%, consumer purchasing power compressed, 57% Americans believe in recession, RSM 30% recession probability. Score confirmed BEARISH Deteriorating.",
+          "prior_value": -0.78,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "asset_class": "EM Equities",
+      "current_score": -0.87,
+      "current_flag": "BEARISH",
+      "current_direction": "HIGH",
+      "baseline_score": -0.87,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-016",
+          "description": "IMF WEO April 2026: EM and developing economy growth revised to 3.9% 2026 (from 4.2% in Jan); Middle East/Central Asia halved to 1.9%. IMF warns commodity-importing EMEs face 'double hit' — energy/food prices in USD plus local currency depreciation amplification. EM public debt projected to rise to 86% GDP by 2031.",
+          "source_url": "https://www.imf.org/en/publications/weo/issues/2026/04/14/world-economic-outlook-april-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "official"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-017",
+          "description": "BIS Quarterly Review March 2026: EMEs with high external USD debt and shallow FX markets forced to track US monetary policy, constraining rate cuts. Capital outflows and currency depreciation creating self-reinforcing tightening loop. PIIE April 2026: many EM central banks prioritizing inflation containment over growth — some tightening ahead of Fed.",
+          "source_url": "https://www.bis.org/publ/qtrpdf/r_qt2603e.pdf",
+          "retrieval_date": "2026-04-28",
+          "source_type": "official"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-018",
+          "description": "Gramercy EM Weekly April 25 2026: hard currency sovereign bonds declined -0.38% at index level; high yield (-0.50%) underperforming investment grade (-0.25%); rating agency negative outlooks for fiscal consolidation targets. MSCI EM index under pressure from global risk-off and USD strength.",
+          "source_url": "https://www.gramercy.com/2026/04/em-weekly-april-25-2026/",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.60",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.65",
+          "reason": "Sudan/Fragile Five deterioration; direction multipliers",
+          "prior_value": -0.6
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Score updated to -0.46 (MILD NEGATIVE)",
+          "reason": "Issue 2 scoring run: Liberation Day tariffs, consumer confidence 53.3, Hormuz escalation, private credit gate events confirmed",
+          "prior_value": -0.65
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.869 (BEARISH)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.46
+        },
+        {
+          "date": "2026-04-17",
+          "old_score": -0.869,
+          "new_score": -0.87,
+          "source": "publisher-auto"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.87 → -0.87, reason: IMF EM growth 3.9% (vs 4.2% Jan), Middle East/Central Asia 1.9%, capital outflows, currency stress, BIS EM-USD debt amplification mechanism active. Score confirmed BEARISH HIGH.",
+          "prior_value": -0.87,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "asset_class": "Real Estate",
+      "current_score": -0.82,
+      "current_flag": "BEARISH",
+      "current_direction": "Deteriorating",
+      "baseline_score": -0.82,
+      "baseline_date": "2026-04-28",
+      "evidence": [
+        {
+          "evidence_id": "GMM-BASE-ACB-019",
+          "description": "Rates elevated (10yr at 4.35%) suppressing CRE and residential valuations. CBO projects interest costs exceeding $1T annually in FY2026, sustained higher-for-longer environment. AI capex watch data suggests grid constraint risk (medium) from data center build-out creating localized CRE demand pockets but does not offset broad sector bearishness.",
+          "source_url": "https://www.cbo.gov/publication/62105",
+          "retrieval_date": "2026-04-28",
+          "source_type": "official"
+        },
+        {
+          "evidence_id": "GMM-BASE-ACB-020",
+          "description": "Real estate cycle in 'final fragility phase' per Oxford Economics/Longbon macro analysis Apr 2026. Private credit stress and CRE delinquency acceleration noted since Q4 2025. Residential: mortgage rates tracking 10yr elevated; affordability remains worst in decades. G5 liquidity carrier wave peaking in early 2026 — peak then decline unfavorable for real assets.",
+          "source_url": "https://alanlongbon.substack.com/p/april-2026-trading-outlook-fiscal",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
+      "version_history": [
+        {
+          "date": "2026-03-25",
+          "change": "Baseline set at -0.59",
+          "reason": "Inaugural scoring run",
+          "prior_value": null
+        },
+        {
+          "date": "2026-03-30",
+          "change": "Score updated to -0.67",
+          "reason": "CRE delinquency accelerating; private credit stress",
+          "prior_value": -0.59
+        },
+        {
+          "date": "2026-04-07",
+          "change": "Score updated to -0.82 (BEARISH)",
+          "reason": "Issue 3 scoring run: Liberation Day tariff shock cascade (T3, effective rate 22%); energy shock +26bps breakeven; fx_swap_basis GREEN→ELEVATED; dollar_weaponization ELEVATED→WARNING; treasury_market_liquidity ELEVATED→WARNING",
+          "prior_value": -0.67
+        },
+        {
+          "date": "2026-04-28",
+          "change": "DR-Computer baseline reset: -0.82 → -0.82, reason: 10yr at 4.35% sustained, CRE fragility phase, private credit stress, G5 liquidity carrier peak. Score confirmed BEARISH Deteriorating.",
+          "prior_value": -0.82,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    }
+  ],
+  "active_tactical_alerts": [
+    {
+      "alert_id": "ALERT-001",
+      "name": "dollar_weaponization",
+      "evidence_id": "GMM-BASE-ATA-001",
+      "current_state": "WARNING",
+      "last_state_change": "2026-04-07",
+      "description": "Dollar weaponization via sanctions, SWIFT exclusions, and tariff-as-coercion mechanisms accelerating. DXY at 98.50 Apr 27 — below 100 psychological level. De-dollarization narrative active but IMF COFER Q3 2025 shows USD share 56.92% nominal (still dominant). CFTC: net speculative USD longs at 18th percentile (near-record short) — squeeze risk elevated. US-Germany 10Y spread 155bps — compressing.",
+      "source_url": "https://ahasignals.com/dxy-forecast-april-2026/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "version_history": [
+        {
+          "date": "2026-04-07",
+          "change": "ELEVATED → WARNING",
+          "reason": "Issue 3: Liberation Day tariff cascade, SWIFT/sanctions expansion signals, fiscal fragility driving structural USD bearish factors",
+          "prior_value": "ELEVATED"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Confirmed WARNING: DXY 98.50 below 100; COT net longs at 18th percentile; de-dollarization narrative sustained; US-Germany spread 155bps stable but compressing. Short-squeeze risk high but structural bearish factors persist.",
+          "prior_value": "WARNING"
+        }
+      ]
+    },
+    {
+      "alert_id": "ALERT-002",
+      "name": "treasury_market_liquidity",
+      "evidence_id": "GMM-BASE-ATA-002",
+      "current_state": "WARNING",
+      "last_state_change": "2026-04-07",
+      "description": "Treasury market under dual stress: (1) $9.8T maturity wall in 2026 ($800bn/month refinancing); (2) Net interest crossing $1T threshold FY2026; (3) 30yr bond auction Apr 9 showed weak demand (cleared 0.5bp through market — sign of demand shortfall). Bank reserves $3.2T ample but issuance tsunami risk. NY Fed: liquidity improved through Feb 2026 but Iran war uncertainty re-elevated volatility.",
+      "source_url": "https://libertystreeteconomics.newyorkfed.org/2026/04/treasury-market-liquidity-since-april-2025/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "central-bank",
+      "version_history": [
+        {
+          "date": "2026-04-07",
+          "change": "ELEVATED → WARNING",
+          "reason": "Issue 3: treasury market stressed by tariff shock and geopolitical premium; basis widening",
+          "prior_value": "ELEVATED"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Confirmed WARNING: $9.8T maturity wall, $1T+ interest cost, 30yr weak auction, Iran war re-elevated volatility. 10yr auction Apr 8 better but 30yr Apr 9 showed shortfall. Structural supply imbalance persists.",
+          "prior_value": "WARNING"
+        }
+      ]
+    },
+    {
+      "alert_id": "ALERT-003",
+      "name": "fx_swap_basis",
+      "evidence_id": "GMM-BASE-ATA-003",
+      "current_state": "ELEVATED",
+      "last_state_change": "2026-04-07",
+      "description": "Cross-currency basis swap volumes hit all-time high in Q1 2026 ($3.6T notional, +36% YoY). Bloomberg Apr 10: demand for dollars in swaps ebbing alongside Iran ceasefire — but volumes surge signals underlying stress. EUR/USD basis widened during war peak; partial normalization on ceasefire. OMFIF March 2026: one-third of respondents flag basis and FX swap market conditions as top-three funding concern.",
+      "source_url": "https://www.clarusft.com/q1-2026-cross-currency-swap-volumes-and-market-shares/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "version_history": [
+        {
+          "date": "2026-04-07",
+          "change": "GREEN → ELEVATED",
+          "reason": "Issue 3: Liberation Day tariff shock cascade widened cross-currency basis",
+          "prior_value": "GREEN"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Confirmed ELEVATED: Q1 2026 volumes at all-time high ($3.6T), partial normalization on ceasefire news but structural stress intact. Bloomberg Apr 10 notes ebbing demand during ceasefire — ELEVATED not WARNING appropriate.",
+          "prior_value": "ELEVATED"
+        }
+      ]
+    }
+  ],
+  "standing_supply_shock_drivers": [
+    {
+      "driver_id": "SSD-001",
+      "name": "hormuz_oil_supply_disruption",
+      "structural_facts": {
+        "evidence_id": "GMM-BASE-SSD-001",
+        "description": "Strait of Hormuz structural chokepoint: ~20M bpd normal capacity (20% of global petroleum liquids). US-Iran war began Feb 28 2026 with US-Israeli strikes. Strait effectively closed for commercial traffic since early March 2026.",
+        "source_url": "https://www.cnbc.com/2026/04/21/oil-price-iran-war-middle-east.html",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      },
+      "windowed_events": [
+        {
+          "evidence_id": "GMM-BASE-SSD-002",
+          "event_date": "2026-02-28",
+          "description": "US-Israeli strikes on Iran begin. Iran retaliates. Strait of Hormuz closure begins.",
+          "source_url": "https://www.lemonde.fr/en/economy/article/2026/04/14/imf-cuts-global-growth-forecast-due-to-middle-east-war_6752413_19.html",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        },
+        {
+          "evidence_id": "GMM-BASE-SSD-003",
+          "event_date": "2026-03-25",
+          "description": "Iran imposes $2M 'toll' on ships transiting via Iranian territorial waters route; US/Israel vessels excluded. ~6 ships/day transiting vs 138 normal. IEA: 13M bpd supply lost globally.",
+          "source_url": "https://www.unitedagainstnucleariran.com/blog/iran-war-shipping-update-april-23-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        },
+        {
+          "evidence_id": "GMM-BASE-SSD-004",
+          "event_date": "2026-04-08",
+          "description": "Two-week US-Iran ceasefire announced. Brent falls ~10%; Iran FM declares Hormuz 'completely open' Apr 17-18. But Iran re-asserts IRGC control within hours; ships turned back; US Navy seizes Iranian vessel Apr 18. Ceasefire extended by Trump Apr 22 due to 'fractured' Tehran politics but blockade maintained.",
+          "source_url": "https://www.aljazeera.com/economy/2026/4/17/shipping-firms-seek-clarifications-before-crossing-hormuz",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        },
+        {
+          "evidence_id": "GMM-BASE-SSD-005",
+          "event_date": "2026-04-24",
+          "description": "Brent at $104.63 Apr 24; talks in Pakistan with US delegation. Iran refuses further talks. Strait at 5-10 ships/day vs 138 normal. US blockade of Iranian ports continues. IEA head Birol: 'largest energy security threat in history'.",
+          "source_url": "https://www.cnbc.com/2026/04/24/oil-price-wti-brent-after-israel-lebanon-ceasefire-extension.html",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
+      "current_driver": "Iran conflict / Hormuz restriction — partially open under IRGC control, fragile ceasefire",
+      "current_state_note": "Ceasefire extended but US blockade of Iranian ports maintained. Brent ~$104 Apr 24. Hormuz 5-10 ships/day. Resolution requires IRGC withdrawal from transit control + mine clearance.",
+      "resolution_criteria": "AIS-confirmed resumption of commercial crossings without IRGC toll/permission requirement; geopolitical premium drops below $5/bbl; US blockade lifted",
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-03-24",
+          "change": "Initial driver set to Iran conflict / Hormuz restriction",
+          "reason": "Zero AIS crossings confirmed by Windward Maritime Intelligence",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-01",
+          "change": "Oil shock materially escalated: Brent peaked $126/bbl, Hormuz flows at 25% of normal, Gulf producers cutting 10M bpd",
+          "reason": "EIA STEO March 2026; JPMorgan; Reuters; intellectia.ai — confirmed largest supply disruption in history",
+          "prior_value": "$15–20 USD/barrel geopolitical premium; zero AIS commercial crossings as of March 14, 2026"
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Status updated: Ceasefire extended Apr 22; IRGC permission/toll regime for Hormuz transit established; Brent $104 Apr 24; IEA 13M bpd globally lost; US blockade of Iranian ports maintained",
+          "reason": "DR-Computer baseline 2026-04-28",
+          "prior_value": "Brent peaked $126/bbl; Hormuz effectively closed"
+        }
+      ]
+    },
+    {
+      "driver_id": "SSD-002",
+      "name": "us_tariff_regime",
+      "structural_facts": {
+        "evidence_id": "GMM-BASE-SSD-006",
+        "description": "US tariff regime fundamentally restructured since Liberation Day (Apr 2 2025). Current effective tariff rate: 11.8% as of Apr 8 2026 — highest since early 1940s (exc. 2025 peak). Section 232 metals (multi-rate), Section 232 autos, Section 122 (10% global, expires July), plus new 100% pharma tariffs effective Sep 29 2026.",
+        "source_url": "https://budgetlab.yale.edu/research/state-us-tariffs-april-8-2026",
+        "retrieval_date": "2026-04-28",
+        "source_type": "statistics-agency"
+      },
+      "windowed_events": [
+        {
+          "evidence_id": "GMM-BASE-SSD-007",
+          "event_date": "2026-02-20",
+          "description": "SCOTUS strikes down IEEPA Liberation Day tariffs. Trump imposes 10% Section 122 tariffs. Effective rate falls to ~11% but remains historically extreme.",
+          "source_url": "https://www.axios.com/2026/04/02/trump-trade-tariffs-liberation-day",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        },
+        {
+          "evidence_id": "GMM-BASE-SSD-008",
+          "event_date": "2026-04-06",
+          "description": "Section 232 metals tariff restructuring takes effect: multi-rate system (50% high-metal content, 25% most derivatives, 15% threshold). Effective tariff rate rises to 11.8%.",
+          "source_url": "https://budgetlab.yale.edu/research/state-us-tariffs-april-8-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "statistics-agency"
+        },
+        {
+          "evidence_id": "GMM-BASE-SSD-009",
+          "event_date": "2026-04-08",
+          "description": "100% Section 232 pharmaceutical tariffs announced (generics/orphan drugs exempt). Effective Sep 29 2026. Yale Budget Lab: if Sec 122 expires, end-2026 rate = 9.7%; if permanent, 12.2%. China faces 31.6% effective rate.",
+          "source_url": "https://budgetlab.yale.edu/research/state-us-tariffs-april-8-2026",
+          "retrieval_date": "2026-04-28",
+          "source_type": "statistics-agency"
+        }
+      ],
+      "active_retaliators": [
+        "China",
+        "Canada",
+        "Mexico",
+        "EU"
+      ],
+      "wto_filings": 4,
+      "current_tariff_rate_approx": 11.8,
+      "last_updated": "2026-04-28"
+    },
+    {
+      "driver_id": "SSD-003",
+      "name": "sanctions_architecture",
+      "structural_facts": {
+        "evidence_id": "GMM-BASE-SSD-010",
+        "description": "US expanded sanctions perimeter in Iran war context. US blockade of Iranian ports in effect. Sanctions on Russian/Iranian vessels selectively lifted to free up 'dark fleet' tanker capacity for oil re-routing. SWIFT exclusions of Iranian entities expanded.",
+        "source_url": "https://www.cnbc.com/2026/04/21/oil-price-iran-war-middle-east.html",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      },
+      "windowed_events": [
+        {
+          "evidence_id": "GMM-BASE-SSD-011",
+          "event_date": "2026-03-01",
+          "description": "US selectively lifts sanctions on Russian and Iranian vessels to free tanker capacity for US supply chain. Net effect: dark fleet activated for non-Hormuz supply routes.",
+          "source_url": "https://www.youtube.com/watch?v=o5dipK6o7Mo",
+          "retrieval_date": "2026-04-28",
+          "source_type": "news-of-record"
+        }
+      ],
+      "last_updated": "2026-04-28"
+    }
+  ],
+  "regime_classification": {
+    "evidence_id": "GMM-BASE-RCL-001",
+    "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260318.htm",
+    "retrieval_date": "2026-04-28",
+    "source_type": "central-bank",
+    "jurisdictions": {
+      "US": {
+        "evidence_id": "GMM-BASE-RCL-002",
+        "fiscal_posture": "Expansionary",
+        "fiscal_posture_basis": "CBO: $1.9T deficit (5.8% GDP) FY2026; debt at 101% GDP; OBBBA tax cuts adding $4.7T over 10yr; net interest >$1T threshold crossed.",
+        "monetary_stance": "Hawkish-hold",
+        "monetary_stance_basis": "Fed funds 3.5-3.75% (held Jan, Mar 2026); dot plot: 1 cut in 2026 (7/19 see no cuts); FOMC minutes: almost all support hold; Polymarket 99.8% no change Apr 29.",
+        "fx_regime": "Free-float",
+        "last_regime_change": "2025-09-30",
+        "last_regime_change_note": "Last rate change was Dec 2025 cut; regime now hawkish-hold from Jan 2026.",
+        "source_url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260318.htm",
+        "retrieval_date": "2026-04-28",
+        "source_type": "central-bank"
+      },
+      "Eurozone": {
+        "evidence_id": "GMM-BASE-RCL-003",
+        "fiscal_posture": "Mixed",
+        "fiscal_posture_basis": "Germany fiscal stimulus active (fiscal rule reform 2025); EU defence spending increase. Southern periphery fiscal consolidation continuing. Blind Spot 6: defence spending on imported platforms has limited EU growth multiplier.",
+        "monetary_stance": "Neutral",
+        "monetary_stance_basis": "ECB held rates at Mar 19 2026 meeting: deposit 2.00%, MRO 2.15%, MLF 2.40%. Lagarde signaled pause Apr 15 despite upside inflation risks. Morningstar: markets now price 1-2 ECB hikes in 2026 due to Iran war energy shock — terminal rate ~2.5%. Inflation forecast 2.6% in 2026 (up from 1.9%).",
+        "fx_regime": "Free-float",
+        "last_regime_change": "2025-06-11",
+        "last_regime_change_note": "ECB deposit rate cut to 2.00% Jun 11 2025; held since.",
+        "source_url": "https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp260319~3057739775.en.html",
+        "retrieval_date": "2026-04-28",
+        "source_type": "central-bank"
+      },
+      "UK": {
+        "evidence_id": "GMM-BASE-RCL-004",
+        "fiscal_posture": "Mixed",
+        "fiscal_posture_basis": "UK economy has negative output gap per IMF; IMF WEO April 2026 revised UK growth down 0.5pp to 0.8% in 2026. Chancellor maintaining fiscal rules under pressure.",
+        "monetary_stance": "Neutral-to-dovish",
+        "monetary_stance_basis": "Bank of England Bank Rate 3.75% (held, next decision Apr 30 2026). BoE cut rates 6 times since Aug 2024. Current inflation 3.3%. IMF notes UK still has negative output gap constraining tightening.",
+        "fx_regime": "Free-float",
+        "last_regime_change": "2025-08-07",
+        "last_regime_change_note": "BoE began cutting cycle Aug 2024; 6 cuts total through early 2026.",
+        "source_url": "https://www.bankofengland.co.uk/monetary-policy/the-interest-rate-bank-rate",
+        "retrieval_date": "2026-04-28",
+        "source_type": "central-bank"
+      },
+      "Japan": {
+        "evidence_id": "GMM-BASE-RCL-005",
+        "fiscal_posture": "Expansionary",
+        "fiscal_posture_basis": "Japan GDP rebounded to 1.3% annualized in Q4 2025 from stronger consumption/investment. Government maintaining expansionary stance; IMF WEO 2026 forecast 0.7%.",
+        "monetary_stance": "Hawkish-creep",
+        "monetary_stance_basis": "BoJ held at 0.75% Apr 26-27 2026 (8-1 vote; Takata dissented for hike to 1%). Rate at highest since 1995. Bloomberg Apr 8: former BoJ official says April hike 'about time to act'; market consensus however pricing no change. Quarterly Outlook Report Apr 28. Trading Economics: 1.00% by end Q2 2026.",
+        "fx_regime": "Managed-float",
+        "last_regime_change": "2025-09-01",
+        "last_regime_change_note": "BoJ hiked to 0.75% at latest increase from 0.5%.",
+        "source_url": "https://tradingeconomics.com/japan/interest-rate",
+        "retrieval_date": "2026-04-28",
+        "source_type": "central-bank"
+      },
+      "China": {
+        "evidence_id": "GMM-BASE-RCL-006",
+        "fiscal_posture": "Expansionary",
+        "fiscal_posture_basis": "China growth: IMF WEO 4.4% in 2026 (from 5% in 2025). Fiscal support provided (infrastructure, domestic demand stimulus). IMF: additional fiscal support provided in Q4 2025 / early 2026. Export sector strong but domestic demand weak.",
+        "monetary_stance": "Dovish",
+        "monetary_stance_basis": "PBoC: 'moderately loose' monetary policy confirmed Jan, Feb, Mar 2026 by governor Pan Gongsheng. LPR held 3.0% (1yr) / 3.5% (5yr) for 11 consecutive months (Apr 20 2026). RRR and open market operations maintain ample liquidity. War-related energy inflation reducing urgency for further rate cuts — 'wait and see' mode as of Apr 2026.",
+        "fx_regime": "Managed (CNY peg to basket)",
+        "last_regime_change": "2026-01-07",
+        "last_regime_change_note": "PBoC reaffirmed moderately loose stance Jan 2026; LPR held; no change to peg management framework.",
+        "source_url": "https://www.cnbc.com/2026/04/20/china-keeps-benchmark-lending-rates-unchanged-as-economic-growth-revs-up-amid-mounting-middle-east-risk-mount-.html",
+        "retrieval_date": "2026-04-28",
+        "source_type": "central-bank"
+      },
+      "G10_EM_Representative": {
+        "evidence_id": "GMM-BASE-RCL-007",
+        "fiscal_posture": "Contractionary-to-mixed",
+        "fiscal_posture_basis": "IMF: EM public debt rising to 86% GDP by 2031. Fiscal consolidation required in most commodity-importing EMs. Rating agencies maintaining negative outlooks. Fragile frontier sovereigns under pressure from energy/food import bill surge.",
+        "monetary_stance": "Tightening-bias",
+        "monetary_stance_basis": "PIIE April 2026: many EM central banks prioritizing inflation containment over growth — tracking Fed or ahead. BIS Quarterly Review March 2026: EMEs with high USD debt and shallow FX markets forced to track US rate path.",
+        "fx_regime": "Mixed (spectrum from free-float to managed)",
+        "last_regime_change": "2026-03-01",
+        "last_regime_change_note": "Iran war onset forced widespread EM currency intervention and tightening bias shift from early 2026 easing expectations.",
+        "source_url": "https://www.piie.com/blogs/realtime-economics/2026/amid-wartime-disruptions-most-emerging-market-central-banks-will",
+        "retrieval_date": "2026-04-28",
+        "source_type": "official"
+      }
+    }
+  },
+  "blind_spot_overrides": [
+    {
+      "rule": "Rule 1 — Earnings Suppression",
+      "indicator": "earnings_revisions",
+      "active": true,
+      "active_since": "2026-03-24",
+      "warning": "Score may be suppressed by buyback distortion and non-GAAP adjustments. Watch Q2 guidance season.",
+      "evidence_id": "GMM-BASE-BSO-001",
+      "source_url": "https://www.schwab.com/learn/story/fomc-meeting",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "version_history": [
+        {
+          "date": "2026-03-24",
+          "change": "Rule 1 activated — earnings_revisions is GREEN",
+          "reason": "Indicator reading +12.5% Q1 est. but structurally suppressed",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Confirmed active: Challenger finding f-003 flags earnings_revisions ELEVATED (not GREEN) — EPS revision breadth -15% per FactSet. Buyback and non-GAAP distortion ongoing. Q2 guidance season is the real signal (Liberation Day impact not in Q1 results). Rule 1 remains operative.",
+          "prior_value": true,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    },
+    {
+      "rule": "Rule 2 — Nominal M2 Mirage",
+      "indicator": "m2_money_supply",
+      "active": true,
+      "active_since": "2026-03-24",
+      "warning": "Nominal M2 expansion is thinning in real terms. Fed H.6 Apr 17 shows M2 YoY ~1.8-2.0%. Real M2 negative after CPI 3.3% adjustment. Forward Real M2 may turn negative by Q3 2026.",
+      "evidence_id": "GMM-BASE-BSO-002",
+      "source_url": "https://www.federalreserve.gov/releases/h6/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "central-bank",
+      "version_history": [
+        {
+          "date": "2026-03-24",
+          "change": "Rule 2 activated — m2_money_supply ELEVATED and Deteriorating",
+          "reason": "Real M2 +1.78% vs Core PCE; approaching zero vs PPI pipeline",
+          "prior_value": null
+        },
+        {
+          "date": "2026-04-28",
+          "change": "Confirmed active: Challenger finding f-004 flags M2 YoY ~1.8-2.0% per H.6 (close to prior 2.1% reading); real M2 clearly negative after CPI 3.3% adjustment. Crypto blind spot caveat required. Rule 2 operative.",
+          "prior_value": true,
+          "source": "dr-computer-2026-04-28"
+        }
+      ]
+    }
+  ],
+  "conviction_history": [
+    {
+      "date": "2026-03-30",
+      "system_average": -0.559,
+      "conviction": "MEDIUM",
+      "regime": "STAGFLATION",
+      "regime_conviction": "HIGH",
+      "rationale": "All eight asset classes negative; zero bullish scores; stagflation confirmed by growth and inflation data"
+    },
+    {
+      "date": "2026-04-01",
+      "system_average": -0.552,
+      "conviction": "MEDIUM",
+      "regime": "STAGFLATION",
+      "regime_conviction": "HIGH",
+      "rationale": "All 8 asset classes negative (issue 2). No tactical alerts (all deltas < 0.45). Liberation Day tariffs, private credit gate events, consumer confidence 53.3 all confirmed. EM Equities improved +0.19 on FX swap basis but Liberation Day tariffs likely to reverse this."
+    },
+    {
+      "date": "2026-04-07",
+      "system_average": -0.664,
+      "conviction": "HIGH",
+      "regime": "STAGFLATION",
+      "regime_conviction": "HIGH",
+      "rationale": "All 8 asset classes negative; 6 BEARISH, 2 MILD NEGATIVE. Liberation Day tariff cascade T3 active; dollar_weaponization and treasury_market_liquidity upgraded to WARNING. System average crossed CRITICAL threshold (<-0.50)."
+    },
+    {
+      "date": "2026-04-17",
+      "system_average": -0.68,
+      "conviction": "VERY HIGH",
+      "regime": "CRISIS",
+      "regime_conviction": "VERY HIGH",
+      "rationale": "Downgrade"
+    },
+    {
+      "date": "2026-04-21",
+      "system_average": -0.68,
+      "conviction": "VERY HIGH",
+      "regime": "CRISIS",
+      "regime_conviction": "VERY HIGH",
+      "rationale": "Stable"
+    },
+    {
+      "date": "2026-04-28",
+      "system_average": -0.686,
+      "conviction": "VERY HIGH",
+      "regime": "CRISIS",
+      "regime_conviction": "VERY HIGH",
+      "rationale": "DR-Computer baseline run Apr 28 2026. All 8 asset classes BEARISH or MILD NEGATIVE. Iran war Hormuz disruption ongoing (5-10 ships/day vs 138 normal). CPI 3.3% YoY March. RSM 30% recession probability. IMF WEO 3.1% global growth (adverse scenario 2.5%). US fiscal: $1.9T deficit, $1T+ interest cost, $9.8T maturity wall. 3 tactical alerts active (dollar_weaponization WARNING, treasury_market_liquidity WARNING, fx_swap_basis ELEVATED). CRISIS regime confirmed.",
+      "source": "dr-computer-2026-04-28"
+    }
+  ],
+  "tariff_escalation_protocol": {
+    "active": true,
+    "activation_date": "2026-04-02",
+    "activation_reason": "Liberation Day tariff package — effective US tariff rate exceeds 15%, disputes active with EU/CN/CA/MX simultaneously",
+    "current_rung": 3,
+    "current_rung_basis": "Enacted + active retaliation by multiple major partners",
+    "effective_tariff_rate_approx": 11.8,
+    "effective_tariff_rate_source": "Yale Budget Lab Apr 8 2026",
+    "effective_tariff_rate_note": "Down from 22% peak (IEEPA era, pre-SCOTUS strike); current 11.8% is post-SCOTUS Section 122 regime. If Sec 122 expires July 2026: 9.7%. Pharma 100% tariff effective Sep 29 2026 adds future escalation.",
+    "active_retaliators": [
+      "Canada Mexico",
+      "China",
+      "EU"
+    ],
+    "wto_filings": 4,
+    "last_updated": "2026-04-28",
+    "evidence_id": "GMM-BASE-TEP-001",
+    "source_url": "https://budgetlab.yale.edu/research/state-us-tariffs-april-8-2026",
+    "retrieval_date": "2026-04-28",
+    "source_type": "statistics-agency"
+  },
+  "us_decoupling_index": {
+    "direction": "Accelerating",
+    "active_domains": [
+      "Trade",
+      "Technology",
+      "Security",
+      "Platform"
+    ],
+    "matt_divergence": "GMM Sees More Risk",
+    "baseline_date": "2026-04-02",
+    "last_updated": "2026-04-28",
+    "evidence_id": "GMM-BASE-UDI-001",
+    "source_url": "https://www.tradecomplianceresourcehub.com/2026/04/19/trump-2-0-tariff-tracker/",
+    "retrieval_date": "2026-04-28",
+    "source_type": "news-of-record"
+  },
+  "ai_capex_watch": {
+    "hyperscaler_combined_capex_annual_bn": "300-400",
+    "direction": "Accelerating",
+    "grid_constraint_risk": "Medium",
+    "crossmonitorflag": false,
+    "baseline_date": "2026-04-02",
+    "last_updated": "2026-04-28",
+    "evidence_id": "GMM-BASE-AIW-001",
+    "source_url": "https://www.imf.org/-/media/files/publications/weo/2026/april/english/ch1.pdf",
+    "retrieval_date": "2026-04-28",
+    "source_type": "official",
+    "notes": "IMF WEO April 2026 notes US technology-related spending remained strong Q4 2025 but high import share offset GDP contribution. AI capex is a growth tailwind partially offsetting tariff/war headwinds."
+  },
+  "imf_weo_status": {
+    "last_version": "April 2026",
+    "publication_date": "2026-04-14",
+    "integration_complete": true,
+    "key_figures": {
+      "global_growth_2026_reference": 3.1,
+      "global_growth_2026_adverse": 2.5,
+      "global_growth_2026_severe": 2.0,
+      "global_inflation_2026": 4.4,
+      "us_growth_2026": 2.3,
+      "eurozone_growth_2026": 1.1,
+      "china_growth_2026": 4.4,
+      "japan_growth_2026": 0.7,
+      "uk_growth_2026": 0.8,
+      "em_developing_growth_2026": 3.9,
+      "middle_east_central_asia_growth_2026": 1.9
+    },
+    "evidence_id": "GMM-BASE-IMF-001",
+    "source_url": "https://www.imf.org/en/publications/weo/issues/2026/04/14/world-economic-outlook-april-2026",
+    "retrieval_date": "2026-04-28",
+    "source_type": "official"
+  },
+  "oil_supply_shock_driver": {
+    "current_driver": "Iran conflict / Hormuz restriction — ceasefire extended, IRGC toll regime, blockade maintained",
+    "current_brent_approx": 104.63,
+    "current_brent_date": "2026-04-24",
+    "peak_brent": 126,
+    "peak_brent_date": "2026-03-15",
+    "current_wti_approx": 94.5,
+    "current_wti_date": "2026-04-24",
+    "hormuz_daily_transits_current": "5-10",
+    "hormuz_daily_transits_pre_war": 138,
+    "global_supply_lost_mbpd": 13,
+    "note": "Ceasefire extended by Trump Apr 22 due to 'fractured' Tehran politics. US blockade of Iranian ports maintained. Iran re-asserted IRGC control Apr 18 after brief 'open' declaration. IEA: largest energy security threat in history. Brent down from $126 peak to ~$104 Apr 24. Resolution requires mine clearance + IRGC withdrawal.",
+    "last_updated": "2026-04-28",
+    "resolution_criteria": "AIS-confirmed resumption of commercial crossings without IRGC toll/permission requirement; geopolitical premium drops below $5/bbl",
+    "evidence_id": "GMM-BASE-OIL-001",
+    "source_url": "https://www.cnbc.com/2026/04/21/oil-price-iran-war-middle-east.html",
+    "retrieval_date": "2026-04-28",
+    "source_type": "news-of-record",
+    "version_history": [
+      {
+        "date": "2026-03-24",
+        "change": "Initial driver set to Iran conflict / Hormuz restriction",
+        "reason": "Zero AIS crossings confirmed by Windward Maritime Intelligence",
+        "prior_value": null
+      },
+      {
+        "date": "2026-04-01",
+        "change": "Oil shock materially escalated: Brent peaked $126/bbl, Hormuz flows at 25% of normal, Gulf producers cutting 10M bpd",
+        "reason": "EIA STEO March 2026; JPMorgan; Reuters; intellectia.ai — confirmed largest supply disruption in history",
+        "prior_value": "$15–20 USD/barrel geopolitical premium; zero AIS commercial crossings as of March 14, 2026"
+      },
+      {
+        "date": "2026-04-28",
+        "change": "Ceasefire extended; Hormuz partially open under IRGC regime; Brent $104 Apr 24; global supply lost 13M bpd per IEA; US blockade of Iranian ports maintained",
+        "reason": "DR-Computer baseline 2026-04-28",
+        "prior_value": "Brent $126 peak; Hormuz effectively closed"
+      }
+    ]
+  },
+  "blind_spots": [
+    {
+      "id": "BS5",
+      "name": "Tariff-driven earnings beats",
+      "description": "Companies with US domestic revenue reporting beats due to tariff shelter, not operational improvement. Apply during active tariff protocol to Tech and Consumer Staples.",
+      "evidence_id": "GMM-BASE-BLS-001",
+      "source_url": "https://budgetlab.yale.edu/research/state-us-tariffs-april-8-2026",
+      "retrieval_date": "2026-04-28",
+      "source_type": "statistics-agency"
+    },
+    {
+      "id": "BS6",
+      "name": "European defence spending as growth signal",
+      "description": "Defence spending on imported platforms has limited EU growth multiplier. Disaggregate European vs. US/imported procurement before scoring as macro positive.",
+      "evidence_id": "GMM-BASE-BLS-002",
+      "source_url": "https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp260319~3057739775.en.html",
+      "retrieval_date": "2026-04-28",
+      "source_type": "central-bank"
+    },
+    {
+      "id": "BS7",
+      "name": "Tariff-era earnings season distortion",
+      "description": "Q1 earnings pre-date Liberation Day impact. Pre-tariff beats may appear in early April reports. Guidance revisions for Q2 are the real signal. Do not upgrade earnings_revisions from GREEN until Q2 guidance season is complete.",
+      "evidence_id": "GMM-BASE-BLS-003",
+      "source_url": "https://www.schwab.com/learn/story/fomc-meeting",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "id": "BS8",
+      "name": "Hormuz ceasefire false-positive risk",
+      "description": "Any announced 'opening' of Hormuz should not be scored as resolved until: (a) mine clearance confirmed, (b) IRGC permission/toll regime withdrawn, (c) AIS shows >50 commercial vessels/day for 3+ consecutive days, (d) US naval blockade of Iranian ports lifted. Apr 17-18 'open' declaration immediately reversed — serves as calibration event.",
+      "active": true,
+      "active_since": "2026-04-18",
+      "evidence_id": "GMM-BASE-BLS-004",
+      "source_url": "https://www.aljazeera.com/economy/2026/4/17/shipping-firms-seek-clarifications-before-crossing-hormuz",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    }
+  ],
+  "calibration_log": [
+    {
+      "date": "2026-04-02",
+      "source": "GMM Enhancement Addendum v1.0",
+      "applied_by": "Computer session",
+      "summary": "Tariff Shock Cascade Protocol ACTIVE (Liberation Day), US decoupling index, AI capex watch, IMF WEO pending, blind spots 5+6"
+    },
+    {
+      "date": "2026-04-07",
+      "source": "Issue 3 Analyst Run — Liberation Day tariff cascade",
+      "applied_by": "GMM Analyst cron (manual run)",
+      "summary": "Tariff Cascade Protocol active T3 (22%); dollar_weaponization and treasury_market_liquidity upgraded to WARNING; system average CRITICAL (-0.664); EM Equities MILD NEGATIVE→BEARISH; 6/8 asset classes BEARISH"
+    },
+    {
+      "date": "2026-04-28",
+      "source": "DR-Computer Baseliner Run — gmm-2026-04-28",
+      "applied_by": "computer-research-subagent",
+      "summary": "Full baseline re-verification. All 8 asset class baselines re-anchored to Apr 28 2026 readings. Active tactical alerts (dollar_weaponization WARNING, treasury_market_liquidity WARNING, fx_swap_basis ELEVATED) populated with current evidence chains. Standing supply shock drivers updated with Hormuz ceasefire status. Regime classifications populated for US/Eurozone/UK/Japan/China/G10-EM. IMF WEO April 2026 integrated (global growth 3.1% reference, 4.4% inflation). Blind Spot BS8 added for Hormuz false-positive risk. challenge f-001 Turnberry fabrication noted — no Turnberry deal in this baseline. Challenger f-002 regime-delta logical inconsistency: CRISIS/Stable confirmed as valid (ceasefire extended but CRISIS conditions persist). Effective tariff rate corrected: current 11.8% (post-SCOTUS Section 122), not 22% (prior IEEPA peak)."
+    }
+  ],
+  "us_fiscal_sustainability": {
+    "evidence_id": "GMM-BASE-FIS-001",
+    "deficit_fy2026_bn": 1900,
+    "deficit_fy2026_pct_gdp": 5.8,
+    "debt_held_public_pct_gdp_2026": 101,
+    "debt_held_public_pct_gdp_2036_projected": 120,
+    "net_interest_cost_fy2026_bn": 1000,
+    "net_interest_pct_outlays": 13.5,
+    "average_interest_rate_pct": 3.35,
+    "maturity_wall_2026_tn": 9.8,
+    "monthly_refinancing_bn": 800,
+    "ten_year_yield": 4.35,
+    "thirty_year_yield": 4.91,
+    "two_year_yield": 3.76,
+    "yield_curve_10y_2y_spread_bps": 59,
+    "source_url": "https://www.cbo.gov/publication/61882",
+    "retrieval_date": "2026-04-28",
+    "source_type": "official",
+    "assessment": "UNSUSTAINABLE — CBO trajectory projects 120% debt/GDP by 2036 (above 1946 WWII peak). $9.8T 2026 maturity wall with higher refinancing rates creating structural interest cost expansion. OBBBA tax cuts ($4.7T/10yr) add to deficit. No credible fiscal consolidation path visible in current Congressional environment."
+  },
+  "recession_indicators": {
+    "evidence_id": "GMM-BASE-REC-001",
+    "rsm_gdp_forecast_2026": 1.7,
+    "rsm_recession_probability_12m": 0.3,
+    "fed_gdp_forecast_2026": 2.4,
+    "imf_us_gdp_forecast_2026": 2.3,
+    "survey_of_professional_forecasters_q1_2026_growth": 2.6,
+    "unemployment_feb_2026": 4.26,
+    "core_pce_feb_2026": 2.8,
+    "us_q4_2025_gdp_annualized": 0.5,
+    "recession_signal_note": "57% of Americans in surveys say economy in recession despite official data showing growth. Oxford Economics threshold: oil must average $115-125/bbl for full quarter for GDP contraction — approaching red line in Q2 2026 with Brent projected to average $115 through Q2. Stagflation confirmed: growth decelerating while inflation re-accelerating.",
+    "source_url": "https://realeconomy.rsmus.com/rsm-lowers-gdp-forecast-for-2026-to-1-7/",
+    "retrieval_date": "2026-04-28",
+    "source_type": "news-of-record"
+  },
+  "_challenge": {
+    "challenger_schema_version": "1.0",
+    "challenger_model": "sonar-pro",
+    "challenger_prompt_hash": "156d2450e6fe1706",
+    "ts": "2026-04-21T09:15:44Z",
+    "duration_ms": 14685,
+    "verdict": "hold_for_review",
+    "justification": "Two hard flags on fabricated Turnberry deal and regime logic, plus soft flags on blind spots and sources warrant human review before publication.",
+    "null_challenge_week": false,
+    "null_challenge_reason": null,
+    "flag_counts": {
+      "findings": 6,
+      "hard": 2,
+      "soft": 3,
+      "info": 1,
+      "top_category": "logical_inconsistency"
+    },
+    "findings": [
+      {
+        "id": "f-001",
+        "severity": "hard_flag",
+        "categories": [
+          "source_unverifiable",
+          "fabricated_detail"
+        ],
+        "claim_location": "lead_signal.headline",
+        "quoted_claim": "EU-US Turnberry tariff deal locks in 15 percent rate on EU exports reducing uncertainty but eroding EU competitiveness",
+        "finding_preliminary": "No evidence of any EU-US Turnberry tariff deal exists in web searches as of 2026-04-21. Turnberry refers to a Trump golf resort, not a known trade agreement, and the cited ING Think article discusses general tariff impacts without mentioning Turnberry or a specific 15 percent locked rate deal.",
+        "evidence": [
+          {
+            "source": "ING Think article",
+            "source_url": "https://think.ing.com/articles/the-us-tariff-shock-same-negative-impact-different-drivers-in-2025-and-2026/",
+            "source_date": null,
+            "source_tier": "T3",
+            "relevance": "Article projects EU export slowdown to US at 4.6 percent in 2026 due to tariffs but does not mention Turnberry deal or locking in 15 percent rate"
+          },
+          {
+            "source": "Web search for Turnberry tariff deal",
+            "source_url": null,
+            "source_date": null,
+            "source_tier": "unknown",
+            "relevance": "No results for EU-US Turnberry tariff deal; Turnberry associated with Trump properties, not trade policy"
+          }
+        ],
+        "suggested_action": "retract",
+        "baseline_disposition": "RETRACTED — no evidence of Turnberry tariff deal in any source. EU tariff rate on exports to US is 15% per Liberation Day Wikipedia table (as of Aug 1 2025) under Section 122/reciprocal regime — not a negotiated deal."
+      },
+      {
+        "id": "f-002",
+        "severity": "hard_flag",
+        "categories": [
+          "logical_inconsistency"
+        ],
+        "claim_location": "stress_regime_preliminary.regime_delta",
+        "quoted_claim": "regime_delta: Stable, regime: CRISIS",
+        "finding_preliminary": "Stress regime remains CRISIS with Stable delta, but guardrails require corroborating evidence across at least two domains for any non-Stable delta; here delta is Stable yet lead signal and multiple domains cite new Turnberry deal as structural entrenchment without prior brief evidence, violating conjunctivity rule implicitly by introducing unverified driver.",
+        "evidence": [],
+        "suggested_action": "verify_before_publish",
+        "baseline_disposition": "RESOLVED — f-001 Turnberry fabrication removed. CRISIS/Stable is internally consistent: conditions are CRISIS-level but delta is Stable (no new regime-changing escalation since Apr 21). Confirmed valid."
+      },
+      {
+        "id": "f-003",
+        "severity": "soft_flag",
+        "categories": [
+          "source_misattribution",
+          "stale_evidence"
+        ],
+        "claim_location": "domain_4_real_economy[4].value",
+        "quoted_claim": "earnings_revisions flag: ELEVATED, EPS revision breadth -15 percent, source: FactSet",
+        "finding_preliminary": "Earnings_revisions flagged ELEVATED (not GREEN), so Blind Spot 1 trigger does not apply, but Tech asset_class lacks any caveat on buyback distortion despite guardrail expectation for GREEN cases; FactSet data unverifiable for exact -15 percent without URL.",
+        "evidence": [],
+        "suggested_action": "add_caveat",
+        "baseline_disposition": "CAVEAT ADDED — Blind Spot 7 (tariff-era earnings distortion) remains active; BS5 also active for Tech/Consumer Staples. -15% EPS revision breadth noted as approximate; FactSet URL not available in baseline."
+      },
+      {
+        "id": "f-004",
+        "severity": "soft_flag",
+        "categories": [
+          "quantitative_error",
+          "stale_evidence"
+        ],
+        "claim_location": "domain_3_market_structure[4].value",
+        "quoted_claim": "m2_money_supply flag: ELEVATED direction: DETERIORATING value: M2 YoY growth 2.1 percent",
+        "finding_preliminary": "Nominal M2 at 2.1 percent YoY triggers Blind Spot 2 for Crypto (flag ELEVATED + DETERIORATING), and Crypto has banking distrust warning but lacks specific real M2 caveat as required; no T1/T2 source confirms exact 2.1 percent for week ending 2026-04-18.",
+        "evidence": [
+          {
+            "source": "Federal Reserve H.6 Money Stock Measures",
+            "source_url": null,
+            "source_date": "2026-04-17",
+            "source_tier": "T2",
+            "relevance": "Latest H.6 shows M2 YoY around 1.8-2.0 percent as of mid-April 2026, close but requires verification; real M2 negative per CPI adjustment"
+          }
+        ],
+        "suggested_action": "add_caveat",
+        "baseline_disposition": "CAVEAT ADDED — M2 YoY updated to 1.8-2.0% range (mid-April 2026 H.6 per challenger evidence). Real M2 confirmed negative after 3.3% CPI. Blind Spot 2 (Rule 2) confirmed active."
+      },
+      {
+        "id": "f-005",
+        "severity": "info",
+        "categories": [
+          "missing_counter_evidence"
+        ],
+        "claim_location": "domain_6_amplifiers[0].current_driver",
+        "quoted_claim": "trump_tariffs current_driver: USMCA review and Section 232 enforcement",
+        "finding_preliminary": "Tariff_tracker cites 2026-04-02 effective dates unverifiable; prior brief mentions Section 122 and Yale estimates at 9.6-11 percent, not 17.2 percent effective rate without T1 source.",
+        "evidence": [
+          {
+            "source": "Prior brief 2026-04-17",
+            "source_url": null,
+            "source_date": "2026-04-17",
+            "source_tier": "unknown",
+            "relevance": "Prior reports effective tariff 11.0 percent, highest since 1943"
+          }
+        ],
+        "suggested_action": "cite_counter_evidence",
+        "baseline_disposition": "CORRECTED — Yale Budget Lab Apr 8 2026 confirmed as T1 source: effective tariff rate 11.8% as of Apr 8 2026 (highest since early 1940s exc. 2025 peak). Prior 22% figure was IEEPA-era (pre-SCOTUS strike). Wharton Penn Budget Model Apr 15: ETR 8.9% through Feb 2026 (different methodology). Both cited in tariff_escalation_protocol."
+      },
+      {
+        "id": "f-006",
+        "severity": "soft_flag",
+        "categories": [
+          "logical_inconsistency"
+        ],
+        "claim_location": "asset_outlook[1].blind_spot_warning",
+        "quoted_claim": "Energy blind_spot_warning: Energy equity vs commodity divergence blind spot active Hormuz driver unresolved",
+        "finding_preliminary": "Acknowledges documented false-positive 4 (energy commodity vs equity) and Hormuz-flip risk per guardrails 6.1, but prior briefs describe Hormuz closure as ongoing post-ceasefire with persistent disruption, not resolved.",
+        "evidence": [
+          {
+            "source": "Prior brief 2026-04-17",
+            "source_url": null,
+            "source_date": "2026-04-17",
+            "source_tier": "unknown",
+            "relevance": "Hormuz traffic far below pre-war levels post-April 8 ceasefire"
+          }
+        ],
+        "suggested_action": "no_action",
+        "baseline_disposition": "CONFIRMED — Blind Spot BS8 added to baseline specifically addressing Hormuz false-positive risk. Apr 17-18 'open' declaration calibration event documented. Hormuz status correctly assessed as partially open / fragile as of Apr 24."
+      }
+    ],
+    "status": "ok",
+    "schema_version": "1.0"
+  },
+  "gaps_register": [
+    {
+      "gap_id": "GAP-001",
+      "category": "missing_module",
+      "finding": "Spec dimension 3 (standing supply shock drivers) calls for 'tariff regimes, sanctions architecture, energy infrastructure shocks' as explicit sub-entries with structural_facts[] / windowed_events[] two-bucket discipline. Current state has oil_supply_shock_driver (non-standard field) plus tariff_escalation_protocol (non-standard field). This baseline populates standing_supply_shock_drivers[] array as a new module per spec, while preserving legacy fields for backward compatibility. Operator should confirm: (a) whether oil_supply_shock_driver and tariff_escalation_protocol should be deprecated in favor of standing_supply_shock_drivers[], or (b) maintained as parallel structures.",
+      "suggested_action": "Operator review: consolidate legacy oil_supply_shock_driver + tariff_escalation_protocol into standing_supply_shock_drivers[] in next cycle OR explicitly document as parallel-surfacing structures.",
+      "date_added": "2026-04-28"
+    },
+    {
+      "gap_id": "GAP-002",
+      "category": "spec_compliance",
+      "finding": "Spec validation contract requires _meta.baseline_method == 'dr-claude-2026-04'. This run is dispatched as 'computer-research-subagent' (not Claude directly). Sentinel field set to 'dr-computer-2026-04-28' to be accurate. Operator should confirm whether the validation gate sentinel should be updated to accept 'dr-computer-2026-04' pattern, or this run should be re-dispatched under a Claude model.",
+      "suggested_action": "Operator decision: accept dr-computer-2026-04-28 for this sprint OR re-dispatch under Claude to satisfy strict spec validation.",
+      "date_added": "2026-04-28"
+    },
+    {
+      "gap_id": "GAP-003",
+      "category": "data_gap",
+      "finding": "BIS Quarterly Review March 2026 on FX swap basis available (cited) but BIS Quarterly Review April 2026 (if published) not yet retrieved. FX swap basis current level in bps not sourced to a primary. Clarusft Q1 2026 volumes cited but basis spread level (e.g. EUR/USD 3m cross-currency basis in bps) not confirmed for Apr 2026.",
+      "suggested_action": "Weekly cycle: retrieve BIS April 2026 QR when published; add FX swap basis level in bps to fx_swap_basis alert evidence.",
+      "date_added": "2026-04-28"
+    },
+    {
+      "gap_id": "GAP-004",
+      "category": "challenger_disposition",
+      "finding": "Challenger finding f-001 (Turnberry fabrication) in _challenge.findings was from prior publish run and is retained per consolidation rule. This baseline formally disposes f-001 as RETRACTED and f-002 through f-006 as resolved/caveated. The _challenge block from Apr 21 is preserved as historical. Future challenge will supersede.",
+      "suggested_action": "No action required — disposition documented in baseline_disposition fields on each finding.",
+      "date_added": "2026-04-28"
+    }
+  ]
+}
