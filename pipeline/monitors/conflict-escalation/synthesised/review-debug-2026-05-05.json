@@ -3,52 +3,60 @@
     "schema_version": "aim-review-v1.0",
     "reviewer_model": "sonar-pro",
     "monitor_slug": "conflict-escalation",
-    "reviewed_at": "2026-05-05T00:00:54.060005+00:00",
+    "reviewed_at": "2026-05-05T07:59:32.739905+00:00",
     "reviewed_from": "scem-interpret-v1.0",
     "reviewed_from_file": "interpret-latest.json",
     "interpret_meta": {
       "null_signal_week": false,
-      "cycle_disposition": "normal_cycle",
-      "week_ending": null
+      "cycle_disposition": "material_change",
+      "week_ending": "2026-05-09"
     },
     "reviewer_flags": [],
     "reviewer_error": false,
     "reviewer_error_reason": null,
     "independence_mechanism": {
       "rule_engine_verdict_is_llm_independent": true
+    },
+    "force_reissue": {
+      "previous_artefact_sha": "49fb929234b03726a712fcd0ce67264cd687c048981bddfcce37085baf9cc629",
+      "previous_artefact_written_at": "2026-05-05T07:59:14.398448+00:00",
+      "reason": "SCEM reviewer blocked by E5 same-day guard after fresh interpret produced 18 claims and 5 patches",
+      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-SCEM-review-engine",
+      "operator": "peterhowitt",
+      "forced_at": "2026-05-05T07:59:20.688738+00:00"
     }
   },
-  "verdict": "hold-for-review",
-  "verdict_legacy": "REJECT",
-  "verdict_reason": "hard-invariant FAIL: ['R1', 'R2', 'R8']",
+  "verdict": "publish",
+  "verdict_legacy": "APPROVE",
+  "verdict_reason": "all checks PASS; composer proceeds normally",
   "checks": [
     {
       "check_id": "R1",
-      "name": "schema_version matches expected per-monitor interpret schema",
-      "result": "FAIL",
+      "name": "schema validates against scem-interpret-v1.0",
+      "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "schema_version=None (expected 'scem-interpret-v1.0' for monitor 'conflict-escalation')"
+      "detail": "schema_version ok (scem-interpret-v1.0); 18 claims"
     },
     {
       "check_id": "R2",
       "name": "_meta.cycle_disposition in enum",
-      "result": "FAIL",
+      "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "cycle_disposition=None not in ['error_cycle', 'material_change', 'normal_cycle', 'null_cycle', 'partial_cycle']"
+      "detail": "cycle_disposition=material_change"
     },
     {
       "check_id": "R3",
       "name": "structured_claims[] shape integrity",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "all 0 claims carry 8 required keys"
+      "detail": "all 18 claims carry 8 required keys"
     },
     {
       "check_id": "R4",
       "name": "evidence_id non-empty on every claim",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "all 0 claims carry evidence_id"
+      "detail": "all 18 claims carry evidence_id"
     },
     {
       "check_id": "R5",
@@ -60,30 +68,106 @@
     {
       "check_id": "R6",
       "name": "triple_extraction_manifest self-consistent",
-      "result": "FAIL",
+      "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "manifest counts non-int: det=None llm=None"
+      "detail": "0 det + 18 llm = 18 claims"
     },
     {
       "check_id": "R7",
       "name": "persistent-state modules non-empty",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "absence-provenance-stamped: ['jurisdiction_risk_matrix', 'lab_posture_scorecard']"
+      "detail": "persistent-state keys non-empty: ['theatre_risk_matrix', 'actor_posture_scorecard']"
     },
     {
       "check_id": "R8",
       "name": "structured_claims[] non-empty for material cycle",
-      "result": "FAIL",
+      "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "cycle_disposition=normal_cycle but structured_claims[] is empty — LLM populated modules without extracting triple store; composer would sile"
+      "detail": "18 claims present for material_change cycle"
     }
   ],
   "claim_flags": [],
   "advisory_notes": [
-    "Interpreter output is incomplete: missing structured_claims[], triple_extraction_manifest, theatre_risk_matrix, and actor_posture_scorecard despite cycle_disposition 'material_change' citing multiple developments (Sudan, Russia-Ukraine, Myanmar, etc.). Rule engine caught schema/structure fails (R1,R2,R6,R8), but content gap risks silent Composer output.",
-    "Mismatch in _meta.persistent_state_absence_provenance: stamps 'jurisdiction_risk_matrix' and 'lab_posture_scorecard' (AGM legacy terms) instead of SCEM-expected 'theatre_risk_matrix' and 'actor_posture_scorecard', per schema adaptation notes.",
-    "cycle_disposition_reason describes material signals and reasoner trajectory changes, but zero claims extracted; Composer should check if this indicates research-to-triple extraction failure."
+    "Korean Peninsula shows nuclear threshold concern (I3 worsening, 7 tests, US deterrence gap) in module_4 and module_7, but module_3 doctrine_shifts is empty—Composer may want to highlight this tension in stability analysis.",
+    "Proxy spillover vector rated HIGH with Sudan cross-border risks, but cross_monitor_candidates absent (no FIMI/ERM entries)—potential underlink to module_12 F-flag patterns.",
+    "module_5 indo_pacific notes India-Pakistan inclusion recommendation per reasoner, but no theatre_risk_matrix update visible—check for trajectory divergence in persistent state."
   ],
-  "patch_verdicts": []
+  "patch_verdicts": [
+    {
+      "patch_id": "_unstamped_0",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "rules_passed": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "rules_failed": []
+    },
+    {
+      "patch_id": "_unstamped_1",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Assessed",
+      "rules_passed": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "rules_failed": []
+    },
+    {
+      "patch_id": "_unstamped_2",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "rules_passed": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "rules_failed": []
+    },
+    {
+      "patch_id": "_unstamped_3",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['evidence_ids']",
+      "rules_passed": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "rules_failed": []
+    },
+    {
+      "patch_id": "_unstamped_4",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "rules_passed": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R6",
+        "R7",
+        "R8"
+      ],
+      "rules_failed": []
+    }
+  ]
 }
