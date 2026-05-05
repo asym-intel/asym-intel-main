@@ -263,13 +263,19 @@
     },
     "gaps_register": {
       "type": "array",
-      "description": "Evidence gaps. Non-empty required on null_cycle and whenever uncertain claims exist.",
+      "description": "Evidence gaps. Non-empty required on null_cycle and whenever uncertain claims exist. Canonical fleet shape per BR-10 F.0a: items require gap_id + description; gap_description retained as legacy alias for backwards-compat (both must be non-empty strings; CI prefers description).",
       "items": {
         "type": "object",
         "additionalProperties": true,
-        "required": ["gap_description"],
+        "required": ["gap_id", "description", "gap_description"],
         "properties": {
-          "gap_description": {"type": "string"},
+          "gap_id": {
+            "type": "string",
+            "pattern": "^fim-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
+          },
+          "description": {"type": "string", "minLength": 1},
+          "gap_description": {"type": "string", "minLength": 1, "description": "Legacy alias for description (BR-10 F.0a backwards-compat per verdict E1). New baselines populate both with the same value; future PR removes this field once existing baselines migrate."},
+          "affected_claims": {"type": "array", "items": {"type": "string"}},
           "domain": {"type": ["string", "null"]},
           "related_claim_id": {"type": ["string", "null"]}
         }
