@@ -756,7 +756,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<td>' + escHtml(row.date || '') + '</td>' +
         '<td>' + escHtml(row.regime || '') + '</td>' +
         '<td><span style="' + aiConvictionStyle(row.conviction) + '">' + escHtml(row.conviction || '') + '</span></td>' +
-        '<td>' + escHtml(row.avg != null ? row.avg : '') + '</td>' +
+        '<td>' + escHtml(row.avg != null ? row.avg : (row.system_average != null ? row.system_average : '')) + '</td>' +
       '</tr>';
     });
     html += '</tbody></table></div>';
@@ -786,14 +786,19 @@ document.addEventListener('DOMContentLoaded', function () {
       el.innerHTML = '<p class="text-muted text-sm">No tactical alerts active.</p>';
       return;
     }
-    var sorted = list.slice().sort(function(a,b){ return aiAlertStateRank(a.state) - aiAlertStateRank(b.state); });
+    var sorted = list.slice().sort(function(a,b){
+      return aiAlertStateRank(a.state || a.current_state) - aiAlertStateRank(b.state || b.current_state);
+    });
     var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
       '<thead><tr><th>Alert</th><th>State</th><th>Since</th></tr></thead><tbody>';
     sorted.forEach(function(a) {
+      var alertName = a.alert || a.name || a.alert_id || '';
+      var state = a.state || a.current_state || '';
+      var since = a.since || a.last_state_change || '';
       html += '<tr>' +
-        '<td>' + escHtml(a.alert || '') + '</td>' +
-        '<td><span style="' + aiAlertStateStyle(a.state) + '">' + escHtml(a.state || '') + '</span></td>' +
-        '<td>' + escHtml(a.since || '') + '</td>' +
+        '<td>' + escHtml(alertName) + '</td>' +
+        '<td><span style="' + aiAlertStateStyle(state) + '">' + escHtml(state) + '</span></td>' +
+        '<td>' + escHtml(since) + '</td>' +
       '</tr>';
     });
     html += '</tbody></table></div>';
@@ -1181,6 +1186,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function parseScoreFromChange(changeStr) {
     // Extract the last numeric value from the change string e.g. "Score updated to -0.446 (MILD NEGATIVE)"
+    if (!changeStr) return null;
     var matches = changeStr.match(/(-?\d+\.\d+)/g);
     if (!matches || !matches.length) return null;
     return parseFloat(matches[matches.length - 1]);
