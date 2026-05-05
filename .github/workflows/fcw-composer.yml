@@ -7,6 +7,22 @@ on:
         description: 'Override composer model (optional; blank = use metadata.yml default)'
         required: false
         default: ''
+      force:
+        description: 'AD-2026-04-24l force-rerun (skip E5 same-day guard)'
+        type: boolean
+        default: false
+      force_reason:
+        description: 'Required with force. 20-500 chars.'
+        type: string
+        default: ''
+      force_ad:
+        description: 'Required with force. AD reference.'
+        type: string
+        default: ''
+      force_operator:
+        description: 'Required with force. GitHub handle.'
+        type: string
+        default: ''
   workflow_run:
     workflows: ["FIMI & Cognitive Warfare Monitor Reviewer"]
     types: [completed]
@@ -18,4 +34,8 @@ jobs:
       slug: fimi-cognitive-warfare
       applier_workflow: fcw-applier.yml
       model: ${{ inputs.model || '' }}
+      force: ${{ inputs.force }}
+      force_reason: ${{ inputs.force_reason || '' }}
+      force_ad: ${{ inputs.force_ad || '' }}
+      force_operator: ${{ inputs.force_operator || '' }}
     secrets: inherit
