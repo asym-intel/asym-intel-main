@@ -1,6 +1,6 @@
-# World Democracy Monitor — Issue 13
+# World Democracy Monitor — Issue 14
 
-**W/E 5 May 2026** | Published 2026-05-05T06:00:00Z
+**W/E 9 May 2026** | Published 2026-05-09T06:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -89,8 +89,8 @@ Monitor Guatemala Attorney General shortlist for capture confirmation, due May 2
 - **US institutional capture enables electoral FIMI ops** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
 - **Hungary institutional capture risks EU norms** (esa) — Active — NEW
 - **United States democratic erosion creates vulnerability to foreign influence operations** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
-- **RSF 2026 Index identifies criminalisation of journalism as primary global threat; legal weaponisation trend documented across Americas, Europe, Caucasus** (fimi-cognitive-warfare) — Active — NEW
-- **Pakistan Twenty-seventh Constitutional Amendment insulates military from judicial review in nuclear-armed state with active V-Dem ERT episode** (conflict-escalation) — Active — NEW
+- **RSF 2026 Index identifies criminalisation of journalism as primary global threat; legal weaponisation trend documented across Americas, Europe, Caucasus** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
+- **Pakistan Twenty-seventh Constitutional Amendment insulates military from judicial review in nuclear-armed state with active V-Dem ERT episode** (conflict-escalation) — Active — verified (adjacent Issue 10)
 
 ---
 
