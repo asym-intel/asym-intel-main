@@ -2,7 +2,7 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "conflict-escalation",
-    "applied_at": "2026-05-05T07:08:51Z",
+    "applied_at": "2026-05-05T08:03:25Z",
     "applier_model": null,
     "applier_deterministic": true,
     "cycle_disposition": "material_change",
@@ -16,12 +16,12 @@
     "applier_error": false,
     "applier_error_reason": null,
     "force_reissue": {
-      "previous_artefact_sha": "4aef04176ca3788798c65c680f12b3942ef43a45c677fc1886d64b54161793c4",
-      "previous_artefact_written_at": "2026-05-05T00:02:21Z",
-      "reason": "SCEM applier blocked by E5 same-day guard after successful fresh reviewer composer chain",
-      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-SCEM",
+      "previous_artefact_sha": "daad069ac7f4ce140344a4d0381baa60d255af44cc3a4c80fbdd633b065a0300",
+      "previous_artefact_written_at": "2026-05-05T07:08:51Z",
+      "reason": "SCEM applier rerun after forced fresh composer updated compose artefact at 2026-05-05T08:01Z",
+      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-SCEM-apply-final",
       "operator": "peterhowitt",
-      "forced_at": "2026-05-05T07:08:51.629980+00:00"
+      "forced_at": "2026-05-05T08:03:25.880770+00:00"
     }
   },
   "cycle_id": "scem-2026-05-05",
@@ -46,44 +46,82 @@
     },
     "review": {
       "path": "pipeline/monitors/conflict-escalation/synthesised/review-latest.json",
-      "content_sha1": "711c394a7daece1fc9397cb340950c2f4f4d7a95",
+      "content_sha1": "538ba92bf16b788fb5210f187f3d5ed343e12ff4",
       "schema_version": "aim-review-v1.0",
-      "verdict": "hold-for-review",
-      "verdict_legacy": "REJECT",
-      "verdict_reason": "hard-invariant FAIL: ['R1', 'R2', 'R8']",
+      "verdict": "publish",
+      "verdict_legacy": "APPROVE",
+      "verdict_reason": "all checks PASS; composer proceeds normally",
       "check_summary": {
-        "PASS": 3,
+        "PASS": 7,
         "SKIP": 1,
-        "FAIL": 4
+        "FAIL": 0
       },
       "advisory_note_count": 3,
       "claim_flag_count": 0
     },
     "compose": {
       "path": "pipeline/monitors/conflict-escalation/synthesised/compose-latest.json",
-      "content_sha1": "96def6ceb9420f12c74ac96e324d5eae6b655fdd",
+      "content_sha1": "10d2f2f9974cc9a1325c6146a53c98d9ebd4515c",
       "schema_version": "scem-compose-v1.0",
-      "composed_at": "2026-05-05T00:01:57.460897+00:00",
-      "claim_trace_count": 21,
+      "composed_at": "2026-05-05T08:01:19.995903+00:00",
+      "claim_trace_count": 12,
       "composer_error": false,
       "reviewed_by": {
-        "verdict": "hold-for-review",
+        "verdict": "publish",
         "reviewer_model": "sonar-pro",
-        "reviewed_at": "2026-05-05T00:00:54.060005+00:00",
+        "reviewed_at": "2026-05-05T07:59:32.739905+00:00",
         "review_schema_version": "aim-review-v1.0"
       }
     }
   },
-  "patches_applied": [],
+  "patches_applied": [
+    {
+      "patch_id": "_unstamped_0",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "target_kb_path": "active_escalation_events",
+      "rule_applied": "Rule 29 — active_escalation_events additive log"
+    },
+    {
+      "patch_id": "_unstamped_1",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Assessed",
+      "target_kb_path": "f_flag_history",
+      "rule_applied": "Rule 30 — f_flag_history additive log with status updates"
+    },
+    {
+      "patch_id": "_unstamped_2",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "target_kb_path": "mediation_deescalation_architecture",
+      "rule_applied": "Rule 31 — mediation_deescalation_architecture per-conflict assessment"
+    },
+    {
+      "patch_id": "_unstamped_4",
+      "verdict": "apply",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "target_kb_path": "open_findings",
+      "rule_applied": "Rule 33 — open_findings list of salient conflict-escalation findings"
+    }
+  ],
   "patches_rejected": [],
   "patches_deferred": [],
-  "patches_looped_back": [],
+  "patches_looped_back": [
+    {
+      "patch_id": "_unstamped_3",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['evidence_ids']",
+      "target_kb_path": "treaty_posture",
+      "rule_applied": "Rule 32 — treaty_posture list of treaties relevant to active conflicts",
+      "target_role": "Interpreter"
+    }
+  ],
   "patches_apply_failed": [],
   "patches_actually_applied": [],
   "persistent_state_snapshot": null,
   "publication": {
-    "ready_to_publish": false,
-    "hold_reason": "review_verdict:hold-for-review",
+    "ready_to_publish": true,
+    "hold_reason": null,
     "publisher_artefacts": {
       "weekly_brief_path": "content/monitors/conflict-escalation/2026-05-09-weekly-brief.md",
       "report_latest_path": "static/monitors/conflict-escalation/data/report-latest.json"
