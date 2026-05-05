@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
-  "last_updated": "2026-05-01",
-  "description": "Canonical registry for all Asymmetric Intelligence monitors. Single source of truth for monitor metadata, URLs, accents, and glyph paths. Consumed by pipeline/shared/monitor_urls.py, static/monitors/shared/js/monitor-urls.js, and nav.js (inlined at build by tools/inline_registry_into_navjs.py). Do NOT duplicate this data anywhere. To add/change a monitor, edit this file, then run preflight + the nav.js inline step.",
+  "last_updated": "2026-05-05",
+  "description": "Canonical registry for all Asymmetric Intelligence monitors. Single source of truth for monitor metadata, URLs, accents, and glyph paths. Consumed by pipeline/shared/monitor_urls.py, static/monitors/shared/js/monitor-urls.js, and nav.js (inlined at build by tools/inline_registry_into_navjs.py). Do NOT duplicate this data anywhere. To add/change a monitor, edit this file, then run preflight + the nav.js inline step. Note: consumer projects (Advennt, Resilience, Investor, etc.) are registered in asym-intel-internal pipeline/consumers/ — not here.",
   "consumers": [
     "pipeline/shared/monitor_urls.py",
     "static/monitors/shared/js/monitor-urls.js",
@@ -150,26 +150,6 @@
       "description": "Armed conflict trajectories and military escalation risks across active and latent theatres.",
       "blueprint_status": "v2.0",
       "strip_label": "Strategic Conflict"
-    },
-    {
-      "abbr": "ADVENNT",
-      "slug": "advennt",
-      "name": "Advennt — Gambling Regulatory Intelligence",
-      "short_name": "Advennt",
-      "accent": "#f5a524",
-      "accent_bg": "rgba(245,165,36,0.12)",
-      "accent_dark": "#f7b84b",
-      "accent_2": null,
-      "publish_day": "Wednesday",
-      "publish_time_utc": "09:00",
-      "cron": "30 9 * * 3",
-      "url": "https://advennt.io/",
-      "svg_url": null,
-      "svg_repo_path": null,
-      "svg_viewbox": null,
-      "description": "Gambling regulatory intelligence across 37 jurisdictions — licensing, enforcement, fees, taxes, and market-entry practicality.",
-      "blueprint_status": "v0.9-in-progress",
-      "strip_label": "Advennt"
     }
   ],
   "triage_order": [
@@ -179,7 +159,6 @@
     "AIM",
     "WDM",
     "ESA",
-    "ERM",
-    "ADVENNT"
+    "ERM"
   ]
 }
