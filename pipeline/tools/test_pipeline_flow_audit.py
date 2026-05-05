@@ -35,11 +35,15 @@ REPO = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
 from pipeline_flow_audit import (  # noqa: E402
+    AUDIT_FULLY,
+    AUDIT_WAIVED,
     STATE_ABSENT_EXPLAINED,
     STATE_ABSENT_UNKNOWN,
     STATE_BLOCKED,
     STATE_MISSING_ARTIFACT,
     STATE_PRESENT,
+    ConsumerAdapter,
+    _ADVENNT_STUB,
     _has_literal_null_string,
     _has_placeholder_array,
     _is_empty_value,
@@ -47,9 +51,14 @@ from pipeline_flow_audit import (  # noqa: E402
     _module_body_is_empty,
     audit_all_indexed,
     audit_consumer,
+    collect_consumer_adapters,
+    consumer_auditability_report,
+    list_consumers,
+    register_consumer,
     rows_to_csv,
     rows_to_json,
     summarise_consumer,
+    unregister_consumer,
 )
 
 
@@ -579,3 +588,165 @@ def test_live_aim_2026_05_02_module_3_is_silent_empty():
     assert "apply_block_not_honored" in (pub3.notes or [])
     # First break is interpretation (silent-empty module).
     assert by[("module_3", "interpretation")].first_break_stage == "interpretation"
+
+
+# ── BRIEF BX-2: consumer adapter contract ─────────────────────────────────
+
+
+def test_advennt_stub_is_registered_as_temporarily_waived():
+    """The Advennt stub must be present in the registry at import time, and
+    must declare consumer_type="jurisdiction-intelligence" with
+    status=AUDIT_WAIVED — that's the contract from BRIEF BX-2 §3."""
+    by_id = {a.consumer_id: a for a in list_consumers()}
+    assert "advennt" in by_id
+    advennt = by_id["advennt"]
+    assert advennt.consumer_type == "jurisdiction-intelligence"
+    assert advennt.status == AUDIT_WAIVED
+    assert advennt.waiver_reason
+    assert "Sprint CO" in advennt.waiver_reason
+    # Stub must reference the baselining sprint path so future-readers can
+    # find the in-flight artifact-shape work.
+    assert "2026-05-04-CJ" in advennt.waiver_reason
+
+
+def test_advennt_stub_documents_required_artifact_paths():
+    """A stub should still declare the artifact paths it expects to walk
+    once the shape stabilises — the contract is the documentation."""
+    advennt = _ADVENNT_STUB
+    assert "collection" in advennt.stage_artifacts
+    assert "classification" in advennt.stage_artifacts
+    assert "publish" in advennt.stage_artifacts
+    # Slot map keyed by jurisdiction code (per consumer_type).
+    assert advennt.slot_map.get("key_pattern") == "<jurisdiction-code>"
+    # Eligibility / absence-state / classification-trace fields documented
+    # so a future adapter implementer knows which fields to populate.
+    assert advennt.eligibility_source
+    assert "null_signal" in advennt.absence_state_fields
+    assert advennt.classification_trace_fields
+
+
+def test_consumer_adapter_minimum_fields_present():
+    """ConsumerAdapter must accept all minimum BRIEF BX-2 fields. This is
+    a guard against silent field renames."""
+    a = ConsumerAdapter(consumer_id="x", consumer_type="monitor")
+    for field_name in (
+        "consumer_id", "consumer_type", "stage_artifacts", "slot_map",
+        "eligibility_source", "published_output_source",
+        "absence_state_fields", "classification_trace_fields",
+        "screen_or_output_state_fields", "status", "waiver_reason",
+    ):
+        assert hasattr(a, field_name), f"ConsumerAdapter missing {field_name}"
+    # Default status is fully_auditable when not specified.
+    assert a.status == AUDIT_FULLY
+
+
+def test_register_unregister_consumer_round_trip():
+    """register_consumer must add to the registry, unregister_consumer must
+    remove. Tests use fixture adapters they clean up after themselves."""
+    fixture = ConsumerAdapter(
+        consumer_id="__test_fixture__",
+        consumer_type="monitor",
+        status=AUDIT_FULLY,
+    )
+    try:
+        register_consumer(fixture)
+        ids = {a.consumer_id for a in list_consumers()}
+        assert "__test_fixture__" in ids
+    finally:
+        unregister_consumer("__test_fixture__")
+    assert "__test_fixture__" not in {a.consumer_id for a in list_consumers()}
+
+
+def test_collect_consumer_adapters_includes_monitors_and_advennt(tmp_path):
+    """collect_consumer_adapters must merge the monitor registry on disk
+    with the in-process consumer registry. The Advennt stub should always
+    be present alongside any monitors in the fixture registry."""
+    registry = {"monitors": [{"slug": "ai-governance"}, {"slug": "macro-monitor"}]}
+    _write_json(
+        tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
+    )
+    adapters = collect_consumer_adapters(repo=tmp_path)
+    by_id = {a.consumer_id: a for a in adapters}
+    # Monitors materialised from the template.
+    assert "ai-governance" in by_id
+    assert by_id["ai-governance"].consumer_type == "monitor"
+    assert by_id["ai-governance"].status == AUDIT_FULLY
+    # Advennt stub present from the in-process registry.
+    assert "advennt" in by_id
+    assert by_id["advennt"].status == AUDIT_WAIVED
+
+
+def test_collect_consumer_adapters_explicit_registration_overrides_monitor_template(
+    tmp_path,
+):
+    """If a slug is registered explicitly in _CONSUMER_REGISTRY, that
+    explicit adapter takes precedence over the monitor-template clone."""
+    registry = {"monitors": [{"slug": "ai-governance"}]}
+    _write_json(
+        tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
+    )
+    custom = ConsumerAdapter(
+        consumer_id="ai-governance",
+        consumer_type="custom-monitor",
+        status=AUDIT_WAIVED,
+        waiver_reason="under_migration",
+    )
+    try:
+        register_consumer(custom)
+        by_id = {a.consumer_id: a for a in collect_consumer_adapters(repo=tmp_path)}
+        assert by_id["ai-governance"].consumer_type == "custom-monitor"
+        assert by_id["ai-governance"].status == AUDIT_WAIVED
+    finally:
+        unregister_consumer("ai-governance")
+
+
+def test_consumer_auditability_report_walks_monitors_skips_waived(tmp_path):
+    """Auditability report should contain audit_summary for fully_auditable
+    monitors but NOT walk waived consumers (they only get status metadata)."""
+    registry = {"monitors": [{"slug": "ai-governance"}]}
+    _write_json(
+        tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
+    )
+    interpret = {
+        "_meta": {"monitor_slug": "ai-governance"},
+        "module_2": {"title": "Models", "models": [{"name": "GPT-5.5"}]},
+    }
+    apply_doc = {
+        "publication": {"ready_to_publish": True, "hold_reason": None},
+        "inputs": {"review": {"verdict": "publish"}},
+    }
+    published = {"module_2": {"title": "Models", "models": [{"name": "GPT-5.5"}]}}
+    _make_consumer_artifacts(
+        tmp_path, "ai-governance",
+        report_date="2026-05-09",
+        interpret=interpret,
+        apply_doc=apply_doc,
+        published=published,
+        review={"verdict": "publish"},
+    )
+    report = consumer_auditability_report(repo=tmp_path, report_date="2026-05-09")
+    by_id = {e["consumer_id"]: e for e in report}
+    # Monitor walked end-to-end.
+    assert by_id["ai-governance"]["status"] == AUDIT_FULLY
+    assert "audit_summary" in by_id["ai-governance"]
+    assert by_id["ai-governance"]["audit_summary"]["module_count"] == 1
+    # Advennt waived — present in report, no audit_summary.
+    advennt_entry = by_id["advennt"]
+    assert advennt_entry["status"] == AUDIT_WAIVED
+    assert "audit_summary" not in advennt_entry
+    assert advennt_entry["waiver_reason"]
+
+
+def test_existing_audit_all_indexed_unchanged_by_consumer_registry(tmp_path):
+    """Backward-compat guard: the consumer registry must not bleed into
+    audit_all_indexed output (which still keys solely off the on-disk
+    monitor registry). Existing JSON consumers — including
+    .github/workflows/flow-quality-monitor.yml — depend on this."""
+    registry = {"monitors": [{"slug": "ai-governance"}]}
+    _write_json(
+        tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
+    )
+    out = audit_all_indexed(repo=tmp_path)
+    # Only the on-disk monitor is present; the Advennt stub does NOT leak in.
+    assert set(out.keys()) == {"ai-governance"}
+    assert "advennt" not in out

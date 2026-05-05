@@ -77,6 +77,15 @@ STATE_BLOCKED = "blocked"
 STATE_MISSING_ARTIFACT = "missing_artifact"
 STATE_UNKNOWN = "unknown"
 
+# Consumer-adapter auditability status (BRIEF BX-2). One of these is reported
+# per registered consumer so the harness can surface coverage gaps the
+# stage-by-stage audit alone cannot — e.g. consumers whose artifacts are not
+# yet stable enough for a full adapter.
+AUDIT_FULLY = "fully_auditable"
+AUDIT_PARTIAL = "partially_auditable"
+AUDIT_MISSING_FLOW_MAP = "missing_flow_map"
+AUDIT_WAIVED = "temporarily_waived"
+
 # Module-meta keys excluded from "is body empty" checks. Mirrors publisher's
 # _module_body_is_empty meta_keys so the harness sees the same shape.
 _MODULE_META_KEYS = {"title", "null_signal", "empty_reason", "fallback_message"}
@@ -115,6 +124,187 @@ class FlowRow:
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+# ── Consumer adapter contract (BRIEF BX-2) ────────────────────────────────
+#
+# Onboarding a new consumer (engine-internal or external like Advennt):
+#
+#   1. Define a ConsumerAdapter and call register_consumer(adapter). The
+#      adapter declares: where the consumer's stage artifacts live, how its
+#      slot map is keyed, and which fields carry eligibility / publication
+#      state / absence provenance. These fields are the contract the harness
+#      reads against; rename a field in the consumer and you must update the
+#      adapter at the same time.
+#   2. If the consumer's artifacts already match the monitor shape (per-stage
+#      JSON keyed by `module_*`), reuse `consumer_type="monitor"` and the
+#      monitor flow walker handles it automatically (see _MONITOR_ADAPTER).
+#   3. If the consumer's shape differs (e.g. jurisdiction-keyed instead of
+#      module-keyed) and is not yet stable, register as a STUB with status
+#      AUDIT_WAIVED and a `waiver_reason`. The harness lists the consumer in
+#      `--all` output but does not attempt to walk its stages. Once the shape
+#      stabilises, replace the stub with a fully-populated adapter and a
+#      consumer-specific row builder.
+#
+# The adapter is intentionally a flat dataclass rather than an ABC: stubs
+# carry empty dicts for fields they cannot yet populate, and a future
+# strategy-pattern extension can dispatch on `consumer_type` without
+# requiring every consumer to subclass.
+
+
+@dataclass
+class ConsumerAdapter:
+    """Declares how the harness should audit one pipeline consumer.
+
+    Required minimum fields per BRIEF BX-2 §"adapter pattern". A stub adapter
+    (one whose artifacts are not yet stable) sets `status=AUDIT_WAIVED` and
+    populates `waiver_reason`; the artifact-path/slot-map fields may be empty
+    on a stub since the harness will not walk them.
+    """
+
+    consumer_id: str
+    consumer_type: str
+    stage_artifacts: dict[str, str] = field(default_factory=dict)
+    slot_map: dict[str, str] = field(default_factory=dict)
+    eligibility_source: str | None = None
+    published_output_source: str | None = None
+    absence_state_fields: list[str] = field(default_factory=list)
+    classification_trace_fields: list[str] = field(default_factory=list)
+    screen_or_output_state_fields: list[str] = field(default_factory=list)
+    status: str = AUDIT_FULLY
+    waiver_reason: str | None = None
+    notes: list[str] = field(default_factory=list)
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+# Canonical adapter for the monitor consumer type. Every monitor in
+# static/monitors/monitor-registry.json is audited through this template;
+# the per-consumer registration below clones it with the slug populated.
+_MONITOR_ADAPTER = ConsumerAdapter(
+    consumer_id="<monitor-template>",
+    consumer_type="monitor",
+    stage_artifacts={
+        "weekly": "pipeline/monitors/<slug>/weekly/weekly-<date>.json",
+        "reasoner": "pipeline/monitors/<slug>/reasoner/reasoner-<date>.json",
+        "interpret": "pipeline/monitors/<slug>/synthesised/interpret-<date>.json",
+        "review": "pipeline/monitors/<slug>/synthesised/review-<date>.json",
+        "compose": "pipeline/monitors/<slug>/synthesised/compose-<date>.json",
+        "apply": "pipeline/monitors/<slug>/applied/apply-<date>.json",
+        "publish": "static/monitors/<slug>/data/report-<date>.json",
+    },
+    slot_map={"key_pattern": "module_*", "container": "report root object"},
+    eligibility_source="apply.publication.ready_to_publish",
+    published_output_source="static/monitors/<slug>/data/report-latest.json",
+    absence_state_fields=["null_signal", "empty_reason", "fallback_message"],
+    classification_trace_fields=[
+        "_meta.cycle_disposition", "_meta.null_signal_week",
+    ],
+    screen_or_output_state_fields=[
+        "user_facing_state",  # synthesised by the harness on the publish row
+    ],
+    status=AUDIT_FULLY,
+)
+
+
+# Adapter stub for Advennt (BRIEF BX-2 §3). Not a full working adapter —
+# Advennt's artifacts are not stable yet (Sprint CO jurisdiction baselining
+# still in progress). Harness reports the consumer with status=AUDIT_WAIVED
+# and the documented field requirements that must be met before the stub
+# can be replaced with a real adapter.
+_ADVENNT_STUB = ConsumerAdapter(
+    consumer_id="advennt",
+    consumer_type="jurisdiction-intelligence",
+    stage_artifacts={
+        # Required artifact paths to be confirmed by Sprint CO. Populated
+        # placeholders so the contract is documented even while waived.
+        "collection": "pipeline/consumers/advennt/collection/<jurisdiction>-<date>.json",
+        "classification": "pipeline/consumers/advennt/classification/<jurisdiction>-<date>.json",
+        "interpretation": "pipeline/consumers/advennt/interpretation/<jurisdiction>-<date>.json",
+        "review": "pipeline/consumers/advennt/review/<jurisdiction>-<date>.json",
+        "screen": "pipeline/consumers/advennt/screen/<jurisdiction>-<date>.json",
+        "publish": "static/consumers/advennt/data/<jurisdiction>-latest.json",
+    },
+    slot_map={
+        "key_pattern": "<jurisdiction-code>",
+        "container": "per-jurisdiction document",
+        "TBD": "exact jurisdiction code set + nesting confirmed by Sprint CO baseline",
+    },
+    eligibility_source="screen.eligibility (TBD: exact field name)",
+    published_output_source="static/consumers/advennt/data/<jurisdiction>-latest.json",
+    absence_state_fields=[
+        # Confirmed by Sprint CO once jurisdiction baselining lands.
+        "null_signal", "empty_reason", "fallback_message",
+    ],
+    classification_trace_fields=[
+        "classification.regime", "classification.confidence",
+    ],
+    screen_or_output_state_fields=[
+        "screen.user_facing_state", "screen.regulatory_outlook",
+    ],
+    status=AUDIT_WAIVED,
+    waiver_reason=(
+        "Sprint CO jurisdiction baselining in progress — adapter stub only. "
+        "See Sprint CO (asym-intel/asym-intel-internal:docs/sprints/2026-05-04-CJ/). "
+        "Replace this stub with a fully-populated adapter + consumer-specific "
+        "row walker once jurisdiction artifact shape stabilises."
+    ),
+    notes=[
+        "Not yet audited end-to-end; --all output will list this consumer "
+        "under registered_consumers but skip stage-by-stage walk.",
+    ],
+)
+
+
+# Module-level consumer registry. Keyed by consumer_id. Mutating helpers are
+# exposed (`register_consumer`, `unregister_consumer`) so tests can install
+# fixture adapters without rewriting the module.
+_CONSUMER_REGISTRY: dict[str, ConsumerAdapter] = {
+    _ADVENNT_STUB.consumer_id: _ADVENNT_STUB,
+}
+
+
+def register_consumer(adapter: ConsumerAdapter) -> None:
+    """Register a consumer adapter. Last-write-wins on consumer_id collision.
+
+    Stub adapters (status=AUDIT_WAIVED) are valid; the harness lists them in
+    --all output without walking their stages.
+    """
+    _CONSUMER_REGISTRY[adapter.consumer_id] = adapter
+
+
+def unregister_consumer(consumer_id: str) -> None:
+    """Remove a consumer from the registry. No-op if not registered."""
+    _CONSUMER_REGISTRY.pop(consumer_id, None)
+
+
+def list_consumers() -> list[ConsumerAdapter]:
+    """Snapshot of currently registered consumers, sorted by consumer_id."""
+    return sorted(_CONSUMER_REGISTRY.values(), key=lambda a: a.consumer_id)
+
+
+def _monitor_adapter_for(slug: str) -> ConsumerAdapter:
+    """Materialise the monitor template for a specific monitor slug."""
+    template = _MONITOR_ADAPTER
+    return ConsumerAdapter(
+        consumer_id=slug,
+        consumer_type=template.consumer_type,
+        stage_artifacts={
+            k: v.replace("<slug>", slug) for k, v in template.stage_artifacts.items()
+        },
+        slot_map=dict(template.slot_map),
+        eligibility_source=template.eligibility_source,
+        published_output_source=(
+            template.published_output_source or ""
+        ).replace("<slug>", slug) or None,
+        absence_state_fields=list(template.absence_state_fields),
+        classification_trace_fields=list(template.classification_trace_fields),
+        screen_or_output_state_fields=list(template.screen_or_output_state_fields),
+        status=template.status,
+        waiver_reason=template.waiver_reason,
+        notes=list(template.notes),
+    )
 
 
 # ── Artifact path resolution ───────────────────────────────────────────────
@@ -707,6 +897,73 @@ def audit_all_indexed(
     return out
 
 
+def collect_consumer_adapters(
+    repo: Path | None = None,
+) -> list[ConsumerAdapter]:
+    """Return the full set of registered consumer adapters for `--all`.
+
+    Combines:
+      • Every monitor in static/monitors/monitor-registry.json, materialised
+        from the monitor adapter template (consumer_type="monitor").
+      • All consumers in `_CONSUMER_REGISTRY` (e.g. the Advennt stub).
+
+    Monitors are not stored in `_CONSUMER_REGISTRY` because the registry on
+    disk is the source of truth for them; this keeps the two indexes from
+    drifting. Explicit registrations win on consumer_id collision so a future
+    monitor that needs a custom adapter can override the template.
+    """
+    repo = repo or _repo_root()
+    registry_path = repo / "static" / "monitors" / "monitor-registry.json"
+    by_id: dict[str, ConsumerAdapter] = {}
+    registry = _safe_load_json(registry_path)
+    if isinstance(registry, dict):
+        for monitor in registry.get("monitors", []) or []:
+            slug = monitor.get("slug") if isinstance(monitor, dict) else None
+            if slug:
+                by_id[slug] = _monitor_adapter_for(slug)
+    for adapter in _CONSUMER_REGISTRY.values():
+        by_id[adapter.consumer_id] = adapter
+    return sorted(by_id.values(), key=lambda a: a.consumer_id)
+
+
+def consumer_auditability_report(
+    repo: Path | None = None,
+    report_date: str | None = None,
+) -> list[dict[str, Any]]:
+    """Per-consumer auditability summary for `--all` output.
+
+    Each entry records consumer_id, consumer_type, status, and (for active
+    monitors) a brief audit snapshot derived from the same run as
+    audit_all_indexed. Stubs (AUDIT_WAIVED) include their waiver_reason and
+    are NOT walked stage-by-stage.
+    """
+    repo = repo or _repo_root()
+    adapters = collect_consumer_adapters(repo=repo)
+    monitor_audit: dict[str, list[FlowRow]] | None = None
+    out: list[dict[str, Any]] = []
+    for adapter in adapters:
+        entry: dict[str, Any] = {
+            "consumer_id": adapter.consumer_id,
+            "consumer_type": adapter.consumer_type,
+            "status": adapter.status,
+            "waiver_reason": adapter.waiver_reason,
+        }
+        if adapter.consumer_type == "monitor" and adapter.status == AUDIT_FULLY:
+            if monitor_audit is None:
+                monitor_audit = audit_all_indexed(repo=repo, report_date=report_date)
+            rows = monitor_audit.get(adapter.consumer_id, [])
+            summary = summarise_consumer(adapter.consumer_id, rows)
+            entry["audit_summary"] = {
+                "report_date": summary.get("report_date"),
+                "module_count": summary.get("module_count"),
+                "publish_present": summary.get("publish_present"),
+                "publish_silent_empty": summary.get("publish_silent_empty"),
+                "missing_artifacts": summary.get("missing_artifacts"),
+            }
+        out.append(entry)
+    return out
+
+
 # ── Output formatters ──────────────────────────────────────────────────────
 
 
@@ -864,6 +1121,42 @@ def summary_text(summaries: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def consumers_text(report: list[dict[str, Any]]) -> str:
+    """Human-readable rendering of the registered-consumers block.
+
+    Used as a footer on `--all --output summary` so an Architect sees the
+    full consumer registration alongside the monitor walk.
+    """
+    lines: list[str] = ["", "Registered consumers (BRIEF BX-2 adapter contract):"]
+    for entry in report:
+        lines.append(
+            f"  - {entry['consumer_id']} "
+            f"(type={entry['consumer_type']}, status={entry['status']})"
+        )
+        if entry.get("waiver_reason"):
+            lines.append(f"      waiver_reason: {entry['waiver_reason']}")
+        audit = entry.get("audit_summary")
+        if audit:
+            lines.append(
+                f"      audit: report_date={audit.get('report_date') or '<latest>'} "
+                f"modules={audit.get('module_count')} "
+                f"present={audit.get('publish_present')} "
+                f"silent_empty={len(audit.get('publish_silent_empty') or [])}"
+            )
+    return "\n".join(lines)
+
+
+def consumers_csv(report: list[dict[str, Any]]) -> str:
+    """CSV rendering of the registered-consumers block."""
+    buf = io.StringIO()
+    cols = ["consumer_id", "consumer_type", "status", "waiver_reason"]
+    w = csv.writer(buf)
+    w.writerow(cols)
+    for entry in report:
+        w.writerow([entry.get(c) for c in cols])
+    return buf.getvalue()
+
+
 # ── CLI entrypoint ─────────────────────────────────────────────────────────
 
 
@@ -890,10 +1183,12 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--output",
-        choices=["json", "rows", "csv", "summary", "summary-csv"],
+        choices=["json", "rows", "csv", "summary", "summary-csv", "consumers-json"],
         default="json",
         help="Output format. 'summary' for per-consumer triage text, "
-             "'summary-csv' for compact CSV across consumers.",
+             "'summary-csv' for compact CSV across consumers, "
+             "'consumers-json' for the BX-2 registered-consumers block "
+             "(monitors + non-monitor consumers like Advennt) as JSON.",
     )
     p.add_argument(
         "--repo",
@@ -907,25 +1202,56 @@ def main(argv: list[str] | None = None) -> int:
     repo = Path(args.repo).resolve() if args.repo else _repo_root()
 
     if args.all:
+        if args.output == "consumers-json":
+            print(json.dumps(
+                consumer_auditability_report(
+                    repo=repo, report_date=args.report_date,
+                ),
+                indent=2,
+            ))
+            return 0
         all_rows = audit_all_indexed(repo=repo, report_date=args.report_date)
+        consumer_report = consumer_auditability_report(
+            repo=repo, report_date=args.report_date,
+        )
         if args.output in ("summary", "summary-csv"):
             summaries = [summarise_consumer(c, rows) for c, rows in all_rows.items()]
             if args.output == "summary":
                 print(summary_text(summaries))
+                print(consumers_text(consumer_report))
             else:
                 print(summary_csv(summaries), end="")
+                print()
+                print(consumers_csv(consumer_report), end="")
         elif args.output == "csv":
             flat = [r for rows in all_rows.values() for r in rows]
             print(rows_to_csv(flat), end="")
+            print()
+            print(consumers_csv(consumer_report), end="")
         elif args.output == "rows":
             flat = [r for rows in all_rows.values() for r in rows]
             print(rows_to_ndjson(flat))
+            for entry in consumer_report:
+                print(json.dumps({"_consumer_registration": entry}))
         else:
+            # JSON output preserves the historical {slug: rows} top-level
+            # shape so existing consumers (e.g. .github/workflows/
+            # flow-quality-monitor.yml) iterating `for slug, rows in d.items()`
+            # keep working unchanged. Surface the consumer-adapter report via
+            # the dedicated `--output consumers-json` mode below instead of
+            # mixing it into this dict.
             print(json.dumps(
                 {c: [r.as_dict() for r in rows] for c, rows in all_rows.items()},
                 indent=2,
             ))
         return 0
+
+    if args.output == "consumers-json":
+        print(
+            "error: --output consumers-json requires --all",
+            file=sys.stderr,
+        )
+        return 2
 
     if not args.consumer:
         print("error: --consumer required (or pass --all)", file=sys.stderr)
