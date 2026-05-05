@@ -403,13 +403,9 @@
   /* ── Main fetch & render ── */
   document.addEventListener('DOMContentLoaded', function () {
 
-    Promise.all([
-      fetch('data/report-latest.json').then(function(r){ return r.json(); }),
-      fetch('data/persistent-state.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
-    ])
-      .then(function(payload){
-        var d = payload[0] || {};
-        var persistent = payload[1] || {};
+    fetch('data/report-latest.json')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
 
         var meta      = d.meta    || {};
         var signalObj = d.signal  || d.signal_panel || {};
@@ -417,10 +413,6 @@
         var rawHeatmap = d.heatmap || [];
         var intel     = d.intelligence_items || [];
         var calWatch  = d.electoral_calendar_watch || [];
-        var dashboardMimicryChains =
-          (Array.isArray(d.mimicry_chains) && d.mimicry_chains.length)
-            ? d.mimicry_chains
-            : ((Array.isArray(persistent.mimicry_chains) && persistent.mimicry_chains.length) ? persistent.mimicry_chains : []);
 
         /* ── Normalise heatmap ── */
         var hm = normaliseHeatmap(rawHeatmap);
@@ -501,8 +493,8 @@
             },
             {
               label: 'Mimicry Chains',
-              value: dashboardMimicryChains.length ? dashboardMimicryChains.length : ((d.mimicry_chain_update && Array.isArray(d.mimicry_chain_update.active_chains)) ? d.mimicry_chain_update.active_chains.length : (d.mimicry_chain_update && d.mimicry_chain_update.active_chains != null ? d.mimicry_chain_update.active_chains : '—')),
-              sub:   dashboardMimicryChains.length ? 'Active legislative patterns tracked' : ((d.mimicry_chain_update && d.mimicry_chain_update.new_mimicry_detected === false && Array.isArray(d.mimicry_chain_update.active_chains) && d.mimicry_chain_update.active_chains.length === 0) ? 'No new mimicry detected' : 'Active legislative patterns')
+              value: (d.mimicry_chain_update && Array.isArray(d.mimicry_chain_update.active_chains)) ? d.mimicry_chain_update.active_chains.length : (d.mimicry_chain_update && d.mimicry_chain_update.active_chains != null ? d.mimicry_chain_update.active_chains : '—'),
+              sub:   (d.mimicry_chain_update && d.mimicry_chain_update.new_mimicry_detected === false && Array.isArray(d.mimicry_chain_update.active_chains) && d.mimicry_chain_update.active_chains.length === 0) ? 'No new mimicry detected' : 'Active legislative patterns'
             }
           ],
           signal: {
@@ -624,7 +616,7 @@
         }
 
         /* ── Additional Intelligence (BW-7) ─────────────────────── */
-        renderAdditionalIntelligence(d, persistent);
+        renderAdditionalIntelligence(d);
 
       })
       .catch(function(err){
@@ -638,9 +630,9 @@
   });
 
   /* ══════════════════════════════════════════════════════════════════
-     ADDITIONAL INTELLIGENCE (BW-7) — renders cycle fields from
-     report-latest.json and standing trackers from persistent-state.json
-     when the cycle report has no equivalent module.
+     ADDITIONAL INTELLIGENCE (BW-7) — renders three tiles from
+     report-latest.json fields: institutional_integrity_active_flags,
+     mimicry_chains, open_findings.
      ══════════════════════════════════════════════════════════════════ */
   function severityRank(s) {
     var v = String(s || '').toLowerCase();
@@ -695,21 +687,13 @@
     }
     var html = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
     list.forEach(function(c) {
-      var links = Array.isArray(c.links) ? c.links : [];
-      var linkCount = links.length;
-      var linkHtml = links.slice(0, 6).map(function(n) {
-        var label = n.country || '';
-        if (n.year) label += ' (' + n.year + ')';
-        return '<span style="display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;background:rgba(100,116,139,0.10);color:var(--color-text-secondary);font-size:var(--text-xs)">' + escHtml(label) + '</span>';
-      }).join('<span style="color:var(--color-text-muted);font-size:var(--text-xs)">→</span>');
+      var linkCount = Array.isArray(c.links) ? c.links.length : 0;
       html += '<div style="padding:var(--space-2) 0;border-bottom:1px solid var(--color-border)">' +
         '<div style="font-weight:700">' + escHtml(c.headline || '') + '</div>' +
         '<div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">' +
           escHtml(c.chain_id || '') + ' · ' + linkCount + ' link' + (linkCount === 1 ? '' : 's') +
           (c.last_verified ? ' · last verified ' + escHtml(c.last_verified) : '') +
         '</div>' +
-        (linkHtml ? '<div style="display:flex;align-items:center;gap:var(--space-1);flex-wrap:wrap;margin-top:var(--space-2)">' + linkHtml + (linkCount > 6 ? '<span style="color:var(--color-text-muted);font-size:var(--text-xs)">+' + (linkCount - 6) + ' more</span>' : '') + '</div>' : '') +
-        (c.source_url ? '<div style="margin-top:var(--space-1);font-size:var(--text-xs)"><a href="' + escHtml(c.source_url) + '" target="_blank" rel="noopener" style="color:var(--monitor-accent)">Evidence record</a></div>' : '') +
       '</div>';
     });
     html += '</div>';
@@ -739,19 +723,9 @@
     html += '</div>';
     el.innerHTML = html;
   }
-  function renderAdditionalIntelligence(report, persistent) {
-    report = report || {};
-    persistent = persistent || {};
-    var institutionalFlags =
-      (Array.isArray(persistent.institutional_integrity_active_flags) && persistent.institutional_integrity_active_flags.length)
-        ? persistent.institutional_integrity_active_flags
-        : (Array.isArray(report.institutional_integrity_active_flags) ? report.institutional_integrity_active_flags : []);
-    var mimicryChains =
-      (Array.isArray(report.mimicry_chains) && report.mimicry_chains.length)
-        ? report.mimicry_chains
-        : ((Array.isArray(persistent.mimicry_chains) && persistent.mimicry_chains.length) ? persistent.mimicry_chains : []);
-    renderInstitutionalFlags(institutionalFlags);
-    renderMimicryChains(mimicryChains);
+  function renderAdditionalIntelligence(report) {
+    renderInstitutionalFlags(report.institutional_integrity_active_flags || []);
+    renderMimicryChains(report.mimicry_chains || []);
     renderOpenFindings(report.open_findings || []);
   }
 
