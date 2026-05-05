@@ -2,18 +2,27 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "macro-monitor",
-    "applied_at": "2026-05-05T00:03:05Z",
+    "applied_at": "2026-05-05T09:01:18Z",
     "applier_model": null,
     "applier_deterministic": true,
     "cycle_disposition": "material_change",
     "applier_flags": [
-      "interpret_schema_mismatch:gmm-interpret-v1.0!=aim-interpret-v1.0",
-      "compose_schema_mismatch:gmm-compose-v1.0!=aim-compose-v1.0",
       "persistent_state_writeback_not_wired"
     ],
-    "schema_canonicalizations": [],
+    "schema_canonicalizations": [
+      "interpret:gmm-interpret-v1.0->aim-interpret-v1.0",
+      "compose:gmm-compose-v1.0->aim-compose-v1.0"
+    ],
     "applier_error": false,
-    "applier_error_reason": null
+    "applier_error_reason": null,
+    "force_reissue": {
+      "previous_artefact_sha": "01542a5252ee873aef4ae35de50ae53f71cc14774bf82ac684ec4fc350d7edf7",
+      "previous_artefact_written_at": "2026-05-05T00:03:05Z",
+      "reason": "GMM apply stale versus forced fresh composer output; governed replay required to reach publication gate",
+      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-GMM-apply",
+      "operator": "peterhowitt",
+      "forced_at": "2026-05-05T09:01:18.994513+00:00"
+    }
   },
   "cycle_id": "gmm-2026-05-05",
   "methodology_version": "macro-monitor-methodology-2026-Q2",
@@ -22,22 +31,22 @@
   "inputs": {
     "interpret": {
       "path": "pipeline/monitors/macro-monitor/synthesised/interpret-latest.json",
-      "content_sha1": "1910966d39f7788145fa1ad0d9249f373d2be0ff",
+      "content_sha1": "04e170968cde53332f87408cea5964daddd70ba0",
       "schema_version": "gmm-interpret-v1.0",
-      "claim_count": 24,
+      "claim_count": 20,
       "null_signal_week": false,
       "triple_extraction_manifest": {
         "deterministic_extractions": 0,
-        "llm_fallback_extractions": 24,
+        "llm_fallback_extractions": 20,
         "llm_fallback_model": "claude-sonnet-4-5",
         "llm_fallback_temperature": 0.1,
-        "llm_fallback_timestamp": "2026-05-05T00:01:09.904277+00:00",
+        "llm_fallback_timestamp": "2026-05-05T08:36:51.893062+00:00",
         "source": "engine_stamp_reconciled_to_actual"
       }
     },
     "review": {
       "path": "pipeline/monitors/macro-monitor/synthesised/review-latest.json",
-      "content_sha1": "9b73a6bd0145e715e6c80007ec97e4f44c1a3963",
+      "content_sha1": "0eeca4c893ade5913c7ca5aa2c4dc79189dfdec8",
       "schema_version": "aim-review-v1.0",
       "verdict": "publish",
       "verdict_legacy": "APPROVE",
@@ -52,15 +61,15 @@
     },
     "compose": {
       "path": "pipeline/monitors/macro-monitor/synthesised/compose-latest.json",
-      "content_sha1": "e276db2d72b37363790acb5dec2ae2e316dd7f62",
+      "content_sha1": "1ebdc3ac8a1b2c1d17dc3c4696366eb3bfea822f",
       "schema_version": "gmm-compose-v1.0",
-      "composed_at": "2026-05-05T00:02:50.457412+00:00",
-      "claim_trace_count": 12,
+      "composed_at": "2026-05-05T09:00:44.951372+00:00",
+      "claim_trace_count": 20,
       "composer_error": false,
       "reviewed_by": {
         "verdict": "publish",
         "reviewer_model": "sonar-pro",
-        "reviewed_at": "2026-05-05T00:01:45.838003+00:00",
+        "reviewed_at": "2026-05-05T08:58:42.742522+00:00",
         "review_schema_version": "aim-review-v1.0"
       }
     }
@@ -70,43 +79,36 @@
       "patch_id": "_unstamped_0",
       "verdict": "apply",
       "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": null,
-      "rule_applied": null
+      "target_kb_path": "module_7.vectors[liquidity_fragmentation].changed",
+      "rule_applied": "Risk vector rating change"
     },
     {
       "patch_id": "_unstamped_1",
       "verdict": "apply",
       "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": null,
-      "rule_applied": null
+      "target_kb_path": "module_7.vectors[trade_policy_shock].changed",
+      "rule_applied": "Risk vector rating change"
     },
     {
       "patch_id": "_unstamped_2",
       "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": null,
-      "rule_applied": null
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Assessed",
+      "target_kb_path": "conviction_history",
+      "rule_applied": "Conviction history append"
     },
     {
       "patch_id": "_unstamped_3",
       "verdict": "apply",
       "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": null,
-      "rule_applied": null
+      "target_kb_path": "blind_spots",
+      "rule_applied": "Blind spot addition"
     },
     {
       "patch_id": "_unstamped_4",
       "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": null,
-      "rule_applied": null
-    },
-    {
-      "patch_id": "_unstamped_5",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": null,
-      "rule_applied": null
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Assessed",
+      "target_kb_path": "active_tactical_alerts",
+      "rule_applied": "Tactical alert state change"
     }
   ],
   "patches_rejected": [],
@@ -126,7 +128,7 @@
   "chains_artefact": {
     "path": "pipeline/monitors/macro-monitor/applied/chains-latest.json",
     "schema_version": "aim-chains-v1.1",
-    "chain_count": 24
+    "chain_count": 20
   },
   "provenance": {
     "applier_commit_sha": null

@@ -2,12 +2,12 @@
   "_meta": {
     "schema_version": "aim-chains-v1.1",
     "monitor_slug": "macro-monitor",
-    "chained_at": "2026-05-05T00:03:05Z",
+    "chained_at": "2026-05-05T09:01:18Z",
     "cycle_id": "gmm-2026-05-05",
     "cycle_disposition": "material_change",
     "week_ending": "2026-05-09",
     "review_verdict": "publish",
-    "chain_count": 24,
+    "chain_count": 20,
     "chain_builder_deterministic": true
   },
   "chains": [
@@ -16,18 +16,18 @@
       "claim_id": "gmm-int-2026-05-09-0001",
       "claim": {
         "entity": "Federal Reserve",
-        "predicate": "held_policy_rate",
+        "predicate": "held_federal_funds_rate_at",
         "value": "3.50-3.75%",
         "confidence": "Confirmed",
         "source_module": "lead_signal",
-        "extraction_method": "deterministic"
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-001",
+        "evidence_id": "GMM-2026W19-001",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.lead_signal"
@@ -38,19 +38,19 @@
       "chain_id": "gmm-chain-2026-05-09-0002",
       "claim_id": "gmm-int-2026-05-09-0002",
       "claim": {
-        "entity": "USTR",
-        "predicate": "launched_section_301_investigations",
-        "value": 76,
+        "entity": "Federal Reserve",
+        "predicate": "cited_inflation_driver",
+        "value": "elevated inflation partly reflecting recent increases in global energy prices",
         "confidence": "Confirmed",
         "source_module": "lead_signal",
-        "extraction_method": "deterministic"
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-003",
+        "evidence_id": "GMM-2026W19-001",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.lead_signal"
@@ -62,33 +62,10 @@
       "claim_id": "gmm-int-2026-05-09-0003",
       "claim": {
         "entity": "Federal Reserve",
-        "predicate": "inflation_status",
-        "value": "above 2% target",
+        "predicate": "cited_uncertainty_driver",
+        "value": "high uncertainty from Middle East conflict",
         "confidence": "Confirmed",
-        "source_module": "module_1",
-        "extraction_method": "deterministic"
-      },
-      "review_status": "publish",
-      "review_flags": [],
-      "patch_id": null,
-      "patch_status": "no_patch_emitted",
-      "evidence": {
-        "evidence_id": "GMM-2026W18-001",
-        "source_url": null,
-        "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_1"
-      },
-      "in_compose_trace": false
-    },
-    {
-      "chain_id": "gmm-chain-2026-05-09-0004",
-      "claim_id": "gmm-int-2026-05-09-0004",
-      "claim": {
-        "entity": "US average tariff rate",
-        "predicate": "current_rate",
-        "value": "12%",
-        "confidence": "High",
-        "source_module": "module_1",
+        "source_module": "lead_signal",
         "extraction_method": "unknown"
       },
       "review_status": "publish",
@@ -96,10 +73,33 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-003",
+        "evidence_id": "GMM-2026W19-001",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_1"
+        "source_module_path": "persistent.lead_signal"
+      },
+      "in_compose_trace": false
+    },
+    {
+      "chain_id": "gmm-chain-2026-05-09-0004",
+      "claim_id": "gmm-int-2026-05-09-0004",
+      "claim": {
+        "entity": "US Trade Representative",
+        "predicate": "launched_section_301_investigations",
+        "value": 76,
+        "confidence": "Confirmed",
+        "source_module": "lead_signal",
+        "extraction_method": "unknown"
+      },
+      "review_status": "publish",
+      "review_flags": [],
+      "patch_id": null,
+      "patch_status": "no_patch_emitted",
+      "evidence": {
+        "evidence_id": "GMM-2026W19-002",
+        "source_url": null,
+        "source_url_resolution": "persistent_state_module",
+        "source_module_path": "persistent.lead_signal"
       },
       "in_compose_trace": false
     },
@@ -108,18 +108,18 @@
       "claim_id": "gmm-int-2026-05-09-0005",
       "claim": {
         "entity": "European Central Bank",
-        "predicate": "held_deposit_facility_rate",
+        "predicate": "held_deposit_facility_rate_at",
         "value": "2.00%",
         "confidence": "Confirmed",
         "source_module": "module_1",
-        "extraction_method": "deterministic"
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-002",
+        "evidence_id": "GMM-2026W19-003",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.module_1"
@@ -130,19 +130,19 @@
       "chain_id": "gmm-chain-2026-05-09-0006",
       "claim_id": "gmm-int-2026-05-09-0006",
       "claim": {
-        "entity": "ECB",
-        "predicate": "eurozone_growth_projection_2026",
-        "value": "0.9%",
+        "entity": "European Central Bank",
+        "predicate": "revised_headline_inflation_projection_for_2026_to",
+        "value": "2.6%",
         "confidence": "Confirmed",
         "source_module": "module_1",
-        "extraction_method": "deterministic"
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-002",
+        "evidence_id": "GMM-2026W19-003",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.module_1"
@@ -153,19 +153,19 @@
       "chain_id": "gmm-chain-2026-05-09-0007",
       "claim_id": "gmm-int-2026-05-09-0007",
       "claim": {
-        "entity": "IMF",
-        "predicate": "em_growth_projection_2026",
-        "value": "3.9%",
+        "entity": "European Central Bank",
+        "predicate": "revised_growth_projection_for_2026_to",
+        "value": "0.9%",
         "confidence": "Confirmed",
         "source_module": "module_1",
-        "extraction_method": "deterministic"
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-004",
+        "evidence_id": "GMM-2026W19-003",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.module_1"
@@ -176,10 +176,10 @@
       "chain_id": "gmm-chain-2026-05-09-0008",
       "claim_id": "gmm-int-2026-05-09-0008",
       "claim": {
-        "entity": "US-China bilateral trade",
-        "predicate": "us_imports_from_china_decline_vs_2018",
-        "value": "40%",
-        "confidence": "High",
+        "entity": "US imports from China",
+        "predicate": "dropped_in_2025_by",
+        "value": "28%",
+        "confidence": "Confirmed",
         "source_module": "module_1",
         "extraction_method": "unknown"
       },
@@ -188,7 +188,7 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-004",
+        "evidence_id": "GMM-2026W19-004",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.module_1"
@@ -199,9 +199,9 @@
       "chain_id": "gmm-chain-2026-05-09-0009",
       "claim_id": "gmm-int-2026-05-09-0009",
       "claim": {
-        "entity": "Strait of Hormuz",
-        "predicate": "shipping_flows_ships_per_day",
-        "value": "5-10",
+        "entity": "China soybean imports from Brazil and Argentina",
+        "predicate": "share_in_2025",
+        "value": "80%",
         "confidence": "High",
         "source_module": "module_1",
         "extraction_method": "unknown"
@@ -211,7 +211,7 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-005",
+        "evidence_id": "GMM-2026W19-004",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.module_1"
@@ -222,9 +222,9 @@
       "chain_id": "gmm-chain-2026-05-09-0010",
       "claim_id": "gmm-int-2026-05-09-0010",
       "claim": {
-        "entity": "Brent crude",
-        "predicate": "price_usd_per_barrel",
-        "value": 104,
+        "entity": "Trump administration",
+        "predicate": "announced_farmer_subsidies",
+        "value": "up to 11 billion dollars beginning February 28, 2026",
         "confidence": "High",
         "source_module": "module_1",
         "extraction_method": "unknown"
@@ -234,7 +234,7 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-005",
+        "evidence_id": "GMM-2026W19-004",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
         "source_module_path": "persistent.module_1"
@@ -245,11 +245,11 @@
       "chain_id": "gmm-chain-2026-05-09-0011",
       "claim_id": "gmm-int-2026-05-09-0011",
       "claim": {
-        "entity": "US Treasury",
-        "predicate": "maturity_wall_usd_trillions",
-        "value": 9.8,
-        "confidence": "High",
-        "source_module": "module_2",
+        "entity": "ECB Vice-President de Guindos",
+        "predicate": "flagged_deteriorating_bank_access_to_money_market_funding",
+        "value": "true",
+        "confidence": "Confirmed",
+        "source_module": "module_1",
         "extraction_method": "unknown"
       },
       "review_status": "publish",
@@ -257,10 +257,10 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-001",
+        "evidence_id": "GMM-2026W19-003",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_2"
+        "source_module_path": "persistent.module_1"
       },
       "in_compose_trace": false
     },
@@ -268,11 +268,11 @@
       "chain_id": "gmm-chain-2026-05-09-0012",
       "claim_id": "gmm-int-2026-05-09-0012",
       "claim": {
-        "entity": "US Treasury",
-        "predicate": "annual_interest_expense_usd_trillions",
-        "value": 1.0,
-        "confidence": "High",
-        "source_module": "module_2",
+        "entity": "Euro area central bank reserves",
+        "predicate": "declined_to",
+        "value": "2.6 trillion euros",
+        "confidence": "Confirmed",
+        "source_module": "module_1",
         "extraction_method": "unknown"
       },
       "review_status": "publish",
@@ -280,10 +280,10 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-001",
+        "evidence_id": "GMM-2026W19-003",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_2"
+        "source_module_path": "persistent.module_1"
       },
       "in_compose_trace": false
     },
@@ -291,11 +291,11 @@
       "chain_id": "gmm-chain-2026-05-09-0013",
       "claim_id": "gmm-int-2026-05-09-0013",
       "claim": {
-        "entity": "Gramercy EM high yield index",
-        "predicate": "april_2026_return",
-        "value": "-0.50%",
+        "entity": "US effective tariff rate",
+        "predicate": "averages",
+        "value": "just over 12%",
         "confidence": "High",
-        "source_module": "module_3",
+        "source_module": "module_9",
         "extraction_method": "unknown"
       },
       "review_status": "publish",
@@ -303,10 +303,10 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-004",
+        "evidence_id": "GMM-2026W19-002",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_3"
+        "source_module_path": "persistent.module_9"
       },
       "in_compose_trace": false
     },
@@ -314,11 +314,11 @@
       "chain_id": "gmm-chain-2026-05-09-0014",
       "claim_id": "gmm-int-2026-05-09-0014",
       "claim": {
-        "entity": "FX swap basis volumes",
-        "predicate": "q1_2026_usd_trillions",
-        "value": 3.6,
-        "confidence": "High",
-        "source_module": "module_3",
+        "entity": "Brent crude",
+        "predicate": "price_approximately",
+        "value": "104 dollars per barrel",
+        "confidence": "Assessed",
+        "source_module": "module_7",
         "extraction_method": "unknown"
       },
       "review_status": "publish",
@@ -326,10 +326,10 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "reasoner-latest",
+        "evidence_id": "reasoner-latest.json",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_3"
+        "source_module_path": "persistent.module_7"
       },
       "in_compose_trace": false
     },
@@ -337,11 +337,11 @@
       "chain_id": "gmm-chain-2026-05-09-0015",
       "claim_id": "gmm-int-2026-05-09-0015",
       "claim": {
-        "entity": "Bank reserves",
-        "predicate": "current_level_usd_trillions",
-        "value": 3.2,
-        "confidence": "High",
-        "source_module": "module_3",
+        "entity": "Hormuz ship traffic",
+        "predicate": "current_level",
+        "value": "5-10 ships per day vs 138 normal",
+        "confidence": "Assessed",
+        "source_module": "module_7",
         "extraction_method": "unknown"
       },
       "review_status": "publish",
@@ -349,10 +349,10 @@
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "reasoner-latest",
+        "evidence_id": "reasoner-latest.json",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_3"
+        "source_module_path": "persistent.module_7"
       },
       "in_compose_trace": false
     },
@@ -360,22 +360,22 @@
       "chain_id": "gmm-chain-2026-05-09-0016",
       "claim_id": "gmm-int-2026-05-09-0016",
       "claim": {
-        "entity": "Policy Rate Divergence risk vector",
-        "predicate": "rating",
-        "value": "HIGH",
-        "confidence": "High",
-        "source_module": "module_7",
-        "extraction_method": "deterministic"
+        "entity": "DXY",
+        "predicate": "level",
+        "value": "98.50",
+        "confidence": "Assessed",
+        "source_module": "module_5",
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-001",
+        "evidence_id": "reasoner-latest.json",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_7"
+        "source_module_path": "persistent.module_5"
       },
       "in_compose_trace": false
     },
@@ -383,22 +383,22 @@
       "chain_id": "gmm-chain-2026-05-09-0017",
       "claim_id": "gmm-int-2026-05-09-0017",
       "claim": {
-        "entity": "Sovereign Spread Widening risk vector",
-        "predicate": "rating",
-        "value": "HIGH",
-        "confidence": "High",
-        "source_module": "module_7",
-        "extraction_method": "deterministic"
+        "entity": "US Treasury maturity wall",
+        "predicate": "amount",
+        "value": "9.8 trillion dollars",
+        "confidence": "Assessed",
+        "source_module": "module_5",
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-004",
+        "evidence_id": "reasoner-latest.json",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_7"
+        "source_module_path": "persistent.module_5"
       },
       "in_compose_trace": false
     },
@@ -406,88 +406,19 @@
       "chain_id": "gmm-chain-2026-05-09-0018",
       "claim_id": "gmm-int-2026-05-09-0018",
       "claim": {
-        "entity": "Currency Regime Stress risk vector",
-        "predicate": "rating",
-        "value": "HIGH",
-        "confidence": "High",
-        "source_module": "module_7",
-        "extraction_method": "deterministic"
-      },
-      "review_status": "publish",
-      "review_flags": [],
-      "patch_id": null,
-      "patch_status": "no_patch_emitted",
-      "evidence": {
-        "evidence_id": "GMM-2026W18-004",
-        "source_url": null,
-        "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_7"
-      },
-      "in_compose_trace": false
-    },
-    {
-      "chain_id": "gmm-chain-2026-05-09-0019",
-      "claim_id": "gmm-int-2026-05-09-0019",
-      "claim": {
-        "entity": "Trade Policy Shock risk vector",
-        "predicate": "rating",
-        "value": "HIGH",
-        "confidence": "High",
-        "source_module": "module_7",
-        "extraction_method": "deterministic"
-      },
-      "review_status": "publish",
-      "review_flags": [],
-      "patch_id": null,
-      "patch_status": "no_patch_emitted",
-      "evidence": {
-        "evidence_id": "GMM-2026W18-003",
-        "source_url": null,
-        "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_7"
-      },
-      "in_compose_trace": false
-    },
-    {
-      "chain_id": "gmm-chain-2026-05-09-0020",
-      "claim_id": "gmm-int-2026-05-09-0020",
-      "claim": {
-        "entity": "Commodity Price Transmission risk vector",
-        "predicate": "rating",
-        "value": "HIGH",
-        "confidence": "High",
-        "source_module": "module_7",
-        "extraction_method": "deterministic"
-      },
-      "review_status": "publish",
-      "review_flags": [],
-      "patch_id": null,
-      "patch_status": "no_patch_emitted",
-      "evidence": {
-        "evidence_id": "GMM-2026W18-005",
-        "source_url": null,
-        "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.module_7"
-      },
-      "in_compose_trace": false
-    },
-    {
-      "chain_id": "gmm-chain-2026-05-09-0021",
-      "claim_id": "gmm-int-2026-05-09-0021",
-      "claim": {
         "entity": "Macro health composite",
         "predicate": "score",
         "value": 0.32,
         "confidence": "Assessed",
         "source_module": "macro_health_composite",
-        "extraction_method": "llm_fallback"
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "reasoner-latest",
+        "evidence_id": "reasoner-latest.json",
         "source_url": null,
         "source_url_resolution": "evidence_id_not_found_in_weekly",
         "source_module_path": "macro_health_composite"
@@ -495,71 +426,48 @@
       "in_compose_trace": false
     },
     {
-      "chain_id": "gmm-chain-2026-05-09-0022",
-      "claim_id": "gmm-int-2026-05-09-0022",
+      "chain_id": "gmm-chain-2026-05-09-0019",
+      "claim_id": "gmm-int-2026-05-09-0019",
       "claim": {
-        "entity": "United States jurisdiction",
-        "predicate": "overall_stress",
-        "value": "ELEVATED",
+        "entity": "System average conviction score",
+        "predicate": "score",
+        "value": -0.686,
         "confidence": "Assessed",
-        "source_module": "jurisdiction_risk_matrix",
-        "extraction_method": "llm_fallback"
+        "source_module": "key_judgments",
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-001",
+        "evidence_id": "reasoner-latest.json",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.jurisdiction_risk_matrix"
+        "source_module_path": "persistent.key_judgments"
       },
       "in_compose_trace": false
     },
     {
-      "chain_id": "gmm-chain-2026-05-09-0023",
-      "claim_id": "gmm-int-2026-05-09-0023",
+      "chain_id": "gmm-chain-2026-05-09-0020",
+      "claim_id": "gmm-int-2026-05-09-0020",
       "claim": {
-        "entity": "Eurozone jurisdiction",
-        "predicate": "overall_stress",
-        "value": "ELEVATED",
-        "confidence": "Assessed",
-        "source_module": "jurisdiction_risk_matrix",
-        "extraction_method": "llm_fallback"
-      },
-      "review_status": "publish",
-      "review_flags": [],
-      "patch_id": null,
-      "patch_status": "no_patch_emitted",
-      "evidence": {
-        "evidence_id": "GMM-2026W18-002",
-        "source_url": null,
-        "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.jurisdiction_risk_matrix"
-      },
-      "in_compose_trace": false
-    },
-    {
-      "chain_id": "gmm-chain-2026-05-09-0024",
-      "claim_id": "gmm-int-2026-05-09-0024",
-      "claim": {
-        "entity": "Emerging Markets aggregate jurisdiction",
-        "predicate": "overall_stress",
-        "value": "HIGH",
+        "entity": "Tariff escalation rung",
+        "predicate": "current_rung",
+        "value": 3,
         "confidence": "High",
-        "source_module": "jurisdiction_risk_matrix",
-        "extraction_method": "deterministic"
+        "source_module": "module_9",
+        "extraction_method": "unknown"
       },
       "review_status": "publish",
       "review_flags": [],
       "patch_id": null,
       "patch_status": "no_patch_emitted",
       "evidence": {
-        "evidence_id": "GMM-2026W18-004",
+        "evidence_id": "GMM-2026W19-002",
         "source_url": null,
         "source_url_resolution": "persistent_state_module",
-        "source_module_path": "persistent.jurisdiction_risk_matrix"
+        "source_module_path": "persistent.module_9"
       },
       "in_compose_trace": false
     }
