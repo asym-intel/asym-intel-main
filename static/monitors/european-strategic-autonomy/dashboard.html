@@ -385,9 +385,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var html = '<div style="overflow-x:auto"><table class="heatmap-table" style="width:100%;border-collapse:collapse">' +
       '<thead><tr><th>Instrument</th><th>Status</th><th>Last Update</th></tr></thead><tbody>';
     sorted.forEach(function(row) {
+      var instrumentLabel = row.name || row.instrument || row.title || '';
       var instrumentCell = row.source_url
-        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(row.instrument || '') + '</a>'
-        : escHtml(row.instrument || '');
+        ? '<a href="' + escHtml(row.source_url) + '" target="_blank" rel="noopener">' + escHtml(instrumentLabel) + '</a>'
+        : escHtml(instrumentLabel);
       html += '<tr>' +
         '<td>' + instrumentCell + '</td>' +
         '<td>' + escHtml(row.status || '') + '</td>' +
