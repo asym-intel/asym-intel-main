@@ -1,0 +1,2182 @@
+{
+  "_meta": {
+    "description": "Persistent living knowledge for the Democratic Integrity monitor (WDM). Carries forward the country heatmap classifications, mimicry chain tracking, and active institutional integrity flags across weekly issues.",
+    "monitor_slug": "democratic-integrity",
+    "monitor_name": "Worldwide Democratic Monitor",
+    "schema_version": "2.0",
+    "last_issue": 13,
+    "last_updated": "2026-05-05T06:17:05Z",
+    "baseline_method": "dr-computer-2026-04-28",
+    "baseline_window_months": 24,
+    "baseline_run_id": "wdm-2026-04-28",
+    "baseline_dispatched_at": "2026-04-28T00:00:00Z",
+    "baseline_model": "computer-research-subagent",
+    "predecessor_archive": "persistent-state-2026-04-28-pre-baseliner.json",
+    "total_issues": 4,
+    "vdem_calibration": "V-Dem Dataset v16 applied 2026-04-02",
+    "methodology_version": "2.0",
+    "required_modules": [
+      "heatmap_countries",
+      "mimicry_chains",
+      "institutional_integrity_active_flags",
+      "calibration_log",
+      "structural_facts",
+      "windowed_events",
+      "gaps_register"
+    ],
+    "baseliner_corrections": [
+      {
+        "field": "last_issue",
+        "from": 0,
+        "to": 12,
+        "reason": "preserve from current; subagent emitted first-build pattern"
+      },
+      {
+        "field": "baseline_method",
+        "from": "dr-claude-2026-04",
+        "to": "dr-computer-2026-04-28",
+        "reason": "normalise to session canonical value (subagent used spec literal)"
+      }
+    ]
+  },
+  "structural_facts": [
+    {
+      "evidence_id": "WDM-BASE-GLOBAL-001",
+      "fact": "V-Dem Democracy Report 2026 (10th edition) finds global democracy at 1978 levels. 92 autocracies vs 87 democracies as of end-2025; 44 autocratizing countries; 18 democratizing. Third wave of democratization gains almost fully eradicated.",
+      "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "index-anchor",
+      "jurisdiction": "Global",
+      "valid_from": "2026-03-17",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-GLOBAL-002",
+      "fact": "Freedom House Freedom in the World 2026 ('The Growing Shadow of Autocracy'): global freedom declined for 20th consecutive year in 2025. 54 countries experienced deterioration; 35 improved. Only 21% of world population lives in 'free' countries (down from 46% two decades ago). US score 81/100 (dropped 3 points, cumulative -12 since 2005).",
+      "source_url": "https://freedomhouse.org/article/new-report-global-freedom-declined-20th-consecutive-year-2025",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "index-anchor",
+      "jurisdiction": "Global",
+      "valid_from": "2026-03-19",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-GLOBAL-003",
+      "fact": "V-Dem 2026 identifies 10 new autocratizers in 2025; 5 are European: Croatia, Italy, Slovakia, Slovenia, UK. USA LDI fell from 0.75 (2024) to 0.57 (2025) — 24% decline in one year, unprecedented in modern history. USA dropped from rank 20 to rank 51 globally on LDI.",
+      "source_url": "https://www.v-dem.net/news/press-release-democratic-backsliding-reaches-western-democracies-with-us-decline-unprecedented/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "index-anchor",
+      "jurisdiction": "Global",
+      "valid_from": "2026-03-17",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-USA-001",
+      "fact": "Schedule Policy/Career (formerly Schedule F): OPM finalized rule February 5, 2026, effective March 9, 2026. Approximately 50,000 federal employees could be reclassified as effectively at-will, stripped of civil service appeal protections. Implements EO 14171 (January 20, 2025).",
+      "source_url": "https://www.opm.gov/news/news-releases/opm-finalizes-schedule-policycareer-rule-to-strengthen-accountability/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "category": "civil-service-integrity",
+      "jurisdiction": "United States",
+      "valid_from": "2026-03-09",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-USA-002",
+      "fact": "Trump v. Barbara: SCOTUS heard oral arguments April 1, 2026 on EO 14160 (birthright citizenship). Majority of justices signaled skepticism toward administration position; decision expected June-July 2026. First potential reinterpretation of 14th Amendment citizenship clause by executive action since Wong Kim Ark (1898).",
+      "source_url": "https://en.wikipedia.org/wiki/Trump_v._Barbara",
+      "retrieval_date": "2026-04-28",
+      "source_type": "court-ruling",
+      "category": "constitutional-integrity",
+      "jurisdiction": "United States",
+      "valid_from": "2026-04-01",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-HUN-001",
+      "fact": "Hungary electoral system structural fact: 2024 redistricting required Tisza to outperform polls by 3-5 percentage points to win a simple majority. Supermajority threshold is 2/3 of 199 National Assembly seats (133 seats). Electoral system biased toward incumbency through single-member constituency design.",
+      "source_url": "https://en.wikipedia.org/wiki/2026_Hungarian_parliamentary_election",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "category": "electoral-system",
+      "jurisdiction": "Hungary",
+      "valid_from": "2024-01-01",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-GEO-001",
+      "fact": "Georgia: Foreign Agents Registration Act (FARA-style) passed April 1, 2025, entered force June 1, 2025. Criminal liability up to 5 years for non-compliance. Requires registration as 'foreign agent' for individuals/organizations receiving foreign funding for broadly-defined 'political activity'.",
+      "source_url": "https://protectdefenders.eu/georgias-crackdown-on-civil-society-deepens-as-foreign-agents-law-comes-into-force/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "civil-society-framework",
+      "jurisdiction": "Georgia",
+      "valid_from": "2025-06-01",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-GEO-002",
+      "fact": "Georgia: January 2026 law package proposes criminal penalties up to 6-12 years for receiving foreign grants without prior government authorization, 8-year political party membership ban for former employees of foreign-funded organizations, and state control over all foreign-funded civil society assets. Council of Europe Commissioner for Human Rights states amendments conflict with Georgia's international obligations.",
+      "source_url": "https://www.hrw.org/news/2026/02/09/georgia-initiates-laws-severely-curtailing-civil-and-political-rights",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "civil-society-framework",
+      "jurisdiction": "Georgia",
+      "valid_from": "2026-01-28",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-TUR-001",
+      "fact": "Turkey: Istanbul Mayor Ekrem Imamoglu arrested March 19, 2025 on corruption and terrorism charges; formally jailed March 23. Arrest occurred on day CHP nominated him as presidential candidate. Istanbul University annulled his degree March 18, 2025 — a prerequisite disqualification from presidential candidacy. Over 15 CHP mayors and hundreds of staff subsequently detained.",
+      "source_url": "https://en.wikipedia.org/wiki/Arrest_of_Ekrem_%C4%B0mamo%C4%9Flu",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "judicial-independence",
+      "jurisdiction": "Turkey",
+      "valid_from": "2025-03-19",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-TUR-002",
+      "fact": "Turkey: V-Dem LDI 0.12 (2024 data). EU rapporteur November 2025 characterized Turkey as facing 'worst democratic decline in history.' ECHR has previously found Turkey detained Imamoglu predecessor Demirtas and activist Kavala for 'ulterior purpose of stifling pluralism' — both still not released as of 2026.",
+      "source_url": "https://www.turkishminute.com/2025/11/07/turkey-facing-its-worst-democratic-decline-in-history-eu-rapporteur/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "judicial-independence",
+      "jurisdiction": "Turkey",
+      "valid_from": "2025-11-07",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-MEX-001",
+      "fact": "Mexico: September 2024 constitutional reform eliminated judicial tenure; June 1, 2025 judicial elections filled all 9 Supreme Court seats by popular vote (first such election in world history). Morena-backed candidates swept all 9 SCJN seats. Turnout only 13%. HRW: reform undermines judicial independence. New Supreme Court president Hugo Aguilar inaugurated September 1, 2025.",
+      "source_url": "https://www.hrw.org/news/2025/09/01/mexico-electoral-process-undermines-judicial-independence",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "judicial-independence",
+      "jurisdiction": "Mexico",
+      "valid_from": "2025-09-01",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-IND-001",
+      "fact": "India: V-Dem 2026 classifies India as electoral autocracy (entry 2017); ranked 105/179 on LDI (down from 100 in 2025). Freedom House 2026: Partly Free, 62/100. March 2026 FCRA amendment tabled in Lok Sabha: creates 'Designated Authority' able to seize assets of NGOs with revoked licenses. 21,933 organizations had FCRA licenses revoked as of March 26, 2026.",
+      "source_url": "https://www.amnesty.org/en/latest/news/2026/03/india-parliament-must-reject-proposal-to-extend-restrictions-on-overseas-funding-for-ngos/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "civil-society-framework",
+      "jurisdiction": "India",
+      "valid_from": "2026-03-25",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-ROK-001",
+      "fact": "South Korea: Constitutional Court unanimously impeached President Yoon Suk Yeol April 4, 2025 for December 3, 2024 martial law declaration. Yoon sentenced to life imprisonment for insurrection February 2026. Lee Jae-myung (Democratic Party) won snap presidential election June 3, 2025 with 49.3% of vote vs 41.3% for PPP's Kim Moon-soo; 80% turnout.",
+      "source_url": "https://www.reuters.com/world/asia-pacific/south-koreans-vote-president-after-months-turmoil-triggered-by-martial-law-2025-06-02/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "category": "electoral-process",
+      "jurisdiction": "South Korea",
+      "valid_from": "2025-06-03",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-ROM-001",
+      "fact": "Romania: Constitutional Court annulled November 2024 presidential election (first round won by Calin Georgescu) citing Russian interference evidence (85,000 cyberattacks, 25,000 TikTok accounts). Repeated election May 4/18, 2025. Pro-EU independent Nicusor Dan won 53.60% vs George Simion (AUR far-right) 46.40%. Turnout 64.72% (record). EU Liberties RoL Report 2026: Romania classified 'Stagnator'.",
+      "source_url": "https://www.robert-schuman.eu/en/monitor/6566-nicusor-dan-wins-the-presidential-election-in-romania",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "category": "electoral-process",
+      "jurisdiction": "Romania",
+      "valid_from": "2025-05-18",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-VEN-001",
+      "fact": "Venezuela: Maduro seized by US military operation in early January 2026. Acting President Delcy Rodriguez assumed office. Amnesty law signed February 19, 2026 (unanimously approved National Assembly), covering political offenses 1999-2026. Foro Penal: 473 political prisoners released as of April 20, 2026; over 500 estimated still detained. Rights groups criticize slow pace and Rodriguez's April 2026 suggestion the release program may end.",
+      "source_url": "https://www.bbc.com/news/articles/c0kr62z7z6lo",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "category": "electoral-process",
+      "jurisdiction": "Venezuela",
+      "valid_from": "2026-01-08",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    },
+    {
+      "evidence_id": "WDM-BASE-SRB-001",
+      "fact": "Serbia: November 2024 Novi Sad railway station canopy collapse (16 killed) triggered sustained mass protests throughout 2025 — largest in Serbia's history (up to 325,000 in March 2025 Belgrade march). Protests continue through April 2026. Vucic has made no substantive concessions. V-Dem LDI 0.35. Freedom House 2025: Partly Free (56/100). Snap parliamentary elections expected by end-2026.",
+      "source_url": "https://foreignpolicy.com/2026/01/13/serbia-protests-vucic-novi-sad-euromaidan/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "category": "civil-society-anti-corruption",
+      "jurisdiction": "Serbia",
+      "valid_from": "2024-11-01",
+      "unchanged_since": "2026-04-28",
+      "last_verified": "2026-04-28"
+    }
+  ],
+  "windowed_events": [
+    {
+      "evidence_id": "WDM-BASE-HUN-002",
+      "event_date": "2026-04-12",
+      "event": "Hungary parliamentary election: Tisza Party (Peter Magyar) won landslide supermajority — 141/199 seats (53.18% of vote). Fidesz-KDNP won only 52 seats (38.61%). Record turnout 79.56%. Orban conceded defeat, ending 16-year rule. Final results confirmed by National Election Office April 18, 2026. Tisza holds supermajority sufficient to amend Fundamental Law.",
+      "jurisdiction": "Hungary",
+      "source_url": "https://english.news.cn/europe/20260419/0fdd9265fd98461992bb0d30032424ab/c.html",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "significance": "Critical: Democratic reversal — end of 16-year autocratization episode under Orban. Recovery trajectory begins.",
+      "prior_heatmap_status": "RapidDecay",
+      "trajectory_signal": "Recovery",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Election outcome confirmed April 18 2026 by NEO",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-HUN-003",
+      "event_date": "2026-04-15",
+      "event": "Hungarian President Tamas Sulyok met all three parliamentary party leaders on April 15, 2026 and announced he would nominate Peter Magyar as Prime Minister when the legislature convenes. New National Assembly expected to convene May 9, 2026.",
+      "jurisdiction": "Hungary",
+      "source_url": "https://en.wikipedia.org/wiki/2026_Hungarian_parliamentary_election",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "significance": "High: Constitutional transfer of power confirmed",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Presidential nomination confirmed",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-BEN-002",
+      "event_date": "2026-04-12",
+      "event": "Benin presidential election: Romuald Wadagni (Finance Minister, ruling coalition, Talon's chosen successor) won 94.05% of vote vs Paul Hounkpe (6%). Turnout 58.75%. Constitutional Court confirmed result April 23, 2026. Main opposition party (Democrats) excluded due to insufficient parliamentary endorsements. Only two ruling-bloc candidates cleared. Observers reported pre-filled ballot boxes but ECOWAS declared aberrations insufficient to undermine credibility.",
+      "jurisdiction": "Benin",
+      "source_url": "https://www.africanews.com/2026/04/23/benin-confirms-wadagnis-presidential-vote-win/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "significance": "High: Confirms escalation to RapidDecay — election outcome was foregone conclusion due to structural exclusion of opposition. Wadagni takes office May 24, 2026.",
+      "prior_heatmap_status": "Watchlist",
+      "trajectory_signal": "RapidDecay-confirmed",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Election outcome confirmed by Constitutional Court",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-GEO-003",
+      "event_date": "2026-03-12",
+      "event": "OSCE Moscow Mechanism report on Georgia released March 12, 2026. Invoked by 23 OSCE participating states on January 29, 2026. Rapporteur (Prof. Patrycja Grzebyk) finding: 'marked democratic backsliding has taken place in Georgia.' Pattern of violence reaching threshold of torture; near-total impunity for perpetrators; laws systematically restrict fundamental freedoms; attempt to ban major opposition parties threatens political pluralism.",
+      "jurisdiction": "Georgia",
+      "source_url": "https://odihr.osce.org/sites/default/files/documents/official_documents/2026/03/odgal0009c1%20ODIHR%20NV%2082-2026%20report_Moscow%20Mechanism%20invoked%20in%20respect%20of%20Georgia_0.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "significance": "Critical: Moscow Mechanism invoked (rarely used); 24/57 OSCE states endorsed recommendations; targeted sanctions recommended",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Primary OSCE document source",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-GEO-004",
+      "event_date": "2026-02-09",
+      "event": "Georgian Dream ruling party passed sweeping civil society crackdown legislation: criminal penalties up to 12 years for unauthorized foreign grants; 8-year party membership ban for former foreign-funded org employees; government seizure authority over CSO assets. Amnesty International, Amnesty Council of Europe Commissioner condemn as incompatible with international obligations. March 2026: laws passed.",
+      "jurisdiction": "Georgia",
+      "source_url": "https://www.hrw.org/news/2026/02/09/georgia-initiates-laws-severely-curtailing-civil-and-political-rights",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "significance": "Critical: Most severe civil society legislation in Georgia's post-Soviet history",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "HRW primary documentation",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-USA-003",
+      "event_date": "2026-03-17",
+      "event": "V-Dem Democracy Report 2026 published. USA LDI declined 24% in one year (0.75 to 0.57), faster than Hungary (4 years), Serbia (8 years), India or Turkey (~decade). USA loses liberal democracy status for first time in 50+ years. Legislative Constraints losing 1/3 of value in 2025, reaching lowest in 100+ years. Civil Rights & Equality and Freedom of Expression at lowest in 60 years.",
+      "jurisdiction": "United States",
+      "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "significance": "Critical: Anchors severity_score and vdemLDI for USA entries",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Annual V-Dem index release",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-TUR-003",
+      "event_date": "2025-10-27",
+      "event": "Turkish court issued second arrest order for Imamoglu on 'political espionage' charges (October 27, 2025). State simultaneously seized Tele1 TV channel (critical of government). By October 2025: 15+ CHP mayors, hundreds of staff detained. Imamoglu faces 2,430-year sentence request in mass corruption trial (March 9, 2026 hearing).",
+      "jurisdiction": "Turkey",
+      "source_url": "https://www.reuters.com/business/media-telecom/turkey-court-orders-arrest-istanbuls-jailed-mayor-political-espionage-2025-10-27/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "significance": "High: Systematic opposition elimination — escalation from single arrest to party-wide judicial crackdown",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Reuters primary reporting",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-ROK-002",
+      "event_date": "2026-02-22",
+      "event": "Yoon Suk Yeol sentenced to life imprisonment for insurrection by Seoul Central Court, February 2026. Assessment: 'democratic erosion not inevitable' — constitutional resilience demonstrated. Lee Jae-myung government facing challenges: PPPK fragmentation, economic headwinds, constitutional reform deferred. South Korea V-Dem LDI 0.63 (V-Dem v16).",
+      "jurisdiction": "South Korea",
+      "source_url": "https://www.bbc.com/news/articles/cwygnw91wl0o",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record",
+      "significance": "High: Landmark accountability — rare democratic resilience signal in global backsliding environment",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "BBC/DW primary reporting on sentencing",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-ROM-002",
+      "event_date": "2025-05-18",
+      "event": "Romania presidential election (repeated after November 2024 annulment): Nicusor Dan (pro-EU independent) won 53.60% vs George Simion (AUR far-right) 46.40%. Record 11 million voters (64.72% turnout). Simion initially refused to concede. Constitutional Court barred Georgescu from standing. EU Liberties RoL 2026 classifies Romania as 'Stagnator' (functioning framework, persistent shortcomings).",
+      "jurisdiction": "Romania",
+      "source_url": "https://www.euronews.com/my-europe/2025/05/18/nicusor-dan-leading-in-romanias-crucial-presidential-elections-exit-polls-project",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "significance": "High: Democratic resilience — defeated hard-right challenge despite Russian interference campaign",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Election result confirmed",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-MEX-002",
+      "event_date": "2025-06-01",
+      "event": "Mexico held world's first nationwide judicial election. Morena-backed candidates swept all 9 SCJN Supreme Court seats (13% voter turnout). Six of nine justices took office September 1, 2025. Critics: candidates pre-screened by Morena-controlled committees; judicial independence eliminated. Sheinbaum attended SCJN inauguration — critics cite interference.",
+      "jurisdiction": "Mexico",
+      "source_url": "https://en.wikipedia.org/wiki/2025_Mexican_judicial_elections",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official",
+      "significance": "High: Structural elimination of judicial independence via constitutional reform",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "Wikipedia and HRW primary documentation",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-IND-002",
+      "event_date": "2026-03-25",
+      "event": "India tabled FCRA Amendment 2026 in Lok Sabha (March 25, 2026): creates 'Designated Authority' to seize NGO assets on license cancellation; extends enforcement reach. As of 26 March 2026: 21,933 organizations had FCRA licenses revoked. Parliamentary consideration deferred April 2026 (opposition, religious groups, Kerala elections). April 2026 deferral does not eliminate threat.",
+      "jurisdiction": "India",
+      "source_url": "https://www.icnl.org/resources/civic-freedom-monitor/india",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "significance": "High: Escalation of civil society crackdown — FATF 2024 noted FCRA risks misuse for legitimate CSO restriction",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "ICNL Civic Freedom Monitor + Amnesty primary documentation",
+          "prior_value": null
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-VEN-002",
+      "event_date": "2026-02-19",
+      "event": "Venezuela amnesty law signed by acting President Delcy Rodriguez (February 19, 2026). Covers political offenses 1999-2026. Excludes exile opposition (initially), serious crimes. Foro Penal: 473 confirmed releases as of April 20, 2026 vs 1,557 applications. Rodriguez April 2026 suggested program conclusion — condemned by Foro Penal and Provea as unconstitutional overreach. Washington's 3-stage stabilization plan (stabilization → recovery → transition) without timeline.",
+      "jurisdiction": "Venezuela",
+      "source_url": "https://www.bbc.com/news/articles/c0kr62z7z6lo",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "significance": "High: Transition credibility test — gap between official claims and Foro Penal data widens confidence erosion",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry updated",
+          "reason": "BBC April 25 2026 report on Foro Penal figures",
+          "prior_value": "448 releases as of February 2026"
+        }
+      ]
+    },
+    {
+      "evidence_id": "WDM-BASE-SRB-002",
+      "event_date": "2025-11-01",
+      "event": "Serbia: First anniversary of Novi Sad station collapse. Tens of thousands marched to Novi Sad. Protests sustained 16+ months without political breakthrough. June 28, 2025 Slavija Square protest (140,000 participants) ended in police violence; 4 protesters hospitalized. Council of Europe Commissioner and UN OHCHR expressed concern about excessive force. Vucic rejected snap elections but hinted at compromise. Vucic reaches 2-term limit in 2027 (cannot run again).",
+      "jurisdiction": "Serbia",
+      "source_url": "https://epthinktank.eu/2025/09/08/anti-government-protests-in-serbia/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index",
+      "significance": "High: Largest sustained protest movement in Serbian history; democratic stalemate persists",
+      "version_history": [
+        {
+          "date": "2026-04-28",
+          "change": "Baseliner entry created",
+          "reason": "EP Think Tank + Foreign Policy primary documentation",
+          "prior_value": null
+        }
+      ]
+    }
+  ],
+  "heatmap_countries": {
+    "rapid_decay": [
+      {
+        "country": "United States",
+        "status": "RapidDecay",
+        "severity_score": 5.5,
+        "severity_arrow": "↑",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "V-Dem LDI -24%; Schedule F; DOJ attempted Congress indictment (rejected); FCC threats",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-03-30",
+            "change": "SAVE America Act (more restrictive than SAVE Act) passed House February 2026; Trump Supreme Court campaign (97% of emergency requests argue judicial interference) documented",
+            "reason": "Material escalation in electoral engineering and systematic judicial undermining",
+            "prior_value": "prior state before: SAVE America Act (more restrictive than SAVE Act) passed House February 2026; Trump Supreme Court campaign (97% of emergency requests argue judicial interference) documented"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: Schedule Policy/Career finalized (March 9, 2026, ~50,000 positions); Trump v. Barbara SCOTUS hearing April 1 (decision June-July 2026); V-Dem LDI confirmed at 0.57 (rank dropped 20→51); Freedom House -3pts (81/100). severity_score held at 5.5↑",
+            "reason": "Baseliner DR re-verification pass — material updates to civil service and judicial vectors",
+            "prior_value": "severity_score: 5.5↑ (as of 2026-03-30)"
+          }
+        ],
+        "vdemLDI": 0.57,
+        "vdemConfirmed": true,
+        "vdemERT": "active-2025",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-17 Democracy Report 2026)",
+        "vdemLDIChange": -0.18,
+        "freedomHouseScore": 81,
+        "freedomHouseStatus": "Free",
+        "electoralWatch": {
+          "environment": "HIGH_RISK",
+          "event": "2026 US midterm elections",
+          "date": "2026-11-03",
+          "vdemBasis": "ERT active-autocratisation + LDI -0.18 single-year decline",
+          "last_updated": "2026-04-28"
+        },
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-USA-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Georgia",
+        "status": "RapidDecay",
+        "severity_score": 8.5,
+        "severity_arrow": "↑",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "OSCE Moscow Mechanism (12 Mar) confirmed torture-level repression; initial severity 8.0↑",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-03-30",
+            "change": "Severity escalated 8.0→8.5; CIVICUS downgrade to Repressed confirmed; new March 2026 law package (foreign grants criminalised, extremism law, 8-yr civil society ban)",
+            "reason": "Three new laws passed in one session — material structural change",
+            "prior_value": "prior state before: Severity escalated 8.0→8.5; CIVICUS downgrade to Repressed confirmed; new March 2026 law package (foreign grants criminalised, extremism law, 8-yr civil society ban)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: OSCE Moscow Mechanism report (March 12, 2026) confirms 'marked democratic backsliding', torture-level treatment, near-total impunity, opposition party ban attempts. HRW and Amnesty confirm January-March 2026 law package. 24 OSCE states endorsed recommendations including targeted sanctions.",
+            "reason": "Primary source verification of OSCE Moscow Mechanism report",
+            "prior_value": "severity_score: 8.5↑ (as of 2026-03-30)"
+          }
+        ],
+        "vdemLDI": 0.22,
+        "vdemConfirmed": true,
+        "vdemERT": "active-2025",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-GEO-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Iran",
+        "status": "RapidDecay",
+        "severity_score": 10.0,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-30",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-IRN-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Tanzania",
+        "status": "RapidDecay",
+        "severity_score": 8.0,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "freedomHouse2026": "Tanzania: second-largest score decline globally (Freedom in the World 2026) due to media suppression, violence, opposition exclusion",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-TZA-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Kazakhstan",
+        "status": "RapidDecay",
+        "severity_score": 7.0,
+        "severity_arrow": "↑",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-KAZ-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Tunisia",
+        "status": "RapidDecay",
+        "severity_score": 8.5,
+        "severity_arrow": "↑",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "vdemLDI": 0.18,
+        "vdemConfirmed": true,
+        "vdemERT": "ongoing",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-TUN-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Nicaragua",
+        "status": "RapidDecay",
+        "severity_score": 9.5,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "vdemLDI": 0.08,
+        "vdemConfirmed": true,
+        "vdemERT": "ongoing",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-NIC-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Serbia",
+        "status": "RapidDecay",
+        "severity_score": 4.0,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: 16+ month protest movement (largest in Serbia's history) — 325,000+ in March 2025 Belgrade protest. Police violence against protesters June 2025 (CoE/UN condemnation). Vucic rejects snap elections. Stalemate continues. Snap elections expected by end-2026.",
+            "reason": "Baseliner DR re-verification pass — protest movement escalation documented",
+            "prior_value": "severity_score: 4.0→ (as of 2026-03-24)"
+          }
+        ],
+        "vdemLDI": 0.35,
+        "vdemConfirmed": true,
+        "vdemERT": "ongoing",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-SRB-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Hungary",
+        "status": "RapidDecay",
+        "severity_score": 5.0,
+        "severity_arrow": "↓",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "trajectory_update": "RapidDecay→Recovery (transition in progress post-April 12 election)",
+        "note": "Orban era ended April 12, 2026. Tisza won supermajority (141/199 seats). Recovery trajectory confirmed. Downgrade to Recovery bucket appropriate at next cycle once Magyar government formed.",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "April 12 elections approaching; Tisza polling ahead; ODIHR deployed; journalist ejections documented",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-03-30",
+            "change": "Tisza lead updated to 23 percentage points among decided voters (widest documented gap)",
+            "reason": "New Medián poll (Reuters March 25) material change to electoral assessment",
+            "prior_value": "prior state before: Tisza lead updated to 23 percentage points among decided voters (widest documented gap)"
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Tisza aggregate polling updated to 50.8% vs Fidesz bloc 47.8% (PolitPro, 31 Mar); Tisza pulling ahead in Fidesz strongholds (TVP World, 31 Mar). 11 days to April 12 election. Structural redistricting constraint unchanged.",
+            "reason": "New aggregate poll data (PolitPro 31 Mar) and constituency-level reporting — material to electoral assessment",
+            "prior_value": "Tisza leading by 23pp among decided voters (Medián/Reuters 25 Mar)"
+          },
+          {
+            "date": "2026-04-06",
+            "change": "Final campaign week polling: Medián (Apr 1): Tisza 58% vs Fidesz 35% among decided voters — largest gap of campaign. 21 Kutatóközpont (Apr 1): Tisza 56% vs Fidesz 37%. Polymarket: 69% Tisza. Counter-signal: Fidesz won 8 consecutive by-elections (zero Tisza entries). Leaked internal Fidesz data projects Tisza victory. 6 days to April 12. CSIS four post-election scenarios published. Three simultaneous confirmed Russian FIMI operations targeting election (FCW CMF-001).",
+            "reason": "New polling data (Medián Apr 1, 21 Kutatóközpont Apr 1) — material to electoral assessment. CSIS scenario analysis adds institutional risk framing.",
+            "prior_value": "Tisza aggregate 50.8% vs Fidesz bloc 47.8% (PolitPro 31 Mar); 11 days to election"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "ELECTION RESULT: Tisza won 141/199 seats (53.18%), Fidesz 52 seats (38.61%), record 79.56% turnout. Orban conceded April 12. Final results NEO confirmed April 18. President Sulyok nominated Magyar as PM April 15. New Assembly convenes May 9. Recovery trajectory confirmed. Bucket transfer pending government formation.",
+            "reason": "Baseliner DR re-verification pass — election outcome material change",
+            "prior_value": "RapidDecay severity 5.0 (pre-election)"
+          }
+        ],
+        "vdemLDI": 0.28,
+        "vdemConfirmed": true,
+        "vdemERT": "ongoing",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-HUN-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Slovakia",
+        "status": "RapidDecay",
+        "severity_score": 4.0,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "vdemLDI": 0.6,
+        "vdemConfirmed": true,
+        "vdemERT": "active-2025",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "liberties2026_classification": "Dismantler",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-SVK-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "El Salvador",
+        "status": "RapidDecay",
+        "severity_score": 6.5,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "vdemLDI": 0.25,
+        "vdemConfirmed": true,
+        "vdemERT": "ongoing",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "freedomHouse2026_note": "El Salvador: 5-point decline (Freedom in the World 2026) — critics prosecuted, journalists exiled, constitutional amendments",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-SLV-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "DRC",
+        "status": "RapidDecay",
+        "severity_score": 7.0,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-COD-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Iraq",
+        "status": "RapidDecay",
+        "severity_score": 6.0,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Transient",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-IRQ-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Uganda",
+        "status": "RapidDecay",
+        "severity_score": 4.5,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-UGA-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Philippines",
+        "status": "RapidDecay",
+        "severity_score": 5.5,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-30",
+        "last_material_change": "2026-03-30",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Entry created as RapidDecay",
+            "reason": "CIVICUS Watchlist March 25 at Repressed; 97 protesters charged sedition; journalists convicted terrorism-financing after 6 years pre-trial",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-PHL-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Turkey",
+        "status": "RapidDecay",
+        "severity_score": 8.5,
+        "severity_arrow": "↑",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-04-28",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "Promoted from watchlist to rapid_decay at baseliner pass",
+            "reason": "Istanbul Mayor Imamoglu arrested March 2025 on day of CHP presidential nomination; 15+ CHP mayors detained; Imamoglu faces 2430-year sentence demand; Tele1 TV seized; EU rapporteur Nov 2025 'worst democratic decline in history'; V-Dem LDI 0.12",
+            "prior_value": "watchlist entry (severity_score: 8.5, last_updated: 2026-04-18)"
+          }
+        ],
+        "vdemLDI": 0.12,
+        "vdemConfirmed": true,
+        "vdemERT": "ongoing",
+        "vdemSource": "V-Dem Dataset v16 worldpopulationreview.com 2026",
+        "note": "Moved from watchlist to rapid_decay at baseliner. Watchlist duplicate entry preserved below for traceability.",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-TUR-001",
+        "source_url": "https://www.bbc.com/news/articles/c204ymjnn80o",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      },
+      {
+        "country": "Benin",
+        "status": "RapidDecay",
+        "severity_score": 6.5,
+        "severity_arrow": "↑",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-30",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Entry created in watchlist",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-06",
+            "change": "Presidential election 6 days away. Only two ruling-bloc candidates (Wadagni, Hounkpè) cleared. All 109 National Assembly seats held by Talon-aligned parties. Escalation trigger is active — threshold crossing expected April 12 if Wadagni wins as projected.",
+            "reason": "Wikipedia election documentation (Apr 2026) confirms candidate list — material to Watch List threshold assessment",
+            "prior_value": "Watch List entry established 2026-03-30; threshold_crossed: 4; election pending April 12"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "ELECTION OUTCOME: Wadagni won 94.05% (April 12, 2026); Constitutional Court confirmed April 23; Wadagni takes office May 24, 2026. Escalation trigger crossed. ECOWAS observers noted ballot irregularities (pre-filled boxes) but insufficient to invalidate. Promoted to rapid_decay.",
+            "reason": "Baseliner DR re-verification — escalation trigger crossed as projected",
+            "prior_value": "Watchlist entry with escalation trigger active (severity_score: 5.5)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-BEN-001",
+        "source_url": "https://www.africanews.com/2026/04/23/benin-confirms-wadagnis-presidential-vote-win/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      }
+    ],
+    "recovery": [
+      {
+        "country": "Romania",
+        "status": "Recovery",
+        "severity_score": 2.5,
+        "severity_arrow": "↓",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: May 2025 presidential election confirmed — pro-EU Nicusor Dan won 53.60% vs hard-right Simion 46.40%; record turnout; defeat of Russian interference campaign. EU Liberties 2026: Romania 'Stagnator' — functioning framework, persistent shortcomings. Recovery trajectory confirmed but incomplete.",
+            "reason": "Baseliner DR re-verification pass — election outcome + EU RoL classification",
+            "prior_value": "Recovery severity 2.5↓ (initial)"
+          }
+        ],
+        "vdemLDI": 0.6,
+        "vdemConfirmed": true,
+        "vdemERT": "u-turn-2024",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-ROM-001",
+        "source_url": "https://www.robert-schuman.eu/en/monitor/6566-nicusor-dan-wins-the-presidential-election-in-romania",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      },
+      {
+        "country": "Bolivia",
+        "status": "Recovery",
+        "severity_score": 1.0,
+        "severity_arrow": "↓",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "freedomHouse2026": "Bolivia improved from Partly Free to Free (2025 data) — peaceful transfer of power and judicial improvements",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-BOL-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Venezuela",
+        "status": "Recovery",
+        "severity_score": 7.0,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created as Recovery (provisional)",
+            "reason": "Maduro removed; 266+ prisoners released; amnesty law announced",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-03-30",
+            "change": "Friction note updated: 1,557 applications vs only 448 confirmed releases; revolving-door arrests confirmed; law excludes exile opposition figures",
+            "reason": "New evidence widens gap between official claims and confirmed releases — confidence remains Probable",
+            "prior_value": "prior state before: Friction note updated: 1,557 applications vs only 448 confirmed releases; revolving-door arrests confirmed; law excludes exile opposition figures"
+          },
+          {
+            "date": "2026-04-01",
+            "change": "Confirmed releases updated: 621 confirmed as of 8 March (up from 448 on 20 Feb). 500+ still held per Foro Penal. Amnesty law processing slow: only 91 confirmed under the law itself by 24 Feb.",
+            "reason": "Wikipedia/WLRN/Foro Penal updated figures — material to transition credibility assessment",
+            "prior_value": "448 confirmed releases as of 20 February (Foro Penal)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Foro Penal: 473 releases as of April 20, 2026 vs 1,557 applications. Rodriguez April 2026 suggested program conclusion — condemned by Foro Penal/Provea as unconstitutional. Maduro's government held rally March 3 marking 2-month anniversary of his detention. Washington 3-stage stabilization plan without timeline. Recovery confidence remains Probable.",
+            "reason": "Baseliner DR re-verification — BBC April 25 2026 primary source on Foro Penal figures",
+            "prior_value": "621 confirmed releases (March 2026)"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-VEN-001",
+        "source_url": "https://www.bbc.com/news/articles/c0kr62z7z6lo",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      },
+      {
+        "country": "Poland",
+        "status": "Recovery",
+        "severity_score": 3.0,
+        "severity_arrow": "↓",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "Initial assessment",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "vdemLDI": 0.72,
+        "vdemConfirmed": true,
+        "vdemERT": "u-turn-2024",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "vdemNote": "V-Dem 2026: Poland among 18 democratizing countries (U-turn)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-POL-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "South Korea",
+        "status": "Recovery",
+        "severity_score": 1.0,
+        "severity_arrow": "↓",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-03-30",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Entry created as Recovery",
+            "reason": "One year after Yoon's failed martial law: Constitutional Court unanimous impeachment, Yoon arrested, multiple officials charged",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: Yoon sentenced life imprisonment February 2026; Lee Jae-myung inaugurated June 4, 2025 (49.3% vote, 80% turnout); constitutional reform proposed (4-year terms); democratic resilience confirmed by analysts. Recovery trajectory confirmed.",
+            "reason": "Baseliner DR re-verification — BBC/Reuters/Carnegie Endowment primary sources",
+            "prior_value": "Recovery severity 1.0↓ (initial)"
+          }
+        ],
+        "vdemLDI": 0.8,
+        "vdemConfirmed": true,
+        "vdemERT": "u-turn-2025",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-ROK-001",
+        "source_url": "https://www.reuters.com/world/asia-pacific/south-koreans-vote-president-after-months-turmoil-triggered-by-martial-law-2025-06-02/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      },
+      {
+        "country": "Hungary",
+        "status": "Recovery",
+        "severity_score": 5.0,
+        "severity_arrow": "↓",
+        "confidence": "Confirmed",
+        "entry_type": "Episode",
+        "first_seen": "2026-04-28",
+        "last_material_change": "2026-04-28",
+        "note": "Transferred from rapid_decay post-election. Recovery trajectory begins April 12, 2026. Tisza supermajority (141/199 seats) enables constitutional amendment of Orban-era institutions. Government formation pending (PM Magyar nominated by President, Assembly convenes May 9). EU von der Leyen: 'Hungary has chosen Europe.' Structural reversal of 16-year autocratization will take significant time.",
+        "version_history": [
+          {
+            "date": "2026-04-28",
+            "change": "New Recovery entry created at baseliner — Tisza electoral landslide April 12, 2026",
+            "reason": "Hungary transitioning from RapidDecay to Recovery as of election night April 12",
+            "prior_value": "RapidDecay bucket (prior to election outcome)"
+          }
+        ],
+        "vdemLDI": 0.28,
+        "vdemConfirmed": true,
+        "vdemERT": "u-turn-2026-pending",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28) — ERT reclassification expected in v17",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-HUN-002",
+        "source_url": "https://english.news.cn/europe/20260419/0fdd9265fd98461992bb0d30032424ab/c.html",
+        "retrieval_date": "2026-04-28",
+        "source_type": "news-of-record"
+      }
+    ],
+    "watchlist": [
+      {
+        "country": "Italy",
+        "status": "RapidDecay",
+        "severity_score": 4.5,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: V-Dem 2026 confirms Italy as new autocratizer (ERT active-2025); Freedom House 2026 one of sharpest declines among Free countries; EU Liberties 2026 classifies Italy as 'Dismantler'",
+            "reason": "Baseliner DR re-verification pass — V-Dem, Freedom House, Liberties convergence",
+            "prior_value": "severity_score: 4.5↑ (2026-04-18)"
+          }
+        ],
+        "triggers": [
+          "Press freedom decline",
+          "Executive-judiciary friction",
+          "V-Dem 2026 new autocratizer",
+          "EU Liberties 2026 Dismantler classification"
+        ],
+        "threshold_crossed": 3,
+        "escalation_trigger": "Any legislative move against judicial independence or RAI editorial control.",
+        "watch_since": "2026-03-24",
+        "vdemLDI": 0.72,
+        "vdemConfirmed": true,
+        "vdemERT": "active-2025",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_updated": "2026-04-28",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-ITA-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "United Kingdom",
+        "status": "RapidDecay",
+        "severity_score": 3.5,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: V-Dem 2026 identifies UK as new autocratizer (ERT active-2025). V-Dem LDI 0.74. EU Liberties 2026 classifies UK as 'Slider'.",
+            "reason": "Baseliner DR re-verification pass",
+            "prior_value": "severity_score: 3.5↑ (2026-04-18)"
+          }
+        ],
+        "triggers": [
+          "V-Dem 2026 new autocratizer",
+          "Judicial independence concerns",
+          "Civil society restrictions"
+        ],
+        "threshold_crossed": 2,
+        "escalation_trigger": "Any move to limit Supreme Court jurisdiction or restrict NGO access to judicial review.",
+        "watch_since": "2026-03-24",
+        "vdemLDI": 0.74,
+        "vdemConfirmed": true,
+        "vdemERT": "active-2025",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_updated": "2026-04-28",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-GBR-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Bangladesh",
+        "status": "RapidDecay",
+        "severity_score": 4.5,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: V-Dem 2026 classifies Bangladesh as 'closed autocracy' (2025 data) — entered that category in 2025. V-Dem LDI 0.07 (2024 data, worldpopulationreview).",
+            "reason": "V-Dem 2026 regime reclassification to closed autocracy",
+            "prior_value": "severity_score: 4.5↑ (2026-03-24)"
+          }
+        ],
+        "triggers": [
+          "Election integrity concerns",
+          "Candidate ban (Awami League)",
+          "ODIHR not deployed",
+          "CIVICUS human rights concerns",
+          "V-Dem 2026: closed autocracy"
+        ],
+        "threshold_crossed": 4,
+        "escalation_trigger": "Any use of Awami-era emergency powers, digital security laws, or NGO restrictions by new government.",
+        "watch_since": "2026-03-24",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-BGD-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Israel",
+        "status": "RapidDecay",
+        "severity_score": 4.5,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-03-24",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "triggers": [
+          "Judicial independence under attack",
+          "Press freedom decline (RSF -11)",
+          "Al Jazeera Law extended Dec 2025",
+          "Wartime executive consolidation"
+        ],
+        "threshold_crossed": 3,
+        "escalation_trigger": "Any successful Knesset vote to curtail Supreme Court jurisdiction over Basic Laws, or extension of wartime emergency powers to domestic political opponents.",
+        "watch_since": "2026-03-24",
+        "vdemLDI": 0.48,
+        "vdemConfirmed": true,
+        "vdemERT": "active-2025",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-ISR-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "India",
+        "status": "RapidDecay",
+        "severity_score": 5.0,
+        "severity_arrow": "→",
+        "confidence": "Confirmed",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: V-Dem 2026 electoral autocracy (since 2017), rank 105/179 (down from 100). Freedom House 2026: Partly Free (62/100). FCRA Amendment 2026 tabled March 2026; deferred April 2026. 21,933 organizations lost licenses. India drives most autocratization in South/Central Asia by population weighting.",
+            "reason": "Baseliner DR re-verification — V-Dem, Freedom House, Amnesty primary sources",
+            "prior_value": "severity_score: 5.0→ (2026-03-24)"
+          }
+        ],
+        "triggers": [
+          "V-Dem electoral autocracy since 2018",
+          "UN NGO Committee anti-NGO bloc participation",
+          "FCRA restrictions on civil society",
+          "Press freedom decline",
+          "V-Dem 2026: rank 105/179 (down 5 places)"
+        ],
+        "threshold_crossed": 4,
+        "escalation_trigger": "Any major opposition prosecution, state-level election manipulation, or FCRA enforcement wave ahead of state elections.",
+        "watch_since": "2026-03-24",
+        "vdemLDI": 0.3,
+        "vdemConfirmed": true,
+        "vdemERT": "ongoing",
+        "vdemSource": "V-Dem Dataset v16 (2026-03-28)",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-IND-001",
+        "source_url": "https://www.amnesty.org/en/latest/news/2026/03/india-parliament-must-reject-proposal-to-extend-restrictions-on-overseas-funding-for-ngos/",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Mexico",
+        "status": "RapidDecay",
+        "severity_score": 4.0,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-24",
+        "last_material_change": "2026-04-28",
+        "version_history": [
+          {
+            "date": "2026-03-24",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: June 2025 judicial elections — Morena swept all 9 SCJN seats (13% turnout); September 2025 all elected judges took office; HRW confirms judicial independence undermined. November 2024: INAI (transparency agency) abolished. February 2026: further electoral reform proposed. BTI 2026: Mexico shifted from imperfect democracy to PRI-era hegemonic control model.",
+            "reason": "Baseliner DR re-verification — HRW, BTI 2026, Wikipedia judicial elections primary sources",
+            "prior_value": "severity_score: 4.0↑ (2026-03-24)"
+          }
+        ],
+        "triggers": [
+          "V-Dem 2026 autocratizing",
+          "Judicial reform eliminating independent selection — all 9 SCJN seats now Morena-backed",
+          "Press impunity for journalist killings",
+          "INAI transparency agency abolished November 2024",
+          "Military control of National Guard from September 2024"
+        ],
+        "threshold_crossed": 4,
+        "escalation_trigger": "First direct confrontation between newly constituted Supreme Court and executive, or new anti-NGO legislation.",
+        "watch_since": "2026-03-24",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-MEX-001",
+        "source_url": "https://www.hrw.org/news/2025/09/01/mexico-electoral-process-undermines-judicial-independence",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Colombia",
+        "status": "RapidDecay",
+        "severity_score": 4.0,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-30",
+        "last_material_change": "2026-03-30",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "triggers": [
+          "GTI 2026: re-entered top 10 most terrorism-impacted countries",
+          "70% increase in terrorism deaths 2025",
+          "FARC dissidents and ELN adopting drone warfare",
+          "Colombia-Venezuela border fragility"
+        ],
+        "threshold_crossed": 3,
+        "escalation_trigger": "Any collapse of the Total Peace negotiations, targeted killing of civil society leaders in conflict zones, or executive moves to use the security situation to restrict political competition.",
+        "watch_since": "2026-03-30",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-COL-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Côte d'Ivoire",
+        "status": "RapidDecay",
+        "severity_score": 3.5,
+        "severity_arrow": "↑",
+        "confidence": "Probable",
+        "entry_type": "Persistent",
+        "first_seen": "2026-03-30",
+        "last_material_change": "2026-03-30",
+        "version_history": [
+          {
+            "date": "2026-03-30",
+            "change": "Entry created",
+            "reason": "2+ leading indicators active",
+            "prior_value": "N/A (initial entry)"
+          }
+        ],
+        "triggers": [
+          "Ouattara claimed fourth term October 2025 — constitution manipulation",
+          "Main opposition candidates banned from standing",
+          "Crackdown on public gatherings and protests pre-election"
+        ],
+        "threshold_crossed": 3,
+        "escalation_trigger": "Any move to extend Ouattara's term beyond 2030 or constitutional changes targeting judicial independence.",
+        "watch_since": "2026-03-30",
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-CIV-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Bulgaria",
+        "iso2": "BG",
+        "status": "Watchlist",
+        "severity_score": 3.5,
+        "severity_arrow": "→",
+        "confidence": "Assessed",
+        "entry_type": "Monitor",
+        "first_seen": "2026-04-02",
+        "last_material_change": "2026-04-28",
+        "vdemLDI": null,
+        "vdemConfirmed": false,
+        "vdemERT": null,
+        "vdemSource": "V-Dem Dataset v16 Watchlist 2026",
+        "note": "Added per V-Dem Dataset v16 Watchlist 2026 calibration. EU Liberties 2026 classifies Bulgaria as 'Dismantler'.",
+        "version_history": [
+          {
+            "date": "2026-04-02",
+            "change": "Added to Watch List per V-Dem Dataset v16 calibration",
+            "reason": "V-Dem Watchlist 2026 inclusion",
+            "prior_value": "Not monitored"
+          },
+          {
+            "date": "2026-04-28",
+            "change": "Baseline re-verification: EU Liberties 2026 confirms Bulgaria as 'Dismantler'",
+            "reason": "Liberties Rule of Law Report 2026 primary source",
+            "prior_value": "Watchlist"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-BGR-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Cyprus",
+        "iso2": "CY",
+        "status": "Watchlist",
+        "severity_score": 3.0,
+        "severity_arrow": "→",
+        "confidence": "Assessed",
+        "entry_type": "Monitor",
+        "first_seen": "2026-04-02",
+        "last_material_change": "2026-04-02",
+        "vdemLDI": null,
+        "vdemConfirmed": false,
+        "vdemERT": null,
+        "vdemSource": "V-Dem Dataset v16 Watchlist 2026",
+        "note": "Added per V-Dem Dataset v16 Watchlist 2026 calibration",
+        "version_history": [
+          {
+            "date": "2026-04-02",
+            "change": "Added to Watch List per V-Dem Dataset v16 calibration",
+            "reason": "V-Dem Watchlist 2026 inclusion",
+            "prior_value": "Not monitored"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-CYP-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Portugal",
+        "iso2": "PT",
+        "status": "Watchlist",
+        "severity_score": 3.0,
+        "severity_arrow": "→",
+        "confidence": "Assessed",
+        "entry_type": "Monitor",
+        "first_seen": "2026-04-02",
+        "last_material_change": "2026-04-02",
+        "vdemLDI": null,
+        "vdemConfirmed": false,
+        "vdemERT": null,
+        "vdemSource": "V-Dem Dataset v16 Watchlist 2026",
+        "note": "Added per V-Dem Dataset v16 Watchlist 2026 calibration",
+        "version_history": [
+          {
+            "date": "2026-04-02",
+            "change": "Added to Watch List per V-Dem Dataset v16 calibration",
+            "reason": "V-Dem Watchlist 2026 inclusion",
+            "prior_value": "Not monitored"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-PRT-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Sierra Leone",
+        "iso2": "SL",
+        "status": "Watchlist",
+        "severity_score": 4.0,
+        "severity_arrow": "→",
+        "confidence": "Assessed",
+        "entry_type": "Monitor",
+        "first_seen": "2026-04-02",
+        "last_material_change": "2026-04-02",
+        "vdemLDI": null,
+        "vdemConfirmed": false,
+        "vdemERT": null,
+        "vdemSource": "V-Dem Dataset v16 Watchlist 2026",
+        "note": "Added per V-Dem Dataset v16 Watchlist 2026 calibration",
+        "version_history": [
+          {
+            "date": "2026-04-02",
+            "change": "Added to Watch List per V-Dem Dataset v16 calibration",
+            "reason": "V-Dem Watchlist 2026 inclusion",
+            "prior_value": "Not monitored"
+          }
+        ],
+        "last_verified": "2026-04-28",
+        "evidence_id": "WDM-HC-SLE-001",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "United States",
+        "severity_score": 6.5,
+        "last_updated": "2026-04-20",
+        "note": "Watchlist duplicate — carried forward from prior state; active_flags entry is canonical",
+        "evidence_id": "WDM-HC-USA-002",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Turkey",
+        "severity_score": 8.5,
+        "last_updated": "2026-04-18",
+        "note": "Watchlist legacy entry — Turkey promoted to rapid_decay at baseliner. Entry preserved for traceability per consolidation rules.",
+        "evidence_id": "WDM-HC-TUR-002",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      },
+      {
+        "country": "Hungary",
+        "severity_score": 8.5,
+        "last_updated": "2026-04-20",
+        "note": "Watchlist legacy entry — Hungary updated to Recovery trajectory at baseliner. Entry preserved for traceability per consolidation rules.",
+        "evidence_id": "WDM-HC-HUN-003",
+        "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+        "retrieval_date": "2026-04-28",
+        "source_type": "ngo-index"
+      }
+    ]
+  },
+  "mimicry_chains": [
+    {
+      "chain_id": "russian-foreign-agent-chain",
+      "headline": "Russian Foreign Agent Law Exports",
+      "first_documented": "2026-03-24",
+      "last_verified": "2026-04-28",
+      "links": [
+        {
+          "country": "Russia",
+          "law": "Foreign Agents Law (2012, expanded 2022)",
+          "year": 2012,
+          "added": "2026-03-24"
+        },
+        {
+          "country": "Georgia",
+          "law": "FARA-style foreign agent law (March 2025); enhanced grants criminalization law (March 2026)",
+          "year": 2025,
+          "added": "2026-03-24",
+          "update": "2026 law package escalates to 6-12 year criminal penalties and asset seizure — confirmed baseliner 2026-04-28"
+        },
+        {
+          "country": "Bosnia-Herzegovina (RS)",
+          "law": "Foreign agent law (Feb 2025, suspended)",
+          "year": 2025,
+          "added": "2026-03-24"
+        },
+        {
+          "country": "El Salvador",
+          "law": "Foreign agent law with 30% punitive tax (May 2025)",
+          "year": 2025,
+          "added": "2026-03-24"
+        },
+        {
+          "country": "Kazakhstan",
+          "law": "NGO foreign funding disclosure requirements (March 2026)",
+          "year": 2026,
+          "added": "2026-03-24"
+        },
+        {
+          "country": "India",
+          "law": "FCRA Amendment 2026 — creates Designated Authority to seize NGO assets (tabled March 2026, deferred April 2026)",
+          "year": 2026,
+          "added": "2026-04-28",
+          "evidence_id": "WDM-BASE-IND-002"
+        }
+      ],
+      "evidence_id": "WDM-MC-FAL-001",
+      "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "chain_id": "electoral-restriction-chain",
+      "headline": "Electoral Restriction Template",
+      "first_documented": "2026-03-30",
+      "last_verified": "2026-04-28",
+      "links": [
+        {
+          "country": "Hungary",
+          "law": "Electoral redistricting (2018–2024)",
+          "year": 2024,
+          "added": "2026-03-30",
+          "update": "Redistricting failed to prevent Tisza supermajority April 12, 2026 — structural constraint overcome by electoral wave"
+        },
+        {
+          "country": "United States",
+          "law": "SAVE America Act; mid-decade redistricting",
+          "year": 2026,
+          "added": "2026-03-30"
+        },
+        {
+          "country": "Benin",
+          "law": "Constitution revised overnight Nov 2025",
+          "year": 2025,
+          "added": "2026-03-30",
+          "update": "April 12, 2026 election confirmed: 94% outcome for ruling candidate — escalation trigger crossed"
+        },
+        {
+          "country": "Mexico",
+          "law": "Judicial election reform (Sept 2024 constitutional amendment); INAI abolition (Nov 2024)",
+          "year": 2024,
+          "added": "2026-04-28",
+          "evidence_id": "WDM-BASE-MEX-001"
+        }
+      ],
+      "evidence_id": "WDM-MC-ERC-001",
+      "source_url": "https://www.hrw.org/news/2025/09/01/mexico-electoral-process-undermines-judicial-independence",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "chain_id": "opposition-prosecution-chain",
+      "headline": "Judicial Weaponization Against Opposition Leaders",
+      "first_documented": "2026-04-28",
+      "last_verified": "2026-04-28",
+      "links": [
+        {
+          "country": "Turkey",
+          "target": "Ekrem Imamoglu (Istanbul Mayor, CHP presidential candidate)",
+          "mechanism": "Corruption + espionage charges; university degree annulled; media seizure",
+          "year": 2025,
+          "added": "2026-04-28",
+          "evidence_id": "WDM-BASE-TUR-001"
+        },
+        {
+          "country": "Georgia",
+          "target": "Opposition parties (multiple) — banning attempts",
+          "mechanism": "Foreign influence laws + criminal liability for CSO employees",
+          "year": 2026,
+          "added": "2026-04-28",
+          "evidence_id": "WDM-BASE-GEO-003"
+        },
+        {
+          "country": "Nicaragua",
+          "target": "All registered opposition parties dissolved",
+          "mechanism": "Foreign agent law + arbitrary detention",
+          "year": 2022,
+          "added": "2026-04-28"
+        }
+      ],
+      "evidence_id": "WDM-MC-OPC-001",
+      "source_url": "https://www.bbc.com/news/articles/c204ymjnn80o",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    }
+  ],
+  "institutional_integrity_active_flags": [
+    {
+      "country": "United States",
+      "indicator": "Intelligence Community Politicisation",
+      "signal": "DNI Tulsi Gabbard's 2026 Worldwide Threats Hearing (March 19) omitted foreign election interference threats — for the first time in nearly a decade. Defense One (March 18): 'For the first time in near",
+      "severity": "High",
+      "lead_time": "6-12 months before formal downgrade",
+      "first_seen": "2026-03-30",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-USA-001",
+      "source_url": "https://www.dni.gov/index.php/newsroom/press-releases/press-releases-2026",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official"
+    },
+    {
+      "country": "United States",
+      "indicator": "Judicial Independence",
+      "signal": "Reuters analysis (March 7): 97% of Trump's 31 Supreme Court emergency requests argue judicial interference with presidential power — a systematic campaign to reframe judicial review as illegitimate. Schedule Policy/Career (March 9, 2026) strips 50,000 federal employees of civil service protections. Trump v. Barbara SCOTUS hearing April 1, 2026 on birthright citizenship; decision June-July 2026.",
+      "severity": "High",
+      "lead_time": "Already registering in V-Dem LDI",
+      "first_seen": "2026-03-30",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-USA-002",
+      "source_url": "https://en.wikipedia.org/wiki/Trump_v._Barbara",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "country": "Georgia",
+      "indicator": "Civil Service / Political Participation Integrity",
+      "signal": "New March 2026 law: 8-year ban on political party membership for anyone previously employed by a foreign-funded organisation. This structurally excludes the entire civil society professional class from political participation. OSCE Moscow Mechanism rapporteur confirms 'marked democratic backsliding' and torture-level treatment of detainees with near-total impunity.",
+      "severity": "High",
+      "lead_time": "Already crossing Rapid Decay threshold",
+      "first_seen": "2026-03-30",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-GEO-003",
+      "source_url": "https://www.hrw.org/news/2026/02/09/georgia-initiates-laws-severely-curtailing-civil-and-political-rights",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "country": "Benin",
+      "indicator": "Electoral Administration Integrity",
+      "signal": "April 12, 2026 election: Wadagni won 94% with only token opposition (Democrats excluded). Constitutional Court confirmed April 23. ECOWAS reported ballot irregularities (pre-filled boxes) but declared insufficient to invalidate. Escalation trigger crossed. Wadagni inaugurated May 24, 2026.",
+      "severity": "High",
+      "lead_time": "Escalation trigger crossed April 12-23, 2026",
+      "first_seen": "2026-03-30",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-BEN-004",
+      "source_url": "https://www.africanews.com/2026/04/23/benin-confirms-wadagnis-presidential-vote-win/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "country": "Hungary",
+      "indicator": "Electoral Administration Integrity",
+      "signal": "Electoral redistricting (2024) engineered to require Tisza to outperform polls by 3–5 points for a parliamentary majority — a structural advantage that operated until April 12, 2026 election when Tisza overcame the structural disadvantage with a supermajority (141/199 seats). ODIHR deployed for April 12 election. Flag status: RESOLVED — April 12 election confirmed democratic transition.",
+      "severity": "Resolved",
+      "lead_time": "N/A — resolved at April 12 election",
+      "first_seen": "2026-03-30",
+      "status": "Resolved",
+      "resolution_date": "2026-04-12",
+      "resolution_note": "Tisza supermajority overcame structural gerrymandering. Orban conceded. Flag downgraded from Active to Resolved.",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-HUN-005",
+      "source_url": "https://english.news.cn/europe/20260419/0fdd9265fd98461992bb0d30032424ab/c.html",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "country": "Colombia",
+      "indicator": "Rule of Law / State Fragility",
+      "signal": "GTI 2026: Colombia re-entered top 10 terrorism-impacted countries — 70% increase in deaths, 47% increase in attacks. IEP identifies state inability to manage cross-border counterinsurgency as the structural driver.",
+      "severity": "Medium",
+      "lead_time": "Already registering in GTI 2026",
+      "first_seen": "2026-03-30",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-COL-006",
+      "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "country": "United States",
+      "indicator": "Constitutional Reinterpretation via Executive Order",
+      "signal": "SCOTUS heard oral arguments April 1 in Trump v. Barbara — whether EO 14160 can redefine '14th Amendment subject to jurisdiction' by executive action alone, stripping birthright citizenship from children of undocumented and temporary-visa parents. Decision expected June/July 2026. If upheld, represents the first major reinterpretation of a constitutional citizenship clause by executive fiat, without amendment or legislation, since Wong Kim Ark (1898). SCOTUS majority signaled skepticism (NPR, April 1, 2026).",
+      "severity": "High",
+      "lead_time": "Decision June/July 2026 — leading indicator of constitutional resilience or erosion",
+      "first_seen": "2026-04-01",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-USA-007",
+      "source_url": "https://www.opm.gov/news/news-releases/opm-finalizes-schedule-policycareer-rule-to-strengthen-accountability/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official"
+    },
+    {
+      "country": "USA",
+      "signal_type": "Civil service politicisation",
+      "severity": "Critical",
+      "development": "Executive concentration per V-Dem; Schedule Policy/Career finalized March 2026",
+      "pillars_under_attack": [
+        "civil_service",
+        "judiciary",
+        "press"
+      ],
+      "confidence": "High",
+      "week": "2026-04-18",
+      "source": "V-Dem Report 2026",
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-18",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "source": "baseliner",
+          "note": "Schedule Policy/Career finalized March 9, 2026 — ~50,000 positions affected"
+        }
+      ],
+      "evidence_id": "WDM-IF-USA-008",
+      "source_url": "https://www.opm.gov/news/news-releases/opm-finalizes-schedule-policycareer-rule-to-strengthen-accountability/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official"
+    },
+    {
+      "country": "TUR",
+      "signal_type": "Judicial independence",
+      "severity": "Critical",
+      "development": "Imamoglu arrested March 2025; 15+ CHP mayors detained; Imamoglu espionage charges October 2025; mass corruption trial March 2026 (2430-year sentence demand); Tele1 TV seized",
+      "pillars_under_attack": [
+        "judiciary",
+        "elections",
+        "press"
+      ],
+      "confidence": "High",
+      "week": "2026-04-18",
+      "source": "Democratic Erosion Consortium; HRW; Reuters",
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-18",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "source": "baseliner",
+          "note": "Updated with Imamoglu espionage charges (Oct 2025), Tele1 seizure, March 2026 mass trial, 2430-year sentence demand"
+        }
+      ],
+      "evidence_id": "WDM-IF-TUR-009",
+      "source_url": "https://www.bbc.com/news/articles/c204ymjnn80o",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "country": "ITA",
+      "signal_type": "Judicial independence",
+      "severity": "Alert",
+      "development": "Autocratization judiciary erosion; Freedom House 2026 sharp decline among Free countries; EU Liberties 2026 Dismantler",
+      "pillars_under_attack": [
+        "judiciary"
+      ],
+      "confidence": "Assessed",
+      "week": "2026-04-18",
+      "source": "V-Dem; Freedom House; Liberties EU",
+      "last_updated": "2026-04-28",
+      "version_history": [
+        {
+          "date": "2026-04-18",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "source": "baseliner",
+          "note": "Freedom House 2026 + Liberties Dismantler classification re-verified"
+        }
+      ],
+      "evidence_id": "WDM-IF-ITA-010",
+      "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "country": "HUN",
+      "signal_type": "Judicial independence",
+      "severity": "Resolved",
+      "development": "Judiciary reshaping under Fidesz since 2010 — entering remediation phase post-April 12 Tisza supermajority election",
+      "pillars_under_attack": [
+        "judiciary",
+        "press",
+        "civil_society"
+      ],
+      "confidence": "Assessed",
+      "week": "2026-04-25",
+      "source": "https://democratic-erosion.org/2026/04/19/the-democratic-unraveling-of-hungary/",
+      "last_updated": "2026-04-28",
+      "resolution_note": "Tisza supermajority April 12, 2026 enables constitutional-level judicial reform. Flag downgraded from Alert to Resolved-Pending-Reform.",
+      "version_history": [
+        {
+          "date": "2026-04-20",
+          "source": "publisher-auto",
+          "note": "first entry"
+        },
+        {
+          "date": "2026-04-28",
+          "source": "baseliner",
+          "note": "Election outcome April 12 — Tisza supermajority enables remediation"
+        }
+      ],
+      "evidence_id": "WDM-IF-HUN-011",
+      "source_url": "https://english.news.cn/europe/20260419/0fdd9265fd98461992bb0d30032424ab/c.html",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "country": "Turkey",
+      "indicator": "Systematic Opposition Elimination",
+      "signal": "Istanbul Mayor Imamoglu arrested March 2025; university degree annulled (presidential disqualification); 15+ CHP mayors detained; espionage charges added October 2025; Tele1 TV seized; mass corruption trial commenced March 9, 2026 with 2430-year sentence demand for Imamoglu. EU rapporteur November 2025: 'worst democratic decline in history'. V-Dem LDI 0.12.",
+      "severity": "Critical",
+      "lead_time": "Ongoing — elections not scheduled until 2028",
+      "first_seen": "2026-04-28",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-TUR-012",
+      "source_url": "https://www.bbc.com/news/articles/c204ymjnn80o",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "country": "Mexico",
+      "indicator": "Judicial Independence",
+      "signal": "Morena-backed candidates swept all 9 SCJN Supreme Court seats in June 1, 2025 judicial election (13% turnout). All elected judges took office September 1, 2025. Evaluation committees controlled by Morena pre-screened candidates. HRW: reform 'undermines judicial independence.' Sheinbaum attended SCJN inauguration; critics cite executive interference. February 2026: further electoral reform proposed.",
+      "severity": "High",
+      "lead_time": "Structural — 9-year terms",
+      "first_seen": "2026-04-28",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-MEX-013",
+      "source_url": "https://www.hrw.org/news/2025/09/01/mexico-electoral-process-undermines-judicial-independence",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "country": "Serbia",
+      "indicator": "Civil Society / Anti-Corruption Pressure",
+      "signal": "16+ month protest movement (Nov 2024 to present) — largest in Serbia history. June 2025 police violence against protesters (CoE/UN condemnation). Vucic has made no substantive concessions. Movement shifting from civic to political actor (announced electoral list). Snap parliamentary elections expected end-2026. Vucic cannot run in 2027 presidential election (2-term limit).",
+      "severity": "Medium",
+      "lead_time": "Elections 2026-2027 are next critical juncture",
+      "first_seen": "2026-04-28",
+      "status": "Active",
+      "last_verified": "2026-04-28",
+      "evidence_id": "WDM-IF-SRB-014",
+      "source_url": "https://foreignpolicy.com/2026/01/13/serbia-protests-vucic-novi-sad-euromaidan/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    }
+  ],
+  "calibration_log": [
+    {
+      "date": "2026-04-02",
+      "source": "V-Dem Dataset v16",
+      "effective_date": "2026-03-28",
+      "applied_by": "Computer session (§12 checklist)",
+      "countries_updated": [
+        "United States",
+        "Georgia",
+        "Tunisia",
+        "Nicaragua",
+        "Serbia",
+        "Hungary",
+        "Slovakia",
+        "El Salvador",
+        "Italy",
+        "United Kingdom",
+        "Israel",
+        "India",
+        "Romania",
+        "Poland",
+        "South Korea"
+      ],
+      "new_watchlist_entries": [
+        "Bulgaria",
+        "Cyprus",
+        "Portugal",
+        "Sierra Leone"
+      ],
+      "summary": "vdemLDI anchors + ERT flags for 15 countries; USA electoralWatch HIGH_RISK; 4 Watchlist additions",
+      "evidence_id": "WDM-CL-001",
+      "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "date": "2026-04-28",
+      "source": "Baseliner DR run wdm-2026-04-28",
+      "effective_date": "2026-04-28",
+      "applied_by": "computer-research-subagent (baseliner)",
+      "countries_updated": [
+        "United States",
+        "Hungary",
+        "Benin",
+        "Georgia",
+        "South Korea",
+        "Venezuela",
+        "Romania",
+        "Turkey",
+        "Serbia",
+        "Mexico",
+        "India",
+        "Bangladesh"
+      ],
+      "countries_status_changed": [
+        "Hungary (RapidDecay → Recovery, post-April 12 election)",
+        "Benin (Watchlist → RapidDecay, post-April 12 election)",
+        "Turkey (Watchlist → RapidDecay, Imamoglu prosecution escalation)"
+      ],
+      "new_entries": {
+        "structural_facts": 16,
+        "windowed_events": 13,
+        "institutional_integrity_flags": 4,
+        "mimicry_chain_links": 2,
+        "mimicry_chains_new": 1
+      },
+      "summary": "Full DR re-verification pass. Key updates: Hungary democratic reversal (April 12 election), Benin election confirmed, Georgia OSCE Moscow Mechanism primary source verified, Turkey promoted to RapidDecay, V-Dem 2026 and Freedom House 2026 structural facts added, Venezuela Foro Penal figures updated, Serbia protest escalation documented, Mexico judicial elections documented, India FCRA 2026 documented, South Korea Yoon sentencing and Lee election documented.",
+      "evidence_id": "WDM-CL-002",
+      "source_url": "https://www.v-dem.net/documents/75/V-Dem_Institute_Democracy_Report_2026_lowres.pdf",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    }
+  ],
+  "gaps_register": [
+    {
+      "gap_id": "WDM-GAP-001",
+      "description": "OSCE/ODIHR full election observation report for Hungary April 12, 2026 election not yet published (typically released 1-2 months post-election). When published, should populate windowed_events and update Hungary Recovery entry with ODIHR assessment.",
+      "date_identified": "2026-04-28",
+      "suggested_module": "windowed_events + heatmap_countries.recovery[Hungary]",
+      "priority": "High",
+      "evidence_id": "WDM-GP-001",
+      "source_url": "https://www.osce.org/odihr/elections",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official"
+    },
+    {
+      "gap_id": "WDM-GAP-002",
+      "description": "Turkey Article 46 ECHR proceedings status not confirmed in this pass. Demirtas and Kavala still detained against ECHR orders — enforcement mechanism status unclear as of April 2026. Should verify whether Council of Europe has moved to infringement proceedings.",
+      "date_identified": "2026-04-28",
+      "suggested_module": "institutional_integrity_active_flags[Turkey] + structural_facts",
+      "priority": "Medium",
+      "evidence_id": "WDM-GP-002",
+      "source_url": "https://www.echr.coe.int/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official"
+    },
+    {
+      "gap_id": "WDM-GAP-003",
+      "description": "Georgia: status of attempt to ban opposition parties (Georgian Dream has filed applications to ban United National Movement and other parties) — outcome as of April 2026 not confirmed. OSCE Moscow Mechanism report flagged this as threat to political pluralism.",
+      "date_identified": "2026-04-28",
+      "suggested_module": "windowed_events[Georgia] + institutional_integrity_active_flags",
+      "priority": "High",
+      "evidence_id": "WDM-GP-003",
+      "source_url": "https://www.hrw.org/news/2026/02/09/georgia-initiates-laws-severely-curtailing-civil-and-political-rights",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "gap_id": "WDM-GAP-004",
+      "description": "Venezuela: Washington's 3-stage stabilization plan lacks timeline. No update on electoral roadmap beyond 'transition roadmap announced'. Missing: whether elections have been scheduled, what electoral framework has been proposed, and whether Machado or other exiled opposition will be permitted to run.",
+      "date_identified": "2026-04-28",
+      "suggested_module": "windowed_events[Venezuela] + heatmap_countries.recovery[Venezuela]",
+      "priority": "High",
+      "evidence_id": "WDM-GP-004",
+      "source_url": "https://www.bbc.com/news/articles/c0kr62z7z6lo",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    },
+    {
+      "gap_id": "WDM-GAP-005",
+      "description": "Mexico February 2026 electoral reform proposal (Sheinbaum): eliminates 200 proportional-representation congressional seats, reduces Senate from 128 to 96, cuts electoral spending 25%, bans nepotism and consecutive lawmaker reelection. Bill introduced February 2026 — status (passed/pending) not confirmed in this pass.",
+      "date_identified": "2026-04-28",
+      "suggested_module": "windowed_events[Mexico] + heatmap_countries.watchlist[Mexico]",
+      "priority": "Medium",
+      "evidence_id": "WDM-GP-005",
+      "source_url": "https://www.hrw.org/news/2025/09/01/mexico-electoral-process-undermines-judicial-independence",
+      "retrieval_date": "2026-04-28",
+      "source_type": "ngo-index"
+    },
+    {
+      "gap_id": "WDM-GAP-006",
+      "description": "EU Article 7 proceedings against Hungary: pre-Article 7 proceedings were active under Orban. With Tisza election victory, formal status of EU Article 7 probe against Hungary as of April 2026 not confirmed — may be suspended or discontinued under new government.",
+      "date_identified": "2026-04-28",
+      "suggested_module": "structural_facts[Hungary/EU] + windowed_events",
+      "priority": "Medium",
+      "evidence_id": "WDM-GP-006",
+      "source_url": "https://ec.europa.eu/info/policies/justice-and-fundamental-rights/upholding-rule-law/rule-law/rule-law-mechanism_en",
+      "retrieval_date": "2026-04-28",
+      "source_type": "official"
+    },
+    {
+      "gap_id": "WDM-GAP-007",
+      "description": "Serbia snap elections: Vucic has accepted elections by end-2026 in principle. Specific date not confirmed as of April 28, 2026. Student movement's electoral list not yet published. V-Dem Serbia LDI update from v16 not confirmed (currently using v15 figure of 0.35).",
+      "date_identified": "2026-04-28",
+      "suggested_module": "windowed_events[Serbia] + heatmap_countries.rapid_decay[Serbia]",
+      "priority": "Medium",
+      "evidence_id": "WDM-GP-007",
+      "source_url": "https://foreignpolicy.com/2026/01/13/serbia-protests-vucic-novi-sad-euromaidan/",
+      "retrieval_date": "2026-04-28",
+      "source_type": "news-of-record"
+    }
+  ]
+}

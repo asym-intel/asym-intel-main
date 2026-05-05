@@ -191,6 +191,69 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-m0-lead">
+      <div class="module-header">
+        <div class="module-title">Lead Signal</div>
+      </div>
+      <div id="m0-lead-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-m1-synthesis">
+      <div class="module-header">
+        <div class="module-title">Source Synthesis</div>
+      </div>
+      <div id="m1-synthesis-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-m7-risk">
+      <div class="module-header">
+        <div class="module-title">Risk Indicators</div>
+      </div>
+      <div id="m7-risk-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-m8-violence">
+      <div class="module-header">
+        <div class="module-title">Electoral Violence and Political Repression</div>
+      </div>
+      <div id="m8-violence-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-m10-governance">
+      <div class="module-header">
+        <div class="module-title">Electoral Integrity Governance</div>
+      </div>
+      <div id="m10-governance-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-m12-standards">
+      <div class="module-header">
+        <div class="module-title">International Standards and Observation Frameworks</div>
+      </div>
+      <div id="m12-standards-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-m15-personnel">
+      <div class="module-header">
+        <div class="module-title">Personnel and Institutional Movements</div>
+      </div>
+      <div id="m15-personnel-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -467,7 +530,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('integrity-flags').innerHTML = flagsHtml || '<p class="text-muted">No integrity flags this issue.</p>';
 
       /* Electoral Watch (R3: fix field names, handle long FIMI risk text, surface ODIHR/source) */
-      var ewRaw = d.electoral_watch || d.electoral_calendar_watch || null;
+      /* R-REWIRE: electoral_watch → module_2 (election_cycle_events) + module_4 (electoral_contexts) */
+      var _m2 = d.module_2 || {};
+      var _m4 = d.module_4 || {};
+      var ewRaw = d.electoral_watch || d.electoral_calendar_watch ||
+        (_m2.election_cycle_events || _m4.electoral_contexts
+          ? { timeline: (_m4.electoral_contexts || []).concat(_m2.election_cycle_events || []) }
+          : null);
       var ewHtml = '';
       if (ewRaw) {
         /* Handle both nested {timeline:[]} and flat array shapes */
@@ -522,7 +591,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('electoral-watch').innerHTML = ewHtml || '<p class="text-muted">No electoral watch data this issue.</p>';
 
       /* Digital & Civil Space */
-      var dcData = d.digital_civil || null;
+      /* R-REWIRE: digital_civil → module_13 (Democratic Backsliding) items + module_11 (Media Freedom) items */
+      var _m11 = d.module_11 || {};
+      var _m13 = d.module_13 || {};
+      var dcData = d.digital_civil ||
+        ((_m13.items || _m11.items)
+          ? { items: (_m13.items || []).concat(_m11.items || []) }
+          : null);
       var dcHtml = '';
       if (dcData) {
         var dcArr = Array.isArray(dcData) ? dcData : (dcData.entries || dcData.items || []);
@@ -553,7 +628,16 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('digital-civil').innerHTML = dcHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Autocratic Export */
-      var aeData = d.autocratic_export || null;
+      /* R-REWIRE: autocratic_export → module_5 global_south + module_14 (Power Structures) */
+      var _m5 = d.module_5 || {};
+      var _m14 = d.module_14 || {};
+      var aeData = d.autocratic_export ||
+        ((_m5.global_south || _m14.items)
+          ? { items: (_m14.items || []).concat(
+              Array.isArray(_m5.global_south) ? _m5.global_south :
+              (_m5.global_south && _m5.global_south.developments ? _m5.global_south.developments : [])
+            ) }
+          : null);
       var aeHtml = '';
       if (aeData) {
         var aeArr = Array.isArray(aeData) ? aeData : (aeData.entries || aeData.items || []);
@@ -585,7 +669,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('autocratic-export').innerHTML = aeHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* State & Media Capture */
-      var scData = d.state_capture || null;
+      /* R-REWIRE: state_capture → module_3 (Power Concentration) + module_14 asymmetric_flags */
+      var _m3 = d.module_3 || {};
+      var scData = d.state_capture ||
+        ((_m3.executive_overreach || _m3.legislative_capture || _m14.asymmetric_flags)
+          ? { items: (_m3.executive_overreach || []).concat(_m3.legislative_capture || []).concat(_m14.asymmetric_flags || []) }
+          : null);
       var scHtml = '';
       if (scData) {
         var scArr = Array.isArray(scData) ? scData : (scData.entries || scData.items || []);
@@ -617,7 +706,11 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('state-capture').innerHTML = scHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Institutional Pulse */
-      var ipData = d.institutional_pulse || null;
+      /* R-REWIRE: institutional_pulse → module_14 items + module_3 mimicry_chain_updates */
+      var ipData = d.institutional_pulse ||
+        ((_m14.items || _m3.mimicry_chain_updates)
+          ? { entries: (_m14.items || []).concat(_m3.mimicry_chain_updates || []) }
+          : null);
       var ipHtml = '';
       if (ipData) {
         var ipArr = Array.isArray(ipData) ? ipData : (ipData.entries || []);
@@ -645,7 +738,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('institutional-pulse').innerHTML = ipHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Legislative Watch */
-      var lwData = d.legislative_watch || d.legislative_watch_entries || null;
+      /* R-REWIRE: legislative_watch → module_9 (Legal and Legislative Watch) */
+      var _m9 = d.module_9 || {};
+      var lwData = d.legislative_watch || d.legislative_watch_entries ||
+        ((_m9.new_developments || _m9.no_change)
+          ? (_m9.new_developments || []).concat(_m9.no_change || [])
+          : null);
       var lwHtml = '';
       if (lwData) {
         var lwArr = Array.isArray(lwData) ? lwData : (lwData.entries || []);
@@ -711,8 +809,11 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('mimicry-chains').innerHTML = mimicryHtml || '<p class="text-muted">No mimicry chains this issue.</p>';
 
       /* Research 360 — Friction Notes */
+      /* R-REWIRE: friction_notes → module_6 (Civil Society Research) + d.friction_notes */
+      var _m6 = d.module_6 || {};
       var r360 = d.research_360 || {};
-      var frictionNotes = r360.friction_notes || d.friction_notes || [];
+      var frictionNotes = r360.friction_notes || d.friction_notes ||
+        (_m6.research_and_reports || []);
       var fnHtml = '';
       if (frictionNotes.length) {
         frictionNotes.forEach(function(note) {
@@ -733,6 +834,174 @@ document.addEventListener('DOMContentLoaded', function () {
         var cmEl = document.getElementById('cross-monitor');
         if (cmEl) cmEl.innerHTML = '<p class="text-muted">Cross-monitor flags renderer not available.</p>';
       }
+
+      /* R-REWIRE: module_0 → Lead Signal body */
+      var _m0 = d.module_0 || {};
+      document.getElementById('m0-lead-content').innerHTML = _m0.body
+        ? AsymRenderer.renderMarkdown(_m0.body)
+        : (_m0.null_signal ? '<p class="text-muted">' + esc(_m0.null_signal) + '</p>' : '<p class="text-muted">No lead signal this issue.</p>');
+
+      /* R-REWIRE: module_1 → Source Synthesis */
+      var _m1 = d.module_1 || {};
+      function renderSourceList(items) {
+        if (!items || !items.length) return '<p class="text-muted">No items.</p>';
+        return items.map(function(s) {
+          var h = '<div class="intel-item" style="margin-bottom:var(--space-4)">';
+          h += '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1)">';
+          if (s.rank) h += '<span class="badge">#' + esc(String(s.rank)) + '</span>';
+          h += '<strong>' + esc(s.headline || '') + '</strong></div>';
+          if (s.why_it_matters) h += '<div style="font-size:var(--text-sm);margin-bottom:var(--space-1)">' + esc(s.why_it_matters) + '</div>';
+          if (s.body) h += '<div style="margin-bottom:var(--space-1)">' + AsymRenderer.renderMarkdown(s.body) + '</div>';
+          if (s.asymmetric) h += '<div class="asymmetric-flag" style="font-size:var(--text-sm)">' + esc(s.asymmetric) + '</div>';
+          if (s.source_url && s.source_label) h += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)"><a href="' + esc(s.source_url) + '" target="_blank" rel="noopener">' + esc(s.source_label) + '</a></div>';
+          h += '</div>';
+          return h;
+        }).join('');
+      }
+      var m1Html = '';
+      if (_m1.mainstream && _m1.mainstream.length) {
+        m1Html += '<h3 style="margin-bottom:var(--space-3)">Mainstream Sources</h3>' + renderSourceList(_m1.mainstream);
+      }
+      if (_m1.underweighted && _m1.underweighted.length) {
+        m1Html += '<h3 style="margin-bottom:var(--space-3);margin-top:var(--space-5)">Underweighted Sources</h3>' + renderSourceList(_m1.underweighted);
+      }
+      document.getElementById('m1-synthesis-content').innerHTML = m1Html || '<p class="text-muted">No source synthesis this issue.</p>';
+
+      /* R-REWIRE: module_7 → Risk Indicators */
+      var _m7 = d.module_7 || {};
+      var m7Html = '';
+      if (_m7.vectors && _m7.vectors.length) {
+        _m7.vectors.forEach(function(v) {
+          m7Html += '<div class="intel-item" style="margin-bottom:var(--space-4)">';
+          m7Html += '<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:var(--space-1)">';
+          m7Html += '<strong>' + esc(v.name || v.vector || '') + '</strong>';
+          if (v.rating) m7Html += ' <span class="badge">' + esc(v.rating) + '</span>';
+          if (v.level) m7Html += ' <span class="badge">' + esc(v.level) + '</span>';
+          m7Html += '</div>';
+          if (v.headline) m7Html += '<div style="font-size:var(--text-sm);margin-bottom:var(--space-1)">' + esc(v.headline) + '</div>';
+          if (v.summary) m7Html += '<div style="font-size:var(--text-sm);color:var(--color-text-muted)">' + esc(v.summary) + '</div>';
+          if (v.asymmetric) m7Html += '<div class="asymmetric-flag" style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(v.asymmetric) + '</div>';
+          m7Html += '</div>';
+        });
+      }
+      document.getElementById('m7-risk-content').innerHTML = m7Html || (_m7.null_signal ? '<p class="text-muted">' + esc(_m7.null_signal) + '</p>' : '<p class="text-muted">No risk indicators this issue.</p>');
+
+      /* R-REWIRE: module_8 → Electoral Violence and Political Repression */
+      var _m8 = d.module_8 || {};
+      var m8Html = '';
+      if (_m8.items && _m8.items.length) {
+        _m8.items.forEach(function(item) {
+          m8Html += '<div class="intel-item" style="margin-bottom:var(--space-4)">';
+          if (item.title) m8Html += '<strong>' + esc(item.title) + '</strong><br>';
+          if (item.summary) m8Html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(item.summary) + '</div>';
+          if (item.asymmetric) m8Html += '<div class="asymmetric-flag" style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(item.asymmetric) + '</div>';
+          if (item.source_url) m8Html += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)"><a href="' + esc(item.source_url) + '" target="_blank" rel="noopener">' + esc(item.source_url) + '</a></div>';
+          m8Html += '</div>';
+        });
+      }
+      document.getElementById('m8-violence-content').innerHTML = m8Html || (_m8.null_signal ? '<p class="text-muted">' + esc(_m8.null_signal) + '</p>' : '<p class="text-muted">No electoral violence items this issue.</p>');
+
+      /* R-REWIRE: module_10 → Electoral Integrity Governance */
+      var _m10 = d.module_10 || {};
+      function renderGovItems(arr, labelField) {
+        if (!arr || !arr.length) return '';
+        return arr.map(function(item) {
+          var label = item[labelField] || item.item || item.body || item.gap || '';
+          var desc = item.summary || item.detail || item.analysis || '';
+          var h = '<div class="intel-item" style="margin-bottom:var(--space-3)">';
+          if (label) h += '<strong>' + esc(label) + '</strong>';
+          if (desc) h += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(desc) + '</div>';
+          if (item.asymmetric) h += '<div class="asymmetric-flag" style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(item.asymmetric) + '</div>';
+          if (item.source_url) h += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)"><a href="' + esc(item.source_url) + '" target="_blank" rel="noopener">Source</a></div>';
+          h += '</div>';
+          return h;
+        }).join('');
+      }
+      var m10Html = '';
+      var m10Subs = [
+        { arr: _m10.international_frameworks, label: 'item', heading: 'International Frameworks' },
+        { arr: _m10.electoral_management_bodies, label: 'item', heading: 'Electoral Management Bodies' },
+        { arr: _m10.observer_missions, label: 'item', heading: 'Observer Missions' },
+        { arr: _m10.governance_gaps, label: 'gap', heading: 'Governance Gaps' }
+      ];
+      m10Subs.forEach(function(sub) {
+        var rendered = renderGovItems(sub.arr, sub.label);
+        if (rendered) m10Html += '<h3 style="margin-bottom:var(--space-2);margin-top:var(--space-4)">' + esc(sub.heading) + '</h3>' + rendered;
+      });
+      document.getElementById('m10-governance-content').innerHTML = m10Html || '<p class="text-muted">No governance data this issue.</p>';
+
+      /* R-REWIRE: module_12 → International Standards and Observation Frameworks */
+      var _m12 = d.module_12 || {};
+      var m12Html = '';
+      if (_m12.bodies && _m12.bodies.length) {
+        _m12.bodies.forEach(function(b) {
+          m12Html += '<div class="intel-item" style="margin-bottom:var(--space-5)">';
+          m12Html += '<h3 style="margin-bottom:var(--space-2)">' + esc(b.body || '') + '</h3>';
+          if (b.standards && b.standards.length) {
+            b.standards.forEach(function(s) {
+              m12Html += '<div style="margin-bottom:var(--space-3);padding-left:var(--space-3)">';
+              m12Html += '<strong>' + esc(s.standard || '') + '</strong>';
+              if (s.status) m12Html += ' <span class="badge">' + esc(s.status) + '</span>';
+              if (s.scope) m12Html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(s.scope) + '</div>';
+              if (s.week_update) m12Html += '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + esc(s.week_update) + '</div>';
+              if (s.source_url && s.source_label) m12Html += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)"><a href="' + esc(s.source_url) + '" target="_blank" rel="noopener">' + esc(s.source_label) + '</a></div>';
+              m12Html += '</div>';
+            });
+          }
+          m12Html += '</div>';
+        });
+      }
+      if (_m12.asymmetric_flags && _m12.asymmetric_flags.length) {
+        m12Html += '<div class="asymmetric-flag" style="margin-top:var(--space-3)"><strong>Asymmetric Flags</strong><ul>';
+        _m12.asymmetric_flags.forEach(function(f) { m12Html += '<li>' + esc(f) + '</li>'; });
+        m12Html += '</ul></div>';
+      }
+      document.getElementById('m12-standards-content').innerHTML = m12Html || '<p class="text-muted">No standards data this issue.</p>';
+
+      /* R-REWIRE: module_15 → Personnel and Institutional Movements */
+      var _m15 = d.module_15 || {};
+      var m15Html = '';
+      if (_m15.electoral_body_movements && _m15.electoral_body_movements.length) {
+        m15Html += '<h3 style="margin-bottom:var(--space-2)">Electoral Body Movements</h3>';
+        _m15.electoral_body_movements.forEach(function(mv) {
+          m15Html += '<div class="intel-item" style="margin-bottom:var(--space-3)">';
+          m15Html += '<strong>' + esc(mv.name || '') + '</strong>';
+          if (mv.type) m15Html += ' <span class="badge">' + esc(mv.type) + '</span>';
+          if (mv.announced) m15Html += ' <span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + esc(mv.announced) + '</span>';
+          if (mv.role_from || mv.role_to) m15Html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(mv.role_from || '') + ' → ' + esc(mv.role_to || '') + '</div>';
+          if (mv.significance) m15Html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(mv.significance) + '</div>';
+          if (mv.asymmetric) m15Html += '<div class="asymmetric-flag" style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(mv.asymmetric) + '</div>';
+          if (mv.source_url) m15Html += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)"><a href="' + esc(mv.source_url) + '" target="_blank" rel="noopener">Source</a></div>';
+          m15Html += '</div>';
+        });
+      }
+      if (_m15.government_electoral_bodies && _m15.government_electoral_bodies.length) {
+        m15Html += '<h3 style="margin-bottom:var(--space-2);margin-top:var(--space-4)">Government / Electoral Bodies</h3>';
+        _m15.government_electoral_bodies.forEach(function(gb) {
+          m15Html += '<div class="intel-item" style="margin-bottom:var(--space-3)">';
+          m15Html += '<strong>' + esc(gb.body || '') + '</strong>';
+          if (gb.status) m15Html += ' <span class="badge">' + esc(gb.status) + '</span>';
+          if (gb.detail) m15Html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(gb.detail) + '</div>';
+          if (gb.source_url) m15Html += '<div style="font-size:var(--text-xs);margin-top:var(--space-1)"><a href="' + esc(gb.source_url) + '" target="_blank" rel="noopener">Source</a></div>';
+          m15Html += '</div>';
+        });
+      }
+      if (_m15.revolving_door && _m15.revolving_door.length) {
+        m15Html += '<h3 style="margin-bottom:var(--space-2);margin-top:var(--space-4)">Revolving Door</h3>';
+        _m15.revolving_door.forEach(function(rd) {
+          m15Html += '<div class="intel-item" style="margin-bottom:var(--space-3)">';
+          if (rd.observation) m15Html += '<strong>' + esc(rd.observation) + '</strong>';
+          if (rd.detail) m15Html += '<div style="font-size:var(--text-sm);margin-top:var(--space-1)">' + esc(rd.detail) + '</div>';
+          if (rd['12_month_implication']) m15Html += '<div style="font-size:var(--text-sm);color:var(--color-text-muted);margin-top:var(--space-1)">' + esc(rd['12_month_implication']) + '</div>';
+          m15Html += '</div>';
+        });
+      }
+      if (_m15.asymmetric_flags && _m15.asymmetric_flags.length) {
+        m15Html += '<div class="asymmetric-flag" style="margin-top:var(--space-3)"><strong>Asymmetric Flags</strong><ul>';
+        _m15.asymmetric_flags.forEach(function(f) { m15Html += '<li>' + esc(f) + '</li>'; });
+        m15Html += '</ul></div>';
+      }
+      document.getElementById('m15-personnel-content').innerHTML = m15Html || '<p class="text-muted">No personnel movements this issue.</p>';
     })
     .catch(function (err) {
       console.error(err);

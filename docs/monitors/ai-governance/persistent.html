@@ -110,6 +110,50 @@
         <div id="calibration-log-content"><p class="loading-state">Loading…</p></div>
       </section>
 
+      <!-- Lead Signal (M00) — sourced from report-latest.json -->
+      <section class="module-section" id="section-m0-lead">
+        <div class="module-header">
+          <div class="module-num-large">00</div>
+          <h2 class="module-title">Lead Signal</h2>
+        </div>
+        <div id="m0-lead-content">
+          <div class="loading-state">Loading…</div>
+        </div>
+      </section>
+
+      <!-- Model Frontier (M02) — sourced from report-latest.json -->
+      <section class="module-section" id="section-m2-models">
+        <div class="module-header">
+          <div class="module-num-large">02</div>
+          <h2 class="module-title">Model Frontier</h2>
+        </div>
+        <div id="m2-models-content">
+          <div class="loading-state">Loading…</div>
+        </div>
+      </section>
+
+      <!-- Sector Penetration (M04) — sourced from report-latest.json -->
+      <section class="module-section" id="section-m4-sectors">
+        <div class="module-header">
+          <div class="module-num-large">04</div>
+          <h2 class="module-title">Sector Penetration</h2>
+        </div>
+        <div id="m4-sectors-content">
+          <div class="loading-state">Loading…</div>
+        </div>
+      </section>
+
+      <!-- AI and Society (M13) — sourced from report-latest.json -->
+      <section class="module-section" id="section-m13-society">
+        <div class="module-header">
+          <div class="module-num-large">13</div>
+          <h2 class="module-title">AI and Society</h2>
+        </div>
+        <div id="m13-society-content">
+          <div class="loading-state">Loading…</div>
+        </div>
+      </section>
+
     </main>
 
     <!-- Right-hand sidebar -->
@@ -244,10 +288,128 @@
         if (window.AsymSections && AsymSections.renderCalibrationLog) {
           AsymSections.renderCalibrationLog(d.calibration_log || [], 'calibration-log-content');
         }
+
+        /* ── R-REWIRE: module_0 (Lead Signal) — sourced from report-latest.json ── */
+        var m0 = (report && report.module_0) || {};
+        var m0El = document.getElementById('m0-lead-content');
+        if (m0El) {
+          var m0Title = m0.title || '';
+          var m0Body = m0.body || '';
+          if (m0Title || m0Body) {
+            var m0BodyHtml = (typeof AsymRenderer !== 'undefined' && AsymRenderer.renderMarkdown)
+              ? AsymRenderer.renderMarkdown(m0Body)
+              : '<p>' + esc(m0Body) + '</p>';
+            m0El.innerHTML = '<div class="signal-block">' +
+              (m0Title ? '<h3 class="signal-block__title">' + esc(m0Title) + '</h3>' : '') +
+              '<div class="signal-block__body">' + m0BodyHtml + '</div>' +
+            '</div>';
+          } else {
+            m0El.innerHTML = '<p class="empty-state">No lead signal this issue.</p>';
+          }
+        }
+
+        /* ── R-REWIRE: module_2 (Model Frontier) — sourced from report-latest.json ── */
+        var m2 = (report && report.module_2) || {};
+        var m2Models = Array.isArray(m2.models) ? m2.models : [];
+        var m2El = document.getElementById('m2-models-content');
+        if (m2El) {
+          if (m2Models.length) {
+            var m2Html = '<div class="intel-list">';
+            m2Models.forEach(function (m) {
+              var tier = m.tier || 3;
+              var tierBadge = '<span class="tag tag--accent">T' + esc(String(tier)) + '</span>';
+              var labBadge = m.lab ? '<span class="tag">' + esc(m.lab) + '</span>' : '';
+              var t3Warn = (tier === 3 && m.flag) ? '<span class="tag tag--warn" style="margin-left:4px">T3 — unverified source</span>' : '';
+              m2Html += '<div class="intel-item">' +
+                '<div class="intel-item__title">' + esc(m.name || '') + ' ' + tierBadge + ' ' + labBadge + ' ' + t3Warn + '</div>' +
+                (m.released ? '<div class="intel-item__field"><strong>Released:</strong> ' + esc(m.released) + '</div>' : '') +
+                (m.headline ? '<div class="intel-item__field">' + esc(m.headline) + '</div>' : '') +
+                (m.asymmetric ? '<div class="intel-item__field"><strong>Asymmetric:</strong> ' + esc(m.asymmetric) + '</div>' : '') +
+              '</div>';
+            });
+            m2Html += '</div>';
+            m2El.innerHTML = m2Html;
+          } else {
+            m2El.innerHTML = '<p class="empty-state">No model frontier data this issue.</p>';
+          }
+        }
+
+        /* ── R-REWIRE: module_4 (Sector Penetration) — sourced from report-latest.json ── */
+        var m4 = (report && report.module_4) || {};
+        var m4Sectors = Array.isArray(m4.sectors) ? m4.sectors : [];
+        var m4El = document.getElementById('m4-sectors-content');
+        if (m4El) {
+          if (m4Sectors.length) {
+            var m4Html = '<div class="intel-list">';
+            m4Sectors.forEach(function (s) {
+              var statusBadge = s.status ? '<span class="tag">' + esc(s.status) + '</span>' : '';
+              var stealthBadge = s.stealth_flag ? '<span class="tag tag--warn" style="margin-left:4px">Stealth flag</span>' : '';
+              m4Html += '<div class="intel-item">' +
+                '<div class="intel-item__title">' + esc(s.sector || '') + ' ' + statusBadge + ' ' + stealthBadge + '</div>' +
+                (s.headline_developments ? '<div class="intel-item__field"><strong>Headline developments:</strong> ' + esc(s.headline_developments) + '</div>' : '') +
+                (s.capability_to_deployment_gap ? '<div class="intel-item__field"><strong>Capability-to-deployment gap:</strong> ' + esc(s.capability_to_deployment_gap) + '</div>' : '') +
+                (s.asymmetric ? '<div class="intel-item__field"><strong>Asymmetric:</strong> ' + esc(s.asymmetric) + '</div>' : '');
+              if (Array.isArray(s.sources) && s.sources.length) {
+                m4Html += '<div class="intel-item__sources">' + s.sources.map(function (src) {
+                  return '<a class="intel-item__source" href="' + esc(src) + '" target="_blank" rel="noopener">Source →</a>';
+                }).join(' ') + '</div>';
+              }
+              m4Html += '</div>';
+            });
+            m4Html += '</div>';
+            m4El.innerHTML = m4Html;
+          } else {
+            m4El.innerHTML = '<p class="empty-state">No sector penetration data this issue.</p>';
+          }
+        }
+
+        /* ── R-REWIRE: module_13 (AI and Society) — sourced from report-latest.json ── */
+        var m13 = (report && report.module_13) || {};
+        var m13El = document.getElementById('m13-society-content');
+        if (m13El) {
+          var m13Items = Array.isArray(m13.items) ? m13.items : [];
+          var m13Trends = Array.isArray(m13.structural_trends) ? m13.structural_trends : [];
+          var m13Flags = Array.isArray(m13.asymmetric_flags) ? m13.asymmetric_flags : [];
+          var m13Html = '';
+          if (m13Items.length) {
+            m13Html += '<div class="intel-list">';
+            m13Items.forEach(function (it) {
+              m13Html += '<div class="intel-item">' +
+                '<div class="intel-item__title">' + esc(it.title || '') + '</div>' +
+                (it.summary ? '<div class="intel-item__field">' + esc(it.summary) + '</div>' : '') +
+                (it.asymmetric ? '<div class="intel-item__field"><strong>Asymmetric:</strong> ' + esc(it.asymmetric) + '</div>' : '') +
+                (it.source_url ? '<div class="intel-item__sources"><a class="intel-item__source" href="' + esc(it.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
+              '</div>';
+            });
+            m13Html += '</div>';
+          }
+          if (m13Trends.length) {
+            m13Html += '<h3 class="subsection-title">Structural Trends</h3><div class="intel-list">';
+            m13Trends.forEach(function (t) {
+              var title = (typeof t === 'object' && t) ? (t.title || '') : '';
+              var trend = (typeof t === 'object' && t) ? (t.trend || '') : (typeof t === 'string' ? t : '');
+              m13Html += '<div class="intel-item">' +
+                (title ? '<div class="intel-item__title">' + esc(title) + '</div>' : '') +
+                (trend ? '<div class="intel-item__field">' + esc(trend) + '</div>' : '') +
+              '</div>';
+            });
+            m13Html += '</div>';
+          }
+          if (m13Flags.length) {
+            m13Html += '<h3 class="subsection-title">Asymmetric Flags</h3><div class="intel-list">';
+            m13Flags.forEach(function (f) {
+              var text = (typeof f === 'string') ? f : (f && (f.flag || f.text || f.note || JSON.stringify(f)));
+              m13Html += '<div class="intel-item"><div class="intel-item__field">' + esc(text || '') + '</div></div>';
+            });
+            m13Html += '</div>';
+          }
+          m13El.innerHTML = m13Html || '<p class="empty-state">No AI and society data this issue.</p>';
+        }
       })
       .catch(function () {
         ['risk-vectors-content','eu-ai-act-content','concentration-content','aisi-pipeline-content',
-         'gpai-compliance-content','standards-vacuum-content','ciyuan-content','lab-postures-content','cross-monitor-content','calibration-log-content'].forEach(function (id) {
+         'gpai-compliance-content','standards-vacuum-content','ciyuan-content','lab-postures-content','cross-monitor-content','calibration-log-content',
+         'm0-lead-content','m2-models-content','m4-sectors-content','m13-society-content'].forEach(function (id) {
           var el = document.getElementById(id);
           if (el) el.innerHTML = '<p class="error-state">Could not load data.</p>';
         });
