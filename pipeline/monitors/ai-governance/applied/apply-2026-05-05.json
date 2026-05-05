@@ -2,7 +2,7 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "ai-governance",
-    "applied_at": "2026-05-05T14:14:16Z",
+    "applied_at": "2026-05-05T14:20:19Z",
     "applier_model": null,
     "applier_deterministic": true,
     "cycle_disposition": "material_change",
@@ -11,12 +11,12 @@
     "applier_error": false,
     "applier_error_reason": null,
     "force_reissue": {
-      "previous_artefact_sha": "c100cb765ccdbad19cca4eed090620747f0aa8d2f8a4537ecd44f4351a621589",
-      "previous_artefact_written_at": "2026-05-05T13:27:03Z",
-      "reason": "AIM replay after public PR #257 and internal PR #629 fixed missing new_value patch contract; inspect apply-latest before publisher.",
+      "previous_artefact_sha": "f1625362bb370e486735ee4a4defbbc5487c28b4e3a7adffa00963a14af2dc22",
+      "previous_artefact_written_at": "2026-05-05T14:14:16Z",
+      "reason": "AIM applier replay after reviewer/composer regenerated patch disposition for missing new_value contract; inspect apply-latest before publisher.",
       "ad_reference": "AD-2026-04-24l",
       "operator": "Peter-Pink-Howitt",
-      "forced_at": "2026-05-05T14:14:16.661758+00:00"
+      "forced_at": "2026-05-05T14:20:19.745688+00:00"
     }
   },
   "cycle_id": "agm-2026-05-05",
@@ -41,7 +41,7 @@
     },
     "review": {
       "path": "pipeline/monitors/ai-governance/synthesised/review-latest.json",
-      "content_sha1": "12b860ca3f166e4377dfe20c59e3e68986bbe961",
+      "content_sha1": "ffa2a3974172c928ee46eea259700d3854a3e60e",
       "schema_version": "aim-review-v1.0",
       "verdict": "publish",
       "verdict_legacy": "APPROVE",
@@ -51,277 +51,99 @@
         "SKIP": 1,
         "FAIL": 0
       },
-      "advisory_note_count": 3,
+      "advisory_note_count": 0,
       "claim_flag_count": 0
     },
     "compose": {
       "path": "pipeline/monitors/ai-governance/synthesised/compose-latest.json",
-      "content_sha1": "a129f3355c067688ee6be8e708fd864a6c4d70de",
+      "content_sha1": "ce7f5d31b2b63cf9d17351ea94c23ca5163f83b4",
       "schema_version": "aim-compose-v1.0",
-      "composed_at": "2026-05-05T05:43:06.961693+00:00",
-      "claim_trace_count": 26,
+      "composed_at": "2026-05-05T14:18:08.623459+00:00",
+      "claim_trace_count": 29,
       "composer_error": false,
       "reviewed_by": {
         "verdict": "publish",
         "reviewer_model": "sonar-pro",
-        "reviewed_at": "2026-05-05T05:41:23.487760+00:00",
+        "reviewed_at": "2026-05-05T14:16:41.821568+00:00",
         "review_schema_version": "aim-review-v1.0"
       }
     }
   },
-  "patches_applied": [
-    {
-      "patch_id": "_unstamped_0",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Confirmed",
-      "target_kb_path": "module_2.models[OpenAI/GPT-5.5]",
-      "rule_applied": "capability_tier_shift"
-    },
-    {
-      "patch_id": "_unstamped_1",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Confirmed",
-      "target_kb_path": "module_9.eu_ai_act_layered",
-      "rule_applied": "regulatory_milestone_slippage"
-    },
-    {
-      "patch_id": "_unstamped_2",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": "module_7.vectors[Governance Fragmentation].rating",
-      "rule_applied": "risk_vector_rating_change"
-    },
-    {
-      "patch_id": "_unstamped_3",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": "module_7.vectors[Standards Vacuum].rating",
-      "rule_applied": "risk_vector_rating_change"
-    },
-    {
-      "patch_id": "_unstamped_4",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": "module_7.vectors[Disinfo Velocity].rating",
-      "rule_applied": "risk_vector_rating_change"
-    },
-    {
-      "patch_id": "_unstamped_5",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": "module_7.vectors[Platform Power].rating",
-      "rule_applied": "risk_vector_rating_change"
-    },
-    {
-      "patch_id": "_unstamped_6",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": "module_7.vectors[Talent Drain].rating",
-      "rule_applied": "risk_vector_rating_change"
-    },
-    {
-      "patch_id": "_unstamped_7",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "target_kb_path": "ongoing_lab_postures[OpenAI]",
-      "rule_applied": "lab_posture_change"
-    }
-  ],
+  "patches_applied": [],
   "patches_rejected": [],
   "patches_deferred": [],
-  "patches_looped_back": [],
-  "patches_apply_failed": [
+  "patches_looped_back": [
     {
       "patch_id": "_unstamped_0",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "module_2.models[OpenAI/GPT-5.5]",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": {
-        "name": "GPT-5.5",
-        "lab": "OpenAI",
-        "tier": 1,
-        "released": "2026-04-23",
-        "headline": "1M token context, agentic tool suite (computer use, hosted shell, MCP, web search)",
-        "asymmetric": "Third major GPT-5 family model in eight weeks, compressing independent safety evaluation windows. Agentic tool suite expands operational surface for dual-use applications.",
-        "flag": false,
-        "first_seen_in_state": "2026-05-05",
-        "scaffold_seed": true
-      },
-      "expected_prior_value": null
+      "rule_applied": "capability_tier_shift",
+      "target_role": "Interpreter"
     },
     {
       "patch_id": "_unstamped_1",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "module_9.eu_ai_act_layered",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": [
-        {
-          "layer": 1,
-          "name": "AI Act Text",
-          "status": "Active",
-          "note": "Regulation (EU) 2024/1689 in force. General application 2 August 2026.",
-          "unchanged_since": "2026-03-30",
-          "last_verified": "2026-04-28"
-        },
-        {
-          "layer": 2,
-          "name": "Delegated / Implementing Acts",
-          "status": "In progress",
-          "note": "Commission drafting. Article 6 high-risk classification guidelines published February 2026. GPAI classification criteria and high-risk system list updates pending.",
-          "unchanged_since": "2026-03-30",
-          "last_verified": "2026-04-28"
-        },
-        {
-          "layer": 3,
-          "name": "Harmonised Standards (CEN-CENELEC JTC21)",
-          "status": "Delayed — exceptional acceleration measures active",
-          "note": "JTC21 missed April 2025 delivery deadline. CEN-CENELEC Boards adopted exceptional package Oct 14-16 2025 to accelerate delivery targeting Q4 2026 — after Aug 2 deadline. Until OJ citation, presumption of conformity unavailable for high-risk AI. Standards will not provide pre-August safe harbour.",
-          "unchanged_since": "2026-03-30",
-          "last_verified": "2026-04-28",
-          "verification_source": "https://www.cencenelec.eu/news-events/news/2025/brief-news/2025-10-23-ai-standardization/",
-          "verification_date": "2026-04-28"
-        },
-        {
-          "layer": 4,
-          "name": "GPAI Code of Practice",
-          "status": "Final published — Commission adequacy assessment pending",
-          "note": "Final GPAI CoP published July 10, 2025 (digital-strategy.ec.europa.eu). Three chapters: Transparency, Copyright, Safety and Security. Commission and AI Board confirmed it is an adequate voluntary tool. Not yet adopted as implementing act. Enforcement of GPAI obligations begins August 2, 2026.",
-          "unchanged_since": "2026-03-30",
-          "last_verified": "2026-04-28",
-          "verification_source": "https://digital-strategy.ec.europa.eu/en/policies/contents-code-gpai",
-          "verification_date": "2026-04-28"
-        },
-        {
-          "layer": 5,
-          "name": "National Enforcement (NCAs)",
-          "status": "Mostly designated — enforcement capacity variable",
-          "note": "Member states designation slower than expected — may affect early enforcement consistency. Most not yet fully operational for AI Act enforcement. Track NCA enforcement capacity monthly.",
-          "unchanged_since": "2026-03-30",
-          "last_verified": "2026-04-28"
-        },
-        {
-          "layer": 6,
-          "name": "AI Office Supervisory Decisions",
-          "status": "Not yet active",
-          "note": "No formal supervisory decisions issued. AI Office operational but pre-enforcement. First supervisory decision = landmark M09+M10 item. Full enforcement authority for GPAI models from August 2, 2026.",
-          "unchanged_since": "2026-03-30",
-          "last_verified": "2026-04-28"
-        },
-        {
-          "layer": 7,
-          "name": "Digital Omnibus Trilogue",
-          "status": "Active — political agreement meeting TODAY (April 28)",
-          "note": "EP adopted position 26 March (569–45–23). Council position adopted 13 March. Second political trilogue scheduled April 28, 2026 — political agreement expected at this meeting per A&O Shearman (April 9) and Ropes Gray (April 24). If agreement reached: Parliament vote May, Council June, OJ July, entry into force 1 August. Convergence: fixed high-risk dates Dec 2, 2027 (Annex III) and Aug 2, 2028 (Annex I) both institutions agree. New prohibitions on nudifier AI and CSAM tools agreed by both. Divergence: AI literacy binding vs soft, synthetic content timing (Nov 2026 Parliament vs Feb 2027 Council), sectoral integration.",
-          "unchanged_since": "2026-04-28",
-          "last_verified": "2026-04-28",
-          "verification_source_1": "https://www.aoshearman.com/en/insights/digital-omnibus-on-ai-what-is-really-on-the-table-as-trilogues-begin",
-          "verification_source_2": "https://www.ropesgray.com/en/insights/viewpoints/102mquz/ai-omnibus-trilogue-underwaywhat-to-expect-as-negotiations-progress",
-          "verification_date": "2026-04-28"
-        }
-      ],
-      "expected_prior_value": null,
-      "applier_canonical_path": "module_9_eu_ai_act_tracker.layers",
-      "applier_path_alias": "module_9.eu_ai_act_layered->module_9_eu_ai_act_tracker.layers"
+      "rule_applied": "regulatory_milestone_slippage",
+      "target_role": "Interpreter"
     },
     {
       "patch_id": "_unstamped_2",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "module_7.vectors[Governance Fragmentation].rating",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": "HIGH",
-      "expected_prior_value": null,
-      "applier_canonical_path": "module_7_risk_vectors[Governance Fragmentation].rating",
-      "applier_path_alias": "module_7.vectors[Governance Fragmentation].rating->module_7_risk_vectors[Governance Fragmentation].rating"
+      "rule_applied": "risk_vector_rating_change",
+      "target_role": "Interpreter"
     },
     {
       "patch_id": "_unstamped_3",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "module_7.vectors[Standards Vacuum].rating",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": "HIGH",
-      "expected_prior_value": null,
-      "applier_canonical_path": "module_7_risk_vectors[Standards Vacuum].rating",
-      "applier_path_alias": "module_7.vectors[Standards Vacuum].rating->module_7_risk_vectors[Standards Vacuum].rating"
+      "rule_applied": "risk_vector_rating_change",
+      "target_role": "Interpreter"
     },
     {
       "patch_id": "_unstamped_4",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "module_7.vectors[Disinfo Velocity].rating",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": "ELEVATED",
-      "expected_prior_value": null,
-      "applier_canonical_path": "module_7_risk_vectors[Disinfo Velocity].rating",
-      "applier_path_alias": "module_7.vectors[Disinfo Velocity].rating->module_7_risk_vectors[Disinfo Velocity].rating"
+      "rule_applied": "risk_vector_rating_change",
+      "target_role": "Interpreter"
     },
     {
       "patch_id": "_unstamped_5",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "module_7.vectors[Platform Power].rating",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": "ELEVATED",
-      "expected_prior_value": null,
-      "applier_canonical_path": "module_7_risk_vectors[Platform Power].rating",
-      "applier_path_alias": "module_7.vectors[Platform Power].rating->module_7_risk_vectors[Platform Power].rating"
+      "rule_applied": "risk_vector_rating_change",
+      "target_role": "Interpreter"
     },
     {
       "patch_id": "_unstamped_6",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "module_7.vectors[Talent Drain].rating",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": "MODERATE",
-      "expected_prior_value": null,
-      "applier_canonical_path": "module_7_risk_vectors[Talent Drain].rating",
-      "applier_path_alias": "module_7.vectors[Talent Drain].rating->module_7_risk_vectors[Talent Drain].rating"
+      "rule_applied": "risk_vector_rating_change",
+      "target_role": "Interpreter"
     },
     {
       "patch_id": "_unstamped_7",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "target_kb_path": "ongoing_lab_postures[OpenAI]",
-      "applier_rejection_reason": "update_no_new_value",
-      "observed_value": {
-        "actor": "OpenAI",
-        "posture": "$852B valuation at 60x revenue; Musk v. Altman trial commenced April 28 (jury selection); new principles published April 26 — removes AGI co-assistance to rival safety projects; GPAI signatory; Illinois SB 3444 backer",
-        "last_material_change": "2026-04-28",
-        "last_verified": "2026-04-28",
-        "confidence": "Confirmed",
-        "unchanged_since": "2026-03-30",
-        "version_history": [
-          {
-            "date": "2026-03-30",
-            "change": "Initial entry: Pentagon contract, Sora cancellation, rolling funding round noted",
-            "reason": "Issue 1 research",
-            "prior_value": null
-          },
-          {
-            "date": "2026-04-01",
-            "change": "Round confirmed closed at $852B (31 March); headcount doubling announced; Pentagon deal amended",
-            "reason": "Issue 2 research",
-            "prior_value": "Pentagon 'any lawful use' contract active; rolling $120B+ funding"
-          },
-          {
-            "date": "2026-04-10",
-            "change": "Issue 4 update — material new evidence",
-            "reason": "$852B valuation at 60x revenue; headcount doubling to ~8,000; Promptfoo acquisition; GSA 'any lawful use' contract pathway; GPAI signatory",
-            "prior_value": "Pentagon 'any lawful use' contract active (amended 3 March with surveillance red line); $122B round "
-          },
-          {
-            "date": "2026-04-28",
-            "change": "carry-forward-verified + new material events April 26-28",
-            "reason": "OpenAI new principles (April 26) confirmed at Yahoo Finance/Business Insider — removes AGI co-assistance commitment; Musk v. Altman trial jury selection commenced April 28 (AP News, CNBC, NYT); Illinois SB 3444 backing confirmed (Quartz, Fortune April 2026)",
-            "prior_value": null
-          }
-        ],
-        "safety_posture": "Adequate",
-        "transparency": "MEDIUM",
-        "regulatory_engagement": "Compliant",
-        "trajectory": "Stable",
-        "openai_principles_update": {
-          "date": "2026-04-26",
-          "summary": "Five new principles published — focus on democratization and universal prosperity. Removes 2018 Charter commitment to assist rival AGI projects. Shifts from AGI-centric to broad AI deployment mandate. Still lists 2018 Charter on website creating conflicting obligations.",
-          "source_url": "https://sg.finance.yahoo.com/news/openai-just-updated-principles-heres-041316239.html",
-          "retrieval_date": "2026-04-28"
-        }
-      },
-      "expected_prior_value": null
+      "rule_applied": "lab_posture_change",
+      "target_role": "Interpreter"
     }
   ],
+  "patches_apply_failed": [],
   "patches_actually_applied": [],
   "persistent_state_snapshot": null,
   "publication": {
-    "ready_to_publish": false,
-    "hold_reason": "patch_apply_failed",
+    "ready_to_publish": true,
+    "hold_reason": null,
     "publisher_artefacts": {
       "weekly_brief_path": "content/monitors/ai-governance/2026-05-09-weekly-brief.md",
       "report_latest_path": "static/monitors/ai-governance/data/report-latest.json"
