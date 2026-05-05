@@ -642,9 +642,10 @@ All string values must avoid apostrophes and contractions — use full words onl
 26. No weekly_brief_draft: do NOT emit a weekly_brief_draft field. The Composer stage renders prose separately.
 27. Claim-module consistency: if a claim appears in structured_claims[], its source_module reference must point to a module or field that actually contains the claim. Never credit a claim to a module that does not surface it.
 28. gaps_register[] is optional but recommended when Uncertain or Possible confidence dominates a module — name the evidence that would upgrade.
-29. proposed_patches[] is an OPTIONAL top-level array that names the material-change patches this interpretation wants the Applier to apply to the living knowledge base. Follow pipeline-doctrine Appendix A. Each patch MUST contain five fields: (a) `rule_applied` — the methodology rule you invoked (short string, free-form until the enum is formalised); (b) `evidence_ids` — array of evidence IDs from the weekly-research bundle or KB that support the patch (must be non-empty); (c) `confidence` — one of {"Confirmed","High","Assessed","Possible"}; (d) `material_change_justification` — one-sentence rationale for why this change is material (not just a rewording of existing KB state); (e) `target_kb_path` — the KB path being updated (e.g. "module_2.models[Anthropic/Claude Opus 4.6]" or "module_7.vectors[ai_fimi_layer].rating"). **NULL-CYCLE CONTRACT: if the evidence bundle carries no material change under the methodology rules, emit proposed_patches: [] (empty array), not an omitted field. Never manufacture a patch under a null cycle.** If this cycle is material_change, aim for one patch per major KB target touched (typically 2–8 patches for a normal weekly). Do NOT emit patches for cosmetic rewording of existing KB prose; patches are for state changes.
+29. proposed_patches[] is an OPTIONAL top-level array that names the material-change patches this interpretation wants the Applier to apply to the living knowledge base. Follow pipeline-doctrine Appendix A. Each patch MUST contain six fields: (a) `rule_applied` — the methodology rule you invoked (short string, free-form until the enum is formalised); (b) `evidence_ids` — array of evidence IDs from the weekly-research bundle or KB that support the patch (must be non-empty); (c) `confidence` — one of {"Confirmed","High","Assessed","Possible"}; (d) `material_change_justification` — one-sentence rationale for why this change is material (not just a rewording of existing KB state); (e) `target_kb_path` — the KB path being updated (e.g. "module_2.models[Anthropic/Claude Opus 4.6]" or "module_7.vectors[ai_fimi_layer].rating"); (f) `new_value` — the exact replacement value the Applier should write at `target_kb_path`. `operation` is optional and must be one of {"create","update","archive","carry-forward-verified"}; if omitted, the Applier treats the patch as `update`, so `new_value` is still mandatory. Never emit `value`; the engine reads `new_value`. **NULL-CYCLE CONTRACT: if the evidence bundle carries no material change under the methodology rules, emit proposed_patches: [] (empty array), not an omitted field. Never manufacture a patch under a null cycle.** If this cycle is material_change, aim for one patch per major KB target touched (typically 2–8 patches for a normal weekly). Do NOT emit patches for cosmetic rewording of existing KB prose; patches are for state changes.
 
 
+# Version: v2.5 | Updated: 2026-05-05 | Change: Rule 29 patch contract tightened — proposed_patches[] must include `new_value`; stale `value`/`replace` wording removed for lab-posture/GPAI patches. Live-fire driven (AIM 2026-05-05 replay: eight proposed patches reached Reviewer/Applier without `new_value`, causing update_no_new_value holds).
 # Version: v2.4 | Updated: 2026-05-03 | Change: Rules 4a + 4b added — BRIEF BX-3 strict module_2/module_3 routing for funding/valuation/M&A signals; module-level absence provenance contract (null_signal + empty_reason). Live-fire driven (AIM 2026-05-02 fixture: 8 funding rows mis-routed to module_2.models; module_3 silent-empty without provenance).
 # Version: v2.3 | Updated: 2026-04-23 | Change: Rule 24 clarified + Rule 24a added — weekly research is the material anchor for cycle_disposition; quiet daily + stable reasoner alone cannot justify null_cycle. Live-fire driven (G.2 retry 24858509356 null-cycled material weekly). Also removed stale `# MODEL: sonar-deep-research` header (Interpreter moved off DR at G + G.1).
 # Version: v2.2 | Updated: 2026-04-23 | Change: Rule 29 added — top-level proposed_patches[] contract per pipeline-doctrine Appendix A (Sprint 3 Step 4a.2). Additive, no schema version bump (proposed_patches is an optional top-level property in aim-interpret-v1.0). Null-cycle contract explicit: empty array under null_cycle, never omit the field.
@@ -666,9 +667,9 @@ Each cycle: update `posture`, `last_verified`, and `confidence` for each lab. Up
 
 When any lab's posture changes materially, propose a patch:
 proposed_patches[].target_kb_path = "ongoing_lab_postures"
-proposed_patches[].operation = "replace"
-proposed_patches[].value = <updated full list>
-proposed_patches[].rationale = <one sentence>
+proposed_patches[].operation = "update"
+proposed_patches[].new_value = <updated full list>
+proposed_patches[].material_change_justification = <one sentence>
 
 31. **Rule 31 — `gpai_compliance`**
 
@@ -680,9 +681,9 @@ Populate `gpai_compliance` as a structured record of General Purpose AI (GPAI) c
 
 Each cycle: update `signatory`, `transparency_report`, and `compute_disclosure` for each lab when new GPAI-related data is available in the research bundle. When material changes occur, propose a patch:
 proposed_patches[].target_kb_path = "gpai_compliance"
-proposed_patches[].operation = "replace"
-proposed_patches[].value = <updated full dict>
-proposed_patches[].rationale = <one sentence>
+proposed_patches[].operation = "update"
+proposed_patches[].new_value = <updated full dict>
+proposed_patches[].material_change_justification = <one sentence>
 
 32. **Rule 32 — `open_findings`**
 

@@ -1057,7 +1057,7 @@
     },
     "proposed_patches": {
       "type": "array",
-      "description": "Sprint 3 Step 4a.2 (AD-2026-04-23l §4.2) — Appendix A patch emission. OPTIONAL top-level array naming the material-change patches this interpretation proposes to the Applier, per pipeline-doctrine Appendix A. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries the 5 Appendix A required fields: rule_applied, evidence_ids, confidence, material_change_justification, target_kb_path. The Applier is the authoritative rejector of malformed patches; this schema block performs structural gatekeeping only.",
+      "description": "Sprint 3 Step 4a.2 (AD-2026-04-23l §4.2) — Appendix A patch emission. OPTIONAL top-level array naming the material-change patches this interpretation proposes to the Applier, per pipeline-doctrine Appendix A. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries the Appendix A required fields: rule_applied, evidence_ids, confidence, material_change_justification, target_kb_path, new_value. The Reviewer and Applier reject malformed patches; this schema block performs structural gatekeeping before review.",
       "items": {
         "type": "object",
         "required": [
@@ -1065,7 +1065,8 @@
           "evidence_ids",
           "confidence",
           "material_change_justification",
-          "target_kb_path"
+          "target_kb_path",
+          "new_value"
         ],
         "properties": {
           "rule_applied": {
@@ -1119,7 +1120,7 @@
             "description": "Optional prior-value snapshot for optimistic concurrency. Applier rejects if current KB state does not match."
           },
           "new_value": {
-            "description": "Optional new value the patch applies."
+            "description": "Required value the patch applies. For carry-forward-verified, set this equal to prior_value/the observed value being re-verified; for archive, set the explicit archival replacement value or null if the target is intentionally cleared."
           },
           "notes": {
             "type": [

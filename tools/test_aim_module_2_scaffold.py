@@ -192,16 +192,17 @@ def test_scaffold_seed_matches_interpret_latest():
         )
 
 
-# ── Failure-mode regression: apply-latest still records the original bug ──
+# ── Failure-mode regression: apply-latest records the current replay blocker ──
 
 
 def test_apply_latest_documents_pre_fix_failure():
     """
-    Sanity check: the pre-fix `apply-latest.json` (cycle 2026-05-05) records
-    `target_missing:module_2` for `_unstamped_0`. This is the artefact this
-    PR fixes. We assert it stays visible until a post-fix force-replay
-    overwrites apply-latest.json — so the next replay is the *proof* the
-    scaffold cleared the blocker, not a silent overwrite.
+    Sanity check: the current pre-contract-fix `apply-latest.json` (cycle
+    2026-05-05) records `update_no_new_value` for `_unstamped_0`. The earlier
+    module_2 scaffold fix cleared `target_missing:module_2`; the remaining
+    blocker is that Interpreter-approved patches omitted `new_value`. We
+    assert that failure stays visible until a post-fix force-replay overwrites
+    apply-latest.json — so the replay is the proof, not a silent overwrite.
     """
     if not APPLY_LATEST_PATH.exists():
         return  # apply artefacts may be absent in some CI fixtures
@@ -216,8 +217,8 @@ def test_apply_latest_documents_pre_fix_failure():
         if (f.get("target_kb_path") or "").startswith("module_2.")
     ]
     if module_2_failures:
-        assert module_2_failures[0].get("applier_rejection_reason") == "target_missing:module_2", (
+        assert module_2_failures[0].get("applier_rejection_reason") == "update_no_new_value", (
             "Pre-fix apply-latest.json must record the documented "
-            "target_missing:module_2 failure. If the reason has changed, "
+            "update_no_new_value failure. If the reason has changed, "
             "re-evaluate the root-cause analysis in this PR."
         )
