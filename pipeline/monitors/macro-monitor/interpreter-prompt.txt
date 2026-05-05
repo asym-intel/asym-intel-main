@@ -496,3 +496,62 @@ All string values must avoid apostrophes and contractions — use full words onl
 27. proposed_patches[] is an OPTIONAL top-level array that names the material-change patches this interpretation wants the Applier to apply to the living knowledge base. Follow pipeline-doctrine Appendix A. Each patch MUST contain five fields: (a) rule_applied — the methodology rule you invoked (short string); (b) evidence_ids — array of evidence IDs from the weekly-research bundle or KB that support the patch (must be non-empty); (c) confidence — one of {"Confirmed","High","Assessed","Possible"}; (d) material_change_justification — one-sentence rationale for why this change is material; (e) target_kb_path — the KB path being updated (e.g. "module_7.vectors[sovereign_spread_widening].rating" or "module_4.domains[currency_fx].stress_level"). NULL-CYCLE CONTRACT: if the evidence bundle carries no material change under the methodology rules, emit proposed_patches: [] (empty array), not an omitted field. Never manufacture a patch under a null cycle.
 
 # Version: v1.0 | Updated: 2026-04-24 | Sprint C.E Phase 1 — GMM structural parity to AGM (AD-2026-04-24n). Topic-adapted from AGM interpreter-prompt.txt: AI governance domain → global macroeconomic domain; 16 AGM modules → 12 GMM-domain modules; model frontier / lab posture / EU AI Act → central bank scorecard / jurisdiction risk matrix / macro health composite; governance_health_composite → macro_health_composite; claim_id prefix aim-int → gmm-int; cross-monitor type set updated to macro signal types. Structural shape (input/output contract, edge-case handling, refusal grammar, confidence tier standard, cycle_disposition rules, structured_claims discipline, proposed_patches contract) preserved verbatim from AGM.
+
+28. **Rule 28 — `conviction_history`**
+
+Populate `conviction_history` as a chronological list of weekly conviction assessments. Each cycle, **append** a new entry — do not replace prior entries. Each entry must include:
+- `date` (string): ISO 8601 date of this cycle's assessment
+- `system_average` (float): the computed system-average conviction score for this cycle (0.0–1.0)
+- `conviction` (string): exactly one of `"MEDIUM"`, `"HIGH"`
+- `regime` (string): current regime label (e.g. `"Late Cycle"`, `"Contraction"`, `"Recovery"`)
+- `regime_conviction` (string): exactly one of `"MEDIUM"`, `"HIGH"`
+- `rationale` (string): one-sentence rationale for the conviction assessment
+
+When a new entry is appended, propose a patch:
+proposed_patches[].target_kb_path = "conviction_history"
+proposed_patches[].operation = "append"
+proposed_patches[].value = <new single entry object>
+proposed_patches[].rationale = <one sentence>
+
+29. **Rule 29 — `blind_spots`**
+
+Populate `blind_spots` as a list of identified structural gaps in the model's data coverage or analytical scope. Each entry must include:
+- `id` (string): stable identifier, e.g. `"BS-001"`
+- `name` (string): short label for the blind spot
+- `description` (string): 1-2 sentence description of the gap and its potential consequence
+- `evidence_id` (string): reference to the research bundle item or module that surfaced this gap
+- `source_url` (string): URL to supporting source or `""` if none
+
+Add new blind spots when new structural gaps are identified. Do not remove existing blind spots unless explicitly resolved. When material changes occur (new blind spot, description update), propose a patch:
+proposed_patches[].target_kb_path = "blind_spots"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+30. **Rule 30 — `active_tactical_alerts`**
+
+Populate `active_tactical_alerts` as a list of named tactical alert conditions. Each entry must include:
+- `alert_id` (string): stable identifier, e.g. `"TA-001"`
+- `name` (string): alert name
+- `current_state` (string): exactly one of `"WARNING"`, `"WATCH"`, `"CLEAR"`
+- `last_state_change` (string): ISO 8601 date of most recent state transition
+- `description` (string): current evidence justifying this state
+
+Each cycle, update `current_state` and `description` based on new weekly evidence. Update `last_state_change` only when `current_state` actually changes. When any alert changes state, propose a patch:
+proposed_patches[].target_kb_path = "active_tactical_alerts"
+proposed_patches[].operation = "replace"
+proposed_patches[].value = <updated full list>
+proposed_patches[].rationale = <one sentence>
+
+31. **Rule 31 — `open_findings`**
+
+Populate `open_findings` as a list of the most salient macro-economic findings from the weekly research bundle not captured in other structured fields. Each entry must include:
+- `headline` (string): one-sentence finding
+- `why_it_matters` (string): one-sentence significance
+- `source_url` (string): direct URL to primary source
+- `source_name` (string): publication or organisation name
+- `source_tier` (string): exactly one of `"T1"`, `"T2"`, `"T3"` (T1 = primary/official, T2 = established media/think-tank, T3 = secondary/aggregator)
+
+Emit 3-8 entries per cycle. Replace the full list each cycle.
+
+# v: sprint-bw — added rules for conviction_history, blind_spots, active_tactical_alerts, open_findings
