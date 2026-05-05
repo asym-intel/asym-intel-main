@@ -3,7 +3,7 @@
     "schema_version": "aim-review-v1.0",
     "reviewer_model": "sonar-pro",
     "monitor_slug": "macro-monitor",
-    "reviewed_at": "2026-05-05T00:01:45.838003+00:00",
+    "reviewed_at": "2026-05-05T08:58:42.742522+00:00",
     "reviewed_from": "gmm-interpret-v1.0",
     "reviewed_from_file": "interpret-latest.json",
     "interpret_meta": {
@@ -16,6 +16,14 @@
     "reviewer_error_reason": null,
     "independence_mechanism": {
       "rule_engine_verdict_is_llm_independent": true
+    },
+    "force_reissue": {
+      "previous_artefact_sha": "d341bbd64c26cc932f4f1ad9e519803ccda65541722d5df48c50d1200aff02ef",
+      "previous_artefact_written_at": "2026-05-05T08:58:19.630957+00:00",
+      "reason": "GMM review stale versus fresh upstream artefact after fleet publisher-date contract repair; governed replay required to advance chain",
+      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-GMM-review",
+      "operator": "peterhowitt",
+      "forced_at": "2026-05-05T08:58:27.519509+00:00"
     }
   },
   "verdict": "publish",
@@ -27,7 +35,7 @@
       "name": "schema validates against gmm-interpret-v1.0",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "schema_version ok (gmm-interpret-v1.0); 24 claims"
+      "detail": "schema_version ok (gmm-interpret-v1.0); 20 claims"
     },
     {
       "check_id": "R2",
@@ -41,14 +49,14 @@
       "name": "structured_claims[] shape integrity",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "all 24 claims carry 8 required keys"
+      "detail": "all 20 claims carry 8 required keys"
     },
     {
       "check_id": "R4",
       "name": "evidence_id non-empty on every claim",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "all 24 claims carry evidence_id"
+      "detail": "all 20 claims carry evidence_id"
     },
     {
       "check_id": "R5",
@@ -62,28 +70,28 @@
       "name": "triple_extraction_manifest self-consistent",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "0 det + 24 llm = 24 claims"
+      "detail": "0 det + 20 llm = 20 claims"
     },
     {
       "check_id": "R7",
       "name": "persistent-state modules non-empty",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "absence-provenance-stamped: ['lab_posture_scorecard']"
+      "detail": "persistent-state keys non-empty: ['jurisdiction_risk_matrix', 'central_bank_scorecard', 'open_findings']"
     },
     {
       "check_id": "R8",
       "name": "structured_claims[] non-empty for material cycle",
       "result": "PASS",
       "disposition_aware_skip": false,
-      "detail": "24 claims present for material_change cycle"
+      "detail": "20 claims present for material_change cycle"
     }
   ],
   "claim_flags": [],
   "advisory_notes": [
-    "module_4 shows trade_tariff and growth_recession at Red/Worsening while financial_stability at Amber/Stable -- significant regime divergence on stability-resilience axis; Composer may foreground transmission lags.",
-    "module_3 highlights acute EM capital outflows and USD debt loop stress, but module_8 (Financial System Stress) rates related vectors (Liquidity Fragmentation, Private Credit) only ELEVATED/amber -- potential underweighting of liquidity concentration per GMM rubric.",
-    "Fed/ECB/PBOC policy holds signal global paralysis (module_7 HIGH red), but central_bank_scorecard absent (persistent-state null); module_10 (Macro Governance) truncated in output -- check policy-coherence transmission in Composer."
+    "Module_3 (Capital Flows and Liquidity) highlights acute euro area liquidity stress (reserves halved to 2.6T euros) but module_8 (Financial System Stress) and module_7 Liquidity Fragmentation/Banking Sector Stress vectors do not escalate severity ratings beyond ELEVATED despite new developments; underweighting liquidity concentration risk.",
+    "Regime divergence: trade_tariff and inflation_central_bank domains Red/Worsening while financial_stability and growth_recession Amber/Worsening; module_10 flags governance gap in energy shock coordination but module_4 lacks explicit transmission lag analysis between domains.",
+    "All key_judgments carry 'High' confidence with consistent 'Worsening' trajectory; no clustering issues but Composer may foreground simultaneous Fed/ECB policy paralysis as core stability-resilience axis signal."
   ],
   "patch_verdicts": [
     {
@@ -119,7 +127,7 @@
     {
       "patch_id": "_unstamped_2",
       "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Assessed",
       "rules_passed": [
         "R1",
         "R2",
@@ -149,22 +157,7 @@
     {
       "patch_id": "_unstamped_4",
       "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
-      "rules_passed": [
-        "R1",
-        "R2",
-        "R3",
-        "R4",
-        "R6",
-        "R7",
-        "R8"
-      ],
-      "rules_failed": []
-    },
-    {
-      "patch_id": "_unstamped_5",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Assessed",
       "rules_passed": [
         "R1",
         "R2",
