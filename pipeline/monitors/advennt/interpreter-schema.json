@@ -369,17 +369,21 @@
     },
     "gaps_register": {
       "type": "array",
+      "description": "v2.5 (BR-10 F.0a, A5+E2 verdict). Gaps register harmonisation: required keys [gap_id, description]; additionalProperties:true preserved so advennt-specific extensions (module, reason, affected_claim_ids) keep working. Fleet canonical shape; F.0a/B harmonises the 8 commons monitors to the same required keys.",
       "items": {
         "type": "object",
         "additionalProperties": true,
+        "required": ["gap_id", "description"],
         "properties": {
           "gap_id": {
-            "type": "string"
-          },
-          "module": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "module": {
             "type": "string"
           },
           "reason": {
