@@ -467,7 +467,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('integrity-flags').innerHTML = flagsHtml || '<p class="text-muted">No integrity flags this issue.</p>';
 
       /* Electoral Watch (R3: fix field names, handle long FIMI risk text, surface ODIHR/source) */
-      var ewRaw = d.electoral_watch || d.electoral_calendar_watch || null;
+      /* R-REWIRE: electoral_watch → module_2 (election_cycle_events) + module_4 (electoral_contexts) */
+      var _m2 = d.module_2 || {};
+      var _m4 = d.module_4 || {};
+      var ewRaw = d.electoral_watch || d.electoral_calendar_watch ||
+        (_m2.election_cycle_events || _m4.electoral_contexts
+          ? { timeline: (_m4.electoral_contexts || []).concat(_m2.election_cycle_events || []) }
+          : null);
       var ewHtml = '';
       if (ewRaw) {
         /* Handle both nested {timeline:[]} and flat array shapes */
@@ -522,7 +528,13 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('electoral-watch').innerHTML = ewHtml || '<p class="text-muted">No electoral watch data this issue.</p>';
 
       /* Digital & Civil Space */
-      var dcData = d.digital_civil || null;
+      /* R-REWIRE: digital_civil → module_13 (Democratic Backsliding) items + module_11 (Media Freedom) items */
+      var _m11 = d.module_11 || {};
+      var _m13 = d.module_13 || {};
+      var dcData = d.digital_civil ||
+        ((_m13.items || _m11.items)
+          ? { items: (_m13.items || []).concat(_m11.items || []) }
+          : null);
       var dcHtml = '';
       if (dcData) {
         var dcArr = Array.isArray(dcData) ? dcData : (dcData.entries || dcData.items || []);
@@ -553,7 +565,16 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('digital-civil').innerHTML = dcHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Autocratic Export */
-      var aeData = d.autocratic_export || null;
+      /* R-REWIRE: autocratic_export → module_5 global_south + module_14 (Power Structures) */
+      var _m5 = d.module_5 || {};
+      var _m14 = d.module_14 || {};
+      var aeData = d.autocratic_export ||
+        ((_m5.global_south || _m14.items)
+          ? { items: (_m14.items || []).concat(
+              Array.isArray(_m5.global_south) ? _m5.global_south :
+              (_m5.global_south && _m5.global_south.developments ? _m5.global_south.developments : [])
+            ) }
+          : null);
       var aeHtml = '';
       if (aeData) {
         var aeArr = Array.isArray(aeData) ? aeData : (aeData.entries || aeData.items || []);
@@ -585,7 +606,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('autocratic-export').innerHTML = aeHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* State & Media Capture */
-      var scData = d.state_capture || null;
+      /* R-REWIRE: state_capture → module_3 (Power Concentration) + module_14 asymmetric_flags */
+      var _m3 = d.module_3 || {};
+      var scData = d.state_capture ||
+        ((_m3.executive_overreach || _m3.legislative_capture || _m14.asymmetric_flags)
+          ? { items: (_m3.executive_overreach || []).concat(_m3.legislative_capture || []).concat(_m14.asymmetric_flags || []) }
+          : null);
       var scHtml = '';
       if (scData) {
         var scArr = Array.isArray(scData) ? scData : (scData.entries || scData.items || []);
@@ -617,7 +643,11 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('state-capture').innerHTML = scHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Institutional Pulse */
-      var ipData = d.institutional_pulse || null;
+      /* R-REWIRE: institutional_pulse → module_14 items + module_3 mimicry_chain_updates */
+      var ipData = d.institutional_pulse ||
+        ((_m14.items || _m3.mimicry_chain_updates)
+          ? { entries: (_m14.items || []).concat(_m3.mimicry_chain_updates || []) }
+          : null);
       var ipHtml = '';
       if (ipData) {
         var ipArr = Array.isArray(ipData) ? ipData : (ipData.entries || []);
@@ -645,7 +675,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('institutional-pulse').innerHTML = ipHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
 
       /* Legislative Watch */
-      var lwData = d.legislative_watch || d.legislative_watch_entries || null;
+      /* R-REWIRE: legislative_watch → module_9 (Legal and Legislative Watch) */
+      var _m9 = d.module_9 || {};
+      var lwData = d.legislative_watch || d.legislative_watch_entries ||
+        ((_m9.new_developments || _m9.no_change)
+          ? (_m9.new_developments || []).concat(_m9.no_change || [])
+          : null);
       var lwHtml = '';
       if (lwData) {
         var lwArr = Array.isArray(lwData) ? lwData : (lwData.entries || []);
@@ -711,8 +746,11 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('mimicry-chains').innerHTML = mimicryHtml || '<p class="text-muted">No mimicry chains this issue.</p>';
 
       /* Research 360 — Friction Notes */
+      /* R-REWIRE: friction_notes → module_6 (Civil Society Research) + d.friction_notes */
+      var _m6 = d.module_6 || {};
       var r360 = d.research_360 || {};
-      var frictionNotes = r360.friction_notes || d.friction_notes || [];
+      var frictionNotes = r360.friction_notes || d.friction_notes ||
+        (_m6.research_and_reports || []);
       var fnHtml = '';
       if (frictionNotes.length) {
         frictionNotes.forEach(function(note) {

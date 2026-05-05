@@ -1,11 +1,14 @@
 name: 'Pre-Publication Integrity Gate'
 description: |
   Runs integrity_sweep.py --local against the staged monitor data on the GA runner filesystem.
-  Hard-fails on C1-C6, C10. Warn-only on C7, C9. Skips C8.
+  Hard-fails on C1-C6, C10, C11. Warn-only on C7, C9. Skips C8.
   Exit code 1 blocks the calling workflow's subsequent commit step.
 
-  The sweep script is fetched from asym-intel-internal at runtime to preserve the
-  engine IP boundary (ENGINE-RULES §15): verification logic never lives in the public repo.
+  The sweep script and renderer-schema-contract.json are both fetched from
+  asym-intel-internal at runtime to preserve the engine IP boundary
+  (ENGINE-RULES §15): verification logic never lives in the public repo.
+  C11 reads renderer-schema-contract.json via CONTRACT_PATH env var.
+  Authority: AD-2026-05-05-BS.
 
 inputs:
   monitor-slug:
@@ -27,8 +30,19 @@ runs:
           --jq '.content' | base64 -d > /tmp/integrity_sweep.py
         test -s /tmp/integrity_sweep.py || { echo "integrity_sweep.py fetch failed"; exit 1; }
 
+    - name: Fetch renderer-schema-contract.json from internal repo (C11)
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.gh-token }}
+      run: |
+        gh api /repos/asym-intel/asym-intel-internal/contents/ops/renderer-schema-contract.json \
+          --jq '.content' | base64 -d > /tmp/renderer-schema-contract.json
+        test -s /tmp/renderer-schema-contract.json || { echo "renderer-schema-contract.json fetch failed — C11 will warn-only"; true; }
+
     - name: Run pre-publication integrity sweep
       shell: bash
+      env:
+        CONTRACT_PATH: /tmp/renderer-schema-contract.json
       run: |
         python3 /tmp/integrity_sweep.py \
           --local "$GITHUB_WORKSPACE" \
