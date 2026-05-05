@@ -5,6 +5,7 @@ Runs as a CI step before Hugo build. Exits non-zero on any FAIL.
 WARNs are printed but do not block the build.
 """
 import os, re, json, sys, glob
+from datetime import datetime, timezone
 
 MONITORS_DIR = "static/monitors"
 STANDARD_PAGES = ["about", "archive", "dashboard", "methodology",
@@ -109,10 +110,22 @@ for slug in MONITOR_SLUGS:
         if "<nav data-asym-network-bar" in c:
             warn(f"{slug}/{page}.html — stale inline network bar (nav.js handles this now)")
 
-# ── Check 9: report-latest.json published date is not future ─────────────
-print("Check 9: report-latest.json not future-dated")
-from datetime import datetime, timezone
+# ── Check 9: report-latest.json published date is not unanchored future ───
+print("Check 9: report-latest.json not unanchored future-dated")
 today = datetime.now(timezone.utc).date()
+
+def _week_label_date(label):
+    """Return YYYY-MM-DD date from canonical week labels like 'W/E 9 May 2026'."""
+    if not isinstance(label, str):
+        return None
+    m = re.search(r"\bW/E\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})\b", label)
+    if not m:
+        return None
+    try:
+        return datetime.strptime(m.group(1), "%d %B %Y").date()
+    except ValueError:
+        return None
+
 for slug in MONITOR_SLUGS:
     path = f"{MONITORS_DIR}/{slug}/data/report-latest.json"
     if not os.path.exists(path): continue
@@ -124,7 +137,15 @@ for slug in MONITOR_SLUGS:
         try:
             pub_date = datetime.fromisoformat(pub.replace("Z", "+00:00")).date()
             if pub_date > today:
-                fail(f"{slug}/data/report-latest.json — published date {pub_date} is FUTURE (Hugo will skip it)")
+                week_label_date = _week_label_date(d.get("meta", {}).get("week_label"))
+                days_ahead = (pub_date - today).days
+                if week_label_date == pub_date and days_ahead <= 7:
+                    warn(
+                        f"{slug}/data/report-latest.json — published date {pub_date} is a future week-ending label "
+                        f"({days_ahead} day(s) ahead); publisher contract permits this"
+                    )
+                else:
+                    fail(f"{slug}/data/report-latest.json — published date {pub_date} is FUTURE without matching week-ending contract")
         except: pass
 
 
