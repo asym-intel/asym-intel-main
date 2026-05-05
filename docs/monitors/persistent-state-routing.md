@@ -146,6 +146,8 @@ routes:
 
 ```yaml
 routes:
+  module_2: Archive-only
+    reason: "Model Frontier registry scaffolded 2026-05-05 to materialise the canonical Methodology v2.4 Rule 4 destination (resolves AGM-GAP-002 / target_missing:module_2). Render-surfacing deferred to Sprint 4 §1+ — planned shared `AsymPersistent.renderEntityList` panel above module_7."
   module_7_risk_vectors: Living Knowledge     # renderEntityList (shared AsymPersistent, post §0)
   module_9_eu_ai_act_tracker: Living Knowledge  # renderEuActTrackerVisual
   module_14_concentration_index: Living Knowledge  # renderConcentrationVisual
