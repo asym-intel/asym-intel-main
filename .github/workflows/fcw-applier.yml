@@ -1,11 +1,32 @@
 name: "FIMI & Cognitive Warfare Monitor Applier"
 # Sprint CD — thin caller. Reusable body: _reusable-applier.yml
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'AD-2026-04-24l force-rerun (skip E5 same-day guard)'
+        type: boolean
+        default: false
+      force_reason:
+        description: 'Required with force. 20-500 chars.'
+        type: string
+        default: ''
+      force_ad:
+        description: 'Required with force. AD reference.'
+        type: string
+        default: ''
+      force_operator:
+        description: 'Required with force. GitHub handle.'
+        type: string
+        default: ''
 jobs:
   call:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/_reusable-applier.yml
     with:
       slug: fimi-cognitive-warfare
+      force: ${{ inputs.force }}
+      force_reason: ${{ inputs.force_reason }}
+      force_ad: ${{ inputs.force_ad }}
+      force_operator: ${{ inputs.force_operator }}
     secrets: inherit
