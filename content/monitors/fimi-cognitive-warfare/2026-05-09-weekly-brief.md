@@ -1,38 +1,12 @@
-# FIMI & Cognitive Warfare Monitor — Issue 8
-
-**W/E 9 May 2026** | Published 2026-05-09T09:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**Russia deploys Moldova FIMI playbook against Armenia ahead of June 2026 elections, per EEAS 4th Threat Report**
-
-Confidence: N/A
-Actor: RU
-Source: https://euvsdisinfo.eu/eeas-4th-fimi-threat-report-march-2026/
-
-## Key Judgments
-
-1. **Russian electoral FIMI operations in the European integration space have evolved from opportunistic to systematic, with documented playbook replication across Moldova 2025, Georgia 2024, and Armenia 2026. This represents doctrinal standardisation rather than discrete campaigns.**
-   - Confidence: High
-   - Trajectory: Worsening
-
-2. **Cross-actor AI-generated content amplification represents a capability shift that complicates attribution and suggests infrastructure commodification or coordination between Russian and Chinese actors. Standard attribution frameworks assume single-actor content production and may not capture multi-actor amplification chains.**
-   - Confidence: Assessed
-   - Trajectory: Worsening
-
-3. **The gap between EU sanctions designation and operational disruption indicates that FIMI infrastructure has sufficient resilience to adapt to regulatory pressure. Targeting individual entities may not achieve operational effect without broader platform-level enforcement.**
-   - Confidence: High
-   - Trajectory: Stable
-
-## Weekly Brief
+title: "FIMI & Cognitive Warfare Monitor — W/E 9 May 2026"
+date: 2026-05-09T09:00:00Z
+summary: "Russia deploys Moldova FIMI playbook against Armenia ahead of June 2026 elections, per EEAS 4th Threat Report"
+draft: false
+monitor: "fimi-cognitive-warfare"
+brief_sources:
+  - url: "https://euvsdisinfo.eu/eeas-4th-fimi-threat-report-march-2026/"
+---
 
 ## Lead Signal
 
@@ -61,25 +35,3 @@ Cross-actor AI amplification connects to **ai-governance** tracking of AI FIMI t
 ## Outlook
 
 Monitor Armenia for playbook escalation into June elections, particularly proxy coordination and narrative inversion framing EU ties as interference. Watch Russian infrastructure adaptation post-sanctions and potential AI amplification replication. Gaps in platform disclosure from X/Twitter and Telegram hinder real-time tracking; DSA Article 40 enforcement precedent would clarify FIMI mitigation standards. Cross-actor dynamics warrant scrutiny for coordination signals, with EEAS 5th Threat Report expected Q1 2027 to update tempo baselines.
-
-## Cross-Monitor Flags
-
-- **FIMI as constitutive mechanism of democratic erosion — Hungary election FIMI density at critical level** (Democratic Integrity Monitor) — Active — verified (adjacent Issue 13)
-- **Cognitive warfare as operational preparation for European strategic paralysis — Hungary election as test case** (European Strategic Autonomy Monitor (EGHTM)) — Active — verified (adjacent Issue 8)
-- **AI-generated YouTube network (1.8B views) as operational proof of AI-FIMI convergence at scale** (AI Governance Monitor) — Active — verified (adjacent Issue 13)
-- **Post-election FIMI lull following Slovenia parliamentary elections (March 22, 2026) may precede escalation cycle targeting upcoming EU member state elections. Recommend forward-looking monitoring for FIMI activity targeting 2026-2027 electoral cycles.** (democratic-integrity) — Active — verified (adjacent Issue 13)
-- **Iranian FIMI operations targeting Israel-Palestine narratives remain active at baseline. No escalation detected this week, but recommend continued monitoring for FIMI activity correlated with Middle East conflict escalation events.** (conflict-escalation) — Active — verified (adjacent Issue 10)
-- **Russia deploys Moldova FIMI playbook against Armenia ahead of June 2026 elections** (democratic-integrity) — Active — verified (adjacent Issue 13)
-- **EU sanctions Russian FIMI infrastructure entities Euromore and Pravfond targeting EU legitimacy and Ukraine support** (european-strategic-autonomy) — Active — verified (adjacent Issue 8)
-- **Cross-actor AI-generated content amplification documented in Russian FIMI narrative** (ai-governance) — Active — verified (adjacent Issue 13)
-- **Vovan and Lexus prank-call operations target Greenland Foreign Minister in Arctic strategic competition context** (conflict-escalation) — Active — verified (adjacent Issue 10)
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/fimi-cognitive-warfare/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/fimi-cognitive-warfare/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/fimi-cognitive-warfare/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/fimi-cognitive-warfare/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/fimi-cognitive-warfare/methodology.html>
