@@ -613,6 +613,12 @@ PUBLISHER_RULES = {
     "test_publication_eligibility.py": {
         "allowed_substrings": set(),
     },
+    # Unit test for the publisher↔applier date contract (week_ending and
+    # report-latest.json artefact paths). No archive interaction — exercises
+    # in-memory dict transforms and report-latest.json paths only.
+    "test_publication_date_contract.py": {
+        "allowed_substrings": set(),
+    },
 }
 
 _JS_PUBLISHERS_SKIPPED = {"generate-site.js", "generate-static.js"}
