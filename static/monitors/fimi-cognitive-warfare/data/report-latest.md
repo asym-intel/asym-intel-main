@@ -1,6 +1,6 @@
-# FIMI & Cognitive Warfare Monitor — Issue 6
+# FIMI & Cognitive Warfare Monitor — Issue 7
 
-**W/E 30 April 2026** | Published 2026-04-30T09:00:00Z
+**W/E 5 May 2026** | Published 2026-05-05T09:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -12,50 +12,67 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**No new FIMI operations identified this week**
+**Russia deploys Moldova FIMI playbook against Armenia ahead of June 2026 elections, per EEAS 4th Threat Report**
 
 Confidence: N/A
-Actor: UNKNOWN
+Actor: RU
+Source: https://euvsdisinfo.eu/eeas-4th-fimi-threat-report-march-2026/
 
 ## Key Judgments
 
-1. **This week represents a null signal week rather than absence of FIMI activity. AI-FIMI campaigns may evade detection without Tier 1 forensic backing. Post-election lull following Slovenia parliamentary elections (March 22, 2026) may account for reduced observable activity. X/Twitter structural transparency gap creates persistent blind spot for all actors.**
+1. **Russian electoral FIMI operations in the European integration space have evolved from opportunistic to systematic, with documented playbook replication across Moldova 2025, Georgia 2024, and Armenia 2026. This represents doctrinal standardisation rather than discrete campaigns.**
+   - Confidence: High
+   - Trajectory: Worsening
+
+2. **Cross-actor AI-generated content amplification represents a capability shift that complicates attribution and suggests infrastructure commodification or coordination between Russian and Chinese actors. Standard attribution frameworks assume single-actor content production and may not capture multi-actor amplification chains.**
    - Confidence: Assessed
+   - Trajectory: Worsening
+
+3. **The gap between EU sanctions designation and operational disruption indicates that FIMI infrastructure has sufficient resilience to adapt to regulatory pressure. Targeting individual entities may not achieve operational effect without broader platform-level enforcement.**
+   - Confidence: High
    - Trajectory: Stable
 
 ## Weekly Brief
 
 ## Lead Signal
 
-No new FIMI operations were identified this week. Exhaustive search across Tier 1-3 sources yielded no new FIMI disclosures, platform takedowns, or government attributions published April 22-28, 2026. Most recent activity predates the research window. This quiet week reflects disclosure timing rather than operational absence.
+Russian FIMI infrastructure previously deployed against Moldova 2025 parliamentary elections is assessed as redirected toward Armenia ahead of June 2026 vote. The EEAS 4th FIMI Threat Report and EUvsDisinfo monitoring document network and tactical similarities, including fear-spreading, smears against pro-European leaders, and framing EU-Armenia cooperation as foreign interference. This operational playbook replication across electoral targets in the European integration space marks a systematic evolution in Russian doctrine, representing the third instance within 18 months alongside Moldova 2025 and Georgia 2024.
 
-Structural OSINT gaps for Gulf, US, and IL actors and X/Twitter persist. Weekly research bundle explicitly states no new FIMI operations identified across Tier 1-3 sources for April 22-28, 2026. All actors remain in MONITORING status with no disclosures in the research window.
+The campaign employs multi-platform tactics consistent with documented TTPs such as T0001, T0007, T0019, and T0053. Confidence in playbook transfer stands at high, though MF2 flags limit direct attribution assertions. Armenia parliamentary elections emerge as the immediate focal point, with potential narrative escalation and proxy coordination anticipated as the vote nears. This development elevates Russian operational tempo to high across the actor risk matrix, underscoring sustained focus on post-Soviet states pursuing EU alignment.
 
 ## Other Developments
 
-**Actor postures remain stable across the board.** All tracked actors - RU, CN, IR, GULF, US, IL - show status as Stable with posture Monitoring and no new operations disclosed this week. RU linked to Google TAG Q4 2025 bulletin reporting YouTube channels targeting Moldova, but quarterly platform disclosure cadence creates temporal visibility gaps. CN DRAGONBRIDGE remains prolific but no new takedowns reported, with platform takedowns degrading tempo but reconstitution expected. IR, GULF, US, IL face no new disclosures, with structural OSINT gaps persisting for non-RU/CN actors.
+**EU sanctions target Russian FIMI entities Euromore and Pravfond.** On 21 April 2026, the EU Council designated Euromore and Pravfond for influence operations against European audiences, describing Pravfond as a core Russian foreign influence instrument financed by the state. This confirmed attribution action demonstrates regulatory enforcement against infrastructure, though entities persist via alternative channels, highlighting an enforcement-to-disruption gap.
 
-**Platform responses show no new enforcement actions.** Platform Responses and Enforcement module records no actions this week. X/Twitter transparency gap persists with no coordinated inauthentic behavior disclosure equivalent to Meta CIB or Google TAG. Historical analysis shows networks persist on X post-attribution elsewhere.
+**Cross-actor AI amplification emerges in Russian NATO Romania narrative.** EUvsDisinfo traces a Russian FIMI claim of secret NATO weapons depot in Romania to an AI-generated Chinese outlet article lacking factual basis, marking the first documented cross-actor AI-enabled instance this cycle. This complicates attribution as content origin diverges from amplification actor, suggesting opportunistic infrastructure sharing between Russia and China.
 
-**Risk indicators unchanged at elevated levels.** Platform Opacity rated HIGH, creating systematic blind spot across all actors due to X/Twitter lack of CIB disclosure program. Attribution Gap rated ELEVATED for Gulf/US/IL structural OSINT gaps with limited Tier 1-3 coverage. Regulatory Enforcement Gap rated MODERATE, as DSA Article 40 implementation pending full effect and weekly granularity limited by quarterly platform reporting.
+**Vovan and Lexus prank-calls hit Greenland and Iranian targets.** The Russian duo targeted Greenland Foreign Minister and Reza Pahlavi in March 2026, with Pravda network amplification reinforcing narratives of diminished Russian threat and discrediting Iranian opposition. Assessed attribution reflects continued prank-call TTP deployment despite exposure, spanning Arctic and exile narratives.
 
-**Actor risk matrix confirms stability.** RU and CN hold ELEVATED overall risk with HIGH attribution confidence, MODERATE operational tempo, HIGH platform reach, and Tracked EEAS coverage. IR, GULF, US at MODERATE risk with lower tempos and confidences, Not tracked or Partially tracked by EEAS. All trajectories Stable.
+**Meta discloses Iranian operation disruption.** Meta H1 2026 report details Q4 2025 takedown of Iranian covert influence targeting English-speakers, expanding beyond regional focus. Six-month disclosure delay limits real-time utility, though Meta maintains leading transparency posture among platforms.
+
+**EEAS confirms Russian dominance at 29 percent of 2025 incidents.** The 4th FIMI Threat Report establishes institutional baseline for actor tempo, validating focus on Russian volume while noting EEAS perimeter excludes US and Israeli operations by design.
 
 ## Cross-Monitor Connections
 
-This week's null signal aligns with continuity across sibling monitors. Democratic-integrity monitor likely observes similar quiet in electoral manipulation narratives absent new FIMI inputs. Conflict-escalation signals from SCEM information warfare in theaters show no FIMI amplification this cycle. European-strategic-autonomy tracks DSA enforcement gaps mirroring FCW Regulatory Enforcement Gap at MODERATE. Macro-monitor economic coercion narratives and AI-governance AI-enabled FIMI tools report no cross-over developments. Environmental-risks climate disinformation stable without FIMI vector changes. Persistent Platform Opacity and Attribution Gaps here reinforce structural challenges shared with democratic-integrity and european-strategic-autonomy monitors.
+Armenia electoral playbook transfer links directly to **democratic-integrity** monitor signals on Russian FIMI in elections, mirroring Moldova and Georgia patterns with EU integration as common vector. EU sanctions on Euromore and Pravfond intersect **european-strategic-autonomy** coverage of regulatory responses to legitimacy attacks. Vovan-Lexus Greenland targeting ties to **conflict-escalation** Arctic competition narratives, while Pahlavi operation suggests Moscow-Tehran alignment underreported there.
+
+Cross-actor AI amplification connects to **ai-governance** tracking of AI FIMI tools, representing commodification beyond single-actor use. Recycled Ukraine narratives with 120-week persistence reinforce **conflict-escalation** war information space dynamics. Platform opacity gaps in X/Twitter, TikTok, Telegram echo **european-strategic-autonomy** DSA enforcement challenges, while EEAS attribution perimeter gaps parallel **democratic-integrity** blind spots in Western actor coverage.
 
 ## Outlook
 
-Monitor for platform quarterly disclosures from Meta and Google TAG, which may surface operations from this window. Watch X/Twitter for any ad hoc CIB announcements breaking the opacity pattern. Gulf/US/IL OSINT gaps require Tier 1-3 source expansion to achieve six-actor parity. DSA Article 40 enforcement capacity building remains critical path; VLO designations could accelerate platform compliance. Any actor posture shift from Monitoring would elevate risks across the matrix.
+Monitor Armenia for playbook escalation into June elections, particularly proxy coordination and narrative inversion framing EU ties as interference. Watch Russian infrastructure adaptation post-sanctions and potential AI amplification replication. Gaps in platform disclosure from X/Twitter and Telegram hinder real-time tracking; DSA Article 40 enforcement precedent would clarify FIMI mitigation standards. Cross-actor dynamics warrant scrutiny for coordination signals, with EEAS 5th Threat Report expected Q1 2027 to update tempo baselines.
 
 ## Cross-Monitor Flags
 
 - **FIMI as constitutive mechanism of democratic erosion — Hungary election FIMI density at critical level** (Democratic Integrity Monitor) — Active — verified (adjacent Issue 12)
 - **Cognitive warfare as operational preparation for European strategic paralysis — Hungary election as test case** (European Strategic Autonomy Monitor (EGHTM)) — Active — verified (adjacent Issue 7)
-- **AI-generated YouTube network (1.8B views) as operational proof of AI-FIMI convergence at scale** (AI Governance Monitor) — Active — verified (adjacent Issue 7)
+- **AI-generated YouTube network (1.8B views) as operational proof of AI-FIMI convergence at scale** (AI Governance Monitor) — Active — verified (adjacent Issue 13)
 - **Post-election FIMI lull following Slovenia parliamentary elections (March 22, 2026) may precede escalation cycle targeting upcoming EU member state elections. Recommend forward-looking monitoring for FIMI activity targeting 2026-2027 electoral cycles.** (democratic-integrity) — Active — verified (adjacent Issue 12)
 - **Iranian FIMI operations targeting Israel-Palestine narratives remain active at baseline. No escalation detected this week, but recommend continued monitoring for FIMI activity correlated with Middle East conflict escalation events.** (conflict-escalation) — Active — verified (adjacent Issue 9)
+- **Russia deploys Moldova FIMI playbook against Armenia ahead of June 2026 elections** (democratic-integrity) — Active — NEW
+- **EU sanctions Russian FIMI infrastructure entities Euromore and Pravfond targeting EU legitimacy and Ukraine support** (european-strategic-autonomy) — Active — NEW
+- **Cross-actor AI-generated content amplification documented in Russian FIMI narrative** (ai-governance) — Active — NEW
+- **Vovan and Lexus prank-call operations target Greenland Foreign Minister in Arctic strategic competition context** (conflict-escalation) — Active — NEW
 
 ---
 
