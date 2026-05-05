@@ -236,6 +236,7 @@
     },
     "module_3": {
       "type": "object",
+      "$comment": "BRIEF BX-3 absence contract: when this module has no funding/strategic-deal/energy-wall signals, it MUST carry the three-field absence stamp { null_signal: true, empty_reason, absence_basis }. The interpreter prompt Rules 4b/4c/4d enforce this upstream; this schema documents the contract and the audit harness (pipeline/tools/pipeline_flow_audit.py) flags violations as silent_empty. classification_note is an optional companion field used when module_2.models is suspected of holding misclassified funding/M&A rows.",
       "properties": {
         "title": {
           "type": "string"
@@ -265,12 +266,23 @@
         },
         "empty_reason": {
           "type": "string",
-          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal', 'potential_classification_drift_module_2'). Required when null_signal is true."
         },
         "absence_basis": {
           "type": "string",
-          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+          "description": "BRIEF BX-3: which stage stamped this absence. Use 'interpreter_module_level' for upstream-stamped module_3 absence per interpreter prompt Rule 4c. Free-form pending BRIEF 4 enum."
+        },
+        "classification_note": {
+          "type": "string",
+          "description": "BRIEF BX-3 Rule 4d: optional note when suspected classification drift between module_2.models (capability releases) and module_3 (funding/M&A) cannot be re-routed confidently. Names the suspect module_2.models entries and rationale."
         }
+      },
+      "if": {
+        "properties": { "null_signal": { "const": true } },
+        "required": ["null_signal"]
+      },
+      "then": {
+        "required": ["null_signal", "empty_reason", "absence_basis"]
       }
     },
     "module_4": {
