@@ -251,7 +251,11 @@ def check_synthesis_valid(synthesis: dict) -> bool:
 def build_meta(prev_report: dict, synthesis: dict, publish_date: str, config: dict) -> dict:
     prev_meta = prev_report.get("meta", {})
     prev_issue = prev_meta.get("issue", 0)
-    # Use publish date for the week label (not forward-looking week_ending from synthesis)
+    # publish_date is reconciled upstream (resolve_publication_targets):
+    # when the applier supplies a `week_ending`, that value is threaded
+    # through here so meta.slug / meta.week_label / source_url align with
+    # the applier contract. When no applier contract exists, it falls
+    # back to PUBLISH_DATE / runtime UTC.
     week_date = publish_date
 
     try:
@@ -2463,6 +2467,18 @@ def load_publication_eligibility(
                           populated when dated_lookup_used is True; lets the
                           caller decide block-vs-permit when the dated
                           artefact is missing.
+      week_ending:        str | None — value of top-level `week_ending` on the
+                          apply artefact (the cycle date the applier locked
+                          in). Source of truth for downstream date semantics
+                          when present (publisher meta.slug / week_label /
+                          source_url / weekly-brief filename).
+      publisher_artefacts: dict | None — value of
+                          publication.publisher_artefacts on the apply
+                          artefact when present, with keys
+                          weekly_brief_path / report_latest_path. The
+                          publisher uses these as the canonical output paths
+                          rather than reconstructing them from the runtime
+                          date.
     """
     applied_dir = repo_root / f"pipeline/monitors/{monitor_slug}/applied"
     if publish_date:
@@ -2479,6 +2495,8 @@ def load_publication_eligibility(
         "error": None,
         "dated_lookup_used": bool(publish_date),
         "latest_present": False,
+        "week_ending": None,
+        "publisher_artefacts": None,
     }
     if publish_date:
         result["latest_present"] = (applied_dir / "apply-latest.json").exists()
@@ -2503,6 +2521,12 @@ def load_publication_eligibility(
         return result
     result["ready_to_publish"] = publication.get("ready_to_publish")
     result["hold_reason"] = publication.get("hold_reason")
+    artefacts = publication.get("publisher_artefacts")
+    if isinstance(artefacts, dict):
+        result["publisher_artefacts"] = artefacts
+    week_ending = applied.get("week_ending")
+    if isinstance(week_ending, str) and week_ending:
+        result["week_ending"] = week_ending
     review = applied.get("inputs", {}).get("review", {})
     if isinstance(review, dict):
         result["review_verdict"] = review.get("verdict")
@@ -2615,6 +2639,107 @@ def check_publication_eligibility(
 
     eligibility["decision"] = "publish"
     return False, eligibility
+
+
+# ── Applier-driven date contract ─────────────────────────────────────────
+#
+# Until 2026-05-05 the publisher derived meta.slug, meta.week_label,
+# source_url, and the weekly-brief filename from runtime UTC date (or the
+# PUBLISH_DATE override). The applier, however, locks each cycle to a
+# specific `week_ending` and writes paths it expects the publisher to use:
+#
+#   week_ending: "2026-05-09"
+#   publication.publisher_artefacts.weekly_brief_path:
+#       "content/monitors/<slug>/2026-05-09-weekly-brief.md"
+#   publication.publisher_artefacts.report_latest_path:
+#       "static/monitors/<slug>/data/report-latest.json"
+#
+# Live diagnosis 2026-05-05: applier-readiness for week_ending=2026-05-09
+# was reached, but the publisher (and the SCEM dispatch that committed
+# Issue 10) still wrote 2026-05-05 labels/paths. The dry-run controller
+# correctly flagged this as publisher-pending. This module reconciles the
+# semantics: when the apply artefact carries `week_ending` (and optionally
+# publisher_artefacts) the publisher MUST honour the applier contract.
+# Backwards compat: if the apply artefact lacks these fields (legacy
+# applier output, or monitors not yet on the apply pipeline), the runtime
+# / PUBLISH_DATE behaviour is preserved unchanged.
+
+def _date_from_brief_path(path_str: str) -> str | None:
+    """Extract YYYY-MM-DD from a weekly-brief path.
+
+    publisher_artefacts.weekly_brief_path is shaped like
+    `content/monitors/<slug>/<YYYY-MM-DD>-weekly-brief.md`. This helper
+    pulls the date segment out so the publisher can use it for the
+    on-disk dated filename even if `week_ending` is absent.
+    """
+    if not isinstance(path_str, str):
+        return None
+    import re
+    m = re.search(r"(\d{4}-\d{2}-\d{2})-weekly-brief\.md$", path_str)
+    return m.group(1) if m else None
+
+
+def resolve_publication_targets(eligibility: dict, runtime_date: str) -> dict:
+    """Reconcile the canonical publish_date and output paths.
+
+    Inputs
+      eligibility   The dict returned by check_publication_eligibility.
+      runtime_date  The runtime/PUBLISH_DATE-driven date the publisher
+                    would use absent any applier contract (YYYY-MM-DD).
+
+    Returns a dict with:
+      publish_date         YYYY-MM-DD — the applier `week_ending` if
+                           present, else `runtime_date`. This is the value
+                           threaded through meta.slug / meta.week_label /
+                           source_url / weekly-brief filename / dated
+                           report filename.
+      brief_filename_date  YYYY-MM-DD — the date segment used for the
+                           weekly-brief filename. Equals publish_date,
+                           except when the applier supplied a
+                           publisher_artefacts.weekly_brief_path whose
+                           date segment differs (we trust the artefact).
+      source               Diagnostic string: "applier_week_ending",
+                           "applier_brief_path", or "runtime".
+      contract_present     bool — whether the apply artefact carried the
+                           applier contract (week_ending and/or
+                           publisher_artefacts). Used by callers to decide
+                           whether to log the contract handoff.
+
+    The function never raises on malformed contract data — it falls back
+    to runtime_date and reports `source="runtime"`.
+    """
+    week_ending = eligibility.get("week_ending") if eligibility else None
+    artefacts = eligibility.get("publisher_artefacts") if eligibility else None
+    contract_present = bool(week_ending) or isinstance(artefacts, dict)
+
+    publish_date = runtime_date
+    source = "runtime"
+    if isinstance(week_ending, str):
+        try:
+            datetime.strptime(week_ending, "%Y-%m-%d")
+            publish_date = week_ending
+            source = "applier_week_ending"
+        except ValueError:
+            pass
+
+    brief_filename_date = publish_date
+    if isinstance(artefacts, dict):
+        brief_path = artefacts.get("weekly_brief_path")
+        path_date = _date_from_brief_path(brief_path)
+        if path_date:
+            brief_filename_date = path_date
+            if source == "runtime":
+                # No week_ending was usable, but the artefact still pinned
+                # the brief filename. Use that for both.
+                publish_date = path_date
+                source = "applier_brief_path"
+
+    return {
+        "publish_date": publish_date,
+        "brief_filename_date": brief_filename_date,
+        "source": source,
+        "contract_present": contract_present,
+    }
 
 
 # ── Main ─────────────────────────────────────────────────────────────────
@@ -2788,6 +2913,46 @@ def main():
         print(
             f"  ✓ publication-eligibility gate: {_artefact_label} reports "
             f"ready_to_publish=true (review_verdict={_eligibility['review_verdict']!r})"
+        )
+
+    # ── Applier date contract: prefer applier week_ending over runtime ──
+    # When the apply artefact carries `week_ending` (and optionally
+    # publication.publisher_artefacts), the publisher honours that
+    # contract for meta.slug / meta.week_label / source_url / weekly-brief
+    # filename. This closes the 2026-05-05 defect where
+    # week_ending=2026-05-09 reached applier-readiness but the publisher
+    # still wrote 2026-05-05 labels/paths (incl. SCEM Issue 10).
+    _runtime_date = publish_date
+    _targets = resolve_publication_targets(_eligibility, runtime_date=_runtime_date)
+    publish_date = _targets["publish_date"]
+    _brief_filename_date = _targets["brief_filename_date"]
+    if _targets["contract_present"] and _targets["source"] != "runtime":
+        if publish_date != _runtime_date:
+            print(
+                f"  ↪ applier date contract honoured: "
+                f"runtime={_runtime_date} → publish_date={publish_date} "
+                f"(source={_targets['source']})"
+            )
+        else:
+            print(
+                f"  ✓ applier date contract: publish_date={publish_date} "
+                f"(source={_targets['source']})"
+            )
+    elif _targets["contract_present"]:
+        # Contract was structurally present but unusable (e.g. malformed
+        # week_ending). Stay on runtime date and log a soft warning so the
+        # operator can investigate without blocking publish.
+        print(
+            f"  ⚠ applier date contract present but unusable — "
+            f"falling back to runtime date {publish_date}"
+        )
+        log_incident(
+            monitor=MONITOR_SLUG, stage="publisher",
+            incident_type="quality_failure", severity="warning",
+            detail=(
+                "Applier publication contract present on apply artefact "
+                f"but unusable; runtime date {publish_date} retained."
+            ),
         )
 
     # Build report
@@ -2987,7 +3152,7 @@ def main():
     if persistent:
         write_json(persistent_path, persistent)
     write_json(archive_path, archive)
-    write_text(brief_dir / f"{publish_date}-weekly-brief.md", hugo_brief)
+    write_text(brief_dir / f"{_brief_filename_date}-weekly-brief.md", hugo_brief)
     write_text(data_dir / "report-latest.md", report_md)
     write_json(docs_data_dir / f"report-{publish_date}.json", public_report)
     write_json(docs_data_dir / "report-latest.json", public_report)
