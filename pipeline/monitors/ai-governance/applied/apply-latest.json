@@ -2,7 +2,7 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "ai-governance",
-    "applied_at": "2026-05-05T07:08:49Z",
+    "applied_at": "2026-05-05T07:26:27Z",
     "applier_model": null,
     "applier_deterministic": true,
     "cycle_disposition": "material_change",
@@ -11,12 +11,12 @@
     "applier_error": false,
     "applier_error_reason": null,
     "force_reissue": {
-      "previous_artefact_sha": "564ce1c43e429a5881f0ea021bc1c3060b21021690f9877abc0058426345bedf",
-      "previous_artefact_written_at": "2026-05-05T05:43:24Z",
-      "reason": "AIM applier blocked by E5 same-day guard after patch_id join fix and successful upstream rerun",
-      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-AIM",
+      "previous_artefact_sha": "04c0b54ea33c180ad4eab078210b10a3cb89ed06355b95449524ca7e5fc09227",
+      "previous_artefact_written_at": "2026-05-05T07:08:49Z",
+      "reason": "AIM applier recheck after target-path alias fix PR 602",
+      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-AIM-target-alias",
       "operator": "peterhowitt",
-      "forced_at": "2026-05-05T07:08:49.608561+00:00"
+      "forced_at": "2026-05-05T07:26:27.406239+00:00"
     }
   },
   "cycle_id": "agm-2026-05-05",
@@ -137,59 +137,65 @@
       "applier_rejection_reason": "target_missing:module_2",
       "observed_value": null,
       "expected_prior_value": null
-    },
+    }
+  ],
+  "patches_actually_applied": [
     {
       "patch_id": "_unstamped_1",
       "target_kb_path": "module_9.eu_ai_act_layered",
-      "applier_rejection_reason": "target_missing:module_9",
-      "observed_value": null,
-      "expected_prior_value": null
+      "operation": "update",
+      "rule_applied": "regulatory_milestone_slippage",
+      "applier_canonical_path": "module_9_eu_ai_act_tracker.layers",
+      "applier_path_alias": "module_9.eu_ai_act_layered->module_9_eu_ai_act_tracker.layers"
     },
     {
       "patch_id": "_unstamped_2",
       "target_kb_path": "module_7.vectors[Governance Fragmentation].rating",
-      "applier_rejection_reason": "target_missing:module_7",
-      "observed_value": null,
-      "expected_prior_value": null
+      "operation": "update",
+      "rule_applied": "risk_vector_rating_change",
+      "applier_canonical_path": "module_7_risk_vectors[Governance Fragmentation].rating",
+      "applier_path_alias": "module_7.vectors[Governance Fragmentation].rating->module_7_risk_vectors[Governance Fragmentation].rating"
     },
     {
       "patch_id": "_unstamped_3",
       "target_kb_path": "module_7.vectors[Standards Vacuum].rating",
-      "applier_rejection_reason": "target_missing:module_7",
-      "observed_value": null,
-      "expected_prior_value": null
+      "operation": "update",
+      "rule_applied": "risk_vector_rating_change",
+      "applier_canonical_path": "module_7_risk_vectors[Standards Vacuum].rating",
+      "applier_path_alias": "module_7.vectors[Standards Vacuum].rating->module_7_risk_vectors[Standards Vacuum].rating"
     },
     {
       "patch_id": "_unstamped_4",
       "target_kb_path": "module_7.vectors[Disinfo Velocity].rating",
-      "applier_rejection_reason": "target_missing:module_7",
-      "observed_value": null,
-      "expected_prior_value": null
+      "operation": "update",
+      "rule_applied": "risk_vector_rating_change",
+      "applier_canonical_path": "module_7_risk_vectors[Disinfo Velocity].rating",
+      "applier_path_alias": "module_7.vectors[Disinfo Velocity].rating->module_7_risk_vectors[Disinfo Velocity].rating"
     },
     {
       "patch_id": "_unstamped_5",
       "target_kb_path": "module_7.vectors[Platform Power].rating",
-      "applier_rejection_reason": "target_missing:module_7",
-      "observed_value": null,
-      "expected_prior_value": null
+      "operation": "update",
+      "rule_applied": "risk_vector_rating_change",
+      "applier_canonical_path": "module_7_risk_vectors[Platform Power].rating",
+      "applier_path_alias": "module_7.vectors[Platform Power].rating->module_7_risk_vectors[Platform Power].rating"
     },
     {
       "patch_id": "_unstamped_6",
       "target_kb_path": "module_7.vectors[Talent Drain].rating",
-      "applier_rejection_reason": "target_missing:module_7",
-      "observed_value": null,
-      "expected_prior_value": null
+      "operation": "update",
+      "rule_applied": "risk_vector_rating_change",
+      "applier_canonical_path": "module_7_risk_vectors[Talent Drain].rating",
+      "applier_path_alias": "module_7.vectors[Talent Drain].rating->module_7_risk_vectors[Talent Drain].rating"
     },
     {
       "patch_id": "_unstamped_7",
       "target_kb_path": "ongoing_lab_postures[OpenAI]",
-      "applier_rejection_reason": "target_missing:ongoing_lab_postures[OpenAI]",
-      "observed_value": null,
-      "expected_prior_value": null
+      "operation": "update",
+      "rule_applied": "lab_posture_change"
     }
   ],
-  "patches_actually_applied": [],
-  "persistent_state_snapshot": null,
+  "persistent_state_snapshot": "static/monitors/ai-governance/data/persistent-state-2026-05-05.json",
   "publication": {
     "ready_to_publish": false,
     "hold_reason": "patch_apply_failed",
