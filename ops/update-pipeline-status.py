@@ -1497,7 +1497,9 @@ def derive_public_rollup(internal_status):
     deliberately propagated to the public surface per BH.2 BRIEF Architect
     rec — operator-facing missed-fire visibility belongs on ops.asym-intel.info.
     """
-    now = datetime.now(timezone.utc)
+    meta = internal_status.get("_meta") if isinstance(internal_status, dict) else {}
+    snapshot_now = _parse_iso((meta or {}).get("generated")) if isinstance(meta, dict) else None
+    now = snapshot_now or datetime.now(timezone.utc)
     monitor_rollups = []
     for abbr in MONITORS.keys():
         ms = internal_status.get(abbr) or {}
