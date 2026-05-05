@@ -499,7 +499,7 @@
 
       /* ── Electoral Watch (P5: merge report's electoral_calendar_watch into persistent) ── */
       var ewEl = document.getElementById('electoral-watch-content');
-      /* R-REWIRE: electoral_watch → module_4 + module_2 from report (persistent has no electoral data) */
+      /* R-REWIRED: module_4.electoral_contexts + module_2.election_cycle_events — 2026-05-06 */
       var _rm2 = report.module_2 || {};
       var _rm4 = report.module_4 || {};
       var ew = d.electoral_watch || report.electoral_watch ||
@@ -577,16 +577,16 @@
           });
         }
       }
-      ewEl.innerHTML = ewHtml || '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+      ewEl.innerHTML = ewHtml || '<p class="text-muted">No data this cycle.</p>';
 
       /* ── Digital & Civil Space ── */
       var dcEl = document.getElementById('digital-civil-content');
-      /* R-REWIRE: digital_civil → module_13 + module_11 from report */
+      /* R-REWIRED: module_13.items + module_13.structural_trends + module_11.items — 2026-05-06 */
       var _rm11 = report.module_11 || {};
       var _rm13 = report.module_13 || {};
       var dc = d.digital_civil || report.digital_civil ||
-        ((_rm13.items || _rm11.items)
-          ? { items: (_rm13.items || []).concat(_rm11.items || []) }
+        ((_rm13.items || _rm13.structural_trends || _rm11.items)
+          ? { items: (_rm13.items || []).concat(_rm13.structural_trends || []).concat(_rm11.items || []) }
           : null);
       if (dc && typeof dc === 'object' && Object.keys(dc).length) {
         var dcHtml = '';
@@ -616,22 +616,24 @@
             '</div>';
           });
         }
-        dcEl.innerHTML = dcHtml || '<p class="text-muted">No digital/civil space entries.</p>';
+        dcEl.innerHTML = dcHtml || '<p class="text-muted">No data this cycle.</p>';
       } else {
-        dcEl.innerHTML = '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+        dcEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
       }
 
       /* ── Autocratic Export ── */
       var aeEl = document.getElementById('autocratic-export-content');
-      /* R-REWIRE: autocratic_export → module_5 global_south + module_14 from report */
+      /* R-REWIRED: module_5.european + module_5.global_south + module_14.items — 2026-05-06 */
       var _rm5 = report.module_5 || {};
       var _rm14 = report.module_14 || {};
+      function _rm5Arr(v) {
+        return Array.isArray(v) ? v : (v && v.developments ? v.developments : []);
+      }
       var ae = d.autocratic_export || report.autocratic_export ||
-        ((_rm5.global_south || _rm14.items)
-          ? { items: (_rm14.items || []).concat(
-              Array.isArray(_rm5.global_south) ? _rm5.global_south :
-              (_rm5.global_south && _rm5.global_south.developments ? _rm5.global_south.developments : [])
-            ) }
+        ((_rm5.european || _rm5.global_south || _rm14.items)
+          ? { items: (_rm14.items || [])
+              .concat(_rm5Arr(_rm5.european))
+              .concat(_rm5Arr(_rm5.global_south)) }
           : null);
       if (ae && typeof ae === 'object' && Object.keys(ae).length) {
         var aeArr = Array.isArray(ae) ? ae : (ae.entries || ae.items || []);
@@ -660,18 +662,21 @@
             '</div>';
           });
         }
-        aeEl.innerHTML = aeHtml || '<p class="text-muted">No autocratic export entries.</p>';
+        aeEl.innerHTML = aeHtml || '<p class="text-muted">No data this cycle.</p>';
       } else {
-        aeEl.innerHTML = '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+        aeEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
       }
 
       /* ── State & Media Capture ── */
       var scEl = document.getElementById('state-capture-content');
-      /* R-REWIRE: state_capture → module_3 + module_14 from report */
+      /* R-REWIRED: module_3.executive_overreach (summary) — 2026-05-06
+         Note: module_3.legislative_capture and module_3.mimicry_chain_updates are rendered
+         in dedicated section-mN blocks on this page; this section shows executive_overreach
+         only as a brief summary to avoid full duplication of pipeline output. */
       var _rm3 = report.module_3 || {};
       var sc = d.state_capture || report.state_capture ||
-        ((_rm3.executive_overreach || _rm3.legislative_capture || _rm14.asymmetric_flags)
-          ? { items: (_rm3.executive_overreach || []).concat(_rm3.legislative_capture || []).concat(_rm14.asymmetric_flags || []) }
+        (_rm3.executive_overreach
+          ? { items: (_rm3.executive_overreach || []) }
           : null);
       if (sc && typeof sc === 'object' && Object.keys(sc).length) {
         var scArr = Array.isArray(sc) ? sc : (sc.entries || sc.items || []);
@@ -700,17 +705,17 @@
             '</div>';
           });
         }
-        scEl.innerHTML = scHtml || '<p class="text-muted">No state/media capture entries.</p>';
+        scEl.innerHTML = scHtml || '<p class="text-muted">No data this cycle.</p>';
       } else {
-        scEl.innerHTML = '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+        scEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
       }
 
       /* ── Institutional Pulse ── */
       var ipEl = document.getElementById('institutional-pulse-content');
-      /* R-REWIRE: institutional_pulse → module_14 + module_3 from report */
+      /* R-REWIRED: module_14.items — 2026-05-06 */
       var ip = d.institutional_pulse || report.institutional_pulse ||
-        ((_rm14.items || _rm3.mimicry_chain_updates)
-          ? { entries: (_rm14.items || []).concat(_rm3.mimicry_chain_updates || []) }
+        (_rm14.items
+          ? { entries: (_rm14.items || []) }
           : null);
       if (ip && (Array.isArray(ip) ? ip.length : Object.keys(ip).length)) {
         var ipArr = Array.isArray(ip) ? ip : (ip.entries || []);
@@ -735,9 +740,9 @@
             (item.source_url ? '<div class="card__footer"><a class="source-link" href="' + esc(item.source_url) + '" target="_blank" rel="noopener">Source →</a></div>' : '') +
           '</div>';
         });
-        ipEl.innerHTML = ipHtml || '<p class="text-muted">No institutional pulse entries.</p>';
+        ipEl.innerHTML = ipHtml || '<p class="text-muted">No data this cycle.</p>';
       } else {
-        ipEl.innerHTML = '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+        ipEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
       }
 
       /* ── Mimicry Chains ── */
@@ -813,12 +818,13 @@
 
       /* ── Legislative Watch ── */
       var lwEl = document.getElementById('legislative-watch-content');
-      /* R-REWIRE: legislative_watch → module_9 from report */
+      /* R-REWIRED: module_9.new_developments + module_9.no_change + module_9.digest_note — 2026-05-06 */
       var _rm9 = report.module_9 || {};
       var lw = d.legislative_watch || report.legislative_watch ||
         ((_rm9.new_developments || _rm9.no_change)
           ? (_rm9.new_developments || []).concat(_rm9.no_change || [])
           : null);
+      var lwDigest = _rm9.digest_note || '';
       if (lw) {
         var lwArr = Array.isArray(lw) ? lw : (lw.entries || []);
         if (!lwArr.length && typeof lw === 'object' && lw.entries) lwArr = lw.entries;
@@ -833,21 +839,31 @@
             '</tr>';
           });
           lwHtml += '</tbody></table>';
+          if (lwDigest) {
+            lwHtml += '<div style="margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-text-muted)">' + esc(lwDigest) + '</div>';
+          }
           lwEl.innerHTML = lwHtml;
+        } else if (lwDigest) {
+          lwEl.innerHTML = '<div style="font-size:var(--text-sm);color:var(--color-text-muted)">' + esc(lwDigest) + '</div>';
         } else {
-          lwEl.innerHTML = '<p class="text-muted">No legislative watch entries.</p>';
+          lwEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
         }
+      } else if (lwDigest) {
+        lwEl.innerHTML = '<div style="font-size:var(--text-sm);color:var(--color-text-muted)">' + esc(lwDigest) + '</div>';
       } else {
-        lwEl.innerHTML = '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+        lwEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
       }
 
       /* ── Research 360 / Friction Notes ── */
       var fnEl = document.getElementById('friction-notes-content');
-      /* R-REWIRE: friction_notes → module_6 from report */
+      /* R-REWIRED: module_6.research_and_reports + module_6.resilience_indicators — 2026-05-06 */
       var _rm6 = report.module_6 || {};
       var r360 = d.research_360 || report.research_360 || null;
       var frictionNotes = (r360 && r360.friction_notes) ? r360.friction_notes :
-        (d.friction_notes || report.friction_notes || _rm6.research_and_reports || null);
+        (d.friction_notes || report.friction_notes ||
+          ((_rm6.research_and_reports || _rm6.resilience_indicators)
+            ? (_rm6.research_and_reports || []).concat(_rm6.resilience_indicators || [])
+            : null));
       if (frictionNotes && frictionNotes.length) {
         var fnHtml = '';
         frictionNotes.forEach(function(note) {
@@ -860,10 +876,11 @@
         });
         fnEl.innerHTML = fnHtml;
       } else {
-        fnEl.innerHTML = '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+        fnEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
       }
 
       /* ── Networks ── */
+      /* R-REWIRED: no module_N change — explicit null-state if d.networks and report.networks empty — 2026-05-06 */
       var nwEl = document.getElementById('networks-content');
       var networks = d.networks || report.networks || null;
       if (networks && typeof networks === 'object' && Object.keys(networks).length) {
@@ -890,9 +907,9 @@
             '</div>';
           });
         }
-        nwEl.innerHTML = nwHtml || '<p class="text-muted">No network entries.</p>';
+        nwEl.innerHTML = nwHtml || '<p class="text-muted">No data this cycle.</p>';
       } else {
-        nwEl.innerHTML = '<p class="text-muted">This section will be populated as the monitor matures.</p>';
+        nwEl.innerHTML = '<p class="text-muted">No data this cycle.</p>';
       }
 
       /* ── Cross-Monitor Flags (P1: use shared renderer) ── */
