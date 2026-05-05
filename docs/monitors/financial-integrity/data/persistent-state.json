@@ -11,5 +11,167 @@
   "regulatory_horizon": [],
   "ctf_cpf_flags": [],
   "standing_trackers": [],
-  "cross_monitor_flags": {}
+  "cross_monitor_flags": {},
+  "_challenge": {
+    "challenger_schema_version": "1.0",
+    "challenger_model": "sonar-pro",
+    "challenger_prompt_hash": "71938691983f23e5",
+    "ts": "2026-05-05T17:16:53Z",
+    "duration_ms": 27058,
+    "verdict": "publish_with_flags",
+    "justification": "The brief contains several soft flags related to overstated confidence and source misattribution, but no hard flags that would block publication.",
+    "null_challenge_week": false,
+    "null_challenge_reason": null,
+    "flag_counts": {
+      "findings": 5,
+      "hard": 0,
+      "soft": 5,
+      "info": 0,
+      "top_category": "overstated_confidence"
+    },
+    "findings": [
+      {
+        "id": "f-001",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[0].developments[0].summary",
+        "quoted_claim": "Dual sanctions recalibration tightens Cuba repression designations while revising Venezuela GL post-Maduro, creating intermediary adaptation risk through shadow structures.",
+        "finding_preliminary": "The brief cites OFAC / US Treasury as a Tier 1 source for the Cuba repression EO and Venezuela GL revision, but the provided URL points to a general OFAC recent actions page rather than a specific EO or GL text. Web search shows that the Cuba repression EO and the Venezuela GL revision are not clearly documented at that URL, which instead aggregates multiple unrelated actions. This weakens the evidentiary basis for the claim that these two measures constitute a coordinated dual-track recalibration.",
+        "evidence": [
+          {
+            "source": "OFAC Recent Actions",
+            "source_url": "https://ofac.treasury.gov/recent-actions",
+            "source_date": "2026-05-05",
+            "source_tier": "T1",
+            "relevance": "The page lists multiple OFAC actions but does not clearly identify a specific Cuba repression EO or a Venezuela GL revision that matches the brief's description, making it difficult to confirm the dual-track recalibration claim."
+          },
+          {
+            "source": "US Treasury Press Release on Cuba",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy2120",
+            "source_date": "2024-04-02",
+            "source_tier": "T1",
+            "relevance": "This press release discusses US Treasury actions but does not mention a Cuba repression EO or a Venezuela GL revision, indicating that the cited URL may not support the specific claim."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-002",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[1].developments[0].summary",
+        "quoted_claim": "AMLA assumes EBA mandates with July 2026 RTS deadline on CDD/supervision, but legitimate interest BO access model creates member-state fragmentation undermining interconnection.",
+        "finding_preliminary": "The brief cites AMLA / EBA as a Tier 1 source with a URL to Freshfields, a law firm, rather than to an official AMLA or EBA document. Web search shows that Freshfields is a Tier 4 source, not a Tier 1 institutional source, which undermines the claim that the evidence is Tier 1. This misattribution weakens the evidentiary basis for the claim that AMLA operationalization and RTS deadlines are confirmed.",
+        "evidence": [
+          {
+            "source": "Freshfields AMLA Article",
+            "source_url": "https://www.freshfields.com",
+            "source_date": "2026-05-05",
+            "source_tier": "T4",
+            "relevance": "The article discusses AMLA and RTS deadlines but is a law firm analysis, not an official AMLA or EBA document, indicating that the source is Tier 4, not Tier 1."
+          },
+          {
+            "source": "AMLA Official Website",
+            "source_url": "https://www.amla.europa.eu",
+            "source_date": "2026-05-05",
+            "source_tier": "T1",
+            "relevance": "The official AMLA site provides information on AMLA mandates and RTS deadlines, but the brief does not cite this URL, which would be required for Tier 1 evidence."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-003",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[2].developments[0].summary",
+        "quoted_claim": "Treasury implements CTA BO filing and proposes real estate AML rules addressing professional enabler vulnerabilities.",
+        "finding_preliminary": "The brief cites US Treasury as a Tier 1 source with a URL to a Treasury press release, but web search shows that the press release discusses CTA BO filing implementation but does not mention real estate AML rules. This misattribution weakens the evidentiary basis for the claim that real estate AML rules are being proposed to address professional enabler vulnerabilities.",
+        "evidence": [
+          {
+            "source": "US Treasury Press Release on CTA BO Filing",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy2120",
+            "source_date": "2024-04-02",
+            "source_tier": "T1",
+            "relevance": "The press release discusses CTA BO filing implementation but does not mention real estate AML rules, indicating that the cited URL does not support the specific claim."
+          },
+          {
+            "source": "FinCEN Real Estate AML Proposal",
+            "source_url": "https://www.fincen.gov",
+            "source_date": "2026-05-05",
+            "source_tier": "T1",
+            "relevance": "FinCEN's site discusses real estate AML rules but is not cited in the brief, which would be required for Tier 1 evidence."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-004",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[3].developments[0].summary",
+        "quoted_claim": "FinCEN/OFAC action cuts Huione Group correspondent access for scam proceeds via crypto/SE Asia conduits.",
+        "finding_preliminary": "The brief cites Gibson Dunn as a Tier 2 source for the FinCEN/OFAC action on Huione Group, but web search shows that the Gibson Dunn article is a 2025 year-end AML developments piece that does not specifically mention Huione Group or a FinCEN/OFAC action. This misattribution weakens the evidentiary basis for the claim that Huione Group's correspondent access was severed.",
+        "evidence": [
+          {
+            "source": "Gibson Dunn 2025 Year-End AML Developments",
+            "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+            "source_date": "2025-12-31",
+            "source_tier": "T2",
+            "relevance": "The article discusses 2025 AML developments but does not mention Huione Group or a FinCEN/OFAC action, indicating that the cited URL does not support the specific claim."
+          },
+          {
+            "source": "FinCEN Action on Huione Group",
+            "source_url": "https://www.fincen.gov",
+            "source_date": "2026-05-05",
+            "source_tier": "T1",
+            "relevance": "FinCEN's site may have information on Huione Group, but it is not cited in the brief, which would be required for Tier 1 evidence."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-005",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[4].developments[0].summary",
+        "quoted_claim": "Roman Storm trial on sanctions/money laundering for Tornado Cash protocol laundering over 1 billion dollars.",
+        "finding_preliminary": "The brief cites Gibson Dunn as a Tier 2 source for the Roman Storm trial, but web search shows that the Gibson Dunn article is a 2025 year-end AML developments piece that does not specifically mention Roman Storm or the Tornado Cash trial. This misattribution weakens the evidentiary basis for the claim that the trial involves over 1 billion dollars in laundering.",
+        "evidence": [
+          {
+            "source": "Gibson Dunn 2025 Year-End AML Developments",
+            "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+            "source_date": "2025-12-31",
+            "source_tier": "T2",
+            "relevance": "The article discusses 2025 AML developments but does not mention Roman Storm or the Tornado Cash trial, indicating that the cited URL does not support the specific claim."
+          },
+          {
+            "source": "DOJ Tornado Cash Trial",
+            "source_url": "https://www.justice.gov",
+            "source_date": "2026-05-05",
+            "source_tier": "T1",
+            "relevance": "The DOJ site may have information on the Tornado Cash trial, but it is not cited in the brief, which would be required for Tier 1 evidence."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      }
+    ],
+    "status": "ok",
+    "schema_version": "1.0"
+  }
 }

@@ -21,3 +21,4 @@ Columns:
 | ts | monitor | verdict | findings# | hard# | soft# | info# | top_category | justification | reviewer_notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-04-21T09:15:44Z | GMM | hold_for_review | 6 | 2 | 3 | 1 | logical_inconsistency | Two hard flags on fabricated Turnberry deal and regime logic, plus soft flags on blind spots and sources warrant human r |  |
+| 2026-05-05T17:16:53Z | FIM | publish_with_flags | 5 | 0 | 5 | 0 | overstated_confidence | The brief contains several soft flags related to overstated confidence and source misattribution, but no hard flags that |  |
