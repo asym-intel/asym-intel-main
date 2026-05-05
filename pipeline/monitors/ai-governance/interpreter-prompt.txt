@@ -613,7 +613,33 @@ All string values must avoid apostrophes and contractions — use full words onl
    - A row whose headline contains "valuation", "raises", "funding round", "Series", "acquires", "acquisition", "merger", "GPU supply", or similar funding/M&A language is a module_3 row. Route it to module_3.funding_rounds (capital raise, valuation update) or module_3.strategic_deals (acquisition, partnership, GPU supply, government contract) per the schema in §module_3 above.
    - A row is module_2 only when its primary signal is a capability release/announcement. A funding-only row about a model-frontier lab still goes to module_3.funding_rounds; cross-reference the lab in the row's `focus`/`asymmetric` fields rather than duplicating the row in module_2.
    - When in doubt: if removing all capability content would still leave a coherent funding/deal story, the row is module_3. If removing all funding/deal content would still leave a coherent capability story, the row is module_2.
-4b. **MODULE-LEVEL ABSENCE (BRIEF BX-3).** If a module has no material this week, you SHOULD emit explicit module-level absence provenance: set `null_signal: true` and `empty_reason: "<short reason>"` on the module object. Acceptable reasons include: `"no_material_this_cycle"`, `"covered_in_module_X"` (when content was reclassified into another module), `"awaiting_evidence"`, `"blocked_pending_review"`. The engine will stamp a generic `interpreter_no_signal` reason if you omit it; explicit reasons are preferred. Empty arrays alone are no longer sufficient — placeholder `[{}]` will be stripped by the engine.
+4b. **MODULE-LEVEL ABSENCE (BRIEF BX-3).** If a module has no material this week, you MUST emit explicit module-level absence provenance on the module object. Set the three-field absence stamp:
+   - `null_signal: true`
+   - `empty_reason: "<short reason>"` — acceptable reasons include `"interpreter_no_signal"` (default — no signals found), `"no_material_this_cycle"`, `"covered_in_module_X"` (when content was reclassified into another module), `"awaiting_evidence"`, `"blocked_pending_review"`.
+   - `absence_basis: "interpreter_module_level"` — identifies that the Interpreter (not a downstream stage) stamped this absence.
+   All three fields are required together when the module has no content. Empty arrays alone are no longer sufficient — placeholder `[{}]` will be stripped by the engine, and a bare-empty module without provenance will be flagged as `silent_empty` by the pipeline-flow audit (see `pipeline/tools/pipeline_flow_audit.py`). The engine will stamp a generic `interpreter_no_signal` / `interpreter_module_level` pair if you omit them; explicit values are preferred.
+
+4c. **MODULE_3 ABSENCE — STRICT (BRIEF BX-3).** module_3 (Investment and M&A) is the canonical absence-prone module. When the cycle has no funding rounds, no strategic deals, and no energy-wall signals, emit module_3 as:
+```json
+"module_3": {
+  "title": "Investment and M&A",
+  "funding_rounds": [],
+  "strategic_deals": [],
+  "energy_wall": [],
+  "null_signal": true,
+  "empty_reason": "interpreter_no_signal",
+  "absence_basis": "interpreter_module_level"
+}
+```
+Do NOT emit module_3 with bare-empty arrays and no provenance fields — that is the live failure mode the BX sprint was opened to fix.
+
+4d. **CLASSIFICATION-DRIFT GUARD — module_2 vs module_3 (BRIEF BX-3).** Before emitting module_3 with `null_signal: true`, scan module_2.models for any entry whose primary signal is a funding/M&A/valuation event (per Rule 4a triggers: "valuation", "raises", "funding round", "Series", "acquires", "acquisition", "merger", "GPU supply", or similar). If such entries exist in module_2.models while module_3 is empty, this is suspected classification drift — the row(s) belong in module_3, not module_2. Two corrective actions, in order of preference:
+   (i) **Re-route the row.** Move the funding/M&A row from module_2.models into module_3.funding_rounds (capital raise / valuation) or module_3.strategic_deals (acquisition / partnership / GPU supply / government contract) per the §module_3 schema. After the move, module_3 is no longer empty — drop the absence stamp.
+   (ii) **If you cannot re-route confidently** (e.g. ambiguous signal, partial information), still emit module_3 with the absence stamp but set `empty_reason: "potential_classification_drift_module_2"` and add a `classification_note` field on module_3 listing the suspect module_2.models entries by name and one-line rationale, e.g.:
+```json
+"classification_note": "Suspected drift: module_2.models entries [<name1>, <name2>] contain funding/valuation signals that may belong in module_3.funding_rounds. Routed conservatively pending review."
+```
+The reviewer/audit pipeline keys on these fields to decide whether the absence is genuine or a routing error. Never silently leave module_3 empty when module_2 contains funding-shaped rows.
 5. module_3 through module_6 cover Investment, Sectors, EU/China, and Science respectively. Populate richly.
 6. module_7 (Risk Indicators) is a heat grid — rate each vector HIGH/ELEVATED/MODERATE/LOW. Set changed=true if the rating changed this issue. Include at least 6 risk vectors.
 7. module_8 through module_15 cover Military AI, Law, Governance, Ethics, Info Ops, Society, Power Structures, and Personnel.
@@ -629,7 +655,7 @@ All string values must avoid apostrophes and contractions — use full words onl
 17. Do not search the web. Reason only over provided documents.
 18. JSON string values must never contain apostrophes or contractions. Use full words only.
 19. Every source_url field should contain a real URL from the source documents. Do not fabricate URLs.
-20. If a module has no material this week, include it with empty arrays. Do not omit the key.
+20. If a module has no material this week, include it with empty arrays AND the module-level absence stamp (`null_signal`, `empty_reason`, `absence_basis`) per Rule 4b. Do not omit the key. Do not emit bare-empty arrays without the absence stamp.
 21. standards_vacuum_flag in module_5 european items: set true when harmonised standards are not yet in the Official Journal.
 22. ciyuan_flag in module_5 china items: set true when the item relates to the Ciyuan token economy framework.
 23. structured_claims[]: MUST contain one entry for every factual assertion in modules 0-15, delta_strip, jurisdiction_risk_matrix, lab_posture_scorecard, governance_health_composite, and key_judgments. Deterministic extraction where the source field is already structured (tier_shift, rating, numeric score). Use LLM-fallback (your own judgment) only for prose-only claims inside module_N.body fields. Every claim must carry evidence_id tracing to weekly-research or KB.
@@ -645,6 +671,7 @@ All string values must avoid apostrophes and contractions — use full words onl
 29. proposed_patches[] is an OPTIONAL top-level array that names the material-change patches this interpretation wants the Applier to apply to the living knowledge base. Follow pipeline-doctrine Appendix A. Each patch MUST contain six fields: (a) `rule_applied` — the methodology rule you invoked (short string, free-form until the enum is formalised); (b) `evidence_ids` — array of evidence IDs from the weekly-research bundle or KB that support the patch (must be non-empty); (c) `confidence` — one of {"Confirmed","High","Assessed","Possible"}; (d) `material_change_justification` — one-sentence rationale for why this change is material (not just a rewording of existing KB state); (e) `target_kb_path` — the KB path being updated (e.g. "module_2.models[Anthropic/Claude Opus 4.6]" or "module_7.vectors[ai_fimi_layer].rating"); (f) `new_value` — the exact replacement value the Applier should write at `target_kb_path`. `operation` is optional and must be one of {"create","update","archive","carry-forward-verified"}; if omitted, the Applier treats the patch as `update`, so `new_value` is still mandatory. Never emit `value`; the engine reads `new_value`. **NULL-CYCLE CONTRACT: if the evidence bundle carries no material change under the methodology rules, emit proposed_patches: [] (empty array), not an omitted field. Never manufacture a patch under a null cycle.** If this cycle is material_change, aim for one patch per major KB target touched (typically 2–8 patches for a normal weekly). Do NOT emit patches for cosmetic rewording of existing KB prose; patches are for state changes.
 
 
+# Version: v2.6 | Updated: 2026-05-05 | Change: BRIEF BX-3 upstream provenance — Rule 4b strengthened to MUST (three-field absence stamp: null_signal + empty_reason + absence_basis). Rule 4c added with module_3-specific absence shape (the canonical AIM 2026-05-02 failure case). Rule 4d added: classification-drift guard requiring scan of module_2.models for funding/M&A signals before stamping module_3 absent; re-route or emit `classification_note` on module_3. Rule 20 updated to reference Rule 4b. Live-fire driven (AIM 2026-05-02: report-latest module_3 had funding_rounds: [] without provenance; persistent-state.json missing module_3 entirely).
 # Version: v2.5 | Updated: 2026-05-05 | Change: Rule 29 patch contract tightened — proposed_patches[] must include `new_value`; stale `value`/`replace` wording removed for lab-posture/GPAI patches. Live-fire driven (AIM 2026-05-05 replay: eight proposed patches reached Reviewer/Applier without `new_value`, causing update_no_new_value holds).
 # Version: v2.4 | Updated: 2026-05-03 | Change: Rules 4a + 4b added — BRIEF BX-3 strict module_2/module_3 routing for funding/valuation/M&A signals; module-level absence provenance contract (null_signal + empty_reason). Live-fire driven (AIM 2026-05-02 fixture: 8 funding rows mis-routed to module_2.models; module_3 silent-empty without provenance).
 # Version: v2.3 | Updated: 2026-04-23 | Change: Rule 24 clarified + Rule 24a added — weekly research is the material anchor for cycle_disposition; quiet daily + stable reasoner alone cannot justify null_cycle. Live-fire driven (G.2 retry 24858509356 null-cycled material weekly). Also removed stale `# MODEL: sonar-deep-research` header (Interpreter moved off DR at G + G.1).
