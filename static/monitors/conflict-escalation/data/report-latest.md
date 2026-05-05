@@ -1,6 +1,6 @@
-# Strategic Conflict & Escalation Monitor — Issue 10
+# Strategic Conflict & Escalation Monitor — Issue 11
 
-**W/E 5 May 2026** | Published 2026-05-05T18:00:00Z
+**W/E 9 May 2026** | Published 2026-05-09T18:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -90,11 +90,11 @@ Next week, monitor Sudan for Damazin front outcomes and gold mine strike effects
 - **F3/F4 in Iran I2/I5; FIMI strike signals** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
 - **Houthi Red Sea threats risk trade disruption** (macro-monitor) — Active — verified (adjacent Issue 11)
 - **Sudan/Gaza I6 displacement surges** (environmental-risks) — Active — verified (adjacent Issue 12)
-- **SAF strikes on RSF-controlled gold mines in South Darfur–South Sudan borderlands as economic warfare targeting illicit revenue streams** (macro-monitor) — Active — NEW
-- **Sudan Blue Nile front expansion threatens agricultural zones and water infrastructure in one of Sudan's most food-insecure regions; displacement acceleration likely** (environmental-risks) — Active — NEW
-- **Iran presses Houthis for renewed Red Sea shipping attacks, threatening 10 percent of global seaborne trade via Bab al-Mandeb** (macro-monitor) — Active — NEW
-- **Sudan conflict remains systematically underreported in international media per ACLED and ICG; information vacuum creates conditions for FIMI exploitation of the narrative space** (fimi-cognitive-warfare) — Active — NEW
-- **Russia post-Easter mass strikes and multi-oblast advances signal deliberate strategy to maximize battlefield leverage before summer diplomatic pressure; NATO ISR implications from degraded Ukrainian drone advantage** (european-strategic-autonomy) — Active — NEW
+- **SAF strikes on RSF-controlled gold mines in South Darfur–South Sudan borderlands as economic warfare targeting illicit revenue streams** (macro-monitor) — Active — verified (adjacent Issue 11)
+- **Sudan Blue Nile front expansion threatens agricultural zones and water infrastructure in one of Sudan's most food-insecure regions; displacement acceleration likely** (environmental-risks) — Active — verified (adjacent Issue 12)
+- **Iran presses Houthis for renewed Red Sea shipping attacks, threatening 10 percent of global seaborne trade via Bab al-Mandeb** (macro-monitor) — Active — verified (adjacent Issue 11)
+- **Sudan conflict remains systematically underreported in international media per ACLED and ICG; information vacuum creates conditions for FIMI exploitation of the narrative space** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
+- **Russia post-Easter mass strikes and multi-oblast advances signal deliberate strategy to maximize battlefield leverage before summer diplomatic pressure; NATO ISR implications from degraded Ukrainian drone advantage** (european-strategic-autonomy) — Active — verified (adjacent Issue 8)
 
 ---
 
