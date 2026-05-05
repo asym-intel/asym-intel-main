@@ -12,6 +12,7 @@
     "calibration": "EU AI Act 2026 / GPAI Code of Practice applied 2026-04-02",
     "methodology_version": "agm-methodology-2026-Q2",
     "required_modules": [
+      "module_2",
       "module_5_standards_vacuum",
       "module_5_ciyuan",
       "module_7_risk_vectors",
@@ -29,7 +30,37 @@
     "baseline_run_id": "agm-2026-04-28",
     "baseline_dispatched_at": "2026-04-28T00:00:00Z",
     "baseline_model": "computer-research-subagent",
-    "predecessor_archive": "persistent-state-2026-04-27-pre-baseliner.json"
+    "predecessor_archive": "persistent-state-2026-04-27-pre-baseliner.json",
+    "module_2_scaffolded_at": "2026-05-05T07:30:00Z",
+    "module_2_scaffold_basis": "AGM-GAP-002 (gaps_register) + interpreter-prompt v2.4 Rule 4 (Model Frontier canonical) + AIM 2026-05-05 force-replay target_missing:module_2"
+  },
+  "module_2": {
+    "title": "Model Frontier",
+    "last_updated": "2026-05-05",
+    "last_verified": "2026-05-05",
+    "scaffold_basis": "Methodology v2.4 Rule 4 declares module_2.models[] as the canonical Model Frontier registry. AGM-GAP-002 (curator, 2026-04-28) explicitly identified module_2 as a methodology-canonical destination missing from the 2026-04-28 baseline. This scaffold materialises the destination so Interpreter patches against module_2.models[<lab>/<name>] resolve cleanly. Tier convention: 1 = frontier, 2 = capable, 3 = reported/unverified (per interpreter-prompt rule 4).",
+    "models": [
+      {
+        "name": "GPT-5.5",
+        "lab": "OpenAI",
+        "tier": 1,
+        "released": "2026-04-23",
+        "headline": "1M token context, agentic tool suite (computer use, hosted shell, MCP, web search)",
+        "asymmetric": "Third major GPT-5 family model in eight weeks, compressing independent safety evaluation windows. Agentic tool suite expands operational surface for dual-use applications.",
+        "flag": false,
+        "first_seen_in_state": "2026-05-05",
+        "scaffold_seed": true
+      }
+    ],
+    "version_history": [
+      {
+        "date": "2026-05-05",
+        "change": "scaffold_create",
+        "reason": "Methodology gap closure — AGM-GAP-002. module_2 declared canonical in interpreter-prompt v2.4 Rule 4; persistent-state baseline 2026-04-28 omitted it. Seeded with one entry (OpenAI/GPT-5.5) sourced verbatim from interpret-latest.json module_2.models[0] (cycle agm-2026-05-05).",
+        "prior_value": null,
+        "patch_id": "scaffold-module_2-2026-05-05"
+      }
+    ]
   },
   "module_7_risk_vectors": [
     {
@@ -1927,6 +1958,9 @@
     {
       "gap_id": "AGM-GAP-002",
       "date_added": "2026-04-28",
+      "date_resolved": "2026-05-05",
+      "status": "resolved",
+      "resolution": "module_2 (Model Frontier registry) materialised in persistent-state.json on 2026-05-05. Methodology v2.4 Rule 4 is canonical; baseline 2026-04-28 had omitted it, leaving Interpreter patches against module_2.models[<lab>/<name>] failing as target_missing:module_2 in the AIM 2026-05-05 force-replay. Scaffold seeded with OpenAI/GPT-5.5 (sourced verbatim from interpret-latest.json module_2.models[0]). Google DeepMind FSF v3.0 (the original AGM-GAP-002 trigger finding) remains tracked in ongoing_lab_postures; it is now also free to be added as a module_2.models entry in a future cycle if a lab-registry shape is desired separately from a model-release-registry shape.",
       "finding": "Google DeepMind Frontier Safety Framework v3.0 confirmed September 22, 2025. Third FSF version adds harmful manipulation risk, deceptive alignment risk, shutdown resistance protocols. Source: Facebook/social report confirms FSF 3.0 Sept 22 2025; Google AI Responsibility Update 2026 PDF (ai.google) confirms FSF central to 2026 approach. Not yet in module_2 (lab registry) as no module_2 present in current state.",
       "suggested_module": "module_2 (lab registry) — not present in current state; added to ongoing_lab_postures as new entry instead",
       "source_url": "https://deepmind.google/blog/updating-the-frontier-safety-framework/",
