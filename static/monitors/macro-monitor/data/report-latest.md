@@ -1,4 +1,4 @@
-# Global Macro Monitor — Issue 12
+# Global Macro Monitor — Issue 13
 
 **W/E 9 May 2026** | Published 2026-05-09T08:00:00Z
 
@@ -93,10 +93,10 @@ Monitor Section 301 investigation conclusions and new tariffs in Q3-Q4 2026, ECB
 - **EM growth halved to MECCA 1.9%, BIS USD debt loop plus capital outflows equals sovereign stress leading to conflict financing risk** (scem) — Active — NEW
 - **US-Germany 10-year spread 155 basis points compressing plus Fed paralysis versus ECB pressure from energy and tariffs** (esa) — Active — NEW
 - **Private credit gate events plus CRE delinquency in fragility phase; real M2 negative** (ai-governance) — Active — verified (adjacent Issue 13)
-- **Hormuz fragile ceasefire with 5-10 ships per day vs 138 normal; Brent approximately 104 dollars per barrel approaching Oxford 115-125 dollars per barrel contraction threshold; IEA flags historic energy security risk** (environmental-risks) — Active — NEW
-- **Federal Reserve and European Central Bank both cite high uncertainty from Middle East conflict as primary constraint on policy; energy price shock drives dual mandate paralysis at both central banks** (conflict-escalation) — Active — NEW
-- **ECB Vice-President flags deteriorating bank access to money market funding and declining euro area central bank reserves, nearly halved from 2022 peak to 2.6 trillion euros; raises probability of euro area financial stability event in H2 2026** (european-strategic-autonomy) — Active — NEW
-- **USTR launches 76 Section 301 investigations to reconstitute tariff architecture post-Supreme Court ruling; markets may be treating Supreme Court ruling as de-escalation signal but GMM assessment is net tariff trajectory upward** (fimi-cognitive-warfare) — Active — NEW
+- **Hormuz fragile ceasefire with 5-10 ships per day vs 138 normal; Brent approximately 104 dollars per barrel approaching Oxford 115-125 dollars per barrel contraction threshold; IEA flags historic energy security risk** (environmental-risks) — Active — verified (adjacent Issue 13)
+- **Federal Reserve and European Central Bank both cite high uncertainty from Middle East conflict as primary constraint on policy; energy price shock drives dual mandate paralysis at both central banks** (conflict-escalation) — Active — verified (adjacent Issue 11)
+- **ECB Vice-President flags deteriorating bank access to money market funding and declining euro area central bank reserves, nearly halved from 2022 peak to 2.6 trillion euros; raises probability of euro area financial stability event in H2 2026** (european-strategic-autonomy) — Active — verified (adjacent Issue 9)
+- **USTR launches 76 Section 301 investigations to reconstitute tariff architecture post-Supreme Court ruling; markets may be treating Supreme Court ruling as de-escalation signal but GMM assessment is net tariff trajectory upward** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 8)
 
 ---
 
