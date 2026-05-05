@@ -1,46 +1,12 @@
-# Strategic Conflict & Escalation Monitor — Issue 10
-
-**W/E 5 May 2026** | Published 2026-05-05T18:00:00Z
-
-Publisher: Asymmetric Intelligence — <https://asym-intel.info>
-
-License: CC BY 4.0
-
-Schema version: 2.0
-
 ---
-
-## Lead Signal
-
-**Sudan civil war enters multi-front expansion phase as RSF and SPLM-N advance on Blue Nile capital Damazin while SAF targets RSF gold mines and resumes manned airstrikes in Kordofan**
-
-Confidence: N/A
-Actor: N/A
-Source: https://www.crisisgroup.org/africa/horn-africa/sudan
-
-## Key Judgments
-
-1. **Sudan civil war has entered a structural multi-front expansion phase with the opening of the Blue Nile front and SAF economic warfare targeting RSF gold mines, deepening partition risk and accelerating displacement beyond 4 million refugees.**
-   - Confidence: High
-   - Trajectory: Worsening
-
-2. **Russia is using post-Easter mass strikes and multi-oblast territorial gains to maximize battlefield leverage before anticipated summer diplomatic pressure, positioning for negotiations from a position of territorial and psychological advantage.**
-   - Confidence: High
-   - Trajectory: Worsening
-
-3. **The combination of DPRK nuclear acceleration (7 tests in 2026 to April) and US asset redeployment to the Middle East creates a structural extended deterrence credibility gap on the Korean Peninsula, increasing the risk of miscalculation or deliberate escalation.**
-   - Confidence: Assessed
-   - Trajectory: Worsening
-
-4. **The collapse of multiple diplomatic channels (Sudan Quad mediation, Russia-Ukraine Easter ceasefire, Iran nuclear talks impasse, DRC Switzerland talks producing protocols but no enforcement) signals a structural attrition of crisis management capacity across multiple theatres, increasing the risk of miscalculation or deliberate escalation.**
-   - Confidence: High
-   - Trajectory: Worsening
-
-5. **Sudan conflict remains systematically underreported in international media per ACLED and ICG, creating an information vacuum that obscures the scale of the humanitarian catastrophe (4 million refugees, famine conditions) and reduces diplomatic bandwidth for mediation efforts.**
-   - Confidence: High
-   - Trajectory: Stable
-
-## Weekly Brief
+title: "Strategic Conflict & Escalation Monitor — W/E 5 May 2026"
+date: 2026-05-05T18:00:00Z
+summary: "Sudan civil war enters multi-front expansion phase as RSF and SPLM-N advance on Blue Nile capital Damazin while SAF targets RSF gold mines and resumes manned airstrikes in Kordofan"
+draft: false
+monitor: "conflict-escalation"
+brief_sources:
+  - url: "https://www.crisisgroup.org/africa/horn-africa/sudan"
+---
 
 ## Lead Signal
 
@@ -65,43 +31,3 @@ Sudan multi-front expansion and 4 million displacement link to ERM climate-confl
 ## Outlook
 
 Next week, monitor Sudan for Damazin front outcomes and gold mine strike effects on RSF funding; Russia-Ukraine summer diplomacy leverage from post-Easter gains; DPRK test tempo amid US Indo-Pacific posture gaps. Watch proxy activations like Houthi Red Sea threats or Ethiopia spillover. Diplomatic channel attrition at ELEVATED across Sudan Quad collapse, Easter ceasefire failure, Iran impasse persists without breakthroughs. Hybrid warfare intensity ELEVATED with drone/civilian strikes in Sudan/Ukraine/Yemen. Theatre risk matrix shows worsening in Sudan, Russia-Ukraine, Korea, Israel-Lebanon; stability fragile or collapsed in most I3+ theatres.
-
-## Cross-Monitor Flags
-
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **** (European Geopolitical & Hybrid Threat Monitor) — Active
-- **** (Global Environmental Risks & Planetary Boundaries Monitor) — Active
-- **** (Macro Monitor) — Active
-- **** (Macro Monitor) — Active
-- **** (European Geopolitical & Hybrid Threat Monitor) — Active
-- **** (Global Environmental Risks & Planetary Boundaries Monitor) — Active
-- **** (FIMI & Cognitive Warfare) — Active
-- **Sudan and Gaza food systems collapse with high displacement** (environmental-risks) — Active — verified (adjacent Issue 12)
-- **Multiple F flags active Russia-Ukraine Gaza DRC Israel-Lebanon US-Iran** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
-- **Hormuz closure I4 Crisis US-Israel-Iran; coltan coercion DRC** (macro-monitor) — Active — verified (adjacent Issue 11)
-- **I6 Crisis displacement Sudan Gaza Lebanon** (environmental-risks) — Active — verified (adjacent Issue 12)
-- **Hormuz closure I4=5 DRC coltan I4=3** (macro-monitor) — Active — verified (adjacent Issue 11)
-- **Sudan I6=5 Lebanon I6=5 Gaza I6=5** (environmental-risks) — Active — verified (adjacent Issue 12)
-- **F3/F4 active Iran Russia Gaza** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
-- **Ukraine I5 Myanmar fragmentation** (wdm) — Active — NEW
-- **F3/F4 in Iran I2/I5; FIMI strike signals** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
-- **Houthi Red Sea threats risk trade disruption** (macro-monitor) — Active — verified (adjacent Issue 11)
-- **Sudan/Gaza I6 displacement surges** (environmental-risks) — Active — verified (adjacent Issue 12)
-- **SAF strikes on RSF-controlled gold mines in South Darfur–South Sudan borderlands as economic warfare targeting illicit revenue streams** (macro-monitor) — Active — NEW
-- **Sudan Blue Nile front expansion threatens agricultural zones and water infrastructure in one of Sudan's most food-insecure regions; displacement acceleration likely** (environmental-risks) — Active — NEW
-- **Iran presses Houthis for renewed Red Sea shipping attacks, threatening 10 percent of global seaborne trade via Bab al-Mandeb** (macro-monitor) — Active — NEW
-- **Sudan conflict remains systematically underreported in international media per ACLED and ICG; information vacuum creates conditions for FIMI exploitation of the narrative space** (fimi-cognitive-warfare) — Active — NEW
-- **Russia post-Easter mass strikes and multi-oblast advances signal deliberate strategy to maximize battlefield leverage before summer diplomatic pressure; NATO ISR implications from degraded Ukrainian drone advantage** (european-strategic-autonomy) — Active — NEW
-
----
-
-## Data
-
-- Full report JSON: <https://asym-intel.info/monitors/conflict-escalation/data/report-latest.json>
-- Living Knowledge: <https://asym-intel.info/monitors/conflict-escalation/data/persistent-state.json>
-- Archive: <https://asym-intel.info/monitors/conflict-escalation/data/archive.json>
-- Dashboard: <https://asym-intel.info/monitors/conflict-escalation/dashboard.html>
-- Methodology: <https://asym-intel.info/monitors/conflict-escalation/methodology.html>
