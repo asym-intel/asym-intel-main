@@ -11,6 +11,22 @@ on:
         description: 'Skip LLM call — "1" to enable'
         required: false
         default: ''
+      force:
+        description: 'AD-2026-04-24l force-rerun (skip E5 same-day guard)'
+        type: boolean
+        default: false
+      force_reason:
+        description: 'Required with force. 20-500 chars.'
+        type: string
+        default: ''
+      force_ad:
+        description: 'Required with force. AD reference.'
+        type: string
+        default: ''
+      force_operator:
+        description: 'Required with force. GitHub handle.'
+        type: string
+        default: ''
   workflow_run:
     workflows: ["FIMI & Cognitive Warfare Monitor Interpreter"]
     types: [completed]
@@ -22,4 +38,8 @@ jobs:
       slug: fimi-cognitive-warfare
       model: ${{ inputs.model || '' }}
       no_llm: ${{ inputs.no_llm || '' }}
+      force: ${{ inputs.force }}
+      force_reason: ${{ inputs.force_reason || '' }}
+      force_ad: ${{ inputs.force_ad || '' }}
+      force_operator: ${{ inputs.force_operator || '' }}
     secrets: inherit

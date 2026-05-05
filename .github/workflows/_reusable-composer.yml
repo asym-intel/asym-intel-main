@@ -34,6 +34,26 @@ on:
         type: string
         required: false
         default: ''
+      force:
+        description: 'AD-2026-04-24l governed re-issue — skip E5 same-day guard'
+        type: boolean
+        required: false
+        default: false
+      force_reason:
+        description: 'Required when force=true. 20-500 chars.'
+        type: string
+        required: false
+        default: ''
+      force_ad:
+        description: 'Required when force=true. AD ref.'
+        type: string
+        required: false
+        default: ''
+      force_operator:
+        description: 'Required when force=true. GitHub handle.'
+        type: string
+        required: false
+        default: ''
     secrets:
       ASYM_INTEL_PIPELINE:
         required: true
@@ -177,7 +197,20 @@ jobs:
           REPO_ROOT:         ${{ github.workspace }}
           SYNTH_MODEL:       ${{ inputs.model }}
           PYTHONPATH:        internal
-        run: python -m pipeline.engine.compose_base --monitor ${{ inputs.slug }}
+          FORCE:             ${{ inputs.force }}
+          FORCE_REASON:      ${{ inputs.force_reason }}
+          FORCE_AD:          ${{ inputs.force_ad }}
+          FORCE_OPERATOR:    ${{ inputs.force_operator }}
+        run: |
+          set -euo pipefail
+          ARGS=(--monitor "${{ inputs.slug }}")
+          if [ "${FORCE}" = "true" ]; then
+            ARGS+=(--force \
+              --force-reason "${FORCE_REASON}" \
+              --force-ad "${FORCE_AD}" \
+              --force-operator "${FORCE_OPERATOR}")
+          fi
+          python -m pipeline.engine.compose_base "${ARGS[@]}"
 
       - name: Commit compose output
         if: steps.disposition.outputs.skip != 'true'
