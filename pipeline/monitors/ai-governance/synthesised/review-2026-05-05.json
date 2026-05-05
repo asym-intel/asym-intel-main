@@ -3,7 +3,7 @@
     "schema_version": "aim-review-v1.0",
     "reviewer_model": "sonar-pro",
     "monitor_slug": "ai-governance",
-    "reviewed_at": "2026-05-05T05:41:23.487760+00:00",
+    "reviewed_at": "2026-05-05T14:16:41.821568+00:00",
     "reviewed_from": "aim-interpret-v1.0",
     "reviewed_from_file": "interpret-latest.json",
     "interpret_meta": {
@@ -18,6 +18,14 @@
       "rule_engine_verdict_is_llm_independent": true,
       "first_principles_source_re_read": true,
       "distinct_system_prompt": true
+    },
+    "force_reissue": {
+      "previous_artefact_sha": "e8cd35c72181601d993af58cd015f6f0e6c90b2f5d70403d98fc5a0b1010a7c1",
+      "previous_artefact_written_at": "2026-05-05T14:16:27.096562+00:00",
+      "reason": "AIM reviewer replay after PR #257/#629 fixed missing new_value patch contract; regenerate patch verdicts before composer/applier.",
+      "ad_reference": "AD-2026-04-24l",
+      "operator": "Peter-Pink-Howitt",
+      "forced_at": "2026-05-05T14:16:41.820827+00:00"
     }
   },
   "verdict": "publish",
@@ -82,16 +90,12 @@
     }
   ],
   "claim_flags": [],
-  "advisory_notes": [
-    "All 11 structured_claims rely on llm_fallback_extractions (0 deterministic), which may indicate over-reliance on LLM parsing; Composer should cross-verify T1 sources like Stanford HAI Index and OpenAI changelog for claim precision.",
-    "Heavy clustering around Stanford HAI 2026 Index (claims 0008-0011) and EU Digital Omnibus (0004-0006); evidence base for risk vectors like Talent Drain and Standards Vacuum is single-source dominant, potentially under-diversified for brief synthesis.",
-    "Risk indicators module shows 6/6 vectors changed=true with uniform 'High' confidence, aligning with material_change disposition but signaling potential Composer emphasis on EU regulatory slippage and systemic safety degradation."
-  ],
+  "advisory_notes": [],
   "patch_verdicts": [
     {
       "patch_id": "_unstamped_0",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Confirmed",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
@@ -105,8 +109,8 @@
     },
     {
       "patch_id": "_unstamped_1",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=Confirmed",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
@@ -120,8 +124,8 @@
     },
     {
       "patch_id": "_unstamped_2",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
@@ -135,8 +139,8 @@
     },
     {
       "patch_id": "_unstamped_3",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
@@ -150,8 +154,8 @@
     },
     {
       "patch_id": "_unstamped_4",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
@@ -165,8 +169,8 @@
     },
     {
       "patch_id": "_unstamped_5",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
@@ -180,8 +184,8 @@
     },
     {
       "patch_id": "_unstamped_6",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
@@ -195,8 +199,8 @@
     },
     {
       "patch_id": "_unstamped_7",
-      "verdict": "apply",
-      "verdict_reason": "all R1–R7 PASS or SKIP; confidence=High",
+      "verdict": "loop-back-to-Interpreter",
+      "verdict_reason": "missing Appendix A required fields: ['new_value']",
       "rules_passed": [
         "R1",
         "R2",
