@@ -1,8 +1,7 @@
 name: Flow Quality Monitor
 
 # Audits per-module pipeline-flow data quality across all live monitors and
-# publishes a compact summary to:
-#   - asym-intel-main:static/ops/flow-quality-status.json (public surface)
+# publishes a compact summary to the private operator surface only:
 #   - asym-intel-internal:ops/pipeline-status.json (_flow_quality block)
 #
 # Triggers after each publisher run, on manual dispatch, and once daily as a
@@ -31,7 +30,7 @@ jobs:
     name: Audit pipeline flow quality
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     env:
       GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
@@ -53,7 +52,7 @@ jobs:
           python -m pipeline.tools.pipeline_flow_audit --all --output json > /tmp/audit-raw.json
           echo "raw audit bytes: $(wc -c < /tmp/audit-raw.json)"
 
-      - name: Build flow-quality-status.json
+      - name: Build private flow-quality summary
         run: |
           python3 - <<'PY'
           import json, os
@@ -102,24 +101,12 @@ jobs:
               "monitors": monitors_out,
           }
 
-          out_path = Path("static/ops/flow-quality-status.json")
-          out_path.parent.mkdir(parents=True, exist_ok=True)
-          out_path.write_text(json.dumps(summary, indent=2) + "\n")
-
-          # Stash the same payload for the internal-repo injection step.
+          # Stash the payload for the internal-repo injection step. Do not write
+          # it to static/ops: flow-quality details belong on the private
+          # ops.asym-intel.info operator surface, not the public site.
           Path("/tmp/flow-quality-summary.json").write_text(json.dumps(summary))
-          print(f"wrote {out_path} for {len(monitors_out)} monitors")
+          print(f"prepared private flow-quality summary for {len(monitors_out)} monitors")
           PY
-
-      - name: Commit flow-quality-status.json to asym-intel-main
-        continue-on-error: true
-        uses: ./.github/actions/authenticated-push
-        with:
-          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          commit-message: "chore(ops): update flow-quality-status.json"
-          add-paths: "static/ops/flow-quality-status.json"
-          bot-name: "github-actions[bot]"
-          bot-email: "github-actions[bot]@users.noreply.github.com"
 
       - name: Inject _flow_quality block into asym-intel-internal pipeline-status.json
         continue-on-error: true
