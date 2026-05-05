@@ -2,32 +2,47 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "conflict-escalation",
-    "applied_at": "2026-05-05T00:02:21Z",
+    "applied_at": "2026-05-05T07:08:51Z",
     "applier_model": null,
     "applier_deterministic": true,
-    "cycle_disposition": "normal_cycle",
+    "cycle_disposition": "material_change",
     "applier_flags": [
-      "interpret_schema_mismatch:None!=aim-interpret-v1.0",
-      "compose_schema_mismatch:scem-compose-v1.0!=aim-compose-v1.0",
-      "interpret_no_claims",
       "persistent_state_writeback_not_wired"
     ],
-    "schema_canonicalizations": [],
+    "schema_canonicalizations": [
+      "interpret:scem-interpret-v1.0->aim-interpret-v1.0",
+      "compose:scem-compose-v1.0->aim-compose-v1.0"
+    ],
     "applier_error": false,
-    "applier_error_reason": null
+    "applier_error_reason": null,
+    "force_reissue": {
+      "previous_artefact_sha": "4aef04176ca3788798c65c680f12b3942ef43a45c677fc1886d64b54161793c4",
+      "previous_artefact_written_at": "2026-05-05T00:02:21Z",
+      "reason": "SCEM applier blocked by E5 same-day guard after successful fresh reviewer composer chain",
+      "ad_reference": "AD-2026-04-24l-instance-2026-05-05-SCEM",
+      "operator": "peterhowitt",
+      "forced_at": "2026-05-05T07:08:51.629980+00:00"
+    }
   },
   "cycle_id": "scem-2026-05-05",
   "methodology_version": "conflict-escalation-methodology-2026-Q2",
-  "week_ending": null,
-  "week_ending_source": "review._meta.interpret_meta.week_ending",
+  "week_ending": "2026-05-09",
+  "week_ending_source": "interpret._meta.week_ending",
   "inputs": {
     "interpret": {
       "path": "pipeline/monitors/conflict-escalation/synthesised/interpret-latest.json",
-      "content_sha1": "c7b57ec9df81238bda593ea0dbce447657c07731",
-      "schema_version": null,
-      "claim_count": 0,
-      "null_signal_week": null,
-      "triple_extraction_manifest": {}
+      "content_sha1": "ee468258ed656090ca9905acd26665380a78a921",
+      "schema_version": "scem-interpret-v1.0",
+      "claim_count": 18,
+      "null_signal_week": false,
+      "triple_extraction_manifest": {
+        "deterministic_extractions": 0,
+        "llm_fallback_extractions": 18,
+        "llm_fallback_model": "claude-sonnet-4-5",
+        "llm_fallback_temperature": 0.1,
+        "llm_fallback_timestamp": "2026-05-05T05:44:11.756249+00:00",
+        "source": "engine_stamp_reconciled_to_actual"
+      }
     },
     "review": {
       "path": "pipeline/monitors/conflict-escalation/synthesised/review-latest.json",
@@ -70,14 +85,14 @@
     "ready_to_publish": false,
     "hold_reason": "review_verdict:hold-for-review",
     "publisher_artefacts": {
-      "weekly_brief_path": null,
+      "weekly_brief_path": "content/monitors/conflict-escalation/2026-05-09-weekly-brief.md",
       "report_latest_path": "static/monitors/conflict-escalation/data/report-latest.json"
     }
   },
   "chains_artefact": {
     "path": "pipeline/monitors/conflict-escalation/applied/chains-latest.json",
     "schema_version": "aim-chains-v1.1",
-    "chain_count": 0
+    "chain_count": 18
   },
   "provenance": {
     "applier_commit_sha": null
