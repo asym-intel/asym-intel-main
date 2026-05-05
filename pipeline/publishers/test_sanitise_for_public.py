@@ -31,6 +31,9 @@ from publisher import (  # noqa: E402
     _annotate_empty_modules,
     _find_unprovenanced_empty_modules,
     _module_body_is_empty,
+    build_report_placeholder,
+    stamp_publisher_omission,
+    _EMPTY_REASON_TAXONOMY,
 )
 
 
@@ -345,10 +348,15 @@ def test_annotate_empty_modules_stamps_no_material_content_for_null_cycle():
     assert isinstance(m["fallback_message"], str) and m["fallback_message"]
 
 
-def test_annotate_empty_modules_stamps_unknown_when_overall_material():
+def test_annotate_empty_modules_stamps_schema_thin_when_overall_material():
     """The exact AIM data-quality break: overall null_signal_week=false /
     cycle_disposition=material_change but a module_* is structurally empty.
-    Provenance MUST be unknown (preserved as explicit unknown, not silent)."""
+
+    With the placeholder-traceability taxonomy this is `schema_thin` —
+    distinct from `unknown` because the producing stage IS identifiable
+    (synthesiser emitted a thin module on a material cycle), and the
+    triage path differs from a truly unattributable empty.
+    """
     report = {
         "module_6": {
             "title": "AI in Science",
@@ -364,6 +372,25 @@ def test_annotate_empty_modules_stamps_unknown_when_overall_material():
     }
     out = _annotate_empty_modules(report, source_meta=meta)
     m = out["module_6"]
+    assert m["null_signal"] is True
+    assert m["empty_reason"] == "schema_thin"
+    assert isinstance(m["fallback_message"], str) and m["fallback_message"]
+    # produced_by/produced_at provenance must be present.
+    assert m["produced_by"] == "publisher.annotate_empty_modules"
+    assert m["produced_at"].endswith("Z") and "T" in m["produced_at"]
+
+
+def test_annotate_empty_modules_stamps_unknown_when_meta_absent():
+    """No interpret-stage meta at all — fall back to explicit unknown rather
+    than guessing. Unknown stays load-bearing; do not collapse it."""
+    report = {
+        "module_4": {
+            "title": "Empty section",
+            "items": [],
+        },
+    }
+    out = _annotate_empty_modules(report, source_meta=None)
+    m = out["module_4"]
     assert m["null_signal"] is True
     assert m["empty_reason"] == "unknown"
     assert "could not determine" in m["fallback_message"].lower() \
@@ -467,14 +494,18 @@ def test_sanitise_for_public_end_to_end_with_aim_module_3_pattern():
     assert public["module_0"]["items"][0]["summary"] == "real lead"
     assert "null_signal" not in public["module_0"]
 
-    # Empty modules carry provenance
+    # Empty modules carry provenance — taxonomy widened post-Phase-A,
+    # so any of the publisher-emitted reasons is acceptable here.
     for k in ("module_3", "module_6", "module_9"):
         m = public[k]
         assert m["null_signal"] is True, f"{k} missing null_signal"
-        assert m["empty_reason"] in {"unknown", "no_material_content"}, \
-            f"{k} empty_reason missing"
+        assert m["empty_reason"] in {
+            "unknown", "no_material_content", "schema_thin",
+        }, f"{k} unexpected empty_reason {m['empty_reason']!r}"
         assert isinstance(m["fallback_message"], str) and m["fallback_message"], \
             f"{k} fallback_message missing"
+        assert m.get("produced_by"), f"{k} produced_by missing"
+        assert m.get("produced_at"), f"{k} produced_at missing"
 
     # Placeholder [{}] arrays became empty arrays
     assert public["module_3"]["funding_rounds"] == []
@@ -516,6 +547,137 @@ def test_find_unprovenanced_empty_modules_passes_after_annotate():
         "cycle_disposition": "material_change",
     })
     assert _find_unprovenanced_empty_modules(annotated) == []
+
+
+# ── Placeholder taxonomy (Phase A) ─────────────────────────────────────────
+
+
+def test_taxonomy_contains_all_canonical_reasons():
+    """Spec §2 lists seven canonical reasons. The exported taxonomy tuple
+    must contain each — guards against a code edit that drops one silently."""
+    expected = {
+        "no_material_content",
+        "schema_thin",
+        "report_stale",
+        "held_upstream",
+        "renderer_schema_mismatch",
+        "publisher_omission",
+        "unknown",
+    }
+    assert set(_EMPTY_REASON_TAXONOMY) == expected
+
+
+def test_stamp_publisher_omission_creates_synthetic_module():
+    """Module declared by the schema but absent from the JSON gets a
+    synthetic placeholder so the renderer can't silently skip it (case 5)."""
+    report = {
+        "module_0": {"title": "Lead", "items": [{"id": "x"}]},
+        # module_3 declared by schema but absent
+    }
+    omitted = stamp_publisher_omission(
+        report,
+        ["module_0", "module_3"],
+        titles={"module_3": "Investment and M&A"},
+    )
+    assert omitted == ["module_3"]
+    m = report["module_3"]
+    assert m["null_signal"] is True
+    assert m["empty_reason"] == "publisher_omission"
+    assert m["title"] == "Investment and M&A"
+    assert m["produced_by"] == "publisher.stamp_publisher_omission"
+    assert m["produced_at"].endswith("Z")
+    # Existing real module untouched.
+    assert "null_signal" not in report["module_0"]
+
+
+def test_stamp_publisher_omission_idempotent():
+    """Calling twice with the same expected list does not re-stamp existing
+    placeholders or duplicate them."""
+    report: dict = {}
+    first = stamp_publisher_omission(report, ["module_3"])
+    snapshot = dict(report["module_3"])
+    second = stamp_publisher_omission(report, ["module_3"])
+    assert first == ["module_3"]
+    assert second == []  # already a dict, skipped
+    assert report["module_3"] == snapshot
+
+
+def test_build_report_placeholder_report_stale():
+    """report_stale → status=stale, reason set, fallback names the as_of
+    date so the reader knows how stale, plus operator provenance."""
+    block = build_report_placeholder(
+        reason="report_stale",
+        monitor="ai-governance",
+        as_of="2026-04-25",
+        next_check="2026-05-06",
+    )
+    assert block["report_status"] == "stale"
+    assert block["reason"] == "report_stale"
+    assert "2026-04-25" in block["fallback_message"]
+    assert "2026-05-06" in block["fallback_message"]
+    assert block["produced_by"].startswith("publisher.")
+    assert block["produced_at"].endswith("Z")
+    assert block["reader_facing"] is True
+    assert block["monitor"] == "ai-governance"
+
+
+def test_build_report_placeholder_held_upstream_keeps_hold_reason_operator_only():
+    """held_upstream surfaces a neutral reader fallback, but the internal
+    hold_reason (verdict code) is preserved on the block for operators."""
+    block = build_report_placeholder(
+        reason="held_upstream",
+        monitor="scem",
+        hold_reason="review_verdict:hold-for-review",
+    )
+    assert block["report_status"] == "held"
+    assert block["reason"] == "held_upstream"
+    assert block["hold_reason"] == "review_verdict:hold-for-review"
+    # Reader-facing fallback must not leak the verdict code.
+    assert "verdict" not in block["fallback_message"].lower()
+    assert "hold-for-review" not in block["fallback_message"]
+
+
+def test_build_report_placeholder_unknown_reason_coerced():
+    """Unrecognised reasons coerce to 'unknown' — explicit, not silent."""
+    block = build_report_placeholder(
+        reason="some_future_reason",
+        monitor="wdm",
+    )
+    assert block["reason"] == "unknown"
+    # We do not lie with a confident "no material developments" message.
+    assert block["fallback_message"]
+
+
+def test_build_report_placeholder_ok_when_no_reason():
+    """No reason → status=ok, reason=None. Useful for callers that want
+    to write a uniform sidecar regardless of report state."""
+    block = build_report_placeholder(reason=None, monitor="aim")
+    assert block["report_status"] == "ok"
+    assert block["reason"] is None
+    assert block["fallback_message"] == ""
+
+
+def test_build_report_placeholder_fim_parked_not_reader_facing():
+    """FIM remains parked (no public page yet). The block is still produced
+    for operator triage, but reader_facing=False signals the renderer/site
+    must suppress the banner."""
+    block = build_report_placeholder(
+        reason="held_upstream",
+        monitor="fim",
+        reader_facing=False,
+    )
+    assert block["report_status"] == "held"
+    assert block["reader_facing"] is False
+    # Operators still get the fallback string; suppression is a renderer
+    # concern, not a missing-data concern.
+    assert block["fallback_message"]
+
+
+def test_renderer_schema_mismatch_is_part_of_taxonomy():
+    """Detection of renderer_schema_mismatch is renderer-side (client-only),
+    but the constant is still part of the canonical taxonomy so producers
+    of operator output (e.g. fleet_stage_classifier) can normalise to it."""
+    assert "renderer_schema_mismatch" in _EMPTY_REASON_TAXONOMY
 
 
 if __name__ == "__main__":

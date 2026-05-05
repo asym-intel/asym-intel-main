@@ -1924,6 +1924,23 @@ def _strip_empty_placeholders(obj):
 
 _EMPTY_REASON_NO_CONTENT = "no_material_content"
 _EMPTY_REASON_UNKNOWN = "unknown"
+_EMPTY_REASON_SCHEMA_THIN = "schema_thin"
+_EMPTY_REASON_PUBLISHER_OMISSION = "publisher_omission"
+_EMPTY_REASON_REPORT_STALE = "report_stale"
+_EMPTY_REASON_HELD_UPSTREAM = "held_upstream"
+_EMPTY_REASON_RENDERER_SCHEMA_MISMATCH = "renderer_schema_mismatch"
+
+# Canonical taxonomy. Order is documentation, not behaviour.
+_EMPTY_REASON_TAXONOMY = (
+    _EMPTY_REASON_NO_CONTENT,
+    _EMPTY_REASON_SCHEMA_THIN,
+    _EMPTY_REASON_REPORT_STALE,
+    _EMPTY_REASON_HELD_UPSTREAM,
+    _EMPTY_REASON_RENDERER_SCHEMA_MISMATCH,
+    _EMPTY_REASON_PUBLISHER_OMISSION,
+    _EMPTY_REASON_UNKNOWN,
+)
+
 _FALLBACK_NO_CONTENT = (
     "No material developments observed in this module for the current cycle."
 )
@@ -1931,6 +1948,28 @@ _FALLBACK_UNKNOWN = (
     "No content was emitted for this module this cycle. "
     "The pipeline could not determine the cause; flagged for review."
 )
+_FALLBACK_SCHEMA_THIN = (
+    "No material developments observed in this module for the current cycle."
+)
+_FALLBACK_PUBLISHER_OMISSION = (
+    "This section is unavailable for this cycle."
+)
+_FALLBACK_REPORT_STALE = (
+    "This report is awaiting refresh."
+)
+_FALLBACK_HELD_UPSTREAM = (
+    "This issue is being finalised and will publish shortly."
+)
+
+_FALLBACK_BY_REASON = {
+    _EMPTY_REASON_NO_CONTENT: _FALLBACK_NO_CONTENT,
+    _EMPTY_REASON_UNKNOWN: _FALLBACK_UNKNOWN,
+    _EMPTY_REASON_SCHEMA_THIN: _FALLBACK_SCHEMA_THIN,
+    _EMPTY_REASON_PUBLISHER_OMISSION: _FALLBACK_PUBLISHER_OMISSION,
+    _EMPTY_REASON_REPORT_STALE: _FALLBACK_REPORT_STALE,
+    _EMPTY_REASON_HELD_UPSTREAM: _FALLBACK_HELD_UPSTREAM,
+    _EMPTY_REASON_RENDERER_SCHEMA_MISMATCH: _FALLBACK_PUBLISHER_OMISSION,
+}
 
 
 def _module_body_is_empty(module: dict) -> bool:
@@ -1943,7 +1982,15 @@ def _module_body_is_empty(module: dict) -> bool:
     """
     if not isinstance(module, dict):
         return False
-    meta_keys = {"title", "null_signal", "empty_reason", "fallback_message"}
+    meta_keys = {
+        "title",
+        "null_signal",
+        "empty_reason",
+        "fallback_message",
+        "produced_by",
+        "produced_at",
+        "reader_facing",
+    }
     body = {k: v for k, v in module.items() if k not in meta_keys}
     if not body:
         return True
@@ -1956,6 +2003,13 @@ def _infer_empty_reason(report_meta: dict) -> tuple[str, str]:
     interpret-stage emits null_signal_week / cycle_disposition; these tell us
     whether an empty module is expected (null_cycle / partial_cycle) or
     unexplained. Unknown is preferred over a confident wrong answer.
+
+    cycle_disposition == "material_change" paired with a structurally-empty
+    module is the AIM-style data-quality break: synthesis declared the cycle
+    material overall but emitted only `{title}` (no body keys) for this
+    module. We classify that as `schema_thin` — distinct from `unknown`,
+    because the producing stage is identifiable (synthesiser emitted a thin
+    module) and the triage path is different from a truly mysterious empty.
     """
     if not isinstance(report_meta, dict):
         return _EMPTY_REASON_UNKNOWN, _FALLBACK_UNKNOWN
@@ -1964,11 +2018,20 @@ def _infer_empty_reason(report_meta: dict) -> tuple[str, str]:
         return _EMPTY_REASON_NO_CONTENT, _FALLBACK_NO_CONTENT
     if report_meta.get("null_signal_week") is True:
         return _EMPTY_REASON_NO_CONTENT, _FALLBACK_NO_CONTENT
-    # cycle_disposition == "material_change" with an empty module is the
-    # exact data-quality break described in the live AIM artefacts: an
-    # overall material cycle but a silently-empty module. Mark unknown so
-    # downstream consumers can surface it for review rather than swallowing.
+    if cycle == "material_change":
+        return _EMPTY_REASON_SCHEMA_THIN, _FALLBACK_SCHEMA_THIN
     return _EMPTY_REASON_UNKNOWN, _FALLBACK_UNKNOWN
+
+
+def _now_iso() -> str:
+    """UTC ISO-8601 timestamp, second-precision, with trailing Z.
+
+    Centralised so tests can monkeypatch one symbol if they want a stable
+    `produced_at`. Kept module-local rather than importing from a shared
+    util to keep this file self-contained for the placeholder contract.
+    """
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _annotate_empty_modules(report: dict, source_meta: dict | None = None) -> dict:
@@ -1976,8 +2039,10 @@ def _annotate_empty_modules(report: dict, source_meta: dict | None = None) -> di
 
     Walks top-level keys named `module_*`. For each dict-shaped module whose
     body is structurally empty, writes null_signal/empty_reason/fallback_message
-    if not already present. Existing non-empty modules and modules that already
-    carry null_signal are left untouched.
+    plus produced_by/produced_at provenance if not already present. Existing
+    non-empty modules and modules that already carry null_signal are left
+    untouched (their existing produced_by stays as-is — the earliest stamper
+    wins).
 
     Mutates and returns the supplied report dict; callers that need an
     untouched original should deep-copy first (sanitise_for_public does).
@@ -1985,6 +2050,7 @@ def _annotate_empty_modules(report: dict, source_meta: dict | None = None) -> di
     if not isinstance(report, dict):
         return report
     meta = source_meta if source_meta is not None else report.get("_meta", {})
+    stamped_at = _now_iso()
     for key, value in list(report.items()):
         if not key.startswith("module_"):
             continue
@@ -1998,6 +2064,8 @@ def _annotate_empty_modules(report: dict, source_meta: dict | None = None) -> di
         value["null_signal"] = True
         value.setdefault("empty_reason", reason)
         value.setdefault("fallback_message", fallback)
+        value.setdefault("produced_by", "publisher.annotate_empty_modules")
+        value.setdefault("produced_at", stamped_at)
         # Drop the LLM-emitted "null" sentinel string fields (e.g. AIM
         # module_9 digest_note: "null") — they are now redundant against
         # the explicit provenance and would otherwise reach renderers as
@@ -2008,6 +2076,162 @@ def _annotate_empty_modules(report: dict, source_meta: dict | None = None) -> di
             if isinstance(v2, str) and v2.strip().lower() == "null":
                 value[k2] = ""
     return report
+
+
+def stamp_publisher_omission(
+    report: dict,
+    expected_module_keys: list[str] | tuple[str, ...],
+    *,
+    titles: dict[str, str] | None = None,
+) -> list[str]:
+    """Stamp synthetic placeholder modules for schema-declared modules absent
+    from the report.
+
+    Pure helper. Mutates `report` in place: for any key in
+    `expected_module_keys` that is missing or non-dict-shaped, writes a
+    minimal module dict carrying `empty_reason="publisher_omission"` and the
+    standard provenance fields. Returns the list of module keys that were
+    stamped, so callers can emit an incident if it is non-empty.
+
+    `titles` may map module key → human-readable section title; if provided,
+    the stamped module's `title` is set from it. Otherwise `title` is left
+    absent and downstream renderers fall back to their own section labels.
+
+    This is the case-5 detector from the spec: a module the monitor's
+    synthesis schema declares, but which never made it into the merged
+    report. Today these are silently absent — the renderer either skips the
+    section or shows an empty card with no signal.
+    """
+    if not isinstance(report, dict):
+        return []
+    titles = titles or {}
+    stamped_at = _now_iso()
+    omitted: list[str] = []
+    for key in expected_module_keys:
+        if not isinstance(key, str) or not key.startswith("module_"):
+            continue
+        existing = report.get(key)
+        if isinstance(existing, dict):
+            continue
+        synthetic: dict = {
+            "null_signal": True,
+            "empty_reason": _EMPTY_REASON_PUBLISHER_OMISSION,
+            "fallback_message": _FALLBACK_PUBLISHER_OMISSION,
+            "produced_by": "publisher.stamp_publisher_omission",
+            "produced_at": stamped_at,
+        }
+        title = titles.get(key)
+        if title:
+            synthetic["title"] = title
+        report[key] = synthetic
+        omitted.append(key)
+    return omitted
+
+
+# ── Report-level placeholder provenance ────────────────────────────────────
+#
+# Module-level placeholders (above) cover per-section empties. Two empty-state
+# conditions block the *whole cycle* and are known at publish-time but not
+# currently stamped onto a reader-readable artefact:
+#   - report_stale:  freshness gate refused (synthesis older than budget).
+#   - held_upstream: apply-gate refused (review verdict / ready_to_publish=false).
+#
+# Today these refuse to write a new report-latest.json and emit an incident,
+# leaving the public surface showing whatever was last published with no
+# signal it is stale or held. The helper below builds the placeholder block
+# the spec describes (§4.2) so a status-sidecar writer (separate PR) can
+# emit it without re-deriving the shape.
+#
+# This helper is pure: it returns a dict. It does no I/O and writes no file.
+# Callers decide whether to attach it to `_meta.placeholder` of an artefact,
+# write it to `report-status.json`, or surface it in operator output.
+#
+# `reader_facing` is part of the contract because monitors without a public
+# page (FIM is parked at time of writing) still go through publishing
+# tooling — their placeholder records should be kept for operator triage but
+# not exposed to readers. Default True; set False for parked monitors.
+
+_REPORT_STATUS_OK = "ok"
+_REPORT_STATUS_STALE = "stale"
+_REPORT_STATUS_HELD = "held"
+_REPORT_STATUSES = (_REPORT_STATUS_OK, _REPORT_STATUS_STALE, _REPORT_STATUS_HELD)
+
+
+def build_report_placeholder(
+    *,
+    reason: str | None,
+    monitor: str,
+    as_of: str | None = None,
+    next_check: str | None = None,
+    hold_reason: str | None = None,
+    produced_by: str = "publisher.build_report_placeholder",
+    reader_facing: bool = True,
+) -> dict:
+    """Construct the report-level placeholder provenance block.
+
+    Returns a dict suitable for attaching to `_meta.placeholder` on an
+    artefact or writing to a `report-status.json` sidecar. Shape matches
+    the spec §4.2.
+
+    Parameters:
+      reason        — one of `report_stale`, `held_upstream`, or None.
+                      None signals an OK report (no placeholder banner needed).
+      monitor       — monitor slug (e.g. "ai-governance"); included for
+                      consumer triage when the block is read out-of-context.
+      as_of         — ISO date of last successful synthesis (best-effort).
+      next_check    — ISO date when the publisher will retry (optional).
+      hold_reason   — internal hold_reason from apply.publication, if any
+                      (e.g. "review_verdict:hold-for-review"). Operator-only;
+                      not surfaced via fallback_message.
+      produced_by   — stage attribution. Defaults to this helper.
+      reader_facing — False for monitors without a public page (e.g. FIM
+                      while parked). Operators still read the block; the
+                      renderer is expected to suppress the banner.
+
+    Reason `unknown` and unrecognised reasons are coerced to `unknown`
+    rather than silently dropped — explicit unknown is the contract.
+    """
+    if reason is None:
+        report_status = _REPORT_STATUS_OK
+        normalised_reason: str | None = None
+        fallback = ""
+    elif reason == _EMPTY_REASON_REPORT_STALE:
+        report_status = _REPORT_STATUS_STALE
+        normalised_reason = _EMPTY_REASON_REPORT_STALE
+        fallback = _FALLBACK_REPORT_STALE
+        if as_of:
+            fallback = (
+                f"This report is awaiting refresh — last updated {as_of}."
+            )
+            if next_check:
+                fallback += f" Check back {next_check}."
+    elif reason == _EMPTY_REASON_HELD_UPSTREAM:
+        report_status = _REPORT_STATUS_HELD
+        normalised_reason = _EMPTY_REASON_HELD_UPSTREAM
+        fallback = _FALLBACK_HELD_UPSTREAM
+    else:
+        report_status = _REPORT_STATUS_HELD if reason == "held" else _REPORT_STATUS_OK
+        normalised_reason = _EMPTY_REASON_UNKNOWN
+        fallback = _FALLBACK_UNKNOWN
+
+    block: dict = {
+        "monitor": monitor,
+        "report_status": report_status,
+        "reason": normalised_reason,
+        "fallback_message": fallback,
+        "produced_by": produced_by,
+        "produced_at": _now_iso(),
+        "reader_facing": bool(reader_facing),
+    }
+    if as_of is not None:
+        block["as_of"] = as_of
+    if next_check is not None:
+        block["next_check"] = next_check
+    if hold_reason is not None:
+        # Operator-only. Renderers should not surface this verbatim — it
+        # contains internal verdict codes (e.g. "review_verdict:reject").
+        block["hold_reason"] = hold_reason
+    return block
 
 
 def _find_unprovenanced_empty_modules(report: dict) -> list[str]:
