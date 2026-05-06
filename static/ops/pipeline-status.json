@@ -1,9 +1,9 @@
 {
   "schema_version": "4.1",
-  "generated_at": "2026-05-05T23:39:45Z",
+  "generated_at": "2026-05-06T10:25:38Z",
   "engine": {
     "status": "red",
-    "last_updated": "2026-05-05T17:31:06Z"
+    "last_updated": "2026-05-06T09:30:51Z"
   },
   "monitors": [
     {
@@ -18,8 +18,8 @@
     },
     {
       "slug": "ESA",
-      "status": "amber",
-      "last_updated": "2026-05-05T08:56:11Z"
+      "status": "red",
+      "last_updated": "2026-05-06T09:30:51Z"
     },
     {
       "slug": "FCW",
@@ -49,13 +49,13 @@
     {
       "slug": "ADVENNT",
       "status": "red",
-      "last_updated": "2026-05-05T07:50:28Z"
+      "last_updated": "2026-05-06T08:01:28Z"
     }
   ],
   "_trigger_health": {
     "schema_version": "1.0",
     "window_days": 7,
-    "computed_at": "2026-05-05T23:39:45Z",
+    "computed_at": "2026-05-06T10:25:38Z",
     "tolerance": {
       "late_minutes_cf_dispatcher": 5,
       "late_minutes_github_native": 60,
@@ -65,72 +65,6 @@
     "manifest_version": "1.0.0",
     "manifest_sha": "a0e7204cda646b8ae9f8cc68fa289c3874ed52f5",
     "expected_fires": [
-      {
-        "trigger_id": "cf:0,30 8 * * WED:08:00:esa-weekly-research.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "esa-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 8 * * WED",
-        "utc_time": "08:00",
-        "dow": 3,
-        "monitor": "esa",
-        "expected_at": "2026-04-29T08:00:00Z"
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 8 * * *",
-        "utc_time": "08:00",
-        "dow": null,
-        "monitor": null,
-        "expected_at": "2026-04-29T08:00:00Z"
-      },
-      {
-        "trigger_id": "cf:0,30 8 * * WED:08:30:esa-reasoner.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "esa-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 8 * * WED",
-        "utc_time": "08:30",
-        "dow": 3,
-        "monitor": "esa",
-        "expected_at": "2026-04-29T08:30:00Z"
-      },
-      {
-        "trigger_id": "cf:0,30 9 * * WED:09:00:advennt-weekly-research.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "utc_time": "09:00",
-        "dow": 3,
-        "monitor": "advennt",
-        "expected_at": "2026-04-29T09:00:00Z"
-      },
-      {
-        "trigger_id": "cf:0,30 9 * * WED:09:30:advennt-reasoner.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "utc_time": "09:30",
-        "dow": 3,
-        "monitor": "advennt",
-        "expected_at": "2026-04-29T09:30:00Z"
-      },
-      {
-        "trigger_id": "cf:30 9 * * WED:09:30:european-strategic-autonomy-publisher.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "european-strategic-autonomy-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "30 9 * * WED",
-        "utc_time": "09:30",
-        "dow": 3,
-        "monitor": "esa",
-        "expected_at": "2026-04-29T09:30:00Z"
-      },
       {
         "trigger_id": "cf:30 10 * * WED:10:30:publisher.yml",
         "source_kind": "cf_dispatcher",
@@ -581,32 +515,89 @@
         "dow": null,
         "monitor": null,
         "expected_at": "2026-05-05T23:00:00Z"
+      },
+      {
+        "trigger_id": "cf:0,30 8 * * WED:08:00:esa-weekly-research.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "esa-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 8 * * WED",
+        "utc_time": "08:00",
+        "dow": 3,
+        "monitor": "esa",
+        "expected_at": "2026-05-06T08:00:00Z"
+      },
+      {
+        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
+        "source_kind": "github_native",
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 8 * * *",
+        "utc_time": "08:00",
+        "dow": null,
+        "monitor": null,
+        "expected_at": "2026-05-06T08:00:00Z"
+      },
+      {
+        "trigger_id": "cf:0,30 8 * * WED:08:30:esa-reasoner.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "esa-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 8 * * WED",
+        "utc_time": "08:30",
+        "dow": 3,
+        "monitor": "esa",
+        "expected_at": "2026-05-06T08:30:00Z"
+      },
+      {
+        "trigger_id": "cf:0,30 9 * * WED:09:00:advennt-weekly-research.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "advennt-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 9 * * WED",
+        "utc_time": "09:00",
+        "dow": 3,
+        "monitor": "advennt",
+        "expected_at": "2026-05-06T09:00:00Z"
+      },
+      {
+        "trigger_id": "cf:0,30 9 * * WED:09:30:advennt-reasoner.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "advennt-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 9 * * WED",
+        "utc_time": "09:30",
+        "dow": 3,
+        "monitor": "advennt",
+        "expected_at": "2026-05-06T09:30:00Z"
+      },
+      {
+        "trigger_id": "cf:30 9 * * WED:09:30:european-strategic-autonomy-publisher.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "european-strategic-autonomy-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "30 9 * * WED",
+        "utc_time": "09:30",
+        "dow": 3,
+        "monitor": "esa",
+        "expected_at": "2026-05-06T09:30:00Z"
       }
     ],
     "actual_fires": [
       {
-        "workflow": "esa-weekly-research.yml",
+        "workflow": "update-pipeline-status.yml",
         "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-04T23:47:38Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 11,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25349831678"
-      },
-      {
-        "workflow": "esa-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-29T08:00:12Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 10,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25097548920"
+        "started_at": "2026-05-06T10:24:51Z",
+        "conclusion": "in_progress",
+        "event": "schedule",
+        "run_number": 96,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25429773380"
       },
       {
         "workflow": "update-pipeline-status.yml",
         "repo": "asym-intel/asym-intel-main",
         "started_at": "2026-05-05T23:39:15Z",
-        "conclusion": "in_progress",
+        "conclusion": "success",
         "event": "schedule",
         "run_number": 95,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25408321441"
@@ -871,78 +862,6 @@
         "event": "schedule",
         "run_number": 66,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25103138198"
-      },
-      {
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-28T23:43:58Z",
-        "conclusion": "success",
-        "event": "schedule",
-        "run_number": 65,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25083455079"
-      },
-      {
-        "workflow": "esa-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-04T23:52:50Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 11,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25350007750"
-      },
-      {
-        "workflow": "esa-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-29T08:30:12Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 10,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25098756830"
-      },
-      {
-        "workflow": "european-strategic-autonomy-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T08:56:11Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 16,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25367070600"
-      },
-      {
-        "workflow": "european-strategic-autonomy-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T05:31:37Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 15,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359625763"
-      },
-      {
-        "workflow": "european-strategic-autonomy-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T05:30:16Z",
-        "conclusion": "failure",
-        "event": "workflow_dispatch",
-        "run_number": 14,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359586426"
-      },
-      {
-        "workflow": "european-strategic-autonomy-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T05:28:34Z",
-        "conclusion": "failure",
-        "event": "workflow_dispatch",
-        "run_number": 13,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359535445"
-      },
-      {
-        "workflow": "european-strategic-autonomy-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-29T16:03:30Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 12,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25119816715"
       },
       {
         "workflow": "fcw-weekly-research.yml",
@@ -1555,45 +1474,99 @@
         "event": "workflow_dispatch",
         "run_number": 19,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25119815072"
+      },
+      {
+        "workflow": "esa-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-06T08:01:13Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 12,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25423487550"
+      },
+      {
+        "workflow": "esa-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-04T23:47:38Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 11,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25349831678"
+      },
+      {
+        "workflow": "esa-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-06T08:30:53Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 12,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25424732466"
+      },
+      {
+        "workflow": "esa-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-04T23:52:50Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 11,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25350007750"
+      },
+      {
+        "workflow": "european-strategic-autonomy-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-06T09:30:51Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 17,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25427378901"
+      },
+      {
+        "workflow": "european-strategic-autonomy-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T08:56:11Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 16,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25367070600"
+      },
+      {
+        "workflow": "european-strategic-autonomy-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T05:31:37Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 15,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359625763"
+      },
+      {
+        "workflow": "european-strategic-autonomy-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T05:30:16Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 14,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359586426"
+      },
+      {
+        "workflow": "european-strategic-autonomy-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T05:28:34Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 13,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359535445"
+      },
+      {
+        "workflow": "european-strategic-autonomy-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-04-29T16:03:30Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 12,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25119816715"
       }
     ],
     "missed_fires": [
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 8 * * *",
-        "expected_at": "2026-04-29T08:00:00Z",
-        "monitor": null
-      },
-      {
-        "trigger_id": "cf:0,30 9 * * WED:09:00:advennt-weekly-research.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "expected_at": "2026-04-29T09:00:00Z",
-        "monitor": "advennt"
-      },
-      {
-        "trigger_id": "cf:0,30 9 * * WED:09:30:advennt-reasoner.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "expected_at": "2026-04-29T09:30:00Z",
-        "monitor": "advennt"
-      },
-      {
-        "trigger_id": "cf:30 9 * * WED:09:30:european-strategic-autonomy-publisher.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "european-strategic-autonomy-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "30 9 * * WED",
-        "expected_at": "2026-04-29T09:30:00Z",
-        "monitor": "esa"
-      },
       {
         "trigger_id": "cf:30 10 * * WED:10:30:publisher.yml",
         "source_kind": "cf_dispatcher",
@@ -1755,8 +1728,35 @@
         "cron": "0 14 * * *",
         "expected_at": "2026-05-05T14:00:00Z",
         "monitor": null
+      },
+      {
+        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
+        "source_kind": "github_native",
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 8 * * *",
+        "expected_at": "2026-05-06T08:00:00Z",
+        "monitor": null
+      },
+      {
+        "trigger_id": "cf:0,30 9 * * WED:09:00:advennt-weekly-research.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "advennt-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 9 * * WED",
+        "expected_at": "2026-05-06T09:00:00Z",
+        "monitor": "advennt"
+      },
+      {
+        "trigger_id": "cf:0,30 9 * * WED:09:30:advennt-reasoner.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "advennt-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 9 * * WED",
+        "expected_at": "2026-05-06T09:30:00Z",
+        "monitor": "advennt"
       }
     ],
-    "last_fire_was_on_time": true
+    "last_fire_was_on_time": false
   }
 }
