@@ -87,6 +87,30 @@ def test_allow_list_tools_path_is_exempt(tmp_path):
     assert scanned == 0
 
 
+def test_residue_allow_list_exempts_named_live_files(tmp_path):
+    """Exact-path residue allow-list exempts named files still on the
+    pre-engine code path. Sprint CS-min entries: collect.py x8 + the
+    cross-monitor synthesiser. Removing an entry MUST cause the gate to
+    re-flag the file — that is the forcing function for migration.
+    """
+    body = (
+        'API_KEY = os.environ["PPLX_API_KEY"]\n'
+        'requests.post("https://api.perplexity.ai/chat/completions")\n'
+    )
+    # Residue-listed path: must be exempt.
+    _write(tmp_path, "pipeline/monitors/ai-governance/collect.py", body)
+    violations, scanned = gate.scan(tmp_path)
+    assert violations == [], f"residue file should be exempt, got {violations!r}"
+    assert scanned == 0
+
+    # Same content at a non-allow-listed path: must be flagged. Proves the
+    # exemption is path-driven, not content-driven.
+    _write(tmp_path, "pipeline/monitors/ai-governance/not-residue.py", body)
+    violations2, scanned2 = gate.scan(tmp_path)
+    assert scanned2 == 1
+    assert any("not-residue.py" in v for v in violations2)
+
+
 def test_multifile_violations_summary(tmp_path):
     _write(tmp_path, "pipeline/monitors/a/x.py",
            'k = os.environ["PPLX_API_KEY"]\n')
