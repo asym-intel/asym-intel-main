@@ -952,6 +952,143 @@ def test_ce2_compute_returns_empty_when_schema_unparseable():
         assert absent == []
 
 
+# ─── CR-3: Additive-merge convention ─────────────────────────────────────
+#
+# These tests verify that the producer preserves `_flow_quality` and other
+# additive `_*` top-level keys that it does not own when merging into the
+# live internal pipeline-status.json.
+#
+# Regression guard for the bug described in BRIEF CR-3: each auto-update run
+# was doing a full-file replace that silently discarded `_flow_quality` (and
+# `_build`) injected by other writers between producer runs.
+
+_preserve_additive_keys = _module._preserve_additive_keys
+_PRODUCER_OWNED_UNDERSCORE_KEYS = _module._PRODUCER_OWNED_UNDERSCORE_KEYS
+_fetch_current_internal_status = _module._fetch_current_internal_status
+
+
+def _status_with_underscore_keys(**extra):
+    """Build a minimal status dict with producer-owned _* keys + extras."""
+    s = _full_fidelity_status()
+    s["_meta"] = {"generated": _iso(NOW), "generator": "test"}
+    s["_verification"] = {"checked_at": _iso(NOW)}
+    s["_incidents"] = []
+    s["_trigger_health"] = {"schema_version": "1.0", "manifest_loaded": True}
+    s.update(extra)
+    return s
+
+
+def test_build_signal_writer_preserves_unknown_top_level_keys():
+    """CR-3 regression: the producer must preserve all non-owned `_*` keys.
+
+    Simulates the scenario described in BRIEF CR-3:
+      1. `_flow_quality` and `_build` blocks exist in the current live file.
+      2. The producer generates a fresh `status` dict that does NOT include them.
+      3. _preserve_additive_keys() merges them back in.
+      4. The final write still carries `_flow_quality`, `_build`, `_meta`,
+         and `_trigger_health`.
+    """
+    # Current live file contains additive keys injected by other writers.
+    current = _status_with_underscore_keys(
+        _flow_quality={"generated_at": _iso(NOW), "schema_version": "flow-quality-v1.0",
+                       "monitors": {}},
+        _build={"build_last_run": _iso(NOW), "build_conclusion": "success",
+                "deploy_conclusion": "success", "updated_by": "build.yml"},
+    )
+    # Fresh producer output — does NOT include _flow_quality or _build.
+    fresh_status = _status_with_underscore_keys()
+    assert "_flow_quality" not in fresh_status
+    assert "_build" not in fresh_status
+
+    result = _preserve_additive_keys(fresh_status, current)
+
+    # Additive keys must survive.
+    assert "_flow_quality" in result, "_flow_quality must be preserved by additive merge"
+    assert "_build" in result, "_build must be preserved by additive merge"
+    # Producer-owned keys come from fresh_status, not from current.
+    assert result["_meta"] == fresh_status["_meta"]
+    assert result["_trigger_health"] == fresh_status["_trigger_health"]
+    # Station rows (non-_ keys) are untouched.
+    assert result["WDM"] == fresh_status["WDM"]
+    # Content of preserved keys is unchanged.
+    assert result["_flow_quality"]["schema_version"] == "flow-quality-v1.0"
+    assert result["_build"]["build_conclusion"] == "success"
+
+
+def test_preserve_additive_keys_does_not_carry_owned_keys_from_stale_current():
+    """Producer-owned keys must always come from the freshly generated status.
+
+    If the current live file has a stale `_meta.generated` timestamp (from the
+    previous producer run), the new run's `_meta` must overwrite it, not carry
+    the stale value.
+    """
+    stale_ts = _iso(NOW - timedelta(hours=8))
+    current = _status_with_underscore_keys(
+        _flow_quality={"generated_at": stale_ts, "schema_version": "flow-quality-v1.0",
+                       "monitors": {}},
+    )
+    # Intentionally give current a stale _meta
+    current["_meta"] = {"generated": stale_ts, "generator": "stale-run"}
+
+    fresh_status = _status_with_underscore_keys()
+    # fresh_status has a newer _meta
+    assert fresh_status["_meta"]["generator"] == "test"
+
+    result = _preserve_additive_keys(fresh_status, current)
+
+    # _meta must come from fresh_status, not current.
+    assert result["_meta"]["generator"] == "test", (
+        "_meta must come from fresh_status, not stale current"
+    )
+    # But _flow_quality must still be preserved.
+    assert "_flow_quality" in result
+
+
+def test_preserve_additive_keys_handles_empty_current():
+    """When the current live file is empty (fetch failure), no additive keys
+    are injected — the fresh status is returned as-is."""
+    fresh_status = _status_with_underscore_keys()
+    result = _preserve_additive_keys(fresh_status, {})
+    assert result == fresh_status
+
+
+def test_preserve_additive_keys_handles_unknown_future_underscore_key():
+    """Any new `_*` key injected by a future writer is automatically preserved
+    without a code change — the allowlist is the _PRODUCER_OWNED set."""
+    current = _status_with_underscore_keys(
+        _new_future_key={"version": "1.0", "data": "something"},
+    )
+    fresh_status = _status_with_underscore_keys()
+    result = _preserve_additive_keys(fresh_status, current)
+    assert "_new_future_key" in result, (
+        "Any future `_*` key not in producer-owned set must be preserved"
+    )
+    assert result["_new_future_key"] == {"version": "1.0", "data": "something"}
+
+
+def test_producer_owned_keys_set_is_complete():
+    """Sanity-check that the canonical owned-keys set contains exactly the
+    four keys this producer generates."""
+    assert _PRODUCER_OWNED_UNDERSCORE_KEYS == {
+        "_meta", "_verification", "_incidents", "_trigger_health"
+    }, (
+        "_PRODUCER_OWNED_UNDERSCORE_KEYS must list exactly the four keys this "
+        "producer writes; update this test if a new owned key is added"
+    )
+
+
+def test_fetch_current_internal_status_returns_empty_dict_on_failure():
+    """_fetch_current_internal_status() must return {} on gh-api failure
+    so _preserve_additive_keys() always gets a dict it can iterate."""
+    orig = _module.gh_api
+    _module.gh_api = lambda *_a, **_kw: None  # simulate failure
+    try:
+        result = _fetch_current_internal_status()
+    finally:
+        _module.gh_api = orig
+    assert result == {}, f"expected empty dict on fetch failure, got {result!r}"
+
+
 # ─── Test runner (no pytest required) ──────────────────────────────────────
 
 def main():
