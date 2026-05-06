@@ -68,6 +68,39 @@
     margin-bottom: var(--space-4);
   }
   @media (max-width: 600px) { .domain-chart-wrap { height: 220px; } }
+
+  /* ── Status badges (replicated from conflict-escalation pattern) ── */
+  .status-badge { display:inline-flex; align-items:center; gap:5px; font-size:var(--text-min); font-weight:700; letter-spacing:0.05em; padding:3px 8px 3px 6px; border-radius:20px; line-height:1; white-space:nowrap; }
+  .status-badge__icon { font-size:var(--text-min); line-height:1; }
+  .status-badge--escalating { background:rgba(193,68,14,.1);  color:#c1440e; border:1px solid rgba(193,68,14,.25); }
+  .status-badge--monitoring { background:rgba(107,102,96,.08); color:var(--color-text-muted); border:1px solid var(--color-border); }
+  .status-badge--stable     { background:rgba(37,99,235,.08); color:#2563eb; border:1px solid rgba(37,99,235,.2); }
+  [data-theme="dark"] .status-badge--escalating { background:rgba(193,68,14,.2);   color:#fb923c; border-color:rgba(193,68,14,.4); }
+  [data-theme="dark"] .status-badge--monitoring { background:rgba(107,102,96,.15); color:var(--color-text-muted); }
+  [data-theme="dark"] .status-badge--stable     { background:rgba(37,99,235,.15);  color:#60a5fa; border-color:rgba(37,99,235,.35); }
+
+  /* ── Conviction history timeline ── */
+  .conviction-timeline { display:flex; flex-direction:column; gap:var(--space-3); }
+  .conviction-entry { background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:var(--space-4) var(--space-5); display:grid; grid-template-columns:auto 1fr; gap:var(--space-3) var(--space-4); align-items:start; }
+  .conviction-entry__date { font-size:var(--text-xs); font-weight:700; font-family:monospace; color:var(--color-text-muted); white-space:nowrap; padding-top:2px; }
+  .conviction-entry__body { display:flex; flex-direction:column; gap:var(--space-2); }
+  .conviction-entry__meta { display:flex; gap:var(--space-3); flex-wrap:wrap; align-items:center; }
+  .conviction-entry__rationale { font-size:var(--text-sm); color:var(--color-text-secondary); line-height:1.6; }
+  .conviction-badge { font-size:var(--text-min); font-weight:700; letter-spacing:0.06em; padding:2px 7px; border-radius:var(--radius-sm); border:1px solid; }
+  .conviction-badge--high   { background:rgba(220,38,38,.1); color:#dc2626; border-color:rgba(220,38,38,.25); }
+  .conviction-badge--medium { background:rgba(217,119,6,.1); color:#d97706; border-color:rgba(217,119,6,.25); }
+  .conviction-badge--low    { background:rgba(107,102,96,.08); color:var(--color-text-muted); border-color:var(--color-border); }
+  [data-theme="dark"] .conviction-badge--high   { background:rgba(220,38,38,.18); color:#f87171; border-color:rgba(220,38,38,.4); }
+  [data-theme="dark"] .conviction-badge--medium { background:rgba(217,119,6,.18); color:#fbbf24; border-color:rgba(217,119,6,.4); }
+
+  /* ── Blind spots grid ── */
+  .blind-spot-list { display:flex; flex-direction:column; gap:var(--space-3); }
+  .blind-spot-item { background:var(--color-surface); border:1px solid var(--color-border); border-left:3px solid var(--monitor-accent); border-radius:var(--radius-md); padding:var(--space-4) var(--space-5); display:flex; flex-direction:column; gap:var(--space-2); }
+  .blind-spot-item__header { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-3); flex-wrap:wrap; }
+  .blind-spot-item__name { font-size:var(--text-base); font-weight:700; color:var(--color-text); }
+  .blind-spot-item__id { font-size:var(--text-min); font-weight:700; font-family:monospace; color:var(--color-text-muted); padding-top:3px; white-space:nowrap; }
+  .blind-spot-item__desc { font-size:var(--text-sm); color:var(--color-text-secondary); line-height:1.6; }
+  .blind-spot-item__footer { display:flex; gap:var(--space-3); align-items:center; flex-wrap:wrap; font-size:var(--text-xs); color:var(--color-text-muted); }
   </style>
   <!-- SEO: JSON-LD structured data -->
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://asym-intel.info/"},{"@type":"ListItem","position":2,"name":"Global Macro Monitor","item":"https://asym-intel.info/monitors/macro-monitor/"},{"@type":"ListItem","position":3,"name":"Latest Report","item":"https://asym-intel.info/monitors/macro-monitor/report.html"}]}</script>
@@ -343,6 +376,33 @@
       </div>
     </section>
 
+    <!-- CW-3: conviction_history — Macro Conviction History -->
+    <section class="module-section" id="section-conviction-history" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Macro Conviction History</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-4)">Weekly time-series of system average score, regime, and conviction rating.</p>
+      <div id="conviction-history-content"></div>
+    </section>
+
+    <!-- CW-3: blind_spots — Analyst Blind Spots -->
+    <section class="module-section" id="section-blind-spots" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Analyst Blind Spots</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-4)">Named gaps in consensus coverage flagged by the GMM interpreter. Each entry is a named risk not yet reflected in mainstream positioning.</p>
+      <div id="blind-spots-content"></div>
+    </section>
+
+    <!-- CW-3: active_tactical_alerts — Active Tactical Alerts -->
+    <section class="module-section" id="section-active-tactical-alerts" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Active Tactical Alerts</div>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-4)">State-machine alerts with current status. WARNING = threshold crossed; WATCH = approaching threshold; CLEAR = resolved.</p>
+      <div id="active-tactical-alerts-content"></div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -359,6 +419,9 @@
       <li><a href="#section-central-bank"><span class="sidebar-num">08</span> Central Banks</a></li>
       <li><a href="#section-tariff"><span class="sidebar-num">09</span> Tariff Tracker</a></li>
       <li><a href="#section-cross-monitor"><span class="sidebar-num">10</span> Cross-Monitor</a></li>
+      <li><a href="#section-conviction-history">Conviction History</a></li>
+      <li><a href="#section-blind-spots">Blind Spots</a></li>
+      <li><a href="#section-active-tactical-alerts">Tactical Alerts</a></li>
     </ul>
   </nav>
 </div>
@@ -958,6 +1021,82 @@ document.addEventListener('DOMContentLoaded', function () {
         '</ul>';
     }
     document.getElementById('m11-scenario-content').innerHTML = m11Html || emptyMsg('No scenario or tail risk items this issue.');
+
+    /* CW-3: conviction_history — Macro Conviction History */
+    var convHistory = d.conviction_history || [];
+    var convSection = document.getElementById('section-conviction-history');
+    if (convHistory.length) {
+      convSection.style.display = '';
+      var convHtml = '<div class="conviction-timeline">';
+      convHistory.forEach(function(entry) {
+        var cvLow = String(entry.conviction || '').toLowerCase();
+        var cvClass = cvLow === 'high' ? 'conviction-badge--high' : cvLow === 'medium' ? 'conviction-badge--medium' : 'conviction-badge--low';
+        var sysAvg = entry.system_average != null ? Number(entry.system_average).toFixed(3) : '—';
+        convHtml += '<div class="conviction-entry">' +
+          '<div class="conviction-entry__date">' + esc(fmtDate(entry.date)) + '</div>' +
+          '<div class="conviction-entry__body">' +
+            '<div class="conviction-entry__meta">' +
+              '<span class="conviction-badge ' + cvClass + '">' + esc(entry.conviction || '—') + '</span>' +
+              '<span style="font-size:var(--text-xs);font-weight:700;color:var(--color-text)">' + esc(entry.regime || '') + '</span>' +
+              (entry.regime_conviction ? '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">Regime conviction: ' + esc(entry.regime_conviction) + '</span>' : '') +
+              '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-family:monospace">Avg: ' + esc(sysAvg) + '</span>' +
+            '</div>' +
+            (entry.rationale ? '<div class="conviction-entry__rationale">' + esc(entry.rationale) + '</div>' : '') +
+          '</div>' +
+        '</div>';
+      });
+      convHtml += '</div>';
+      document.getElementById('conviction-history-content').innerHTML = convHtml;
+    }
+
+    /* CW-3: blind_spots — Analyst Blind Spots */
+    var blindSpots = d.blind_spots || [];
+    var bsSection = document.getElementById('section-blind-spots');
+    if (blindSpots.length) {
+      bsSection.style.display = '';
+      var bsHtml = '<div class="blind-spot-list">';
+      blindSpots.forEach(function(bs) {
+        bsHtml += '<div class="blind-spot-item">' +
+          '<div class="blind-spot-item__header">' +
+            '<div class="blind-spot-item__name">' + esc(bs.name || '') + '</div>' +
+            '<div class="blind-spot-item__id">' + esc(bs.id || '') + '</div>' +
+          '</div>' +
+          (bs.description ? '<div class="blind-spot-item__desc">' + esc(bs.description) + '</div>' : '') +
+          '<div class="blind-spot-item__footer">' +
+            (bs.evidence_id ? '<span>Evidence: ' + esc(bs.evidence_id) + '</span>' : '') +
+            (bs.source_url ? '<a class="source-link" href="' + esc(bs.source_url) + '" target="_blank" rel="noopener">Source →</a>' : '') +
+          '</div>' +
+        '</div>';
+      });
+      bsHtml += '</div>';
+      document.getElementById('blind-spots-content').innerHTML = bsHtml;
+    }
+
+    /* CW-3: active_tactical_alerts — Active Tactical Alerts */
+    var activeTactical = d.active_tactical_alerts || [];
+    var ataSection = document.getElementById('section-active-tactical-alerts');
+    if (activeTactical.length) {
+      ataSection.style.display = '';
+      var ataHtml = '<div style="display:flex;flex-direction:column;gap:var(--space-3)">';
+      activeTactical.forEach(function(alert) {
+        var state = String(alert.current_state || '').toUpperCase();
+        var badgeCls = state === 'WARNING' ? 'status-badge--escalating' : state === 'WATCH' ? 'status-badge--monitoring' : 'status-badge--stable';
+        var badgeIcon = state === 'WARNING' ? '⚠️' : state === 'WATCH' ? '🔍' : '✓';
+        ataHtml += '<div class="card" style="margin-bottom:0">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3);flex-wrap:wrap;margin-bottom:var(--space-2)">' +
+            '<div style="display:flex;flex-direction:column;gap:var(--space-1)">' +
+              '<div style="font-size:var(--text-sm);font-weight:700;color:var(--color-text)">' + esc(alert.name || '') + '</div>' +
+              '<div style="font-size:var(--text-xs);color:var(--color-text-muted);font-family:monospace">' + esc(alert.alert_id || '') + '</div>' +
+            '</div>' +
+            '<span class="status-badge ' + badgeCls + '"><span class="status-badge__icon" aria-hidden="true">' + badgeIcon + '</span>' + esc(state) + '</span>' +
+          '</div>' +
+          (alert.description ? '<div style="font-size:var(--text-sm);color:var(--color-text-secondary);line-height:1.6">' + esc(alert.description) + '</div>' : '') +
+          (alert.last_state_change ? '<div style="margin-top:var(--space-2);font-size:var(--text-xs);color:var(--color-text-muted)">Last change: ' + esc(fmtDate(alert.last_state_change)) + '</div>' : '') +
+        '</div>';
+      });
+      ataHtml += '</div>';
+      document.getElementById('active-tactical-alerts-content').innerHTML = ataHtml;
+    }
   }
 });
 </script>
