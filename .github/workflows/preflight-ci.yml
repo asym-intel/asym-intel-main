@@ -10,6 +10,8 @@ on:
       - 'static/ops/**'
       - 'docs/crons/**'
       - 'tools/preflight.py'
+      - 'tools/no_direct_provider_calls.py'
+      - 'tools/test_no_direct_provider_calls.py'
       - 'tools/preflight_engine_chrome.py'
       - 'tools/preflight_ui_shim.py'
       - 'tools/public_surface_audit.py'
@@ -53,6 +55,16 @@ jobs:
 
       - name: Run pipeline preflight
         run: python3 tools/preflight.py --verbose
+
+      - name: No direct provider calls (Sprint CS, BRIEF CS-2)
+        # Standalone gate — also registered inside tools/preflight.py, but
+        # surfaced separately here so the PR check shows as its own
+        # green/red signal. Fails on any direct LLM-provider call outside
+        # the engine allow-list (tools/**, pipeline/engine/**).
+        run: python3 tools/no_direct_provider_calls.py
+
+      - name: Test no-direct-provider-calls gate (unit tests)
+        run: python3 -m pytest tools/test_no_direct_provider_calls.py -v
 
       - name: Run engine-chrome preflight (footer + chip specs)
         run: python3 tools/preflight_engine_chrome.py

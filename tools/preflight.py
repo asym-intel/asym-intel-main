@@ -1107,6 +1107,44 @@ def check_chains_provenance_resolution(r: Results):
             )
 
 
+def check_no_direct_provider_calls(r: Results):
+    """Sprint CS, BRIEF CS-2 — no direct LLM-provider calls outside engine.
+
+    Delegates to tools/no_direct_provider_calls.py (which is also runnable
+    standalone from the CI workflow). Fails the preflight if any forbidden
+    pattern (Anthropic SDK import, perplexity/anthropic hostnames, provider
+    env-vars, requests.post → provider) appears under pipeline/monitors/**
+    or pipeline/synthesisers/**. Allow-list is embedded in the tool.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "no_direct_provider_calls",
+        Path(__file__).resolve().parent / "no_direct_provider_calls.py",
+    )
+    if spec is None or spec.loader is None:
+        r.fail("CS-2:gate", "could not load tools/no_direct_provider_calls.py")
+        return
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+
+    violations, scanned = mod.scan(REPO_ROOT)
+    if scanned < 0:
+        r.fail("CS-2:gate", "tool error during scan (file read failure)")
+        return
+    if violations:
+        files_with = len({v.split(": ", 1)[1].split(":", 1)[0] for v in violations})
+        r.fail(
+            "CS-2:no-direct-provider-calls",
+            f"{len(violations)} violation(s) across {files_with} file(s); "
+            f"run `python3 tools/no_direct_provider_calls.py` for the full list",
+        )
+    else:
+        r.ok(
+            "CS-2:no-direct-provider-calls",
+            f"{scanned} file(s) scanned, 0 direct provider calls",
+        )
+
+
 CHECK_GROUPS = {
     "workflows": check_workflows,
     "preambles": check_prompt_preambles,
@@ -1123,6 +1161,7 @@ CHECK_GROUPS = {
     "adapters": check_adapters,
     "persistent_state_routing": check_persistent_state_routing,
     "chains_provenance_resolution": check_chains_provenance_resolution,
+    "no_direct_provider_calls": check_no_direct_provider_calls,
 }
 
 
