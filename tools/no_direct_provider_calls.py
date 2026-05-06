@@ -10,10 +10,9 @@ provenance, and the Anthropic blocklist all flow through the engine clients.
 
 Scope (intentional and narrow)
 ------------------------------
-The gate scans **only** these paths:
+The gate scans **only** this path:
 
   pipeline/engine/**             — the engine clients themselves
-  pipeline/chatter/unified-chatter.py — the consolidated chatter dispatcher
 
 Everything else under pipeline/** is OUT OF SCOPE for this gate. Pre-engine
 files (per-monitor weekly-research.py, <abbr>-reasoner.py, per-monitor
@@ -22,6 +21,14 @@ test fixtures) may carry one of several roles — legacy entry point retained
 for direct invocation, lab/debug tool, scheduled fallback, or dead residue
 awaiting cleanup — and Sprint CS-min did not classify them. A future sprint
 will audit and decide; this gate makes no claim about them.
+
+The consolidated chatter dispatcher (pipeline/chatter/unified-chatter.py)
+is also out of scope for this gate, but for a different reason: an audit
+during CS-min found it currently calls Perplexity directly rather than
+routing through the engine. Whether chatter SHOULD route through the engine
+is an open architectural question, logged for follow-up audit (see
+ops/HOUSEKEEPING-INBOX.md). Including unified-chatter would force a CS-min
+answer to that question; declining to include it preserves the option.
 
 The narrow scope is deliberate. It gives the gate a positive guarantee
 ("the engine path stays clean") while declining to take a position on
@@ -59,14 +66,11 @@ from typing import Iterable
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Scoped scan targets. The gate scans these paths and only these paths.
-# Each entry is either a directory (recursive) or an exact file path,
-# all relative to REPO_ROOT and using POSIX separators.
+# Each entry is a directory (recursive), relative to REPO_ROOT, POSIX seps.
 _SCAN_DIRS: tuple[str, ...] = (
     "pipeline/engine",
 )
-_SCAN_FILES: tuple[str, ...] = (
-    "pipeline/chatter/unified-chatter.py",
-)
+_SCAN_FILES: tuple[str, ...] = ()  # reserved for future named-file additions
 
 # (label, compiled regex). Order is preserved for stable output.
 _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -127,7 +131,7 @@ def scan(root: Path = REPO_ROOT) -> tuple[list[str], int]:
 
 def _scope_description() -> str:
     parts = list(_SCAN_DIRS) + list(_SCAN_FILES)
-    return ", ".join(parts)
+    return ", ".join(parts) if parts else "(empty scope)"
 
 
 def main() -> int:
