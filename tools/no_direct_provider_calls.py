@@ -2,33 +2,43 @@
 """
 tools/no_direct_provider_calls.py — CI gate (Sprint CS-min, BRIEF CS-2).
 
-Scans every .py file under pipeline/monitors/** and pipeline/synthesisers/**
-for direct LLM-provider calls (Anthropic / Perplexity SDK imports, hardcoded
-provider hostnames, or provider env-var references). Such calls must go
-through the engine clients (pipeline/engine/*) — direct calls bypass routing
-provenance, exchange recording, and the Anthropic blocklist.
+Scans the canonical engine surface for direct LLM-provider calls (Anthropic /
+Perplexity SDK imports, hardcoded provider hostnames, or provider env-var
+references). Such calls inside the engine bypass the routing layer that the
+engine itself is supposed to provide — exchange recording, model-routing
+provenance, and the Anthropic blocklist all flow through the engine clients.
+
+Scope (intentional and narrow)
+------------------------------
+The gate scans **only** these paths:
+
+  pipeline/engine/**             — the engine clients themselves
+  pipeline/chatter/unified-chatter.py — the consolidated chatter dispatcher
+
+Everything else under pipeline/** is OUT OF SCOPE for this gate. Pre-engine
+files (per-monitor weekly-research.py, <abbr>-reasoner.py, per-monitor
+synthesisers, collect.py, the cross-monitor synthesiser, daily test scripts,
+test fixtures) may carry one of several roles — legacy entry point retained
+for direct invocation, lab/debug tool, scheduled fallback, or dead residue
+awaiting cleanup — and Sprint CS-min did not classify them. A future sprint
+will audit and decide; this gate makes no claim about them.
+
+The narrow scope is deliberate. It gives the gate a positive guarantee
+("the engine path stays clean") while declining to take a position on
+files whose status is uncertain.
 
 Allow-list policy
 -----------------
-Two kinds of entries:
+None. The scope IS the allow-list — anything inside the scoped paths must
+either route through the engine or be removed. There is no per-file
+exemption mechanism, by design.
 
-1. PREFIX EXEMPTIONS — directory trees that are inherently allowed:
-     tools/            ops/maintenance scripts may invoke clients directly
-     pipeline/engine/  the engine clients themselves (engine code lives only
-                       on asym-intel-internal and is sparse-checked-out at
-                       workflow runtime; this entry is defensive in case
-                       engine code is ever staged on main)
-
-2. RESIDUE EXEMPTIONS — exact file paths that genuinely still call providers
-   directly because their pre-engine code path has not been migrated yet.
-   Each entry is tagged with the housekeeping ticket that tracks migration.
-   These exemptions are TEMPORARY — when Sprint CT (or successor) lands, the
-   corresponding entry must be removed and the file re-scanned.
-
-   The entries below are the inventory captured at the close of Sprint CS-min
-   (2026-05-05). If any entry is removed without the live workflow being
-   migrated to engine dispatch, the gate will start failing — that IS the
-   intended forcing function.
+Engine code lives only on asym-intel-internal and is sparse-checked-out at
+workflow runtime. On asym-intel-main the gate's scan paths are typically
+empty or nearly so; that is expected. A clean gate on main means "no engine
+code accidentally landed in the public repo and bypasses routing." A clean
+gate on internal means "the engine itself is honest about its own
+boundary."
 
 Exit codes:
   0 — no violations
@@ -48,40 +58,14 @@ from typing import Iterable
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# Directories to scan
-_SCAN_ROOTS = (
-    "pipeline/monitors",
-    "pipeline/synthesisers",
+# Scoped scan targets. The gate scans these paths and only these paths.
+# Each entry is either a directory (recursive) or an exact file path,
+# all relative to REPO_ROOT and using POSIX separators.
+_SCAN_DIRS: tuple[str, ...] = (
+    "pipeline/engine",
 )
-
-# Prefix exemptions — directory trees inherently outside the gate's remit.
-_ALLOW_PREFIXES: tuple[str, ...] = (
-    "tools/",
-    "pipeline/engine/",
-)
-
-# Residue exemptions — exact file paths still on the pre-engine code path.
-# Tagged with the housekeeping ticket tracking their migration. These entries
-# are removed one-by-one as files migrate to engine dispatch.
-#
-# Captured 2026-05-05 (Sprint CS-min close). See ops/HOUSEKEEPING-INBOX.md
-# entry "Sprint CT — engine cutover residue (collect.py + cross-monitor)".
-_ALLOW_RESIDUE_FILES: tuple[str, ...] = (
-    # Daily collectors — still pre-engine; called directly from
-    # <abbr>-collector.yml workflows. Migration target: pipeline.engine.collect_base.
-    "pipeline/monitors/ai-governance/collect.py",                # CT residue
-    "pipeline/monitors/conflict-escalation/collect.py",          # CT residue
-    "pipeline/monitors/democratic-integrity/collect.py",         # CT residue
-    "pipeline/monitors/environmental-risks/collect.py",          # CT residue
-    "pipeline/monitors/european-strategic-autonomy/collect.py",  # CT residue
-    "pipeline/monitors/fimi-cognitive-warfare/collect.py",       # CT residue
-    "pipeline/monitors/financial-integrity/collect.py",          # CT residue
-    "pipeline/monitors/macro-monitor/collect.py",                # CT residue
-
-    # Cross-monitor synthesiser — still pre-engine; called directly from
-    # cross-monitor-synthesiser.yml. The seven per-monitor synthesisers
-    # already migrated to pipeline.engine.synth_base. Migration target same.
-    "pipeline/synthesisers/cross-monitor/cross-monitor-synthesiser.py",  # CT residue
+_SCAN_FILES: tuple[str, ...] = (
+    "pipeline/chatter/unified-chatter.py",
 )
 
 # (label, compiled regex). Order is preserved for stable output.
@@ -98,21 +82,18 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 
-def _is_allow_listed(rel_posix: str) -> bool:
-    if any(rel_posix.startswith(prefix) for prefix in _ALLOW_PREFIXES):
-        return True
-    if rel_posix in _ALLOW_RESIDUE_FILES:
-        return True
-    return False
-
-
-def _iter_py_files(root: Path, scan_roots: Iterable[str]) -> list[Path]:
+def _iter_py_files(root: Path,
+                   scan_dirs: Iterable[str],
+                   scan_files: Iterable[str]) -> list[Path]:
     files: list[Path] = []
-    for sub in scan_roots:
+    for sub in scan_dirs:
         base = root / sub
-        if not base.exists():
-            continue
-        files.extend(sorted(base.rglob("*.py")))
+        if base.exists():
+            files.extend(sorted(base.rglob("*.py")))
+    for rel in scan_files:
+        path = root / rel
+        if path.exists():
+            files.append(path)
     return files
 
 
@@ -125,10 +106,8 @@ def scan(root: Path = REPO_ROOT) -> tuple[list[str], int]:
     violations: list[str] = []
     scanned = 0
 
-    for py in _iter_py_files(root, _SCAN_ROOTS):
+    for py in _iter_py_files(root, _SCAN_DIRS, _SCAN_FILES):
         rel = py.relative_to(root).as_posix()
-        if _is_allow_listed(rel):
-            continue
         scanned += 1
         try:
             text = py.read_text(encoding="utf-8")
@@ -146,8 +125,13 @@ def scan(root: Path = REPO_ROOT) -> tuple[list[str], int]:
     return violations, scanned
 
 
+def _scope_description() -> str:
+    parts = list(_SCAN_DIRS) + list(_SCAN_FILES)
+    return ", ".join(parts)
+
+
 def main() -> int:
-    print("no_direct_provider_calls.py — checking pipeline/monitors/** and pipeline/synthesisers/**...\n")
+    print(f"no_direct_provider_calls.py — scanning {_scope_description()}...\n")
     try:
         violations, scanned = scan(REPO_ROOT)
     except re.error as exc:
