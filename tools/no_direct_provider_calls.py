@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-tools/no_direct_provider_calls.py — CI gate (Sprint CS, BRIEF CS-2).
+tools/no_direct_provider_calls.py — CI gate (Sprint CS-min, BRIEF CS-2).
 
 Scans every .py file under pipeline/monitors/** and pipeline/synthesisers/**
 for direct LLM-provider calls (Anthropic / Perplexity SDK imports, hardcoded
@@ -8,15 +8,27 @@ provider hostnames, or provider env-var references). Such calls must go
 through the engine clients (pipeline/engine/*) — direct calls bypass routing
 provenance, exchange recording, and the Anthropic blocklist.
 
-Allow-list:
-  - tools/**          ops/maintenance scripts may invoke clients directly
-  - pipeline/engine/** the engine clients are the legitimate consumers
-                       (engine code lives only on asym-intel-internal and is
-                       sparse-checked-out at workflow runtime; this entry is
-                       defensive in case engine code is ever staged on main)
+Allow-list policy
+-----------------
+Two kinds of entries:
 
-Note: pipeline/engine/ does not currently exist on this repo; the entry above
-is intentional defence-in-depth, not a current path.
+1. PREFIX EXEMPTIONS — directory trees that are inherently allowed:
+     tools/            ops/maintenance scripts may invoke clients directly
+     pipeline/engine/  the engine clients themselves (engine code lives only
+                       on asym-intel-internal and is sparse-checked-out at
+                       workflow runtime; this entry is defensive in case
+                       engine code is ever staged on main)
+
+2. RESIDUE EXEMPTIONS — exact file paths that genuinely still call providers
+   directly because their pre-engine code path has not been migrated yet.
+   Each entry is tagged with the housekeeping ticket that tracks migration.
+   These exemptions are TEMPORARY — when Sprint CT (or successor) lands, the
+   corresponding entry must be removed and the file re-scanned.
+
+   The entries below are the inventory captured at the close of Sprint CS-min
+   (2026-05-05). If any entry is removed without the live workflow being
+   migrated to engine dispatch, the gate will start failing — that IS the
+   intended forcing function.
 
 Exit codes:
   0 — no violations
@@ -42,11 +54,34 @@ _SCAN_ROOTS = (
     "pipeline/synthesisers",
 )
 
-# Path prefixes exempt from scanning. Matched against POSIX paths relative
-# to REPO_ROOT.
-_ALLOW_LIST = (
+# Prefix exemptions — directory trees inherently outside the gate's remit.
+_ALLOW_PREFIXES: tuple[str, ...] = (
     "tools/",
     "pipeline/engine/",
+)
+
+# Residue exemptions — exact file paths still on the pre-engine code path.
+# Tagged with the housekeeping ticket tracking their migration. These entries
+# are removed one-by-one as files migrate to engine dispatch.
+#
+# Captured 2026-05-05 (Sprint CS-min close). See ops/HOUSEKEEPING-INBOX.md
+# entry "Sprint CT — engine cutover residue (collect.py + cross-monitor)".
+_ALLOW_RESIDUE_FILES: tuple[str, ...] = (
+    # Daily collectors — still pre-engine; called directly from
+    # <abbr>-collector.yml workflows. Migration target: pipeline.engine.collect_base.
+    "pipeline/monitors/ai-governance/collect.py",                # CT residue
+    "pipeline/monitors/conflict-escalation/collect.py",          # CT residue
+    "pipeline/monitors/democratic-integrity/collect.py",         # CT residue
+    "pipeline/monitors/environmental-risks/collect.py",          # CT residue
+    "pipeline/monitors/european-strategic-autonomy/collect.py",  # CT residue
+    "pipeline/monitors/fimi-cognitive-warfare/collect.py",       # CT residue
+    "pipeline/monitors/financial-integrity/collect.py",          # CT residue
+    "pipeline/monitors/macro-monitor/collect.py",                # CT residue
+
+    # Cross-monitor synthesiser — still pre-engine; called directly from
+    # cross-monitor-synthesiser.yml. The seven per-monitor synthesisers
+    # already migrated to pipeline.engine.synth_base. Migration target same.
+    "pipeline/synthesisers/cross-monitor/cross-monitor-synthesiser.py",  # CT residue
 )
 
 # (label, compiled regex). Order is preserved for stable output.
@@ -64,7 +99,11 @@ _PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 
 
 def _is_allow_listed(rel_posix: str) -> bool:
-    return any(rel_posix.startswith(prefix) for prefix in _ALLOW_LIST)
+    if any(rel_posix.startswith(prefix) for prefix in _ALLOW_PREFIXES):
+        return True
+    if rel_posix in _ALLOW_RESIDUE_FILES:
+        return True
+    return False
 
 
 def _iter_py_files(root: Path, scan_roots: Iterable[str]) -> list[Path]:
