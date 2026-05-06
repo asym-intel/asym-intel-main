@@ -136,6 +136,110 @@
       max-width: 72ch;
     }
     .section-narrative strong { color: var(--color-text); font-weight: 600; }
+
+    /* ── Tipping System Flags table (CW-5) ── */
+    .tsf-table { width: 100%; border-collapse: collapse; margin-bottom: var(--space-5); }
+    .tsf-table th {
+      font-size: var(--text-min);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-text-muted);
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 2px solid var(--color-border);
+      text-align: left;
+    }
+    .tsf-table td {
+      font-size: var(--text-xs);
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--color-border-subtle);
+      vertical-align: top;
+    }
+    .tsf-table tr:last-child td { border-bottom: none; }
+    .tsf-table tr.tsf-critical td:first-child { border-left: 3px solid #dc2626; }
+    .tsf-table tr.tsf-elevated td:first-child { border-left: 3px solid #d97706; }
+    .tsf-table tr.tsf-moderate td:first-child { border-left: 3px solid #2563eb; }
+    [data-theme="dark"] .tsf-table tr.tsf-critical td:first-child { border-left-color: #f87171; }
+    [data-theme="dark"] .tsf-table tr.tsf-elevated td:first-child { border-left-color: #fbbf24; }
+    [data-theme="dark"] .tsf-table tr.tsf-moderate td:first-child { border-left-color: #60a5fa; }
+    .tsf-badge {
+      display: inline-block;
+      font-size: var(--text-min);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .tsf-badge--critical { background: rgba(220,38,38,0.12); color: #dc2626; border: 1px solid rgba(220,38,38,0.25); }
+    .tsf-badge--elevated  { background: rgba(217,119,6,0.10);  color: #b45309; border: 1px solid rgba(217,119,6,0.20); }
+    .tsf-badge--moderate  { background: rgba(37,99,235,0.08);  color: #2563eb; border: 1px solid rgba(37,99,235,0.15); }
+    [data-theme="dark"] .tsf-badge--critical { background: rgba(220,38,38,0.20); color: #f87171; border-color: rgba(220,38,38,0.35); }
+    [data-theme="dark"] .tsf-badge--elevated  { background: rgba(217,119,6,0.18);  color: #fbbf24; border-color: rgba(217,119,6,0.30); }
+    [data-theme="dark"] .tsf-badge--moderate  { background: rgba(37,99,235,0.15);  color: #60a5fa; border-color: rgba(37,99,235,0.25); }
+
+    /* ── Regional Cascade Chain cards (CW-5) ── */
+    .cascade-card {
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+    }
+    [data-theme="dark"] .cascade-card { background: #25231f; border-color: #2d2c2a; }
+    .cascade-card__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+      flex-wrap: wrap;
+    }
+    .cascade-card__region {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      flex: 1 1 auto;
+    }
+    .cascade-stage-badge {
+      font-size: var(--text-min);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: rgba(100,116,139,0.10);
+      color: var(--color-text-muted);
+      border: 1px solid rgba(100,116,139,0.20);
+      white-space: nowrap;
+    }
+    .cascade-card__chain {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      line-height: 1.6;
+      margin-bottom: var(--space-2);
+    }
+    .cascade-card__reverse {
+      font-size: var(--text-min);
+      color: var(--color-text-muted);
+      padding-top: var(--space-2);
+      border-top: 1px solid var(--color-border-subtle);
+    }
+    .cascade-card__reverse strong { color: var(--color-text-secondary); }
+    .cascade-status-badge {
+      font-size: var(--text-min);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+    .cascade-status-badge--active     { background: rgba(220,38,38,0.10); color: #dc2626; border: 1px solid rgba(220,38,38,0.22); }
+    .cascade-status-badge--monitoring { background: rgba(217,119,6,0.10);  color: #b45309; border: 1px solid rgba(217,119,6,0.20); }
+    .cascade-status-badge--contained  { background: rgba(34,197,94,0.08);  color: #16a34a; border: 1px solid rgba(34,197,94,0.20); }
+    [data-theme="dark"] .cascade-status-badge--active     { background: rgba(220,38,38,0.20); color: #f87171; border-color: rgba(220,38,38,0.35); }
+    [data-theme="dark"] .cascade-status-badge--monitoring { background: rgba(217,119,6,0.18);  color: #fbbf24; border-color: rgba(217,119,6,0.30); }
+    [data-theme="dark"] .cascade-status-badge--contained  { background: rgba(34,197,94,0.15);  color: #4ade80; border-color: rgba(34,197,94,0.30); }
   </style>
   <!-- SEO: JSON-LD structured data -->
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://asym-intel.info/"},{"@type":"ListItem","position":2,"name":"Environmental Risks Monitor","item":"https://asym-intel.info/monitors/environmental-risks/"},{"@type":"ListItem","position":3,"name":"Latest Report","item":"https://asym-intel.info/monitors/environmental-risks/report.html"}]}</script>
@@ -208,6 +312,14 @@
       <div id="tipping-content"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- ── TIPPING SYSTEM FLAGS (CW-5) ── -->
+    <section class="module-section" id="section-tipping-system-flags">
+      <div class="module-header">
+        <div class="module-title">Tipping System Flags</div>
+      </div>
+      <div id="tipping-system-flags-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <!-- ── M03 CLIMATE-SECURITY NEXUS ── -->
     <section class="module-section" id="section-m03">
       <div class="module-header">
@@ -249,6 +361,14 @@
         <div class="module-title">Reverse Cascade Check</div>
       </div>
       <div id="reverse-cascade-content"><div class="loading-state">Loading…</div></div>
+    </section>
+
+    <!-- ── REGIONAL CASCADE CHAINS (CW-5) ── -->
+    <section class="module-section" id="section-cascade-chains">
+      <div class="module-header">
+        <div class="module-title">Regional Cascade Chains</div>
+      </div>
+      <div id="cascade-chains-content"><div class="loading-state">Loading…</div></div>
     </section>
 
     <!-- ── REGIONAL COVERAGE ── -->
@@ -293,11 +413,13 @@
       <li><a href="#section-m01">M01 Executive</a></li>
       <li><a href="#section-m02">M02 Boundaries</a></li>
       <li><a href="#section-tipping">Tipping Points</a></li>
+      <li><a href="#section-tipping-system-flags">Tipping Flags</a></li>
       <li><a href="#section-m03">M03 Climate-Security</a></li>
       <li><a href="#section-m04">M04 Extreme Events</a></li>
       <li><a href="#section-m05">M05 Policy &amp; Law</a></li>
       <li><a href="#section-attribution">Attribution Gaps</a></li>
       <li><a href="#section-reverse-cascade">Reverse Cascade</a></li>
+      <li><a href="#section-cascade-chains">Cascade Chains</a></li>
       <li><a href="#section-regional">Regional Coverage</a></li>
       <li><a href="#section-key-judgments">Key Judgments</a></li>
       <li><a href="#section-cmc">CMC Candidates</a></li>
@@ -624,6 +746,103 @@ document.addEventListener('DOMContentLoaded', function () {
       // ══════════════════════════════════════════════════════════════
       var cmf = d.cross_monitor_flags || {};
       AsymSections.renderCrossMonitorFlags(cmf, 'cross-monitor-content');
+
+      // ══════════════════════════════════════════════════════════════
+      // TIPPING SYSTEM FLAGS (CW-5) — severity-coloured table
+      // Columns: System | Status | Proxy Metric / Current Value | Collapse Range
+      // Row severity driven by status field: Critical=red, Elevated=amber, Moderate=blue
+      // ══════════════════════════════════════════════════════════════
+      var tsfFlags = d.tipping_system_flags || [];
+      var tsfEl = document.getElementById('tipping-system-flags-content');
+      if (!tsfFlags.length) {
+        tsfEl.innerHTML = '<p class="text-muted">No tipping system flag data available this issue.</p>';
+      } else {
+        var tsfCritical = tsfFlags.filter(function(f) { return (f.status || '').toLowerCase() === 'critical'; });
+        var tsfElevated = tsfFlags.filter(function(f) { return (f.status || '').toLowerCase() === 'elevated'; });
+        var tsfNarr = tsfFlags.length + ' tipping systems tracked this issue.';
+        if (tsfCritical.length) tsfNarr += ' ' + tsfCritical.length + ' Critical.';
+        if (tsfElevated.length) tsfNarr += ' ' + tsfElevated.length + ' Elevated.';
+        tsfNarr += ' IPCC AR6 collapse probability ranges shown. 12-system full population expected — absent systems have no new signal this cycle.';
+
+        function tsfRowClass(status) {
+          var s = (status || '').toLowerCase();
+          if (s === 'critical') return 'tsf-critical';
+          if (s === 'elevated') return 'tsf-elevated';
+          return 'tsf-moderate';
+        }
+        function tsfBadgeClass(status) {
+          var s = (status || '').toLowerCase();
+          if (s === 'critical') return 'tsf-badge--critical';
+          if (s === 'elevated') return 'tsf-badge--elevated';
+          return 'tsf-badge--moderate';
+        }
+
+        var tsfHtml = '<p class="section-narrative">' + esc(tsfNarr) + '</p>';
+        tsfHtml += '<div style="overflow-x:auto"><table class="tsf-table">' +
+          '<thead><tr>' +
+            '<th>System</th>' +
+            '<th>Status</th>' +
+            '<th>Proxy Metric</th>' +
+            '<th>Current Value</th>' +
+            '<th>Collapse Probability (IPCC AR6)</th>' +
+          '</tr></thead>' +
+          '<tbody>' +
+          tsfFlags.map(function(f) {
+            return '<tr class="' + tsfRowClass(f.status) + '">' +
+              '<td><strong>' + esc(f.system || '') + '</strong></td>' +
+              '<td><span class="tsf-badge ' + tsfBadgeClass(f.status) + '">' + esc(f.status || '') + '</span></td>' +
+              '<td style="max-width:220px">' + esc(f.proxy_metric || '—') + '</td>' +
+              '<td style="max-width:220px">' + esc(f.proxy_value || '—') + '</td>' +
+              '<td style="max-width:220px">' + esc(f.collapse_probability_range || '—') + '</td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>';
+
+        tsfEl.innerHTML = tsfHtml;
+      }
+
+      // ══════════════════════════════════════════════════════════════
+      // REGIONAL CASCADE CHAINS (CW-5) — narrative card layout
+      // Each card: region header, Active/Monitoring status badge, current_stage
+      // text badge, full chain narrative, reverse_cascade note footer.
+      // ══════════════════════════════════════════════════════════════
+      var cascadeChains = d.regional_cascade_chains || [];
+      var ccEl = document.getElementById('cascade-chains-content');
+      if (!cascadeChains.length) {
+        ccEl.innerHTML = '<p class="text-muted">No regional cascade chain data available this issue.</p>';
+      } else {
+        var ccActive = cascadeChains.filter(function(c) { return (c.status || '').toLowerCase() === 'active'; });
+        var ccNarr = cascadeChains.length + ' regional cascade chain' + (cascadeChains.length !== 1 ? 's' : '') + ' tracked.';
+        if (ccActive.length) ccNarr += ' ' + ccActive.length + ' Active.';
+        ccNarr += ' Each chain traces the physical→human→political pathway; stage indicator shows current propagation depth.';
+
+        function ccStatusClass(status) {
+          var s = (status || '').toLowerCase();
+          if (s === 'active')     return 'cascade-status-badge--active';
+          if (s === 'monitoring') return 'cascade-status-badge--monitoring';
+          return 'cascade-status-badge--contained';
+        }
+
+        var ccHtml = '<p class="section-narrative">' + esc(ccNarr) + '</p>';
+        cascadeChains.forEach(function(c) {
+          var revNote = (c.reverse_cascade || '').toLowerCase();
+          var hasReverse = revNote && revNote !== 'none identified' && revNote !== 'none';
+          ccHtml +=
+            '<div class="cascade-card">' +
+              '<div class="cascade-card__header">' +
+                '<div class="cascade-card__region">' + esc(c.region || '') + '</div>' +
+                '<span class="cascade-status-badge ' + ccStatusClass(c.status) + '">' + esc(c.status || '') + '</span>' +
+                (c.current_stage ? '<span class="cascade-stage-badge">' + esc(c.current_stage) + '</span>' : '') +
+              '</div>' +
+              '<div class="cascade-card__chain">' + esc(c.chain || '') + '</div>' +
+              (hasReverse
+                ? '<div class="cascade-card__reverse"><strong>Reverse cascade:</strong> ' + esc(c.reverse_cascade) + '</div>'
+                : '') +
+            '</div>';
+        });
+
+        ccEl.innerHTML = ccHtml;
+      }
 
     })
     .catch(function (e) {
