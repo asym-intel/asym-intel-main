@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Tests for tools/no_direct_provider_calls.py (Sprint CS-min, BRIEF CS-2).
 
-The gate scans pipeline/engine/** and pipeline/chatter/unified-chatter.py
-ONLY. Pre-engine files outside this scope are intentionally not scanned —
-their status (legacy / lab / fallback / dead) is deferred to a later audit.
+The gate scans pipeline/engine/** ONLY. Pre-engine files and the
+consolidated chatter dispatcher are intentionally out of scope; their
+status (legacy / lab / fallback / dead / open architectural question) is
+deferred to a later audit.
 """
 
 from __future__ import annotations
@@ -64,25 +65,23 @@ def test_each_pattern_triggers_violation_inside_engine(tmp_path, snippet, expect
         assert "pipeline/engine/x.py:1:" in v
 
 
-# ── Scope: only engine/** and unified-chatter.py are scanned ───────────────
+# ── Scope: only pipeline/engine/** is scanned ───────────────────────────
 
 
-def test_unified_chatter_is_scanned(tmp_path):
-    """The single named file pipeline/chatter/unified-chatter.py is scanned."""
-    _write(tmp_path, "pipeline/chatter/unified-chatter.py",
-           'k = os.environ["PPLX_API_KEY"]\n')
-    violations, scanned = gate.scan(tmp_path)
-    assert scanned == 1
-    assert len(violations) == 1
-    assert "pipeline/chatter/unified-chatter.py:1:" in violations[0]
+def test_unified_chatter_is_out_of_scope(tmp_path):
+    """pipeline/chatter/unified-chatter.py is NOT scanned in CS-min.
 
-
-def test_other_chatter_files_are_out_of_scope(tmp_path):
-    """Only `unified-chatter.py` is scanned in pipeline/chatter/. Sibling
-    files (per-monitor chatter scripts that pre-date the unified path) are
-    out of scope."""
-    _write(tmp_path, "pipeline/chatter/some-other-file.py",
-           'k = os.environ["PPLX_API_KEY"]\n')
+    Audit found it currently calls Perplexity directly rather than routing
+    through the engine. Whether chatter SHOULD route through the engine is
+    an open architectural question deferred to a follow-up audit (see
+    ops/HOUSEKEEPING-INBOX.md). Forcing a CS-min answer would expand scope.
+    """
+    body = (
+        'API_KEY = os.environ["PPLX_API_KEY"]\n'
+        'requests.post("https://api.perplexity.ai/chat/completions")\n'
+    )
+    _write(tmp_path, "pipeline/chatter/unified-chatter.py", body)
+    _write(tmp_path, "pipeline/chatter/agm-chatter.py", body)
     violations, scanned = gate.scan(tmp_path)
     assert violations == []
     assert scanned == 0
@@ -131,11 +130,10 @@ def test_tools_directory_is_out_of_scope(tmp_path):
 
 
 def test_multifile_violations_summary(tmp_path):
-    """Both engine/** files and unified-chatter.py contribute to the same
-    violation report when both are dirty."""
+    """Multiple dirty engine files contribute to the same violation report."""
     _write(tmp_path, "pipeline/engine/a.py",
            'k = os.environ["PPLX_API_KEY"]\n')
-    _write(tmp_path, "pipeline/chatter/unified-chatter.py",
+    _write(tmp_path, "pipeline/engine/sub/b.py",
            'url = "https://api.perplexity.ai/x"\n')
     violations, scanned = gate.scan(tmp_path)
     assert scanned == 2
@@ -143,7 +141,7 @@ def test_multifile_violations_summary(tmp_path):
     paths = {v.split(": ", 1)[1].split(":", 1)[0] for v in violations}
     assert paths == {
         "pipeline/engine/a.py",
-        "pipeline/chatter/unified-chatter.py",
+        "pipeline/engine/sub/b.py",
     }
 
 
