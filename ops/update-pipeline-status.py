@@ -1336,6 +1336,69 @@ def generate_status():
     return status
 
 
+# ─── Additive-merge convention (CR-3) ───────────────────────────
+#
+# Producers OWN their own keys; they do NOT own the file.
+# Top-level `_*` keys are the canonical injection slot for non-producer
+# additive metadata: `_flow_quality` (injected by flow-quality-monitor.yml),
+# `_build` (injected by build.yml), and any future additive key.
+#
+# This producer owns: _meta, _verification, _incidents, _trigger_health.
+# All other `_*` top-level keys must be preserved across writes.
+
+# Keys that this producer owns and always rewrites.
+_PRODUCER_OWNED_UNDERSCORE_KEYS = frozenset({
+    "_meta",
+    "_verification",
+    "_incidents",
+    "_trigger_health",
+})
+
+
+def _fetch_current_internal_status():
+    """Fetch the live internal pipeline-status.json and return parsed dict.
+
+    Returns an empty dict on any fetch/parse failure so callers can always
+    do a safe dict-merge without special-casing the degraded path.
+    """
+    import base64 as _base64
+    gh_token = os.environ.get("GH_TOKEN")
+    raw = gh_api(
+        f"/repos/{INTERNAL_REPO}/contents/ops/pipeline-status.json",
+        token=gh_token,
+    )
+    if not raw:
+        return {}
+    try:
+        meta = json.loads(raw)
+        content = _base64.b64decode(meta["content"]).decode()
+        return json.loads(content)
+    except Exception as exc:  # noqa: BLE001
+        print(f"  WARNING: could not parse current internal pipeline-status.json: {exc}",
+              file=sys.stderr)
+        return {}
+
+
+def _preserve_additive_keys(status, current):
+    """Return a copy of *status* with additive `_*` keys from *current* merged in.
+
+    Rule:
+      - For every top-level key in *current* that starts with `_` AND is NOT
+        in `_PRODUCER_OWNED_UNDERSCORE_KEYS`, copy it into *status* unchanged.
+      - Keys this producer owns are always taken from *status* (never from *current*).
+      - Non-`_`-prefixed keys (monitor station rows) always come from *status*.
+
+    This is the additive-merge convention for CR-3: producers own their own
+    keys; they do not own the file.
+    """
+    result = dict(status)  # shallow copy; we only modify top-level keys
+    for key, value in current.items():
+        if key.startswith("_") and key not in _PRODUCER_OWNED_UNDERSCORE_KEYS:
+            result[key] = value
+            print(f"  Preserved additive key: {key}")
+    return result
+
+
 # ─── Public roll-up derivation (Sprint AZ BRIEF #1) ─────────────
 
 # Stations included in the per-monitor roll-up. All canonical pipeline stages
@@ -1727,6 +1790,14 @@ def main():
 
     # Generate full-fidelity status (internal)
     status = generate_status()
+
+    # CR-3: Additive-merge convention.
+    # Fetch the current live file from asym-intel-internal and preserve any
+    # `_*` top-level keys that this producer does not own (e.g. `_flow_quality`
+    # injected by flow-quality-monitor.yml, `_build` injected by build.yml).
+    # Degrades gracefully: on fetch failure, current={} and no keys are carried.
+    current_internal = _fetch_current_internal_status()
+    status = _preserve_additive_keys(status, current_internal)
 
     # Write internal full-fidelity locally (for CI artifacts and internal commit)
     status_json = json.dumps(status, indent=2)
