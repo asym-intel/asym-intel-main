@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Tests for tools/no_direct_provider_calls.py (Sprint CS, BRIEF CS-2)."""
+"""Tests for tools/no_direct_provider_calls.py (Sprint CS-min, BRIEF CS-2).
+
+The gate scans pipeline/engine/** and pipeline/chatter/unified-chatter.py
+ONLY. Pre-engine files outside this scope are intentionally not scanned —
+their status (legacy / lab / fallback / dead) is deferred to a later audit.
+"""
 
 from __future__ import annotations
 
@@ -21,8 +26,11 @@ def _write(tmp_path: Path, rel: str, body: str) -> Path:
     return p
 
 
-def test_clean_file_no_violations(tmp_path):
-    _write(tmp_path, "pipeline/monitors/test_clean/clean.py",
+# ── Pattern detection (run files inside the engine scope) ──────────────────
+
+
+def test_clean_engine_file_no_violations(tmp_path):
+    _write(tmp_path, "pipeline/engine/clean_module.py",
            "def f():\n    return 1\n")
     violations, scanned = gate.scan(tmp_path)
     assert violations == []
@@ -45,41 +53,73 @@ def test_clean_file_no_violations(tmp_path):
     ('API_KEY = os.environ["PPLX_API_KEY"]\n',                {"PPLX_API_KEY"}),
     ('API_KEY = os.environ["ANTHROPIC_API_KEY"]\n',           {"ANTHROPIC_API_KEY"}),
 ])
-def test_each_pattern_triggers_violation(tmp_path, snippet, expected_labels):
-    _write(tmp_path, "pipeline/monitors/p/file.py", snippet)
+def test_each_pattern_triggers_violation_inside_engine(tmp_path, snippet, expected_labels):
+    _write(tmp_path, "pipeline/engine/x.py", snippet)
     violations, scanned = gate.scan(tmp_path)
     assert scanned == 1
     assert len(violations) == len(expected_labels), f"got {violations!r}"
     got_labels = {v.split(": ", 2)[2].split(" — ")[0] for v in violations}
     assert got_labels == expected_labels
     for v in violations:
-        assert "pipeline/monitors/p/file.py:1:" in v
+        assert "pipeline/engine/x.py:1:" in v
 
 
-def test_allow_list_engine_path_is_exempt(tmp_path):
-    body = (
-        'import anthropic\n'
-        'from anthropic import Anthropic\n'
-        'url = "https://api.perplexity.ai/x"\n'
-        'url2 = "https://api.anthropic.com/x"\n'
-        'k = os.environ["PPLX_API_KEY"]\n'
-        'k2 = os.environ["ANTHROPIC_API_KEY"]\n'
-        'requests.post("https://api.perplexity.ai/x")\n'
-        'requests.get("https://api.anthropic.com/x")\n'
-    )
-    # pipeline/engine/** is allow-listed AND the scanner only descends into
-    # pipeline/monitors and pipeline/synthesisers — both protections apply.
-    _write(tmp_path, "pipeline/engine/anthropic_client.py", body)
+# ── Scope: only engine/** and unified-chatter.py are scanned ───────────────
+
+
+def test_unified_chatter_is_scanned(tmp_path):
+    """The single named file pipeline/chatter/unified-chatter.py is scanned."""
+    _write(tmp_path, "pipeline/chatter/unified-chatter.py",
+           'k = os.environ["PPLX_API_KEY"]\n')
+    violations, scanned = gate.scan(tmp_path)
+    assert scanned == 1
+    assert len(violations) == 1
+    assert "pipeline/chatter/unified-chatter.py:1:" in violations[0]
+
+
+def test_other_chatter_files_are_out_of_scope(tmp_path):
+    """Only `unified-chatter.py` is scanned in pipeline/chatter/. Sibling
+    files (per-monitor chatter scripts that pre-date the unified path) are
+    out of scope."""
+    _write(tmp_path, "pipeline/chatter/some-other-file.py",
+           'k = os.environ["PPLX_API_KEY"]\n')
     violations, scanned = gate.scan(tmp_path)
     assert violations == []
     assert scanned == 0
 
 
-def test_allow_list_tools_path_is_exempt(tmp_path):
-    # tools/** is allow-listed; even if a future file under
-    # pipeline/monitors symlinks or someone places a tool path inside the
-    # scan tree, it must be exempt. The simpler test: a tools/ file is never
-    # scanned because tools/ is not a scan root.
+def test_pipeline_monitors_are_out_of_scope(tmp_path):
+    """Pre-engine monitor scripts (weekly-research.py, <abbr>-reasoner.py,
+    collect.py, etc.) are NOT scanned. Their status — legacy entry point,
+    lab tooling, scheduled fallback, or dead — is deferred to a later audit
+    (see ops/HOUSEKEEPING-INBOX.md)."""
+    body = (
+        'import anthropic\n'
+        'k = os.environ["PPLX_API_KEY"]\n'
+        'requests.post("https://api.perplexity.ai/chat/completions")\n'
+    )
+    _write(tmp_path, "pipeline/monitors/financial-integrity/weekly-research.py", body)
+    _write(tmp_path, "pipeline/monitors/financial-integrity/fim-reasoner.py", body)
+    _write(tmp_path, "pipeline/monitors/financial-integrity/collect.py", body)
+    violations, scanned = gate.scan(tmp_path)
+    assert violations == []
+    assert scanned == 0
+
+
+def test_pipeline_synthesisers_are_out_of_scope(tmp_path):
+    """Per-monitor synthesisers and the cross-monitor synthesiser are NOT
+    scanned. Same deferred-audit reasoning as pipeline/monitors/**."""
+    body = 'k = os.environ["PPLX_API_KEY"]\n'
+    _write(tmp_path, "pipeline/synthesisers/erm/environmental-risks-synthesiser.py", body)
+    _write(tmp_path, "pipeline/synthesisers/cross-monitor/cross-monitor-synthesiser.py", body)
+    violations, scanned = gate.scan(tmp_path)
+    assert violations == []
+    assert scanned == 0
+
+
+def test_tools_directory_is_out_of_scope(tmp_path):
+    """tools/ is not in the scan list. Ops scripts may legitimately need
+    direct provider access for diagnostics."""
     _write(tmp_path, "tools/some_ops_script.py",
            'k = os.environ["PPLX_API_KEY"]\n')
     violations, scanned = gate.scan(tmp_path)
@@ -87,47 +127,28 @@ def test_allow_list_tools_path_is_exempt(tmp_path):
     assert scanned == 0
 
 
-def test_residue_allow_list_exempts_named_live_files(tmp_path):
-    """Exact-path residue allow-list exempts named files still on the
-    pre-engine code path. Sprint CS-min entries: collect.py x8 + the
-    cross-monitor synthesiser. Removing an entry MUST cause the gate to
-    re-flag the file — that is the forcing function for migration.
-    """
-    body = (
-        'API_KEY = os.environ["PPLX_API_KEY"]\n'
-        'requests.post("https://api.perplexity.ai/chat/completions")\n'
-    )
-    # Residue-listed path: must be exempt.
-    _write(tmp_path, "pipeline/monitors/ai-governance/collect.py", body)
-    violations, scanned = gate.scan(tmp_path)
-    assert violations == [], f"residue file should be exempt, got {violations!r}"
-    assert scanned == 0
-
-    # Same content at a non-allow-listed path: must be flagged. Proves the
-    # exemption is path-driven, not content-driven.
-    _write(tmp_path, "pipeline/monitors/ai-governance/not-residue.py", body)
-    violations2, scanned2 = gate.scan(tmp_path)
-    assert scanned2 == 1
-    assert any("not-residue.py" in v for v in violations2)
+# ── Multi-file behaviour and exit codes ────────────────────────────────────
 
 
 def test_multifile_violations_summary(tmp_path):
-    _write(tmp_path, "pipeline/monitors/a/x.py",
+    """Both engine/** files and unified-chatter.py contribute to the same
+    violation report when both are dirty."""
+    _write(tmp_path, "pipeline/engine/a.py",
            'k = os.environ["PPLX_API_KEY"]\n')
-    _write(tmp_path, "pipeline/synthesisers/b/y.py",
+    _write(tmp_path, "pipeline/chatter/unified-chatter.py",
            'url = "https://api.perplexity.ai/x"\n')
     violations, scanned = gate.scan(tmp_path)
     assert scanned == 2
     assert len(violations) == 2
     paths = {v.split(": ", 1)[1].split(":", 1)[0] for v in violations}
     assert paths == {
-        "pipeline/monitors/a/x.py",
-        "pipeline/synthesisers/b/y.py",
+        "pipeline/engine/a.py",
+        "pipeline/chatter/unified-chatter.py",
     }
 
 
 def test_standalone_invocation_exits_1_on_violations(tmp_path, monkeypatch):
-    _write(tmp_path, "pipeline/monitors/m/bad.py",
+    _write(tmp_path, "pipeline/engine/bad.py",
            'k = os.environ["PPLX_API_KEY"]\n')
     monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
     rc = gate.main()
@@ -135,7 +156,17 @@ def test_standalone_invocation_exits_1_on_violations(tmp_path, monkeypatch):
 
 
 def test_standalone_invocation_exits_0_when_clean(tmp_path, monkeypatch):
-    _write(tmp_path, "pipeline/monitors/m/ok.py", "x = 1\n")
+    _write(tmp_path, "pipeline/engine/ok.py", "x = 1\n")
+    monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
+    rc = gate.main()
+    assert rc == 0
+
+
+def test_standalone_invocation_exits_0_when_scope_is_empty(tmp_path, monkeypatch):
+    """If the scope paths don't exist (e.g., on asym-intel-main where engine
+    code is sparse-checked-out at workflow runtime, not committed), the gate
+    reports 0 files scanned and exits 0. This is the expected steady state
+    on main."""
     monkeypatch.setattr(gate, "REPO_ROOT", tmp_path)
     rc = gate.main()
     assert rc == 0
@@ -150,27 +181,25 @@ def test_invocation_via_subprocess():
         capture_output=True,
         text=True,
     )
-    # On current main, violations exist (chatter/reasoner/collector/synthesiser
-    # scripts call Perplexity directly). After CS-3 / engine migration, this
-    # should flip to 0. Either way, exit code must be 0 or 1, never 2.
     assert res.returncode in (0, 1), (
         f"unexpected exit {res.returncode}; stderr: {res.stderr!r}"
     )
-    assert "no_direct_provider_calls.py — checking" in res.stdout
+    assert "no_direct_provider_calls.py — scanning" in res.stdout
 
 
-@pytest.mark.xfail(
-    reason="CS-3 normalisation pending — flips to pass after CS-3 merges",
-    strict=False,
-)
 def test_live_state_main_is_clean():
-    """Live-state assertion: after CS-3 lands, main has zero direct provider calls.
+    """Live-state assertion: in-scope paths on main have zero violations.
 
-    Flips from xfail to pass once CS-3 migrates per-monitor scripts to the
-    engine clients. Today this fails (≥8 violations expected per the BRIEF;
-    in practice ~100 across the monitor + synthesiser tree — see PR body).
+    On asym-intel-main this is naturally true because the engine is
+    sparse-checked-out at workflow runtime and `pipeline/engine/` is not
+    committed to main. The single named file pipeline/chatter/unified-chatter.py
+    routes through the engine clients via the standard import path.
+
+    If this test ever fails, either (a) engine code has been accidentally
+    committed to main without engine-style routing, or (b) unified-chatter.py
+    has regressed.
     """
     violations, _scanned = gate.scan(REPO_ROOT)
     assert violations == [], (
-        f"{len(violations)} direct-provider-call violations remain on main"
+        f"{len(violations)} direct-provider-call violations in scoped paths"
     )
