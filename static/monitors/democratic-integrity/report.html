@@ -110,6 +110,15 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-standing-integrity-flags">
+      <div class="module-header">
+        <div class="module-title">Standing Institutional Integrity Flags</div>
+      </div>
+      <div id="standing-integrity-flags">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
     <section class="module-section" id="section-electoral-watch">
       <div class="module-header">
         <div class="module-title">Electoral Watch</div>
@@ -265,6 +274,7 @@
       <li><a href="#section-heatmap">Heatmap</a></li>
       <li><a href="#section-intel">Intel Items</a></li>
       <li><a href="#section-integrity">Integrity Flags</a></li>
+      <li><a href="#section-standing-integrity-flags">Standing Flags</a></li>
       <li><a href="#section-electoral-watch">Electoral Watch</a></li>
       <li><a href="#section-digital-civil">Digital &amp; Civil</a></li>
       <li><a href="#section-autocratic-export">Autocratic Export</a></li>
@@ -379,6 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
         {id:'section-heatmap',label:'Heatmap'},
         {id:'section-intel',label:'Intel'},
         {id:'section-integrity',label:'Integrity'},
+        {id:'section-standing-integrity-flags',label:'Standing Flags'},
         {id:'section-electoral-watch',label:'Electoral'},
         {id:'section-digital-civil',label:'Digital'},
         {id:'section-autocratic-export',label:'Autocratic'},
@@ -528,6 +539,41 @@ document.addEventListener('DOMContentLoaded', function () {
           '</div>';
       });
       document.getElementById('integrity-flags').innerHTML = flagsHtml || '<p class="text-muted">No integrity flags this issue.</p>';
+
+      /* Standing Institutional Integrity Flags (CW-2: institutional_integrity_active_flags) */
+      /* Distinct from institutional_integrity_flags (per-issue lighter field above). */
+      /* Fields: country, indicator, severity, signal, lead_time, first_seen */
+      var activeFlags = d.institutional_integrity_active_flags || [];
+      var sifEl = document.getElementById('standing-integrity-flags');
+      if (activeFlags && activeFlags.length) {
+        var sevMapActive = { 'high':'critical', 'med':'moderate', 'medium':'moderate', 'low':'positive' };
+        var sifHtml = '<table class="heatmap-table"><thead><tr>' +
+          '<th>Country</th><th>Indicator</th><th>Severity</th><th>Signal</th><th>Lead Time</th><th>First Seen</th>' +
+          '</tr></thead><tbody>';
+        activeFlags.forEach(function(f) {
+          var sevRaw = (f.severity || '').toLowerCase();
+          var sevCls = sevMapActive[sevRaw] || 'moderate';
+          var firstSeenFmt = f.first_seen
+            ? (function() {
+                var dt = new Date(f.first_seen);
+                return isNaN(dt.getTime()) ? esc(f.first_seen) : dt.toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+              })()
+            : '';
+          sifHtml +=
+            '<tr>' +
+              '<td>' + flag(f.country || '') + ' ' + esc(f.country || '') + '</td>' +
+              '<td>' + esc(f.indicator || '') + '</td>' +
+              '<td><span class="severity-badge severity-badge--' + sevCls + '">' + esc(f.severity || '') + '</span></td>' +
+              '<td>' + esc(f.signal || '') + '</td>' +
+              '<td>' + esc(f.lead_time || '') + '</td>' +
+              '<td style="white-space:nowrap">' + firstSeenFmt + '</td>' +
+            '</tr>';
+        });
+        sifHtml += '</tbody></table>';
+        sifEl.innerHTML = sifHtml;
+      } else {
+        document.getElementById('section-standing-integrity-flags').style.display = 'none';
+      }
 
       /* Electoral Watch (R3: fix field names, handle long FIMI risk text, surface ODIHR/source) */
       /* R-REWIRE: electoral_watch → module_2 (election_cycle_events) + module_4 (electoral_contexts) */
