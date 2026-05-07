@@ -1,4 +1,4 @@
-# Artificial Intelligence Monitor — Issue 14
+# Artificial Intelligence Monitor — Issue 15
 
 **W/E 9 May 2026** | Published 2026-05-09T09:00:00Z
 
@@ -70,17 +70,17 @@ Watch EU Digital Omnibus political agreement before June 2026, which could lock 
 - **** () — Active
 - **** () — Active
 - **** () — Active
-- **EU AI Act standards vacuum risks tech sovereignty in high-risk compliance** (european-strategic-autonomy) — Active — verified (adjacent Issue 9)
-- **EU AI Act standards vacuum** (european-strategic-autonomy) — Active — verified (adjacent Issue 9)
-- **AI-generated child sexual abuse material surge connects to cognitive warfare risks** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 8)
+- **EU AI Act standards vacuum risks tech sovereignty in high-risk compliance** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **EU AI Act standards vacuum** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **AI-generated child sexual abuse material surge connects to cognitive warfare risks** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Pentagon's AI procurement shifts could accelerate military AI development** (conflict-escalation) — Active — verified (adjacent Issue 11)
-- **EU AI Act standards vacuum threatens European tech sovereignty** (european-strategic-autonomy) — Active — verified (adjacent Issue 9)
+- **EU AI Act standards vacuum threatens European tech sovereignty** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
 - **AI energy demands growing faster than efficiency gains** (environmental-risks) — Active — verified (adjacent Issue 13)
-- **EU AI Act Standards Vacuum active** (european-strategic-autonomy) — Active — verified (adjacent Issue 9)
-- **GPT-5.5 agentic tool suite expands operational surface for AI-enabled influence operations; universal jailbreak collapse per Stanford Index** (fimi-cognitive-warfare) — Active — NEW
-- **US-China frontier gap narrows to 2.7%; GPT-5.5 agentic capabilities in widely deployed API raise dual-use risk** (conflict-escalation) — Active — NEW
-- **EU AI transparency obligations potentially delayed to 2027; jailbreak safety collapse across models** (democratic-integrity) — Active — NEW
-- **US AI researcher inflow drops 80% in one year; EU DMA review defers AI scope expansion preserving US hyperscaler dominance** (european-strategic-autonomy) — Active — NEW
+- **EU AI Act Standards Vacuum active** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **GPT-5.5 agentic tool suite expands operational surface for AI-enabled influence operations; universal jailbreak collapse per Stanford Index** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
+- **US-China frontier gap narrows to 2.7%; GPT-5.5 agentic capabilities in widely deployed API raise dual-use risk** (conflict-escalation) — Active — verified (adjacent Issue 11)
+- **EU AI transparency obligations potentially delayed to 2027; jailbreak safety collapse across models** (democratic-integrity) — Active — verified (adjacent Issue 14)
+- **US AI researcher inflow drops 80% in one year; EU DMA review defers AI scope expansion preserving US hyperscaler dominance** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
 
 ---
 
