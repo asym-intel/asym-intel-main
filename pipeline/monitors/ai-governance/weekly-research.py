@@ -27,9 +27,10 @@ MODEL       = "sonar-pro"   # reverted from D-001: crash was synth-side, not res
 TODAY       = datetime.date.today()
 TODAY_STR   = TODAY.isoformat()
 
-# Week ending = next Thursday (AGM analyst fires Fri 09:00 UTC, synthesiser Thu 22:00)
-days_to_thu = (3 - TODAY.weekday()) % 7
-WEEK_ENDING = (TODAY + datetime.timedelta(days=days_to_thu)).isoformat()
+# Week ending = publication date — the day this run produced the brief.
+# Doctrine: W/E label and brief slug both reflect publication date,
+# never a forward-looking calendar boundary. (Sprint pre-CZ revert, 2026-05-07.)
+WEEK_ENDING = TODAY_STR
 
 OUT_DIR     = pathlib.Path("pipeline/monitors/ai-governance/weekly")
 OUT_LATEST  = OUT_DIR / "weekly-latest.json"

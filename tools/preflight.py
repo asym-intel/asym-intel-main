@@ -330,6 +330,29 @@ def check_json_data(r: Results):
         else:
             r.warn(f"JSON-EXISTS:{slug}", "report-latest.json not found")
 
+        # WEEK-ENDING-DRIFT guard: week_ending must equal publication
+        # date — never a forward-looking calendar boundary. Drift surfaced
+        # 2026-05-07 (next-Saturday math in weekly-research.py output).
+        # Source: pipeline/monitors/<slug>/weekly/weekly-latest.json (the
+        # originating artefact written by weekly-research.py).
+        weekly_latest = REPO_ROOT / "pipeline" / "monitors" / slug / "weekly" / "weekly-latest.json"
+        if weekly_latest.exists():
+            try:
+                with open(weekly_latest) as f:
+                    wdata = json.load(f)
+                we = wdata.get("_meta", {}).get("week_ending")
+                if we and we > today:
+                    r.fail(
+                        f"WEEK-ENDING:{slug}",
+                        f"Forward-dated _meta.week_ending: {we} (today is {today}). "
+                        f"Doctrine: week_ending == publication date. "
+                        f"Source: pipeline/monitors/{slug}/weekly/weekly-latest.json.",
+                    )
+                elif we:
+                    r.ok(f"WEEK-ENDING:{slug}", f"_meta.week_ending: {we}")
+            except json.JSONDecodeError:
+                pass  # weekly-latest.json parse errors handled at write time
+
 
 def check_cron_prompts(r: Results):
     """Verify cron prompt files referenced in docs/crons/ exist."""
