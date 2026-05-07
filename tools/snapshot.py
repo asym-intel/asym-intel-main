@@ -85,18 +85,67 @@ _LAYER_PATTERN = re.compile(r'Layer\s+\d+\s*[—-]', re.IGNORECASE)
 _UNDEFINED_PATTERN = re.compile(r'\bundefined\b')
 
 
+_SNAPSHOT_UA = "asym-intel-snapshot/1.0 (+https://asym-intel.info)"
+_SNAPSHOT_RETRY_DELAYS = (5, 15, 45)  # seconds; 3 attempts
+
+
 def fetch(url: str) -> bytes:
-    """Fetch URL with a friendly UA. Raises on non-200."""
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": "asym-intel-snapshot/1.0 (+https://asym-intel.info)",
-        },
+    """Fetch URL with a friendly UA and 3-attempt retry on 403/5xx.
+
+    Fix 6 (CV-3e): Wordfence sometimes 403s the first request after a
+    publish even from a fresh IP. Retry-with-backoff absorbs transients.
+    RAISES on final failure (exit code 3 in main).
+    """
+    import time as _t
+    last_exc: Exception | None = None
+    for attempt, delay in enumerate(list(_SNAPSHOT_RETRY_DELAYS) + [None]):
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": _SNAPSHOT_UA},
+            )
+            with urllib.request.urlopen(req, timeout=30) as r:
+                if r.status in (403, 500, 502, 503, 504):
+                    if delay is not None:
+                        print(
+                            f"[snapshot] HTTP {r.status} (attempt {attempt + 1}) — "
+                            f"retrying in {delay}s …",
+                            file=sys.stderr,
+                        )
+                        _t.sleep(delay)
+                        continue
+                    raise RuntimeError(
+                        f"fetch {url} returned HTTP {r.status} after {attempt + 1} attempts"
+                    )
+                if r.status != 200:
+                    raise RuntimeError(f"fetch {url} returned HTTP {r.status}")
+                return r.read()
+        except urllib.error.HTTPError as exc:
+            if exc.code in (403, 500, 502, 503, 504) and delay is not None:
+                print(
+                    f"[snapshot] HTTP {exc.code} (attempt {attempt + 1}) — "
+                    f"retrying in {delay}s …",
+                    file=sys.stderr,
+                )
+                _t.sleep(delay)
+                last_exc = exc
+                continue
+            raise RuntimeError(f"fetch {url} returned HTTP {exc.code}") from exc
+        except Exception as exc:
+            if delay is not None:
+                print(
+                    f"[snapshot] request error (attempt {attempt + 1}): {exc} — "
+                    f"retrying in {delay}s …",
+                    file=sys.stderr,
+                )
+                _t.sleep(delay)
+                last_exc = exc
+                continue
+            raise
+    raise RuntimeError(
+        f"fetch {url} failed after {len(_SNAPSHOT_RETRY_DELAYS) + 1} attempts"
+        + (f": {last_exc}" if last_exc else "")
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
-        if r.status != 200:
-            raise RuntimeError(f"fetch {url} returned HTTP {r.status}")
-        return r.read()
 
 
 def extract_m9_section(html: str) -> str:
