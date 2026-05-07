@@ -61,6 +61,10 @@ _WP_RETRY_DELAYS = (5, 15, 45)  # seconds between attempts 1→2, 2→3, 3→fai
 def _wp_request(method: str, url: str, **kwargs) -> "requests.Response":
     """Wrap requests.get/post with browser-fingerprint headers and 3-attempt retry.
 
+    CV-4: also injects X-Asym-Proxy-Token when WP_SITE points at the proxy
+    Worker. The Worker validates this shared secret before forwarding to
+    ramparts.gi. Without it, Worker returns 401.
+
     Retries on 403 (Wordfence transient block) and 5xx (server error).
     RAISES on final failure — never swallows.
     """
@@ -68,6 +72,13 @@ def _wp_request(method: str, url: str, **kwargs) -> "requests.Response":
     headers.setdefault("User-Agent", _WP_UA)
     for k, v in _WP_BROWSER_HEADERS.items():
         headers.setdefault(k, v)
+
+    # CV-4: inject proxy token if WP_SITE is the proxy Worker (default).
+    # Direct ramparts.gi calls (override only) skip the token — origin would
+    # 403 it as a malformed header anyway, but defensively we just don't send.
+    proxy_token = os.environ.get("RAMPARTS_PROXY_TOKEN", "")
+    if proxy_token and "wp-proxy" in url:
+        headers.setdefault("X-Asym-Proxy-Token", proxy_token)
     fn = getattr(requests, method.lower())
     last_exc: Exception | None = None
     last_resp = None
@@ -137,7 +148,28 @@ RAMPARTS_ARCHIVE_API_URL = (
 # Constants
 # ---------------------------------------------------------------------------
 
-WP_SITE = "https://ramparts.gi"
+# CV-4 (2026-05-07): WP REST traffic is routed through ramparts-wp-proxy
+# Cloudflare Worker, NOT directly to ramparts.gi. The Worker proxies from
+# CF edge so requests bypass the IUAM challenge WordPress.com VIP/Atomic
+# fires against GH Actions runner ASN.
+#
+# WHY: between 2026-04-21 and 2026-05-07, direct calls from runner IPs to
+# ramparts.gi/wp-json/ began returning 403 "Just a moment..." (IUAM). Edge
+# block fires before WP REST sees the request, so HTTP Basic Auth (correct
+# on this side) does not bypass it. CV-3g eliminated UA-based bypass.
+#
+# WORKER: workers/ramparts-wp-proxy/ in asym-intel-internal
+# DOCS:   ops/ADs/AD-2026-05-07-WP-PROXY-WORKER.md
+# KNOWHOW: ops/KNOWHOW-INDEX.md → "CI publisher 403", "Cloudflare IUAM"
+#
+# WP_SITE default is the Worker. To bypass for emergency direct fire (e.g.
+# Worker outage), set WP_SITE_OVERRIDE=https://ramparts.gi in the workflow
+# env. Note that direct fire from GH runner ASN will fail with IUAM; this
+# escape hatch only helps when running outside GH Actions.
+WP_SITE = os.environ.get(
+    "WP_SITE_OVERRIDE",
+    "https://ramparts-wp-proxy.peterhowitt.workers.dev",
+)
 PIPELINE_VERSION = "ramparts-1.0"
 # Fix 4: Ramparts-specific cache dir inside asym-intel-main checkout.
 # Ramparts publisher writes report-{DATE}.json, report-latest.json,

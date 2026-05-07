@@ -84,6 +84,8 @@ jobs:
           GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
           BACKFILL: ${{ github.event.inputs.backfill }}
           RAMPARTS_REPO_CHECKOUT: ${{ github.workspace }}/ramparts-checkout
+          # CV-4: shared secret for ramparts-wp-proxy Worker authentication.
+          RAMPARTS_PROXY_TOKEN: ${{ secrets.RAMPARTS_PROXY_TOKEN }}
         run: python3 pipeline/publishers/ramparts-publisher.py
 
       # Post-publish snapshot + sanity check. Captures the live rendered page
