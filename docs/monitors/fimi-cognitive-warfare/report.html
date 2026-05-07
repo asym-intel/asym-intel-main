@@ -388,6 +388,33 @@
       </div>
     </section>
 
+    <section class="module-section" id="section-regulatory-framework">
+      <div class="module-header">
+        <div class="module-title">Regulatory &amp; Institutional Framework</div>
+      </div>
+      <div id="regulatory-framework-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-platform-transparency">
+      <div class="module-header">
+        <div class="module-title">Platform Transparency 2026</div>
+      </div>
+      <div id="platform-transparency-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
+    <section class="module-section" id="section-infrastructure-registry">
+      <div class="module-header">
+        <div class="module-title">FCW Infrastructure Registry</div>
+      </div>
+      <div id="infrastructure-registry-content">
+        <div class="loading-state">Loading…</div>
+      </div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -402,6 +429,9 @@
       <li><a href="#section-attribution">Attribution Log</a></li>
       <li><a href="#section-cognitive-warfare">Cognitive Warfare</a></li>
       <li><a href="#section-cross">Cross-Monitor</a></li>
+      <li><a href="#section-regulatory-framework">Regulatory Framework</a></li>
+      <li><a href="#section-platform-transparency">Platform Transparency</a></li>
+      <li><a href="#section-infrastructure-registry">Infrastructure Registry</a></li>
     </ul>
   </nav>
 
@@ -1167,6 +1197,172 @@ document.addEventListener('DOMContentLoaded', function () {
       /* ========================================================== */
       /* END R-REWIRE                                               */
       /* ========================================================== */
+
+      /* ---------------------------------------------------------- */
+      /* CW-7: regulatory_framework — 4 pillar cards                */
+      /* ---------------------------------------------------------- */
+      (function renderRegulatoryFramework() {
+        var el = document.getElementById('regulatory-framework-content');
+        var sec = document.getElementById('section-regulatory-framework');
+        var rf = d.regulatory_framework;
+        if (!rf || typeof rf !== 'object' || !Object.keys(rf).length) {
+          if (sec) sec.style.display = 'none';
+          return;
+        }
+        var pillarMeta = {
+          eu_dsa: { label: 'EU DSA', flag: '&#x1F1EA;&#x1F1FA;' },
+          eeas_ras_fimi: { label: 'EEAS RAS-FIMI', flag: '&#x1F1EA;&#x1F1FA;' },
+          irgc_eu_terrorist_designation: { label: 'IRGC EU Terrorist Designation', flag: '&#x1F1EE;&#x1F1F7;' },
+          nato_stratcom_coe: { label: 'NATO StratCom CoE', flag: '&#x1F5FA;' }
+        };
+        function rfStatusClass(s) {
+          var m = { 'in_force': 'positive', 'active': 'positive', 'in_progress': 'moderate', 'pending': 'moderate', 'suspended': 'high', 'inactive': 'high' };
+          return m[s] || 'moderate';
+        }
+        function rfStatusLabel(s) {
+          return s ? s.replace(/_/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); }) : 'Unknown';
+        }
+        var html = '<div style="display:grid;gap:var(--space-3)">';
+        Object.keys(rf).forEach(function(key) {
+          var p = rf[key] || {};
+          var meta = pillarMeta[key] || { label: key, flag: '' };
+          html += '<div class="card">' +
+            '<div class="card__label">' +
+              (meta.flag ? '<span aria-hidden="true">' + meta.flag + '</span> ' : '') +
+              '<strong>' + esc(meta.label) + '</strong>' +
+              (p.status ? ' &middot; <span class="severity-badge severity-badge--' + rfStatusClass(p.status) + '">' + esc(rfStatusLabel(p.status)) + '</span>' : '') +
+              (p.source_tier ? ' &middot; <span style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(p.source_tier) + '</span>' : '') +
+            '</div>' +
+            (p.summary ? '<div class="card__body">' + esc(p.summary) + '</div>' : '') +
+            '<div class="card__footer">' +
+              (p.last_material_change ? '<span>Last change: ' + esc(p.last_material_change) + '</span>' : '') +
+              (p.last_verified ? '<span>Verified: ' + esc(p.last_verified) + '</span>' : '') +
+              (p.source_url ? srcLink(p.source_url) : '') +
+            '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+        if (el) el.innerHTML = html;
+      })();
+
+      /* ---------------------------------------------------------- */
+      /* CW-7: platform_transparency_2026 — truth table             */
+      /* ---------------------------------------------------------- */
+      (function renderPlatformTransparency() {
+        var el = document.getElementById('platform-transparency-content');
+        var sec = document.getElementById('section-platform-transparency');
+        var pt = d.platform_transparency_2026;
+        if (!pt || typeof pt !== 'object' || !Object.keys(pt).length) {
+          if (sec) sec.style.display = 'none';
+          return;
+        }
+        var platformLabels = {
+          x_twitter: 'X / Twitter',
+          meta: 'Meta',
+          google_tag: 'Google TAG',
+          mstic: 'Microsoft MSTIC',
+          tiktok: 'TikTok'
+        };
+        function ptStatusClass(s) {
+          if (!s) return 'moderate';
+          if (s === 'active' || s === 'dsa_commitments_accepted') return 'positive';
+          if (s === 'structurally_degraded') return 'critical';
+          return 'moderate';
+        }
+        function ptStatusLabel(s) {
+          if (!s) return 'Unknown';
+          return s.replace(/_/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        }
+        function cadenceLabel(c) {
+          if (!c) return '—';
+          var m = { 'quarterly': 'Quarterly', 'ad_hoc': 'Ad Hoc', 'none': 'None', 'annual': 'Annual' };
+          return m[c] || c;
+        }
+        function cadenceClass(c) {
+          if (c === 'quarterly' || c === 'annual') return 'positive';
+          if (c === 'ad_hoc') return 'moderate';
+          return 'critical';
+        }
+        var html = '<div style="overflow-x:auto">' +
+          '<table style="width:100%;border-collapse:collapse;font-size:var(--text-xs)">' +
+          '<thead><tr style="border-bottom:2px solid var(--color-border,#d8d4cd)">' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-weight:700;color:var(--color-text-muted)">Platform</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-weight:700;color:var(--color-text-muted)">Status</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-weight:700;color:var(--color-text-muted)">CIB Cadence</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-weight:700;color:var(--color-text-muted)">Last Disclosure</th>' +
+            '<th style="text-align:left;padding:var(--space-2) var(--space-3);font-weight:700;color:var(--color-text-muted)">DSA / Transparency Note</th>' +
+          '</tr></thead>' +
+          '<tbody>';
+        Object.keys(pt).forEach(function(key, i) {
+          var p = pt[key] || {};
+          var label = platformLabels[key] || key;
+          var rowBg = i % 2 === 1 ? 'background:var(--color-bg-alt,#f0ede8)' : '';
+          html += '<tr style="border-bottom:1px solid var(--color-border,#d8d4cd);' + rowBg + '">' +
+            '<td style="padding:var(--space-2) var(--space-3);font-weight:600">' +
+              (p.source_url ? '<a class="source-link" href="' + esc(p.source_url) + '" target="_blank" rel="noopener">' + esc(label) + '</a>' : esc(label)) +
+            '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3)">' +
+              '<span class="severity-badge severity-badge--' + ptStatusClass(p.status) + '">' + esc(ptStatusLabel(p.status)) + '</span>' +
+            '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3)">' +
+              '<span class="severity-badge severity-badge--' + cadenceClass(p.disclosure_cadence) + '">' + esc(cadenceLabel(p.disclosure_cadence)) + '</span>' +
+            '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3);color:var(--color-text-secondary)">' + esc(p.last_disclosure || '—') + '</td>' +
+            '<td style="padding:var(--space-2) var(--space-3);color:var(--color-text-secondary);max-width:300px">' + esc(p.dsa_action || p.reading_protocol || '—') + '</td>' +
+          '</tr>';
+        });
+        html += '</tbody></table></div>';
+        if (el) el.innerHTML = html;
+      })();
+
+      /* ---------------------------------------------------------- */
+      /* CW-7: infrastructure_registry — entries list               */
+      /* ---------------------------------------------------------- */
+      (function renderInfrastructureRegistry() {
+        var el = document.getElementById('infrastructure-registry-content');
+        var sec = document.getElementById('section-infrastructure-registry');
+        var ir = d.infrastructure_registry;
+        var entries = ir && Array.isArray(ir.entries) ? ir.entries : (Array.isArray(ir) ? ir : []);
+        if (!entries.length) {
+          if (sec) sec.style.display = 'none';
+          return;
+        }
+        function sanctionClass(s) {
+          if (!s) return 'moderate';
+          s = s.toLowerCase();
+          if (s === 'sanctioned') return 'critical';
+          if (s === 'unsanctioned') return 'moderate';
+          if (s === 'pending') return 'high';
+          return 'moderate';
+        }
+        function actorDisplay(actor) {
+          if (!actor) return '';
+          var flags = { 'RU': '&#x1F1F7;&#x1F1FA;', 'IR': '&#x1F1EE;&#x1F1F7;', 'CN': '&#x1F1E8;&#x1F1F3;', 'BY': '&#x1F1E7;&#x1F1FE;' };
+          return (flags[actor] ? '<span aria-hidden="true">' + flags[actor] + '</span> ' : '') + esc(actor);
+        }
+        var html = '<div style="display:grid;gap:var(--space-3)">';
+        entries.forEach(function(e) {
+          html += '<div class="card">' +
+            '<div class="card__label">' +
+              '<code style="font-size:var(--text-min)">' + esc(e.id || '') + '</code>' +
+              (e.affiliated_actor ? ' &middot; ' + actorDisplay(e.affiliated_actor) : '') +
+              (e.entity_type ? ' &middot; <span style="font-size:var(--text-min);color:var(--color-text-muted)">' + esc(e.entity_type.replace(/_/g, ' ')) + '</span>' : '') +
+              (e.sanctions_status ? ' &middot; <span class="severity-badge severity-badge--' + sanctionClass(e.sanctions_status) + '">' + esc(e.sanctions_status) + '</span>' : '') +
+            '</div>' +
+            '<div class="card__title">' + esc(e.entity_name || '') + '</div>' +
+            (e.hosting_notes ? '<div class="card__body">' + esc(e.hosting_notes) + '</div>' : '') +
+            (e.operator ? '<div class="card__body" style="font-size:var(--text-xs);color:var(--color-text-secondary)">Operator: ' + esc(e.operator) + '</div>' : '') +
+            '<div class="card__footer">' +
+              (e.evidence_id ? '<span>' + esc(e.evidence_id) + '</span>' : '') +
+              (e.retrieval_date ? '<span>Retrieved: ' + esc(e.retrieval_date) + '</span>' : '') +
+              (e.source_url ? srcLink(e.source_url) : '') +
+            '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+        if (el) el.innerHTML = html;
+      })();
+
     })
     .catch(function (err) {
       console.error(err);

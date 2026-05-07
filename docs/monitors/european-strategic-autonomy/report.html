@@ -29,6 +29,22 @@
   <!-- AI discoverability -->
   <link rel="alternate" type="text/plain" title="LLM Site Index" href="/llms.txt">
   <link rel="alternate" type="text/markdown" title="AI-Readable Version" href="/monitors/european-strategic-autonomy/data/report-latest.md">
+  <style>
+    /* CW-4: level-bar pips for state_capture_cases severity (1–5 scale) */
+    .level-bar { display:flex; gap:2px; align-items:center; }
+    .level-bar__pip { width:12px; height:8px; border-radius:2px; background:var(--color-border); }
+    .level-bar__pip--filled { background:var(--monitor-accent); }
+    .level-bar__pip--high   { background:var(--high,#d97706); }
+    .level-bar__pip--critical { background:var(--critical,#dc2626); }
+    /* CW-4: trend arrow glyph */
+    .trend-arrow { display:inline-block; font-style:normal; font-weight:700; font-size:1.1em; }
+    .trend-arrow--up   { color:var(--critical,#dc2626); }
+    .trend-arrow--flat { color:var(--color-text-muted); }
+    .trend-arrow--down { color:var(--positive,#16a34a); }
+    /* CW-4: campaign status badges */
+    .status-badge--active    { background:rgba(220,38,38,0.10); color:var(--critical,#dc2626); font-weight:700; }
+    .status-badge--suspended { background:rgba(156,163,175,0.15); color:var(--color-text-muted); font-weight:600; }
+  </style>
 </head>
 
 <body>
@@ -276,6 +292,34 @@
       <div id="m15-personnel-content"><div class="loading-state">Loading&hellip;</div></div>
     </section>
 
+
+    <!-- CW-4: EU Legislation Tracker -->
+    <section class="module-section" id="section-eu-legislation-tracker">
+      <div class="module-header">
+        <div class="module-num-large">26</div>
+        <h2 class="module-title">EU Legislation Tracker</h2>
+      </div>
+      <div id="eu-legislation-tracker-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <!-- CW-4: State Capture Cases -->
+    <section class="module-section" id="section-state-capture-cases">
+      <div class="module-header">
+        <div class="module-num-large">27</div>
+        <h2 class="module-title">State Capture Cases</h2>
+      </div>
+      <div id="state-capture-cases-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
+    <!-- CW-4: Active Actor Campaigns -->
+    <section class="module-section" id="section-active-actor-campaigns">
+      <div class="module-header">
+        <div class="module-num-large">28</div>
+        <h2 class="module-title">Active Actor Campaigns</h2>
+      </div>
+      <div id="active-actor-campaigns-block"><div class="loading-state">Loading&hellip;</div></div>
+    </section>
+
   </main>
 
   <nav class="monitor-sidebar" aria-label="Page sections">
@@ -291,6 +335,9 @@
       <li><a href="#section-institutional">Institutional</a></li>
       <li><a href="#section-member-states">Member States</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
+      <li><a href="#section-eu-legislation-tracker">EU Legislation</a></li>
+      <li><a href="#section-state-capture-cases">State Capture</a></li>
+      <li><a href="#section-active-actor-campaigns">Actor Campaigns</a></li>
     </ul>
   </nav>
 
@@ -1017,6 +1064,148 @@ document.addEventListener('DOMContentLoaded', function () {
           m15el.innerHTML = m15h || '<p class="text-muted">No personnel items this issue.</p>';
         }
       } catch (e) { console.error('module_15', e); }
+
+
+      /* ── CW-4 (26): EU Legislation Tracker ── */
+      try {
+        var elt = d.eu_legislation_tracker;
+        var eltEl = document.getElementById('eu-legislation-tracker-block');
+        if (eltEl) {
+          if (!elt || !elt.length) {
+            eltEl.innerHTML = '<p class="text-muted">No legislation items this issue.</p>';
+          } else {
+            var eltH = '<div style="overflow-x:auto"><table class="data-table" style="width:100%;font-size:var(--text-sm)">' +
+              '<thead><tr>' +
+                '<th style="text-align:left">ID</th>' +
+                '<th style="text-align:left">Instrument</th>' +
+                '<th style="text-align:left">Status</th>' +
+                '<th style="text-align:left">Last Update</th>' +
+              '</tr></thead><tbody>';
+            elt.forEach(function(row) {
+              function legStatusCls(s) {
+                if (!s) return 'moderate';
+                var sl = s.toLowerCase();
+                if (sl === 'in force') return 'low';
+                if (sl === 'trilogues' || sl === 'trilogue') return 'moderate';
+                if (sl === 'suspended' || sl === 'blocked') return 'high';
+                if (sl === 'withdrawn') return 'critical';
+                return 'moderate';
+              }
+              eltH += '<tr>' +
+                '<td style="white-space:nowrap;color:var(--color-text-muted);font-size:var(--text-xs)">' + esc(row.id || '') + '</td>' +
+                '<td>' + (row.source_url
+                  ? '<a href="' + esc(row.source_url) + '" target="_blank" rel="noopener" style="color:var(--monitor-accent)">' + esc(row.name || '') + '</a>'
+                  : esc(row.name || '')) + '</td>' +
+                '<td><span class="severity-badge severity-badge--' + legStatusCls(row.status) + '">' + esc(row.status || '—') + '</span></td>' +
+                '<td style="white-space:nowrap;font-size:var(--text-xs)">' + esc(row.last_update || '') + '</td>' +
+              '</tr>';
+            });
+            eltH += '</tbody></table></div>';
+            eltEl.innerHTML = eltH;
+          }
+        }
+      } catch (e) { console.error('eu_legislation_tracker', e); }
+
+      /* ── CW-4 (27): State Capture Cases ── */
+      try {
+        var scc = d.state_capture_cases;
+        var sccEl = document.getElementById('state-capture-cases-block');
+        if (sccEl) {
+          if (!scc || !scc.length) {
+            sccEl.innerHTML = '<p class="text-muted">No state capture data this issue.</p>';
+          } else {
+            var sccH = '<div style="overflow-x:auto"><table class="data-table" style="width:100%;font-size:var(--text-sm)">' +
+              '<thead><tr>' +
+                '<th style="text-align:left">Country</th>' +
+                '<th>Severity</th>' +
+                '<th>Trend</th>' +
+                '<th style="text-align:left">Status</th>' +
+                '<th style="text-align:left">Key Indicator</th>' +
+              '</tr></thead><tbody>';
+            scc.forEach(function(row) {
+              /* Severity pips: 1-5 scale; colour tiers: <=2 moderate, <=3.5 high, >3.5 critical */
+              var sev = row.severity || 0;
+              var sevFilled = Math.round(sev);
+              var pipCls = sev > 3.5 ? 'critical' : sev > 2 ? 'high' : 'filled';
+              var pips = '';
+              for (var pi = 1; pi <= 5; pi++) {
+                pips += '<div class="level-bar__pip' + (pi <= sevFilled ? ' level-bar__pip--' + pipCls : '') + '"></div>';
+              }
+              /* Arrow glyph with aria-label */
+              var arrow = row.arrow || '';
+              var arrowCls = arrow === '\u2191' ? 'up' : arrow === '\u2193' ? 'down' : 'flat';
+              var arrowLabel = arrow === '\u2191' ? 'Worsening' : arrow === '\u2193' ? 'Improving' : 'Stable';
+              var arrowHtml = '<span class="trend-arrow trend-arrow--' + arrowCls + '" aria-label="' + arrowLabel + '" role="img">' + esc(arrow) + '</span>';
+              /* Status badge */
+              function scStatusCls(s) {
+                if (!s) return 'moderate';
+                var sl = s.toLowerCase();
+                if (sl === 'consolidating') return 'high';
+                if (sl === 'deteriorating') return 'critical';
+                if (sl === 'improving') return 'low';
+                return 'moderate';
+              }
+              sccH += '<tr>' +
+                '<td style="font-weight:600">' + esc(row.country || '') + '</td>' +
+                '<td>' +
+                  '<div style="display:flex;align-items:center;gap:var(--space-2)">' +
+                    '<div class="level-bar">' + pips + '</div>' +
+                    '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">' + sev + '/5</span>' +
+                  '</div>' +
+                '</td>' +
+                '<td style="text-align:center">' + arrowHtml + '</td>' +
+                '<td><span class="severity-badge severity-badge--' + scStatusCls(row.status) + '">' + esc(row.status || '—') + '</span></td>' +
+                '<td style="font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(row.key_indicator || '') + '</td>' +
+              '</tr>';
+            });
+            sccH += '</tbody></table></div>';
+            sccEl.innerHTML = sccH;
+          }
+        }
+      } catch (e) { console.error('state_capture_cases', e); }
+
+      /* ── CW-4 (28): Active Actor Campaigns ── */
+      try {
+        var aac = d.active_actor_campaigns;
+        var aacEl = document.getElementById('active-actor-campaigns-block');
+        if (aacEl) {
+          if (!aac || typeof aac !== 'object' || !Object.keys(aac).length) {
+            aacEl.innerHTML = '<p class="text-muted">No actor campaign data this issue.</p>';
+          } else {
+            var actorOrder = ['RU', 'CN', 'US', 'IL'];
+            var actorLabels = { RU: 'Russia (RU)', CN: 'China (CN)', US: 'United States (US)', IL: 'Israel (IL)' };
+            var aacH = '';
+            actorOrder.forEach(function(actor) {
+              var campaigns = aac[actor] || [];
+              aacH += '<div style="margin-bottom:var(--space-5)">' +
+                '<div class="section-label" style="margin-bottom:var(--space-3)">' + esc(actorLabels[actor] || actor) + '</div>';
+              if (!campaigns.length) {
+                aacH += '<p style="font-size:var(--text-sm);color:var(--color-text-muted);margin:0">No active campaigns recorded this cycle.</p>';
+              } else {
+                aacH += '<div style="overflow-x:auto"><table class="data-table" style="width:100%;font-size:var(--text-sm)">' +
+                  '<thead><tr>' +
+                    '<th style="text-align:left">ID</th>' +
+                    '<th style="text-align:left">Campaign</th>' +
+                    '<th>Status</th>' +
+                    '<th style="text-align:left">Target</th>' +
+                  '</tr></thead><tbody>';
+                campaigns.forEach(function(c) {
+                  var statusCls = (c.status || '').toUpperCase() === 'ACTIVE' ? 'status-badge--active' : 'status-badge--suspended';
+                  aacH += '<tr>' +
+                    '<td style="white-space:nowrap;color:var(--color-text-muted);font-size:var(--text-xs)">' + esc(c.id || '') + '</td>' +
+                    '<td>' + esc(c.name || '') + '</td>' +
+                    '<td style="text-align:center"><span class="severity-badge ' + statusCls + '">' + esc(c.status || '—') + '</span></td>' +
+                    '<td style="font-size:var(--text-xs);color:var(--color-text-secondary)">' + esc(c.target || '') + '</td>' +
+                  '</tr>';
+                });
+                aacH += '</tbody></table></div>';
+              }
+              aacH += '</div>';
+            });
+            aacEl.innerHTML = aacH;
+          }
+        }
+      } catch (e) { console.error('active_actor_campaigns', e); }
 
     })
     .catch(function (err) {

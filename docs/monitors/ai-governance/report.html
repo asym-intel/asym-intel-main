@@ -226,6 +226,27 @@
         <div id="lab-posture-content"><p class="loading-state">Loading…</p></div>
       </section>
 
+
+      <!-- Ongoing Lab Postures -->
+      <section class="module-section" id="section-ongoing-lab-postures">
+        <div class="module-header">
+          <div class="module-num" style="font-size:1.1rem">OL</div>
+          <h2 class="module-title">Ongoing Lab Postures</h2>
+        </div>
+        <p class="module-desc">Standing posture assessments for major AI labs, sorted by most recent material change. Derived field: days since last material change.</p>
+        <div id="ongoing-lab-postures-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
+      <!-- GPAI Compliance Tracker -->
+      <section class="module-section" id="section-gpai-compliance">
+        <div class="module-header">
+          <div class="module-num" style="font-size:1.1rem">GC</div>
+          <h2 class="module-title">GPAI Compliance Tracker</h2>
+        </div>
+        <p class="module-desc">Per-lab boolean compliance flags for EU GPAI Act obligations: signatory status, transparency reporting, and compute disclosure.</p>
+        <div id="gpai-compliance-content"><p class="loading-state">Loading…</p></div>
+      </section>
+
       <!-- Governance Health Composite -->
       <section class="module-section" id="section-governance-health">
         <div class="module-header">
@@ -271,6 +292,8 @@
           <li><a href="#section-key-judgments"><span class="sidebar-num">KJ</span> Key Judgments</a></li>
           <li><a href="#section-jurisdiction-risk"><span class="sidebar-num">JR</span> Jurisdiction Risk</a></li>
           <li><a href="#section-lab-posture"><span class="sidebar-num">LP</span> Lab Posture</a></li>
+          <li><a href="#section-ongoing-lab-postures"><span class="sidebar-num">OL</span> Ongoing Lab Postures</a></li>
+          <li><a href="#section-gpai-compliance"><span class="sidebar-num">GC</span> GPAI Compliance</a></li>
           <li><a href="#section-governance-health"><span class="sidebar-num">GH</span> Governance Health</a></li>
           <li><a href="#cross-monitor"><span class="sidebar-num">⇔</span> Cross-Monitor</a></li>
         </ul>
@@ -643,6 +666,98 @@
           m15html += '<h3 class="subsection-title">Asymmetric Flags</h3>' + renderFlagItems(m15.asymmetric_flags);
         }
         document.getElementById('m15-content').innerHTML = m15html || empty();
+
+        // Ongoing Lab Postures
+        var olp = nonEmpty(d.ongoing_lab_postures);
+        if (olp.length) {
+          // Sort by last_material_change descending
+          olp = olp.slice().sort(function(a, b) {
+            var da = a.last_material_change || '';
+            var db = b.last_material_change || '';
+            return db < da ? -1 : db > da ? 1 : 0;
+          });
+          var today = new Date();
+          var olpHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">' +
+            '<thead><tr>' +
+              '<th>Actor</th>' +
+              '<th>Posture Summary</th>' +
+              '<th>Last Material Change</th>' +
+              '<th>Unchanged (days)</th>' +
+              '<th>Last Verified</th>' +
+              '<th>Confidence</th>' +
+            '</tr></thead><tbody>';
+          olp.forEach(function(row) {
+            var lmc = row.last_material_change || '';
+            var unchangedDays = '—';
+            var unchangedSince = row.unchanged_since || lmc;
+            if (unchangedSince) {
+              var sinceDate = new Date(unchangedSince);
+              if (!isNaN(sinceDate.getTime())) {
+                var diff = Math.floor((today - sinceDate) / (1000 * 60 * 60 * 24));
+                unchangedDays = diff >= 0 ? diff + 'd' : '—';
+              }
+            }
+            var confClass = row.confidence === 'High' ? 'green' : row.confidence === 'Medium' ? 'amber' : 'default';
+            // Truncate posture text with a title attr for full text
+            var postureText = row.posture || '';
+            var postureTrunc = postureText.length > 120 ? postureText.slice(0, 117) + '…' : postureText;
+            olpHtml += '<tr>' +
+              '<td style="font-weight:600;white-space:nowrap">' + esc(row.actor || '') + '</td>' +
+              '<td style="font-size:var(--text-xs)" title="' + esc(postureText) + '">' + esc(postureTrunc) + '</td>' +
+              '<td style="font-family:var(--font-mono);font-size:var(--text-xs);white-space:nowrap">' + esc(lmc) + '</td>' +
+              '<td style="font-family:var(--font-mono);font-size:var(--text-xs);text-align:center">' + esc(unchangedDays) + '</td>' +
+              '<td style="font-family:var(--font-mono);font-size:var(--text-xs);white-space:nowrap">' + esc(row.last_verified || '') + '</td>' +
+              '<td><span class="tag tag--' + confClass + '">' + esc(row.confidence || '') + '</span></td>' +
+            '</tr>';
+          });
+          olpHtml += '</tbody></table></div>';
+          document.getElementById('ongoing-lab-postures-content').innerHTML = olpHtml;
+        } else {
+          document.getElementById('ongoing-lab-postures-content').innerHTML = empty();
+        }
+
+        // GPAI Compliance Tracker
+        var gpai = d.gpai_compliance || {};
+        var gpaiLabs = (gpai && Array.isArray(gpai.labs)) ? gpai.labs : [];
+        if (Object.keys(gpai).length >= 1) {
+          if (gpaiLabs.length) {
+            function gpaiGlyph(val) {
+              if (val === true)   return '<span style="color:#22c55e;font-size:1.1em" title="Yes">&#10003;</span>';
+              if (val === false)  return '<span style="color:#ef4444;font-size:1.1em" title="No">&#10007;</span>';
+              // Partial / string value — amber with text
+              if (typeof val === 'string') return '<span class="tag tag--amber" style="font-size:0.7em;padding:1px 4px" title="' + esc(val) + '">' + esc(val.length > 12 ? val.slice(0,11)+'…' : val) + '</span>';
+              return '<span style="color:var(--color-text-muted)">—</span>';
+            }
+            var gpaiHtml = '<div class="table-responsive"><table class="data-table" style="width:100%">' +
+              '<thead><tr>' +
+                '<th>Lab</th>' +
+                '<th style="text-align:center">Signatory</th>' +
+                '<th style="text-align:center">Transparency Report</th>' +
+                '<th style="text-align:center">Compute Disclosure</th>' +
+              '</tr></thead><tbody>';
+            gpaiLabs.forEach(function(row) {
+              gpaiHtml += '<tr>' +
+                '<td style="font-weight:600">' + esc(row.lab || '') + '</td>' +
+                '<td style="text-align:center">' + gpaiGlyph(row.signatory) + '</td>' +
+                '<td style="text-align:center">' + gpaiGlyph(row.transparency_report) + '</td>' +
+                '<td style="text-align:center">' + gpaiGlyph(row.compute_disclosure) + '</td>' +
+              '</tr>';
+            });
+            gpaiHtml += '</tbody></table></div>';
+            // Note expected vs actual population
+            var expectedLabs = ['Anthropic','OpenAI','Google DeepMind','Meta AI','xAI','DeepSeek','Mistral'];
+            var presentLabs = gpaiLabs.map(function(r){ return r.lab; });
+            var missingLabs = expectedLabs.filter(function(l){ return presentLabs.indexOf(l) === -1; });
+            if (missingLabs.length) {
+              gpaiHtml += '<p class="empty-state" style="margin-top:var(--space-3);font-size:var(--text-xs)">Tracker initialising — data pending for: ' + missingLabs.map(function(l){ return esc(l); }).join(', ') + '</p>';
+            }
+            document.getElementById('gpai-compliance-content').innerHTML = gpaiHtml;
+          } else {
+            document.getElementById('gpai-compliance-content').innerHTML = '<p class="empty-state">GPAI compliance tracker initialising — no lab entries yet this cycle.</p>';
+          }
+        } else {
+          document.getElementById('section-gpai-compliance').style.display = 'none';
+        }
 
         // Cross-monitor flags — shared renderer (SVG icons + monitor accent colours)
         AsymSections.renderCrossMonitorFlags(d.cross_monitor_flags || {}, 'cross-monitor-content');
