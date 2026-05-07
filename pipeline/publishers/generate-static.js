@@ -93,28 +93,28 @@ function renderM1() {
   return `
     <div style="margin-bottom:32px">
       <h3 style="font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#888;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:18px">Items 1–5 · Mainstream High-Impact Developments</h3>
-      ${module_1.mainstream.map(i => item(i, false)).join('')}
+      ${(module_1.mainstream || []).map(i => item(i, false)).join('')}
     </div>
     <div>
       <h3 style="font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#b45309;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:18px">Items 6–10 · Underweighted / Asymmetric Signals</h3>
-      ${module_1.underweighted.map(i => item(i, true)).join('')}
+      ${(module_1.underweighted || []).map(i => item(i, true)).join('')}
     </div>`;
 }
 
 function renderM2() {
-  const models = module_2.models.map(m => card(`
+  const models = (module_2.models || []).map(m => card(`
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px">
       <div>
         <div style="font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;letter-spacing:0.08em;text-transform:uppercase;color:#006b6f;margin-bottom:4px">${m.lab}</div>
-        <h4 style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin:0 0 4px">${m.model}</h4>
-        <span style="font-size:15px;color:#888">${m.date}</span>
+        <h4 style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin:0 0 4px">${m.model || m.name}</h4>
+        <span style="font-size:15px;color:#888">${m.date || m.released}</span>
       </div>
-      ${m.architecture_flag ? badge('teal', '🏗 Architecture Innovation') : ''}
+      ${(m.architecture_flag || m.flag) ? badge('teal', '🏗 Architecture Innovation') : ''}
     </div>
-    <p style="font-size:16px;color:#666;background:#f5f5f5;border-radius:6px;padding:10px;margin-bottom:12px">${m.architecture}</p>
-    ${m.benchmarks.length ? `<table style="width:100%;border-collapse:collapse;font-size:16px;margin-bottom:12px">
+    <p style="font-size:16px;color:#666;background:#f5f5f5;border-radius:6px;padding:10px;margin-bottom:12px">${m.architecture || m.headline || ''}</p>
+    ${(m.benchmarks || []).length ? `<table style="width:100%;border-collapse:collapse;font-size:16px;margin-bottom:12px">
       <thead><tr style="background:#f5f5f5"><th style="padding:8px;text-align:left;font-size:13px;text-transform:uppercase;letter-spacing:0.05em;color:#888">Benchmark</th><th style="padding:8px;text-align:left">Score</th><th style="padding:8px;text-align:left;color:#888">Note</th></tr></thead>
-      <tbody>${m.benchmarks.map(b => `<tr style="border-bottom:1px solid #eee"><td style="padding:8px">${b.name}</td><td style="padding:8px;font-weight:700">${b.score}</td><td style="padding:8px;color:#888;font-size:15px">${b.note}</td></tr>`).join('')}</tbody>
+      <tbody>${(m.benchmarks || []).map(b => `<tr style="border-bottom:1px solid #eee"><td style="padding:8px">${b.name}</td><td style="padding:8px;font-weight:700">${b.score}</td><td style="padding:8px;color:#888;font-size:15px">${b.note}</td></tr>`).join('')}</tbody>
     </table>` : ''}
     ${callout('asymmetric', '⚡ Asymmetric Flag', m.asymmetric)}
     ${sourceLink(m.source_label, m.source_url)}
@@ -130,20 +130,20 @@ function renderM2() {
       <div style="border:1px solid #ddd;border-radius:8px;overflow:hidden">
         <table style="width:100%;border-collapse:collapse;font-size:16px">
           <thead><tr style="background:#f5f5f5"><th style="padding:8px 12px;text-align:left;font-size:13px;text-transform:uppercase;letter-spacing:0.05em;color:#888">Model</th><th style="padding:8px 12px;text-align:left">Score</th></tr></thead>
-          <tbody>${rows.map(r => `<tr style="border-bottom:1px solid #eee"><td style="padding:8px 12px">${r.model}</td><td style="padding:8px 12px;font-weight:700;color:${scoreColor[r.tier]||'#333'}">${r.score}</td></tr>`).join('')}</tbody>
+          <tbody>${(rows || []).map(r => `<tr style="border-bottom:1px solid #eee"><td style="padding:8px 12px">${r.model}</td><td style="padding:8px 12px;font-weight:700;color:${scoreColor[r.tier]||'#333'}">${r.score}</td></tr>`).join('')}</tbody>
         </table>
       </div>
     </div>`;
 
   return `${models}
     <h3 style="font-family:'Space Grotesk',sans-serif;font-size:18px;margin:40px 0 20px">Benchmark Leaderboard — ${meta.week_label}</h3>
-    ${benchTable('ARC-AGI-2 (Static Reasoning)', bt.arc_agi_2, 'Human average ~60%. Models above this line are superhuman on this benchmark.')}
-    ${benchTable('ARC-AGI-3 (Interactive/Agentic)', bt.arc_agi_3, 'Humans score 100%. Frontier AI near-zero — reveals the adaptive intelligence gap.')}
-    ${benchTable('GPQA Diamond (Graduate Science)', bt.gpqa_diamond, 'Human expert ceiling ~70–80%.')}`;
+    ${benchTable('ARC-AGI-2 (Static Reasoning)', bt.arc_agi_2 || [], 'Human average ~60%. Models above this line are superhuman on this benchmark.')}
+    ${benchTable('ARC-AGI-3 (Interactive/Agentic)', bt.arc_agi_3 || [], 'Humans score 100%. Frontier AI near-zero — reveals the adaptive intelligence gap.')}
+    ${benchTable('GPQA Diamond (Graduate Science)', bt.gpqa_diamond || [], 'Human expert ceiling ~70–80%.')}`;
 }
 
 function renderM3() {
-  const rounds = module_3.funding_rounds.map(r => card(`
+  const rounds = (module_3.funding_rounds || []).map(r => card(`
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:12px">
       <div>
         <h4 style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin:0 0 4px">${r.company}</h4>
@@ -153,12 +153,12 @@ function renderM3() {
     </div>
     ${r.valuation && r.valuation !== 'Undisclosed' ? `<div style="font-size:16px;color:#888;margin-bottom:8px">${r.valuation} valuation</div>` : ''}
     <p style="font-size:17px;margin:0 0 10px">${r.focus}</p>
-    <div style="margin-bottom:10px">${badge(r.cursor_curve ? 'green' : r.cursor_note.startsWith('PROBABLE') ? 'amber' : 'teal', (r.cursor_curve ? '🚀' : r.cursor_note.startsWith('PROBABLE') ? '⚠️' : '—') + ' Cursor Curve')} <span style="font-size:15px;color:#888;margin-left:8px">${r.cursor_note}</span></div>
+    <div style="margin-bottom:10px">${badge(r.cursor_curve ? 'green' : (r.cursor_note||'').startsWith('PROBABLE') ? 'amber' : 'teal', (r.cursor_curve ? '🚀' : (r.cursor_note||'').startsWith('PROBABLE') ? '⚠️' : '—') + ' Cursor Curve')} <span style="font-size:15px;color:#888;margin-left:8px">${r.cursor_note || ''}</span></div>
     ${callout('asymmetric', '⚡ Asymmetric Signal', r.asymmetric)}
     ${sourceLink(r.source_label, r.source_url)}
   `)).join('');
 
-  const strategic = module_3.strategic_deals.map(d => card(`
+  const strategic = (module_3.strategic_deals || []).map(d => card(`
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:10px">
       <div><h4 style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin:0">${d.name}</h4>${badge('teal', d.type)}</div>
       <span style="font-size:15px;color:#888">${d.date}</span>
@@ -167,7 +167,7 @@ function renderM3() {
     ${sourceLink(d.source_label, d.source_url)}
   `)).join('');
 
-  const secondaryRows = module_3.secondary_markets.map(s =>
+  const secondaryRows = (module_3.secondary_markets || []).map(s =>
     `<tr style="border-bottom:1px solid #eee"><td style="padding:8px 12px;font-weight:700">${s.company}</td><td style="padding:8px 12px">${s.valuation}</td><td style="padding:8px 12px;color:#888;font-size:16px">${s.note}</td></tr>`
   ).join('');
 
@@ -187,7 +187,7 @@ function renderM3() {
 function renderM4() {
   const statusColors = { accelerating: '#15803d', stalling: '#b45309', emerging: '#1d4ed8' };
   const statusBgs = { accelerating: '#dcfce7', stalling: '#fef3c7', emerging: '#dbeafe' };
-  return module_4.sectors.map(s => {
+  return (module_4.sectors || []).map(s => {
     const sc = s.status.toLowerCase();
     return card(`
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:10px">
@@ -205,10 +205,10 @@ function renderM4() {
 function renderM5() {
   const eu = module_5.european;
   const cn = module_5.china;
-  const fundingRows = eu.funding.map(f =>
+  const fundingRows = (eu.funding || []).map(f =>
     `<tr style="border-bottom:1px solid #eee"><td style="padding:8px 12px;font-weight:700">${f.company}</td><td style="padding:8px 12px">${f.amount}</td><td style="padding:8px 12px;font-size:16px;color:#888">${f.note}</td></tr>`
   ).join('');
-  const dispRows = eu.displacement.map(d =>
+  const dispRows = (eu.displacement || []).map(d =>
     `<tr style="border-bottom:1px solid #eee"><td style="padding:8px 12px;font-weight:700">${d.challenger}</td><td style="padding:8px 12px;color:#888">vs</td><td style="padding:8px 12px">${d.incumbent}</td><td style="padding:8px 12px;font-size:16px;color:#888">${d.domain}</td></tr>`
   ).join('');
 
@@ -245,7 +245,7 @@ function renderM5() {
 }
 
 function renderM6() {
-  const thresholds = module_6.threshold_events.map(t => `
+  const thresholds = (module_6.threshold_events || []).map(t => `
     <div style="border:1px solid #ddd;border-left:4px solid #c0392b;border-radius:10px;padding:22px;margin-bottom:20px">
       ${callout('threshold', '🚨 Threshold Crossing', '')}
       <h4 style="font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin:0 0 4px">${t.title}</h4>
@@ -261,14 +261,14 @@ function renderM6() {
       ${sourceLink(t.source_label, t.source_url)}
     </div>`).join('');
 
-  const programmes = module_6.programme_updates.map(p => card(`
+  const programmes = (module_6.programme_updates || []).map(p => card(`
     <h4 style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin:0 0 4px">${p.title}</h4>
     <span style="font-size:15px;color:#888">${p.date} · ${p.domain}</span>
     <p style="font-size:17px;margin:10px 0 0">${p.detail}</p>
     ${sourceLink(p.source_label, p.source_url)}
   `)).join('');
 
-  const arxiv = module_6.arxiv_highlights.map(a => card(`
+  const arxiv = (module_6.arxiv_highlights || []).map(a => card(`
     <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
       <a href="${a.url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;padding:0.15em 0.6em;border-radius:9999px;font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;background:#e8f4f4;color:#006b6f;text-decoration:none">${a.id}</a>
       <div><strong style="font-size:17px">${a.title}</strong><span style="font-size:15px;color:#888;display:block">${a.domain}</span></div>
@@ -583,7 +583,7 @@ function renderM12() {
   const statusBgs   = { active: '#dcfce7', 'in-development': '#fef3c7', planned: '#dbeafe', withdrawn: '#fef2f2' };
   const statusLabels = { active: 'In Force', 'in-development': 'In Development', planned: 'Planned', withdrawn: 'Withdrawn' };
   return module_12.bodies.map(b => {
-    const standards = b.standards.map(s => {
+    const standards = (b.standards || []).map(s => {
       const sc = (s.status_class || 'active').toLowerCase();
       const hasUpdate = s.week_update && !s.week_update.startsWith('No material');
       return `<div style="background:#fff;border:1px solid #ddd;border-radius:10px;padding:20px;margin-bottom:12px">
@@ -657,7 +657,7 @@ const moduleSections = modules.map(m => `
 // Map module IDs to full names for delta strip labels
 const moduleNameMap = Object.fromEntries(modules.map(m => [m.id, m.title]));
 
-const deltaItems = data.delta_strip.map(d => {
+const deltaItems = (data.delta_strip || []).map(d => {
   const moduleName = moduleNameMap[d.module] || d.label;
   return `<li style="display:flex;align-items:baseline;gap:8px;font-size:17px;flex-wrap:wrap">
     <span style="color:#006b6f;font-weight:700;flex-shrink:0">→</span>
