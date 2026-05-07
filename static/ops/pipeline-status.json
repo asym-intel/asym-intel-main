@@ -1,9 +1,9 @@
 {
   "schema_version": "4.1",
-  "generated_at": "2026-05-06T23:40:43Z",
+  "generated_at": "2026-05-07T10:32:13Z",
   "engine": {
     "status": "red",
-    "last_updated": "2026-05-06T09:30:51Z"
+    "last_updated": "2026-05-07T09:30:39Z"
   },
   "monitors": [
     {
@@ -23,8 +23,8 @@
     },
     {
       "slug": "FCW",
-      "status": "amber",
-      "last_updated": "2026-05-05T08:56:11Z"
+      "status": "red",
+      "last_updated": "2026-05-07T09:30:39Z"
     },
     {
       "slug": "AIM",
@@ -49,13 +49,13 @@
     {
       "slug": "ADVENNT",
       "status": "red",
-      "last_updated": "2026-05-06T08:01:28Z"
+      "last_updated": "2026-05-07T08:09:24Z"
     }
   ],
   "_trigger_health": {
     "schema_version": "1.0",
     "window_days": 7,
-    "computed_at": "2026-05-06T23:40:43Z",
+    "computed_at": "2026-05-07T10:32:13Z",
     "tolerance": {
       "late_minutes_cf_dispatcher": 5,
       "late_minutes_github_native": 60,
@@ -65,50 +65,6 @@
     "manifest_version": "1.0.0",
     "manifest_sha": "a0e7204cda646b8ae9f8cc68fa289c3874ed52f5",
     "expected_fires": [
-      {
-        "trigger_id": "cf:0,30 8 * * THU:08:00:fcw-weekly-research.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "fcw-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 8 * * THU",
-        "utc_time": "08:00",
-        "dow": 4,
-        "monitor": "fcw",
-        "expected_at": "2026-04-30T08:00:00Z"
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 8 * * *",
-        "utc_time": "08:00",
-        "dow": null,
-        "monitor": null,
-        "expected_at": "2026-04-30T08:00:00Z"
-      },
-      {
-        "trigger_id": "cf:0,30 8 * * THU:08:30:fcw-reasoner.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "fcw-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 8 * * THU",
-        "utc_time": "08:30",
-        "dow": 4,
-        "monitor": "fcw",
-        "expected_at": "2026-04-30T08:30:00Z"
-      },
-      {
-        "trigger_id": "cf:30 9 * * THU:09:30:fimi-cognitive-warfare-publisher.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "30 9 * * THU",
-        "utc_time": "09:30",
-        "dow": 4,
-        "monitor": "fcw",
-        "expected_at": "2026-04-30T09:30:00Z"
-      },
       {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
         "source_kind": "github_native",
@@ -581,23 +537,67 @@
         "dow": null,
         "monitor": null,
         "expected_at": "2026-05-06T23:00:00Z"
+      },
+      {
+        "trigger_id": "cf:0,30 8 * * THU:08:00:fcw-weekly-research.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "fcw-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 8 * * THU",
+        "utc_time": "08:00",
+        "dow": 4,
+        "monitor": "fcw",
+        "expected_at": "2026-05-07T08:00:00Z"
+      },
+      {
+        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
+        "source_kind": "github_native",
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 8 * * *",
+        "utc_time": "08:00",
+        "dow": null,
+        "monitor": null,
+        "expected_at": "2026-05-07T08:00:00Z"
+      },
+      {
+        "trigger_id": "cf:0,30 8 * * THU:08:30:fcw-reasoner.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "fcw-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0,30 8 * * THU",
+        "utc_time": "08:30",
+        "dow": 4,
+        "monitor": "fcw",
+        "expected_at": "2026-05-07T08:30:00Z"
+      },
+      {
+        "trigger_id": "cf:30 9 * * THU:09:30:fimi-cognitive-warfare-publisher.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "30 9 * * THU",
+        "utc_time": "09:30",
+        "dow": 4,
+        "monitor": "fcw",
+        "expected_at": "2026-05-07T09:30:00Z"
       }
     ],
     "actual_fires": [
       {
-        "workflow": "fcw-weekly-research.yml",
+        "workflow": "update-pipeline-status.yml",
         "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-04T23:47:40Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 16,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25349832560"
+        "started_at": "2026-05-07T10:31:23Z",
+        "conclusion": "in_progress",
+        "event": "schedule",
+        "run_number": 99,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25490485112"
       },
       {
         "workflow": "update-pipeline-status.yml",
         "repo": "asym-intel/asym-intel-main",
         "started_at": "2026-05-06T23:40:11Z",
-        "conclusion": "in_progress",
+        "conclusion": "success",
         "event": "schedule",
         "run_number": 98,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25467305121"
@@ -844,105 +844,6 @@
         "event": "schedule",
         "run_number": 71,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25159954183"
-      },
-      {
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T06:44:27Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 70,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25151436180"
-      },
-      {
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T06:40:02Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 69,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25151282267"
-      },
-      {
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-29T23:43:24Z",
-        "conclusion": "success",
-        "event": "schedule",
-        "run_number": 68,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25139640293"
-      },
-      {
-        "workflow": "fcw-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-04T23:52:51Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 8,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25350008400"
-      },
-      {
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T08:56:11Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 18,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25367070672"
-      },
-      {
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T05:31:37Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 17,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359625871"
-      },
-      {
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T05:30:16Z",
-        "conclusion": "failure",
-        "event": "workflow_dispatch",
-        "run_number": 16,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359586403"
-      },
-      {
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-05T05:28:34Z",
-        "conclusion": "failure",
-        "event": "workflow_dispatch",
-        "run_number": 15,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359535437"
-      },
-      {
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T21:51:57Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 14,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25191134908"
-      },
-      {
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T21:51:19Z",
-        "conclusion": "failure",
-        "event": "workflow_dispatch",
-        "run_number": 13,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25191111737"
-      },
-      {
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T21:48:39Z",
-        "conclusion": "failure",
-        "event": "workflow_dispatch",
-        "run_number": 12,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25191008974"
       },
       {
         "workflow": "agm-weekly-research.yml",
@@ -1546,45 +1447,117 @@
         "event": "workflow_dispatch",
         "run_number": 13,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359535445"
+      },
+      {
+        "workflow": "fcw-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T08:00:32Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 17,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25483591126"
+      },
+      {
+        "workflow": "fcw-weekly-research.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-04T23:47:40Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 16,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25349832560"
+      },
+      {
+        "workflow": "fcw-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T08:30:38Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 9,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25484931466"
+      },
+      {
+        "workflow": "fcw-reasoner.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-04T23:52:51Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 8,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25350008400"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T09:30:39Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 19,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25487712974"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T08:56:11Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 18,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25367070672"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T05:31:37Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 17,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359625871"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T05:30:16Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 16,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359586403"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-05T05:28:34Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 15,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25359535437"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-04-30T21:51:57Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 14,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25191134908"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-04-30T21:51:19Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 13,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25191111737"
+      },
+      {
+        "workflow": "fimi-cognitive-warfare-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-04-30T21:48:39Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 12,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25191008974"
       }
     ],
     "missed_fires": [
-      {
-        "trigger_id": "cf:0,30 8 * * THU:08:00:fcw-weekly-research.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "fcw-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 8 * * THU",
-        "expected_at": "2026-04-30T08:00:00Z",
-        "monitor": "fcw"
-      },
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 8 * * *",
-        "expected_at": "2026-04-30T08:00:00Z",
-        "monitor": null
-      },
-      {
-        "trigger_id": "cf:0,30 8 * * THU:08:30:fcw-reasoner.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "fcw-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 8 * * THU",
-        "expected_at": "2026-04-30T08:30:00Z",
-        "monitor": "fcw"
-      },
-      {
-        "trigger_id": "cf:30 9 * * THU:09:30:fimi-cognitive-warfare-publisher.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "fimi-cognitive-warfare-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "30 9 * * THU",
-        "expected_at": "2026-04-30T09:30:00Z",
-        "monitor": "fcw"
-      },
       {
         "trigger_id": "cf:0,30 8 * * FRI:08:00:agm-weekly-research.yml",
         "source_kind": "cf_dispatcher",
@@ -1736,6 +1709,15 @@
         "repo": "asym-intel/asym-intel-main",
         "cron": "0 14 * * *",
         "expected_at": "2026-05-06T14:00:00Z",
+        "monitor": null
+      },
+      {
+        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
+        "source_kind": "github_native",
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 8 * * *",
+        "expected_at": "2026-05-07T08:00:00Z",
         "monitor": null
       }
     ],
