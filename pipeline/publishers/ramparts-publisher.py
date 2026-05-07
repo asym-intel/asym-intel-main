@@ -29,6 +29,73 @@ from pathlib import Path
 import re as _re
 import requests
 
+
+# ---------------------------------------------------------------------------
+# WP REST helper — UA header + retry-with-backoff on 403/5xx
+# ---------------------------------------------------------------------------
+
+import time as _time  # noqa: E402
+
+_WP_UA = "ramparts-publisher/1.0 (+https://github.com/asym-intel/asym-intel-main)"
+_WP_RETRY_DELAYS = (5, 15, 45)  # seconds between attempts 1→2, 2→3, 3→fail
+
+
+def _wp_request(method: str, url: str, **kwargs) -> "requests.Response":
+    """Wrap requests.get/post with ramparts UA and 3-attempt retry.
+
+    Retries on 403 (Wordfence transient block) and 5xx (server error).
+    RAISES on final failure — never swallows.
+    """
+    headers = kwargs.pop("headers", {}) or {}
+    headers.setdefault("User-Agent", _WP_UA)
+    fn = getattr(requests, method.lower())
+    last_exc: Exception | None = None
+    last_resp = None
+    delays = list(_WP_RETRY_DELAYS)
+    for attempt in range(len(delays) + 1):
+        try:
+            resp = fn(url, headers=headers, **kwargs)
+            if resp.status_code in (403, 500, 502, 503, 504):
+                if attempt < len(delays):
+                    log(
+                        f"WP request {method.upper()} {url} returned {resp.status_code} "
+                        f"(attempt {attempt + 1}/{len(delays) + 1}) — "
+                        f"retrying in {delays[attempt]}s …"
+                    )
+                    _time.sleep(delays[attempt])
+                    last_resp = resp
+                    continue
+                else:
+                    # Final attempt also returned transient error
+                    raise RuntimeError(
+                        f"WP request {method.upper()} {url} failed after "
+                        f"{len(delays) + 1} attempts — final status {resp.status_code}: "
+                        f"{resp.text[:200]}"
+                    )
+            return resp
+        except requests.RequestException as exc:
+            last_exc = exc
+            if attempt < len(delays):
+                log(
+                    f"WP request {method.upper()} {url} raised {exc} "
+                    f"(attempt {attempt + 1}/{len(delays) + 1}) — "
+                    f"retrying in {delays[attempt]}s …"
+                )
+                _time.sleep(delays[attempt])
+            else:
+                raise RuntimeError(
+                    f"WP request {method.upper()} {url} failed after "
+                    f"{len(delays) + 1} attempts: {exc}"
+                ) from exc
+    # Should not reach here, but satisfy type-checker
+    if last_exc:
+        raise RuntimeError(
+            f"WP request {method.upper()} {url} failed: {last_exc}"
+        ) from last_exc
+    raise RuntimeError(
+        f"WP request {method.upper()} {url} failed (status {last_resp.status_code if last_resp else 'unknown'})"
+    )
+
 # Vendored race-safe GitHub Contents API writer (see pipeline/lib/gh_put.py).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "lib"))
 from gh_put import gh_put  # noqa: E402
@@ -52,6 +119,14 @@ RAMPARTS_ARCHIVE_API_URL = (
 
 WP_SITE = "https://ramparts.gi"
 PIPELINE_VERSION = "ramparts-1.0"
+# Fix 4: Ramparts-specific cache dir inside asym-intel-main checkout.
+# Ramparts publisher writes report-{DATE}.json, report-latest.json,
+# and persistent-state.json HERE — never to static/monitors/ai-governance/data/.
+# That path is exclusively the AIM commons publisher's output surface.
+# (Defined as a lambda so repo_root is resolved at call-time, not import-time.)
+def _ramparts_cache_dir(repo_root):
+    return repo_root / "pipeline/monitors/ai-governance/ramparts-cache"
+
 
 MODULE_NAMES = {
     "module_0": "The Signal",
@@ -191,7 +266,23 @@ def step0_load_and_validate():
     # Persistent is the FLOOR for modules with long-lived trackers (module 7, 9, 14,
     # 15, cross-monitor flags). Missing file is non-fatal — warn and continue so
     # first-publish bootstraps and local dev without persistent work unchanged.
-    persistent_path = repo_root / "static/monitors/ai-governance/data/persistent-state.json"
+    #
+    # Fix 4 (CV-3e): primary read from RAMPARTS_CACHE_DIR/persistent-state.json.
+    # Fallback to old path (static/monitors/ai-governance/data/) on first run only
+    # (i.e. when cache dir doesn't exist yet). After the first run with Fix 4 live,
+    # the cache dir will always have the file.
+    cache_persistent_path = _ramparts_cache_dir(repo_root) / "persistent-state.json"
+    legacy_persistent_path = repo_root / "static/monitors/ai-governance/data/persistent-state.json"
+    if cache_persistent_path.exists():
+        persistent_path = cache_persistent_path
+    elif legacy_persistent_path.exists():
+        log(
+            f"persistent-state.json not yet in ramparts-cache (first run with Fix 4) — "
+            f"reading from legacy path {legacy_persistent_path} as one-time fallback."
+        )
+        persistent_path = legacy_persistent_path
+    else:
+        persistent_path = cache_persistent_path  # will hit the not-found branch below
     persistent: dict = {}
     if persistent_path.exists():
         try:
@@ -534,26 +625,24 @@ def step3_5_update_canonical_latest(
     page (ID 22658) so the "Latest Issue" nav link always points at this week's report.
 
     The dated page created by step 3 remains as the permanent archive link.
-    Failures here are non-fatal — the dated page is already live, and the nav link
-    will be stale for one cycle rather than blocking the whole publish.
+    Fix 2 (CV-3e): RAISES on failure — canonical mirror is transactional with the
+    dated page. Retry-with-backoff via _wp_request handles transient 403/5xx.
     """
     log("Step 3.5: Mirroring to canonical /ai-frontier-monitor-issue/ (ID %d) …" % WP_ISSUE_CANONICAL_ID)
     wp_auth = (wp_user, wp_app_pass)
-    try:
-        resp = requests.post(
-            f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ISSUE_CANONICAL_ID}",
-            auth=wp_auth,
-            json={
-                "title": f"AI Frontier Monitor \u2014 {week_label}",
-                "content": html_content,
-                "status": "publish",
-            },
-            timeout=90,
-        )
-        resp.raise_for_status()
-        log(f"Canonical latest-issue page (ID {WP_ISSUE_CANONICAL_ID}) updated to {week_label}.")
-    except Exception as exc:
-        log(f"WARN: failed to update canonical latest-issue page (ID {WP_ISSUE_CANONICAL_ID}): {exc}")
+    resp = _wp_request(
+        "post",
+        f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ISSUE_CANONICAL_ID}",
+        auth=wp_auth,
+        json={
+            "title": f"AI Frontier Monitor \u2014 {week_label}",
+            "content": html_content,
+            "status": "publish",
+        },
+        timeout=90,
+    )
+    resp.raise_for_status()
+    log(f"Canonical latest-issue page (ID {WP_ISSUE_CANONICAL_ID}) updated to {week_label}.")
 
 
 def step3_wordpress_issue_page(
@@ -570,47 +659,45 @@ def step3_wordpress_issue_page(
     wp_auth = (wp_user, wp_app_pass)
     page_url = f"{WP_SITE}/{page_slug}/"
 
-    try:
-        # Check if page already exists
-        check_url = f"{WP_SITE}/wp-json/wp/v2/pages?slug={page_slug}"
-        resp = requests.get(check_url, auth=wp_auth, timeout=30)
-        resp.raise_for_status()
-        existing = resp.json()
+    # Fix 1 (CV-3e): use _wp_request (UA + retry); RAISE on failure — never swallow.
+    # A fictional slug-based URL in page_url caused the cascade failure on 2026-05-09.
+    # Check if page already exists
+    check_url = f"{WP_SITE}/wp-json/wp/v2/pages?slug={page_slug}"
+    resp = _wp_request("get", check_url, auth=wp_auth, timeout=30)
+    resp.raise_for_status()
+    existing = resp.json()
 
-        if existing:
-            page_id = existing[0]["id"]
-            page_url = existing[0].get("link", page_url)
-            log(f"Page exists (ID {page_id}) — updating …")
-            update_resp = requests.post(
-                f"{WP_SITE}/wp-json/wp/v2/pages/{page_id}",
-                auth=wp_auth,
-                json={"content": html_content, "status": "publish"},
-                timeout=60,
-            )
-            update_resp.raise_for_status()
-            page_url = update_resp.json().get("link", page_url)
-            log(f"Page updated: {page_url}")
-        else:
-            log("Page does not exist — creating …")
-            create_resp = requests.post(
-                f"{WP_SITE}/wp-json/wp/v2/pages",
-                auth=wp_auth,
-                json={
-                    "title": page_title,
-                    "slug": page_slug,
-                    "content": html_content,
-                    "status": "publish",
-                },
-                timeout=60,
-            )
-            create_resp.raise_for_status()
-            page_url = create_resp.json().get("link", page_url)
-            log(f"Page created: {page_url}")
-
-    except Exception as exc:
-        log(f"ERROR in step 3 (WordPress issue page): {exc}")
-        # Return a best-guess URL so downstream steps can use it
-        page_url = f"{WP_SITE}/{page_slug}/"
+    if existing:
+        page_id = existing[0]["id"]
+        page_url = existing[0].get("link", page_url)
+        log(f"Page exists (ID {page_id}) — updating …")
+        update_resp = _wp_request(
+            "post",
+            f"{WP_SITE}/wp-json/wp/v2/pages/{page_id}",
+            auth=wp_auth,
+            json={"content": html_content, "status": "publish"},
+            timeout=60,
+        )
+        update_resp.raise_for_status()
+        page_url = update_resp.json().get("link", page_url)
+        log(f"Page updated: {page_url}")
+    else:
+        log("Page does not exist — creating …")
+        create_resp = _wp_request(
+            "post",
+            f"{WP_SITE}/wp-json/wp/v2/pages",
+            auth=wp_auth,
+            json={
+                "title": page_title,
+                "slug": page_slug,
+                "content": html_content,
+                "status": "publish",
+            },
+            timeout=60,
+        )
+        create_resp.raise_for_status()
+        page_url = create_resp.json().get("link", page_url)
+        log(f"Page created: {page_url}")
 
     return page_url
 
@@ -640,7 +727,8 @@ def step4_update_standing_pages(
     # div — never replaces full content. See WORDPRESS-BACK-ENGINE.md §5 (Rule 2).
     try:
         # 1. Read current homepage content
-        get_resp = requests.get(
+        get_resp = _wp_request(
+            "get",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_HOMEPAGE_ID}?context=edit",
             auth=wp_auth,
             timeout=60,
@@ -678,7 +766,8 @@ def step4_update_standing_pages(
             )
         else:
             patched = pattern.sub(r"\1" + new_span + r"\2", current, count=1)
-            resp = requests.post(
+            resp = _wp_request(
+                "post",
                 f"{WP_SITE}/wp-json/wp/v2/pages/{WP_HOMEPAGE_ID}",
                 auth=wp_auth,
                 json={"content": patched, "status": "publish"},
@@ -720,7 +809,8 @@ def step4_update_standing_pages(
         )
 
         # Fetch existing page to preserve styling
-        resp = requests.get(
+        resp = _wp_request(
+            "get",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ARCHIVE_ID}",
             auth=wp_auth,
             timeout=30,
@@ -736,7 +826,8 @@ def step4_update_standing_pages(
         else:
             new_archive = current_archive + "\n<!-- wp:html -->\n" + archive_block + "\n<!-- /wp:html -->"
 
-        resp = requests.post(
+        resp = _wp_request(
+            "post",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ARCHIVE_ID}",
             auth=wp_auth,
             json={"content": new_archive, "status": "publish"},
@@ -765,7 +856,8 @@ def step4_update_standing_pages(
             "<!-- /wp:html -->"
         )
         # Fetch current About page content with ?context=edit (raw source, not rendered)
-        resp = requests.get(
+        resp = _wp_request(
+            "get",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ABOUT_ID}?context=edit",
             auth=wp_auth,
             timeout=30,
@@ -807,7 +899,8 @@ def step4_update_standing_pages(
                 "duplicate CTAs). Hand-edit the page body to add one placeholder, then rerun."
             )
 
-        resp = requests.post(
+        resp = _wp_request(
+            "post",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_ABOUT_ID}",
             auth=wp_auth,
             json={"content": new_about, "status": "publish"},
@@ -854,7 +947,8 @@ def step4_update_standing_pages(
         # Fetch current Digest page with ?context=edit (raw source, not rendered).
         # Same class of bug as About CTA — without context=edit, the wp:html
         # comment markers come back stripped and our regex misses.
-        resp = requests.get(
+        resp = _wp_request(
+            "get",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_DIGEST_ID}?context=edit",
             auth=wp_auth,
             timeout=30,
@@ -885,7 +979,8 @@ def step4_update_standing_pages(
                 "Refusing to append (silent-append is the bug). Hand-author a placeholder, then rerun."
             )
 
-        resp = requests.post(
+        resp = _wp_request(
+            "post",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_DIGEST_ID}",
             auth=wp_auth,
             json={"content": new_digest, "status": "publish"},
@@ -1195,7 +1290,8 @@ def step4_update_standing_pages(
         )
 
         # Fetch existing page to preserve styling
-        resp = requests.get(
+        resp = _wp_request(
+            "get",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_SEARCH_ID}",
             auth=wp_auth,
             timeout=30,
@@ -1211,7 +1307,8 @@ def step4_update_standing_pages(
         else:
             new_search = current_search + "\n<!-- wp:html -->\n" + search_block + "\n<!-- /wp:html -->"
 
-        resp = requests.post(
+        resp = _wp_request(
+            "post",
             f"{WP_SITE}/wp-json/wp/v2/pages/{WP_SEARCH_ID}",
             auth=wp_auth,
             json={"content": new_search, "status": "publish"},
@@ -1241,20 +1338,27 @@ def step6_update_data_pipeline(
 ):
     """Update Ramparts-side data files.
 
-    Two write surfaces:
-      1. asym-intel/Ramparts:data/archive.json — cross-repo PUT via gh_put (race-safe).
-         Source of truth for what has shipped to ramparts.gi. Drives next week's
-         dup-check.
-      2. Local report-latest.json + report-{DATE}.json + persistent-state.json under
-         static/monitors/ai-governance/data/ in the asym-intel-main checkout. These
-         are committed back to asym-intel-main by the workflow's "Commit data updates"
-         step (see ramparts-publisher.yml). They are the cached AIM-shaped Ramparts
-         report, kept in asym-intel-main so the publisher has a deterministic input
-         on the next run; they are NOT the same surface as the AIM commons report.
+    Fix 3 (CV-3e): cross-repo archive PUT is the COMMIT POINT and now runs LAST.
+    Local writes happen first; archive PUT only fires after all WP and local writes
+    have succeeded. If archive PUT fails, the run fails loud — no silent partial state.
+
+    Fix 4 (CV-3e): Ramparts cache files (report-latest.json, report-{DATE}.json,
+    persistent-state.json) are now written to RAMPARTS_CACHE_DIR
+    (pipeline/monitors/ai-governance/ramparts-cache/) — NOT to
+    static/monitors/ai-governance/data/. That path is exclusively the AIM commons
+    publisher's output surface. Two publishers must never write the same file.
+
+    Write order:
+      1. report-{DATE}.json → ramparts-cache/
+      2. report-latest.json → ramparts-cache/
+      3. persistent-state.json → ramparts-cache/
+      4. asym-intel/Ramparts:data/archive.json — cross-repo PUT (COMMIT POINT)
     """
     log("Step 6: Updating data files …")
 
-    data_dir = repo_root / "static/monitors/ai-governance/data"
+    # Fix 4: write Ramparts cache files to ramparts-cache/, NOT static/monitors/...
+    RAMPARTS_CACHE_DIR = _ramparts_cache_dir(repo_root)
+    RAMPARTS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     # --- Update meta with ramparts fields ---
     report.setdefault("meta", {})
@@ -1262,25 +1366,52 @@ def step6_update_data_pipeline(
     report["meta"]["site_url"] = WP_SITE
     report["meta"]["pipeline_version"] = PIPELINE_VERSION
 
-    # Write report-{DATE}.json (asym-intel-main checkout — committed by workflow)
-    dated_path = data_dir / f"report-{report_date_str}.json"
+    # Write report-{DATE}.json (ramparts-cache — committed by workflow)
+    dated_path = RAMPARTS_CACHE_DIR / f"report-{report_date_str}.json"
     try:
         with open(dated_path, "w", encoding="utf-8") as fh:
             json.dump(report, fh, ensure_ascii=False, indent=2)
         log(f"Written: {dated_path}")
     except Exception as exc:
         log(f"ERROR writing dated report: {exc}")
+        raise
 
-    # Write report-latest.json (asym-intel-main checkout — committed by workflow)
-    latest_path = data_dir / "report-latest.json"
+    # Write report-latest.json (ramparts-cache — committed by workflow)
+    latest_path = RAMPARTS_CACHE_DIR / "report-latest.json"
     try:
         with open(latest_path, "w", encoding="utf-8") as fh:
             json.dump(report, fh, ensure_ascii=False, indent=2)
         log(f"Written: {latest_path}")
     except Exception as exc:
         log(f"ERROR writing report-latest.json: {exc}")
+        raise
 
-    # --- Prepend new entry to Ramparts:data/archive.json via cross-repo PUT ---
+    # --- Update persistent-state.json (ramparts-cache — committed by workflow) ---
+    state_path = RAMPARTS_CACHE_DIR / "persistent-state.json"
+    try:
+        state = {}
+        if state_path.exists():
+            with open(state_path, "r", encoding="utf-8") as fh:
+                state = json.load(fh)
+        state["last_updated"] = datetime.now(timezone.utc).isoformat()
+        state["last_issue"] = {
+            "slug": report_date_str,
+            "week_label": week_label,
+            "volume": volume,
+            "issue": issue,
+            "source_url": page_url,
+        }
+        with open(state_path, "w", encoding="utf-8") as fh:
+            json.dump(state, fh, ensure_ascii=False, indent=2)
+        log(f"persistent-state.json updated.")
+    except Exception as exc:
+        log(f"ERROR updating persistent-state.json: {exc}")
+        raise
+
+    # --- Fix 3: cross-repo archive PUT — LAST operation (commit point) ---
+    # Only fires after all WP writes (steps 3, 3.5, 4) and all local writes
+    # have succeeded. If this PUT fails, the run fails loud. The next run
+    # will not see this slug in the archive and will retry the full pipeline.
     existing_slugs = {entry.get("slug", "") for entry in archive}
     if report_date_str in existing_slugs:
         log(
@@ -1297,6 +1428,7 @@ def step6_update_data_pipeline(
             "pipeline_version": PIPELINE_VERSION,
         }
         archive_with_new = [new_entry] + archive
+        tmp_path = None
         try:
             with tempfile.NamedTemporaryFile(
                 mode="w", suffix=".json", delete=False, encoding="utf-8"
@@ -1321,33 +1453,13 @@ def step6_update_data_pipeline(
             # cause the next week's run to re-publish the same issue (the dup-check
             # would not see this slug). Better to fail loud here so Peter notices.
             log(f"ERROR: cross-repo archive PUT failed: {exc}")
-            sys.exit(1)
+            raise
         finally:
-            try:
-                os.unlink(tmp_path)
-            except (OSError, NameError):
-                pass
-
-    # --- Update persistent-state.json (asym-intel-main checkout) ---
-    state_path = data_dir / "persistent-state.json"
-    try:
-        state = {}
-        if state_path.exists():
-            with open(state_path, "r", encoding="utf-8") as fh:
-                state = json.load(fh)
-        state["last_updated"] = datetime.now(timezone.utc).isoformat()
-        state["last_issue"] = {
-            "slug": report_date_str,
-            "week_label": week_label,
-            "volume": volume,
-            "issue": issue,
-            "source_url": page_url,
-        }
-        with open(state_path, "w", encoding="utf-8") as fh:
-            json.dump(state, fh, ensure_ascii=False, indent=2)
-        log(f"persistent-state.json updated.")
-    except Exception as exc:
-        log(f"ERROR updating persistent-state.json: {exc}")
+            if tmp_path:
+                try:
+                    os.unlink(tmp_path)
+                except OSError:
+                    pass
 
     return dated_path, latest_path, state_path
 
@@ -1420,7 +1532,7 @@ def main():
     )
 
 
-    # Step 6 — local writes (committed by workflow) + cross-repo Ramparts archive PUT
+    # Step 6 — local writes to ramparts-cache (committed by workflow) + cross-repo archive PUT (LAST)
     dated_path, latest_path, state_path = step6_update_data_pipeline(
         report,
         meta,
