@@ -265,6 +265,15 @@
       </div>
     </section>
 
+    <!-- 5b. Active Escalation Events (hidden until data present) -->
+    <section class="module-section" id="section-active-escalation-events" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Active Escalation Events</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Sourced strategic events driving escalation across active theatres this cycle</div>
+      </div>
+      <div id="active-escalation-events-content"></div>
+    </section>
+
     <!-- 6. Theatre Tracker -->
     <section class="module-section" id="section-theatre-tracker">
       <div class="module-header">
@@ -292,6 +301,15 @@
       <div id="indicator-scoring-content">
         <div class="loading-state">Loading…</div>
       </div>
+    </section>
+
+    <!-- 7b. Epistemic Quality Flags — F-Flag History (hidden until data present) -->
+    <section class="module-section" id="section-f-flag-history" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Standing Institutional Integrity Flags</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Epistemic quality flags applied to active indicator assessments</div>
+      </div>
+      <div id="f-flag-history-content"></div>
     </section>
 
     <!-- 8. Conflict Roster (existing) -->
@@ -322,6 +340,15 @@
       <div id="key-judgments-content">
         <div class="loading-state">Loading…</div>
       </div>
+    </section>
+
+    <!-- 11b. Mediation and De-escalation Architecture (hidden until data present) -->
+    <section class="module-section" id="section-mediation-deescalation-architecture" style="display:none">
+      <div class="module-header">
+        <div class="module-title">Mediation and De-escalation Architecture</div>
+        <div class="module-subtitle" style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:var(--space-1)">Per-conflict mediation framework status and UN Security Council engagement</div>
+      </div>
+      <div id="mediation-deescalation-architecture-content"></div>
     </section>
 
     <!-- 12. Cross-Monitor Candidates -->
@@ -495,12 +522,15 @@
       <li><a href="#section-global-snapshot">Global Snapshot</a></li>
       <li><a href="#section-weekly-brief">Weekly Brief</a></li>
       <li><a href="#section-lead-signal">Lead Signal</a></li>
+      <li><a href="#section-active-escalation-events">Active Escalation Events</a></li>
       <li><a href="#section-theatre-tracker">Theatre Tracker</a></li>
       <li><a href="#section-hybrid-warfare">Hybrid Warfare</a></li>
       <li><a href="#section-indicator-scoring">Indicator Scoring</a></li>
+      <li><a href="#section-f-flag-history">Integrity Flags</a></li>
       <li><a href="#section-conflicts">Conflicts</a></li>
       <li><a href="#section-acled-reference">ACLED Reference</a></li>
       <li><a href="#section-key-judgments">Key Judgments</a></li>
+      <li><a href="#section-mediation-deescalation-architecture">Mediation Architecture</a></li>
       <li><a href="#section-cross-monitor-candidates">Cross-Monitor Candidates</a></li>
       <li><a href="#section-roster-watch">Roster Watch</a></li>
       <li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>
@@ -636,12 +666,15 @@ document.addEventListener('DOMContentLoaded', function () {
       '<li><a href="#section-global-snapshot">Global Snapshot</a></li>' +
       '<li><a href="#section-weekly-brief">Weekly Brief</a></li>' +
       '<li><a href="#section-lead-signal">Lead Signal</a></li>' +
+      '<li><a href="#section-active-escalation-events">Active Escalation Events</a></li>' +
       '<li><a href="#section-theatre-tracker">Theatre Tracker</a></li>' +
       '<li><a href="#section-hybrid-warfare">Hybrid Warfare</a></li>' +
       '<li><a href="#section-indicator-scoring">Indicator Scoring</a></li>' +
+      '<li><a href="#section-f-flag-history">Integrity Flags</a></li>' +
       '<li><a href="#section-conflicts">Conflicts</a></li>' +
       '<li><a href="#section-acled-reference">ACLED Reference</a></li>' +
       '<li><a href="#section-key-judgments">Key Judgments</a></li>' +
+      '<li><a href="#section-mediation-deescalation-architecture">Mediation Architecture</a></li>' +
       '<li><a href="#section-cross-monitor-candidates">Cross-Monitor Candidates</a></li>' +
       '<li><a href="#section-roster-watch">Roster Watch</a></li>' +
       '<li><a href="#section-cross-monitor">Cross-Monitor Flags</a></li>';
@@ -707,6 +740,114 @@ document.addEventListener('DOMContentLoaded', function () {
         return html;
       }
     });
+
+    // ── CW-1: render active_escalation_events ────────────────────────
+    (function renderActiveEscalationEvents() {
+      var items = d.active_escalation_events;
+      var sec = document.getElementById('section-active-escalation-events');
+      var el  = document.getElementById('active-escalation-events-content');
+      if (!items || !items.length || !sec || !el) return;
+      sec.style.display = '';
+      var html = '<table class="indicator-table">' +
+        '<thead><tr>' +
+          '<th>ID</th><th>Conflict</th><th>Date</th><th>Event</th>' +
+          '<th>Strategic Significance</th><th>Source</th>' +
+        '</tr></thead><tbody>';
+      items.forEach(function(ev) {
+        html += '<tr>' +
+          '<td style="white-space:nowrap;font-family:monospace;font-size:var(--text-min);color:var(--color-text-muted)">' +
+            escHtml(ev.event_id || '—') + '</td>' +
+          '<td><strong>' + escHtml(ev.conflict_id || '—') + '</strong></td>' +
+          '<td style="white-space:nowrap">' + escHtml(formatDate(ev.event_date)) + '</td>' +
+          '<td style="max-width:260px;white-space:normal;font-size:var(--text-xs)">' +
+            escHtml(ev.event || '—') + '</td>' +
+          '<td style="max-width:260px;white-space:normal;font-size:var(--text-xs);color:var(--color-text-secondary)">' +
+            escHtml(ev.strategic_significance || '—') + '</td>' +
+          '<td style="white-space:nowrap">' +
+            (ev.source_url
+              ? '<a class="source-link" href="' + escHtml(ev.source_url) +
+                '" target="_blank" rel="noopener" style="font-size:var(--text-min)">Source →</a>'
+              : '—') +
+          '</td>' +
+        '</tr>';
+      });
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    })();
+
+    // ── CW-1: render f_flag_history ───────────────────────────────────
+    (function renderFFlagHistory() {
+      var items = d.f_flag_history;
+      var sec = document.getElementById('section-f-flag-history');
+      var el  = document.getElementById('f-flag-history-content');
+      if (!items || !items.length || !sec || !el) return;
+      sec.style.display = '';
+      var html = '<table class="indicator-table">' +
+        '<thead><tr>' +
+          '<th>Flag</th><th>Conflict</th><th>Indicator</th>' +
+          '<th>Detail</th><th>Applied</th><th>Status</th>' +
+        '</tr></thead><tbody>';
+      items.forEach(function(ff) {
+        var statusCls = (ff.status || '').toLowerCase() === 'active'
+          ? 'status-badge--active' : 'status-badge--monitoring';
+        var statusIcon = (ff.status || '').toLowerCase() === 'active' ? '●' : '◎';
+        html += '<tr>' +
+          '<td><span class="f-flag-tag">' + escHtml(ff.flag || '—') + '</span></td>' +
+          '<td><strong>' + escHtml(ff.conflict || '—') + '</strong></td>' +
+          '<td style="font-family:monospace;font-size:var(--text-min);color:var(--color-text-muted)">' +
+            escHtml(ff.indicator || '—') + '</td>' +
+          '<td style="max-width:320px;white-space:normal;font-size:var(--text-xs);color:var(--color-text-secondary)">' +
+            escHtml(ff.detail || '—') + '</td>' +
+          '<td style="white-space:nowrap">' + escHtml(formatDate(ff.applied)) + '</td>' +
+          '<td><span class="status-badge ' + statusCls + '">' +
+            '<span class="status-badge__icon" aria-hidden="true">' + statusIcon + '</span>' +
+            escHtml(ff.status || '—') +
+          '</span></td>' +
+        '</tr>';
+      });
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    })();
+
+    // ── CW-1: render mediation_deescalation_architecture ─────────────
+    (function renderMediationArchitecture() {
+      var items = d.mediation_deescalation_architecture;
+      var sec = document.getElementById('section-mediation-deescalation-architecture');
+      var el  = document.getElementById('mediation-deescalation-architecture-content');
+      if (!items || !items.length || !sec || !el) return;
+      sec.style.display = '';
+      var html = '';
+      items.forEach(function(item) {
+        var frameworks = item.frameworks || [];
+        var hasFrameworks = frameworks.length > 0;
+        html += '<div class="conflict-section" style="margin-bottom:var(--space-5)">' +
+          '<div class="conflict-section__header">' +
+            '<div class="conflict-section__name">' + escHtml(item.conflict_id || '—') + '</div>' +
+            '<div class="conflict-section__meta">' +
+              '<span style="font-family:monospace;font-size:var(--text-min)">' +
+                escHtml(item.evidence_id || '') + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="margin-bottom:var(--space-3)">' +
+            '<div class="section-label" style="margin-bottom:var(--space-2)">Active Frameworks</div>' +
+            (hasFrameworks
+              ? '<div class="f-flags-list">' +
+                  frameworks.map(function(f) {
+                    return '<span class="tag tag--actor">' + escHtml(f) + '</span>';
+                  }).join('') +
+                '</div>'
+              : '<span style="font-size:var(--text-xs);color:var(--color-text-muted)">None active</span>') +
+          '</div>' +
+          '<div>' +
+            '<div class="section-label" style="margin-bottom:var(--space-2)">UN Security Council</div>' +
+            '<p style="font-size:var(--text-sm);color:var(--color-text-secondary);margin:0;line-height:1.55">' +
+              escHtml(item.un_security_council || '—') +
+            '</p>' +
+          '</div>' +
+        '</div>';
+      });
+      el.innerHTML = html;
+    })();
 
     // ── Call all new generic render functions (via shared AsymSections library) ──
     if (window.AsymSections) {
