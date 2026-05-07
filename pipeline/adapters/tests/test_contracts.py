@@ -859,7 +859,7 @@ def test_only_aim_publisher_writes_report_latest():
             r'([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*[^#\n]*'
             + _re.escape(AIM_PATH_FRAGMENT)
         )
-        write_var_pat_tmpl = r'open\s*\(\s*{var}\s*,\s*["']w["']'
+        write_var_pat_tmpl = r"open\s*\(\s*{var}\s*,\s*[\"']w[\"']"
         lines = content.splitlines()
         for m in assign_pat.finditer(content):
             varname = m.group(1)
