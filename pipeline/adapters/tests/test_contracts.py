@@ -181,10 +181,48 @@ def test_meta_carries_emitted_schema_version(shaped):
 # sufficient to cover Invariant L compliance.
 
 
-def _minimal_canonical(module_7_override: object = "__unset__") -> dict:
+def _minimal_eu_ai_act_layered(num_layers: int = 7) -> dict:
+    """Build a minimal canonical eu_ai_act_layered dict with `num_layers` layers.
+    CV-1: publisher.compose_module_9_eu_ai_act_layered now writes this field;
+    adapter passes through. Tests that drive the adapter directly must supply it.
+    """
+    return {
+        "title": "EU AI Act — The Layered System",
+        "note": "Test note.",
+        "layers": [
+            {
+                "layer": f"Layer {i+1}",
+                "name": f"Layer {i+1} Name",
+                "instrument": f"Instrument {i+1}",
+                "status": "Active",
+                "status_class": "active",
+                "timeline": "TBD",
+                "note": f"note {i+1}",
+                "week_update": "No material developments this week.",
+                "source_url": "https://example.org/",
+                "last_verified": "2026-04-17",
+                "unchanged_since": "2026-04-17",
+            }
+            for i in range(num_layers)
+        ],
+    }
+
+
+def _minimal_canonical(module_7_override: object = "__unset__",
+                        module_9_eu_ai_act_layered: object = "__unset__") -> dict:
     """Build a minimal schema-2.0 canonical report. By default module_7 is
     absent (simulates empty synth). Pass explicit value to override.
+
+    CV-1: module_9.eu_ai_act_layered is now always emitted by the publisher
+    before the adapter runs. _minimal_canonical includes a valid 7-layer stub
+    so adapter tests don't fail at the new fail-loud absence guard.
+    Pass module_9_eu_ai_act_layered= to override the stub (e.g. malformed test).
     """
+    layered = (
+        module_9_eu_ai_act_layered
+        if module_9_eu_ai_act_layered != "__unset__"
+        else _minimal_eu_ai_act_layered()
+    )
     canonical = {
         "meta": {
             "schema_version": "2.0",
@@ -194,7 +232,10 @@ def _minimal_canonical(module_7_override: object = "__unset__") -> dict:
             "issue": 4,
             "slug": "2026-04-17",
         },
-        # Absence of other modules is fine — adapter tolerates missing modules.
+        # module_9 carries eu_ai_act_layered stub — CV-1 contract requirement.
+        "module_9": {
+            "eu_ai_act_layered": layered,
+        },
     }
     if module_7_override != "__unset__":
         canonical["module_7"] = module_7_override  # type: ignore[assignment]
@@ -382,14 +423,15 @@ def _persistent_with_eu_ai_act(shape: str = "both") -> dict:
 
 
 def test_M9_layers_carry_renderer_keys(adapter):
-    """Every emitted eu_ai_act_layered.layers[] entry must carry the exact
-    key-set the Ramparts M9 renderer reads. Missing keys render as 'undefined'
-    in the DOM — this is the Issue 4 regression class."""
-    canonical = _minimal_canonical()
-    persistent = _persistent_with_eu_ai_act(shape="B")
-    shaped = adapter.transform(canonical, persistent=persistent)
+    """Every eu_ai_act_layered.layers[] entry in the adapter output must carry
+    the key-set the Ramparts M9 renderer reads. CV-1: publisher now composes
+    eu_ai_act_layered upstream; adapter passes it through. We supply a valid
+    canonical wire shape and verify the adapter does not drop any keys."""
+    canonical = _minimal_canonical()  # includes 7-layer stub
+    shaped = adapter.transform(canonical, persistent={})
     layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
-    assert layers, "expected layers to be built from persistent state"
+    assert layers, "expected layers to be passed through from canonical"
+    assert len(layers) == 7, f"expected 7 layers, got {len(layers)}"
     for i, layer in enumerate(layers):
         assert isinstance(layer, dict), f"layer {i} is not a dict"
         missing = M9_LAYER_REQUIRED_KEYS - set(layer.keys())
@@ -403,83 +445,107 @@ def test_M9_layers_carry_renderer_keys(adapter):
 
 
 def test_M9_layers_status_class_is_bucketed(adapter):
-    """status_class must be one of 'active' / 'gap' / '' — the three buckets
-    the renderer switches on for pill colour."""
-    canonical = _minimal_canonical()
-    persistent = _persistent_with_eu_ai_act(shape="both")
-    shaped = adapter.transform(canonical, persistent=persistent)
+    """status_class in each layer must be a valid renderer bucket value.
+    CV-1: publisher composes eu_ai_act_layered; adapter passes through.
+    We supply a canonical with known status classes and verify pass-through."""
+    # Build canonical with two known status classes
+    layered = _minimal_eu_ai_act_layered()
+    layered["layers"][0]["status_class"] = "active"
+    layered["layers"][1]["status_class"] = "gap"
+    layered["layers"][2]["status_class"] = ""
+    canonical = _minimal_canonical(module_9_eu_ai_act_layered=layered)
+    shaped = adapter.transform(canonical, persistent={})
     layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
-    for layer in layers:
-        assert layer["status_class"] in STATUS_CLASS_ALLOWED, (
-            f"status_class={layer['status_class']!r} not in {STATUS_CLASS_ALLOWED}"
-        )
+    assert layers, "expected layers"
+    # Check the first three layers have expected classes
+    assert layers[0]["status_class"] == "active"
+    assert layers[1]["status_class"] == "gap"
+    assert layers[2]["status_class"] == ""
 
 
 def test_M9_layers_prefer_shape_B_when_both_present(adapter):
-    """When both Shape A and Shape B persistent shapes are present, Shape B
-    wins (richer: carries `name`, `unchanged_since`, prose status)."""
-    canonical = _minimal_canonical()
+    """CV-1: publisher now composes eu_ai_act_layered; adapter passes through.
+    Adapter must not overwrite canonical eu_ai_act_layered regardless of what
+    persistent shapes are present. Canonical wire shape wins unconditionally."""
+    layered = _minimal_eu_ai_act_layered()
+    layered["layers"][0]["name"] = "Canonical Name"
+    canonical = _minimal_canonical(module_9_eu_ai_act_layered=layered)
+    # Pass both Shape A and Shape B in persistent — must be ignored
     persistent = _persistent_with_eu_ai_act(shape="both")
     shaped = adapter.transform(canonical, persistent=persistent)
     layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
-    # Shape B has 2 layers; Shape A has 2 layers. Shape B's layer 1 has
-    # name='AI Act Text' — the `layer` field should contain it.
-    layer_displays = [layer["layer"] for layer in layers]
-    assert any("AI Act Text" in disp for disp in layer_displays), (
-        f"expected Shape B names in layer field, got {layer_displays}"
+    assert layers, "expected layers"
+    # Canonical layer 0 name must be preserved (not overwritten by persistent)
+    assert layers[0]["name"] == "Canonical Name", (
+        f"Canonical eu_ai_act_layered must not be overwritten by persistent. "
+        f"Got {layers[0]['name']!r}"
     )
 
 
 def test_M9_layers_shape_A_key_humanised(adapter):
-    """Shape A has only dict keys like 'layer_3_harmonised_standards'. The
-    adapter must humanise this into a readable 'Layer 3 — Harmonised Standards'
-    string so the renderer displays it correctly."""
-    canonical = _minimal_canonical()
-    persistent = _persistent_with_eu_ai_act(shape="A")
-    shaped = adapter.transform(canonical, persistent=persistent)
+    """CV-1: publisher now composes eu_ai_act_layered using compose_module_9_eu_ai_act_layered
+    which handles all Shape A/B key humanisation. The adapter is a simple pass-through.
+    Verify that the 'layer' field in each canonical layer is preserved verbatim."""
+    layered = _minimal_eu_ai_act_layered()
+    layered["layers"][0]["layer"] = "Layer 1"
+    layered["layers"][0]["status_class"] = "active"
+    layered["layers"][2]["layer"] = "Layer 3"
+    layered["layers"][2]["status_class"] = "gap"
+    canonical = _minimal_canonical(module_9_eu_ai_act_layered=layered)
+    shaped = adapter.transform(canonical, persistent={})
     layers = shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers", [])
-    assert layers, "expected Shape A to produce layers"
-    displays = [layer["layer"] for layer in layers]
-    # Must start with 'Layer N —' prefix and carry a humanised trailer.
-    assert all(disp.startswith("Layer ") for disp in displays), (
-        f"Shape A key humanisation failed, got {displays}"
-    )
-    # 'standards_vacuum_active' status should be bucketed as 'gap'.
-    vacuum_layer = next(
-        (l for l in layers if "Harmonised" in l["layer"]), None
-    )
-    assert vacuum_layer is not None, "harmonised_standards layer not found"
-    assert vacuum_layer["status_class"] == "gap"
+    assert layers, "expected layers"
+    # Verify pass-through: layer field preserved
+    assert layers[0]["layer"] == "Layer 1"
+    assert layers[2]["layer"] == "Layer 3"
+    # Verify status_class preserved
+    assert layers[2]["status_class"] == "gap"
 
 
 def test_M9_malformed_canonical_layers_raises(adapter):
-    """If canonical module_9.eu_ai_act_layered.layers is a non-list, fail-loud
-    with PersistentMergeError — do not silently render garbage."""
-    canonical = _minimal_canonical()
-    canonical["module_9"] = {
-        "eu_ai_act_layered": {"layers": "this should have been a list"}
-    }
+    """CV-1 §defence-in-depth: if canonical module_9.eu_ai_act_layered.layers
+    is not a list of 7, fail-loud with PersistentMergeError — do not silently
+    render garbage. (Publisher normally guarantees 7 layers; adapter double-checks.)"""
+    # layers is a string (not a list)
+    canonical = _minimal_canonical(
+        module_9_eu_ai_act_layered={"layers": "this should have been a list"}
+    )
     with pytest.raises(PersistentMergeError):
         adapter.transform(canonical, persistent={})
 
+    # layers is a list of 5 (not 7)
+    canonical2 = _minimal_canonical(
+        module_9_eu_ai_act_layered={"layers": [{} for _ in range(5)]}
+    )
+    with pytest.raises(PersistentMergeError):
+        adapter.transform(canonical2, persistent={})
+
 
 def test_M9_malformed_persistent_layers_raises(adapter):
-    """If persistent eu_ai_act_tracker.layers is not dict/list, fail-loud."""
-    canonical = _minimal_canonical()
+    """CV-1: adapter no longer reads persistent eu_ai_act_tracker for composition.
+    Malformed persistent should not cause a crash — adapter ignores it since
+    eu_ai_act_layered comes from canonical. Verify no raise when persistent
+    has garbage shape but canonical is valid."""
+    canonical = _minimal_canonical()  # valid 7-layer eu_ai_act_layered
     persistent = {
         "eu_ai_act_tracker": {"layers": "garbage"},
+        "module_9_eu_ai_act_tracker": "not a dict",
     }
-    with pytest.raises(PersistentMergeError):
-        adapter.transform(canonical, persistent=persistent)
+    # Must not raise — adapter only reads canonical.module_9.eu_ai_act_layered
+    shaped = adapter.transform(canonical, persistent=persistent)
+    assert isinstance(shaped, dict)
+    assert shaped.get("module_9", {}).get("eu_ai_act_layered", {}).get("layers")
 
 
 def test_M9_empty_persistent_yields_empty_layers(adapter):
-    """No persistent EU AI Act data + empty canonical → layers: []. Must NOT
-    raise and must NOT emit undefineds."""
-    canonical = _minimal_canonical()
+    """CV-1: eu_ai_act_layered is always published by the publisher. Adapter
+    passes through the canonical wire shape. With valid canonical (7 layers)
+    and empty persistent, adapter must pass through 7 layers without error."""
+    canonical = _minimal_canonical()  # includes 7-layer stub
     shaped = adapter.transform(canonical, persistent={})
     layered = shaped.get("module_9", {}).get("eu_ai_act_layered", {})
-    assert layered.get("layers") == []
+    assert isinstance(layered.get("layers"), list), "layers must be a list"
+    assert len(layered["layers"]) == 7, "must pass through all 7 layers"
 
 
 # ---------------------------------------------------------------------------
@@ -590,3 +656,119 @@ def test_country_grid_malformed_raises(adapter):
 if __name__ == "__main__":
     # Allow running without pytest for quick checks.
     sys.exit(pytest.main([__file__, "-v"]))
+
+
+# ── CV-1 §1i regression guard tests ────────────────────────────────────────
+
+import re  # noqa: E402 (appended section)
+
+
+def test_aim_eu_ai_act_layered_wire_shape():
+    """CV-1 §1i guard: publisher.compose produces the canonical wire shape."""
+    from pipeline.publishers.publisher import compose_module_9_eu_ai_act_layered
+
+    persistent = {
+        "module_9_eu_ai_act_tracker": {
+            "layers": [
+                {"layer": i + 1, "name": f"Layer {i+1} Name", "status": "Active",
+                 "note": f"note {i+1}", "last_verified": "2026-05-09",
+                 "unchanged_since": "2026-04-17"}
+                for i in range(7)
+            ]
+        }
+    }
+    interpret = {
+        "eu_ai_act_layered_week_updates": [f"week update {i+1}" for i in range(7)],
+        "eu_ai_act_layered_note": "this week's framing",
+    }
+    out = compose_module_9_eu_ai_act_layered(persistent, interpret)
+    assert isinstance(out, dict)
+    assert out["title"]
+    assert out["note"] == "this week's framing"
+    assert isinstance(out["layers"], list)
+    assert len(out["layers"]) == 7
+    REQUIRED = {"layer", "name", "instrument", "status", "status_class",
+                "timeline", "note", "week_update", "source_url"}
+    for l in out["layers"]:
+        missing = REQUIRED - set(l.keys())
+        assert not missing, f"layer missing keys: {missing}"
+        assert l["week_update"]  # never empty (defaults to "No material developments...")
+
+
+def test_aim_prompt_renderer_contract_no_prose_for_iterated_fields():
+    """CV-1 §1i guard: AIM interpreter must not declare a prose-instruction
+    field whose name appears in any renderer iteration context."""
+    prompt_path = ROOT / "pipeline" / "monitors" / "ai-governance" / "interpreter-prompt.txt"
+    prompt = prompt_path.read_text(encoding="utf-8")
+    # Find fields whose value is a "One paragraph"/"One sentence" instruction
+    prose_fields = set(
+        re.findall(r'"([a-z_0-9]+)"\s*:\s*"(?:One paragraph|One sentence|Brief paragraph|A paragraph|Single paragraph|Two-three sentences)',
+                   prompt)
+    )
+    # friction_analysis is intentionally locked as prose-only — see test_module_9_friction_analysis_no_iteration
+    KNOWN_PROSE_OK = {"friction_analysis"}
+    suspect = prose_fields - KNOWN_PROSE_OK
+
+    # Cross-reference against renderers
+    renderer_paths = [
+        ROOT / "static" / "monitors" / "ai-governance" / "assets" / "js" / "report-renderer.js",
+        ROOT / "pipeline" / "publishers" / "generate-static.js",
+    ]
+    iter_patterns = (".forEach", ".map(", "Object.values", "Array.isArray", "for (const")
+
+    violations = []
+    for field in suspect:
+        for rp in renderer_paths:
+            if not rp.exists():
+                continue
+            content = rp.read_text(encoding="utf-8")
+            # Find the field references and check if any is inside an iteration context
+            for line_no, line in enumerate(content.splitlines(), start=1):
+                if field in line:
+                    # Look at this line + 2 lines before for iteration patterns
+                    window_start = max(0, line_no - 3)
+                    window = "\n".join(content.splitlines()[window_start:line_no + 1])
+                    if any(p in window for p in iter_patterns):
+                        violations.append(f"{field} iterated in {rp.name}:{line_no} but declared prose in interpreter-prompt")
+    assert not violations, "Prompt-renderer contract violations:\n" + "\n".join(violations)
+
+
+def test_module_9_friction_analysis_no_iteration():
+    """CV-1 §1i guard: friction_analysis is intentionally prose; if a
+    renderer adds iteration of it, the prompt schema must be restructured first."""
+    renderer_paths = [
+        ROOT / "static" / "monitors" / "ai-governance" / "assets" / "js" / "report-renderer.js",
+        ROOT / "pipeline" / "publishers" / "generate-static.js",
+    ]
+    iter_patterns = (".forEach", ".map(", "Object.values", "Array.isArray")
+    for rp in renderer_paths:
+        if not rp.exists():
+            continue
+        content = rp.read_text(encoding="utf-8")
+        for line_no, line in enumerate(content.splitlines(), start=1):
+            if "friction_analysis" in line:
+                window_start = max(0, line_no - 3)
+                window = "\n".join(content.splitlines()[window_start:line_no + 1])
+                assert not any(p in window for p in iter_patterns), (
+                    f"friction_analysis iterated in {rp.name}:{line_no} — "
+                    f"if iterating is intentional, restructure interpreter prompt first."
+                )
+
+
+def test_class_check_no_other_monitor_renderers_yet():
+    """CV-1 §1i guard: tripwire — only AIM has a report-renderer.js today.
+    If any other monitor gains one, this test must be updated to extend
+    contract testing to that monitor's prompt fields. See AD-2026-05-07-CV §1i."""
+    monitors_dir = ROOT / "static" / "monitors"
+    renderer_monitors = []
+    for slug_dir in monitors_dir.iterdir():
+        if not slug_dir.is_dir():
+            continue
+        renderer_path = slug_dir / "assets" / "js" / "report-renderer.js"
+        if renderer_path.exists():
+            renderer_monitors.append(slug_dir.name)
+    assert renderer_monitors == ["ai-governance"], (
+        f"New monitor renderer detected: {set(renderer_monitors) - {'ai-governance'}}. "
+        "Per AD-2026-05-07-CV §1i, must register prompt-renderer contract test "
+        "for the new monitor's iterated fields before this test passes."
+    )

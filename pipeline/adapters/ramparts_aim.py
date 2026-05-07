@@ -45,12 +45,14 @@ module_4, module_5         passthrough
 module_6                   passthrough (+ drill_down_results default [])
 module_7                   passthrough
 module_8                   {title, subtitle, items}  (items: passthrough)
-module_9                   REMAP  commons {law_highlights, standards_highlights, litigation_highlights}
-                             → ramparts {new_developments, no_change, friction_analysis, eu_ai_act_layered}
-                             Since commons doesn't carry the exact Ramparts partition,
-                             we CONCATENATE commons highlights into `new_developments` and leave
-                             `no_change: []`, `friction_analysis: {title, note, items: []}`,
-                             `eu_ai_act_layered: {title, note, layers: []}` as safe shells.
+module_9                   Canonical wire shape from publisher.compose_module_9_eu_ai_act_layered:
+                             commons {new_developments, no_change, friction_analysis,
+                                      eu_ai_act_layered: {title, note, layers:[7 dicts]}}
+                             → ramparts {new_developments, no_change, friction_analysis,
+                                         eu_ai_act_layered: {title, note, layers:[7 dicts]}}
+                             eu_ai_act_layered passes through cleanly — publisher already
+                             merges persistent-state. Adapter retains fail-loud assertions
+                             as defence-in-depth (§1i guard).
 module_10                  passthrough (field names already aligned)
 module_11                  {title, subtitle, items}  (items: passthrough)
 module_12                  REMAP commons {items, capability_watch, asymmetric_flags}
@@ -330,22 +332,14 @@ class RampartsAimAdapter(Adapter):
         )
 
     def _module_2(self, m: Any) -> dict:
-        # Commons AIM module_2 now holds framework-status data (not model releases).
-        # Ramparts module_2 expects model-release data. Emit a safe empty shell.
-        # Note: if models[] ever gets populated, each item must carry benchmarks: []
-        # because the renderer does mod.benchmarks.length / .map().
-        return self._titled(
-            "module_2",
-            {
-                "models": [],
-                "no_releases": [],
-                "benchmarks_table": {
-                    "arc_agi_2": [],
-                    "arc_agi_3": [],
-                    "gpqa_diamond": [],
-                },
-            },
-        )
+        if not isinstance(m, dict):
+            m = {}
+        return self._titled("module_2", {
+            "subtitle": m.get("subtitle", "") or "",
+            "models": m.get("models") or [],
+            "no_releases": m.get("no_releases") or [],
+            "benchmarks_table": m.get("benchmarks_table") or {},
+        })
 
     def _module_3(self, m: dict) -> dict:
         """Module 3 — Investment & M&A.
@@ -819,120 +813,32 @@ class RampartsAimAdapter(Adapter):
             items = m.get(key) or []
             if isinstance(items, list):
                 new_developments.extend(_dev(it, domain) for it in items)
-        # §27-L: compose eu_ai_act_layered from persistent state if present.
-        #
-        # The Ramparts M9 renderer (generate-static.js renderM8_LawGuidance) iterates
-        # `eu_ai_act_layered.layers[]` expecting each layer to carry:
-        #   layer, instrument, status, status_class, timeline, week_update, source_url
-        # Persistent-state carries NEITHER of these key names directly — both Shape A
-        # (`eu_ai_act_tracker.layers` dict) and Shape B (`module_9_eu_ai_act_tracker.layers`
-        # list) use `name`/`status`/`note`/`unchanged_since`. The builder below translates
-        # to the renderer contract. Contract is locked by test_required_item_keys_present.
-        #
-        # Two possible sources in persistent-state.json (schema tolerates both):
-        #   - `eu_ai_act_tracker.layers` (dict of layer_N_... → {status, note, ...})
-        #   - `module_9_eu_ai_act_tracker.layers` (list of {layer, name, status, note, ...})
-        # Canonical field on the current weekly report can override if present.
-        #
-        # Invariant L rule 5 (fail-loud): if canonical/persistent carries a structurally
-        # wrong shape (e.g. `layers` is a string), we raise PersistentMergeError rather
-        # than silently rendering 'undefined' strings — this is the exact regression class
-        # that produced 21 undefineds in Issue 4 M9 (pre-fix).
-        layered_out: dict[str, Any] = {"title": "", "note": "", "layers": []}
+        # §CV-1: eu_ai_act_layered is now composed upstream by
+        # publisher.compose_module_9_eu_ai_act_layered and written into
+        # module_9.eu_ai_act_layered on the report before the adapter runs.
+        # Pass through with fail-loud assertions as defence-in-depth.
         canon_layered = m.get("eu_ai_act_layered")
-        if canon_layered is not None and not isinstance(canon_layered, dict):
+        if canon_layered is None:
+            # Publisher should always emit; if absent, raise (was previously a safe shell)
+            raise PersistentMergeError(
+                f"[{self.__class__.__name__}] canonical module_9.eu_ai_act_layered absent — "
+                f"publisher.compose_module_9_eu_ai_act_layered did not run."
+            )
+        if not isinstance(canon_layered, dict):
             raise PersistentMergeError(
                 f"[{self.__class__.__name__}] canonical module_9.eu_ai_act_layered "
                 f"expected dict, got {type(canon_layered).__name__} — refusing to render."
             )
-        canon_layers_raw = canon_layered.get("layers") if isinstance(canon_layered, dict) else None
-        if canon_layers_raw is not None and not isinstance(canon_layers_raw, list):
+        layers_raw = canon_layered.get("layers")
+        if not isinstance(layers_raw, list) or len(layers_raw) != 7:
             raise PersistentMergeError(
-                f"[{self.__class__.__name__}] canonical module_9.eu_ai_act_layered.layers "
-                f"expected list, got {type(canon_layers_raw).__name__}."
+                f"[{self.__class__.__name__}] canonical eu_ai_act_layered.layers "
+                f"must be list of 7, got {type(layers_raw).__name__} "
+                f"len={len(layers_raw) if hasattr(layers_raw, '__len__') else '?'}"
             )
+        # Pass through — publisher's wire shape already matches Ramparts renderer contract
+        layered_out = canon_layered
 
-        if isinstance(canon_layered, dict) and canon_layers_raw:
-            # Canonical weekly override — normalise items through _shape_layer so
-            # renderer keys are guaranteed present even when commons shape drifts.
-            layered_out = {
-                "title": canon_layered.get("title", "") or "EU AI Act \u2014 Layered System",
-                "note": canon_layered.get("note", "") or "",
-                "layers": [
-                    self._shape_eu_ai_act_layer(it, key=None, publish_date=publish_date)
-                    for it in canon_layers_raw
-                    if isinstance(it, dict)
-                ],
-            }
-        else:
-            # Try persistent sources in priority order (Shape B richer → preferred).
-            p_tracker = self._persistent.get("eu_ai_act_tracker")
-            p_module_tracker = self._persistent.get("module_9_eu_ai_act_tracker")
-            if p_tracker is not None and not isinstance(p_tracker, dict):
-                raise PersistentMergeError(
-                    f"[{self.__class__.__name__}] persistent eu_ai_act_tracker "
-                    f"expected dict, got {type(p_tracker).__name__}."
-                )
-            if p_module_tracker is not None and not isinstance(p_module_tracker, dict):
-                raise PersistentMergeError(
-                    f"[{self.__class__.__name__}] persistent module_9_eu_ai_act_tracker "
-                    f"expected dict, got {type(p_module_tracker).__name__}."
-                )
-            p_tracker = p_tracker or {}
-            p_module_tracker = p_module_tracker or {}
-
-            layers: list = []
-            # Shape B: module_9_eu_ai_act_tracker.layers is a list of dicts.
-            mt_layers = p_module_tracker.get("layers")
-            if mt_layers is not None and not isinstance(mt_layers, list):
-                raise PersistentMergeError(
-                    f"[{self.__class__.__name__}] persistent module_9_eu_ai_act_tracker.layers "
-                    f"expected list, got {type(mt_layers).__name__}."
-                )
-            # Shape A: eu_ai_act_tracker.layers is a dict of layer_N → {...}.
-            raw_layers = p_tracker.get("layers")
-            if raw_layers is not None and not isinstance(raw_layers, (dict, list)):
-                raise PersistentMergeError(
-                    f"[{self.__class__.__name__}] persistent eu_ai_act_tracker.layers "
-                    f"expected dict or list, got {type(raw_layers).__name__}."
-                )
-
-            # Prefer Shape B (richer: name, unchanged_since, prose status).
-            if isinstance(mt_layers, list) and mt_layers:
-                for v in mt_layers:
-                    if not isinstance(v, dict):
-                        continue
-                    layers.append(
-                        self._shape_eu_ai_act_layer(v, key=None, publish_date=publish_date)
-                    )
-            elif isinstance(raw_layers, dict) and raw_layers:
-                for key in sorted(raw_layers.keys()):
-                    v = raw_layers[key]
-                    if not isinstance(v, dict):
-                        continue
-                    layers.append(
-                        self._shape_eu_ai_act_layer(v, key=key, publish_date=publish_date)
-                    )
-
-            if layers:
-                note_bits = []
-                if p_tracker.get("standards_vacuum_flag") or p_module_tracker.get("standards_vacuum_active"):
-                    note_bits.append("Standards vacuum active")
-                deadline_days = (
-                    p_module_tracker.get("current_days_to_deadline")
-                    or p_tracker.get("current_days_to_deadline")
-                )
-                if deadline_days:
-                    note_bits.append(f"{deadline_days} days to general application")
-                layered_out = {
-                    "title": "EU AI Act \u2014 Layered System",
-                    "note": " \u00b7 ".join(note_bits),
-                    "layers": layers,
-                }
-
-        # §27-L carry-forward tag for standing no-change entries: if the canonical
-        # digest_note exists, surface it; otherwise derive a minimal note from the
-        # tracker `last_updated` so a quiet week still shows when data last moved.
         digest_note = m.get("digest_note") or {}
         return self._titled(
             "module_9",
@@ -1119,7 +1025,7 @@ class RampartsAimAdapter(Adapter):
         if not isinstance(m, dict):
             m = {}
 
-        items_in = m.get("items") or []
+        items_in = m.get("bodies") or m.get("items") or []
         if not isinstance(items_in, list):
             items_in = []
 

@@ -396,26 +396,37 @@ function renderM9(data) {
     html += renderItemList(newDevelopments, '');
   }
   // EU AI Act Layered System
+  // EU AI Act Layered System — handles both new (wrapped) and old (string) shapes
   if (m.eu_ai_act_layered) {
-    const layers = m.eu_ai_act_layered;
-    html += `<div class="divider"></div>
-    <div class="section-label">EU AI Act — Layered Tracker</div>
-    <table class="data-table">
-      <thead><tr><th>Layer</th><th>Status</th><th>Note</th></tr></thead>
+    const lay = m.eu_ai_act_layered;
+    if (typeof lay === 'string') {
+      // Legacy shape (Issues 1-13) — render as paragraph
+      html += `<div class="divider"></div>
+      <div class="section-label">EU AI Act — Layered Tracker</div>
+      <p class="text-sm">${esc(lay)}</p>`;
+    } else if (lay && Array.isArray(lay.layers)) {
+      // Canonical wire shape (Issue 14+) — render as structured table
+      html += `<div class="divider"></div>
+      <div class="section-label">${esc(lay.title || 'EU AI Act — Layered Tracker')}</div>`;
+      if (lay.note) {
+        html += `<p class="text-sm" style="margin-bottom:12px">${esc(lay.note)}</p>`;
+      }
+      html += `<table class="data-table">
+      <thead><tr>
+        <th>Layer</th><th>Instrument</th><th>Status</th><th>Note</th><th>This Week</th>
+      </tr></thead>
       <tbody>`;
-    const layerNames = [
-      'AI Act Text', 'Delegated / Implementing Acts', 'Harmonised Standards (CEN-CENELEC JTC21)',
-      'GPAI Code of Practice', 'National Enforcement (NCAs)', 'AI Office Supervisory Decisions',
-      'Digital Omnibus Trilogue'
-    ];
-    (Array.isArray(layers) ? layers : Object.values(layers)).forEach(function (l, i) {
-      html += `<tr>
-        <td class="mono">${esc(layerNames[i] || ('Layer ' + i))}</td>
-        <td>${l.status ? badge(l.status, l.status === 'Active' ? 'signal' : l.status === 'Delayed' ? 'amber' : 'muted') : '—'}</td>
-        <td class="text-sm">${esc(l.note || l.summary || '—')}</td>
+      lay.layers.forEach(function (l) {
+        html += `<tr>
+        <td class="mono">${esc(l.name || l.layer || '—')}</td>
+        <td class="text-sm">${esc(l.instrument || '—')}</td>
+        <td>${l.status ? badge(l.status, l.status_class === 'active' ? 'signal' : l.status_class === 'amber' ? 'amber' : l.status_class === 'gap' ? 'red' : 'muted') : '—'}</td>
+        <td class="text-sm">${esc(l.note || '—')}</td>
+        <td class="text-sm">${esc(l.week_update || '—')}</td>
       </tr>`;
-    });
-    html += `</tbody></table>`;
+      });
+      html += `</tbody></table>`;
+    }
   }
 
   // Country Grid
