@@ -94,8 +94,11 @@ jobs:
         env:
           SOFT_FAIL: ${{ vars.SNAPSHOT_SOFT_FAIL }}
         run: |
-          SLUG=$(python3 -c "import json; d=json.load(open('static/monitors/ai-governance/data/report-latest.json')); print(d['meta']['slug'])")
-          URL=$(python3 -c "import json; d=json.load(open('static/monitors/ai-governance/data/report-latest.json')); print(d['meta']['source_url'])")
+          # Fix 5 (CV-3e): read from Ramparts cache, not AIM commons path.
+          # AIM commons static/monitors/ai-governance/data/report-latest.json no longer
+          # carries meta.source_url after Fix 4 — that field is Ramparts-specific.
+          SLUG=$(python3 -c "import json; d=json.load(open('pipeline/monitors/ai-governance/ramparts-cache/report-latest.json')); print(d['meta']['slug'])")
+          URL=$(python3 -c "import json; d=json.load(open('pipeline/monitors/ai-governance/ramparts-cache/report-latest.json')); print(d.get('meta',{}).get('source_url') or 'https://ramparts.gi/ai-frontier-monitor-issue-' + d['meta']['slug'] + '/')")
           echo "Snapshot URL: $URL (slug=$SLUG)"
           # Give WP ~10s to flush post-publish cache before we fetch
           sleep 10
@@ -103,14 +106,14 @@ jobs:
             --url "$URL" \
             --issue-slug "$SLUG" \
             --label post-publish \
-            --adapter-output static/monitors/ai-governance/data/report-latest.json \
+            --adapter-output pipeline/monitors/ai-governance/ramparts-cache/report-latest.json \
             --sanity-check
 
       - name: Commit data updates
         run: |
           git config user.name "Ramparts Publisher Bot"
           git config user.email "build@ramparts.gi"
-          git add static/monitors/ai-governance/data/ ops/snapshots/
+          git add static/monitors/ai-governance/data/ pipeline/monitors/ai-governance/ramparts-cache/ ops/snapshots/
           git diff --staged --quiet && echo "No data changes to commit" && exit 0
           git commit -m "data(ramparts): published to ramparts.gi — $(date -u +%Y-%m-%d) [skip ci]"
           for attempt in 1 2 3; do
