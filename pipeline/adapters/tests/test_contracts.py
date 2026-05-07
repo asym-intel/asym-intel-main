@@ -803,3 +803,44 @@ def test_class_check_eu_ai_act_data_path():
         f"Files reference '{new_path}' but do not access '{layers_key}': {missing_layers_files}. "
         "Each page reading eu_ai_act_layered must also consume .layers per CV-2b wire shape."
     )
+
+
+# ── CV-3e double-writer tripwire test ──────────────────────────────────────
+
+def test_only_aim_publisher_writes_report_latest():
+    """CV-3e §tripwire: assert that ONLY the AIM publisher writes to
+    static/monitors/ai-governance/data/report-latest.json.
+
+    Grep all .py files in pipeline/publishers/ for literal writes to that path.
+    The AIM publisher (publisher.py with MONITOR_SLUG=ai-governance) is the
+    only permitted writer — it uses a template f-string via MONITOR_SLUG.
+    ramparts-publisher.py and all other publishers MUST NOT write there.
+
+    If this test fails, two publishers are writing the same file — Fix 4 (CV-3e)
+    regression. Fail loud so the operator investigates before merging.
+    """
+    publishers_dir = ROOT / "pipeline" / "publishers"
+    # The literal path that must ONLY appear in the AIM publisher
+    TARGET_PATH = "static/monitors/ai-governance/data/report-latest.json"
+    # Allowed file: publisher.py (AIM commons publisher).
+    # It uses f"static/monitors/{MONITOR_SLUG}/data/report-latest.json" which
+    # expands to the target when MONITOR_SLUG=ai-governance. That's the
+    # designed write surface.
+    ALLOWED_BASENAME = "publisher.py"
+
+    offenders = []
+    for py_file in sorted(publishers_dir.glob("*.py")):
+        if py_file.name == ALLOWED_BASENAME:
+            continue
+        content = py_file.read_text(encoding="utf-8")
+        if TARGET_PATH in content:
+            offenders.append(py_file.name)
+
+    assert not offenders, (
+        "Double-writer contract violation (CV-3e Fix 4): the following files in "
+        "pipeline/publishers/ write to '{}' but only {} "
+        "(AIM commons publisher) is permitted to do so:\n".format(TARGET_PATH, ALLOWED_BASENAME)
+        + "\n".join("  - " + f for f in offenders)
+        + "\n\nFix: redirect Ramparts-specific output to "
+        "pipeline/monitors/ai-governance/ramparts-cache/ per Fix 4."
+    )
