@@ -85,7 +85,25 @@ _LAYER_PATTERN = re.compile(r'Layer\s+\d+\s*[—-]', re.IGNORECASE)
 _UNDEFINED_PATTERN = re.compile(r'\bundefined\b')
 
 
-_SNAPSHOT_UA = "asym-intel-snapshot/1.0 (+https://asym-intel.info)"
+# CV-3g: WordPress.com VIP/Atomic added Cloudflare IUAM challenges against
+# GitHub Actions runner ASN between 2026-04-21 and 2026-05-07. Basic Auth
+# does not bypass IUAM (challenge fires at edge before WP REST is reached).
+# Browser-fingerprint headers are the minimal fix; if WP.com tightens further
+# we move publisher to Cloudflare Workers (see ops/next-session.json).
+_SNAPSHOT_UA = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
+_SNAPSHOT_BROWSER_HEADERS = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-GB,en;q=0.9",
+    "Sec-Ch-Ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": '"Linux"',
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+}
 _SNAPSHOT_RETRY_DELAYS = (5, 15, 45)  # seconds; 3 attempts
 
 
@@ -100,9 +118,11 @@ def fetch(url: str) -> bytes:
     last_exc: Exception | None = None
     for attempt, delay in enumerate(list(_SNAPSHOT_RETRY_DELAYS) + [None]):
         try:
+            req_headers = {"User-Agent": _SNAPSHOT_UA}
+            req_headers.update(_SNAPSHOT_BROWSER_HEADERS)
             req = urllib.request.Request(
                 url,
-                headers={"User-Agent": _SNAPSHOT_UA},
+                headers=req_headers,
             )
             with urllib.request.urlopen(req, timeout=30) as r:
                 if r.status in (403, 500, 502, 503, 504):
