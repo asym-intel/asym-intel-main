@@ -1,9 +1,9 @@
 {
   "schema_version": "4.1",
-  "generated_at": "2026-05-07T10:32:13Z",
+  "generated_at": "2026-05-07T16:02:27Z",
   "engine": {
     "status": "red",
-    "last_updated": "2026-05-07T09:30:39Z"
+    "last_updated": "2026-05-07T11:24:56Z"
   },
   "monitors": [
     {
@@ -29,7 +29,7 @@
     {
       "slug": "AIM",
       "status": "amber",
-      "last_updated": "2026-05-05T14:25:29Z"
+      "last_updated": "2026-05-07T11:24:56Z"
     },
     {
       "slug": "ERM",
@@ -55,7 +55,7 @@
   "_trigger_health": {
     "schema_version": "1.0",
     "window_days": 7,
-    "computed_at": "2026-05-07T10:32:13Z",
+    "computed_at": "2026-05-07T16:02:27Z",
     "tolerance": {
       "late_minutes_cf_dispatcher": 5,
       "late_minutes_github_native": 60,
@@ -63,19 +63,8 @@
     },
     "manifest_loaded": true,
     "manifest_version": "1.0.0",
-    "manifest_sha": "a0e7204cda646b8ae9f8cc68fa289c3874ed52f5",
+    "manifest_sha": "2ddf2ee23bc8a1a173ccdd61cb22f8629cfadb0c",
     "expected_fires": [
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 14 * * *",
-        "utc_time": "14:00",
-        "dow": null,
-        "monitor": null,
-        "expected_at": "2026-04-30T14:00:00Z"
-      },
       {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 23 * * *:23:00",
         "source_kind": "github_native",
@@ -130,6 +119,17 @@
         "dow": 5,
         "monitor": "agm",
         "expected_at": "2026-05-01T09:30:00Z"
+      },
+      {
+        "trigger_id": "cf:0 10 * * FRI:10:00:ramparts-publisher.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 10 * * FRI",
+        "utc_time": "10:00",
+        "dow": 5,
+        "monitor": "ramparts",
+        "expected_at": "2026-05-01T10:00:00Z"
       },
       {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
@@ -473,28 +473,6 @@
         "expected_at": "2026-05-06T08:30:00Z"
       },
       {
-        "trigger_id": "cf:0,30 9 * * WED:09:00:advennt-weekly-research.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "utc_time": "09:00",
-        "dow": 3,
-        "monitor": "advennt",
-        "expected_at": "2026-05-06T09:00:00Z"
-      },
-      {
-        "trigger_id": "cf:0,30 9 * * WED:09:30:advennt-reasoner.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "utc_time": "09:30",
-        "dow": 3,
-        "monitor": "advennt",
-        "expected_at": "2026-05-06T09:30:00Z"
-      },
-      {
         "trigger_id": "cf:30 9 * * WED:09:30:european-strategic-autonomy-publisher.yml",
         "source_kind": "cf_dispatcher",
         "workflow": "european-strategic-autonomy-publisher.yml",
@@ -504,17 +482,6 @@
         "dow": 3,
         "monitor": "esa",
         "expected_at": "2026-05-06T09:30:00Z"
-      },
-      {
-        "trigger_id": "cf:30 10 * * WED:10:30:publisher.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "30 10 * * WED",
-        "utc_time": "10:30",
-        "dow": 3,
-        "monitor": "advennt",
-        "expected_at": "2026-05-06T10:30:00Z"
       },
       {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
@@ -581,14 +548,34 @@
         "dow": 4,
         "monitor": "fcw",
         "expected_at": "2026-05-07T09:30:00Z"
+      },
+      {
+        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
+        "source_kind": "github_native",
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 14 * * *",
+        "utc_time": "14:00",
+        "dow": null,
+        "monitor": null,
+        "expected_at": "2026-05-07T14:00:00Z"
       }
     ],
     "actual_fires": [
       {
         "workflow": "update-pipeline-status.yml",
         "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-07T10:31:23Z",
+        "started_at": "2026-05-07T16:01:49Z",
         "conclusion": "in_progress",
+        "event": "schedule",
+        "run_number": 100,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25507264155"
+      },
+      {
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T10:31:23Z",
+        "conclusion": "success",
         "event": "schedule",
         "run_number": 99,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25490485112"
@@ -828,24 +815,6 @@
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25173325698"
       },
       {
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T14:02:46Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 72,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25169802042"
-      },
-      {
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-04-30T10:15:07Z",
-        "conclusion": "success",
-        "event": "schedule",
-        "run_number": 71,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25159954183"
-      },
-      {
         "workflow": "agm-weekly-research.yml",
         "repo": "asym-intel/asym-intel-main",
         "started_at": "2026-05-04T23:47:41Z",
@@ -907,6 +876,15 @@
         "event": "workflow_dispatch",
         "run_number": 13,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25210540228"
+      },
+      {
+        "workflow": "ai-governance-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T11:24:56Z",
+        "conclusion": "success",
+        "event": "workflow_dispatch",
+        "run_number": 29,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25492877381"
       },
       {
         "workflow": "ai-governance-publisher.yml",
@@ -988,6 +966,78 @@
         "event": "workflow_dispatch",
         "run_number": 20,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25211112095"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T15:30:44Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 264,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25505586110"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T15:01:39Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 263,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25503962483"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T13:46:38Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 262,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25499795715"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T13:16:44Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 261,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25498183543"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T13:05:40Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 260,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25497606055"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T11:53:35Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 259,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25494149400"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T11:35:38Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 258,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25493350314"
+      },
+      {
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-07T08:16:58Z",
+        "conclusion": "failure",
+        "event": "workflow_dispatch",
+        "run_number": 257,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25484312953"
       },
       {
         "workflow": "erm-weekly-research.yml",
@@ -1595,6 +1645,15 @@
         "monitor": "agm"
       },
       {
+        "trigger_id": "cf:0 10 * * FRI:10:00:ramparts-publisher.yml",
+        "source_kind": "cf_dispatcher",
+        "workflow": "ramparts-publisher.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 10 * * FRI",
+        "expected_at": "2026-05-01T10:00:00Z",
+        "monitor": "ramparts"
+      },
+      {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 8 * * *:08:00",
         "source_kind": "github_native",
         "workflow": "update-pipeline-status.yml",
@@ -1676,33 +1735,6 @@
         "monitor": null
       },
       {
-        "trigger_id": "cf:0,30 9 * * WED:09:00:advennt-weekly-research.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-weekly-research.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "expected_at": "2026-05-06T09:00:00Z",
-        "monitor": "advennt"
-      },
-      {
-        "trigger_id": "cf:0,30 9 * * WED:09:30:advennt-reasoner.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "advennt-reasoner.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0,30 9 * * WED",
-        "expected_at": "2026-05-06T09:30:00Z",
-        "monitor": "advennt"
-      },
-      {
-        "trigger_id": "cf:30 10 * * WED:10:30:publisher.yml",
-        "source_kind": "cf_dispatcher",
-        "workflow": "publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "30 10 * * WED",
-        "expected_at": "2026-05-06T10:30:00Z",
-        "monitor": "advennt"
-      },
-      {
         "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
         "source_kind": "github_native",
         "workflow": "update-pipeline-status.yml",
@@ -1719,8 +1751,17 @@
         "cron": "0 8 * * *",
         "expected_at": "2026-05-07T08:00:00Z",
         "monitor": null
+      },
+      {
+        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
+        "source_kind": "github_native",
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 14 * * *",
+        "expected_at": "2026-05-07T14:00:00Z",
+        "monitor": null
       }
     ],
-    "last_fire_was_on_time": true
+    "last_fire_was_on_time": false
   }
 }
