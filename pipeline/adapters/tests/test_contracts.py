@@ -807,25 +807,28 @@ def test_class_check_eu_ai_act_data_path():
 
 # ── CV-3e double-writer tripwire test ──────────────────────────────────────
 
+
 def test_only_aim_publisher_writes_report_latest():
-    """CV-3e §tripwire: assert that ONLY the AIM publisher writes to
+    """CV-3e §tripwire: assert that ONLY the AIM publisher WRITES to
     static/monitors/ai-governance/data/report-latest.json.
 
-    Grep all .py files in pipeline/publishers/ for literal writes to that path.
-    The AIM publisher (publisher.py with MONITOR_SLUG=ai-governance) is the
-    only permitted writer — it uses a template f-string via MONITOR_SLUG.
-    ramparts-publisher.py and all other publishers MUST NOT write there.
+    Checks .py files in pipeline/publishers/ for write patterns to that path.
+    Read references (the publisher reads AIM output as input) are permitted.
+    The AIM commons publisher.py uses f"static/monitors/{MONITOR_SLUG}/data/
+    report-latest.json" — this is the only permitted writer.
 
-    If this test fails, two publishers are writing the same file — Fix 4 (CV-3e)
-    regression. Fail loud so the operator investigates before merging.
+    Strategy: scan each non-allowed file line by line. A line that contains both
+    the target path fragment AND a write indicator (open()..."w", write_text,
+    write_bytes, json.dump) on the same line is a write-contract violation.
+    Variable-indirection writes (e.g. path = target; open(path, "w")) are caught
+    by the broader check: if the target path appears in the file AND a write-to-
+    variable-named-latest_path appears, flag it — but only if the variable name
+    is assigned the target path earlier (not ramparts-cache).
+
+    If this test fails, Fix 4 (CV-3e) has regressed. Fail loud.
     """
     publishers_dir = ROOT / "pipeline" / "publishers"
-    # The literal path that must ONLY appear in the AIM publisher
-    TARGET_PATH = "static/monitors/ai-governance/data/report-latest.json"
-    # Allowed file: publisher.py (AIM commons publisher).
-    # It uses f"static/monitors/{MONITOR_SLUG}/data/report-latest.json" which
-    # expands to the target when MONITOR_SLUG=ai-governance. That's the
-    # designed write surface.
+    AIM_PATH_FRAGMENT = "static/monitors/ai-governance/data/report-latest.json"
     ALLOWED_BASENAME = "publisher.py"
 
     offenders = []
@@ -833,14 +836,47 @@ def test_only_aim_publisher_writes_report_latest():
         if py_file.name == ALLOWED_BASENAME:
             continue
         content = py_file.read_text(encoding="utf-8")
-        if TARGET_PATH in content:
-            offenders.append(py_file.name)
+        if AIM_PATH_FRAGMENT not in content:
+            continue
+
+        # Check each line that contains the target path fragment.
+        # A line is a violation if it also contains a write indicator.
+        WRITE_INDICATORS = ('"w"', "'w'", ".write_text", ".write_bytes", "json.dump")
+        write_lines = []
+        for lineno, line in enumerate(content.splitlines(), start=1):
+            if AIM_PATH_FRAGMENT in line:
+                if any(w in line for w in WRITE_INDICATORS):
+                    write_lines.append((lineno, line.strip()))
+
+        # Also catch variable-indirection: if the file assigns the target path
+        # to a variable (e.g. latest_path = ... / "report-latest.json") and
+        # that variable appears in open(..., "w"), that's also a violation.
+        # We detect this by checking if any variable is assigned the exact AIM
+        # path (not a ramparts-cache path) and is then used in a write context.
+        import re as _re
+        # Find variables assigned the AIM target path (not ramparts-cache)
+        assign_pat = _re.compile(
+            r'([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*[^#\n]*'
+            + _re.escape(AIM_PATH_FRAGMENT)
+        )
+        write_var_pat_tmpl = r'open\s*\(\s*{var}\s*,\s*["']w["']'
+        lines = content.splitlines()
+        for m in assign_pat.finditer(content):
+            varname = m.group(1)
+            # Check if this variable is later opened for writing
+            wp = _re.compile(write_var_pat_tmpl.format(var=_re.escape(varname)))
+            if wp.search(content):
+                write_lines.append((0, f"variable '{varname}' assigned AIM path and opened for writing"))
+
+        if write_lines:
+            detail = "; ".join(f"line {ln}: {txt}" for ln, txt in write_lines[:3])
+            offenders.append(f"{py_file.name} ({detail})")
 
     assert not offenders, (
-        "Double-writer contract violation (CV-3e Fix 4): the following files in "
-        "pipeline/publishers/ write to '{}' but only {} "
-        "(AIM commons publisher) is permitted to do so:\n".format(TARGET_PATH, ALLOWED_BASENAME)
-        + "\n".join("  - " + f for f in offenders)
+        "Double-writer contract violation (CV-3e Fix 4): the following publishers "
+        "in pipeline/publishers/ WRITE to '{}' — only publisher.py (AIM commons) "
+        "is permitted to write there:\n  ".format(AIM_PATH_FRAGMENT)
+        + "\n  ".join(offenders)
         + "\n\nFix: redirect Ramparts-specific output to "
         "pipeline/monitors/ai-governance/ramparts-cache/ per Fix 4."
     )
