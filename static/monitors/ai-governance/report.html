@@ -480,6 +480,35 @@
         // M09 — Law & Litigation
         var m9 = d.module_9 || {};
         var m9html = '';
+        // EU AI Act Layered Tracker table — CV-2b
+        if (m9.eu_ai_act_layered && hasItems(m9.eu_ai_act_layered.layers)) {
+          var eal = m9.eu_ai_act_layered;
+          var ealLayers = eal.layers;
+          m9html += '<h3 class="subsection-title">EU AI Act — Layered Tracker</h3>';
+          if (eal.note) { m9html += '<div class="digest-note">' + esc(eal.note) + '</div>'; }
+          m9html += '<div class="table-responsive"><table class="data-table" style="width:100%">' +
+            '<thead><tr><th>Layer</th><th>Name</th><th>Instrument</th><th>Status</th><th>Timeline</th><th>Week Update</th><th>Source</th></tr></thead>' +
+            '<tbody>';
+          for (var ei = 0; ei < ealLayers.length; ei++) {
+            var el = ealLayers[ei];
+            var elBadge = el.status
+              ? '<span class="euact-badge euact-badge--' + esc(el.status_class || 'pending') + '">' + esc(el.status) + '</span>'
+              : '—';
+            var elSrc = el.source_url
+              ? '<a class="source-link" href="' + esc(el.source_url) + '" target="_blank" rel="noopener">Source</a>'
+              : '—';
+            m9html += '<tr>' +
+              '<td class="mono">' + esc(el.layer || '') + '</td>' +
+              '<td>' + esc(el.name || '') + '</td>' +
+              '<td class="text-sm">' + esc(el.instrument || '') + '</td>' +
+              '<td>' + elBadge + '</td>' +
+              '<td class="text-sm">' + esc(el.timeline || '') + '</td>' +
+              '<td class="text-sm">' + esc(el.week_update || '') + '</td>' +
+              '<td>' + elSrc + '</td>' +
+              '</tr>';
+          }
+          m9html += '</tbody></table></div>';
+        }
         if (m9.digest_note) {
           m9html += '<div class="digest-note">' + esc(m9.digest_note) + '</div>';
         }

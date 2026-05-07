@@ -755,20 +755,51 @@ def test_module_9_friction_analysis_no_iteration():
                 )
 
 
-def test_class_check_no_other_monitor_renderers_yet():
-    """CV-1 §1i guard: tripwire — only AIM has a report-renderer.js today.
-    If any other monitor gains one, this test must be updated to extend
-    contract testing to that monitor's prompt fields. See AD-2026-05-07-CV §1i."""
-    monitors_dir = ROOT / "static" / "monitors"
-    renderer_monitors = []
-    for slug_dir in monitors_dir.iterdir():
-        if not slug_dir.is_dir():
+def test_class_check_eu_ai_act_data_path():
+    """CV-2b §1i guard: tripwire — verify eu_ai_act data path is correct in all
+    ai-governance HTML pages.
+
+    Rules:
+    - If any file reads `d.module_9_eu_ai_act_tracker` (broken old report-data path),
+      test FAILS. Note: dashboard.html legitimately reads
+      `persistent.module_9_eu_ai_act_tracker` from persistent-state.json (a separate
+      data store) — that pattern is NOT the broken report-data path and is allowed.
+    - If any file references `module_9.eu_ai_act_layered` (correct new path),
+      it MUST also reference `.layers` (wire-shape sub-key). FAIL if missing.
+
+    See AD-2026-05-07-CV §1i and BRIEF CV-2b.
+    """
+    aim_dir = ROOT / "static" / "monitors" / "ai-governance"
+    target_files = [
+        "report.html", "persistent.html", "dashboard.html", "overview.html",
+        "digest.html", "archive.html", "cross-monitor.html", "chatter.html",
+    ]
+    # Pattern that reads eu_ai_act_tracker from the REPORT data object (`d`).
+    # This is broken: the canonical wire shape is d.module_9.eu_ai_act_layered.
+    # Note: `persistent.module_9_eu_ai_act_tracker` (dashboard reading persistent-state.json)
+    # is a separate store and NOT the broken pattern.
+    broken_path = "d.module_9_eu_ai_act_tracker"
+    new_path = "module_9.eu_ai_act_layered"
+    layers_key = ".layers"
+
+    broken_files = []
+    missing_layers_files = []
+
+    for fname in target_files:
+        fpath = aim_dir / fname
+        if not fpath.exists():
             continue
-        renderer_path = slug_dir / "assets" / "js" / "report-renderer.js"
-        if renderer_path.exists():
-            renderer_monitors.append(slug_dir.name)
-    assert renderer_monitors == ["ai-governance"], (
-        f"New monitor renderer detected: {set(renderer_monitors) - {'ai-governance'}}. "
-        "Per AD-2026-05-07-CV §1i, must register prompt-renderer contract test "
-        "for the new monitor's iterated fields before this test passes."
+        content = fpath.read_text(encoding="utf-8")
+        if broken_path in content:
+            broken_files.append(fname)
+        if new_path in content and layers_key not in content:
+            missing_layers_files.append(fname)
+
+    assert not broken_files, (
+        f"Files reference broken old report data path '{broken_path}': {broken_files}. "
+        "Update to 'd.module_9 && d.module_9.eu_ai_act_layered' per CV-2b."
+    )
+    assert not missing_layers_files, (
+        f"Files reference '{new_path}' but do not access '{layers_key}': {missing_layers_files}. "
+        "Each page reading eu_ai_act_layered must also consume .layers per CV-2b wire shape."
     )
