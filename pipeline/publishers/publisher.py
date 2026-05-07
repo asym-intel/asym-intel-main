@@ -1272,6 +1272,103 @@ def _handle_fcw_actor_profiles(persistent: dict, synth_val, publish_date: str):
         print(f"    fcw_actor_profiles: {updated} actors updated")
 
 
+def compose_module_9_eu_ai_act_layered(persistent_state: dict, interpret: dict) -> dict:
+    """Compose the canonical wire shape for module_9.eu_ai_act_layered.
+
+    Merges persistent-state.module_9_eu_ai_act_tracker.layers (canonical structured)
+    with interpreter's eu_ai_act_layered_week_updates (this-week deltas) and
+    eu_ai_act_layered_note (this-week framing).
+
+    Returns: {title, note, layers: [<7 layer dicts>]} — the wire shape both
+    renderers consume.
+
+    Raises: ValueError if persistent layers != 7, or if shape drift detected.
+    """
+    tracker = persistent_state.get("module_9_eu_ai_act_tracker", {})
+    layers_raw = tracker.get("layers", [])
+    if not isinstance(layers_raw, list) or len(layers_raw) != 7:
+        raise ValueError(
+            f"persistent module_9_eu_ai_act_tracker.layers must be list of 7, "
+            f"got {type(layers_raw).__name__} len={len(layers_raw) if hasattr(layers_raw, '__len__') else '?'}"
+        )
+
+    week_updates = interpret.get("eu_ai_act_layered_week_updates", [""] * 7)
+    if not isinstance(week_updates, list) or len(week_updates) != 7:
+        week_updates = [""] * 7  # graceful fallback if interpreter omits
+
+    # Static lookup tables (canonical per-layer metadata not in persistent-state).
+    LAYER_INSTRUMENTS = {
+        1: "Regulation (EU) 2024/1689",
+        2: "Delegated & Implementing Acts",
+        3: "Harmonised Standards (CEN-CENELEC JTC21)",
+        4: "GPAI Code of Practice",
+        5: "National Enforcement (NCAs)",
+        6: "AI Office Supervisory Decisions",
+        7: "Digital Omnibus Trilogue",
+    }
+    LAYER_TIMELINES = {
+        1: "In force since 1 August 2024; general application 2 August 2026",
+        2: "Rolling — adopted as needed",
+        3: "Drafting in progress; targeted publication 2026",
+        4: "Voluntary adoption from August 2025",
+        5: "National designation by 2 August 2025",
+        6: "Operational from 2025",
+        7: "Trilogue negotiation ongoing",
+    }
+    LAYER_SOURCE_URLS = {
+        1: "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+        2: "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
+        3: "https://www.cencenelec.eu/areas-of-work/cen-cenelec-topics/artificial-intelligence/",
+        4: "https://digital-strategy.ec.europa.eu/en/library/general-purpose-ai-code-practice",
+        5: "https://digital-strategy.ec.europa.eu/en/policies/european-approach-artificial-intelligence",
+        6: "https://digital-strategy.ec.europa.eu/en/policies/ai-office",
+        7: "https://www.consilium.europa.eu/en/council-eu/",
+    }
+
+    def status_class(status: str) -> str:
+        s = (status or "").lower()
+        if s in ("active", "in force", "operational"): return "active"
+        if s in ("delayed", "behind", "at risk"): return "amber"
+        if s in ("gap", "stalled", "absent"): return "gap"
+        return "muted"
+
+    def derive_week_update(idx: int) -> str:
+        wu = week_updates[idx] if idx < len(week_updates) else ""
+        wu = (wu or "").strip()
+        return wu if wu else "No material developments this week."
+
+    layers_out = []
+    for idx, layer in enumerate(layers_raw):
+        layer_num = layer.get("layer", idx + 1)
+        if isinstance(layer_num, str) and layer_num.startswith("Layer "):
+            try:
+                layer_num = int(layer_num.replace("Layer ", "").strip())
+            except ValueError:
+                layer_num = idx + 1
+        elif not isinstance(layer_num, int):
+            layer_num = idx + 1
+
+        layers_out.append({
+            "layer": f"Layer {layer_num}",
+            "name": layer.get("name", ""),
+            "instrument": LAYER_INSTRUMENTS.get(layer_num, ""),
+            "status": layer.get("status", ""),
+            "status_class": status_class(layer.get("status", "")),
+            "timeline": LAYER_TIMELINES.get(layer_num, ""),
+            "note": layer.get("note", ""),
+            "week_update": derive_week_update(idx),
+            "source_url": LAYER_SOURCE_URLS.get(layer_num, ""),
+            "last_verified": layer.get("last_verified", ""),
+            "unchanged_since": layer.get("unchanged_since", ""),
+        })
+
+    return {
+        "title": "EU AI Act — The Layered System",
+        "note": (interpret.get("eu_ai_act_layered_note", "") or "").strip(),
+        "layers": layers_out,
+    }
+
+
 def _handle_aim_risk_vectors(persistent: dict, synth_val, publish_date: str):
     """AIM: module_7 has {vectors: [...]} → update module_7_risk_vectors."""
     vectors = synth_val.get("vectors", []) if isinstance(synth_val, dict) else []
@@ -3111,6 +3208,27 @@ def main():
         write_json(snapshot_path, persistent)
     persistent = update_persistent_state(persistent, synthesis, meta, config)
     archive.append(build_archive_entry(meta, signal, synthesis))
+
+    # AIM module_9: compose canonical eu_ai_act_layered wire shape from persistent-state
+    # and interpreter's per-layer week deltas. Must run after update_persistent_state so
+    # module_9_eu_ai_act_tracker.layers reflects any updates from this cycle.
+    if MONITOR_SLUG == "ai-governance":
+        _m9 = report.get("module_9")
+        if isinstance(_m9, dict):
+            try:
+                _m9["eu_ai_act_layered"] = compose_module_9_eu_ai_act_layered(
+                    persistent, _m9
+                )
+                report["module_9"] = _m9
+                print("  ✓ module_9.eu_ai_act_layered composed (canonical wire shape)")
+            except ValueError as _compose_err:
+                print(f"  ⚠ compose_module_9_eu_ai_act_layered: {_compose_err} — "
+                      f"eu_ai_act_layered omitted from this report")
+                log_incident(
+                    monitor=MONITOR_SLUG, stage="publisher",
+                    incident_type="quality_failure", severity="warning",
+                    detail=str(_compose_err),
+                )
 
     # Hugo brief
     hugo_brief = build_brief_frontmatter(meta, synthesis, config, brief_sources=report.get("weekly_brief_sources", []))
