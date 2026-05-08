@@ -46,8 +46,14 @@ def build_literal(registry: dict) -> str:
     Adding/reordering monitors = edit monitor-registry.json only.
     """
     # --- MONITOR_REGISTRY (slug-keyed) ---
+    # CR-2 guard: parked monitors have no publication surface (no url/svg_url);
+    # skip them here so they do not appear in nav.js or the monitor strip.
+    # Parked monitors remain in monitor-registry.json for registry-driven
+    # tooling (pipeline_flow_audit, monitor_urls.py) but are excluded from
+    # nav/strip until a publication surface exists.
+    active_monitors = [m for m in registry["monitors"] if not m.get("parked")]
     lines = ["var MONITOR_REGISTRY = {"]
-    for m in registry["monitors"]:
+    for m in active_monitors:
         slug = m["slug"]
         entry = {
             "abbr":        m["abbr"],
@@ -70,17 +76,21 @@ def build_literal(registry: dict) -> str:
             "monitor-registry.json missing required 'triage_order' array "
             "(used by nav.js injectMonitorStrip)."
         )
-    triage = registry["triage_order"]
-    abbrs = {m["abbr"] for m in registry["monitors"]}
-    unknown = [a for a in triage if a not in abbrs]
+    # Filter triage_order to active (non-parked) monitors only.
+    active_abbrs = {m["abbr"] for m in active_monitors}
+    all_abbrs = {m["abbr"] for m in registry["monitors"]}
+    triage = [a for a in registry["triage_order"] if a in active_abbrs]
+    # Validate: every entry in triage_order must be a known monitor abbr.
+    unknown = [a for a in registry["triage_order"] if a not in all_abbrs]
     if unknown:
         raise ValueError(
             f"triage_order contains unknown abbrs: {unknown}"
         )
-    missing = sorted(abbrs - set(triage))
+    # Validate: every active (non-parked) monitor must appear in triage_order.
+    missing = sorted(active_abbrs - set(registry["triage_order"]))
     if missing:
         raise ValueError(
-            f"triage_order missing abbrs present in monitors[]: {missing}"
+            f"triage_order missing active monitor abbrs: {missing}"
         )
     triage_js = json.dumps(triage, separators=(", ", ": "))
     lines.append("")
