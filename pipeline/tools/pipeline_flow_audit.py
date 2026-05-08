@@ -128,10 +128,13 @@ class FlowRow:
 
 # ── Consumer adapter contract (BRIEF BX-2) ────────────────────────────────
 #
-# Onboarding a new consumer (engine-internal or external like Advennt):
+# Onboarding a new consumer:
 #
-#   1. Define a ConsumerAdapter and call register_consumer(adapter). The
-#      adapter declares: where the consumer's stage artifacts live, how its
+#   1. Define a ConsumerAdapter in the private internal registry
+#      (asym-intel-internal:tools/consumer_registry.py) and add it to
+#      fleet_consumers(). Consumer identity stays on private internal;
+#      the public harness loads it at runtime via _load_internal_consumer_registry().
+#      The adapter declares: where the consumer's stage artifacts live, how its
 #      slot map is keyed, and which fields carry eligibility / publication
 #      state / absence provenance. These fields are the contract the harness
 #      reads against; rename a field in the consumer and you must update the
@@ -208,80 +211,66 @@ _MONITOR_ADAPTER = ConsumerAdapter(
 )
 
 
-# Adapter stub for Advennt (BRIEF BX-2 §3). Not a full working adapter —
-# Advennt's artifacts are not stable yet (Sprint CO jurisdiction baselining
-# still in progress). Harness reports the consumer with status=AUDIT_WAIVED
-# and the documented field requirements that must be met before the stub
-# can be replaced with a real adapter.
-_ADVENNT_STUB = ConsumerAdapter(
-    consumer_id="advennt",
-    consumer_type="jurisdiction-intelligence",
-    stage_artifacts={
-        # Required artifact paths to be confirmed by Sprint CO. Populated
-        # placeholders so the contract is documented even while waived.
-        "collection": "pipeline/consumers/advennt/collection/<jurisdiction>-<date>.json",
-        "classification": "pipeline/consumers/advennt/classification/<jurisdiction>-<date>.json",
-        "interpretation": "pipeline/consumers/advennt/interpretation/<jurisdiction>-<date>.json",
-        "review": "pipeline/consumers/advennt/review/<jurisdiction>-<date>.json",
-        "screen": "pipeline/consumers/advennt/screen/<jurisdiction>-<date>.json",
-        "publish": "static/consumers/advennt/data/<jurisdiction>-latest.json",
-    },
-    slot_map={
-        "key_pattern": "<jurisdiction-code>",
-        "container": "per-jurisdiction document",
-        "TBD": "exact jurisdiction code set + nesting confirmed by Sprint CO baseline",
-    },
-    eligibility_source="screen.eligibility (TBD: exact field name)",
-    published_output_source="static/consumers/advennt/data/<jurisdiction>-latest.json",
-    absence_state_fields=[
-        # Confirmed by Sprint CO once jurisdiction baselining lands.
-        "null_signal", "empty_reason", "fallback_message",
-    ],
-    classification_trace_fields=[
-        "classification.regime", "classification.confidence",
-    ],
-    screen_or_output_state_fields=[
-        "screen.user_facing_state", "screen.regulatory_outlook",
-    ],
-    status=AUDIT_WAIVED,
-    waiver_reason=(
-        "Sprint CO jurisdiction baselining in progress — adapter stub only. "
-        "See Sprint CO (asym-intel/asym-intel-internal:docs/sprints/2026-05-04-CJ/). "
-        "Replace this stub with a fully-populated adapter + consumer-specific "
-        "row walker once jurisdiction artifact shape stabilises."
-    ),
-    notes=[
-        "Not yet audited end-to-end; --all output will list this consumer "
-        "under registered_consumers but skip stage-by-stage walk.",
-    ],
-)
+# Consumer identity (which consumers exist and their adapter contracts) lives
+# on private asym-intel-internal. Use _load_internal_consumer_registry() to
+# obtain it at runtime. See asym-intel-internal:tools/consumer_registry.py.
+# Authority: AD-2026-05-05-CR §Decision (BRIEF CR-1).
 
 
-# Module-level consumer registry. Keyed by consumer_id. Mutating helpers are
-# exposed (`register_consumer`, `unregister_consumer`) so tests can install
-# fixture adapters without rewriting the module.
-_CONSUMER_REGISTRY: dict[str, ConsumerAdapter] = {
-    _ADVENNT_STUB.consumer_id: _ADVENNT_STUB,
-}
+def _load_internal_consumer_registry() -> dict[str, ConsumerAdapter]:
+    """Attempt to import the private internal consumer registry.
+
+    Returns {} if the internal-repo module is not on sys.path (e.g. running
+    from public CI without internal checkout). Audit harness then operates
+    in monitor-only mode — emits a single-line notice on stderr but does
+    not fail.
+
+    When running from internal-side workflows (which add the internal repo
+    to PYTHONPATH via `_internal/` sparse checkout), this resolves
+    `tools.consumer_registry.fleet_consumers` from the private registry.
+
+    Authority: AD-2026-05-05-CR §Decision (BRIEF CR-1).
+    """
+    try:
+        from tools.consumer_registry import fleet_consumers  # type: ignore
+        return fleet_consumers()
+    except ImportError:
+        return {}
+
+
+# Module-level runtime registry. Test fixtures install adapters here via
+# register_consumer(). This is intentionally empty at import time — all
+# fleet consumers are loaded from the internal registry at collect time.
+# Named _RUNTIME_REGISTRY (not _CONSUMER_REGISTRY) to make clear that this
+# is a test-fixture channel, not the canonical source.
+_RUNTIME_REGISTRY: dict[str, ConsumerAdapter] = {}
 
 
 def register_consumer(adapter: ConsumerAdapter) -> None:
-    """Register a consumer adapter. Last-write-wins on consumer_id collision.
+    """Register a consumer adapter into the test-fixture runtime registry.
+
+    Last-write-wins on consumer_id collision. Runtime-registry entries
+    override internal-registry entries in collect_consumer_adapters().
 
     Stub adapters (status=AUDIT_WAIVED) are valid; the harness lists them in
     --all output without walking their stages.
     """
-    _CONSUMER_REGISTRY[adapter.consumer_id] = adapter
+    _RUNTIME_REGISTRY[adapter.consumer_id] = adapter
 
 
 def unregister_consumer(consumer_id: str) -> None:
-    """Remove a consumer from the registry. No-op if not registered."""
-    _CONSUMER_REGISTRY.pop(consumer_id, None)
+    """Remove a consumer from the runtime registry. No-op if not registered."""
+    _RUNTIME_REGISTRY.pop(consumer_id, None)
 
 
 def list_consumers() -> list[ConsumerAdapter]:
-    """Snapshot of currently registered consumers, sorted by consumer_id."""
-    return sorted(_CONSUMER_REGISTRY.values(), key=lambda a: a.consumer_id)
+    """Snapshot of currently registered runtime consumers, sorted by consumer_id.
+
+    Returns only test-fixture entries installed via register_consumer().
+    For the full fleet (monitors + internal consumers), use
+    collect_consumer_adapters().
+    """
+    return sorted(_RUNTIME_REGISTRY.values(), key=lambda a: a.consumer_id)
 
 
 def _monitor_adapter_for(slug: str) -> ConsumerAdapter:
@@ -902,15 +891,22 @@ def collect_consumer_adapters(
 ) -> list[ConsumerAdapter]:
     """Return the full set of registered consumer adapters for `--all`.
 
-    Combines:
-      • Every monitor in static/monitors/monitor-registry.json, materialised
-        from the monitor adapter template (consumer_type="monitor").
-      • All consumers in `_CONSUMER_REGISTRY` (e.g. the Advennt stub).
+    Combines (in priority order, last-write-wins on consumer_id collision):
+      1. Every monitor in static/monitors/monitor-registry.json, materialised
+         from the monitor adapter template (consumer_type="monitor").
+      2. Fleet consumers from the private internal registry, loaded via
+         _load_internal_consumer_registry(). Empty when running from public
+         CI without internal checkout (monitor-only mode; a one-line notice
+         is logged to stderr).
+      3. Test-fixture entries installed via register_consumer()
+         (_RUNTIME_REGISTRY). These always win on collision.
 
-    Monitors are not stored in `_CONSUMER_REGISTRY` because the registry on
-    disk is the source of truth for them; this keeps the two indexes from
-    drifting. Explicit registrations win on consumer_id collision so a future
-    monitor that needs a custom adapter can override the template.
+    Monitors are not stored in the internal registry because the on-disk
+    monitor-registry.json is the source of truth for them; this prevents
+    the two indexes from drifting. Explicit runtime registrations win on
+    consumer_id collision so tests can override any adapter.
+
+    Authority: AD-2026-05-05-CR §Decision (BRIEF CR-1).
     """
     repo = repo or _repo_root()
     registry_path = repo / "static" / "monitors" / "monitor-registry.json"
@@ -921,8 +917,16 @@ def collect_consumer_adapters(
             slug = monitor.get("slug") if isinstance(monitor, dict) else None
             if slug:
                 by_id[slug] = _monitor_adapter_for(slug)
-    for adapter in _CONSUMER_REGISTRY.values():
-        by_id[adapter.consumer_id] = adapter
+    # Pull fleet consumers from private internal registry (empty on public CI).
+    internal = _load_internal_consumer_registry()
+    if not internal:
+        print(
+            "notice: internal consumer registry not available — monitor-only audit",
+            file=sys.stderr,
+        )
+    by_id.update(internal)
+    # Test-fixture overrides win.
+    by_id.update(_RUNTIME_REGISTRY)
     return sorted(by_id.values(), key=lambda a: a.consumer_id)
 
 
@@ -1188,7 +1192,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Output format. 'summary' for per-consumer triage text, "
              "'summary-csv' for compact CSV across consumers, "
              "'consumers-json' for the BX-2 registered-consumers block "
-             "(monitors + non-monitor consumers like Advennt) as JSON.",
+             "(monitors + fleet consumers from internal registry) as JSON.",
     )
     p.add_argument(
         "--repo",

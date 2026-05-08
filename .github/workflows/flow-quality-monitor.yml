@@ -40,6 +40,34 @@ jobs:
         with:
           token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
+      - name: Checkout asym-intel-internal (consumer registry only)
+        # Sparse-checkout: only the private consumer registry module.
+        # The audit harness imports tools.consumer_registry.fleet_consumers
+        # when _internal is on PYTHONPATH; falls back to monitor-only mode
+        # if the PAT does not have read access to asym-intel-internal.
+        # Authority: AD-2026-05-05-CR §Decision (BRIEF CR-1 §C).
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          path: _internal
+          sparse-checkout: |
+            tools/consumer_registry.py
+          sparse-checkout-cone-mode: false
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+        continue-on-error: true
+        # If ASYM_INTEL_PIPELINE PAT does not have read access to
+        # asym-intel-internal, this step is skipped and the audit proceeds
+        # in monitor-only mode (fail-soft by design).
+
+      - name: Make internal registry importable
+        run: |
+          if [ -f "_internal/tools/consumer_registry.py" ]; then
+            echo "PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE/_internal" >> $GITHUB_ENV
+            echo "internal consumer registry available at _internal/tools/consumer_registry.py"
+          else
+            echo "notice: _internal/tools/consumer_registry.py not found — audit will run in monitor-only mode"
+          fi
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
