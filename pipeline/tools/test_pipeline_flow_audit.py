@@ -43,7 +43,7 @@ from pipeline_flow_audit import (  # noqa: E402
     STATE_MISSING_ARTIFACT,
     STATE_PRESENT,
     ConsumerAdapter,
-    _ADVENNT_STUB,
+    _load_internal_consumer_registry,
     _has_literal_null_string,
     _has_placeholder_array,
     _is_empty_value,
@@ -593,36 +593,43 @@ def test_live_aim_2026_05_02_module_3_is_silent_empty():
 # ── BRIEF BX-2: consumer adapter contract ─────────────────────────────────
 
 
-def test_advennt_stub_is_registered_as_temporarily_waived():
-    """The Advennt stub must be present in the registry at import time, and
-    must declare consumer_type="jurisdiction-intelligence" with
-    status=AUDIT_WAIVED — that's the contract from BRIEF BX-2 §3."""
-    by_id = {a.consumer_id: a for a in list_consumers()}
-    assert "advennt" in by_id
-    advennt = by_id["advennt"]
-    assert advennt.consumer_type == "jurisdiction-intelligence"
-    assert advennt.status == AUDIT_WAIVED
-    assert advennt.waiver_reason
-    assert "Sprint CO" in advennt.waiver_reason
-    # Stub must reference the baselining sprint path so future-readers can
-    # find the in-flight artifact-shape work.
-    assert "2026-05-04-CJ" in advennt.waiver_reason
+def test_advennt_stub_not_in_public_source():
+    """BRIEF CR-1 migration guard: the public harness must NOT carry
+    _ADVENNT_STUB or any hard-coded consumer entry at import time.
+
+    Consumer identity moved to private asym-intel-internal:tools/consumer_registry.py
+    via AD-2026-05-05-CR. This test verifies the migration is complete:
+    list_consumers() (runtime registry) returns nothing by default, and
+    the module does not expose _ADVENNT_STUB as a public symbol.
+    """
+    import pipeline_flow_audit as _mod
+    # _ADVENNT_STUB must not be a public module attribute after migration.
+    assert not hasattr(_mod, "_ADVENNT_STUB"), (
+        "_ADVENNT_STUB must not exist in public pipeline_flow_audit after CR-1 migration"
+    )
+    # No consumers in runtime registry at import time (consumers come from internal).
+    assert list_consumers() == [], (
+        "list_consumers() must return [] at import time after CR-1 migration; "
+        "fleet consumers are loaded from internal registry at collect time"
+    )
 
 
-def test_advennt_stub_documents_required_artifact_paths():
-    """A stub should still declare the artifact paths it expects to walk
-    once the shape stabilises — the contract is the documentation."""
-    advennt = _ADVENNT_STUB
-    assert "collection" in advennt.stage_artifacts
-    assert "classification" in advennt.stage_artifacts
-    assert "publish" in advennt.stage_artifacts
-    # Slot map keyed by jurisdiction code (per consumer_type).
-    assert advennt.slot_map.get("key_pattern") == "<jurisdiction-code>"
-    # Eligibility / absence-state / classification-trace fields documented
-    # so a future adapter implementer knows which fields to populate.
-    assert advennt.eligibility_source
-    assert "null_signal" in advennt.absence_state_fields
-    assert advennt.classification_trace_fields
+def test_public_source_has_no_fleet_consumer_identifiers():
+    """Acceptance criterion 1 of BRIEF CR-1: no consumer-identifying strings
+    (advennt, resilience, payments, ramparts, investor) must remain in the
+    public harness module source.
+
+    This mirrors the `git grep` check in the BRIEF's acceptance gate.
+    """
+    import inspect
+    import pipeline_flow_audit as _mod
+    source = inspect.getsource(_mod)
+    fleet_ids = ["advennt", "resilience", "payments", "ramparts", "investor"]
+    found = [fid for fid in fleet_ids if fid in source.lower()]
+    assert not found, (
+        f"Public pipeline_flow_audit.py still contains fleet consumer identifiers: "
+        f"{found}. These must be removed per BRIEF CR-1."
+    )
 
 
 def test_consumer_adapter_minimum_fields_present():
@@ -657,10 +664,17 @@ def test_register_unregister_consumer_round_trip():
     assert "__test_fixture__" not in {a.consumer_id for a in list_consumers()}
 
 
-def test_collect_consumer_adapters_includes_monitors_and_advennt(tmp_path):
-    """collect_consumer_adapters must merge the monitor registry on disk
-    with the in-process consumer registry. The Advennt stub should always
-    be present alongside any monitors in the fixture registry."""
+def test_collect_consumer_adapters_works_without_internal_registry(tmp_path, monkeypatch):
+    """Public-only audit (no internal checkout): collect_consumer_adapters
+    returns monitor adapters from registry, no fleet consumers.
+
+    BRIEF CR-1 acceptance criterion 4 (backwards compat) and new test
+    from BRIEF CR-1 §D.
+    """
+    monkeypatch.setattr(
+        "pipeline_flow_audit._load_internal_consumer_registry",
+        lambda: {},
+    )
     registry = {"monitors": [{"slug": "ai-governance"}, {"slug": "macro-monitor"}]}
     _write_json(
         tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
@@ -671,16 +685,73 @@ def test_collect_consumer_adapters_includes_monitors_and_advennt(tmp_path):
     assert "ai-governance" in by_id
     assert by_id["ai-governance"].consumer_type == "monitor"
     assert by_id["ai-governance"].status == AUDIT_FULLY
-    # Advennt stub present from the in-process registry.
-    assert "advennt" in by_id
-    assert by_id["advennt"].status == AUDIT_WAIVED
+    # No fleet consumers when internal registry unavailable.
+    fleet_ids = {"advennt", "resilience", "payments", "ramparts", "investor"}
+    assert not fleet_ids.intersection(by_id.keys()), (
+        f"Fleet consumers should not appear without internal registry: "
+        f"{fleet_ids.intersection(by_id.keys())}"
+    )
+    # Monitor consumer_type present (sanity check for monitor-only path).
+    assert any(a.consumer_type == "monitor" for a in adapters)
+
+
+def test_collect_consumer_adapters_picks_up_loaded_internal_registry(tmp_path, monkeypatch):
+    """When internal registry is loadable (simulated), fleet consumers appear
+    in collect_consumer_adapters() output.
+
+    New test from BRIEF CR-1 §D.
+    """
+    fake_consumers = {
+        "advennt": ConsumerAdapter(
+            consumer_id="advennt",
+            consumer_type="jurisdiction-intelligence",
+            status=AUDIT_WAIVED,
+            waiver_reason="stub",
+        ),
+        "resilience": ConsumerAdapter(
+            consumer_id="resilience",
+            consumer_type="resilience-intelligence",
+            status=AUDIT_WAIVED,
+            waiver_reason="stub",
+        ),
+        "payments": ConsumerAdapter(
+            consumer_id="payments",
+            consumer_type="payments-intelligence",
+            status=AUDIT_WAIVED,
+            waiver_reason="stub",
+        ),
+        "ramparts": ConsumerAdapter(
+            consumer_id="ramparts",
+            consumer_type="security-intelligence",
+            status=AUDIT_WAIVED,
+            waiver_reason="stub",
+        ),
+        "investor": ConsumerAdapter(
+            consumer_id="investor",
+            consumer_type="investor-intelligence",
+            status=AUDIT_WAIVED,
+            waiver_reason="stub",
+        ),
+    }
+    monkeypatch.setattr(
+        "pipeline_flow_audit._load_internal_consumer_registry",
+        lambda: fake_consumers,
+    )
+    registry = {"monitors": [{"slug": "ai-governance"}]}
+    _write_json(
+        tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
+    )
+    adapters = collect_consumer_adapters(repo=tmp_path)
+    consumer_ids = {a.consumer_id for a in adapters}
+    assert {"advennt", "resilience", "payments", "ramparts", "investor"}.issubset(consumer_ids)
+    assert "ai-governance" in consumer_ids
 
 
 def test_collect_consumer_adapters_explicit_registration_overrides_monitor_template(
     tmp_path,
 ):
-    """If a slug is registered explicitly in _CONSUMER_REGISTRY, that
-    explicit adapter takes precedence over the monitor-template clone."""
+    """If a slug is registered explicitly via register_consumer() (_RUNTIME_REGISTRY),
+    that explicit adapter takes precedence over the monitor-template clone."""
     registry = {"monitors": [{"slug": "ai-governance"}]}
     _write_json(
         tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
@@ -700,9 +771,16 @@ def test_collect_consumer_adapters_explicit_registration_overrides_monitor_templ
         unregister_consumer("ai-governance")
 
 
-def test_consumer_auditability_report_walks_monitors_skips_waived(tmp_path):
+def test_consumer_auditability_report_walks_monitors_skips_waived(tmp_path, monkeypatch):
     """Auditability report should contain audit_summary for fully_auditable
-    monitors but NOT walk waived consumers (they only get status metadata)."""
+    monitors but NOT walk waived consumers (they only get status metadata).
+
+    Internal registry is monkeypatched to empty to test public-CI path.
+    """
+    monkeypatch.setattr(
+        "pipeline_flow_audit._load_internal_consumer_registry",
+        lambda: {},
+    )
     registry = {"monitors": [{"slug": "ai-governance"}]}
     _write_json(
         tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
@@ -730,23 +808,30 @@ def test_consumer_auditability_report_walks_monitors_skips_waived(tmp_path):
     assert by_id["ai-governance"]["status"] == AUDIT_FULLY
     assert "audit_summary" in by_id["ai-governance"]
     assert by_id["ai-governance"]["audit_summary"]["module_count"] == 1
-    # Advennt waived — present in report, no audit_summary.
-    advennt_entry = by_id["advennt"]
-    assert advennt_entry["status"] == AUDIT_WAIVED
-    assert "audit_summary" not in advennt_entry
-    assert advennt_entry["waiver_reason"]
+    # When internal registry is unavailable (monkeypatched to empty), no
+    # fleet consumer entries appear in the auditability report.
+    fleet_ids = {"advennt", "resilience", "payments", "ramparts", "investor"}
+    assert not fleet_ids.intersection(by_id.keys()), (
+        f"Fleet consumers must not appear without internal registry: "
+        f"{fleet_ids.intersection(by_id.keys())}"
+    )
 
 
-def test_existing_audit_all_indexed_unchanged_by_consumer_registry(tmp_path):
+def test_existing_audit_all_indexed_unchanged_by_consumer_registry(tmp_path, monkeypatch):
     """Backward-compat guard: the consumer registry must not bleed into
     audit_all_indexed output (which still keys solely off the on-disk
     monitor registry). Existing JSON consumers — including
     .github/workflows/flow-quality-monitor.yml — depend on this."""
+    monkeypatch.setattr(
+        "pipeline_flow_audit._load_internal_consumer_registry",
+        lambda: {},
+    )
     registry = {"monitors": [{"slug": "ai-governance"}]}
     _write_json(
         tmp_path / "static" / "monitors" / "monitor-registry.json", registry,
     )
     out = audit_all_indexed(repo=tmp_path)
-    # Only the on-disk monitor is present; the Advennt stub does NOT leak in.
+    # Only the on-disk monitor is present; no fleet consumers leak in.
     assert set(out.keys()) == {"ai-governance"}
-    assert "advennt" not in out
+    fleet_ids = {"advennt", "resilience", "payments", "ramparts", "investor"}
+    assert not fleet_ids.intersection(out.keys())
