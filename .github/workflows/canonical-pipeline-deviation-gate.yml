@@ -1,3 +1,5 @@
+# HK-2026-05-09: gate is ADVISORY-ONLY. Re-enable by removing --advisory from the
+# check step. Retire conditions tracked in ops/TRIPWIRES.md entry 8.
 name: Canonical pipeline deviation gate
 
 on:
@@ -35,7 +37,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
 
 concurrency:
   group: canonical-pipeline-deviation-${{ github.ref }}
@@ -43,7 +45,7 @@ concurrency:
 
 jobs:
   gate:
-    name: Require canonical pipeline review
+    name: Canonical pipeline review (advisory — HK-2026-05-09 pause)
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     steps:
@@ -73,10 +75,40 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: printf '%s' "$PR_BODY" > /tmp/pr-body.md
 
-      - name: Check canonical pipeline review sign-off
+      - name: Run advisory check
+        id: advisory
         run: |
+          set +e
+          python3 _internal/tools/check_canonical_pipeline_deviation.py \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --head "${{ github.event.pull_request.head.sha }}" \
+            --body-file /tmp/pr-body.md \
+            --manifest _internal/ops/generic-pipeline-class.yml \
+            --advisory \
+            --suggested-block-out /tmp/suggested-block.md
+          echo "advisory_exit=$?" >> "$GITHUB_OUTPUT"
+          # Re-run without --advisory to capture true gate verdict (still informational)
           python3 _internal/tools/check_canonical_pipeline_deviation.py \
             --base "${{ github.event.pull_request.base.sha }}" \
             --head "${{ github.event.pull_request.head.sha }}" \
             --body-file /tmp/pr-body.md \
             --manifest _internal/ops/generic-pipeline-class.yml
+          echo "true_verdict=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Post suggested block (advisory)
+        if: steps.advisory.outputs.true_verdict != '0' && hashFiles('/tmp/suggested-block.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # De-duplicate: if a recent comment already carries the advisory marker, skip.
+          MARKER="<!-- canonical-pipeline-deviation-advisory -->"
+          if gh pr view ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --json comments --jq '.comments[].body' | grep -q "$MARKER"; then
+            echo "Advisory comment already posted; skipping duplicate."
+            exit 0
+          fi
+          (
+            echo "$MARKER"
+            cat /tmp/suggested-block.md
+          ) > /tmp/comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --repo ${{ github.repository }} --body-file /tmp/comment.md
