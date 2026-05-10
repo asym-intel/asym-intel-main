@@ -1,7 +1,7 @@
 name: GMM Publisher — Weekly Report
 
 on:
-  # Schedule: Tuesday 08:00 UTC (after synthesiser completes)
+  # Schedule: Tuesday 08:00 UTC (triggered by Curator success or workflow_dispatch)
   workflow_dispatch:
     inputs:
       publish_date:
@@ -9,9 +9,14 @@ on:
         required: false
         default: ""
         type: string
+  workflow_run:
+    workflows: ["Global Macro Monitor Curator"]
+    types:
+      - completed
 
 jobs:
   publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     name: Publish GMM Weekly Report
     runs-on: ubuntu-latest
     permissions:
