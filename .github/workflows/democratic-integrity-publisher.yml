@@ -1,7 +1,7 @@
 name: WDM Publisher — Weekly Report
 
 on:
-  # Schedule: Monday 06:00 UTC (after synthesiser completes)
+  # Schedule: Monday 06:00 UTC (triggered by Curator success or workflow_dispatch)
   workflow_dispatch:
     inputs:
       publish_date:
@@ -9,9 +9,14 @@ on:
         required: false
         default: ""
         type: string
+  workflow_run:
+    workflows: ["WDM Curator"]
+    types:
+      - completed
 
 jobs:
   publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     name: Publish WDM Weekly Report
     runs-on: ubuntu-latest
     permissions:
