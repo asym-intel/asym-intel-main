@@ -1,6 +1,6 @@
 /* ============================================================
    Asymmetric Intelligence — Shared Monitor Design System
-   shared/css/base.css  ·  Version 1.5  ·  31 March 2026 — mobile overflow fixes
+   shared/css/base.css  ·  Version 1.6  ·  12 May 2026 — typography floor (line-height tokens + body defaults)
    ONE SHELL, SEVEN PAINT JOBS.
    ============================================================ */
 
@@ -23,6 +23,11 @@
   --text-xl:   clamp(1.25rem,  1rem    + 1.25vw, 1.75rem);
   --text-2xl:  clamp(1.5rem,   1.1rem  + 2vw,    2.25rem);
   --text-3xl:  clamp(1.75rem,  1.2rem  + 2.75vw, 3rem);
+
+  /* Line-height scale */
+  --line-height-tight: 1.25;   /* headings, dense UI */
+  --line-height-body:  1.55;   /* body paragraphs (P12 floor: ≥1.5) */
+  --line-height-loose: 1.75;   /* long-form reading, methodology */
 
   /* Spacing — 4px base */
   --space-1:  0.25rem;
@@ -127,10 +132,12 @@ html {
 }
 body {
   font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: 1.65;
-  color: var(--color-text);
-  background: var(--color-bg);
+  font-size:   var(--text-base);     /* P12 sub-rule 1: ≥16px floor (clamp min 1rem) */
+  line-height: var(--line-height-body);
+  color:       var(--color-text);
+  background:  var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background 0.2s, color 0.2s;
   overflow-x: clip; /* R-MV-002 / engine rule: clip not hidden — preserves position:sticky children */
   /* Network bar offset is injected via .style in network-bar.html */
