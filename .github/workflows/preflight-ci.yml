@@ -83,16 +83,16 @@ jobs:
       - name: Run monitor-links preflight (ENGINE-RULES §17 — URL registry)
         run: python3 tools/preflight_monitor_links.py
 
-      - name: Verify nav.js MONITOR_REGISTRY in sync with monitor-registry.json
+      - name: Verify nav.js / sub-nav.js in sync with monitor-registry.json
         run: |
           python3 tools/inline_registry_into_navjs.py
-          if ! git diff --quiet static/monitors/shared/js/nav.js; then
-            echo "::error::nav.js MONITOR_REGISTRY drifted from monitor-registry.json"
+          if ! git diff --quiet static/monitors/shared/js/nav.js static/monitors/shared/js/sub-nav.js; then
+            echo "::error::nav.js / sub-nav.js drifted from monitor-registry.json"
             echo "Run: python3 tools/inline_registry_into_navjs.py and commit the result."
-            git diff static/monitors/shared/js/nav.js
+            git diff static/monitors/shared/js/nav.js static/monitors/shared/js/sub-nav.js
             exit 1
           fi
-          echo "✓ nav.js MONITOR_REGISTRY in sync"
+          echo "✓ nav.js + sub-nav.js in sync with monitor-registry.json"
 
       - name: Test public-surface scanner (L1–L7 unit tests)
         run: python3 tools/test_public_surface_audit.py
