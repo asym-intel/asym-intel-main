@@ -1,6 +1,6 @@
-# Strategic Conflict & Escalation Monitor — Issue 13
+# Strategic Conflict & Escalation Monitor — Issue 14
 
-**W/E 9 May 2026** | Published 2026-05-09T18:00:00Z
+**W/E 12 May 2026** | Published 2026-05-12T18:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -106,8 +106,8 @@ Next week, monitor Sudan for Damazin front outcomes and gold mine strike effects
 - **Israeli cabinet deliberations on resuming Gaza operations occur in context of October 2026 Israeli elections; domestic electoral calculus shaping operational tempo** (wdm) — Active — NEW
 - **Sudan 4M+ displacement surge with new Blue Nile and Kordofan waves; agricultural and water infrastructure risk** (erm) — Active — NEW
 - **Gulf GDP contraction projections (Qatar and Kuwait up to 14%, Saudi Arabia 3%, UAE 5%) constrain external funding for proxy conflicts; Iran strikes on UAE Fujairah petroleum zone threaten global energy export infrastructure** (gmm) — Active — NEW
-- **Iranian state media framing of UAE strikes as defensive retaliation constitutes active FIMI operation; disarmament impasse actively exploited in information space by both Hamas and Israeli government actors** (fimi-cognitive-warfare) — Active — NEW
-- **US diplomatic de-weighting in multilateral frameworks creates structural gap in crisis management capacity; European, Gulf, and AU mediation channels lack equivalent convening power** (european-strategic-autonomy) — Active — NEW
+- **Iranian state media framing of UAE strikes as defensive retaliation constitutes active FIMI operation; disarmament impasse actively exploited in information space by both Hamas and Israeli government actors** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
+- **US diplomatic de-weighting in multilateral frameworks creates structural gap in crisis management capacity; European, Gulf, and AU mediation channels lack equivalent convening power** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
 
 ---
 
