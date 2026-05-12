@@ -1,11 +1,11 @@
 ---
 title: "Strategic Conflict & Escalation Monitor — W/E 9 May 2026"
 date: 2026-05-09T18:00:00Z
-summary: "Sudan civil war enters multi-front expansion phase as RSF and SPLM-N advance on Blue Nile capital Damazin while SAF targets RSF gold mines and resumes manned airstrikes in Kordofan"
+summary: "Israel expands territorial control to 58% of Gaza as Hamas rejects disarmament; April deadliest month of 2026"
 draft: false
 monitor: "conflict-escalation"
 brief_sources:
-  - url: "https://www.crisisgroup.org/africa/horn-africa/sudan"
+  - url: "https://acleddata.com/update/middle-east-overview-may-2026"
 ---
 
 ## Lead Signal

@@ -1,4 +1,4 @@
-# Strategic Conflict & Escalation Monitor — Issue 12
+# Strategic Conflict & Escalation Monitor — Issue 13
 
 **W/E 9 May 2026** | Published 2026-05-09T18:00:00Z
 
@@ -12,33 +12,41 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**Sudan civil war enters multi-front expansion phase as RSF and SPLM-N advance on Blue Nile capital Damazin while SAF targets RSF gold mines and resumes manned airstrikes in Kordofan**
+**Israel expands territorial control to 58% of Gaza as Hamas rejects disarmament; April deadliest month of 2026**
 
 Confidence: N/A
 Actor: N/A
-Source: https://www.crisisgroup.org/africa/horn-africa/sudan
+Source: https://acleddata.com/update/middle-east-overview-may-2026
 
 ## Key Judgments
 
-1. **Sudan civil war has entered a structural multi-front expansion phase with the opening of the Blue Nile front and SAF economic warfare targeting RSF gold mines, deepening partition risk and accelerating displacement beyond 4 million refugees.**
+1. **Israel territorial expansion in Gaza during nominal ceasefire period establishes facts-on-the-ground for future annexation claims and constrains any future Palestinian state to non-contiguous enclaves. This pattern mirrors West Bank settlement expansion dynamics and signals long-term territorial consolidation intent.**
    - Confidence: High
    - Trajectory: Worsening
 
-2. **Russia is using post-Easter mass strikes and multi-oblast territorial gains to maximize battlefield leverage before anticipated summer diplomatic pressure, positioning for negotiations from a position of territorial and psychological advantage.**
+2. **Hamas rejection of Board of Peace disarmament plan and Israeli cabinet deliberations on resuming full-scale operations signal structural collapse of diplomatic track. Impasse is structural, not episodic, given three-plus reporting cycles of failed disarmament talks. US diplomatic de-weighting applies: Board of Peace proposals carry lower I5 weight than pre-2026 US-brokered frameworks.**
    - Confidence: High
    - Trajectory: Worsening
 
-3. **The combination of DPRK nuclear acceleration (7 tests in 2026 to April) and US asset redeployment to the Middle East creates a structural extended deterrence credibility gap on the Korean Peninsula, increasing the risk of miscalculation or deliberate escalation.**
+3. **Iran strikes on UAE Fujairah petroleum zone on 4-5 May break 8 April ceasefire restraint and signal willingness to resume offensive operations against Gulf states despite nominal ceasefire framework. Post-ceasefire strikes on UAE represent discrete escalatory event; requires monitoring across subsequent reporting cycles to determine if this signals structural resumption of Gulf targeting.**
    - Confidence: Assessed
    - Trajectory: Worsening
 
-4. **The collapse of multiple diplomatic channels (Sudan Quad mediation, Russia-Ukraine Easter ceasefire, Iran nuclear talks impasse, DRC Switzerland talks producing protocols but no enforcement) signals a structural attrition of crisis management capacity across multiple theatres, increasing the risk of miscalculation or deliberate escalation.**
+4. **Sudan multi-front expansion (Blue Nile, Kordofan) with manned airstrikes and SAF gold mine strikes targeting RSF revenue represent structural operational tempo increase in year-4 war. Early-warning of partition risk over episodic flare. Gulf GDP contraction projections directly constrain external funding for both SAF and RSF, accelerating resource competition and increasing likelihood of territorial partition along resource-rich zones.**
    - Confidence: High
    - Trajectory: Worsening
 
-5. **Sudan conflict remains systematically underreported in international media per ACLED and ICG, creating an information vacuum that obscures the scale of the humanitarian catastrophe (4 million refugees, famine conditions) and reduces diplomatic bandwidth for mediation efforts.**
-   - Confidence: High
-   - Trajectory: Stable
+5. **Middle East regional pressure and shifting supply networks are materially reshaping Sudan conflict dynamics, with Iran-adjacent actors adjusting arms and resource flows. Sudan-Iran linkage is structurally underweighted in mainstream conflict analysis, which treats Sudan as an isolated civil war rather than a node in broader Middle East proxy competition.**
+   - Confidence: Assessed
+   - Trajectory: Worsening
+
+6. **Houthi warnings of Red Sea intervention if Iran attacked are operationally credible given prior anti-ship missile attacks on US Navy vessels. Iran pressing Houthis toward Red Sea attacks if US escalates signals proxy activation as deliberate escalation tool. Threatens 10% global seaborne trade via Bab al-Mandeb. Mainstream coverage treats Houthi warnings as rhetorical posturing rather than operational signaling, underweighting the structural linkage between Iran escalation and Red Sea disruption.**
+   - Confidence: Assessed
+   - Trajectory: Worsening
+
+7. **US diplomatic de-weighting in multilateral frameworks creates structural gap in crisis management capacity. European, Gulf, and AU mediation channels lack equivalent convening power or enforcement mechanisms. This gap increases likelihood of ceasefire collapse and escalation resumption. FM-SCEM-04: US withdrawal from multilateral institutions means US participation is no longer a reliable I5 positive in 2026.**
+   - Confidence: Assessed
+   - Trajectory: Deteriorating
 
 ## Weekly Brief
 
@@ -81,20 +89,25 @@ Next week, monitor Sudan for Damazin front outcomes and gold mine strike effects
 - **** (FIMI & Cognitive Warfare) — Active
 - **Sudan and Gaza food systems collapse with high displacement** (environmental-risks) — Active — verified (adjacent Issue 14)
 - **Multiple F flags active Russia-Ukraine Gaza DRC Israel-Lebanon US-Iran** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
-- **Hormuz closure I4 Crisis US-Israel-Iran; coltan coercion DRC** (macro-monitor) — Active — verified (adjacent Issue 13)
+- **Hormuz closure I4 Crisis US-Israel-Iran; coltan coercion DRC** (macro-monitor) — Active — verified (adjacent Issue 14)
 - **I6 Crisis displacement Sudan Gaza Lebanon** (environmental-risks) — Active — verified (adjacent Issue 14)
-- **Hormuz closure I4=5 DRC coltan I4=3** (macro-monitor) — Active — verified (adjacent Issue 13)
+- **Hormuz closure I4=5 DRC coltan I4=3** (macro-monitor) — Active — verified (adjacent Issue 14)
 - **Sudan I6=5 Lebanon I6=5 Gaza I6=5** (environmental-risks) — Active — verified (adjacent Issue 14)
 - **F3/F4 active Iran Russia Gaza** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Ukraine I5 Myanmar fragmentation** (wdm) — Active — NEW
 - **F3/F4 in Iran I2/I5; FIMI strike signals** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
-- **Houthi Red Sea threats risk trade disruption** (macro-monitor) — Active — verified (adjacent Issue 13)
+- **Houthi Red Sea threats risk trade disruption** (macro-monitor) — Active — verified (adjacent Issue 14)
 - **Sudan/Gaza I6 displacement surges** (environmental-risks) — Active — verified (adjacent Issue 14)
-- **SAF strikes on RSF-controlled gold mines in South Darfur–South Sudan borderlands as economic warfare targeting illicit revenue streams** (macro-monitor) — Active — verified (adjacent Issue 13)
+- **SAF strikes on RSF-controlled gold mines in South Darfur–South Sudan borderlands as economic warfare targeting illicit revenue streams** (macro-monitor) — Active — verified (adjacent Issue 14)
 - **Sudan Blue Nile front expansion threatens agricultural zones and water infrastructure in one of Sudan's most food-insecure regions; displacement acceleration likely** (environmental-risks) — Active — verified (adjacent Issue 14)
-- **Iran presses Houthis for renewed Red Sea shipping attacks, threatening 10 percent of global seaborne trade via Bab al-Mandeb** (macro-monitor) — Active — verified (adjacent Issue 13)
+- **Iran presses Houthis for renewed Red Sea shipping attacks, threatening 10 percent of global seaborne trade via Bab al-Mandeb** (macro-monitor) — Active — verified (adjacent Issue 14)
 - **Sudan conflict remains systematically underreported in international media per ACLED and ICG; information vacuum creates conditions for FIMI exploitation of the narrative space** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
-- **Russia post-Easter mass strikes and multi-oblast advances signal deliberate strategy to maximize battlefield leverage before summer diplomatic pressure; NATO ISR implications from degraded Ukrainian drone advantage** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **Russia post-Easter mass strikes and multi-oblast advances signal deliberate strategy to maximize battlefield leverage before summer diplomatic pressure; NATO ISR implications from degraded Ukrainian drone advantage** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
+- **Israeli cabinet deliberations on resuming Gaza operations occur in context of October 2026 Israeli elections; domestic electoral calculus shaping operational tempo** (wdm) — Active — NEW
+- **Sudan 4M+ displacement surge with new Blue Nile and Kordofan waves; agricultural and water infrastructure risk** (erm) — Active — NEW
+- **Gulf GDP contraction projections (Qatar and Kuwait up to 14%, Saudi Arabia 3%, UAE 5%) constrain external funding for proxy conflicts; Iran strikes on UAE Fujairah petroleum zone threaten global energy export infrastructure** (gmm) — Active — NEW
+- **Iranian state media framing of UAE strikes as defensive retaliation constitutes active FIMI operation; disarmament impasse actively exploited in information space by both Hamas and Israeli government actors** (fimi-cognitive-warfare) — Active — NEW
+- **US diplomatic de-weighting in multilateral frameworks creates structural gap in crisis management capacity; European, Gulf, and AU mediation channels lack equivalent convening power** (european-strategic-autonomy) — Active — NEW
 
 ---
 
