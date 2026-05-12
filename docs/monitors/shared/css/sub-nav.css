@@ -1,0 +1,76 @@
+/* ============================================================
+   Asymmetric Intelligence — sub-nav.css  v1.0
+   Shared-layer primitive: monitor sub-navigation styles.
+   Consumes typography + spacing tokens from base.css (v1.9+).
+
+   Doctrine bindings:
+     P12 — product-not-library: one rule-set for all commons monitors.
+     P13 — no-per-page-edits: changing nav appearance is one file.
+
+   Two host shapes are supported:
+     1) <ul class="monitor-nav__links">…</ul>   — canonical, inside
+        <nav class="monitor-nav">. Styles live in base.css §monitor-nav
+        and are inherited; nothing duplicated here.
+
+     2) <div data-sub-nav data-monitor="<slug>"></div>
+        Generic host used by pages that opt in via the sub-nav.js
+        primitive without the full monitor-nav chrome. Styled here.
+
+   All colour/typography is derived from CSS custom properties
+   defined in base.css — no hardcoded values in this file.
+   ============================================================ */
+
+[data-sub-nav] {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: var(--space-2, 0.5rem) var(--space-4, 1rem);
+  border-bottom: 1px solid var(--color-border, rgba(40, 37, 29, 0.10));
+  background: var(--color-bg, #f9f8f6);
+}
+
+[data-sub-nav] .sub-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+[data-sub-nav] .sub-nav__links li {
+  list-style: none;
+}
+
+[data-sub-nav] .sub-nav__links a {
+  font-family: var(--font-sans, 'Satoshi', 'Inter', sans-serif);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 500;
+  line-height: var(--leading-body, 1.5);
+  color: var(--color-text-secondary, #6b6660);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-1, 0.25rem) var(--space-3, 0.75rem);
+  border-radius: var(--radius, 4px);
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+[data-sub-nav] .sub-nav__links a:hover,
+[data-sub-nav] .sub-nav__links a.active {
+  color: var(--monitor-accent, var(--color-primary, #01696f));
+  background: var(--monitor-accent-bg, rgba(1, 105, 111, 0.08));
+}
+
+@media (max-width: 640px) {
+  [data-sub-nav] {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  [data-sub-nav] .sub-nav__links {
+    flex-wrap: nowrap;
+  }
+}

@@ -1,0 +1,38 @@
+<!--
+  Asymmetric Intelligence — sub-nav.html (template)
+  Shared-layer primitive: monitor sub-navigation host markup.
+
+  Doctrine bindings:
+    P12 — product-not-library: one host markup for all commons monitors.
+    P13 — no-per-page-edits: nav items live in monitor-registry.json;
+           this file declares only the host element.
+
+  Two host shapes supported by sub-nav.js:
+
+  1) Canonical (inside <nav class="monitor-nav">):
+       <ul class="monitor-nav__links"></ul>
+     Styles: base.css §monitor-nav (v1.9+).
+     Renderer: static/monitors/shared/js/sub-nav.js (auto-init).
+
+  2) Generic (standalone host on non-monitor-chrome pages):
+       <div data-sub-nav data-monitor="<slug>"></div>
+     Styles: static/monitors/shared/css/sub-nav.css.
+     Renderer: static/monitors/shared/js/sub-nav.js (auto-init).
+
+  Item list source-of-truth:
+    static/monitors/monitor-registry.json → top-level "sub_nav" array.
+    Inlined into sub-nav.js by tools/inline_registry_into_navjs.py.
+
+  PI-1 graceful-fallback: if the inlined list is missing/malformed,
+  sub-nav.js leaves the host empty rather than emitting broken markup.
+-->
+
+<!-- Form 1 — canonical (used by all 7 commons monitor pages today) -->
+<ul class="monitor-nav__links"></ul>
+
+<!-- Form 2 — generic host (opt-in for non-chrome pages) -->
+<!-- <div data-sub-nav data-monitor="democratic-integrity"></div> -->
+
+<!-- Load the renderer (already loaded site-wide via nav.js delegation;
+     include explicitly only on pages that do not load nav.js): -->
+<!-- <script src="/monitors/shared/js/sub-nav.js" defer></script> -->
