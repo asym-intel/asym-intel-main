@@ -1,6 +1,6 @@
-# World Democracy Monitor — Issue 15
+# World Democracy Monitor — Issue 16
 
-**W/E 9 May 2026** | Published 2026-05-09T06:00:00Z
+**W/E 12 May 2026** | Published 2026-05-12T06:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -87,9 +87,9 @@ Monitor Guatemala Attorney General shortlist for capture confirmation, due May 2
 - **United States democratic erosion creates vulnerability to foreign influence operations** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **RSF 2026 Index identifies criminalisation of journalism as primary global threat; legal weaponisation trend documented across Americas, Europe, Caucasus** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Pakistan Twenty-seventh Constitutional Amendment insulates military from judicial review in nuclear-armed state with active V-Dem ERT episode** (conflict-escalation) — Active — verified (adjacent Issue 13)
-- **Georgia third foreign-funding law package and Constitutional Court petition targeting opposition alliance; EU candidate country status under threat** (european-strategic-autonomy) — Active — NEW
-- **Italy V-Dem 2026 new autocratizer designation with ERT active-2025 status; EU Liberties 2026 classifies as Dismantler** (european-strategic-autonomy) — Active — NEW
-- **Colombia GTI 2026 top 10 terrorism-impacted country with 70 percent death increase; FARC and ELN drone warfare creates state fragility vector enabling democratic erosion** (conflict-escalation) — Active — NEW
+- **Georgia third foreign-funding law package and Constitutional Court petition targeting opposition alliance; EU candidate country status under threat** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
+- **Italy V-Dem 2026 new autocratizer designation with ERT active-2025 status; EU Liberties 2026 classifies as Dismantler** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
+- **Colombia GTI 2026 top 10 terrorism-impacted country with 70 percent death increase; FARC and ELN drone warfare creates state fragility vector enabling democratic erosion** (conflict-escalation) — Active — verified (adjacent Issue 13)
 
 ---
 
