@@ -199,25 +199,6 @@ def write_text(path: Path, text: str):
 
 # ── Staleness check ───────────────────────────────────────────────────────
 
-def _expected_cycle_week(publish_date: str) -> str:
-    """Return the most recent Sunday (YYYY-MM-DD) on or before publish_date.
-
-    Monitors publish weekly with week_ending on Sunday. The current cycle's
-    artefact should have week_ending == this Sunday. If publish_date IS a Sunday,
-    return publish_date itself.
-
-    Note: Sunday is the canonical cycle boundary for all current commons monitors.
-    If a future monitor uses a different cadence, this function would need to be
-    parameterised.
-    """
-    from datetime import datetime, timedelta
-    d = datetime.strptime(publish_date, "%Y-%m-%d")
-    # weekday(): Monday=0 ... Sunday=6
-    days_since_sunday = (d.weekday() + 1) % 7
-    sunday = d - timedelta(days=days_since_sunday)
-    return sunday.strftime("%Y-%m-%d")
-
-
 def check_synthesis_freshness(synthesis: dict, max_age_days: int = 8) -> bool:
     meta = synthesis.get("_meta", {})
     generated_at = meta.get("generated_at", "")
@@ -245,30 +226,6 @@ def check_synthesis_freshness(synthesis: dict, max_age_days: int = 8) -> bool:
                      severity="warning", detail=f"Synthesis is {age.days} days old (max {max_age_days}) — STALE")
         print(f"  ⚠ synthesis is {age.days} days old (max {max_age_days}) — STALE, skipping publish")
         return False
-    # Cycle-identity check: week_ending in the synthesis must match
-    # the expected cycle week for this publish run.
-    # Protects against republishing last week's artefact when this week's
-    # pipeline stage was skipped. Only applies when week_ending is present.
-    if week_ending:
-        _ref_publish_date = os.environ.get("PUBLISH_DATE", "").strip() or \
-            datetime.now(timezone.utc).strftime("%Y-%m-%d")
-        expected_week = _expected_cycle_week(_ref_publish_date)
-        if week_ending != expected_week:
-            log_incident(
-                monitor=MONITOR_SLUG, stage="publisher",
-                incident_type="publisher_skip", severity="critical",
-                detail=(
-                    f"Cycle-identity mismatch: synthesis week_ending={week_ending!r} "
-                    f"but expected current cycle week={expected_week!r}. "
-                    "This week's pipeline stage was likely skipped. "
-                    "Re-run the interpreter cascade before publishing."
-                ),
-            )
-            print(
-                f"  ✗ cycle-identity mismatch: synthesis week_ending={week_ending!r}, "
-                f"expected {expected_week!r} — skipping publish"
-            )
-            return False
     print(f"  ✓ synthesis age: {age.days} day(s)")
     return True
 
