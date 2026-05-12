@@ -1,0 +1,126 @@
+/* ============================================================
+   Asymmetric Intelligence — Shared Monitor Design System
+   shared/css/entity-card.css  ·  BRIEF-L2-FE-ENTITY-CARD-PRIMITIVE
+   Shared-layer entity-card primitive (P1 · P5 · P12 · P13).
+   Hosts: headline + subhead + meta + freshness-badge + optional CTA.
+   Consumes: base.css tokens + freshness-badge.css.
+   Per-consumer variation expressed via data-* hooks only; no
+   consumer-specific class redefinitions of .entity-card internals.
+   ============================================================ */
+
+/* ─── Card host ──────────────────────────────────────────── */
+.entity-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+/* ─── Interactive variant (anchor host) ──────────────────── */
+a.entity-card,
+.entity-card[data-entity-card-interactive="true"] {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+a.entity-card:hover,
+.entity-card[data-entity-card-interactive="true"]:hover {
+  border-color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+/* ─── Pending / disabled variant ─────────────────────────── */
+.entity-card[data-entity-card-state="pending"] {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.entity-card[data-entity-card-state="pending"]:hover {
+  border-color: var(--color-border);
+}
+
+/* ─── Header (eyebrow + headline + optional adornment) ───── */
+.entity-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.entity-card__adornment {
+  font-size: var(--text-xl);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.entity-card__titleblock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.entity-card__eyebrow {
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.entity-card__headline {
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.entity-card__subhead {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ─── Body slot (consumer-provided content, e.g. chips) ──── */
+.entity-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ─── Meta row (freshness + small metadata items) ────────── */
+.entity-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* ─── CTA row ────────────────────────────────────────────── */
+.entity-card__cta {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: auto;
+}
+
+/* ─── PI-1 graceful-fallback ─────────────────────────────── */
+/* When the host is rendered without a headline, the JS composer
+   omits the card entirely. The CSS rule below is a defensive
+   safety net for hand-authored cards that violate the contract. */
+.entity-card:not(:has(.entity-card__headline)) {
+  display: none;
+}
