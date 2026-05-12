@@ -1,11 +1,11 @@
 ---
 title: "Global Macro Monitor — W/E 9 May 2026"
 date: 2026-05-09T08:00:00Z
-summary: "Federal Reserve and European Central Bank are both frozen under dual mandate paralysis driven by energy price shock and tariff pass-through, not in a cyclical pause. Market pricing of 1-2 cuts in H2 2"
+summary: "The USTR's launch of 76 Section 301 investigations represents a regime-level legal re-architecture of the US tariff regime, not a marginal escalation event. Section 301 is harder to challenge in court"
 draft: false
 monitor: "macro-monitor"
 brief_sources:
-  - url: "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260429a.htm"
+  - url: "https://www.piie.com/blogs/realtime-economics/2026/whats-next-trumps-tariffs"
 ---
 
 ## Lead Signal
