@@ -59,10 +59,12 @@
           <div class="ov-band-title">Why it matters now</div>
           <div class="ov-band-head">Democratic resilience under compound pressure</div>
           <p class="ov-band-copy">WDM is built to detect when democratic institutions lose their capacity to self-correct — long before a collapse becomes headline news. It tracks the structural health of democracy, not individual political events.</p>
-          <div class="ov-chips">
-          <span class="ov-chip">Weekly · risk watch</span>
-          <span class="ov-chip">Primary-source linked</span>
-          <span class="ov-chip">Structural decay tracking</span>
+          <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+          <span class="chip">Weekly · risk watch</span>
+          <span class="chip">Primary-source linked</span>
+          <span class="chip">Structural decay tracking</span>
+          </div>
           </div>
         </div>
         <div class="ov-band-stats">
@@ -331,7 +333,7 @@
         var pv = extractSlotValue(data, pill);
         if (pv != null) {
           var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
-          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+          html += '<span class="chip">' + esc(txt) + '</span>';
         }
       }
       pillBox.innerHTML = html;

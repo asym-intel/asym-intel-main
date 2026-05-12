@@ -59,10 +59,12 @@
           <div class="ov-band-title">Why it matters now</div>
           <div class="ov-band-head">Europe&#x27;s autonomy gap is being tested in real time</div>
           <p class="ov-band-copy">ESA tracks the structural contest across energy, defence, technology, finance, critical materials, and institutional dimensions — measuring how far Europe is from genuine strategic independence on each axis.</p>
-          <div class="ov-chips">
-          <span class="ov-chip">Weekly · strategic watch</span>
-          <span class="ov-chip">Primary-source linked</span>
-          <span class="ov-chip">Autonomy dimension tracking</span>
+          <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+          <span class="chip">Weekly · strategic watch</span>
+          <span class="chip">Primary-source linked</span>
+          <span class="chip">Autonomy dimension tracking</span>
+          </div>
           </div>
         </div>
         <div class="ov-band-stats">
@@ -331,7 +333,7 @@
         var pv = extractSlotValue(data, pill);
         if (pv != null) {
           var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
-          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+          html += '<span class="chip">' + esc(txt) + '</span>';
         }
       }
       pillBox.innerHTML = html;

@@ -59,10 +59,12 @@
           <div class="ov-band-title">Why it matters now</div>
           <div class="ov-band-head">AI governance is forming faster than the systems it governs</div>
           <p class="ov-band-copy">AGM maps the full strategic surface of AI development — from frontier model capabilities and investment flows to regulatory frameworks, military applications, and societal effects — treating AI governance as a first-order geopolitical question.</p>
-          <div class="ov-chips">
-          <span class="ov-chip">Weekly · governance watch</span>
-          <span class="ov-chip">16 modules scored</span>
-          <span class="ov-chip">Regulatory + capability tracking</span>
+          <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+          <span class="chip">Weekly · governance watch</span>
+          <span class="chip">16 modules scored</span>
+          <span class="chip">Regulatory + capability tracking</span>
+          </div>
           </div>
         </div>
         <div class="ov-band-stats">
@@ -331,7 +333,7 @@
         var pv = extractSlotValue(data, pill);
         if (pv != null) {
           var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
-          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+          html += '<span class="chip">' + esc(txt) + '</span>';
         }
       }
       pillBox.innerHTML = html;

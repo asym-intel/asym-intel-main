@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Demo · typography-floor primitive — Asymmetric Intelligence</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../css/base.css">
+  <style>
+    /* Demo-only chrome — DOES NOT shadow any primitive token */
+    .demo-shell { max-width: 64rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+    .demo-shell h1 { margin-bottom: var(--space-2); }
+    .demo-shell .demo-sub { color: var(--color-text-muted); margin-bottom: var(--space-6); }
+    .demo-section { margin: var(--space-8) 0; border-top: 1px solid var(--color-border-subtle); padding-top: var(--space-5); }
+    .demo-section h2 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+    .demo-section .demo-caption { color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-3); }
+    .demo-callout { background: var(--color-surface); border: 1px solid var(--color-border-subtle); padding: var(--space-4); border-radius: var(--radius-md); }
+    .demo-doctrine { font-size: var(--text-sm); color: var(--color-text-secondary); border-left: 3px solid var(--color-border); padding: var(--space-2) var(--space-4); margin: var(--space-6) 0; }
+    .demo-consumers { font-size: var(--text-sm); color: var(--color-text-muted); }
+    .demo-floor-edge { font-size: var(--text-min); }   /* deliberately demonstrates floor */
+    .demo-floor-default { font-size: var(--text-base); }
+    .demo-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+    @media (max-width: 720px) { .demo-grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="demo-shell">
+    <h1>PI-XX — typography-floor</h1>
+    <p class="demo-sub">Universal type-scale floor and body line-height enforcement.
+       Demo page proves the primitive is product, not shelfware.</p>
+
+    <p class="demo-doctrine">
+      <strong>Authority:</strong> P12 (product not library — demo proves the
+      primitive is product, not shelfware), P13 (universal primitive — this
+      token set is shared across commons §1 and commercial §2 consumers),
+      §13-T1 (typography-floor enforcement; <code>--text-min</code> is the
+      absolute floor for any rendered text in monitor UI).
+    </p>
+
+    <p class="demo-consumers">
+      <strong>Consumers:</strong> Commons §1 — all monitors under
+      <code>static/monitors/</code>. Commercial §2 — Advennt emit (Wave-3,
+      pending). Both surfaces inherit the floor through <code>base.css</code>.
+    </p>
+
+    <!-- Example 1: default / body text at --text-base -->
+    <section class="demo-section">
+      <h2>1 · Default state — body text at <code>--text-base</code></h2>
+      <p class="demo-caption">Representative real-world usage. Body copy
+        across monitor pages renders at <code>--text-base</code> with the
+        body line-height token applied via <code>:root</code> + <code>body</code>
+        selectors in <code>base.css</code>.</p>
+      <div class="demo-callout">
+        <p class="demo-floor-default">
+          The typography floor sets a single absolute minimum
+          (<code>--text-min</code>) below which no rendered text in the
+          monitor UI is permitted. Body copy sits at <code>--text-base</code>
+          with body line-height inherited from <code>:root</code>. This block
+          uses <code>font-size: var(--text-base)</code> verbatim — no inline
+          overrides, no shadowed tokens.
+        </p>
+      </div>
+    </section>
+
+    <!-- Example 2: edge — text at the floor -->
+    <section class="demo-section">
+      <h2>2 · Edge state — text at the <code>--text-min</code> floor</h2>
+      <p class="demo-caption">Boundary condition. This block is sized at
+        <code>--text-min</code> — the absolute floor. No text in monitor UI
+        may be smaller than this. Visual delta vs example 1 should be
+        perceptible but legible at AA contrast.</p>
+      <div class="demo-callout">
+        <p class="demo-floor-edge">
+          Tiny chrome captions, metadata strips, and table footnotes that
+          previously sized below the floor have been pinned to
+          <code>--text-min</code>. Anything below is a violation and will
+          fail the typography-floor lint sweep.
+        </p>
+      </div>
+    </section>
+
+    <!-- Example 3: empty / graceful degrade -->
+    <section class="demo-section">
+      <h2>3 · Empty / null state — graceful fallback</h2>
+      <p class="demo-caption">Honesty contract (PI-1, schema-version
+        graceful-fallback). Typography-floor is a token primitive: it
+        applies whether or not data is present. The "empty" state of this
+        primitive is the absence of a paragraph — and the absence still
+        respects line-height tokens on neighbouring elements. No broken
+        markup, no shifted layout.</p>
+      <div class="demo-callout">
+        <p class="demo-floor-default" data-empty="true">
+          <!-- Intentionally empty content node. The line-height tokens still
+               reserve a typographically consistent slot. -->
+        </p>
+        <p class="demo-caption" style="margin: 0;">
+          Above paragraph node carries body line-height even with no
+          content. Compare against an outright omitted node:
+        </p>
+        <!-- second variant: node omitted entirely; line-height tokens
+             still govern surrounding flow without layout shift -->
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>4 · Token reference</h2>
+      <ul>
+        <li><code>--text-min</code> — absolute floor (also aliased <code>--text-xs</code>)</li>
+        <li><code>--text-xs</code> — chrome / metadata</li>
+        <li><code>--text-sm</code> — secondary body</li>
+        <li><code>--text-base</code> — body default</li>
+        <li><code>--line-height-body</code> — body line-height (applied via <code>body</code> selector)</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
