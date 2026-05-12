@@ -1,6 +1,6 @@
-# Global Macro Monitor — Issue 14
+# Global Macro Monitor — Issue 15
 
-**W/E 9 May 2026** | Published 2026-05-09T08:00:00Z
+**W/E 12 May 2026** | Published 2026-05-12T08:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -75,23 +75,23 @@ Monitor Section 301 investigation conclusions and new tariffs in Q3-Q4 2026, ECB
 - **** (AI Governance Monitor) — Active — verified (adjacent Issue 16)
 - **** (AI Governance Monitor) — Active — verified (adjacent Issue 16)
 - **** (Environmental Risks Monitor) — Active — verified (adjacent Issue 14)
-- **** (Strategic Conflict & Escalation Monitor) — Active — verified (adjacent Issue 12)
+- **** (Strategic Conflict & Escalation Monitor) — Active — verified (adjacent Issue 13)
 - **** (FIMI & Cognitive Warfare Monitor) — NoSignal — verified (adjacent Issue 9)
-- **** (Democratic Integrity Monitor) — Watch — verified (adjacent Issue 14)
-- **** (European Strategic Autonomy Monitor) — Active — verified (adjacent Issue 10)
+- **** (Democratic Integrity Monitor) — Watch — verified (adjacent Issue 15)
+- **** (European Strategic Autonomy Monitor) — Active — verified (adjacent Issue 11)
 - **US visa restrictions on EU digital regulation officials** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
-- **Tariff escalation used to influence domestic policies in partner countries** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **Strait of Hormuz closure as escalation of US-Iran conflict** (conflict-escalation) — Active — verified (adjacent Issue 12)
-- **EU dependency on Middle Eastern commodities for agriculture** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **Tariff escalation used to influence domestic policies in partner countries** (democratic-integrity) — Active — verified (adjacent Issue 15)
+- **Strait of Hormuz closure as escalation of US-Iran conflict** (conflict-escalation) — Active — verified (adjacent Issue 13)
+- **EU dependency on Middle Eastern commodities for agriculture** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
 - **US using trade leverage to prevent spread of digital regulation** (ai-governance) — Active — verified (adjacent Issue 16)
 - **Energy supply shock impacting green transition commodities** (environmental-risks) — Active — verified (adjacent Issue 14)
 - **Tariff escalation as economic coercion tool** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
-- **Energy crisis impacting political stability** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **Iran-US conflict driving energy supply shock** (conflict-escalation) — Active — verified (adjacent Issue 12)
-- **EU energy security concerns driving strategic autonomy** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **Energy crisis impacting political stability** (democratic-integrity) — Active — verified (adjacent Issue 15)
+- **Iran-US conflict driving energy supply shock** (conflict-escalation) — Active — verified (adjacent Issue 13)
+- **EU energy security concerns driving strategic autonomy** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
 - **AI infrastructure spending boom requiring governance frameworks** (ai-governance) — Active — verified (adjacent Issue 16)
 - **Energy crisis accelerating clean energy transition** (environmental-risks) — Active — verified (adjacent Issue 14)
-- **Turnberry deal locks 15 percent tariff rate embedding structural drag** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **Turnberry deal locks 15 percent tariff rate embedding structural drag** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
 - **EU-Mercosur agreement accelerates EM trade realignment** (sceM) — Active — NEW
 - **Section 232 steel aluminum tariffs drive input inflation** (erm) — Active — NEW
 - **Turnberry deal and Parliament vote lock US-EU tariff friction as economic coercion; ECB energy shock elevates EUR growth inflation divergence** (esa) — Active — NEW
@@ -102,8 +102,8 @@ Monitor Section 301 investigation conclusions and new tariffs in Q3-Q4 2026, ECB
 - **US-Germany 10-year spread 155 basis points compressing plus Fed paralysis versus ECB pressure from energy and tariffs** (esa) — Active — NEW
 - **Private credit gate events plus CRE delinquency in fragility phase; real M2 negative** (ai-governance) — Active — verified (adjacent Issue 16)
 - **Hormuz fragile ceasefire with 5-10 ships per day vs 138 normal; Brent approximately 104 dollars per barrel approaching Oxford 115-125 dollars per barrel contraction threshold; IEA flags historic energy security risk** (environmental-risks) — Active — verified (adjacent Issue 14)
-- **Federal Reserve and European Central Bank both cite high uncertainty from Middle East conflict as primary constraint on policy; energy price shock drives dual mandate paralysis at both central banks** (conflict-escalation) — Active — verified (adjacent Issue 12)
-- **ECB Vice-President flags deteriorating bank access to money market funding and declining euro area central bank reserves, nearly halved from 2022 peak to 2.6 trillion euros; raises probability of euro area financial stability event in H2 2026** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
+- **Federal Reserve and European Central Bank both cite high uncertainty from Middle East conflict as primary constraint on policy; energy price shock drives dual mandate paralysis at both central banks** (conflict-escalation) — Active — verified (adjacent Issue 13)
+- **ECB Vice-President flags deteriorating bank access to money market funding and declining euro area central bank reserves, nearly halved from 2022 peak to 2.6 trillion euros; raises probability of euro area financial stability event in H2 2026** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
 - **USTR launches 76 Section 301 investigations to reconstitute tariff architecture post-Supreme Court ruling; markets may be treating Supreme Court ruling as de-escalation signal but GMM assessment is net tariff trajectory upward** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Section 301 investigations and EU-US Turnberry deal create durable tariff baseline affecting EU competitiveness and fiscal autonomy** (esa) — Active — NEW
 - **Hormuz fragility (5-10 ships per day) plus Section 301 excess capacity probes signal multi-year energy and metal supply chain re-architecture** (erm) — Active — NEW
