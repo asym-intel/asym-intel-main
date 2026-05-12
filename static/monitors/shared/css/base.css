@@ -1,11 +1,12 @@
 /* ============================================================
    Asymmetric Intelligence — Shared Monitor Design System
-   shared/css/base.css  ·  Version 1.6  ·  12 May 2026 — typography floor (line-height tokens + body defaults)
+   shared/css/base.css  ·  Version 1.7  ·  12 May 2026 — freshness-badge tokens
    ONE SHELL, SEVEN PAINT JOBS.
    ============================================================ */
 
 /* ─── Satoshi Font (Fontshare) ──────────────────────────── */
 @import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap');
+@import url('./freshness-badge.css'); /* freshness-badge primitive — BRIEF-FE-FRESHNESS-BADGE-PRIMITIVE */
 
 /* ─── Design Tokens ──────────────────────────────────────── */
 :root {
@@ -91,6 +92,14 @@
   --nav-height: 52px;
   --sidebar-width: 220px;
   --content-max: 1200px;
+
+  /* Freshness affordance — used by freshness-badge primitive (BRIEF-FE-FRESHNESS-BADGE-PRIMITIVE) */
+  --freshness-fresh:    var(--positive);          /* ≤7 days  */
+  --freshness-stale:    var(--moderate);          /* 8–30 days */
+  --freshness-aged:     var(--high);              /* >30 days */
+  --freshness-bg-fresh: var(--positive-bg);
+  --freshness-bg-stale: var(--moderate-bg);
+  --freshness-bg-aged:  var(--high-bg);
 }
 
 /* ─── Dark mode ─────────────────────────────────────────── */
