@@ -1,6 +1,6 @@
-# FIMI & Cognitive Warfare Monitor — Issue 9
+# FIMI & Cognitive Warfare Monitor — Issue 10
 
-**W/E 9 May 2026** | Published 2026-05-09T09:00:00Z
+**W/E 12 May 2026** | Published 2026-05-12T09:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -64,15 +64,15 @@ Monitor Armenia for playbook escalation into June elections, particularly proxy 
 
 ## Cross-Monitor Flags
 
-- **FIMI as constitutive mechanism of democratic erosion — Hungary election FIMI density at critical level** (Democratic Integrity Monitor) — Active — verified (adjacent Issue 14)
-- **Cognitive warfare as operational preparation for European strategic paralysis — Hungary election as test case** (European Strategic Autonomy Monitor (EGHTM)) — Active — verified (adjacent Issue 10)
-- **AI-generated YouTube network (1.8B views) as operational proof of AI-FIMI convergence at scale** (AI Governance Monitor) — Active — verified (adjacent Issue 14)
-- **Post-election FIMI lull following Slovenia parliamentary elections (March 22, 2026) may precede escalation cycle targeting upcoming EU member state elections. Recommend forward-looking monitoring for FIMI activity targeting 2026-2027 electoral cycles.** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **Iranian FIMI operations targeting Israel-Palestine narratives remain active at baseline. No escalation detected this week, but recommend continued monitoring for FIMI activity correlated with Middle East conflict escalation events.** (conflict-escalation) — Active — verified (adjacent Issue 11)
-- **Russia deploys Moldova FIMI playbook against Armenia ahead of June 2026 elections** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **EU sanctions Russian FIMI infrastructure entities Euromore and Pravfond targeting EU legitimacy and Ukraine support** (european-strategic-autonomy) — Active — verified (adjacent Issue 10)
-- **Cross-actor AI-generated content amplification documented in Russian FIMI narrative** (ai-governance) — Active — verified (adjacent Issue 14)
-- **Vovan and Lexus prank-call operations target Greenland Foreign Minister in Arctic strategic competition context** (conflict-escalation) — Active — verified (adjacent Issue 11)
+- **FIMI as constitutive mechanism of democratic erosion — Hungary election FIMI density at critical level** (Democratic Integrity Monitor) — Active — verified (adjacent Issue 15)
+- **Cognitive warfare as operational preparation for European strategic paralysis — Hungary election as test case** (European Strategic Autonomy Monitor (EGHTM)) — Active — verified (adjacent Issue 11)
+- **AI-generated YouTube network (1.8B views) as operational proof of AI-FIMI convergence at scale** (AI Governance Monitor) — Active — verified (adjacent Issue 16)
+- **Post-election FIMI lull following Slovenia parliamentary elections (March 22, 2026) may precede escalation cycle targeting upcoming EU member state elections. Recommend forward-looking monitoring for FIMI activity targeting 2026-2027 electoral cycles.** (democratic-integrity) — Active — verified (adjacent Issue 15)
+- **Iranian FIMI operations targeting Israel-Palestine narratives remain active at baseline. No escalation detected this week, but recommend continued monitoring for FIMI activity correlated with Middle East conflict escalation events.** (conflict-escalation) — Active — verified (adjacent Issue 13)
+- **Russia deploys Moldova FIMI playbook against Armenia ahead of June 2026 elections** (democratic-integrity) — Active — verified (adjacent Issue 15)
+- **EU sanctions Russian FIMI infrastructure entities Euromore and Pravfond targeting EU legitimacy and Ukraine support** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
+- **Cross-actor AI-generated content amplification documented in Russian FIMI narrative** (ai-governance) — Active — verified (adjacent Issue 16)
+- **Vovan and Lexus prank-call operations target Greenland Foreign Minister in Arctic strategic competition context** (conflict-escalation) — Active — verified (adjacent Issue 13)
 
 ---
 
