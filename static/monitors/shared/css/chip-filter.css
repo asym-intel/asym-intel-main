@@ -1,0 +1,116 @@
+/* ============================================================
+   Asymmetric Intelligence — Shared Monitor Design System
+   shared/css/chip-filter.css  ·  Version 1.0  ·  12 May 2026
+   Universal chip-filter primitive (FE-CHIP-FILTER-PRIMITIVE)
+   P12 · P13 · P5 · P6
+   ============================================================ */
+
+/* ─── Container ────────────────────────────────────────────── */
+.chip-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-3) 0;
+  font-family: var(--font-sans);
+}
+
+/* ─── Group ─────────────────────────────────────────────────── */
+.chip-filter__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* ─── Group label ───────────────────────────────────────────── */
+.chip-filter__label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-weight: 500;
+  margin-right: var(--space-2);
+  white-space: nowrap;
+}
+
+/* ─── Individual chip ───────────────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--chip-border);
+  border-radius: var(--radius-md);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+  user-select: none;
+  /* Ensure button-reset styles are applied */
+  font-family: var(--font-sans);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.chip:hover {
+  background: var(--chip-bg-hover);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--monitor-accent);
+  outline-offset: 2px;
+}
+
+/* ─── Selected state ────────────────────────────────────────── */
+.chip[aria-pressed="true"] {
+  background: var(--chip-bg-selected);
+  border-color: var(--chip-border-selected);
+  color: var(--chip-text-selected);
+}
+
+/* ─── Disabled state ────────────────────────────────────────── */
+.chip[disabled],
+.chip[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Reset button ──────────────────────────────────────────── */
+.chip-filter__reset {
+  margin-left: auto;
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  text-decoration: underline;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.chip-filter__reset:hover {
+  color: var(--color-text);
+}
+
+.chip-filter__reset[hidden] {
+  display: none;
+}
+
+/* ─── Empty state ───────────────────────────────────────────── */
+.chip-filter__empty {
+  padding: var(--space-6) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  text-align: center;
+  width: 100%;
+}
+
+/* ─── Hidden target items (managed by chip-filter.js) ──────── */
+.chip-filter--hidden {
+  display: none !important;
+}
