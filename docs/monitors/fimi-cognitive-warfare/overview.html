@@ -59,10 +59,12 @@
           <div class="ov-band-title">Why it matters now</div>
           <div class="ov-band-head">Information operations now move faster than institutional response</div>
           <p class="ov-band-copy">FCW is built to map how state-backed information campaigns are designed, deployed, and attributed — treating cognitive warfare as a first-order security threat, not a communications problem.</p>
-          <div class="ov-chips">
-          <span class="ov-chip">Weekly · threat watch</span>
-          <span class="ov-chip">Attribution tracked</span>
-          <span class="ov-chip">Multi-actor scope</span>
+          <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+          <span class="chip">Weekly · threat watch</span>
+          <span class="chip">Attribution tracked</span>
+          <span class="chip">Multi-actor scope</span>
+          </div>
           </div>
         </div>
         <div class="ov-band-stats">
@@ -331,7 +333,7 @@
         var pv = extractSlotValue(data, pill);
         if (pv != null) {
           var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
-          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+          html += '<span class="chip">' + esc(txt) + '</span>';
         }
       }
       pillBox.innerHTML = html;

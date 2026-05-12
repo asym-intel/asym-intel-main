@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Demo · chip-filter primitive — Asymmetric Intelligence</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/chip-filter.css">
+  <style>
+    .demo-shell { max-width: 64rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+    .demo-shell h1 { margin-bottom: var(--space-2); }
+    .demo-shell .demo-sub { color: var(--color-text-muted); margin-bottom: var(--space-6); }
+    .demo-section { margin: var(--space-8) 0; border-top: 1px solid var(--color-border-subtle); padding-top: var(--space-5); }
+    .demo-section h2 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+    .demo-section .demo-caption { color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-3); }
+    .demo-callout { background: var(--color-surface); border: 1px solid var(--color-border-subtle); padding: var(--space-4); border-radius: var(--radius-md); }
+    .demo-doctrine { font-size: var(--text-sm); color: var(--color-text-secondary); border-left: 3px solid var(--color-border); padding: var(--space-2) var(--space-4); margin: var(--space-6) 0; }
+    .demo-consumers { font-size: var(--text-sm); color: var(--color-text-muted); }
+  </style>
+</head>
+<body>
+  <main class="demo-shell">
+    <h1>PI-XX — chip-filter</h1>
+    <p class="demo-sub">Universal chip / chip-filter primitive. Replaces
+       every bespoke <code>ov&#45;chip</code> / <code>risk&#45;chip</code> class
+       in the monitor commons.</p>
+
+    <p class="demo-doctrine">
+      <strong>Authority:</strong> P5 (universal affordance), P6 (canonical
+      class set, no bespoke duplicates), P12 (product not library — demo
+      proves the primitive is product, not shelfware), P13 (universal
+      primitive — shared across commons §1 and commercial §2 consumers),
+      §Zero-leftover discipline (no bespoke class CSS remains in
+      <code>base.css</code> after migration).
+    </p>
+
+    <p class="demo-consumers">
+      <strong>Consumers:</strong> Commons §1 — overview pages on every
+      monitor (<code>ai-governance</code>, <code>european-strategic-autonomy</code>,
+      <code>fimi-cognitive-warfare</code>, <code>macro-monitor</code>,
+      <code>conflict-escalation</code>, <code>democratic-integrity</code>,
+      <code>environmental-risks</code>), plus future filter-bar consumers
+      on dashboard pages. Commercial §2 — Advennt jurisdiction pages
+      (Wave-3, pending).
+    </p>
+
+    <!-- Example 1: default / display-only chips (mirror of overview pages) -->
+    <section class="demo-section">
+      <h2>1 · Default state — display-only chips</h2>
+      <p class="demo-caption">Representative real-world usage. Overview
+        pages emit a chip row of metadata pills — cadence, scope, tracking
+        dimensions. These are display-only (no filter behaviour); semantic
+        markup uses <code>&lt;span class="chip"&gt;</code> rather than
+        <code>&lt;button&gt;</code>.</p>
+      <div class="demo-callout">
+        <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+            <span class="chip">Weekly · governance watch</span>
+            <span class="chip">16 modules scored</span>
+            <span class="chip">Regulatory + capability tracking</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Example 2: interactive filter bar with selected state + long label -->
+    <section class="demo-section">
+      <h2>2 · Edge state — interactive filter + long label + selected</h2>
+      <p class="demo-caption">Boundary conditions. Interactive filter
+        chips use <code>&lt;button&gt;</code> with <code>aria-pressed</code>.
+        Selected state applies the <code>--chip-bg-selected</code> token
+        set. The "long label" chip demonstrates that chips wrap to the
+        next row rather than overflowing the container.</p>
+      <div class="demo-callout">
+        <div class="chip-filter" data-filter-root>
+          <span class="chip-filter__label">Filter by:</span>
+          <div class="chip-filter__group" data-group="region">
+            <button type="button" class="chip" aria-pressed="false" data-value="emea">EMEA</button>
+            <button type="button" class="chip" aria-pressed="true"  data-value="apac">APAC</button>
+            <button type="button" class="chip" aria-pressed="false" data-value="amer">Americas</button>
+            <button type="button" class="chip" aria-pressed="false" data-value="long"
+              >Strategic conflict &amp; escalation — extended label edge test</button>
+            <button type="button" class="chip" aria-pressed="false" data-value="disabled" aria-disabled="true">Disabled</button>
+          </div>
+          <button type="button" class="chip-filter__reset">Clear filters</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Example 3: empty / null state -->
+    <section class="demo-section">
+      <h2>3 · Empty / null state — graceful fallback</h2>
+      <p class="demo-caption">Honesty contract (PI-1, graceful-fallback).
+        When the upstream filter source returns zero options the primitive
+        emits <code>.chip-filter__empty</code> rather than an empty
+        container. This is the canonical "no data" affordance for the
+        primitive; consumers do not need to render any chip elements.</p>
+      <div class="demo-callout">
+        <div class="chip-filter" data-filter-root>
+          <div class="chip-filter__group" data-group="filters">
+            <!-- Intentionally no chip children — empty source -->
+          </div>
+          <div class="chip-filter__empty">No filters available for this surface.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>4 · Token reference</h2>
+      <ul>
+        <li><code>--chip-bg</code>, <code>--chip-bg-hover</code>, <code>--chip-bg-selected</code></li>
+        <li><code>--chip-text</code>, <code>--chip-text-selected</code></li>
+        <li><code>--chip-border</code>, <code>--chip-border-selected</code></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

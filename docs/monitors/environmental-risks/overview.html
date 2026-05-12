@@ -59,10 +59,12 @@
           <div class="ov-band-title">Why it matters now</div>
           <div class="ov-band-head">Environmental disruption becomes strategic long before it is treated that way politically</div>
           <p class="ov-band-copy">ERM identifies how ecological shocks translate into geopolitical and systemic consequences through food, water, migration, infrastructure, conflict, and state capacity.</p>
-          <div class="ov-chips">
-          <span class="ov-chip">Weekly · risk watch</span>
-          <span class="ov-chip">Primary-source linked</span>
-          <span class="ov-chip">Stress + transmission tracking</span>
+          <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+          <span class="chip">Weekly · risk watch</span>
+          <span class="chip">Primary-source linked</span>
+          <span class="chip">Stress + transmission tracking</span>
+          </div>
           </div>
         </div>
         <div class="ov-band-stats">
@@ -331,7 +333,7 @@
         var pv = extractSlotValue(data, pill);
         if (pv != null) {
           var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
-          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+          html += '<span class="chip">' + esc(txt) + '</span>';
         }
       }
       pillBox.innerHTML = html;
