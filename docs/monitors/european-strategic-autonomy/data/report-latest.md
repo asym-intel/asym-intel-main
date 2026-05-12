@@ -1,4 +1,4 @@
-# European Strategic Autonomy Monitor — Issue 10
+# European Strategic Autonomy Monitor — Issue 11
 
 **W/E 9 May 2026** | Published 2026-05-09T19:00:00Z
 
@@ -12,7 +12,7 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**EU gas storage at 30% entering May 2026, well below 90% November target, as Hormuz disruptions expose structural energy dependency**
+**EU gas storage at 30% entering May 2026, critically below 90% November target, as Strait of Hormuz disruptions expose structural energy dependency**
 
 Confidence: N/A
 Actor: N/A
@@ -20,27 +20,23 @@ Source: https://ecfr.eu/article/beyond-the-strait-of-hormuz-how-europe-can-safeg
 
 ## Key Judgments
 
-1. **EU gas storage crisis at 30% entering May 2026 represents acute energy sovereignty vulnerability that undermines REPowerEU diversification objectives and creates winter 2026-27 rationing risk**
+1. **The EU gas storage crisis at 30% capacity entering May 2026 represents a near-term critical vulnerability that undermines European energy sovereignty at a moment of heightened geopolitical tension. The shortfall exposes the fragility of REPowerEU diversification efforts and creates acute vulnerability to supply shocks and price manipulation during the 2026-2027 heating season.**
    - Confidence: High
    - Trajectory: Worsening
 
-2. **SAFE EUR150bn loan facility adoption represents largest EU-level defence fiscal commitment and structural advance in defence integration architecture, but implementation gap between instrument and deployable capability remains wide**
-   - Confidence: High
-   - Trajectory: Improving
-
-3. **AI-generated content in 27% of FIMI incidents represents structural escalation in Russian information warfare capability, enabling faster and cheaper influence campaign scaling that EU regulatory frameworks do not yet address**
-   - Confidence: High
-   - Trajectory: Worsening
-
-4. **Russian LNG import growth to 21bcm in 2024 despite pipeline reductions reveals supply chain substitution rather than genuine diversification, undermining REPowerEU 2027 phase-out target**
-   - Confidence: High
-   - Trajectory: Worsening
-
-5. **Chinese 80% rare earth production dominance creates structural constraint on EU Critical Raw Materials Act implementation, representing latent coercion vector with no current EU countermeasure**
+2. **Chinese rare earth dominance (approximately 80% of global production) creates a single-point-of-failure vulnerability in European strategic autonomy that affects defence electronics, renewable energy infrastructure, electric vehicle batteries, and advanced semiconductors. The EU has no credible pathway to rare earth supply independence within the current decade, and de-risking strategies may prove counterproductive if they provoke Chinese supply restrictions.**
    - Confidence: High
    - Trajectory: Stable
 
-6. **US withdrawal from counter-FIMI coordination creates strategic void in G7 and NATO information integrity architecture that EU lacks institutional capacity to fill unilaterally, increasing exposure to Russian and Chinese FIMI operations**
+3. **SAFE instrument adoption represents a structural advance in EU defence industrial capacity, but the gap between instrument adoption and deployable capability remains wide. Implementation depends on member state uptake and political will. The EUR150 billion ceiling may prove insufficient given the scale of capability gaps documented by the European Defence Agency. The pattern of SAFE loan uptake will reveal structural divergence in European defence industrial policy.**
+   - Confidence: High
+   - Trajectory: Improving
+
+4. **The 27% AI-generated content finding in the EEAS 4th FIMI Threat Report represents a structural escalation in Russian information warfare capability. AI-generated synthetic media is now operationalised at scale in FIMI campaigns targeting European democratic processes. The EU lacks autonomous technical capacity for AI-generated content detection and attribution, creating a structural vulnerability following US withdrawal from counter-FIMI coordination.**
+   - Confidence: High
+   - Trajectory: Worsening
+
+5. **US withdrawal from counter-FIMI coordination is a doctrine-level shift that signals the United States no longer views information integrity as a shared transatlantic security interest. This creates a strategic void in G7 and NATO information integrity architecture that the EU cannot fill unilaterally. The EU lacks the technical capacity and jurisdictional reach to replicate US capabilities in platform cooperation, intelligence sharing, and attribution validation.**
    - Confidence: Assessed
    - Trajectory: Worsening
 
@@ -79,15 +75,20 @@ Monitor Council and Parliament formal adoption of EDF-Ukraine association and Ho
 - **** (AI Governance Monitor) — Monitoring
 - **** (Environmental Risks & Planetary Boundaries Monitor) — Active
 - **** (Macro Monitor) — Active
-- **Russian hybrid escalation includes FIMI components** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 8)
-- **Russian FIMI targeting German elections via Telegram.** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 8)
+- **Russian hybrid escalation includes FIMI components** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
+- **Russian FIMI targeting German elections via Telegram.** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Chinese influence operations in Italian media environment.** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **Belarusian drone probes on Polish infrastructure.** (conflict-escalation) — Active — verified (adjacent Issue 11)
-- **AI-generated content in 27% of FIMI incidents; Russia targeted elections in 6 countries in 2025 with 8 more flagged for 2026** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 8)
+- **Belarusian drone probes on Polish infrastructure.** (conflict-escalation) — Active — verified (adjacent Issue 12)
+- **AI-generated content in 27% of FIMI incidents; Russia targeted elections in 6 countries in 2025 with 8 more flagged for 2026** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Russia targeted elections in Germany, Poland, Romania, Moldova, Czech Republic in 2025; 8 additional member states flagged for 2026** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **SAFE EUR150bn loan facility and EDF-Ukraine association create structural link between EU defence industrial base and conflict-adjacent capability supply** (conflict-escalation) — Active — verified (adjacent Issue 11)
-- **EU gas storage at 30% entering May 2026; Russian LNG imports 21bcm in 2024; Chinese 80% rare earth dominance create macro leverage points** (macro-monitor) — Active — verified (adjacent Issue 13)
-- **AI-generated synthetic media operationalised at scale in 27% of FIMI incidents; EU AI Act and DSA do not yet address FIMI-specific deployment** (ai-governance) — Active — verified (adjacent Issue 14)
+- **SAFE EUR150bn loan facility and EDF-Ukraine association create structural link between EU defence industrial base and conflict-adjacent capability supply** (conflict-escalation) — Active — verified (adjacent Issue 12)
+- **EU gas storage at 30% entering May 2026; Russian LNG imports 21bcm in 2024; Chinese 80% rare earth dominance create macro leverage points** (macro-monitor) — Active — verified (adjacent Issue 14)
+- **AI-generated synthetic media operationalised at scale in 27% of FIMI incidents; EU AI Act and DSA do not yet address FIMI-specific deployment** (ai-governance) — Active — verified (adjacent Issue 16)
+- **AI-generated content operationalised at scale in FIMI campaigns: 27% of 2025 incidents** (fimi-cognitive-warfare) — Active — NEW
+- **SAFE adoption and Ukraine EDF association create direct EU defence industrial-conflict supply linkage** (conflict-escalation) — Active — NEW
+- **Chinese rare earth dominance creates structural economic coercion leverage; EU gas storage crisis creates energy cost vulnerability** (macro-monitor) — Active — NEW
+- **AI-generated synthetic media now core FIMI TTP; Horizon Europe dual-use extension creates new defence AI funding pathway** (ai-governance) — Active — NEW
+- **Russia targeted elections in 6 countries in 2025; 8 EU states flagged high-risk 2026** (democratic-integrity) — Active — NEW
 
 ---
 

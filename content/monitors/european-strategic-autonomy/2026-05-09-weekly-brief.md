@@ -1,7 +1,7 @@
 ---
 title: "European Strategic Autonomy Monitor — W/E 9 May 2026"
 date: 2026-05-09T19:00:00Z
-summary: "EU gas storage at 30% entering May 2026, well below 90% November target, as Hormuz disruptions expose structural energy dependency"
+summary: "EU gas storage at 30% entering May 2026, critically below 90% November target, as Strait of Hormuz disruptions expose structural energy dependency"
 draft: false
 monitor: "european-strategic-autonomy"
 brief_sources:
