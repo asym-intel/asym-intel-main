@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Demo · entity-card primitive — Asymmetric Intelligence</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../css/base.css">
+  <script defer src="../js/freshness-badge.js"></script>
+  <script defer src="../js/entity-card.js"></script>
+  <style>
+    .demo-shell { max-width: 64rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+    .demo-shell h1 { margin-bottom: var(--space-2); }
+    .demo-shell .demo-sub { color: var(--color-text-muted); margin-bottom: var(--space-6); }
+    .demo-section { margin: var(--space-8) 0; border-top: 1px solid var(--color-border-subtle); padding-top: var(--space-5); }
+    .demo-section h2 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+    .demo-section .demo-caption { color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-3); }
+    .demo-doctrine { font-size: var(--text-sm); color: var(--color-text-secondary); border-left: 3px solid var(--color-border); padding: var(--space-2) var(--space-4); margin: var(--space-6) 0; }
+    .demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-3); }
+    .demo-row { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: stretch; }
+    .demo-row .entity-card { flex: 1 1 260px; }
+    .demo-fontprobe--sm .entity-card__headline { font-size: var(--text-sm); }
+    .demo-fontprobe--md .entity-card__headline { font-size: var(--text-md); }
+    .demo-fontprobe--lg .entity-card__headline { font-size: var(--text-lg); }
+    pre.demo-code { background: var(--color-surface); border: 1px solid var(--color-border-subtle); border-radius: var(--radius); padding: var(--space-3); font-size: var(--text-xs); overflow-x: auto; color: var(--color-text-secondary); }
+  </style>
+</head>
+<body>
+  <main class="demo-shell">
+    <h1>L2 — entity-card</h1>
+    <p class="demo-sub">Shared-layer card primitive. Hosts headline + optional
+       subhead + meta (freshness-badge) + optional CTA. The single visual
+       contract for jurisdiction cards, signal cards, monitor cards, and
+       archive items across the fleet.</p>
+
+    <p class="demo-doctrine">
+      <strong>Authority:</strong> P1 (schema-driven projection), P5 (universal
+      composition primitive), P12 (product not library), P13 (no per-page
+      edits — adding a new card is a data render, not an HTML touch).
+      Empty state honours <strong>PI-1 strict</strong>: when <code>headline</code>
+      is absent the card is omitted entirely; when <code>freshness.updatedAt</code>
+      is absent the freshness-badge is omitted but the rest of the card
+      still renders.
+    </p>
+
+    <!-- Example 1: composition shows headline + freshness-badge ─────── -->
+    <section class="demo-section">
+      <h2>1 · Default composition — headline + freshness-badge</h2>
+      <p class="demo-caption">Representative usage on a listing page.
+        <code>entity-card.js</code> consumes a JSON descriptor and emits
+        a card hosting the freshness-badge primitive (BRIEF 04 contract).</p>
+      <div id="demo1" class="demo-grid"></div>
+    </section>
+
+    <!-- Example 2: typography floor probe at three font sizes ────────── -->
+    <section class="demo-section">
+      <h2>2 · Typography floor — three font-size sample points</h2>
+      <p class="demo-caption">All text inside an entity-card respects
+        base.css v1.8 line-height + body defaults. Below: the same card
+        rendered at <code>--text-sm</code>, <code>--text-md</code>, and
+        <code>--text-lg</code> headline sizes — line-height stays
+        ≥ 1.3 (P12 sub-rule 2) and body remains ≥ 16px (P12 sub-rule 1).</p>
+      <div class="demo-row">
+        <div class="demo-fontprobe--sm" id="demo2sm"></div>
+        <div class="demo-fontprobe--md" id="demo2md"></div>
+        <div class="demo-fontprobe--lg" id="demo2lg"></div>
+      </div>
+    </section>
+
+    <!-- Example 3: PI-1 fallback ──────────────────────────────────────── -->
+    <section class="demo-section">
+      <h2>3 · PI-1 graceful-fallback</h2>
+      <p class="demo-caption">Two descriptors are passed below: one with
+        a missing headline (returns <code>null</code> from the builder
+        — card omitted entirely), one with no freshness data (card
+        renders, badge omitted via PI-1 CSS rule in freshness-badge.css).</p>
+      <div id="demo3" class="demo-grid"></div>
+      <pre class="demo-code">// passed to AsymEntityCard.renderInto:
+[
+  { headline: '' },                       // → null, no card
+  { headline: 'Renders without freshness',
+    subhead: 'No updatedAt provided.',
+    eyebrow: 'PI-1 fallback' },
+  { headline: 'Renders with freshness',
+    subhead: 'updatedAt: today',
+    eyebrow: 'PI-1 happy path',
+    freshness: { updatedAt: '<today>' } }
+]</pre>
+    </section>
+
+    <!-- Example 4: pending + CTA variants ─────────────────────────────── -->
+    <section class="demo-section">
+      <h2>4 · Pending + CTA variants</h2>
+      <p class="demo-caption">A pending card is dimmed and non-interactive
+        even if an <code>href</code> is supplied. A CTA renders as either
+        an inline-flex anchor (when the host is a <code>&lt;div&gt;</code>)
+        or as a label (when the host is itself an <code>&lt;a&gt;</code>).</p>
+      <div id="demo4" class="demo-grid"></div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      function go() {
+        if (!window.AsymEntityCard) { setTimeout(go, 30); return; }
+        var today = new Date().toISOString();
+        var fortnightAgo = new Date(Date.now() - 14 * 86400 * 1000).toISOString();
+        var monthsAgo = new Date(Date.now() - 120 * 86400 * 1000).toISOString();
+
+        AsymEntityCard.renderInto(document.getElementById('demo1'), [
+          { headline: 'Great Britain', eyebrow: 'GB', adornment: '🇬🇧',
+            subhead: 'Mature regulated market, statutory levy commenced 2025.',
+            href: '/jurisdictions/gb/',
+            freshness: { updatedAt: today } },
+          { headline: 'Malta', eyebrow: 'MT', adornment: '🇲🇹',
+            subhead: 'Stable, EU-licensed regime; B2B-friendly.',
+            href: '/jurisdictions/mt/',
+            freshness: { updatedAt: fortnightAgo } },
+          { headline: 'Curaçao', eyebrow: 'CW', adornment: '🇨🇼',
+            subhead: 'LOK transition continues — risk premium elevated.',
+            href: '/jurisdictions/cw/',
+            freshness: { updatedAt: monthsAgo } }
+        ]);
+
+        var probe = { headline: 'Typography floor probe',
+                      subhead: 'Body text inside entity-card respects the v1.8 floor.',
+                      eyebrow: 'sample', freshness: { updatedAt: today } };
+        AsymEntityCard.renderInto(document.getElementById('demo2sm'), [probe]);
+        AsymEntityCard.renderInto(document.getElementById('demo2md'), [probe]);
+        AsymEntityCard.renderInto(document.getElementById('demo2lg'), [probe]);
+
+        AsymEntityCard.renderInto(document.getElementById('demo3'), [
+          { headline: '' },                             // omitted entirely
+          { headline: 'Renders without freshness',
+            eyebrow: 'PI-1 fallback',
+            subhead: 'No updatedAt provided — badge slot empty.' },
+          { headline: 'Renders with freshness',
+            eyebrow: 'PI-1 happy path',
+            subhead: 'updatedAt: today.',
+            freshness: { updatedAt: today } }
+        ]);
+
+        AsymEntityCard.renderInto(document.getElementById('demo4'), [
+          { headline: 'Pending baseline',
+            eyebrow: 'XX',
+            adornment: '🏳️',
+            state: 'pending',
+            subhead: 'No published baseline — non-clickable.',
+            href: '/jurisdictions/xx/' },
+          { headline: 'Open jurisdiction',
+            eyebrow: 'DE',
+            adornment: '🇩🇪',
+            subhead: 'CTA renders as a label because the host is an anchor.',
+            href: '/jurisdictions/de/',
+            cta: { label: 'Open brief →' },
+            freshness: { updatedAt: today } }
+        ]);
+      }
+      go();
+    })();
+  </script>
+</body>
+</html>
