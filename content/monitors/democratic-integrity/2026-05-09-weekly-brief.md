@@ -1,11 +1,11 @@
 ---
 title: "World Democracy Monitor — W/E 9 May 2026"
 date: 2026-05-09T06:00:00Z
-summary: "The criminalisation of journalism represents a qualitative shift in press freedom suppression mechanisms globally, enabling regimes to maintain electoral autocracy classifications while suppressing pr"
+summary: "Georgia third foreign-funding law package combined with criminal prosecution of eight opposition leaders and Constitutional Court petition targeting entire nine-party opposition alliance represents th"
 draft: false
 monitor: "democratic-integrity"
 brief_sources:
-  - url: "https://rsf.org/en"
+  - url: "https://monitor.civicus.org/explore/definition-of-foreign-grants-radically-expanded-press-freedom-continues-to-deteriorate/"
 ---
 
 ## Lead Signal

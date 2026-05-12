@@ -1,4 +1,4 @@
-# World Democracy Monitor — Issue 14
+# World Democracy Monitor — Issue 15
 
 **W/E 9 May 2026** | Published 2026-05-09T06:00:00Z
 
@@ -12,44 +12,40 @@ Schema version: 2.0
 
 ## Lead Signal
 
-**RSF 2026 Index: Criminalisation of journalism now primary global press threat**
+**Georgia signs third foreign-funding law package; opposition leaders face 15-year charges**
 
 Confidence: N/A
 Actor: N/A
-Source: https://rsf.org/en
+Source: https://monitor.civicus.org/explore/definition-of-foreign-grants-radically-expanded-press-freedom-continues-to-deteriorate/
 
 ## Key Judgments
 
-1. **The criminalisation of journalism represents a qualitative shift in press freedom suppression mechanisms globally, enabling regimes to maintain electoral autocracy classifications while suppressing press freedom through ostensibly legitimate judicial processes.**
+1. **Georgia third foreign-funding law package combined with criminal prosecution of eight opposition leaders and Constitutional Court petition targeting entire nine-party opposition alliance represents the most structurally significant democratic erosion development in the EU candidate-country space this week. The convergence of legislative restriction, criminal prosecution, and judicial instrumentalisation signals multi-pillar coordination designed to eliminate organised opposition before the next election cycle.**
    - Confidence: High
    - Trajectory: Declining
 
-2. **Pakistan Twenty-seventh Constitutional Amendment represents a structural shift toward praetorian governance by insulating military from judicial review, removing a critical accountability mechanism in a nuclear-armed state with active V-Dem ERT episode classification.**
+2. **V-Dem 2026 Report characterisation of US democratic decline as unprecedented among modern democracies elevates the signal from gradual erosion to structural crisis. The report's flagging of the 2026 midterm elections as a critical test indicates V-Dem expects further deterioration if electoral integrity indicators decline. This is a lagging-indicator institution designating an upcoming electoral event as a threshold for regime-type reclassification.**
    - Confidence: High
    - Trajectory: Declining
 
-3. **Guatemala Attorney General appointment outcome will determine whether systemic capture of the judicial appointment mechanism is confirmed or resisted, serving as a high-signal data point for Guatemala democratic trajectory under active V-Dem ERT classification.**
-   - Confidence: Assessed
-   - Trajectory: Declining
-
-4. **Hungary electoral wave demonstrates that resilience capacity can overcome structural gerrymandering when turnout is high, but residual executive decree powers remain untested under the new government and represent a latent institutional risk.**
+3. **HRW World Report 2026 documentation of shockingly muted institutional resistance to US executive overreach is as significant as the overreach itself. The collapse of horizontal accountability mechanisms that would normally constrain executive power compounds the severity of democratic erosion. When Congress, technology company leaders, law firms, and media organisations fail to mount institutional resistance, no check remains beyond the judiciary, which itself is under multi-vector threat.**
    - Confidence: High
-   - Trajectory: Stable
+   - Trajectory: Declining
 
-5. **Electoral administration capture combined with civil society space contraction creates a compounding integrity deficit that removes accountability mechanisms before regime consolidation is complete, as demonstrated in India and Bangladesh.**
+4. **Lawfare analysis documenting that the US Supreme Court may sidestep constitutional confrontations with the executive to preserve institutional standing identifies a stealth-capture mechanism that mainstream coverage has not yet framed as a loss of independence. If the Court sidesteps confrontations, it effectively cedes the field to the executive without a formal legal defeat. This is a leading indicator for horizontal accountability collapse.**
    - Confidence: Assessed
    - Trajectory: Declining
 
-6. **USA executive aggrandizement pathway through intra-executive dominance represents a novel mechanism distinct from traditional legislative or judicial capture, as characterised by Carnegie Endowment analysis.**
-   - Confidence: Assessed
-   - Trajectory: Declining
-
-7. **Ecuador habeas data ruling weaponises data protection law to suppress civil society documentation of state actions, a tactic that could be mimicked across Latin America where similar legal frameworks exist.**
-   - Confidence: Assessed
-   - Trajectory: Declining
-
-8. **V-Dem 2026 identification of Italy, UK, and Bulgaria as new autocratizers or Watchlist countries, combined with EU Liberties 2026 Dismantler and Slider classifications, crosses the threshold for promotion to RapidDecay status under WDM methodology.**
+5. **Mexico crosses the rapid_decay threshold this week. Morena's capture of all 9 SCJN seats with 13 percent turnout combined with INAI abolition represents two-pillar capture: judiciary and electoral administration. The elimination of the transparency oversight body that would normally flag electoral irregularities creates conditions for electoral manipulation without institutional check. Reasoner recommendation for promotion to rapid_decay is supported by 4 of 5 triggers active plus BTI 2026 hegemonic shift assessment.**
    - Confidence: High
+   - Trajectory: Declining
+
+6. **Hungary Tisza supermajority victory with record 79.56 percent turnout represents a democratic reversal of a 14-year autocratization episode, a rare outcome in V-Dem data. The election demonstrates that societal resilience capacity can reverse entrenched autocratization when electoral institutions remain minimally functional. Reasoner recommendation for severity downgrade from 5.0 to 2.5 and bucket transfer to recovery is supported by NEO confirmation of free and fair election meeting OSCE ODIHR standards.**
+   - Confidence: High
+   - Trajectory: Advancing
+
+7. **The russian-foreign-agent-chain and electoral-restriction-chain mimicry frameworks are underweighted in mainstream coverage. These are not independent national developments but coordinated template-law propagation across jurisdictions. The russian-foreign-agent-chain now spans Russia, Hungary, Georgia, Kazakhstan, and India. The electoral-restriction-chain spans Hungary, US, Benin, and Mexico. This is a transnational authoritarian-learning network that requires cross-jurisdictional monitoring.**
+   - Confidence: Assessed
    - Trajectory: Declining
 
 ## Weekly Brief
@@ -84,13 +80,16 @@ Monitor Guatemala Attorney General shortlist for capture confirmation, due May 2
 - **AI deepfakes active in US 2026 midterm campaigns — monitoring infrastructure vacuum** (democratic-integrity) — Active
 - **US tariff-SCOTUS confrontation as rule of law and institutional resilience signal** (democratic-integrity) — Active
 - **Georgia EU candidate state institutional collapse — ESA/WDM convergence** (democratic-integrity) — Active
-- **US institutional capture enables FIMI electoral targeting** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
-- **Italy UK new ERT flags impact EU democratic norms** (european-strategic-autonomy) — Active — verified (adjacent Issue 8)
-- **US institutional capture enables electoral FIMI ops** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
+- **US institutional capture enables FIMI electoral targeting** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
+- **Italy UK new ERT flags impact EU democratic norms** (european-strategic-autonomy) — Active — verified (adjacent Issue 11)
+- **US institutional capture enables electoral FIMI ops** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Hungary institutional capture risks EU norms** (esa) — Active — NEW
-- **United States democratic erosion creates vulnerability to foreign influence operations** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
-- **RSF 2026 Index identifies criminalisation of journalism as primary global threat; legal weaponisation trend documented across Americas, Europe, Caucasus** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 7)
-- **Pakistan Twenty-seventh Constitutional Amendment insulates military from judicial review in nuclear-armed state with active V-Dem ERT episode** (conflict-escalation) — Active — verified (adjacent Issue 10)
+- **United States democratic erosion creates vulnerability to foreign influence operations** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
+- **RSF 2026 Index identifies criminalisation of journalism as primary global threat; legal weaponisation trend documented across Americas, Europe, Caucasus** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
+- **Pakistan Twenty-seventh Constitutional Amendment insulates military from judicial review in nuclear-armed state with active V-Dem ERT episode** (conflict-escalation) — Active — verified (adjacent Issue 13)
+- **Georgia third foreign-funding law package and Constitutional Court petition targeting opposition alliance; EU candidate country status under threat** (european-strategic-autonomy) — Active — NEW
+- **Italy V-Dem 2026 new autocratizer designation with ERT active-2025 status; EU Liberties 2026 classifies as Dismantler** (european-strategic-autonomy) — Active — NEW
+- **Colombia GTI 2026 top 10 terrorism-impacted country with 70 percent death increase; FARC and ELN drone warfare creates state fragility vector enabling democratic erosion** (conflict-escalation) — Active — NEW
 
 ---
 
