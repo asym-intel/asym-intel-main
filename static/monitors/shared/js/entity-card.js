@@ -1,7 +1,7 @@
 /* ============================================================
    Asymmetric Intelligence — Shared Monitor Design System
    shared/js/entity-card.js  ·  BRIEF-L2-FE-ENTITY-CARD-PRIMITIVE
-   Composer for the entity-card primitive. Consumes a JSON
+   Builder for the entity-card primitive. Consumes a JSON
    descriptor and emits the card DOM. Hosts freshness-badge.
    Authority: P1 (schema-driven projection), P5 (universal
    composition primitive), P12 (product not library), P13
