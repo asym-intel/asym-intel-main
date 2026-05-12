@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Demo · freshness-badge primitive — Asymmetric Intelligence</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="../css/base.css">
+  <style>
+    .demo-shell { max-width: 64rem; margin: 0 auto; padding: var(--space-6) var(--space-4); }
+    .demo-shell h1 { margin-bottom: var(--space-2); }
+    .demo-shell .demo-sub { color: var(--color-text-muted); margin-bottom: var(--space-6); }
+    .demo-section { margin: var(--space-8) 0; border-top: 1px solid var(--color-border-subtle); padding-top: var(--space-5); }
+    .demo-section h2 { font-size: var(--text-lg); margin-bottom: var(--space-2); }
+    .demo-section .demo-caption { color: var(--color-text-muted); font-size: var(--text-sm); margin-bottom: var(--space-3); }
+    .demo-callout { background: var(--color-surface); border: 1px solid var(--color-border-subtle); padding: var(--space-4); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: var(--space-3); }
+    .demo-doctrine { font-size: var(--text-sm); color: var(--color-text-secondary); border-left: 3px solid var(--color-border); padding: var(--space-2) var(--space-4); margin: var(--space-6) 0; }
+    .demo-consumers { font-size: var(--text-sm); color: var(--color-text-muted); }
+    .demo-row { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    .demo-row code { font-size: var(--text-xs); color: var(--color-text-muted); }
+  </style>
+</head>
+<body>
+  <main class="demo-shell">
+    <h1>PI-XX — freshness-badge</h1>
+    <p class="demo-sub">Universal freshness affordance.
+       Communicates how recently a data surface was updated, with state
+       variants and a strict empty-state contract.</p>
+
+    <p class="demo-doctrine">
+      <strong>Authority:</strong> P3 (honest absence over fabricated
+      precision), P5 (universal affordance), P12 (product not library —
+      demo proves the primitive is product, not shelfware), P13 (universal
+      primitive — shared across commons §1 and commercial §2 consumers).
+      Empty state honours <strong>PI-1 strict</strong> (schema-version
+      graceful-fallback): when <code>data-updated</code> is absent or
+      empty the element is omitted via CSS, never rendered as broken
+      markup.
+    </p>
+
+    <p class="demo-consumers">
+      <strong>Consumers:</strong> Commons §1 — every monitor overview /
+      dashboard / report page surfaces a freshness affordance. Commercial §2
+      — Advennt jurisdiction pages (Wave-3, pending).
+    </p>
+
+    <!-- Example 1: default / fresh state -->
+    <section class="demo-section">
+      <h2>1 · Default state — <code>fresh</code></h2>
+      <p class="demo-caption">Representative real-world usage on an
+        overview card. Data updated within the freshness window — badge
+        renders inline-flex with the <code>--fresh</code> token pair.</p>
+      <div class="demo-callout">
+        <div class="demo-row">
+          <span class="freshness-badge freshness-badge--fresh"
+                data-updated="2026-05-12T18:00:00Z"
+                title="Updated 2026-05-12 18:00 UTC">Updated 2 h ago</span>
+          <code>data-updated="2026-05-12T18:00:00Z"</code>
+        </div>
+        <div class="demo-row">
+          <span class="freshness-badge freshness-badge--stale"
+                data-updated="2026-04-28T12:00:00Z"
+                title="Updated 2026-04-28 12:00 UTC">Updated 14 d ago</span>
+          <code>--stale</code>
+        </div>
+        <div class="demo-row">
+          <span class="freshness-badge freshness-badge--aged"
+                data-updated="2026-01-12T09:00:00Z"
+                title="Updated 2026-01-12 09:00 UTC">Updated 120 d ago</span>
+          <code>--aged</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Example 2: edge — long label, card-corner placement -->
+    <section class="demo-section">
+      <h2>2 · Edge state — long label + card-corner placement</h2>
+      <p class="demo-caption">Boundary condition: maximum text width and
+        absolute-positioned card-corner placement. Badge remains
+        single-line (<code>white-space: nowrap</code>) and respects the
+        positioning helper <code>.freshness-badge--card-corner</code>
+        on the parent card.</p>
+      <div class="demo-callout freshness-badge--card-corner" style="position: relative; min-height: 7rem;">
+        <span class="freshness-badge freshness-badge--fresh"
+              data-updated="2026-05-12T17:30:00Z"
+              title="Updated 2026-05-12 17:30 UTC">Updated 2 hours 30 minutes ago · UTC</span>
+        <p style="margin: 0; color: var(--color-text-secondary);">
+          Card-style consumer with the badge anchored to the upper-right
+          via the positioning helper class on this container. The badge
+          does not wrap regardless of label length.
+        </p>
+      </div>
+    </section>
+
+    <!-- Example 3: empty / null — graceful fallback -->
+    <section class="demo-section">
+      <h2>3 · Empty / null state — graceful fallback (PI-1 strict)</h2>
+      <p class="demo-caption">Honesty contract. Two empty variants render
+        as <em>nothing</em> via <code>display: none</code> — there is no
+        "—" placeholder, no broken markup, no misleading zero. The
+        primitive is intentionally invisible when data is absent.</p>
+      <div class="demo-callout">
+        <div class="demo-row">
+          <span class="freshness-badge freshness-badge--fresh" data-updated="">(invisible)</span>
+          <code>data-updated="" → display: none</code>
+        </div>
+        <div class="demo-row">
+          <span class="freshness-badge freshness-badge--fresh">(invisible)</span>
+          <code>data-updated attribute absent → display: none</code>
+        </div>
+        <p class="demo-caption" style="margin: 0;">
+          Neither variant occupies layout space. This satisfies PI-1
+          strict: absent <code>_meta.last_updated</code> in the upstream
+          schema → element omitted, never broken markup.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

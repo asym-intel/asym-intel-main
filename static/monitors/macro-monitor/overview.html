@@ -59,10 +59,12 @@
           <div class="ov-band-title">Why it matters now</div>
           <div class="ov-band-head">Macro stress regimes no longer mean-revert on schedule</div>
           <p class="ov-band-copy">GMM maps how financial shocks propagate through interconnected systems — from tariff escalation through commodity markets to sovereign debt dynamics — treating macro-financial risk as strategic intelligence, not market commentary.</p>
-          <div class="ov-chips">
-          <span class="ov-chip">Weekly · macro signal</span>
-          <span class="ov-chip">25+ indicators scored</span>
-          <span class="ov-chip">Public signals only</span>
+          <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+          <span class="chip">Weekly · macro signal</span>
+          <span class="chip">25+ indicators scored</span>
+          <span class="chip">Public signals only</span>
+          </div>
           </div>
         </div>
         <div class="ov-band-stats">
@@ -331,7 +333,7 @@
         var pv = extractSlotValue(data, pill);
         if (pv != null) {
           var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
-          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+          html += '<span class="chip">' + esc(txt) + '</span>';
         }
       }
       pillBox.innerHTML = html;

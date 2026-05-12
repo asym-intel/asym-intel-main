@@ -59,10 +59,12 @@
           <div class="ov-band-title">Why it matters now</div>
           <div class="ov-band-head">Conflict escalation paths are multiplying faster than containment responses</div>
           <p class="ov-band-copy">SCEM maintains a curated conflict roster and tracks how each conflict&#x27;s dynamics interact with broader geopolitical systems — treating escalation as a structural pattern, not a series of isolated events.</p>
-          <div class="ov-chips">
-          <span class="ov-chip">Weekly · conflict watch</span>
-          <span class="ov-chip">8–12 active conflicts</span>
-          <span class="ov-chip">Escalation path tracking</span>
+          <div class="chip-filter">
+          <div class="chip-filter__group" data-group="overview">
+          <span class="chip">Weekly · conflict watch</span>
+          <span class="chip">8–12 active conflicts</span>
+          <span class="chip">Escalation path tracking</span>
+          </div>
           </div>
         </div>
         <div class="ov-band-stats">
@@ -331,7 +333,7 @@
         var pv = extractSlotValue(data, pill);
         if (pv != null) {
           var txt = pill.label_tpl.replace('{n}', pv).replace('{v}', pv);
-          html += '<span class="ov-chip">' + esc(txt) + '</span>';
+          html += '<span class="chip">' + esc(txt) + '</span>';
         }
       }
       pillBox.innerHTML = html;
