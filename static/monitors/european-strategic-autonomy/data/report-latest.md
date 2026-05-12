@@ -1,6 +1,6 @@
-# European Strategic Autonomy Monitor — Issue 11
+# European Strategic Autonomy Monitor — Issue 12
 
-**W/E 9 May 2026** | Published 2026-05-09T19:00:00Z
+**W/E 12 May 2026** | Published 2026-05-12T19:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -77,18 +77,18 @@ Monitor Council and Parliament formal adoption of EDF-Ukraine association and Ho
 - **** (Macro Monitor) — Active
 - **Russian hybrid escalation includes FIMI components** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
 - **Russian FIMI targeting German elections via Telegram.** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
-- **Chinese influence operations in Italian media environment.** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **Belarusian drone probes on Polish infrastructure.** (conflict-escalation) — Active — verified (adjacent Issue 12)
+- **Chinese influence operations in Italian media environment.** (democratic-integrity) — Active — verified (adjacent Issue 15)
+- **Belarusian drone probes on Polish infrastructure.** (conflict-escalation) — Active — verified (adjacent Issue 13)
 - **AI-generated content in 27% of FIMI incidents; Russia targeted elections in 6 countries in 2025 with 8 more flagged for 2026** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
-- **Russia targeted elections in Germany, Poland, Romania, Moldova, Czech Republic in 2025; 8 additional member states flagged for 2026** (democratic-integrity) — Active — verified (adjacent Issue 14)
-- **SAFE EUR150bn loan facility and EDF-Ukraine association create structural link between EU defence industrial base and conflict-adjacent capability supply** (conflict-escalation) — Active — verified (adjacent Issue 12)
+- **Russia targeted elections in Germany, Poland, Romania, Moldova, Czech Republic in 2025; 8 additional member states flagged for 2026** (democratic-integrity) — Active — verified (adjacent Issue 15)
+- **SAFE EUR150bn loan facility and EDF-Ukraine association create structural link between EU defence industrial base and conflict-adjacent capability supply** (conflict-escalation) — Active — verified (adjacent Issue 13)
 - **EU gas storage at 30% entering May 2026; Russian LNG imports 21bcm in 2024; Chinese 80% rare earth dominance create macro leverage points** (macro-monitor) — Active — verified (adjacent Issue 14)
 - **AI-generated synthetic media operationalised at scale in 27% of FIMI incidents; EU AI Act and DSA do not yet address FIMI-specific deployment** (ai-governance) — Active — verified (adjacent Issue 16)
-- **AI-generated content operationalised at scale in FIMI campaigns: 27% of 2025 incidents** (fimi-cognitive-warfare) — Active — NEW
-- **SAFE adoption and Ukraine EDF association create direct EU defence industrial-conflict supply linkage** (conflict-escalation) — Active — NEW
-- **Chinese rare earth dominance creates structural economic coercion leverage; EU gas storage crisis creates energy cost vulnerability** (macro-monitor) — Active — NEW
-- **AI-generated synthetic media now core FIMI TTP; Horizon Europe dual-use extension creates new defence AI funding pathway** (ai-governance) — Active — NEW
-- **Russia targeted elections in 6 countries in 2025; 8 EU states flagged high-risk 2026** (democratic-integrity) — Active — NEW
+- **AI-generated content operationalised at scale in FIMI campaigns: 27% of 2025 incidents** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 9)
+- **SAFE adoption and Ukraine EDF association create direct EU defence industrial-conflict supply linkage** (conflict-escalation) — Active — verified (adjacent Issue 13)
+- **Chinese rare earth dominance creates structural economic coercion leverage; EU gas storage crisis creates energy cost vulnerability** (macro-monitor) — Active — verified (adjacent Issue 14)
+- **AI-generated synthetic media now core FIMI TTP; Horizon Europe dual-use extension creates new defence AI funding pathway** (ai-governance) — Active — verified (adjacent Issue 16)
+- **Russia targeted elections in 6 countries in 2025; 8 EU states flagged high-risk 2026** (democratic-integrity) — Active — verified (adjacent Issue 15)
 
 ---
 
