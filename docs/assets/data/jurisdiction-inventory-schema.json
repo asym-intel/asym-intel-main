@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://asym-intel.info/assets/data/jurisdiction-inventory-schema.json",
+  "title": "Jurisdiction Inventory Envelope",
+  "description": "Canonical SSOT envelope for jurisdiction counts. Emitted by pipeline.shared.compute_jurisdiction_inventory and published to asym-intel-main:docs/assets/data/jurisdiction-inventory.json. Consumers (Advennt homepage, commons cross-monitor, Advennt /jurisdictions/, methodology) MUST derive counts from this envelope — directly or via the published artefact. See BRIEF-L4-ENGINE-JURISDICTION-INVENTORY-SSOT.md.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "as_of",
+    "total_baselined",
+    "total_published",
+    "total_advennt_live",
+    "total_baseline_complete",
+    "by_status",
+    "by_jid",
+    "warnings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "jurisdiction-inventory-v1"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp of the scan."
+    },
+    "total_baselined": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of jurisdictions with any baseline data (sum of baseline_in_progress + baseline_complete + published). Excludes stubs."
+    },
+    "total_published": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of jurisdictions live on the Advennt site (status=published)."
+    },
+    "total_advennt_live": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of jurisdictions in scope for the Advennt monitor (in_advennt=true). Includes non-stub baselines whether published or not."
+    },
+    "total_baseline_complete": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of jurisdictions whose baseline ran end-to-end (status in {baseline_complete, published}). Used by methodology surface."
+    },
+    "by_status": {
+      "type": "object",
+      "required": ["published", "baseline_in_progress", "baseline_complete", "stub"],
+      "additionalProperties": false,
+      "properties": {
+        "published": {"type": "integer", "minimum": 0},
+        "baseline_in_progress": {"type": "integer", "minimum": 0},
+        "baseline_complete": {"type": "integer", "minimum": 0},
+        "stub": {"type": "integer", "minimum": 0}
+      }
+    },
+    "by_jid": {
+      "type": "object",
+      "description": "Per-jurisdiction breakdown keyed by JID (uppercase ISO-3166-1 alpha-2, or extended code like CA-ON).",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "in_advennt", "publication_gate"],
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["published", "baseline_in_progress", "baseline_complete", "stub"]
+          },
+          "in_advennt": {"type": "boolean"},
+          "publication_gate": {
+            "type": ["string", "null"],
+            "description": "Name of the first failing publication gate (e.g. 'schema_valid'), or null if all gates pass / no gate block exists / status=published."
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Best-effort messages emitted when the function encountered partial repo state. Never causes the function to raise (PI-1 graceful-fallback)."
+    }
+  }
+}
