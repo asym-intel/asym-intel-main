@@ -484,48 +484,22 @@
     document.head.appendChild(link);
   }
 
-  var MONITOR_NAV_LINKS = [
-    { href: 'overview.html',       label: 'Overview'         },
-    { href: 'dashboard.html',      label: 'Dashboard'        },
-    { href: 'report.html',         label: 'Latest Issue'     },
-    { href: 'persistent.html',     label: 'Living Knowledge' },
-    { href: 'chatter.html',        label: 'Chatter'          },
-    { href: 'cross-monitor.html',  label: 'Cross-Monitor'    },
-    { href: 'archive.html',        label: 'Archive'          },
-    { href: 'search.html',         label: 'Search'           },
-    { href: 'about.html',          label: 'About'            },
-  ];
+  /* Sub-nav (9-item monitor page strip) was extracted in 2026-05-12 into
+     the shared-layer primitive `sub-nav.js` (BRIEF-FE-SUB-NAV-PRIMITIVE,
+     P13 class-fix). Single source of truth is now monitor-registry.json
+     → sub_nav array, inlined into sub-nav.js by
+     tools/inline_registry_into_navjs.py.
 
+     This function delegates to AsymSubNav.init() if sub-nav.js was
+     loaded (which it auto-inits anyway). The shim is kept so existing
+     init() ordering is preserved and pages that load only nav.js still
+     render the sub-nav.
+
+     PI-1 fallback: if sub-nav.js is absent, this is a silent no-op
+     and the <ul class="monitor-nav__links"> host stays empty. */
   function injectMonitorNav() {
-    var ul = document.querySelector('.monitor-nav__links');
-    if (!ul) return;
-
-    // Derive current page filename from URL
-    var pathname = window.location.pathname;
-    var currentPage = pathname.split('/').pop() || '';
-    // Strip query/hash
-    currentPage = currentPage.split('?')[0].split('#')[0];
-
-    // Build canonical li list
-    var html = '';
-    MONITOR_NAV_LINKS.forEach(function (link) {
-      var isActive = (link.href === currentPage);
-      html += '<li><a href="' + link.href + '"' +
-        (isActive ? ' class="active"' : '') +
-        '>' + link.label + '</a></li>';
-    });
-
-    ul.innerHTML = html;
-
-    // Re-wire hamburger click-to-close on the new anchors
-    var hamburger = document.querySelector('.monitor-nav__hamburger');
-    if (hamburger) {
-      ul.querySelectorAll('a').forEach(function (a) {
-        a.addEventListener('click', function () {
-          ul.classList.remove('monitor-nav__links--open');
-          hamburger.setAttribute('aria-expanded', 'false');
-        });
-      });
+    if (window.AsymSubNav && typeof window.AsymSubNav.init === 'function') {
+      window.AsymSubNav.init();
     }
   }
 

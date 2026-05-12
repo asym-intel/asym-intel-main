@@ -27,9 +27,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRY = REPO_ROOT / "static" / "monitors" / "monitor-registry.json"
 NAVJS = REPO_ROOT / "static" / "monitors" / "shared" / "js" / "nav.js"
+SUBNAVJS = REPO_ROOT / "static" / "monitors" / "shared" / "js" / "sub-nav.js"
 
 BEGIN = "/* BEGIN @REGISTRY_INLINE */"
 END = "/* END @REGISTRY_INLINE */"
+SUB_NAV_BEGIN = "/* BEGIN @SUB_NAV_INLINE */"
+SUB_NAV_END = "/* END @SUB_NAV_INLINE */"
 
 
 def build_literal(registry: dict) -> str:
@@ -99,6 +102,35 @@ def build_literal(registry: dict) -> str:
     return "\n".join(lines)
 
 
+def build_sub_nav_literal(registry: dict) -> str:
+    """Produce the MONITOR_SUB_NAV literal for sub-nav.js.
+
+    Source: registry['sub_nav'] — list of {href, label} objects.
+    Inlining keeps sub-nav.js self-contained (no fetch at render time)
+    and preserves the P13 single-source-of-truth invariant: editing the
+    JSON + running this tool is the only path to change the sub-nav.
+    """
+    if "sub_nav" not in registry:
+        raise KeyError(
+            "monitor-registry.json missing required 'sub_nav' array "
+            "(consumed by sub-nav.js — BRIEF-FE-SUB-NAV-PRIMITIVE)."
+        )
+    items = registry["sub_nav"]
+    if not isinstance(items, list) or not items:
+        raise ValueError("'sub_nav' must be a non-empty array")
+    for it in items:
+        if not isinstance(it, dict) or "href" not in it or "label" not in it:
+            raise ValueError(
+                f"sub_nav entry malformed (need href + label): {it!r}"
+            )
+    lines = ["var MONITOR_SUB_NAV = ["]
+    for it in items:
+        entry = {"href": it["href"], "label": it["label"]}
+        lines.append(f"    {json.dumps(entry, separators=(', ', ': '))},")
+    lines.append("  ];")
+    return "\n".join(lines)
+
+
 def main() -> int:
     if not REGISTRY.exists():
         print(f"FAIL: {REGISTRY} missing", file=sys.stderr)
@@ -122,14 +154,42 @@ def main() -> int:
     new_block = BEGIN + "\n  " + build_literal(registry) + "\n  " + END
     new_navjs = before + new_block + after
 
-    if new_navjs == navjs:
+    changed_navjs = (new_navjs != navjs)
+    if changed_navjs:
+        NAVJS.write_text(new_navjs, encoding="utf-8")
+        print(f"✓ nav.js updated from registry "
+              f"({len(registry['monitors'])} monitors)")
+    else:
         print(f"✓ nav.js already up-to-date with registry "
               f"({len(registry['monitors'])} monitors)")
-        return 0
 
-    NAVJS.write_text(new_navjs, encoding="utf-8")
-    print(f"✓ nav.js updated from registry "
-          f"({len(registry['monitors'])} monitors)")
+    # sub-nav.js — inline registry['sub_nav'] (BRIEF-FE-SUB-NAV-PRIMITIVE)
+    if not SUBNAVJS.exists():
+        print(f"FAIL: {SUBNAVJS} missing", file=sys.stderr)
+        return 2
+    subnav = SUBNAVJS.read_text(encoding="utf-8")
+    if SUB_NAV_BEGIN not in subnav or SUB_NAV_END not in subnav:
+        print(f"FAIL: sub-nav.js missing {SUB_NAV_BEGIN}...{SUB_NAV_END} markers",
+              file=sys.stderr)
+        return 2
+    before_sn, _, rest_sn = subnav.partition(SUB_NAV_BEGIN)
+    _, _, after_sn = rest_sn.partition(SUB_NAV_END)
+    new_sn_block = (
+        SUB_NAV_BEGIN
+        + "\n  "
+        + build_sub_nav_literal(registry)
+        + "\n  "
+        + SUB_NAV_END
+    )
+    new_subnav = before_sn + new_sn_block + after_sn
+    if new_subnav != subnav:
+        SUBNAVJS.write_text(new_subnav, encoding="utf-8")
+        print(f"✓ sub-nav.js updated from registry "
+              f"({len(registry['sub_nav'])} nav items)")
+    else:
+        print(f"✓ sub-nav.js already up-to-date with registry "
+              f"({len(registry['sub_nav'])} nav items)")
+
     return 0
 
 
