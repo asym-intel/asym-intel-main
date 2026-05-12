@@ -1,0 +1,62 @@
+/* ============================================================
+   Asymmetric Intelligence — Shared Monitor Design System
+   shared/css/freshness-badge.css  ·  BRIEF-FE-FRESHNESS-BADGE-PRIMITIVE
+   Universal freshness affordance primitive (P3 · P5 · P12 · P13).
+   Consumed via @import in base.css. Do not link separately.
+   ============================================================ */
+
+/* ─── Freshness badge — base layout ─────────────────────── */
+.freshness-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  line-height: 1.2;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  vertical-align: middle;
+  transition: color 0.2s, background 0.2s;
+}
+
+/* ─── State variants ─────────────────────────────────────── */
+.freshness-badge--fresh {
+  color:      var(--freshness-fresh);
+  background: var(--freshness-bg-fresh);
+}
+
+.freshness-badge--stale {
+  color:      var(--freshness-stale);
+  background: var(--freshness-bg-stale);
+}
+
+.freshness-badge--aged {
+  color:      var(--freshness-aged);
+  background: var(--freshness-bg-aged);
+}
+
+/* ─── Empty-state honesty (§11 design-philosophy doctrine) ── */
+/* PI-1 strict: absent _meta.last_updated → element omitted, never broken markup */
+.freshness-badge[data-updated=""],
+.freshness-badge:not([data-updated]) {
+  display: none;
+}
+
+/* ─── Positioning helper for card upper-right placement ──── */
+/* Consumers may apply .freshness-badge--card-corner on the
+   parent card element to enable absolute positioning of the
+   badge. The badge itself carries the absolute position.
+   This is an opt-in; default is inline-flow.               */
+.freshness-badge--card-corner .freshness-badge {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+/* ─── Screen-reader text ─────────────────────────────────── */
+/* JS sets textContent; title attr carries full UTC timestamp */
+.freshness-badge[title] {
+  cursor: default;
+}
