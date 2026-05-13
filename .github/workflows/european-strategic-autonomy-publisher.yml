@@ -1,13 +1,30 @@
 name: ESA Publisher — Weekly Report
+# Sprint-2 G-PUBLISHER-REUSABLE — thin caller. Reusable body: _reusable-publisher.yml
 
 on:
-  # Schedule: Wednesday 19:00 UTC (triggered by Curator success or workflow_dispatch)
   workflow_dispatch:
     inputs:
       publish_date:
         description: "Override output date (YYYY-MM-DD). Leave blank to use today (UTC). Use when re-running for a past cycle."
         required: false
         default: ""
+        type: string
+      force:
+        description: 'AD-2026-04-24l governed re-issue — skip freshness/E5 guards.'
+        required: false
+        default: false
+        type: boolean
+      force_reason:
+        required: false
+        default: ''
+        type: string
+      force_ad:
+        required: false
+        default: ''
+        type: string
+      force_operator:
+        required: false
+        default: ''
         type: string
   workflow_run:
     workflows: ["European Strategic Autonomy Monitor Curator"]
@@ -17,72 +34,12 @@ on:
 jobs:
   publish:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
-    name: Publish ESA Weekly Report
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Run ESA Publisher
-        id: run_publisher
-        env:
-          REPO_ROOT: ${{ github.workspace }}
-          MONITOR_SLUG: european-strategic-autonomy
-          # LINEAGE_WRITE_TOKEN: used by pipeline/shared/lineage.py to write provenance
-          # envelopes to asym-intel-internal/archive/lineage/. Non-blocking if absent.
-          LINEAGE_WRITE_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          # Optional: override publish date for re-runs on past cycle dates
-          PUBLISH_DATE: ${{ inputs.publish_date }}
-        run: |
-          python3 pipeline/publishers/publisher.py
-          ISSUE=$(python3 -c 'import json; print(json.load(open("static/monitors/european-strategic-autonomy/data/report-latest.json"))["meta"]["issue"])')
-          echo "issue_number=$ISSUE" >> $GITHUB_OUTPUT
-
-      - name: Pre-publication integrity gate
-        uses: ./.github/actions/integrity-gate
-        with:
-          monitor-slug: european-strategic-autonomy
-          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-
-      - name: Commit published report
-        run: |
-          git config user.name "ESA Publisher Bot"
-          git config user.email "esa-publisher@asym-intel.info"
-          git add static/monitors/european-strategic-autonomy/data/
-          git add docs/monitors/european-strategic-autonomy/data/
-          git add content/monitors/european-strategic-autonomy/
-          git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git commit -m "data(esa): Issue ${{ steps.run_publisher.outputs.issue_number }} published by ESA Publisher Bot"
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
-
-      - name: Purge Cloudflare cache
-        if: success()
-        env:
-          CF_TOKEN: ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
-          CF_ZONE: cc419b7519eba04ef0dc6a7b851930c7
-        run: |
-          curl -s -X POST \
-            "https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache" \
-            -H "Authorization: Bearer ${CF_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "files": [
-                "https://asym-intel.info/monitors/european-strategic-autonomy/data/report-latest.json",
-                "https://asym-intel.info/monitors/european-strategic-autonomy/data/report-latest.md"
-              ]
-            }' | python3 -c "import json,sys; d=json.load(sys.stdin); print('CF purge:', 'ok' if d.get('success') else d.get('errors'))"
+    uses: ./.github/workflows/_reusable-publisher.yml
+    with:
+      slug: european-strategic-autonomy
+      publish_date: ${{ inputs.publish_date || '' }}
+      force: ${{ inputs.force == true }}
+      force_reason: ${{ inputs.force_reason || '' }}
+      force_ad: ${{ inputs.force_ad || '' }}
+      force_operator: ${{ inputs.force_operator || '' }}
+    secrets: inherit
