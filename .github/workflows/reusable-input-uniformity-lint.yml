@@ -1,0 +1,91 @@
+# Reusable-workflow input-type uniformity lint.
+#
+# Sprint-2 G-NORMALISE-FORCE-TYPE Part C
+#   (2026-05-13-class-a-consumer-governance-sprint-1).
+# Doctrine: F-D2 (bind-don't-fork) — new canonical surface for input-type
+#           uniformity, distinct from commons-drift-lint (fe-commons
+#           re-implementation scanning, AD-2026-04-30-BL, orthogonal scope).
+#           F-D6 (canonical-template uniformity) — role-as-canonical-template:
+#           any input shared by two or more `_reusable-*.yml` workflows must
+#           declare the same `type:`.
+# Lineage:  PR #316 cured `_reusable-interpreter.yml` `force` input from
+#           string to boolean, aligning the four role-class reusables
+#           (interpreter / reviewer / composer / applier). This lint enforces
+#           the uniformity invariant going forward and extends automatically
+#           to any new `_reusable-*.yml` (e.g. `_reusable-publisher.yml`
+#           under parallel authoring).
+#
+# Behaviour
+# ---------
+# - Globs `.github/workflows/_reusable-*.yml`.
+# - Parses each file's `on.workflow_call.inputs:` block.
+# - For every input name appearing in two or more reusable files, asserts
+#   `type:` is identical across all declarations.
+# - Fails the job (exit 1) on drift, with output shaped:
+#     INPUT-TYPE-DRIFT:
+#       input '<name>'
+#         declared as type '<t1>' in <file1>
+#         declared as type '<t2>' in <file2>
+#
+# Scope discipline
+# ----------------
+# This workflow is observation-only — it never edits a workflow file. Cures
+# land in separate PRs (per F-D4 two-phase commit through Architect).
+# commons-drift-lint.yml is untouched; its scope (fe-commons re-implementation
+# detection in per-project repos) is orthogonal.
+
+name: Reusable Input Uniformity Lint
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/_reusable-*.yml'
+      - '.github/workflows/reusable-input-uniformity-lint.yml'
+      - 'tools/lint_reusable_input_uniformity.py'
+      - 'tools/test_lint_reusable_input_uniformity.py'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/_reusable-*.yml'
+      - '.github/workflows/reusable-input-uniformity-lint.yml'
+      - 'tools/lint_reusable_input_uniformity.py'
+      - 'tools/test_lint_reusable_input_uniformity.py'
+  workflow_dispatch:
+
+jobs:
+  input-uniformity:
+    name: Reusable Input Uniformity
+    # Bot-PR scope guard: mirror the canonical-parity / monitor-canonical-parity
+    # pattern. This lint reads only the local checkout (no cross-repo PAT
+    # needed), so bot PRs are technically capable of running it; however the
+    # lint targets `_reusable-*.yml` paths that dependabot never touches, so
+    # bot PRs are out-of-scope by construction. Skip is safe — this lint is
+    # not currently a required status context.
+    if: >-
+      github.actor != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      # Fixture suite runs BEFORE the live scan (PREFLIGHT-KNOWHOW §2 pattern,
+      # mirrored from canonical-parity.yml). If the parser regresses, this
+      # fails first with a clear test name; live-scan failures are harder to
+      # diagnose.
+      - name: Fixture suite — tools/test_lint_reusable_input_uniformity.py
+        run: python3 tools/test_lint_reusable_input_uniformity.py
+
+      - name: Live scan — tools/lint_reusable_input_uniformity.py
+        run: python3 tools/lint_reusable_input_uniformity.py
