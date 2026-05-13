@@ -26,11 +26,12 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 concurrency:
-  # S5 phase 1 Fix 2: cancel superseded staging (and any non-main) runs.
-  # Main builds keep cancel-in-progress: false because publishers depend on
-  # every main build completing for deploy.
+  # S5 phase 1 Fix 2 + HK-2026-05-12-deploy-coalesce (2026-05-13):
+  # main builds are full-rebuild from HEAD; superseding in-flight runs is
+  # safe and prevents publisher-bot storm + concurrency-cancel reader-lag
+  # (5-session pattern documented in inbox HK-2026-05-12-deploy-coalesce).
   group: build-deploy-${{ github.ref_name }}
-  cancel-in-progress: ${{ github.ref_name != 'main' }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
