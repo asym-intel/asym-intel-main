@@ -1,0 +1,204 @@
+name: "_reusable-publisher"
+# Reusable publisher workflow — called by 8 per-monitor thin callers
+# (WDM, GMM, ESA, FCW, ERM, SCEM, AGM, FIM). Ramparts is DIFFERENT-WORK
+# (WordPress publisher with second-repo checkout + node toolchain) and
+# is intentionally NOT collapsed into this reusable per F-D6.1 boundary.
+#
+# Sprint-2 G-PUBLISHER-REUSABLE, authored 2026-05-13 T20:19 CEST.
+# Authority: Fleet Architect operator-locked decision 2026-05-13.
+# Doctrine: F-D2 (bind-don't-fork) + role-as-canonical-template +
+# F-D6 (asymmetric onboarding — the canonical role is the contract
+# every consumer thin-calls).
+#
+# Closes G-AUDIT-REPLAY (PR #986) divergences:
+#   D-001 — publisher reusable absent fleet-wide (this file).
+#   D-036 — `LINEAGE_WRITE_TOKEN` + `PUBLISH_DATE` only on WDM publisher
+#           (now MANDATORY on every caller — secret required, input required).
+#   D-054 — Lineage Gatekeeper only on GMM publisher
+#           (now MANDATORY in canonical body — every caller covered).
+# Cross-references PR #316 (G-NORMALISE-FORCE-TYPE Parts A+B — boolean
+# force input) and PR #985 (G-AUDIT-REPLAY 53-divergence replay).
+#
+# DO NOT add workflow_dispatch or workflow_run triggers here.
+# DO NOT hardcode any monitor slug. All slug-specific values derive
+# from `inputs.slug` via the slug_map step (parity with interpreter,
+# reviewer, composer reusables).
+#
+# F-D6.1 boundary: this reusable is the orchestration shell (slug_map,
+# lineage envelope, gatekeeper, secret routing, cache purge, commit/push).
+# The publisher.py script it invokes carries consumer-shaped render logic
+# and stays out of this canonical role.
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        description: 'Monitor slug (e.g. ai-governance, democratic-integrity, macro-monitor)'
+        type: string
+        required: true
+      publish_date:
+        description: 'Override output date (YYYY-MM-DD). Empty = use today (UTC). Use when re-running for a past cycle. REQUIRED input per G-AUDIT-REPLAY D-036.'
+        type: string
+        required: true
+      force:
+        description: 'AD-2026-04-24l governed re-issue — skip freshness/E5 guards'
+        type: boolean
+        required: false
+        default: false
+      force_reason:
+        description: 'Required when force=true. 20-500 chars.'
+        type: string
+        required: false
+        default: ''
+      force_ad:
+        description: 'Required when force=true. AD ref.'
+        type: string
+        required: false
+        default: ''
+      force_operator:
+        description: 'Required when force=true. GitHub handle.'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      ASYM_INTEL_PIPELINE:
+        # Used both as the GH token (checkout/push/integrity-gate/gatekeeper
+        # dispatch) AND, internally re-exported as `LINEAGE_WRITE_TOKEN`, for
+        # pipeline/shared/lineage.py to POST envelopes to
+        # asym-intel-internal/archive/lineage/. The reuse preserves the
+        # existing secret-provisioning surface (no new org secret required)
+        # while still closing G-AUDIT-REPLAY D-036 — every caller now writes
+        # lineage. Operator may later split this into a dedicated
+        # LINEAGE_WRITE_TOKEN secret; the env var name stays stable.
+        required: true
+      PPLX_COMPUTER_ASYM_ENGINE:
+        # Cloudflare zone purge token. Same secret name fleet-wide.
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          ref: main
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Derive slug-to-identity mapping
+        # Parity-locked with _reusable-interpreter.yml / _reusable-reviewer.yml
+        # / _reusable-composer.yml. Any change here MUST land synchronously in
+        # all four reusables. ADV is wired in advance per
+        # G-SLUG-MAP-PARITY (G-AUDIT-REPLAY D-052).
+        id: slug_map
+        run: |
+          case "${{ inputs.slug }}" in
+            ai-governance)               SLUG_ID="AGM" ;;
+            financial-integrity)         SLUG_ID="FIM" ;;
+            fimi-cognitive-warfare)      SLUG_ID="FCW" ;;
+            european-strategic-autonomy) SLUG_ID="ESA" ;;
+            democratic-integrity)        SLUG_ID="WDM" ;;
+            macro-monitor)               SLUG_ID="GMM" ;;
+            environmental-risks)         SLUG_ID="ERM" ;;
+            conflict-escalation)         SLUG_ID="SCEM" ;;
+            advennt)                     SLUG_ID="ADV" ;;
+            *) echo "Unknown slug: ${{ inputs.slug }}"; exit 1 ;;
+          esac
+          SLUG_ID_LOWER="$(echo "${SLUG_ID}" | tr '[:upper:]' '[:lower:]')"
+          echo "slug_id=${SLUG_ID}" >> "$GITHUB_OUTPUT"
+          echo "slug_id_lower=${SLUG_ID_LOWER}" >> "$GITHUB_OUTPUT"
+
+      - name: Run Publisher
+        id: run_publisher
+        env:
+          REPO_ROOT:           ${{ github.workspace }}
+          MONITOR_SLUG:        ${{ inputs.slug }}
+          SLUG_ID:             ${{ steps.slug_map.outputs.slug_id }}
+          # G-AUDIT-REPLAY D-036 closure: lineage envelope token now wired on
+          # every publisher (was previously only on WDM). Reuses
+          # ASYM_INTEL_PIPELINE per the secret-block comment above.
+          LINEAGE_WRITE_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          PUBLISH_DATE:        ${{ inputs.publish_date }}
+          FORCE:               ${{ inputs.force }}
+          FORCE_REASON:        ${{ inputs.force_reason }}
+          FORCE_AD:            ${{ inputs.force_ad }}
+          FORCE_OPERATOR:      ${{ inputs.force_operator }}
+        run: |
+          set -euo pipefail
+          python3 pipeline/publishers/publisher.py
+          ISSUE=$(python3 -c "import json; print(json.load(open(f'static/monitors/${MONITOR_SLUG}/data/report-latest.json'))['meta']['issue'])")
+          echo "issue_number=$ISSUE" >> "$GITHUB_OUTPUT"
+
+      - name: Pre-publication integrity gate
+        uses: ./.github/actions/integrity-gate
+        with:
+          monitor-slug: ${{ inputs.slug }}
+          gh-token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+
+      - name: Commit published report
+        env:
+          MONITOR_SLUG:   ${{ inputs.slug }}
+          SLUG_ID:        ${{ steps.slug_map.outputs.slug_id }}
+          SLUG_ID_LOWER:  ${{ steps.slug_map.outputs.slug_id_lower }}
+          ISSUE_NUMBER:   ${{ steps.run_publisher.outputs.issue_number }}
+        run: |
+          git config user.name  "${SLUG_ID} Publisher Bot"
+          git config user.email "${SLUG_ID_LOWER}-publisher@asym-intel.info"
+          git add "static/monitors/${MONITOR_SLUG}/data/"
+          git add "docs/monitors/${MONITOR_SLUG}/data/"
+          git add "content/monitors/${MONITOR_SLUG}/"
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "data(${SLUG_ID_LOWER}): Issue ${ISSUE_NUMBER} published by ${SLUG_ID} Publisher Bot"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            git push && break
+            echo "Push attempt ${attempt}/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
+
+      - name: Trigger Lineage Gatekeeper (advisory)
+        # G-AUDIT-REPLAY D-054 closure: lineage gatekeeper now fires on every
+        # publisher (was previously only on GMM). Non-fatal if the dispatch
+        # fails — gatekeeper is advisory, not blocking.
+        if: success()
+        env:
+          GH_TOKEN:     ${{ secrets.ASYM_INTEL_PIPELINE }}
+          MONITOR_SLUG: ${{ inputs.slug }}
+        run: |
+          gh api -X POST \
+            /repos/asym-intel/asym-intel-internal/actions/workflows/engine-lineage-gate.yml/dispatches \
+            --field ref=main \
+            --field "inputs[tenant]=asym-intel" \
+            --field "inputs[product]=${MONITOR_SLUG}" \
+            --field "inputs[date]=$(date -u +%Y-%m-%d)" \
+            && echo "Gatekeeper triggered" || echo "Gatekeeper trigger failed (non-fatal)"
+
+      - name: Purge Cloudflare cache
+        if: success()
+        env:
+          CF_TOKEN:     ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
+          CF_ZONE:      cc419b7519eba04ef0dc6a7b851930c7
+          MONITOR_SLUG: ${{ inputs.slug }}
+        run: |
+          curl -s -X POST \
+            "https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache" \
+            -H "Authorization: Bearer ${CF_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"files\": [
+                \"https://asym-intel.info/monitors/${MONITOR_SLUG}/data/report-latest.json\",
+                \"https://asym-intel.info/monitors/${MONITOR_SLUG}/data/report-latest.md\"
+              ]
+            }" | python3 -c "import json,sys; d=json.load(sys.stdin); print('CF purge:', 'ok' if d.get('success') else d.get('errors'))"
