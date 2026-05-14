@@ -1,63 +1,61 @@
-name: "Engine Post-Deploy Smoke — Layer B"
+# engine-post-deploy-smoke.yml — Layer B North Star post-deploy smoke test
+#
+# Runs engine_smoke_test.py against all 7 monitor reader URLs after any
+# publisher deploy. Can also be triggered manually (workflow_dispatch).
+#
+# Gates:
+#   GATE-P3-BRIEF-PRESENT  — HTTP 200 + body >= 5000 chars
+#   GATE-P3-NORTH-STAR     — <h1>/<h2> present + no sentinel strings
+#
+# Authority: BX-9 PGTR (AD-2026-05-14-BX-PGTR)
 
-# Layer B of the Engine Audit Control Plane.
-# Validates live CDN-served endpoints after each publisher workflow completes.
-# Logic lives in asym-intel-internal/ops/engine_smoke_test.py (per §15 IP boundary).
+name: Engine Post-Deploy Smoke Test
 
 on:
-  workflow_run:
-    workflows:
-      - "AIM Publisher — Weekly Report"
-      - "SCEM Publisher — Weekly Report"
-      - "WDM Publisher — Weekly Report"
-      - "ERM Publisher — Weekly Report"
-      - "ESA Publisher — Weekly Report"
-      - "FCW Publisher — Weekly Report"
-      - "FIM Publisher — Weekly Report"
-      - "GMM Publisher — Weekly Report"
-    types: [completed]
+  workflow_call:
+    inputs:
+      monitor-slug:
+        description: "Monitor slug to test (leave empty to test all)"
+        required: false
+        type: string
+        default: ""
   workflow_dispatch:
     inputs:
-      monitor_slug:
-        description: 'Monitor slug to smoke-test (e.g. european-strategic-autonomy)'
-        required: true
-        default: ''
+      monitor-slug:
+        description: "Monitor slug to test (leave empty to test all)"
+        required: false
+        type: string
+        default: ""
 
 jobs:
-  smoke:
-    name: Post-deploy smoke test
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
+  smoke-test:
+    name: North Star Smoke Test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - name: Checkout public repo
-        uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Fetch smoke test script from internal repo
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          mkdir -p ops
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/ops/engine_smoke_test.py" \
-            -o ops/engine_smoke_test.py \
-            && echo "✓ Smoke test script fetched ($(wc -c < ops/engine_smoke_test.py) bytes)" \
-            || { echo "✗ Failed to fetch smoke test script"; exit 1; }
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Run smoke test
-        env:
-          REPO_ROOT: ${{ github.workspace }}
-          TRIGGER_WORKFLOW: ${{ github.event.workflow_run.name || '' }}
-          MONITOR_SLUG: ${{ github.event.inputs.monitor_slug || '' }}
-          CF_ZONE_ID: "cc419b7519eba04ef0dc6a7b851930c7"
-          CF_API_TOKEN: ${{ secrets.PPLX_COMPUTER_ASYM_ENGINE }}
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          GH_REPO: ${{ github.repository }}
-        run: python3 ops/engine_smoke_test.py
+      - name: Run smoke test (all monitors)
+        if: ${{ inputs.monitor-slug == '' }}
+        run: |
+          python3 pipeline/tools/engine_smoke_test.py --all
+
+      - name: Run smoke test (single monitor)
+        if: ${{ inputs.monitor-slug != '' }}
+        run: |
+          python3 pipeline/tools/engine_smoke_test.py \
+            --monitor "${{ inputs.monitor-slug }}"
+
+      - name: Summarise result
+        if: always()
+        run: |
+          echo "Smoke test complete. Exit code captured by prior step."
+          echo "NORTH STAR: a real reader must see real content on a real page."
+          echo "workflow exit 0 ≠ success — only north-star green is green."
