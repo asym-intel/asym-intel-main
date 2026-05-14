@@ -120,8 +120,16 @@ def test_schema_v4_shape():
     assert len(out["monitors"]) == 9, f"expected 9 monitors (BU.4: +ADVENNT), got {len(out['monitors'])}: {[m['slug'] for m in out['monitors']]}"
     slugs = [m["slug"] for m in out["monitors"]]
     assert slugs == ["WDM", "GMM", "ESA", "FCW", "AIM", "ERM", "SCEM", "FIM", "ADVENNT"]
+    _required_monitor_keys = {"slug", "status", "last_updated"}
+    _optional_monitor_keys = {"latest_brief_quality"}  # BX.9: optional per-monitor brief quality
     for m in out["monitors"]:
-        assert set(m.keys()) == {"slug", "status", "last_updated"}
+        # BX.9: latest_brief_quality is optional — present only when apply-debug/blocked files exist
+        assert set(m.keys()) <= _required_monitor_keys | _optional_monitor_keys, (
+            f"unexpected keys in monitor entry: {set(m.keys()) - (_required_monitor_keys | _optional_monitor_keys)}"
+        )
+        assert _required_monitor_keys <= set(m.keys()), (
+            f"missing required keys in monitor entry: {_required_monitor_keys - set(m.keys())}"
+        )
         assert m["status"] in ("green", "amber", "red")
 
 
