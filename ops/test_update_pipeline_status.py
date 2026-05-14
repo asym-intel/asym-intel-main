@@ -112,7 +112,8 @@ def test_schema_v4_shape():
     propagated from internal full-fidelity status. Other shape rules unchanged."""
     out = derive_public_rollup(_full_fidelity_status())
     # Sprint BU BU.4: schema bumped 4.0 → 4.1 (ADVENNT as 9th monitor)
-    assert out["schema_version"] == "4.1", f"expected 4.1 (BU.4 bump), got {out['schema_version']}"
+    # Sprint BX BX.9: schema bumped 4.1 → 4.2 (per-monitor latest_brief_quality optional field)
+    assert out["schema_version"] == "4.2", f"expected 4.2 (BX.9 bump), got {out['schema_version']}"
     assert "generated_at" in out
     assert "engine" in out and "status" in out["engine"] and "last_updated" in out["engine"]
     assert "monitors" in out and isinstance(out["monitors"], list)
