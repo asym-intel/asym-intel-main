@@ -605,6 +605,111 @@ def _review_row(
     )
 
 
+# Sentinel strings that indicate a placeholder rather than real composed content.
+_COMPOSE_SENTINEL_STRINGS: frozenset[str] = frozenset(
+    {
+        "A",
+        "No brief available this week.",
+        "[BRIEF UNAVAILABLE]",
+        "[ERROR]",
+    }
+)
+
+_COMPOSE_BRIEF_FLOOR: int = 800
+
+
+def _compose_row(
+    consumer: str,
+    report_date: str | None,
+    compose: dict | None,
+    compose_path: Path,
+    module_id: str,
+) -> FlowRow:
+    """Row describing the compose stage. Compose is week-level (one artifact
+    covers all modules), so the row attributes compose-quality checks to each
+    module slot — consistent with how _review_row() handles week-level data.
+
+    Fields surfaced:
+        brief_length        len(weekly_brief_draft) or None if absent
+        brief_floor_pass    True if >= 800 chars, False if below, None if absent
+        sentinel_detected   True if brief matches a known sentinel string
+        cycle_disposition   _meta.cycle_disposition if present
+        claim_trace_count   len(claim_trace) array if present
+        contract_state      coarse disposition for downstream triage
+    """
+    if compose is None:
+        return FlowRow(
+            consumer=consumer,
+            report_date=report_date,
+            stage="compose",
+            artifact=str(compose_path),
+            module_id=module_id,
+            state=STATE_MISSING_ARTIFACT,
+            absence_basis="missing_artifact",
+        )
+
+    brief: str | None = compose.get("weekly_brief_draft") if isinstance(compose, dict) else None
+    meta: dict = compose.get("_meta", {}) if isinstance(compose, dict) else {}
+    if not isinstance(meta, dict):
+        meta = {}
+    cycle_disposition: str | None = meta.get("cycle_disposition") or None
+    claim_trace = compose.get("claim_trace") if isinstance(compose, dict) else None
+    claim_trace_count: int | None = len(claim_trace) if isinstance(claim_trace, list) else None
+
+    notes: list[str] = []
+
+    # ── Brief checks ────────────────────────────────────────────────────────
+    if brief is None or not isinstance(brief, str):
+        brief_length: int | None = None
+        brief_floor_pass: bool | None = None
+        sentinel_detected: bool = False
+        contract_state = "brief_absent"
+        notes.append("weekly_brief_draft_missing")
+    else:
+        brief_length = len(brief)
+        stripped = brief.strip()
+        sentinel_detected = stripped == "" or stripped in _COMPOSE_SENTINEL_STRINGS
+        if sentinel_detected:
+            contract_state = "sentinel"
+            notes.append(f"sentinel_brief_detected: {stripped!r}")
+            brief_floor_pass = False
+        elif brief_length < _COMPOSE_BRIEF_FLOOR:
+            contract_state = "brief_short"
+            notes.append(f"brief_below_floor: {brief_length} chars")
+            brief_floor_pass = False
+        else:
+            contract_state = "present"
+            brief_floor_pass = True
+
+    state = STATE_PRESENT if contract_state == "present" else STATE_ABSENT_UNKNOWN
+
+    row = FlowRow(
+        consumer=consumer,
+        report_date=report_date,
+        stage="compose",
+        artifact=str(compose_path),
+        module_id=module_id,
+        state=state,
+        notes=notes,
+    )
+    # Store compose-specific fields in the notes list would lose structure;
+    # attach them as extra attributes that asdict() will surface.
+    # FlowRow is a dataclass — we annotate via a dedicated dict in notes until
+    # the dataclass gains compose-specific typed fields in a follow-up sprint.
+    # For now, encode structured data as tagged note entries so no schema change
+    # is needed in this PR (matches the pattern used by _review_row for verdict).
+    if brief_length is not None:
+        row.notes.append(f"brief_length={brief_length}")
+    row.notes.append(f"brief_floor_pass={brief_floor_pass}")
+    row.notes.append(f"sentinel_detected={sentinel_detected}")
+    row.notes.append(f"contract_state={contract_state}")
+    if cycle_disposition:
+        row.notes.append(f"cycle_disposition={cycle_disposition}")
+    if claim_trace_count is not None:
+        row.notes.append(f"claim_trace_count={claim_trace_count}")
+    return row
+
+
 def _apply_row(
     consumer: str,
     report_date: str | None,
@@ -812,6 +917,7 @@ def audit_consumer(
     weekly = _safe_load_json(paths["weekly"])
     interpret = _safe_load_json(paths["interpret"])
     review = _safe_load_json(paths["review"])
+    compose = _safe_load_json(paths["compose"])
     apply_doc = _safe_load_json(paths["apply"])
     published = _safe_load_json(paths["publish"])
 
@@ -830,6 +936,7 @@ def audit_consumer(
             _collection_row(consumer, report_date, weekly, paths["weekly"], module_id),
             _interpret_row(consumer, report_date, interpret, paths["interpret"], module_id),
             _review_row(consumer, report_date, review, paths["review"], module_id),
+            _compose_row(consumer, report_date, compose, paths["compose"], module_id),
             _apply_row(consumer, report_date, apply_doc, paths["apply"], module_id),
             _publish_row(consumer, report_date, published, paths["publish"], module_id, apply_blocked),
         ]
