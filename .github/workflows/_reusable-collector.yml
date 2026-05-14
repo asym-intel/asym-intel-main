@@ -1,0 +1,99 @@
+name: "_reusable-collector"
+# Reusable collector workflow — called by 8 per-monitor thin callers
+# (AGM, ERM, ESA, FCW, FIM, GMM, SCEM, WDM).
+#
+# Sprint-2 G-COLLECTOR-REUSABLE, authored 2026-05-14.
+# Authority: Fleet Architect operator-locked decision 2026-05-14.
+# Doctrine: F-D2 (bind-don't-fork) + role-as-canonical-template +
+# F-D6 (asymmetric onboarding — the canonical role is the contract
+# every consumer thin-calls).
+#
+# Divergences absorbed from per-monitor collectors:
+#   D-001 — Inconsistent GH_TOKEN env var (AGM/ERM/ESA/GMM had it,
+#            FCW/FIM/SCEM/WDM did not). Now uniform: all callers get it.
+#   D-002/D-003 — Copy-paste step label "Run FCW Collector" on AGM/ERM/ESA.
+#                 Absorbed into correct generic label.
+#   D-004 — FIM cosmetic name variant. Absorbed into unified name.
+#
+# References: PR #316 (G-NORMALISE-FORCE-TYPE), PR #318 (G-PUBLISHER-REUSABLE),
+# AD-2026-04-30-BF (naming convention).
+#
+# F-D6.1 boundary: this reusable is the orchestration shell (checkout,
+# python setup, collect.py invocation, commit/push retry loop).
+# The collect.py script it invokes carries monitor-shaped gather logic
+# and stays out of this canonical role.
+#
+# DO NOT add workflow_dispatch or workflow_run triggers here.
+# DO NOT hardcode any monitor slug. All monitor-specific values derive
+# from the caller's `with:` inputs.
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        description: 'Monitor slug (e.g. ai-governance, fimi-cognitive-warfare)'
+        type: string
+        required: true
+      slug_id:
+        description: 'SCREAMING_CAPS monitor ID (e.g. AGM, FCW, WDM)'
+        type: string
+        required: true
+      monitor_path:
+        description: 'Path fragment under pipeline/monitors/ (e.g. ai-governance)'
+        type: string
+        required: true
+      daily_path:
+        description: 'Full path to git-add for daily output (e.g. pipeline/monitors/ai-governance/daily/)'
+        type: string
+        required: true
+    secrets:
+      ASYM_INTEL_PIPELINE:
+        required: true
+      PPLX_API_KEY:
+        required: true
+
+jobs:
+  collect:
+    name: "${{ inputs.slug_id }} Tier 0 Collection"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write       # required to commit pipeline/ output back to repo
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run Collector
+        env:
+          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
+          GH_TOKEN:     ${{ secrets.ASYM_INTEL_PIPELINE }}
+        run: python pipeline/monitors/${{ inputs.monitor_path }}/collect.py
+
+      - name: Commit Collector output
+        env:
+          SLUG_ID:       ${{ inputs.slug_id }}
+          DAILY_PATH:    ${{ inputs.daily_path }}
+        run: |
+          SLUG_ID_LOWER="$(echo "${SLUG_ID}" | tr '[:upper:]' '[:lower:]')"
+          git config user.name  "${SLUG_ID} Collector Bot"
+          git config user.email "${SLUG_ID_LOWER}-collector@asym-intel.info"
+          git add "${DAILY_PATH}"
+          git diff --staged --quiet && echo "No new findings to commit" && exit 0
+          git commit -m "data(${SLUG_ID_LOWER}-collector): Tier 0 daily pre-verification — $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            git push && break
+            echo "Push attempt ${attempt}/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
