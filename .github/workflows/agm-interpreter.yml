@@ -14,9 +14,8 @@ on:
       force:
         description: 'Bypass E5 same-day guard. Requires force-reason, force-ad, force-operator.'
         required: false
-        default: 'false'
-        type: choice
-        options: ['false', 'true']
+        default: false
+        type: boolean
       force-reason:
         required: false
         default: ''
@@ -40,7 +39,7 @@ jobs:
       # resolves to claude-sonnet-4-5 (32768, streaming) via the central registry.
       model: ${{ inputs.model || '' }}
       weekly_file: ${{ inputs['weekly-file'] || '' }}
-      force: ${{ inputs.force || 'false' }}
+      force: ${{ inputs.force == true }}
       force_reason: ${{ inputs['force-reason'] || '' }}
       force_ad: ${{ inputs['force-ad'] || '' }}
       force_operator: ${{ inputs['force-operator'] || '' }}

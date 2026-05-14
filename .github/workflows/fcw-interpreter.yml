@@ -14,9 +14,8 @@ on:
       force:
         description: 'Bypass E5 same-day guard.'
         required: false
-        default: 'false'
-        type: choice
-        options: ['false', 'true']
+        default: false
+        type: boolean
       force-reason:
         required: false
         default: ''
@@ -38,7 +37,7 @@ jobs:
       # No default_model: routing owned by pipeline/engine/model_routing.yml.
       model: ${{ inputs.model || '' }}
       weekly_file: ${{ inputs['weekly-file'] || '' }}
-      force: ${{ inputs.force || 'false' }}
+      force: ${{ inputs.force == true }}
       force_reason: ${{ inputs['force-reason'] || '' }}
       force_ad: ${{ inputs['force-ad'] || '' }}
       force_operator: ${{ inputs['force-operator'] || '' }}
