@@ -7,9 +7,8 @@ on:
       force:
         description: 'Bypass curator same-day / re-emit guards. Requires force-reason, force-ad, force-operator.'
         required: false
-        default: 'false'
-        type: choice
-        options: ['false', 'true']
+        default: false
+        type: boolean
       force-reason:
         description: 'Justification (required when force=true). Logged to AD trail.'
         required: false
@@ -35,7 +34,7 @@ jobs:
       slug: ai-governance
       slug_abbr: agm
       applier_workflow_name: "AI Governance Monitor Applier"
-      force: ${{ inputs.force || 'false' }}
+      force: ${{ inputs.force }}
       force_reason: ${{ inputs['force-reason'] || '' }}
       force_ad: ${{ inputs['force-ad'] || '' }}
       force_operator: ${{ inputs['force-operator'] || '' }}
