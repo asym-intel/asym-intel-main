@@ -1,13 +1,16 @@
+# ============================================================
+# SUPERSEDED-BY: AD-2026-04-27-AT (Phase B reasoning cascade)
+# Archived: 2026-05-14 (HK session arti-hk-20260514-210238)
+# Reason: Phase B cascade (interpret_base → review_base → compose_base
+#         → apply_base → curator_base) replaced reasoner + synthesiser
+#         at runtime. All 8 canonical monitors on Phase B since 2026-04-27.
+# Replay: git checkout <pre-archive-SHA> -- <path>
+# Doctrine: ops/ARCHITECT-CLAUDE-DISCIPLINE.md §52 supersede-and-archive
+# Inbox: HK-2026-05-14-DELETE-LEGACY-REASONER-SYNTHESISER (closed by this PR)
+# ============================================================
 name: "World Democracy Monitor Synthesiser"
 
-on:
-  workflow_dispatch:
-    inputs:
-      model:
-        description: 'Override model (optional; blank = use metadata.yml default)'
-        required: false
-        default: ''
-
+on: {}   # SUPERSEDED — no triggers active. See header below.
 jobs:
   synthesise:
     runs-on: ubuntu-latest
