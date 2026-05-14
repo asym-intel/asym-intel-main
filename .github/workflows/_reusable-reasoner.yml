@@ -1,0 +1,172 @@
+name: "_reusable-reasoner"
+# Reusable reasoner workflow — called by 8 per-monitor thin callers
+# (AGM, ERM, ESA, FCW, FIM, GMM, SCEM, WDM).
+#
+# Sprint-2 G-REASONER-REUSABLE, authored 2026-05-14.
+# Authority: Fleet Architect operator-locked decision 2026-05-14.
+# Doctrine: F-D2 (bind-don't-fork) + role-as-canonical-template +
+# F-D6 (asymmetric onboarding — the canonical role is the contract
+# every consumer thin-calls).
+#
+# BX-3 leverage: reasoner-stage upstream-repair becomes a 1-file edit.
+# Precedent: #318 (_reusable-publisher.yml), #316 (G-NORMALISE-FORCE-TYPE).
+#
+# DO NOT add workflow_dispatch or workflow_run triggers here.
+# DO NOT hardcode any monitor slug. All slug-specific values derive
+# from `inputs.slug` via the slug_map step (parity with interpreter,
+# reviewer, composer, publisher reusables).
+#
+# F-D6.1 boundary: this reusable is the orchestration shell (slug_map,
+# dual-checkout, bespoke staging, engine dispatch, commit/push).
+# The reasoner_base module it invokes carries consumer-shaped reasoning
+# logic and stays out of this canonical role.
+#
+# Slug-map parity: keep in sync with _reusable-interpreter.yml,
+# _reusable-reviewer.yml, _reusable-composer.yml, _reusable-publisher.yml
+# per G-SLUG-MAP-PARITY (G-AUDIT-REPLAY D-052).
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        description: 'Monitor slug (e.g. ai-governance, macro-monitor, democratic-integrity)'
+        type: string
+        required: true
+      force:
+        description: 'AD-2026-04-24l governed re-run — skip freshness guards. Boolean per G-NORMALISE-FORCE-TYPE (PR #316).'
+        type: boolean
+        required: false
+        default: false
+      force_reason:
+        description: 'Required when force=true. 20-500 chars.'
+        type: string
+        required: false
+        default: ''
+    secrets:
+      ASYM_INTEL_PIPELINE:
+        # GH PAT: checkout (public + internal repos), identity card curl,
+        # git push. Reuses single secret surface — no new org secret required.
+        required: true
+      PPLX_API_KEY:
+        # Perplexity LLM key — passed to pipeline.engine.reasoner_base.
+        # No Anthropic secret required; PPLX is sole LLM provider fleet-wide.
+        required: true
+
+jobs:
+  reason:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          ref: main
+
+      - name: Derive slug-to-identity mapping
+        # Parity-locked with _reusable-interpreter.yml / _reusable-reviewer.yml
+        # / _reusable-composer.yml / _reusable-publisher.yml.
+        # Any change here MUST land synchronously in all five reusables.
+        id: slug_map
+        run: |
+          case "${{ inputs.slug }}" in
+            ai-governance)               SLUG_ID="AGM" ;;
+            environmental-risks)         SLUG_ID="ERM" ;;
+            european-strategic-autonomy) SLUG_ID="ESA" ;;
+            fimi-cognitive-warfare)      SLUG_ID="FCW" ;;
+            financial-integrity)         SLUG_ID="FIM" ;;
+            macro-monitor)               SLUG_ID="GMM" ;;
+            conflict-escalation)         SLUG_ID="SCEM" ;;
+            democratic-integrity)        SLUG_ID="WDM" ;;
+            *) echo "Unknown slug: ${{ inputs.slug }}"; exit 1 ;;
+          esac
+          SLUG_ID_LOWER="$(echo "${SLUG_ID}" | tr '[:upper:]' '[:lower:]')"
+          echo "slug_id=${SLUG_ID}" >> "$GITHUB_OUTPUT"
+          echo "slug_id_lower=${SLUG_ID_LOWER}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout internal repo (engine + bespoke config)
+        # Phase B Step 6 cutover — engine + bespoke config live in internal.
+        # Sparse-checkout includes engine, policy, and the per-monitor config dir.
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/policy
+            pipeline/monitors/${{ inputs.slug }}
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r internal/pipeline/engine/requirements.txt
+
+      - name: Fetch identity card from internal repo
+        env:
+          GH_TOKEN:  ${{ secrets.ASYM_INTEL_PIPELINE }}
+          SLUG_ID:   ${{ steps.slug_map.outputs.slug_id }}
+          SLUG_LOWER: ${{ steps.slug_map.outputs.slug_id_lower }}
+        run: |
+          mkdir -p docs/identity
+          curl -sf -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github.v3.raw" \
+            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-${SLUG_ID}.md" \
+            -o "docs/identity/${SLUG_LOWER}-identity.md" \
+            && echo "Identity card fetched ($(wc -c < "docs/identity/${SLUG_LOWER}-identity.md") bytes)" \
+            || echo "WARNING: Identity card not found — continuing without it"
+
+      - name: Stage bespoke config into expected paths
+        # The engine reads bespoke files via paths resolved relative to CWD
+        # (public-main root). Stage the internal checkout's bespoke files there.
+        # §15 IP boundary preserved — they are never committed back.
+        # reasoner-instructions.md is canonical name (6/8 monitors); missing
+        # files are handled gracefully via || true.
+        env:
+          MONITOR_SLUG: ${{ inputs.slug }}
+        run: |
+          mkdir -p "pipeline/monitors/${MONITOR_SLUG}"
+          cp -v "internal/pipeline/monitors/${MONITOR_SLUG}/metadata.yml"             "pipeline/monitors/${MONITOR_SLUG}/"
+          cp -v "internal/pipeline/monitors/${MONITOR_SLUG}/reasoner-prompt.txt"      "pipeline/monitors/${MONITOR_SLUG}/"
+          cp -v "internal/pipeline/monitors/${MONITOR_SLUG}/reasoner-instructions.md" "pipeline/monitors/${MONITOR_SLUG}/" || true
+          cp -v "internal/pipeline/monitors/${MONITOR_SLUG}/reasoner-schema.json"     "pipeline/monitors/${MONITOR_SLUG}/" || true
+
+      - name: Run Reasoner (engine dispatch)
+        env:
+          PPLX_API_KEY:  ${{ secrets.PPLX_API_KEY }}
+          GH_TOKEN:      ${{ secrets.ASYM_INTEL_PIPELINE }}
+          PYTHONPATH:    internal
+          MONITOR_SLUG:  ${{ inputs.slug }}
+          FORCE:         ${{ inputs.force }}
+          FORCE_REASON:  ${{ inputs.force_reason }}
+        run: |
+          set -euo pipefail
+          python -m pipeline.engine.reasoner_base --monitor "${MONITOR_SLUG}"
+
+      - name: Commit reasoner output
+        env:
+          MONITOR_SLUG:  ${{ inputs.slug }}
+          SLUG_ID:       ${{ steps.slug_map.outputs.slug_id }}
+          SLUG_ID_LOWER: ${{ steps.slug_map.outputs.slug_id_lower }}
+        run: |
+          git config user.name  "${SLUG_ID} Reasoner Bot"
+          git config user.email "${SLUG_ID_LOWER}-reasoner@asym-intel.info"
+          git add "pipeline/monitors/${MONITOR_SLUG}/reasoner/"
+          if git diff --staged --quiet; then
+            echo "No reasoner output to commit"
+            exit 0
+          fi
+          git commit -m "data(${SLUG_ID_LOWER}-reasoner): pattern reasoning — $(date -u +%Y-%m-%d)"
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            git push && break
+            echo "Push attempt ${attempt}/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done
