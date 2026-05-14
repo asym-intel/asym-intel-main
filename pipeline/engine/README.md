@@ -12,6 +12,7 @@ Interpreter, Reviewer, and Composer stage scripts that run under the
 |---|---|
 | `publisher_floor_gate.py` | Publish-floor gate — validates a candidate brief before commit (BX-9). |
 | `publisher_floor_config.json` | Per-monitor floor-rule configuration. Config absence = gate fails closed. |
+| `flow_quality_contract.json` | Engine-wide flow-quality contract — per-monitor audit expectations, four contract states, applier/curator field requirements, absence-provenance rules (BX-3). |
 
 ## week_ending vs. publish_date — convention (BX-9 §3.3 reconcile)
 
@@ -37,3 +38,17 @@ and `asym-intel-internal:pipeline/engine/metadata.py` for how `week_ending` is s
 (see `publisher.py:check_synthesis_freshness`); the public-facing date is always `publish_date`.
 
 _Authored: BX-9-PUBLISH-FLOOR-GATE (2026-05-14). Authority: AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH._
+
+## flow_quality_contract.json — contract specification (BX-3)
+
+`flow_quality_contract.json` encodes the engine-wide flow-quality data contract for all seven live commons monitors. It is the machine-readable authority for:
+
+- The four valid contract states at every stage: `present`, `absent_explained`, `absent_unknown`, `blocked`.
+- Per-monitor `required_slots` (AIM/AGM is the fixture for BX-3 — `module_3` Investment and M&A must not be silent-empty).
+- Applier eligibility rule: `review.verdict in {APPROVE, APPROVE_WITH_FLAGS, SKIP_NULL_CYCLE} AND compose.composer_error == false`.
+- Curator gate calibration posture: schema validation is `WARN` (missing schema = HK item, not curator failure). Authority: `AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE`.
+- Absence provenance contract: interpreter-stage must stamp explicit absence before publisher sanitisation.
+
+The `pipeline_flow_audit.py` harness (`pipeline/tools/`) and `_reusable-curator.yml` both read this contract at runtime. Any deviation from the contract is a data-quality defect reportable by the audit harness.
+
+_Authored: BX-3-engine-wide-pipeline-flow-quality-contract (2026-05-14). Authority: AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH._

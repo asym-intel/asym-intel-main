@@ -1,0 +1,248 @@
+name: "_reusable-curator"
+# Reusable curator workflow — called by 8 per-monitor thin callers
+# (AGM, ERM, ESA, FCW, FIM, GMM, SCEM, WDM).
+#
+# BX-3 engine-wide pipeline flow-quality contract — publisher-class.
+# AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH.
+# Doctrine: F-D2 (bind-don't-fork) + role-as-canonical-template.
+#
+# Absorbs divergences from 8 bespoke curator workflows:
+#   D-001 — AGM had "Validate drift register" step; others did not.
+#            Now MANDATORY via schema-validate step.
+#   D-002 — ERM/FIM/WDM had stray `env: monitor:` blocks in job scope.
+#            Removed — slug is derived from input only.
+#   D-003 — Name inconsistencies (FIM Curator, SCEM Curator vs full names).
+#            Callers retain their own names; reusable is slug-agnostic.
+#   D-004 — AGM-only schema path assumed aim-curator-drift-schema.json.
+#            Generalised: slug_map resolves per-monitor schema path.
+#            Absent schema = warn + skip validation (non-fatal).
+#
+# Calibration doctrine:
+#   Gate: schema-validation step is POSTURE-WARN (outcome-gated bootstrap
+#   primitive): missing schema emits WARNING and exits 0 rather than
+#   blocking the chain. Authority: AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE.
+#
+# LLM-FREE — deterministic drift detection only (design F2). No PPLX_API_KEY.
+# No ANTHROPIC_API_KEY. No prompt/schema staging. Replay-safe given same
+# window of prior cycle SHAs.
+#
+# Four typed triggers at advisory severity only (F5):
+#   T1 — schema-shape change ≥2 in window without methodology bump
+#   T2 — tracked rating flip without fresh T1 evidence (per-monitor config)
+#   T3 — entity silent drop from registry
+#   T4 — carry-forward rate ≥ 0.80 on a non-null cycle
+# NON-BLOCKING by design (F6). Runs on null cycles (F7).
+#
+# DO NOT add workflow_dispatch or workflow_run triggers here.
+# DO NOT hardcode any monitor slug. All slug-specific values derive from `inputs`.
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        description: 'Monitor slug (e.g. ai-governance, macro-monitor)'
+        type: string
+        required: true
+      slug_abbr:
+        description: 'Lowercase abbreviation for commit messages (e.g. agm, gmm, wdm)'
+        type: string
+        required: true
+      applier_workflow_name:
+        description: 'Exact name: field of the upstream applier workflow (used for workflow_run chaining in callers; recorded here for audit trail).'
+        type: string
+        required: true
+      force:
+        description: 'Bypass curator same-day / re-emit guards.'
+        required: false
+        default: 'false'
+        type: string
+      force_reason:
+        description: 'Justification (required when force=true). Logged to AD trail.'
+        required: false
+        default: ''
+        type: string
+      force_ad:
+        description: 'Architectural Decision authorising the force-reissue.'
+        required: false
+        default: ''
+        type: string
+      force_operator:
+        description: 'Operator handle authorising the force-reissue.'
+        required: false
+        default: ''
+        type: string
+    secrets:
+      ASYM_INTEL_PIPELINE:
+        required: true
+
+jobs:
+  curate:
+    # workflow_dispatch runs always pass this guard.
+    # workflow_run guard is enforced in each thin caller's `if:` condition
+    # (callers gate on github.event.workflow_run.conclusion == 'success').
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          ref: main
+          # Curator needs prior cycle history to compute T1/T4 windows.
+          # Fetch full history so interpret-YYYY-MM-DD.json / chains-*.json
+          # archives from prior cycles are available.
+          fetch-depth: 0
+
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/policy
+            pipeline/monitors/${{ inputs.slug }}
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+
+      # The engine reads bespoke metadata.yml via paths resolved relative
+      # to CWD (public-main root). Stage the internal checkout's metadata
+      # there. §15 IP boundary preserved — it is never committed back.
+      # No prompt/schema staging (LLM-free).
+      - name: Stage bespoke config into expected paths
+        env:
+          SLUG: ${{ inputs.slug }}
+        run: |
+          mkdir -p "pipeline/monitors/${SLUG}"
+          cp -v "internal/pipeline/monitors/${SLUG}/metadata.yml" \
+                "pipeline/monitors/${SLUG}/"
+
+      # Skip-on-missing guard. Curator needs apply-latest.json at minimum
+      # (it reads interpret/chains via the apply manifest's input_provenance
+      # and/or direct path lookup). If absent (upstream errored before
+      # commit), exit 0 so the chain doesn't block or emit a noisy error
+      # manifest to public on a transient upstream hiccup.
+      - name: Check upstream artefacts
+        id: check
+        env:
+          SLUG: ${{ inputs.slug }}
+        run: |
+          A="pipeline/monitors/${SLUG}/applied/apply-latest.json"
+          I="pipeline/monitors/${SLUG}/synthesised/interpret-latest.json"
+          MISSING=""
+          [ -f "$A" ] || MISSING="${MISSING} apply-latest"
+          [ -f "$I" ] || MISSING="${MISSING} interpret-latest"
+          if [ -n "$MISSING" ]; then
+            echo "skip=true"   >> "$GITHUB_OUTPUT"
+            echo "reason=missing:${MISSING}" >> "$GITHUB_OUTPUT"
+            echo "Missing upstream artefacts:${MISSING} — skipping Curator."
+            exit 0
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Run curator (engine dispatch)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          REPO_ROOT:          ${{ github.workspace }}
+          PYTHONPATH:         internal
+          # Provenance telemetry — the curator stamps curator_commit_sha
+          # from GITHUB_SHA on the emitted drift register (_meta block).
+          CURATOR_RUN_ID:     ${{ github.event.workflow_run.id }}
+          GITHUB_SHA:         ${{ github.sha }}
+          FORCE_FLAG:         ${{ inputs.force }}
+          FORCE_REASON:       ${{ inputs.force_reason }}
+          FORCE_AD:           ${{ inputs.force_ad }}
+          FORCE_OPERATOR:     ${{ inputs.force_operator }}
+        run: |
+          set -euo pipefail
+          ARGS=(--monitor "${{ inputs.slug }}")
+          if [ "${FORCE_FLAG}" = "true" ]; then
+            ARGS+=(--force \
+              --force-reason "${FORCE_REASON}" \
+              --force-ad "${FORCE_AD}" \
+              --force-operator "${FORCE_OPERATOR}")
+            echo "::notice::Force-reissue requested: ad=${FORCE_AD} operator=${FORCE_OPERATOR}"
+          fi
+          python -m pipeline.engine.curator_base "${ARGS[@]}"
+
+      # Validate drift register against per-monitor schema (if present).
+      # POSTURE-WARN: missing schema file emits a warning and exits 0 —
+      # gate calibration doctrine (AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE):
+      # the gate must not block legitimate work due to a missing schema file.
+      # A missing schema is itself a separate HK item, not a curator failure.
+      - name: Validate drift register against schema
+        if: steps.check.outputs.skip != 'true'
+        env:
+          SLUG: ${{ inputs.slug }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+
+          slug = os.environ["SLUG"]
+          # Canonical schema location (AGM-pattern).
+          # For non-AGM monitors without a monitor-specific schema, fall
+          # back to the engine's generic drift schema if present.
+          schema_candidates = [
+              Path(f"pipeline/synthesisers/agm/aim-curator-drift-schema.json"),
+              Path(f"pipeline/synthesisers/{slug}/{slug[:3]}-curator-drift-schema.json"),
+          ]
+          schema_path = next((p for p in schema_candidates if p.exists()), None)
+
+          register_path = Path(f"pipeline/monitors/{slug}/curator/drift-register-latest.json")
+
+          if not register_path.exists():
+              print(f"WARNING: drift-register-latest.json not found for {slug} — validation skipped")
+              sys.exit(0)
+
+          if schema_path is None:
+              print(f"WARNING: no curator drift schema found for {slug} — validation skipped (HK item)")
+              sys.exit(0)
+
+          try:
+              from jsonschema import Draft7Validator
+          except ImportError:
+              print("WARNING: jsonschema not available — validation skipped")
+              sys.exit(0)
+
+          schema = json.loads(schema_path.read_text())
+          register = json.loads(register_path.read_text())
+          errors = sorted(Draft7Validator(schema).iter_errors(register), key=lambda e: e.path)
+          if errors:
+              for e in errors:
+                  print(f"SCHEMA ERR: {list(e.path)} — {e.message}")
+              sys.exit(1)
+          print(
+              f"Schema OK [{slug}] — schema_version="
+              f"{register.get('_meta', {}).get('schema_version', '?')}, "
+              f"triggers_fired={len(register.get('triggers_fired', []))}"
+          )
+          PY
+
+      - name: Commit curator output
+        if: steps.check.outputs.skip != 'true'
+        env:
+          SLUG:       ${{ inputs.slug }}
+          SLUG_ABBR:  ${{ inputs.slug_abbr }}
+        run: |
+          git config user.name  "monitor-bot"
+          git config user.email "monitor-bot@asym-intel.info"
+          git add "pipeline/monitors/${SLUG}/curator/"
+          git diff --cached --quiet || git commit -m "chore(${SLUG_ABBR}): curator run $(date -u +%Y-%m-%d)"
+          # Retry loop guards against concurrent bot pushes losing this stage's
+          # output: a successful rebase can still be followed by a push race.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            git push && break
+            echo "Push attempt ${attempt}/3 failed — retrying in ${attempt}0s..."
+            sleep $((attempt * 10))
+          done

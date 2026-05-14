@@ -1,0 +1,89 @@
+{
+  "_comment": "Engine-wide pipeline flow-quality contract. BX-3 (AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH). Defines per-monitor audit expectations and the four contract states required at every stage: present | absent_explained | absent_unknown | blocked. Config absence = audit proceeds in monitor-only mode (warn-only, never fatal).",
+  "schema_version": "flow-quality-contract-v1.0",
+  "authored": "2026-05-14",
+  "authority": "AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH",
+  "brief": "BRIEF-BX-3-engine-wide-pipeline-flow-quality-contract",
+  "contract_states": ["present", "absent_explained", "absent_unknown", "blocked"],
+  "silent_empty_is_never_valid": true,
+  "monitors": {
+    "ai-governance": {
+      "abbr": "AIM",
+      "curator_schema": "pipeline/synthesisers/agm/aim-curator-drift-schema.json",
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": ["module_1", "module_2", "module_3", "module_4", "module_5", "module_6", "module_7", "module_8", "module_9", "module_10", "module_11", "module_12", "module_13", "module_14", "module_15", "module_16"],
+      "notes": "module_3 Investment and M&A is the known BX-3 fixture: must carry present, absent_explained, or absent_unknown — never silent-empty. module_2 models entries suspected classification drift source."
+    },
+    "macro-monitor": {
+      "abbr": "GMM",
+      "curator_schema": null,
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": [],
+      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+    },
+    "fimi-cognitive-warfare": {
+      "abbr": "FCW",
+      "curator_schema": null,
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": [],
+      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+    },
+    "european-strategic-autonomy": {
+      "abbr": "ESA",
+      "curator_schema": null,
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": [],
+      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+    },
+    "democratic-integrity": {
+      "abbr": "WDM",
+      "curator_schema": null,
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": [],
+      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+    },
+    "environmental-risks": {
+      "abbr": "ERM",
+      "curator_schema": null,
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": [],
+      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning. ERM emitting m00_* legacy keys — separate HK item."
+    },
+    "conflict-escalation": {
+      "abbr": "SCEM",
+      "curator_schema": null,
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": [],
+      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+    },
+    "financial-integrity": {
+      "abbr": "FIM",
+      "curator_schema": null,
+      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "required_slots": [],
+      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+    }
+  },
+  "applier_contract": {
+    "required_fields": ["cycle_id", "methodology_version", "week_ending", "inputs", "publication"],
+    "publication_eligibility_rule": "review.verdict in {APPROVE, APPROVE_WITH_FLAGS, SKIP_NULL_CYCLE} AND compose.composer_error == false",
+    "hold_must_block_publish": true
+  },
+  "curator_contract": {
+    "triggers": ["T1", "T2", "T3", "T4"],
+    "severity": "advisory",
+    "blocking": false,
+    "runs_on_null_cycles": true,
+    "schema_validation_posture": "WARN",
+    "schema_validation_note": "Missing curator drift schema is a separate HK item — does not block curator run. Gate calibration doctrine: AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE."
+  },
+  "absence_provenance_contract": {
+    "interpreter_must_stamp": true,
+    "placeholder_structures_not_meaningful": ["[{}]", "[]", "null", "\"null\"", ""],
+    "absence_states": {
+      "absent_explained": "No meaningful content; reason is known and machine-readable.",
+      "absent_unknown": "No meaningful content; reason is not known but uncertainty is explicit.",
+      "blocked": "Content or absence state exists; onward movement prohibited by a quality condition."
+    }
+  }
+}
