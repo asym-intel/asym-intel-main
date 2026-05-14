@@ -96,7 +96,11 @@
             "end"
           ]
         }
-      }
+      },
+      "required": [
+        "week_ending",
+        "cycle_disposition"
+      ]
     },
     "lead_signal": {
       "type": "object",
@@ -161,8 +165,7 @@
         },
         "body": {
           "type": "string"
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -191,8 +194,7 @@
           "items": {
             "type": "object"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -322,8 +324,7 @@
               }
             }
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -348,7 +349,7 @@
           "type": "array",
           "minItems": 6,
           "maxItems": 6,
-          "description": "Exactly six entries — one per primary tracked actor (RU, CN, IR, GULF, US, IL).",
+          "description": "Exactly six entries \u2014 one per primary tracked actor (RU, CN, IR, GULF, US, IL).",
           "items": {
             "type": "object",
             "properties": {
@@ -416,8 +417,7 @@
               }
             }
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -449,8 +449,7 @@
           "items": {
             "type": "object"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -476,8 +475,7 @@
           "items": {
             "type": "object"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -550,8 +548,7 @@
               }
             }
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -642,8 +639,7 @@
               }
             }
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -669,8 +665,7 @@
           "items": {
             "type": "object"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -714,8 +709,7 @@
         },
         "dsa_fimi_status": {
           "type": "string"
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -759,8 +753,7 @@
           "items": {
             "type": "object"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -786,8 +779,7 @@
           "items": {
             "type": "object"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -825,8 +817,7 @@
           "items": {
             "type": "string"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -886,8 +877,7 @@
           "items": {
             "type": "string"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -953,8 +943,7 @@
           "items": {
             "type": "string"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -992,8 +981,7 @@
           "items": {
             "type": "string"
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -1018,7 +1006,7 @@
       "type": "array",
       "minItems": 6,
       "maxItems": 6,
-      "description": "Exactly six entries — one per primary tracked actor (RU, CN, IR, GULF, US, IL).",
+      "description": "Exactly six entries \u2014 one per primary tracked actor (RU, CN, IR, GULF, US, IL).",
       "items": {
         "type": "object",
         "properties": {
@@ -1227,7 +1215,7 @@
     },
     "regulatory_framework": {
       "type": "object",
-      "description": "Structured regulatory pillars governing FIMI — EU DSA, EEAS RAS-FIMI, IRGC EU terrorist designation, NATO StratCom Centre of Excellence.",
+      "description": "Structured regulatory pillars governing FIMI \u2014 EU DSA, EEAS RAS-FIMI, IRGC EU terrorist designation, NATO StratCom Centre of Excellence.",
       "required": [
         "eu_dsa",
         "eeas_ras_fimi",
@@ -1244,7 +1232,7 @@
     },
     "platform_transparency_2026": {
       "type": "object",
-      "description": "Per-platform transparency posture — DSA fines, CIB cadence, transparency-gap notes. Suffix _2026 retained to match persistent-state key for deterministic proposed_patches target_kb_path.",
+      "description": "Per-platform transparency posture \u2014 DSA fines, CIB cadence, transparency-gap notes. Suffix _2026 retained to match persistent-state key for deterministic proposed_patches target_kb_path.",
       "required": [
         "x_twitter",
         "meta",
@@ -1263,7 +1251,7 @@
     },
     "infrastructure_registry": {
       "type": "object",
-      "description": "Named FIMI infrastructure entities — state contractors, hosting providers, attribution-relevant operators.",
+      "description": "Named FIMI infrastructure entities \u2014 state contractors, hosting providers, attribution-relevant operators.",
       "required": [
         "entries"
       ],
@@ -1547,7 +1535,8 @@
           "evidence_ids",
           "confidence",
           "material_change_justification",
-          "target_kb_path"
+          "target_kb_path",
+          "new_value"
         ],
         "properties": {
           "rule_applied": {
