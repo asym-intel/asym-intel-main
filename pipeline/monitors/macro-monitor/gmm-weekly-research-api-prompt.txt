@@ -10,10 +10,18 @@ Tier 1 (central banks + multilateral institutions):
   - IMF: https://www.imf.org/en/News
   - WTO: https://www.wto.org/english/news_e/
   - USTR: https://ustr.gov/
+  - IIF (Institute of International Finance): iif.com — capital flow reports, EM debt tracker, Global Debt Monitor
+  - BIS (Bank for International Settlements): bis.org — quarterly review, research papers, FX and OTC derivatives data, CGFS reports
+  - FSB (Financial Stability Board): fsb.org — systemic risk monitoring, NBFI progress reports, crypto-asset monitoring
+  - Fed SLOOS (Senior Loan Officer Opinion Survey): federalreserve.gov/releases/sloos/ — quarterly lending standards; check for new release
 
 Tier 2 (research institutions + policy):
   - Peterson Institute PIIE: https://www.piie.com/
   - World Bank: https://www.worldbank.org/en/news
+  - BofA Global Fund Manager Survey: bofa.com/en-us/content/research — updated monthly (mid-month); when available, note cross-asset positioning changes and cash level shifts
+  - Goldman Sachs Research (public summaries): goldmansachs.com/insights — top macro calls and scenario framing
+  - Macquarie Research (non-consensus calls): where publicly accessible — track divergence from consensus
+  Note: IB research is for positioning and sentiment signal (MATT framework), not for primary indicator data. Flag IB views where they diverge materially from GMM's own indicator assessment.
 
 Tier 3 (financial press):
   - Reuters financial: https://www.reuters.com/business/finance/
@@ -66,6 +74,18 @@ sophisticated analyst would flag as significant?" Return findings as open_findin
 with no schema constraint beyond the fields shown. Minimum 1 entry, no maximum.
 This is not a catch-all for things that didn't fit above — it is a deliberate
 breadth pass to surface novel signals the structured schema may not have anticipated.
+
+SCENARIO MAINTENANCE (REQUIRED — update probability weights when material evidence warrants):
+The GMM maintains three scenarios with explicit probability weights. Check each scenario against this week's evidence and update if a material development shifts relative likelihood. Document any probability change with a rationale.
+
+Current scenario framework:
+- Base Case — Slow Burn: Grinding deterioration; no clean cascade trigger
+- De-escalation: Hormuz de-escalation + tariff retreat + AI productivity materialising; bull case
+- Fast Cascade: Hormuz closure 30+ days OR private credit redemption gate event → NBFI cascade
+
+Return in regime_assessment.scenario_probabilities:
+{ "base_slow_burn_pct": <int>, "de_escalation_pct": <int>, "fast_cascade_pct": <int>, "probability_change_this_week": "<null or rationale for any change>" }
+Probabilities must sum to 100.
 
 OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Begin your response with { and end with }.
 
@@ -131,7 +151,13 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
   "regime_assessment": {
     "current_regime": "<Stagflation|Deflationary|Inflationary|Transitional|Unclear>",
     "conviction": "<High|Medium|Low>",
-    "conviction_history_note": "<note on how this week's findings shift, confirm, or complicate prior regime conviction — reference prior week if relevant>"
+    "conviction_history_note": "<note on how this week's findings shift, confirm, or complicate prior regime conviction — reference prior week if relevant>",
+    "scenario_probabilities": {
+      "base_slow_burn_pct": "<int>",
+      "de_escalation_pct": "<int>",
+      "fast_cascade_pct": "<int>",
+      "probability_change_this_week": "<null or rationale for any change this week>"
+    }
   },
   "weekly_brief_narrative": "<400-600 word analytical narrative for the GMM Hugo weekly brief. Cover: (1) current macro regime and conviction level; (2) tariff shock cascade — escalation rung, retaliation dynamics, and market contagion; (3) asset class implications across all eight classes; (4) MATT divergences where market pricing does not match GMM analytical assessment; (5) what to watch in the coming 7 days. Analytical register: cold, structured, no advocacy. Do not begin with 'This week'.>",
   "cross_monitor_signals": {
