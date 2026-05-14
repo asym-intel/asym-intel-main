@@ -1,0 +1,11 @@
+{
+  "_comment": "Publish-floor gate configuration. BX-9-PUBLISH-FLOOR-GATE (AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH). Config absence = gate fails closed.",
+  "default_body_bytes_floor": 800,
+  "overrides": {
+    "_doc": "Per-monitor floor overrides. Must be explicit — absence fails closed at default 800. Each override requires a 'body_bytes_floor' (int, >=1) and a 'rationale' (str, mandatory).",
+    "_example": {
+      "body_bytes_floor": 400,
+      "rationale": "Short-form monitor with <=400 byte briefs by design"
+    }
+  }
+}

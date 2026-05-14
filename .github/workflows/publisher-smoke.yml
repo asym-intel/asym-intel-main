@@ -1,0 +1,98 @@
+name: publisher-smoke
+# End-to-end smoke test for the Publisher Bot + publish-floor gate.
+# Runs on pull_request (path-filtered to publisher/template/floor-gate files)
+# and on nightly cron.
+#
+# Sprint BX-9-PUBLISH-FLOOR-GATE (AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH).
+# Gate calibration: baseline-aware + outcome-gated bootstrap
+# (AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE).
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/publishers/publisher.py'
+      - 'pipeline/publishers/publisher_floor_gate.py'
+      - 'pipeline/engine/publisher_floor_gate.py'
+      - 'pipeline/engine/publisher_floor_config.json'
+      - 'tests/test_publisher_sentinels.py'
+      - 'tests/test_publisher_smoke_all_monitors.py'
+  schedule:
+    # Nightly 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Manual trigger reason'
+        type: string
+        required: false
+        default: 'manual'
+
+jobs:
+  publisher-smoke:
+    name: "Publisher Smoke (7-monitor + sentinel)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        id: checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python 3.12
+        id: setup_python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        id: install_deps
+        if: steps.checkout.outcome == 'success' && steps.setup_python.outcome == 'success'
+        run: |
+          pip install pytest --quiet
+
+      - name: Run sentinel regression tests
+        id: sentinel_tests
+        if: steps.install_deps.outcome == 'success'
+        run: |
+          pytest tests/test_publisher_sentinels.py -v \
+            --tb=short \
+            --no-header \
+            -q
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Run 7-monitor smoke tests
+        id: smoke_tests
+        if: steps.install_deps.outcome == 'success'
+        run: |
+          pytest tests/test_publisher_smoke_all_monitors.py -v \
+            --tb=short \
+            --no-header \
+            -s
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Run floor gate self-check
+        id: self_check
+        if: steps.install_deps.outcome == 'success'
+        run: |
+          python3 pipeline/engine/publisher_floor_gate.py --self-check
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Smoke summary
+        if: always()
+        run: |
+          echo "=== Publisher Smoke Summary ==="
+          echo "sentinel_tests: ${{ steps.sentinel_tests.outcome }}"
+          echo "smoke_tests:    ${{ steps.smoke_tests.outcome }}"
+          echo "self_check:     ${{ steps.self_check.outcome }}"
+          if [[ "${{ steps.sentinel_tests.outcome }}" != "success" || \
+                "${{ steps.smoke_tests.outcome }}" != "success" || \
+                "${{ steps.self_check.outcome }}" != "success" ]]; then
+            echo "SMOKE FAILED — see step logs above"
+            exit 1
+          fi
+          echo "All smoke checks passed."

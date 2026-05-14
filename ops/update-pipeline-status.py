@@ -31,6 +31,10 @@ schema v3.0 -> v4.0.
 Sprint BU BU.4 (AD-2026-05-02-BU): register Advennt as 9th monitor; add
 cross-repo workflow-run reads (repo field on MONITORS entry); add producer-poll
 failure-alert emission for cross-repo monitors; bump public schema v4.0 -> v4.1.
+
+Sprint BX BX.9 (AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH): add per-monitor
+latest_brief_quality block (body_bytes, sentinel_detected, floor pass/fail);
+bump public schema v4.1 -> v4.2.
 """
 
 import json
@@ -1525,6 +1529,89 @@ def _last_updated(monitor_status):
     return max(candidates)
 
 
+
+def _load_latest_brief_quality(repo_root, monitor_abbr):
+    """Load the most recent brief-quality metadata for a monitor.
+
+    Reads (in priority order):
+      1. pipeline/monitors/<slug>/applied/publish-blocked-<latest>.json — floor failed
+      2. pipeline/monitors/<slug>/applied/apply-debug-<latest>.json — floor passed (forensic only)
+
+    Returns a dict shaped per schema v4.2 `latest_brief_quality`, or None.
+
+    Sprint BX BX.9 — BX-9-PUBLISH-FLOOR-GATE.
+    """
+    from pathlib import Path as _Path
+    repo_root = _Path(repo_root)
+    abbr_to_slug = {
+        "WDM":     "democratic-integrity",
+        "GMM":     "macro-monitor",
+        "ESA":     "european-strategic-autonomy",
+        "FCW":     "fimi-cognitive-warfare",
+        "AIM":     "ai-governance",
+        "ERM":     "environmental-risks",
+        "SCEM":    "conflict-escalation",
+        "FIM":     "financial-integrity",
+        "ADVENNT": "advennt",
+    }
+    slug = abbr_to_slug.get(monitor_abbr)
+    if not slug:
+        return None
+
+    applied_dir = repo_root / f"pipeline/monitors/{slug}/applied"
+    if not applied_dir.exists():
+        return None
+
+    # Priority 1: publish-blocked (floor failed)
+    blocked_files = sorted(applied_dir.glob("publish-blocked-*.json"), reverse=True)
+    if blocked_files:
+        try:
+            rec = json.loads(blocked_files[0].read_text(encoding="utf-8"))
+            publish_date = rec.get("publish_date") or blocked_files[0].stem.replace("publish-blocked-", "")
+            ads = rec.get("apply_debug_summary") or {}
+            rule_failures = rec.get("rule_failures") or []
+            sentinel_detected = any("sentinel" in r for r in rule_failures)
+            sentinel_pattern = next(
+                (r.replace("sentinel_detected:", "") for r in rule_failures if "sentinel" in r),
+                None
+            )
+            return {
+                "publish_date": publish_date,
+                "body_bytes": ads.get("body_bytes"),
+                "patches_actually_applied": ads.get("patches_actually_applied", 0),
+                "citation_count": None,
+                "sentinel_detected": sentinel_detected,
+                "sentinel_pattern": sentinel_pattern,
+                "publish_floor_passed": False,
+                "floor_failure_reason": rec.get("floor_failure_reason"),
+            }
+        except (json.JSONDecodeError, OSError, KeyError):
+            pass
+
+    # Priority 2: apply-debug (floor passed — forensic metadata from normal cycle)
+    debug_files = sorted(applied_dir.glob("apply-debug-*.json"), reverse=True)
+    if debug_files:
+        try:
+            rec = json.loads(debug_files[0].read_text(encoding="utf-8"))
+            fname = debug_files[0].stem  # apply-debug-2026-05-14
+            publish_date = fname.replace("apply-debug-", "") if "apply-debug-" in fname else None
+            patches = rec.get("patches_actually_applied", [])
+            patches_count = len(patches) if isinstance(patches, list) else int(patches or 0)
+            return {
+                "publish_date": publish_date,
+                "body_bytes": None,
+                "patches_actually_applied": patches_count,
+                "citation_count": None,
+                "sentinel_detected": False,
+                "sentinel_pattern": None,
+                "publish_floor_passed": True,
+                "floor_failure_reason": None,
+            }
+        except (json.JSONDecodeError, OSError, KeyError):
+            pass
+
+    return None
+
 def derive_public_rollup(internal_status):
     """Map full-fidelity internal status → simplified public schema v4.0.
 
@@ -1532,9 +1619,9 @@ def derive_public_rollup(internal_status):
     with `accent`, `day`, `cron_time`, `stations` (all stations); plus `_meta`,
     `_verification`, `_incidents`, and (Sprint BH BH.2) `_trigger_health`.
 
-    Output shape (schema v4.1):
+    Output shape (schema v4.2):
         {
-          "schema_version": "4.1",
+          "schema_version": "4.2",  # BX.9
           "generated_at": "...Z",
           "engine": {"status": "green|amber|red", "last_updated": "...Z"},
           "monitors": [
@@ -1553,6 +1640,11 @@ def derive_public_rollup(internal_status):
     they will see a new entry with slug "ADVENNT". Consumers explicitly checking
     monitor count or hard-coding 8 monitors will need updating.
 
+    Schema v4.1 -> v4.2 (Sprint BX BX.9): per-monitor `latest_brief_quality` optional
+    object added. Consumers reading v4.1 shape continue to work (OPTIONAL field).
+    Consumers can branch on `schema_version == "4.2"` to access brief-quality data.
+    When `publish_floor_passed == false`, the admin panel renders a RED badge.
+
     The roll-up logic is the ONLY place these rules are encoded. The public
     HTML reads this JSON; it does not re-derive status. `_meta`,
     `_verification`, and `_incidents` remain internal-only by construction
@@ -1567,11 +1659,18 @@ def derive_public_rollup(internal_status):
     for abbr in MONITORS.keys():
         ms = internal_status.get(abbr) or {}
         status = _classify_monitor(ms, monitor_slug=abbr, now=now)
-        monitor_rollups.append({
+        _bq = _load_latest_brief_quality(
+            repo_root=Path(__file__).resolve().parent.parent,
+            monitor_abbr=abbr,
+        )
+        _monitor_entry = {
             "slug": abbr,
             "status": status,
             "last_updated": _last_updated(ms),
-        })
+        }
+        if _bq is not None:
+            _monitor_entry["latest_brief_quality"] = _bq
+        monitor_rollups.append(_monitor_entry)
 
     engine_status = _classify_engine(monitor_rollups)
     # Engine last_updated is the max of monitor last_updateds (or now if all null)
@@ -1579,7 +1678,7 @@ def derive_public_rollup(internal_status):
     engine_last_updated = max(monitor_lus) if monitor_lus else now.strftime("%Y-%m-%dT%H:%M:%SZ")
 
     out = {
-        "schema_version": "4.1",  # BU.4: bumped from 4.0 (ADVENNT as 9th monitor)
+        "schema_version": "4.2",  # BX.9: bumped from 4.1 (per-monitor latest_brief_quality)
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "engine": {
             "status": engine_status,

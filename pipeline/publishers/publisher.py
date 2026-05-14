@@ -60,6 +60,16 @@ except ImportError:
     def build_envelope(**kw): return {}
     def write_lineage_envelope(*a, **kw): pass
 
+# ── Publish-floor gate (BX-9-PUBLISH-FLOOR-GATE) ────────────────────────────
+try:
+    sys.path.insert(0, str(Path(os.environ.get("REPO_ROOT", ".")) / "pipeline" / "engine"))
+    from publisher_floor_gate import run_floor_gate, PublishFloorGateError
+    _FLOOR_GATE_AVAILABLE = True
+except ImportError:
+    _FLOOR_GATE_AVAILABLE = False
+    class PublishFloorGateError(RuntimeError): pass
+    def run_floor_gate(*a, **kw): return {"passed": True}
+
 
 # All monitors except the current one, for cross-monitor verification
 ALL_MONITORS = [
@@ -3117,7 +3127,47 @@ def main():
     if persistent:
         write_json(persistent_path, persistent)
     write_json(archive_path, archive)
-    write_text(brief_dir / f"{publish_date}-weekly-brief.md", hugo_brief)
+    # Publish-floor gate (BX-9-PUBLISH-FLOOR-GATE): validate brief before commit.
+    # Fires BEFORE the markdown-commit step. If the gate fires, it raises
+    # PublishFloorGateError, writes publish-blocked-<date>.json, and we abort.
+    # The report JSONs (report-latest.json etc.) are written above; only the
+    # Hugo brief is the public-reader surface that must pass the floor.
+    print("\n[floor-gate] Running publish-floor gate...")
+    _apply_debug_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/applied/apply-debug-{publish_date}.json"
+    if not _apply_debug_path.exists():
+        _apply_debug_path = REPO_ROOT / f"pipeline/monitors/{MONITOR_SLUG}/applied/apply-debug-latest.json"
+    if _FLOOR_GATE_AVAILABLE:
+        try:
+            # Write brief to a temp path for gate validation (it hasn't been written to disk yet)
+            import tempfile as _tempfile
+            with _tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as _tf:
+                _tf.write(hugo_brief)
+                _tf_path = Path(_tf.name)
+            try:
+                _floor_result = run_floor_gate(
+                    brief_md_path=_tf_path,
+                    apply_debug_path=_apply_debug_path,
+                    monitor_slug=MONITOR_SLUG,
+                    publish_date=publish_date,
+                    repo_root=REPO_ROOT,
+                )
+            finally:
+                _tf_path.unlink(missing_ok=True)
+        except PublishFloorGateError as _fge:
+            log_incident(
+                monitor=MONITOR_SLUG, stage="publisher",
+                incident_type="publish_floor_gate_block", severity="critical",
+                detail=str(_fge),
+            )
+            print(f"  ✗ PUBLISH FLOOR GATE BLOCKED commit for {MONITOR_SLUG} {publish_date}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print("  ⚠ publisher_floor_gate module unavailable — gate skipped (ImportError)")
+        log_incident(monitor=MONITOR_SLUG, stage="publisher",
+                     incident_type="floor_gate_skipped", severity="warning",
+                     detail="publisher_floor_gate import failed — gate not enforced")
+
+        write_text(brief_dir / f"{publish_date}-weekly-brief.md", hugo_brief)
     write_text(data_dir / "report-latest.md", report_md)
     write_json(docs_data_dir / f"report-{publish_date}.json", public_report)
     write_json(docs_data_dir / "report-latest.json", public_report)
