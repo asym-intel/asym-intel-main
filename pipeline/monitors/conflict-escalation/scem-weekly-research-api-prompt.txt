@@ -32,7 +32,17 @@ Return comprehensive updates across all theatres. At minimum, every active theat
 SIX INDICATORS (I1-I6) — apply to every finding:
 I1 Rhetoric Intensity — statements, declarations, threats, posturing
 I2 Military Posture — troop movements, operations, equipment transfers, territorial changes
-I3 Nuclear/Strategic — doctrine changes, strategic weapon deployments, nuclear signals
+I3 Nuclear/Strategic — doctrine changes, strategic weapon deployments, nuclear signals, AND treaty compliance status. Standing sources for I3 (check every week regardless of news volume):
+  - Arms Control Association: armscontrol.org — treaty status updates, compliance reports, arms control news
+  - SIPRI (Stockholm International Peace Research Institute): sipri.org — nuclear forces data, arms trade, disarmament tracking
+  - UN Office for Disarmament Affairs: un.org/disarmament — First Committee, NPT review process, CTBT status
+  - IAEA Board of Governors: iaea.org — safeguards reports, member state compliance
+  Standing treaty status checks (every cycle):
+    * New START successor — current status (no successor treaty in force as of 2026; note any negotiation developments)
+    * JCPOA (Iran nuclear deal) — current status and compliance
+    * INF successor frameworks — any new bilateral or multilateral developments
+    * TPNW (Treaty on the Prohibition of Nuclear Weapons) — ratification count and state party developments
+    * CTBT — ratification and monitoring status
 I4 Economic Warfare — sanctions, embargoes, resource coercion, financial pressure
 I5 Diplomatic Channels — negotiations, ceasefires, ambassador recalls/expulsions, multilateral engagement
 I6 Displacement Velocity — IDP/refugee flow changes, humanitarian corridor status, crisis deterioration
@@ -129,6 +139,15 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
       "sources": ["<source names used for this theatre assessment>"]
     }
   ],
+  "arms_control_tracker": {
+    "new_start_successor": "<current status — one sentence>",
+    "jcpoa": "<current status — one sentence>",
+    "inf_successor": "<current status or null>",
+    "tpnw": "<current status — ratification count if updated this week, else carry-forward note>",
+    "ctbt": "<current status — one sentence>",
+    "notable_developments_this_week": "<null or 1-2 sentence note on any material treaty development>",
+    "source_urls": ["<Arms Control Association or SIPRI URLs consulted>"]
+  },
   "displacement_watch": {
     "idmc_data_date": "<YYYY-MM-DD of most recent IDMC data consulted>",
     "theatres_with_velocity_changes": ["<theatres where I6 changed this week>"],
