@@ -1,4 +1,4 @@
-# FIMI & Cognitive Warfare Monitor — Issue 11
+# FIMI & Cognitive Warfare Monitor — Issue 12
 
 **W/E 14 May 2026** | Published 2026-05-14T09:00:00Z
 
@@ -51,9 +51,9 @@ A
 - **EU sanctions Russian FIMI infrastructure entities Euromore and Pravfond targeting EU legitimacy and Ukraine support** (european-strategic-autonomy) — Active — verified (adjacent Issue 13)
 - **Cross-actor AI-generated content amplification documented in Russian FIMI narrative** (ai-governance) — Active — verified (adjacent Issue 17)
 - **Vovan and Lexus prank-call operations target Greenland Foreign Minister in Arctic strategic competition context** (conflict-escalation) — Active — verified (adjacent Issue 14)
-- **Doppelganger explicitly targets EU member states with fake news sites and multi-platform amplification** (european-strategic-autonomy) — Active — NEW
-- **Doppelganger and Portal Kombat amplify pro-Russia, anti-Ukraine narratives across Western European audiences** (conflict-escalation) — Active — NEW
-- **Endless Mayfly/IUVM targets English-speaking Western audiences with Israel-Palestine narratives** (conflict-escalation) — Active — NEW
+- **Doppelganger explicitly targets EU member states with fake news sites and multi-platform amplification** (european-strategic-autonomy) — Active — verified (adjacent Issue 13)
+- **Doppelganger and Portal Kombat amplify pro-Russia, anti-Ukraine narratives across Western European audiences** (conflict-escalation) — Active — verified (adjacent Issue 14)
+- **Endless Mayfly/IUVM targets English-speaking Western audiences with Israel-Palestine narratives** (conflict-escalation) — Active — verified (adjacent Issue 14)
 
 ---
 
