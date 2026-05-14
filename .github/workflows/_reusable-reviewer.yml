@@ -119,6 +119,16 @@ jobs:
           cp -v "internal/pipeline/monitors/${SLUG}/metadata.yml"          "pipeline/monitors/${SLUG}/"
           cp -v "internal/pipeline/monitors/${SLUG}/reviewer-prompt.txt"   "pipeline/monitors/${SLUG}/"
           cp -v "internal/pipeline/monitors/${SLUG}/reviewer-schema.json"  "pipeline/monitors/${SLUG}/"
+          # Engine-v1.0 Jinja2 template path (PR #1046, AD-2026-05-14-BX-PGTR).
+          # Stage the shared engine .j2 template AND per-monitor config + output-schema
+          # block into the monitor dir so review_base.py's prompt_p.parent lookup
+          # of monitor-config.yml resolves correctly. Best-effort — `|| true` keeps
+          # the workflow green for monitors still on the legacy .txt path.
+          # Activation is per-monitor: flip metadata.yml::paths.reviewer_prompt to
+          # the .j2 filename in a follow-up sprint. Until then, .txt path is taken.
+          cp -v "internal/pipeline/engine/templates/reviewer-prompt.j2"     "pipeline/monitors/${SLUG}/" || true
+          cp -v "internal/pipeline/monitors/${SLUG}/monitor-config.yml"    "pipeline/monitors/${SLUG}/" || true
+          cp -v "internal/pipeline/monitors/${SLUG}/interpreter-output-schema.txt" "pipeline/monitors/${SLUG}/" || true
 
       - name: Check upstream interpret output
         id: check
