@@ -1,82 +1,30 @@
 name: WDM Reasoner — Deterioration Pattern Analysis
+# Thin-caller — delegates body to _reusable-reasoner.yml.
+# Sprint-2 G-REASONER-REUSABLE (PR #319). BX-3 prerequisite.
+# Precedent: #318 publisher pattern, #316 G-NORMALISE-FORCE-TYPE.
 
 on:
-  workflow_dispatch:        # allow manual trigger from Actions tab
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Re-run override (skip freshness guards)'
+        type: boolean
+        required: false
+        default: false
+      force_reason:
+        description: 'Required when force=true. 20-500 chars.'
+        type: string
+        required: false
+        default: ''
 
 jobs:
   reason:
     name: WDM Deterioration Pattern Reasoning
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout public repo (asym-intel-main)
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-
-      # ── Phase B Step 6 cutover — engine + bespoke config live in internal ──
-      - name: Checkout internal repo (engine + bespoke config)
-        uses: actions/checkout@v6
-        with:
-          repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
-          path: internal
-          sparse-checkout: |
-            pipeline/engine
-            pipeline/policy
-            pipeline/monitors/democratic-integrity
-          sparse-checkout-cone-mode: false
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install -r internal/pipeline/engine/requirements.txt
-
-      - name: Fetch identity card from internal repo
-        env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
-        run: |
-          mkdir -p docs/identity
-          curl -sf -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github.v3.raw" \
-            "https://api.github.com/repos/asym-intel/asym-intel-internal/contents/identities/IDENTITY-WDM.md" \
-            -o docs/identity/wdm-identity.md \
-            && echo "Identity card fetched ($(wc -c < docs/identity/wdm-identity.md) bytes)" \
-            || echo "WARNING: Identity card not found — continuing without it"
-
-      # The engine reads bespoke files via paths resolved relative to CWD
-      # (public-main root). Stage the internal checkout's bespoke files there.
-      # §15 IP boundary preserved — they are never committed back.
-      - name: Stage bespoke config into expected paths
-        run: |
-          mkdir -p pipeline/monitors/democratic-integrity
-          cp -v internal/pipeline/monitors/democratic-integrity/metadata.yml             pipeline/monitors/democratic-integrity/
-          cp -v internal/pipeline/monitors/democratic-integrity/reasoner-prompt.txt      pipeline/monitors/democratic-integrity/
-          cp -v internal/pipeline/monitors/democratic-integrity/reasoner-instructions.md pipeline/monitors/democratic-integrity/ || true
-          cp -v internal/pipeline/monitors/democratic-integrity/reasoner-schema.json     pipeline/monitors/democratic-integrity/ || true
-
-      - name: Run WDM Reasoner (engine dispatch)
-        env:
-          PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
-          GH_TOKEN:     ${{ secrets.ASYM_INTEL_PIPELINE }}
-          PYTHONPATH:   internal
-        run: python -m pipeline.engine.reasoner_base --monitor democratic-integrity
-
-      - name: Commit reasoner output
-        run: |
-          git config user.name  "WDM Reasoner Bot"
-          git config user.email "wdm-reasoner@asym-intel.info"
-          git add pipeline/monitors/democratic-integrity/reasoner/
-          git diff --staged --quiet && echo "No reasoner output to commit" && exit 0
-          git commit -m "data(wdm-reasoner): deterioration pattern analysis — $(date -u +%Y-%m-%d)"
-          for attempt in 1 2 3; do
-            git pull --rebase --autostash origin main
-            git push && break
-            echo "Push attempt $attempt/3 failed — retrying in ${attempt}0s..."
-            sleep $((attempt * 10))
-          done
+    uses: ./.github/workflows/_reusable-reasoner.yml
+    with:
+      slug: democratic-integrity
+      force: ${{ inputs.force || false }}
+      force_reason: ${{ inputs.force_reason || '' }}
+    secrets:
+      ASYM_INTEL_PIPELINE: ${{ secrets.ASYM_INTEL_PIPELINE }}
+      PPLX_API_KEY: ${{ secrets.PPLX_API_KEY }}
