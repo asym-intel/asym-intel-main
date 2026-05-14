@@ -67,6 +67,19 @@ ANALYTICAL CALIBRATION — CRITICAL:
 5. Agentic AI risk: distinguish capability demonstrations (lab-controlled) from deployed-system incidents (real-world). Code accordingly.
 6. Multi-source requirement: Confirmed = 2+ independent Tier 1/2 sources. High = Tier 1 + corroboration. Assessed = credible Tier 2/3, not independently confirmed. Possible = single source.
 
+PERSONNEL WATCH (REQUIRED — standing weekly):
+Track significant personnel movements, appointments, departures, and leadership changes in organisations that shape AI governance, safety, and capability policy, capability, or governance. This is a standing sweep — check named sources every week regardless of news volume. Return findings in the personnel_watch[] array in the output schema.
+
+Minimum: check all named sources below and return at least a "no significant changes" null entry if nothing material found. Do not omit.
+
+Named sources (check every week):
+- UK AI Safety Institute pipeline: gov.uk/government/organisations/ai-safety-institute — staff appointments, new hires, advisory board changes
+- EU AI Office staff: digital-strategy.ec.europa.eu/en/policies/ai-office — director appointments, working group chairs
+- US AISI (NIST): nist.gov/artificial-intelligence — staff appointments, advisory committee changes
+- OpenAI, Anthropic, DeepMind, Meta AI leadership: CEO/CTO/CSO/VP Safety departures and arrivals
+- Major national AI councils and advisory bodies: DSIT (UK), OSTP (US), EU Advisory Body on AI
+- Track: departures from safety-focused roles, movement between government and lab positions (revolving door signals)
+
 OPEN-ENDED COLLECTION (REQUIRED): After completing all structured sections above,
 run one additional broad search: "what else happened this week in AI governance, AI safety, or frontier model development that a
 sophisticated analyst would flag as significant?" Return findings as open_findings[]
@@ -201,6 +214,17 @@ OUTPUT FORMAT: Return ONLY valid JSON. No markdown, no prose, no code fences. Be
     "erm": "<AI energy consumption, data centre environmental footprint, or climate-AI nexus, or null>"
   },
   "weekly_brief_narrative": "<400-600 word analytical narrative for the AIM Hugo weekly brief. Cover: (1) lead AI governance or capability development and why it is the week's dominant signal; (2) trajectory summary across key indicators — frontier capability movements, regulatory milestones, safety incidents, geopolitical positioning; (3) regulatory framework status highlights — EU AI Act, US EO, UK, China; (4) what to watch in the coming 7 days — specific triggers, deadlines, or thresholds to monitor. Analytical register: cold, structured, no advocacy. Do not begin with 'This week'.>",
+  "personnel_watch": [
+    {
+      "organisation": "<institution or company>",
+      "person": "<name or 'No significant changes this week'>",
+      "role_from": "<prior role or null>",
+      "role_to": "<new role or 'n/a — no change'>",
+      "significance": "<why this matters for AI governance or null>",
+      "source_url": "<direct URL or null>",
+      "null_entry": "<true if no significant changes found at this organisation>"
+    }
+  ],
   "research_coverage": {
     "sources_searched": ["<list all sources checked this week>"],
     "indicators_with_findings": ["<I1 through I12 — list indicators for which qualifying material was found>"],
