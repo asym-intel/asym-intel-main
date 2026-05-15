@@ -71,6 +71,13 @@ daily_latest      = load_json(MONITOR_DIR / "daily"  / "daily-latest.json")
 weekly_latest     = load_json(MONITOR_DIR / "weekly" / "weekly-latest.json")
 reasoner_latest   = load_json(MONITOR_DIR / "reasoner" / "reasoner-latest.json")
 prompt_text       = load_text(PROMPT_FILE)
+from pipeline.engine.prompt_state_injection import render_stored_state_inventory
+stored_state_inventory = render_stored_state_inventory(
+    abbr="esa",
+    monitor_slug="european-strategic-autonomy",
+    persistent_state_path=REPO_ROOT / "docs" / "monitors" / "european-strategic-autonomy" / "data" / "persistent-state.json",
+    arrays_schema_path=pathlib.Path(__file__).with_name("persistent-state-schema.json"),
+)
 methodology       = load_text(METHODOLOGY)
 identity          = load_text(IDENTITY)
 addendum          = load_text(ADDENDUM)
@@ -87,7 +94,7 @@ system_msg = (
 )
 
 parts = [
-    "## SYNTHESIS PROMPT\n\n" + prompt_text,
+    stored_state_inventory + "\n\n## SYNTHESIS PROMPT\n\n" + prompt_text,
     "## IDENTITY CARD (analytical quality standard)\n\n" + identity[:6000],
     "## METHODOLOGY\n\n" + methodology[:8000],
 ]
