@@ -60,13 +60,13 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_ENGINE_PUBLISHER }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
           path: internal
 
       - name: BOOTSTRAP-WARN if internal checkout failed
         if: steps.checkout-internal.outcome != 'success'
         run: |
-          echo "::warning title=BOOTSTRAP-WARN::Could not check out asym-intel-internal (ASYM_ENGINE_PUBLISHER secret unavailable, revoked, or asym-intel-main not in repo-access list). Gate emits WARN and exits 0. See BRIEF gate-cure-pr338 §4.1."
+          echo "::warning title=BOOTSTRAP-WARN::Could not check out asym-intel-internal (ASYM_INTEL_PIPELINE secret unavailable, revoked, or asym-intel-main not in repo-access list). Gate emits WARN and exits 0. See BRIEF gate-cure-pr338 §4.1."
           exit 0
 
       - name: Set up Python
