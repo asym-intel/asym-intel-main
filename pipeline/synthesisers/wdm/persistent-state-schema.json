@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WDM Persistent-State Schema (wdm-persistent-state-v1.0)",
+  "description": "Schema for the WDM (democratic-integrity) monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to. Mirrors the AGM reference impl shape (Sprint-5 Phase 2, BRIEF cf14eabd). The `_meta` block is strict; all other top-level module keys are permissive (`additionalProperties: true`). Sprint-5 Phase 3 adds the top-level `arrays` block declaring, for every persistent-state array WDM cares about, the merge `key_field` and `key_constraint` (pattern or enum). The engine reads these declarations to enforce additive merge semantics and raise `DisjointKeySchemeError` on key-scheme rotation (E10 cure).",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "enum": ["aim-persistent-state-v1.0", "2.0", 2.0],
+          "description": "Schema version of this file. Canonical value: `aim-persistent-state-v1.0`. Legacy bake value `2.0` (string or number) accepted during the AD-2026-04-26Y bake window."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change. ISO date (YYYY-MM-DD) or full ISO-8601 timestamp. Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "description": "Owning monitor slug. Value: 'democratic-integrity'."
+        }
+      }
+    }
+  },
+  "arrays": {
+    "heatmap_countries.rapid_decay": {
+      "key_field": "country",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Heatmap countries in rapid democratic decay (WDM's Living Knowledge primary surface). `country` is the free-form country name (e.g. 'United States', 'Georgia'). ISO-3166-1 alpha-2 normalisation deferred — current persistent-state uses full country names."
+    },
+    "heatmap_countries.recovery": {
+      "key_field": "country",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Heatmap countries showing democratic recovery trajectory. Same free-form `country` name key as rapid_decay."
+    },
+    "heatmap_countries.watchlist": {
+      "key_field": "country",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Heatmap countries on the watchlist (pre-threshold monitoring). Same free-form `country` name key."
+    },
+    "mimicry_chains": {
+      "key_field": "chain_id",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Documented influence/narrative-mimicry chains. `chain_id` is a free-form slug (e.g. 'russian-foreign-agent-chain'). Not enum-locked — new chains are discovered as events unfold."
+    },
+    "institutional_integrity_active_flags": {
+      "key_field": "country",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Active institutional-integrity signal flags (interpreter-schema declared array). `country` is the free-form country name. Multiple flags per country are possible; the engine merges by (country, indicator) in practice but `country` is the primary key discriminator declared here."
+    },
+    "calibration_log": {
+      "key_field": "date",
+      "key_constraint": {"pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+      "describe": "Append-only calibration log (one entry per material methodology change). `date` is ISO date or full ISO-8601 timestamp. Engine treats this array as additive-only by construction. Matches AGM calibration_log convention."
+    },
+    "gaps_register": {
+      "key_field": "gap_id",
+      "key_constraint": {"pattern": "^WDM-GAP-\\d{3}$"},
+      "describe": "Open-findings register. Pattern lock matches the WDM-GAP-NNN scheme in live persistent-state (WDM-GAP-001 through WDM-GAP-007). Prevents Interpreter from rotating to free-form gap_ids. Archived-only per routing.md Sprint AV BRIEF #2."
+    },
+    "module_2.election_cycle_events": {
+      "key_field": "country",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Election cycle events from the interpreter output (module_2). `country` is the free-form country name. Forward-declared here so the Phase 3 coverage gate exits clean for the interpreter-schema array."
+    },
+    "module_4.electoral_contexts": {
+      "key_field": "country",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-country electoral context entries (module_4 interpreter output). `country` is the free-form country name. Forward-declared so the Phase 3 coverage gate is satisfied."
+    },
+    "jurisdiction_risk_matrix": {
+      "key_field": "jurisdiction",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-jurisdiction democratic risk matrix (top-level interpreter-output array). `jurisdiction` is currently free-form (country names and regional groupings). Forward-declared here so the Phase 3 coverage gate exits clean."
+    },
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^wdm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$"},
+      "describe": "WDM key-judgments array (top-level interpreter output). Pattern lock against the wdm-int-{ISO-date}-{4-digit-sequence} scheme declared in the interpreter-schema. Prevents Interpreter from rotating id format mid-cycle."
+    }
+  }
+}
