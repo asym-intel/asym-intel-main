@@ -654,6 +654,13 @@ PUBLISHER_RULES = {
     "test_publisher_writes.py": {
         "allowed_substrings": set(),
     },
+    # Unit test for publisher.py envelope-2 path (envelope-2.1 sprint, PR #355).
+    # No archive interaction — exercises in-memory logic via tmp_path fixtures only.
+    # Self-trigger exemption per AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE primitive #4:
+    # PUB-003 was blocking the PR that introduces the cure for PUB-003's own complaint.
+    "test_publisher_envelope2.py": {
+        "allowed_substrings": set(),
+    },
 }
 
 _JS_PUBLISHERS_SKIPPED = {"generate-site.js", "generate-static.js"}
