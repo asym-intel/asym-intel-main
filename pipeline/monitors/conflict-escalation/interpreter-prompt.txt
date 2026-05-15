@@ -700,24 +700,24 @@ Populate `active_escalation_events` as a chronological log of significant escala
 
 For each new event identified in the weekly research bundle, append a new entry. Do not remove prior entries. When new events are appended, propose a patch:
 proposed_patches[].target_kb_path = "active_escalation_events"
-proposed_patches[].operation = "append"
-proposed_patches[].value = [<array of new entries only>]
+proposed_patches[].operation = "create"
+proposed_patches[].new_value = [<array of new entries only>]
 proposed_patches[].rationale = <one sentence>
 
 30. **Rule 30 — `f_flag_history`**
 
 Populate `f_flag_history` as a log of Fragility flags (F1-F4) applied to conflicts. This field is **additive** for new flags; existing entries may have their `status` updated. Each entry must include:
 - `flag` (string): exactly one of `"F1"`, `"F2"`, `"F3"`, `"F4"`
-- `conflict` (string): conflict identifier or name
+- `conflict` (string): conflict identifier or name matching stored `f_flag_history` entries where they exist (see STORED-STATE INVENTORY)
 - `indicator` (string): the triggering indicator — exactly one of `"I1"`, `"I2"`, `"I3"`, `"I4"`, `"I5"`, `"I6"`
 - `detail` (string): one sentence describing the specific triggering evidence
 - `applied` (string): ISO 8601 date when this flag was applied
 - `status` (string): exactly one of `"Active"`, `"Resolved"`
 
-Each cycle: append new flags applied this cycle. Update `status` to `"Resolved"` for flags where resolution evidence is present. When changes occur, propose a patch:
+Each cycle: append new flags applied this cycle (new entries). Update `status` to `"Resolved"` for flags where resolution evidence is present (matching on `flag` + `conflict` fields). When changes occur, propose a patch:
 proposed_patches[].target_kb_path = "f_flag_history"
-proposed_patches[].operation = "replace"
-proposed_patches[].value = <full updated list>
+proposed_patches[].operation = "update"
+proposed_patches[].new_value = <full updated list including new and modified entries>
 proposed_patches[].rationale = <one sentence>
 
 31. **Rule 31 — `mediation_deescalation_architecture`**
