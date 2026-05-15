@@ -107,14 +107,26 @@ def check_workflows(r: Results):
         content = wf_file.read_text()
 
         # Check: workflow references a Python script that exists
+        # Learn the local checkout names from the workflow's actions/checkout steps
+        # (sibling-repo / multi-checkout pattern). When a `path:` field is present on
+        # an actions/checkout step, paths starting with `<path>/` are CI-mount
+        # artefacts, not repo paths. Treat them analogously to `_internal/`.
+        checkout_paths = set(re.findall(
+            r'uses:\s*actions/checkout@v\d+\s*\n[^-]*?path:\s*([\w./-]+)',
+            content
+        ))
+
         py_matches = re.findall(r'python3?\s+([\w/.-]+\.py)', content)
         for script_path in py_matches:
-            # Scripts under _internal/ are checked out from asym-intel-internal at
-            # runtime (SPEC-§15 Stage 1(b) pattern) and are not present in this repo
-            # during preflight. Trust them — their existence is validated by the
-            # internal-checkout step of the workflow itself.
+            # _internal/ → legacy SPEC-§15 Stage 1(b) runtime-checkout pattern
             if script_path.startswith("_internal/"):
                 r.ok(f"WF-SCRIPT:{name}", f"{script_path} (runtime checkout from internal repo — skipped local check)")
+                continue
+            # Sibling-repo / multi-checkout pattern — match the leading dir against
+            # paths claimed by actions/checkout steps in this workflow.
+            leading = script_path.split("/", 1)[0]
+            if leading in checkout_paths:
+                r.ok(f"WF-SCRIPT:{name}", f"{script_path} (sibling-checkout under '{leading}/' — skipped local check)")
                 continue
             full_path = REPO_ROOT / script_path
             if not full_path.exists():
