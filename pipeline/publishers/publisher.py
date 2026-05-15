@@ -70,6 +70,23 @@ except ImportError:
     class PublishFloorGateError(RuntimeError): pass
     def run_floor_gate(*a, **kw): return {"passed": True}
 
+# ── Envelope-2 state_merge (AD-2026-05-15-STATE-COMPUTER §4 gate c) ──────────
+# merge_from_patches + apply_diff_manifest replace PERSISTENT_STATE_EXTRACTORS
+# as the live Applier path. Imported from pipeline/engine/state_merge.py (same
+# repo). Graceful fallback: _ENVELOPE2_AVAILABLE = False triggers legacy path.
+# envelope-2.1 (fleet-2026-05-15-78863913): gate (c) of AD-2026-05-15-STATE-COMPUTER §4.
+try:
+    from pipeline.engine.state_merge import apply_diff_manifest, merge_from_patches
+    _ENVELOPE2_AVAILABLE = True
+except ImportError:
+    _ENVELOPE2_AVAILABLE = False
+    def merge_from_patches(**kw):  # type: ignore[override]
+        raise RuntimeError("state_merge not available — envelope-2 import failed")
+    def apply_diff_manifest(*a, **kw):  # type: ignore[override]
+        raise RuntimeError("state_merge not available — envelope-2 import failed")
+
+
+
 
 # All monitors except the current one, for cross-monitor verification
 ALL_MONITORS = [
@@ -833,6 +850,15 @@ def merge_synthesis_into_report(synthesis: dict, prev_report: dict, config: dict
 # - _meta is always updated (handled outside this config)
 # - FCW campaigns are handled by dedicated logic (has_campaigns flag)
 
+# ── DEPRECATED — envelope-2.1 retire (AD-2026-05-15-STATE-COMPUTER §4 gate c) ─────
+# PERSISTENT_STATE_EXTRACTORS is retired by envelope-2.1 (fleet-2026-05-15-78863913).
+# merge_from_patches + apply_diff_manifest (pipeline/engine/state_merge.py, PR #1178
+# squash 5700666d) replace this legacy Sprint-5 extractor registry. This dict is kept
+# as dead code ONLY to prevent import errors during the transition window; it is not
+# read when _ENVELOPE2_AVAILABLE is True. Remove in post-gate-c clean-up sprint.
+# Cure evidence: gate (a) 3/3 shadow PASS (ESA+GMM+SCEM), gate (b) 3/3 reader-delta.
+# Gated on: envelope-2.1 PR — this file. DO NOT add new extractors here.
+# ────────────────────────────────────────────────────────────────────────────────────
 PERSISTENT_STATE_EXTRACTORS = {
     "democratic-integrity": [
         {"synthesis_key": "country_heatmap", "persistent_key": "heatmap_countries",
@@ -1717,44 +1743,86 @@ def update_persistent_state(persistent: dict, synthesis: dict, meta: dict, confi
                                 if "new_status" in change:
                                     camp["status"] = change["new_status"]
 
-    # Per-monitor extraction
-    extractors = PERSISTENT_STATE_EXTRACTORS.get(MONITOR_SLUG, [])
-    if extractors:
-        print(f"  Extracting persistent state ({len(extractors)} extractors)...")
-    for ext in extractors:
-        synth_key = ext["synthesis_key"]
-        persist_key = ext["persistent_key"]
-        mode = ext["mode"]
-        synth_val = synthesis.get(synth_key)
-
-        if synth_val is None:
-            continue  # Field not in this week's synthesis
-
-        if mode == "replace":
-            persistent[persist_key] = synth_val
-            print(f"    {persist_key}: replaced")
-
-        elif mode == "merge_list":
-            match_key = ext.get("match_key", "id")
-            existing = persistent.get(persist_key, [])
-            if isinstance(existing, list) and isinstance(synth_val, list):
-                _merge_list(existing, synth_val, match_key, publish_date)
-                persistent[persist_key] = existing
-
-        elif mode == "merge_dict":
-            existing = persistent.get(persist_key, {})
-            if isinstance(existing, dict) and isinstance(synth_val, dict):
-                existing.update(synth_val)
-                persistent[persist_key] = existing
-                print(f"    {persist_key}: merged")
-
-        elif mode == "custom":
-            handler_name = ext.get("handler", "")
-            handler = CUSTOM_HANDLERS.get(handler_name)
-            if handler:
-                handler(persistent, synth_val, publish_date)
-            else:
-                print(f"    ⚠ unknown handler: {handler_name}")
+    # ── Envelope-2 Applier path (AD-2026-05-15-STATE-COMPUTER §4 gate c) ──────────────
+    # Replaces PERSISTENT_STATE_EXTRACTORS (now retired — dead code above).
+    # merge_from_patches translates proposed_patches into an F.5 diff_manifest;
+    # apply_diff_manifest applies it to prior state (F.5 NEVER deletes).
+    # Gate (a) 3/3 shadow PASS (ESA+GMM+SCEM) + gate (b) 3/3 reader-delta GREEN.
+    # fleet-2026-05-15-78863913 (envelope-2.1).
+    if _ENVELOPE2_AVAILABLE:
+        _proposed_patches = (synthesis.get("proposed_patches") or [])
+        # Load per-monitor arrays_schema from synthesiser directory.
+        # Falls back to None — merge_from_patches handles None gracefully (log WARN).
+        _schema_path = (
+            REPO_ROOT / "pipeline" / "synthesisers" / MONITOR_SLUG / "persistent-state-schema.json"
+        )
+        _arrays_schema = None
+        if _schema_path.exists():
+            try:
+                import json as _json
+                with _schema_path.open() as _sf:
+                    _arrays_schema = _json.load(_sf)
+                print(f"  arrays_schema loaded from {_schema_path.name}")
+            except Exception as _se:
+                print(f"  ⚠ arrays_schema load failed ({_se}) — merge_from_patches will warn")
+        if _proposed_patches:
+            print(f"  Envelope-2: merge_from_patches ({len(_proposed_patches)} patches, slug={MONITOR_SLUG})")
+            try:
+                _run_id = f"publisher-{MONITOR_SLUG}-{publish_date}"
+                _envelope = merge_from_patches(
+                    prior_state=persistent,
+                    proposed_patches=_proposed_patches,
+                    arrays_schema=_arrays_schema,
+                    posture="periodic",
+                    consumer="commons",
+                    slug=MONITOR_SLUG,
+                    run_id=_run_id,
+                )
+                persistent = apply_diff_manifest(persistent, _envelope)
+                print(f"  ✓ Envelope-2: apply_diff_manifest complete (kind={_envelope.get('kind')})")
+            except Exception as _e2_err:
+                print(f"  ✗ Envelope-2: merge_from_patches/apply_diff_manifest failed: {_e2_err}")
+                print(f"  Envelope-2 fallback: using prior persistent state unchanged (no mutation)")
+                # Fail-safe: return persistent unchanged rather than corrupt state.
+        else:
+            print(f"  Envelope-2: no proposed_patches in synthesis — persistent state unchanged")
+    else:
+        # Fallback: PERSISTENT_STATE_EXTRACTORS legacy path (envelope-2 unavailable).
+        # This branch should not fire in production once pipeline/engine/state_merge.py
+        # is present in asym-intel-main (added by envelope-2.1 PR).
+        print(f"  ⚠ Envelope-2 unavailable — falling back to PERSISTENT_STATE_EXTRACTORS (legacy)")
+        extractors = PERSISTENT_STATE_EXTRACTORS.get(MONITOR_SLUG, [])
+        if extractors:
+            print(f"  Extracting persistent state ({len(extractors)} extractors)...")
+        for ext in extractors:
+            synth_key = ext["synthesis_key"]
+            persist_key = ext["persistent_key"]
+            mode = ext["mode"]
+            synth_val = synthesis.get(synth_key)
+            if synth_val is None:
+                continue
+            if mode == "replace":
+                persistent[persist_key] = synth_val
+                print(f"    {persist_key}: replaced")
+            elif mode == "merge_list":
+                match_key = ext.get("match_key", "id")
+                existing = persistent.get(persist_key, [])
+                if isinstance(existing, list) and isinstance(synth_val, list):
+                    _merge_list(existing, synth_val, match_key, publish_date)
+                    persistent[persist_key] = existing
+            elif mode == "merge_dict":
+                existing = persistent.get(persist_key, {})
+                if isinstance(existing, dict) and isinstance(synth_val, dict):
+                    existing.update(synth_val)
+                    persistent[persist_key] = existing
+                    print(f"    {persist_key}: merged")
+            elif mode == "custom":
+                handler_name = ext.get("handler", "")
+                handler = CUSTOM_HANDLERS.get(handler_name)
+                if handler:
+                    handler(persistent, synth_val, publish_date)
+                else:
+                    print(f"    ⚠ unknown handler: {handler_name}")
 
     return persistent
 
