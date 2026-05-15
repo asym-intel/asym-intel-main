@@ -1,0 +1,170 @@
+# Phase 6c — daily stagnation canary cron.
+#
+# Runs tools/check_additive_persistence.py from asym-intel-internal daily at
+# 12:00 UTC (after all monitor cycles complete for the day) + workflow_dispatch
+# for manual fire. Detects cycles where the additive-merge cure (E4+E5) has
+# not produced persistent-state growth — emits STAGNATION-EVENT records to
+# static/ops/pipeline-status.json::stagnation_events and commits updates back
+# to asym-intel-main.
+#
+# Authority: Sprint-4 BRIEF §4 Phase 6c, Observer-2 ADVISORY #5a/#5b,
+# AD-2026-05-15-SPRINT-4-ADDITIVE-MERGE-CURE,
+# AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE (outcome-gated bootstrap).
+#
+# Bootstrap primitive (AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE §5):
+#   - id:-tagged bootstrap steps (checkout-internal, setup-python, install-deps)
+#   - canary run gated on all bootstrap outcomes == 'success'
+#   - BOOTSTRAP-WARN emitted on any bootstrap failure; exits 0 so pipeline
+#     continues (environmental failure is not a canary decision)
+#
+# Permissions:
+#   contents: write  — for committing static/ops/pipeline-status.json updates
+#   (COMPUTER_SHIM_INTERNAL_READ secret provides read access to asym-intel-internal)
+
+name: Stagnation canary (daily)
+
+on:
+  schedule:
+    # 12:00 UTC daily — after all monitor cycles complete.
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Set to "true" to compute events without writing pipeline-status.json'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stagnation-canary
+  cancel-in-progress: false
+
+jobs:
+  stagnation-canary:
+    name: stagnation-canary
+    runs-on: ubuntu-latest
+    steps:
+      # ------------------------------------------------------------------ #
+      # BOOTSTRAP steps (outcome-gated — AD-2026-05-13-CI-GATE-CALIBRATION) #
+      # ------------------------------------------------------------------ #
+
+      - name: Checkout asym-intel-main
+        id: checkout-main
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          # GITHUB_TOKEN has contents:write on this repo — sufficient for
+          # reading apply-latest.json + pipeline-status.json + committing back.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # COMPUTER_SHIM_INTERNAL_READ is the fine-grained PAT with contents:read
+      # on asym-intel/asym-intel-internal. This is the same secret used by
+      # canonical-pipeline-deviation-gate.yml and other asym-intel-main
+      # workflows that need to read internal tooling at runtime.
+      # Pattern: CROSS_REPO_VERIFIER_PAT pattern from
+      # asym-intel-internal:.github/workflows/interpreter-sync-gate.yml.
+      - name: Checkout asym-intel-internal (read-only)
+        id: checkout-internal
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.COMPUTER_SHIM_INTERNAL_READ }}
+          path: _internal
+          fetch-depth: 1
+
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        id: install-deps
+        run: |
+          # check_additive_persistence.py uses only stdlib; no pip installs needed.
+          # This step is a no-op but is id-tagged so bootstrap outcome is captured.
+          python3 -c "import json, pathlib, logging, datetime; print('stdlib OK')"
+
+      # ------------------------------------------------------------------ #
+      # BOOTSTRAP health gate                                               #
+      # ------------------------------------------------------------------ #
+
+      - name: Bootstrap health check
+        id: bootstrap-health
+        run: |
+          set -euo pipefail
+          failures=()
+
+          if [ "${{ steps.checkout-main.outcome }}" != "success" ]; then
+            failures+=("checkout-main=${{ steps.checkout-main.outcome }}")
+          fi
+          if [ "${{ steps.checkout-internal.outcome }}" != "success" ]; then
+            failures+=("checkout-internal=${{ steps.checkout-internal.outcome }}")
+          fi
+          if [ "${{ steps.setup-python.outcome }}" != "success" ]; then
+            failures+=("setup-python=${{ steps.setup-python.outcome }}")
+          fi
+          if [ "${{ steps.install-deps.outcome }}" != "success" ]; then
+            failures+=("install-deps=${{ steps.install-deps.outcome }}")
+          fi
+
+          if [ "${#failures[@]}" -gt 0 ]; then
+            echo "BOOTSTRAP-WARN: bootstrap step(s) failed: ${failures[*]}" >&2
+            echo "bootstrap_ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "All bootstrap steps succeeded."
+            echo "bootstrap_ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ------------------------------------------------------------------ #
+      # CANARY RUN (gated on bootstrap_ok)                                 #
+      # ------------------------------------------------------------------ #
+
+      - name: Run stagnation canary
+        id: canary-run
+        if: steps.bootstrap-health.outputs.bootstrap_ok == 'true'
+        env:
+          MAIN_REPO_DIR: ${{ github.workspace }}
+          INTERNAL_REPO_DIR: ${{ github.workspace }}/_internal
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          set -euo pipefail
+          echo "Running check_additive_persistence.py"
+          echo "  MAIN_REPO_DIR=$MAIN_REPO_DIR"
+          echo "  INTERNAL_REPO_DIR=$INTERNAL_REPO_DIR"
+          echo "  DRY_RUN=$DRY_RUN"
+          python3 _internal/tools/check_additive_persistence.py
+          echo "canary_ran=true" >> "$GITHUB_OUTPUT"
+
+      - name: Emit BOOTSTRAP-WARN if bootstrap failed
+        if: steps.bootstrap-health.outputs.bootstrap_ok != 'true'
+        run: |
+          echo "BOOTSTRAP-WARN: stagnation canary skipped due to bootstrap failure." >&2
+          echo "Exiting 0 per AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE outcome-gated bootstrap."
+          # Exit 0 — environmental bootstrap failure is not a canary decision.
+
+      # ------------------------------------------------------------------ #
+      # COMMIT BACK (only if canary ran and not a dry-run)                 #
+      # ------------------------------------------------------------------ #
+
+      - name: Commit pipeline-status.json updates
+        if: |
+          steps.canary-run.outputs.canary_ran == 'true' &&
+          (github.event.inputs.dry_run || 'false') != 'true'
+        run: |
+          set -euo pipefail
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Only commit if pipeline-status.json was actually modified.
+          if git diff --quiet -- static/ops/pipeline-status.json; then
+            echo "No changes to static/ops/pipeline-status.json — nothing to commit."
+          else
+            git add static/ops/pipeline-status.json
+            git commit -m "chore(canary): stagnation canary update $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
+            git push
+            echo "Committed and pushed pipeline-status.json updates."
+          fi
