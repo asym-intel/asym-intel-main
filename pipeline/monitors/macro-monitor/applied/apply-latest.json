@@ -2,7 +2,7 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "macro-monitor",
-    "applied_at": "2026-05-15T12:29:52Z",
+    "applied_at": "2026-05-15T13:45:38Z",
     "applier_model": null,
     "applier_deterministic": true,
     "cycle_disposition": "material_change",
@@ -14,7 +14,15 @@
       "compose:gmm-compose-v1.0->aim-compose-v1.0"
     ],
     "applier_error": false,
-    "applier_error_reason": null
+    "applier_error_reason": null,
+    "force_reissue": {
+      "previous_artefact_sha": "ff5ce0d1754ff789268579505ee6042c6c5da0c3f4e1b767d96248d96a3c0bd8",
+      "previous_artefact_written_at": "2026-05-15T12:29:52Z",
+      "reason": "Sprint-5 Phase 4 post-merge smoke: verify arrays_schema_loaded:true in manifest after #1159 merge (84c27021)",
+      "ad_reference": "AD-2026-05-15-SPRINT-5-PHASE-4-ARRAYS-SCHEMA-WIRE",
+      "operator": "peterhowitt",
+      "forced_at": "2026-05-15T13:45:38.013688+00:00"
+    }
   },
   "cycle_id": "gmm-2026-05-15",
   "methodology_version": "macro-monitor-methodology-2026-Q2",
@@ -148,6 +156,7 @@
   "patches_actually_applied": [],
   "persistent_state_snapshot": null,
   "persistent_state_updated": false,
+  "arrays_schema_loaded": true,
   "publication": {
     "ready_to_publish": false,
     "hold_reason": "patch_apply_failed",
@@ -169,17 +178,17 @@
     "slug": "macro-monitor",
     "target_kb_path": "active_tactical_alerts",
     "stored_key_scheme_sample": [
-      "GMM-BASE-ATA-001",
-      "GMM-BASE-ATA-002",
-      "GMM-BASE-ATA-003"
+      "ALERT-001",
+      "ALERT-002",
+      "ALERT-003"
     ],
     "incoming_key_scheme_sample": [
-      "BOP Tariff Expiry Mid-July 2026",
-      "IMF Adverse Scenario Probability Rising",
-      "US Fiscal Dominance Risk"
+      "TA-001",
+      "TA-002",
+      "TA-003"
     ],
     "stored_count": 3,
     "incoming_count": 3,
-    "key_field": null
+    "key_field": "alert_id"
   }
 }
