@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FCW Persistent-State Schema (fcw-persistent-state-v1.0)",
+  "description": "Schema for the FIMI/Cognitive-Warfare monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to. The MVP shape is intentionally permissive on per-module structure (`additionalProperties: true` everywhere outside `_meta`); per-module strictness is the responsibility of MBC sweeps. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. Sprint-5 Phase 3 (BRIEF cf14eabd, E10 cure) adds a top-level `arrays` block declaring, for every persistent-state array FCW cares about, the merge `key_field` and a `key_constraint` (regex pattern OR string enum). The engine (`pipeline.engine.persistent_state.apply_patches_to_persistent_state`, amended in Phase 1) reads these declarations to enforce additive merge semantics and raise `DisjointKeySchemeError` on key-scheme rotation. Authority: BRIEF-SPRINT-5-PERSISTENT-STATE-KEY-LOCK §Phase 3; AGM precedent PR #338 (cb6fd959).",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "description": "Schema version of this file. Canonical value: `fcw-persistent-state-v1.0`."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change (ISO date YYYY-MM-DD or full ISO-8601 timestamp). Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "fimi-cognitive-warfare",
+          "description": "Owning monitor slug."
+        }
+      }
+    }
+  },
+  "arrays": {
+    "module_2.campaigns": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^[A-Z]+-[A-Z0-9]*-?\\d+$"},
+      "describe": "Active FIMI campaign entries in the interpreter output (module_2). `id` is the canonical campaign identifier following the actor-prefix scheme (e.g. `RU-001`, `CN-002`, `GULF-UAE-001`, `AI-NET-001`). Pattern-locked against the live scheme; enum lock is impractical given open-ended actor/numeric combinations."
+    },
+    "module_6.items": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Strategic intelligence items (module_6 — doctrine shifts, capability deployments, strategic patterns, narrative operations, epistemic attacks). `id` is the canonical item identifier. Free-form pattern — item ids are cycle-scoped and do not follow a fixed scheme in the interpreter-schema."
+    },
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^FCW-KJ-\\d+$"},
+      "describe": "FCW key-judgments array declared in the interpreter-schema. Pattern-locked against the FCW-KJ-NNN scheme to prevent the Interpreter from rotating to free-form judgment ids mid-cycle (E10 pathology)."
+    },
+    "infrastructure_registry.entries": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^INFRA-\\d{3}$"},
+      "describe": "Named FIMI infrastructure entity registry entries (state contractors, hosting providers, front organisations). `id` follows the INFRA-NNN scheme as established in live persistent-state (INFRA-001, INFRA-002...). Pattern-lock prevents identifier rotation at merge time."
+    },
+    "platform_enforcement_tracker": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^PET-\\d{3}$"},
+      "describe": "Platform enforcement action tracker — each entry records one CIB/takedown/DSA enforcement action. `id` follows the PET-NNN scheme as established in live persistent-state. Forward-declared here so engine merge semantics apply automatically once the Applier targets this key."
+    },
+    "calibration_log": {
+      "key_field": "date",
+      "key_constraint": {"pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+      "describe": "Append-only calibration log (one entry per material methodology change). `date` is ISO date or full ISO-8601 timestamp. The engine treats this array as additive-only by construction. BRIEF §3d required route."
+    },
+    "gaps_register": {
+      "key_field": "gap_id",
+      "key_constraint": {"pattern": "^GAP-\\d{3}$"},
+      "describe": "Open evidence-gap register (FCW). `gap_id` follows the GAP-NNN scheme as established in live persistent-state. Pattern-lock prevents the Interpreter from rotating to free-form gap ids (e.g. FCW-GAP-001, gap-001)."
+    }
+  }
+}
