@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ESA Persistent-State Schema (esa-persistent-state-v1.0)",
+  "description": "Schema for the European Strategic Autonomy monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to. The strict layer is the `_meta` block. Sprint-5 Phase 3 (BRIEF cf14eabd, E10 cure) adds a top-level `arrays` block declaring, for every persistent-state array ESA cares about, the merge `key_field` and a `key_constraint` (regex pattern OR string enum). Critical fix: `eu_legislation_tracker[].id` is pattern-locked to `^LEG-\\d{3}$` — this is the structural cure for E10 (LEG→EUL key-scheme rotation that caused DisjointKeySchemeError). The engine reads these declarations to enforce additive merge semantics and raise `DisjointKeySchemeError` on key-scheme rotation.",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "description": "Schema version of this file. Canonical value: `esa-persistent-state-v1.0`."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change. ISO date (YYYY-MM-DD) or full ISO-8601 timestamp. Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "european-strategic-autonomy",
+          "description": "Owning monitor slug."
+        }
+      }
+    }
+  },
+  "arrays": {
+    "eu_legislation_tracker": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^LEG-\\d{3}$"},
+      "describe": "EU legislative and regulatory instruments relevant to strategic autonomy. Pattern lock `^LEG-\\d{3}$` is the structural cure for E10: a prior interpreter output rotated the key scheme to `EUL-NNN`, triggering DisjointKeySchemeError. This lock enforces the LEG-NNN scheme and prevents future silent key-scheme rotation. New legislation entries must use LEG-NNN identifiers."
+    },
+    "state_capture_cases": {
+      "key_field": "country",
+      "key_constraint": {
+        "enum": [
+          "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI",
+          "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT",
+          "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+          "GB", "US", "UA", "GE", "MD", "RS", "ME", "MK", "AL", "BA",
+          "NO", "CH", "TR", "BY"
+        ]
+      },
+      "describe": "Per-country state-capture severity assessments. Enum-locked to ISO-3166-1 alpha-2. Covers EU27 member states plus UK (GB), US, Ukraine (UA), Georgia (GE), Moldova (MD), Western Balkans candidate states (RS, ME, MK, AL, BA), and key associated/neighbourhood countries (NO, CH, TR, BY). Prevents the Interpreter from free-texting country names (e.g. 'Hungary' vs 'HU') which would create disjoint entries."
+    },
+    "member_state_risk_matrix": {
+      "key_field": "country",
+      "key_constraint": {
+        "enum": [
+          "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI",
+          "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT",
+          "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+          "GB", "US", "UA", "GE", "MD", "RS", "ME", "MK", "AL", "BA",
+          "NO", "CH", "TR", "BY"
+        ]
+      },
+      "describe": "Per-member-state risk matrix covering foreign dependency, veto risk, and trajectory. Enum-locked to ISO-3166-1 alpha-2 (same set as state_capture_cases). Declared here for Phase 3 coverage-gate compliance — currently an interpreter output; engine merge semantics apply on promotion to persistent-state top-level."
+    },
+    "active_actor_campaigns": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^[A-Z]{2,3}-\\d{3}$"},
+      "describe": "Foreign-actor campaign entries nested under each actor key (RU, CN, US, IL, TR, GCC, etc.). Campaign `id` follows the `XX-NNN` scheme (e.g. RU-001, CN-001, IL-003) — pattern lock `^[A-Z]{2,3}-\\d{3}$` prevents scheme rotation to free-form names or alternative separators."
+    },
+    "module_13.items": {
+      "key_field": "country",
+      "key_constraint": {
+        "enum": [
+          "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI",
+          "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT",
+          "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+          "GB", "US", "UA", "GE", "MD", "RS", "ME", "MK", "AL", "BA",
+          "NO", "CH", "TR", "BY"
+        ]
+      },
+      "describe": "Module 13 (political economy / member state spotlight) items array. Each entry carries a `country` field — enum-locked to ISO-3166-1 alpha-2 (same set as state_capture_cases and member_state_risk_matrix) to enforce consistent country-key discipline across ESA structured outputs."
+    },
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "ESA key-judgments array from interpreter output. `id` is currently free-form (no pattern established in live state). Forward-declared here so the Phase 3 coverage gate exits clean. If/when a stable id scheme (e.g. ESA-KJ-NNN) is adopted, this constraint should be tightened in a follow-up schema bump."
+    },
+    "active_elections": {
+      "key_field": "country",
+      "key_constraint": {
+        "enum": [
+          "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI",
+          "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT",
+          "NL", "PL", "PT", "RO", "SE", "SI", "SK",
+          "GB", "US", "UA", "GE", "MD", "RS", "ME", "MK", "AL", "BA",
+          "NO", "CH", "TR", "BY"
+        ]
+      },
+      "describe": "Active election tracking entries keyed by country ISO-3166-1 alpha-2. Declared for ESA BRIEF §3b completeness — `active_elections` lives in persistent-state but is not a top-level interpreter-schema array; forward-declared to lock country-key scheme and prevent name drift (e.g. 'Hungary' vs 'HU')."
+    },
+    "calibration_log": {
+      "key_field": "date",
+      "key_constraint": {"pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+      "describe": "Append-only calibration log (one entry per material methodology change). `date` is ISO date or full ISO-8601 timestamp — the engine treats this array as additive-only by construction."
+    },
+    "gaps_register": {
+      "key_field": "gap_id",
+      "key_constraint": {"pattern": "^GAP-\\d{3}$"},
+      "describe": "Open-findings register for ESA. `gap_id` follows the GAP-NNN scheme (e.g. GAP-001, GAP-002). Pattern lock prevents free-form gap identifiers."
+    }
+  }
+}
