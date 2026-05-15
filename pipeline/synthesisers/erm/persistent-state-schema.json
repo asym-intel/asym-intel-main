@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ERM Persistent-State Schema (erm-persistent-state-v1.0)",
+  "description": "Schema for the ERM (Environmental Risks & Planetary Boundaries) monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to. The MVP shape is intentionally permissive on per-module structure (`additionalProperties: true` everywhere outside `_meta`); per-module strictness is the responsibility of future MBC sweeps. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. Sprint-5 Phase 3 (BRIEF cf14eabd §Phase 3) adds a top-level `arrays` block declaring, for every persistent-state array ERM cares about, the merge `key_field` and a `key_constraint` (regex pattern OR string enum). The engine reads these declarations to enforce additive merge semantics and raise `DisjointKeySchemeError` on key-scheme rotation (E10 cure).",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "description": "Schema version of this file. New canonical value: `erm-persistent-state-v1.0`. Legacy bake value `2.0` (string or number) accepted during the AD-2026-04-26Y bake window."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change. ISO date (YYYY-MM-DD) or full ISO-8601 timestamp. Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. Applier increments by 1 on cycles that land at least one patch when the current value is an integer."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "description": "Owning monitor slug — 'environmental-risks' for ERM."
+        }
+      }
+    }
+  },
+  "arrays": {
+    "policy_law_compliance": {
+      "key_field": "jurisdiction",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Environmental policy, law, and compliance tracker. `jurisdiction` is the governing jurisdiction name (EU, USA, UK, India, etc.). Free-form pattern — jurisdiction naming conventions are not stable enough to enum-lock; new jurisdictions enter without a schema bump."
+    },
+    "jurisdiction_risk_matrix": {
+      "key_field": "jurisdiction",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-jurisdiction environmental risk matrix (framework readiness, enforcement capacity, climate exposure, overall risk). `jurisdiction` is the jurisdiction name — free-form to accommodate all relevant state and non-state actors. Forward-declared as a persistent-state candidate; interpreter-schema coverage gate exits clean regardless of whether the array is actively persisted."
+    },
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^ERM-KJ-\\d+$"},
+      "describe": "ERM key-judgments array. `id` follows the ERM-KJ-NNN scheme (e.g. 'ERM-KJ-001'). Pattern lock prevents the LLM from rotating to free-form or cross-monitor identifier variants mid-cycle — mirrors the AGM-KJ-NNN precedent (cb6fd959)."
+    }
+  }
+}
