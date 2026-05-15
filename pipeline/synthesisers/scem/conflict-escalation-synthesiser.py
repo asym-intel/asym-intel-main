@@ -73,6 +73,15 @@ reasoner_latest   = load_json(MONITOR_DIR / "reasoner" / "reasoner-latest.json")
 DATA_DIR          = REPO_ROOT / "docs" / "monitors" / "conflict-escalation" / "data"
 persistent_state  = load_json(DATA_DIR / "persistent-state.json")
 prompt_text       = load_text(PROMPT_FILE)
+
+# ── Sprint-7 Phase 2c: Prompt-state injection (render STORED-STATE INVENTORY) ──
+from pipeline.engine.prompt_state_injection import render_stored_state_inventory  # noqa: E402
+stored_state_inventory = render_stored_state_inventory(
+    abbr="scem",
+    monitor_slug="conflict-escalation",
+    persistent_state_path=DATA_DIR / "persistent-state.json",
+    arrays_schema_path=pathlib.Path(__file__).with_name("persistent-state-schema.json"),
+)
 methodology       = load_text(METHODOLOGY)
 identity          = load_text(IDENTITY)
 addendum          = load_text(ADDENDUM)
@@ -97,7 +106,7 @@ if persistent_state.get("_meta"):
     ps_extract["_meta"] = persistent_state["_meta"]
 
 parts = [
-    "## SYNTHESIS PROMPT\n\n" + prompt_text,
+    stored_state_inventory + "\n\n## SYNTHESIS PROMPT\n\n" + prompt_text,
     "## IDENTITY CARD (analytical quality standard)\n\n" + identity[:6000],
     "## METHODOLOGY\n\n" + methodology[:8000],
 ]
