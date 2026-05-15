@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SCEM Persistent-State Schema (aim-persistent-state-v1.0)",
+  "description": "Schema for the SCEM (conflict-escalation) monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to (G1+G2, AD-2026-04-26Y). The MVP shape is intentionally permissive on per-module structure (`additionalProperties: true` everywhere outside `_meta`); per-module strictness is the responsibility of the MBC sweeps that own each module's contract. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. The Applier engine bumps `_meta.last_updated` and `_meta.last_issue` on any cycle that lands at least one patch (Q5 ratification 2026-04-26 — null cycles are no-ops). Sprint-5 Phase 3 (BRIEF cf14eabd, E10 cure) adds a top-level `arrays` block declaring, for every persistent-state array SCEM cares about, the merge `key_field` and a `key_constraint` (regex pattern OR string enum). The engine (`pipeline.engine.persistent_state.apply_patches_to_persistent_state`, amended in Phase 1) reads these declarations to enforce additive merge semantics and raise `DisjointKeySchemeError` on key-scheme rotation. The `missing new_value` defect observed across 3 patches in SCEM is addressed by locking key-scheme here so the Applier can validate incoming patch targets against known array paths.",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "enum": ["aim-persistent-state-v1.0", "2.0", 2.0],
+          "description": "Schema version of this file. New canonical value: `aim-persistent-state-v1.0`. Legacy bake value `2.0` (string or number) is accepted during the AD-2026-04-26Y bake window."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change. Either ISO date (YYYY-MM-DD) or full ISO-8601 timestamp. Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer; left untouched otherwise."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "description": "Owning monitor slug — 'conflict-escalation' for SCEM."
+        }
+      }
+    }
+  },
+  "arrays": {
+    "active_escalation_events": {
+      "key_field": "event_id",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Chronological log of significant escalation events (append-only). `event_id` is the unique event identifier. Free-form pattern — event IDs are synthesiser-stamped per cycle and not enum-lockable. Routed from applied per Sprint-5 BRIEF §3g."
+    },
+    "f_flag_history": {
+      "key_field": "flag",
+      "key_constraint": {
+        "enum": ["F1", "F2", "F3", "F4"]
+      },
+      "describe": "Log of F-flags (F1-F4) applied to conflicts. `flag` is the discriminating key — enum-locked to the four SCEM flag tiers (F1=nuclear threshold, F2=cross-domain escalation, F3=alliance fracture, F4=miscalculation risk). Enum-lock prevents the LLM from rotating flag labels. Routed from applied per Sprint-5 BRIEF §3g."
+    },
+    "conflict_roster": {
+      "key_field": "conflict_id",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Active and monitored conflicts register (required every cycle; carry-forward). `conflict_id` is the stable conflict identifier (e.g. 'RU-UA', 'IL-GAZA'). Free-form pattern — conflict IDs are operationally assigned; new theatres must not require a schema bump."
+    },
+    "actor_posture_scorecard": {
+      "key_field": "actor",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-actor deterrence posture scorecard. `actor` is the state or alliance name (e.g. 'Russia', 'NATO', 'China'). Free-form pattern — actor roster changes with alliance membership shifts; enum-locking would force a schema bump on every geopolitical event."
+    },
+    "theatre_risk_matrix": {
+      "key_field": "theatre",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-theatre escalation risk matrix. `theatre` is the geographical theatre name (e.g. 'Eastern Europe', 'Taiwan Strait', 'Korean Peninsula'). Free-form pattern — theatre definitions may be split or merged as conflicts evolve."
+    },
+    "mediation_deescalation_architecture": {
+      "key_field": "conflict_id",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-conflict-pair mediation and de-escalation mechanism assessments. `conflict_id` matches the conflict_roster key scheme — free-form pattern for same reason."
+    },
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^scem-[A-Za-z0-9_-]+-KJ-\\d+$"},
+      "describe": "SCEM key-judgments array. `id` is the stable judgment identifier. Pattern lock against the SCEM KJ identifier scheme (scem-<context>-KJ-NNN) per interpreter-schema `claim_id` family. Forward-declared to ensure interpreter-schema coverage gate exits clean."
+    },
+    "calibration_log": {
+      "key_field": "date",
+      "key_constraint": {"pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+      "describe": "Append-only calibration log (one entry per material methodology change). `date` is ISO date or full ISO-8601 timestamp — the engine treats this array as additive-only by construction."
+    },
+    "cross_monitor_flags.flags": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^cmf-\\d{3}$"},
+      "describe": "Cross-monitor flag identifiers. Pattern lock matches the cmf-NNN scheme in live state. The shared cross-monitor flag registry uses this id-shape contract — prevents the LLM from rotating to CMF-001 / cmf001 / flag-001 variants."
+    },
+    "gaps_register": {
+      "key_field": "gap_id",
+      "key_constraint": {"pattern": "^scem-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"},
+      "describe": "Open-findings register for SCEM. Pattern lock matches the scem-int-{date}-GNNN scheme declared in the interpreter-schema — prevents the Interpreter from rotating to free-form gap_ids."
+    }
+  }
+}
