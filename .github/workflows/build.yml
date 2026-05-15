@@ -146,17 +146,44 @@ jobs:
         # progress:false keeps every run alive for publisher signal). Only the
         # LAST commit's deploy job needs to actually push Pages; earlier queued
         # runs can exit 0 here, letting the latest commit win.
-        # Strategy: compare this run's github.sha against the current remote HEAD
-        # of main. If they differ, a newer commit has already landed; skip deploy.
+        #
+        # Self-trigger exemption (2026-05-15, Wave-6 fix per AD-2026-05-13-CI-
+        # GATE-CALIBRATION-DOCTRINE primitive #4): the build job itself commits
+        # to docs/ ("build: auto-rebuild [skip ci]") and the network job commits
+        # graph.json ("data(network): auto-update graph.json [skip ci]"). Those
+        # self-trigger commits move REMOTE_HEAD past github.sha but [skip ci]
+        # prevents them spawning a new run — so this very deploy job IS the one
+        # that should ship them. Naive HEAD-vs-github.sha comparison treated
+        # self-triggers as overtaking commits and skipped every deploy after the
+        # publisher started emitting brief.md every cycle (E8 cure exposed it).
+        # Cure: only skip if at least one intermediate commit is NOT a self-
+        # trigger artefact. Allow-list patterns kept conservative.
         run: |
           REMOTE_HEAD=$(gh api repos/asym-intel/asym-intel-main/git/ref/heads/main --jq '.object.sha')
           THIS_SHA="${{ github.sha }}"
-          if [ "$REMOTE_HEAD" != "$THIS_SHA" ]; then
-            echo "COALESCE-SKIP: remote HEAD is $REMOTE_HEAD, this run is $THIS_SHA — a newer commit will deploy. Exiting 0."
-            echo "coalesce_skipped=true" >> "$GITHUB_OUTPUT"
+          if [ "$REMOTE_HEAD" = "$THIS_SHA" ]; then
+            echo "coalesce_check=pass: this run ($THIS_SHA) is current HEAD. Proceeding to deploy."
             exit 0
           fi
-          echo "coalesce_check=pass: this run ($THIS_SHA) is current HEAD. Proceeding to deploy."
+          # HEAD has moved past this run — classify the intermediate commits.
+          MESSAGES=$(gh api "repos/asym-intel/asym-intel-main/compare/${THIS_SHA}...${REMOTE_HEAD}" --jq '.commits[].commit.message' | head -200)
+          if [ -z "$MESSAGES" ]; then
+            # API hiccup / SHA not in main yet — be safe and proceed (build_health will record).
+            echo "coalesce_check=pass: compare returned empty (likely API lag); proceeding to deploy."
+            exit 0
+          fi
+          # Self-trigger allow-list. Any commit NOT matching these patterns means
+          # a genuine newer push exists and should win the deploy.
+          OVERTAKING=$(echo "$MESSAGES" | grep -vE '^(build: auto-rebuild|data\(network\): auto-update graph\.json|ops: _build signal)' || true)
+          if [ -z "$OVERTAKING" ]; then
+            echo "coalesce_check=pass: HEAD moved by self-trigger artefacts only ([skip ci] auto-rebuilds / graph / build_health). This run owns the deploy."
+            echo "self_trigger_only=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "COALESCE-SKIP: remote HEAD is $REMOTE_HEAD, this run is $THIS_SHA — overtaking non-self-trigger commit detected:"
+          echo "$OVERTAKING" | head -5
+          echo "A newer commit will deploy. Exiting 0."
+          echo "coalesce_skipped=true" >> "$GITHUB_OUTPUT"
         id: coalesce
 
       - name: Deploy to GitHub Pages
