@@ -1,6 +1,6 @@
-# European Strategic Autonomy Monitor — Issue 15
+# European Strategic Autonomy Monitor — Issue 16
 
-**W/E 15 May 2026** | Published 2026-05-15T19:00:00Z
+**15 May 2026** | Published 2026-05-15T19:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -103,10 +103,10 @@ On the hybrid side, the European Union will need to show whether it can compensa
 - **Russian drone incursions into Polish and Danish airspace trigger NATO Article 4 consultations signaling proximity to collective defence threshold** (conflict-escalation) — Active — verified (adjacent Issue 14)
 - **SAFE 150 billion euro loan facility adopted by Council carries sovereign debt implications; crypto financing of Russian sabotage networks evading sanctions enforcement** (macro-monitor) — Active — verified (adjacent Issue 15)
 - **AI-generated content and deepfake videos documented in Russian FIMI campaigns; CADA delay affects AI sovereignty policy development** (ai-governance) — Active — verified (adjacent Issue 17)
-- **EEAS 4th FIMI Threat Report documents 540 incidents in 2025, 27 percent AI-enabled, with Russia pivoting infrastructure from Moldova to Armenia** (fimi-cognitive-warfare) — Active — NEW
-- **Eight EU member states face elections in 2026 with Russian FIMI infrastructure threat per EEAS assessment** (democratic-integrity) — Active — NEW
-- **EEAS confirms escalating and integrated Russian hybrid campaign encompassing cyber, sabotage, infrastructure disruption, and FIMI** (conflict-escalation) — Active — NEW
-- **27 percent of FIMI incidents in 2025 involved AI-generated content including synthetic audio and manipulated video** (ai-governance) — Active — NEW
+- **EEAS 4th FIMI Threat Report documents 540 incidents in 2025, 27 percent AI-enabled, with Russia pivoting infrastructure from Moldova to Armenia** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
+- **Eight EU member states face elections in 2026 with Russian FIMI infrastructure threat per EEAS assessment** (democratic-integrity) — Active — verified (adjacent Issue 16)
+- **EEAS confirms escalating and integrated Russian hybrid campaign encompassing cyber, sabotage, infrastructure disruption, and FIMI** (conflict-escalation) — Active — verified (adjacent Issue 14)
+- **27 percent of FIMI incidents in 2025 involved AI-generated content including synthetic audio and manipulated video** (ai-governance) — Active — verified (adjacent Issue 17)
 
 ---
 
