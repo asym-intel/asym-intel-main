@@ -3059,11 +3059,41 @@ def main():
 
     # Update persistent state
     print("\n[5/6] Updating persistent state + archive...")
-    # Snapshot persistent-state before overwrite (insurance against data loss)
-    if persistent and persistent_path.exists():
-        snapshot_path = data_dir / f"persistent-state-{publish_date}.json"
-        write_json(snapshot_path, persistent)
-    persistent = update_persistent_state(persistent, synthesis, meta, config)
+    # E5 (Sprint-4 BRIEF §4 Phase 5, Observer-2 BLOCKER #2 + AMBER #3 + AMBER #4).
+    # Publisher guard: if the Applier already wrote persistent-state.json this cycle
+    # (indicated by persistent_state_updated == True in apply-latest.json), skip
+    # update_persistent_state entirely and use the on-disk file as-is.
+    #
+    # CRITICAL — all extractor modes (Observer-2 AMBER #3): this guard MUST cover
+    # merge_list, custom, AND replace modes. SCEM (roster_watch: replace) and FIM
+    # (cross_monitor_flags: replace) are included. Guard sits ABOVE per-mode dispatch
+    # inside update_persistent_state — universal short-circuit.
+    #
+    # Idempotent on double-trigger (Observer-2 AMBER #4): ESA publisher fires on two
+    # triggers per cycle (workflow_run from curator + CF Worker workflow_dispatch at
+    # 09:30 WED). Both runs read the same apply-latest.json. This guard is READ-ONLY —
+    # it does NOT clear or mutate persistent_state_updated. Second run reads True again
+    # and skips again. No state mutation around this field.
+    _apply_latest_path = _eligibility.get("apply_path") if isinstance(_eligibility, dict) else None
+    _applier_wrote_state = False
+    if _apply_latest_path and Path(_apply_latest_path).exists():
+        try:
+            _apply_latest_data = load_json(Path(_apply_latest_path))
+            if isinstance(_apply_latest_data, dict):
+                _applier_wrote_state = _apply_latest_data.get("persistent_state_updated") is True
+        except Exception as _e5_err:
+            print(f"  ⚠ E5 guard: could not read apply-latest.json ({_e5_err}) — "
+                  "falling back to publisher update_persistent_state")
+    if _applier_wrote_state:
+        print("  ✓ E5 guard: Applier already wrote persistent-state.json this cycle "
+              "(persistent_state_updated=True) — skipping publisher update_persistent_state. "
+              "Using on-disk persistent-state.json as-is. [Observer-2 BLOCKER #2 cure]")
+    else:
+        # Snapshot persistent-state before overwrite (insurance against data loss)
+        if persistent and persistent_path.exists():
+            snapshot_path = data_dir / f"persistent-state-{publish_date}.json"
+            write_json(snapshot_path, persistent)
+        persistent = update_persistent_state(persistent, synthesis, meta, config)
     archive.append(build_archive_entry(meta, signal, synthesis))
 
     # AIM module_9: compose canonical eu_ai_act_layered wire shape from persistent-state
