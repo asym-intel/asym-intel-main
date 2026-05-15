@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Advennt Persistent-State Schema (advennt-persistent-state-v1.0)",
+  "description": "Schema for the Advennt monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to. Advennt is a consumer monitor (advennt.io) whose persistent-state shape differs from the commons monitors. The `_meta` block is strict; per-category structure is permissive (`additionalProperties: true`). Sprint-5 Phase 3i (BRIEF cf14eabd §Phase 3i) adds the top-level `arrays` block declaring key-shaped arrays from the interpreter-schema for additive merge enforcement. One array declared: `key_judgments` (keyed on `id`). Note: Advennt is flagged as deferrable scope per BRIEF §3i — this schema lands now for Sprint-5 close-out completeness.",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "enum": ["advennt-persistent-state-v1.0"],
+          "description": "Schema version of this file. Canonical value: `advennt-persistent-state-v1.0`."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change (ISO date YYYY-MM-DD or full ISO-8601 timestamp). Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "const": "advennt",
+          "description": "Owning monitor slug. Always `advennt` for this schema."
+        }
+      }
+    }
+  },
+  "arrays": {
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Advennt key-judgments array (interpreter-schema top-level). Keyed on `id` — free-form pattern since judgment IDs are not locked to a fixed scheme in the current interpreter-schema. Forward-declared here so the Phase 3 coverage gate exits clean; if/when promoted to a stable ID scheme (e.g. ADV-KJ-NNN), bump this to an enum-or-tighter-pattern."
+    }
+  }
+}
