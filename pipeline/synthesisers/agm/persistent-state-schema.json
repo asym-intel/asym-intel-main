@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "AIM Persistent-State Schema (aim-persistent-state-v1.0)",
-  "description": "Schema for the AGM monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to (G1+G2, AD-2026-04-26Y). The MVP shape is intentionally permissive on per-module structure (`additionalProperties: true` everywhere outside `_meta`); per-module strictness is the responsibility of the MBC sweeps that own each module's contract. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. The Applier engine bumps `_meta.last_updated` and `_meta.last_issue` on any cycle that lands at least one patch (Q5 ratification 2026-04-26 — null cycles are no-ops).",
+  "description": "Schema for the AGM monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to (G1+G2, AD-2026-04-26Y). The MVP shape is intentionally permissive on per-module structure (`additionalProperties: true` everywhere outside `_meta`); per-module strictness is the responsibility of the MBC sweeps that own each module's contract. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. The Applier engine bumps `_meta.last_updated` and `_meta.last_issue` on any cycle that lands at least one patch (Q5 ratification 2026-04-26 — null cycles are no-ops). Sprint-5 Phase 2 (BRIEF cf14eabd, E10 cure) adds a top-level `arrays` block declaring, for every persistent-state array AGM cares about, the merge `key_field` and a `key_constraint` (regex pattern OR string enum). The engine (`pipeline.engine.persistent_state.apply_patches_to_persistent_state`, amended in Phase 1) reads these declarations to enforce additive merge semantics and raise `DisjointKeySchemeError` on key-scheme rotation.",
   "type": "object",
   "required": ["_meta"],
   "additionalProperties": true,
@@ -29,6 +29,94 @@
           "description": "Owning monitor slug (e.g. 'ai-governance' for AGM)."
         }
       }
+    }
+  },
+  "arrays": {
+    "module_2.models": {
+      "key_field": "name",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-model AGM tracking entries (module_2). `name` is the canonical model identifier (e.g. 'GPT-5.1', 'Claude Opus 4.7'). Free-form pattern — lab naming conventions are not stable enough to enum-lock."
+    },
+    "module_7_risk_vectors": {
+      "key_field": "vector",
+      "key_constraint": {
+        "enum": [
+          "Governance Fragmentation",
+          "Cyber Escalation",
+          "Platform Power",
+          "Export Controls",
+          "Disinfo Velocity",
+          "Standards Vacuum",
+          "Regulatory Fragmentation",
+          "AI-Generated Harm",
+          "Compute Concentration",
+          "Safety Capability Gap",
+          "Talent Mobility",
+          "Model Theft & Espionage",
+          "Open-Weight Diffusion",
+          "Agentic Autonomy",
+          "AI-Misuse Crime",
+          "Critical-Infrastructure Coupling",
+          "Geopolitical Decoupling",
+          "Alignment Failure"
+        ]
+      },
+      "describe": "AGM Risk Vectors register (module_7) — closed taxonomy of 18 vectors carried in current persistent-state. Enum-locked to prevent the LLM from renaming vectors mid-cycle (the E10 pathology). New vectors require an explicit schema bump."
+    },
+    "module_9_eu_ai_act_tracker.layers": {
+      "key_field": "layer",
+      "key_constraint": {"pattern": "^[1-9]$"},
+      "describe": "EU AI Act 7-layer architecture tracker. `layer` is an integer 1..7; stored as int but matched by stringified value at engine merge time."
+    },
+    "module_14_concentration_index.domains": {
+      "key_field": "domain",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Concentration-index domain rows (module_14). Free-form domain names (Models, Talent, Regulatory Access, etc.) — accept any non-empty string."
+    },
+    "module_15_aisi_pipeline.watch_list": {
+      "key_field": "institution",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "AISI / government AI body watch list (module_15). `institution` is the canonical organisation name."
+    },
+    "ongoing_lab_postures": {
+      "key_field": "actor",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-lab posture tracking. `actor` is the lab/organisation name (e.g. 'Anthropic', 'OpenAI', 'SpaceX/xAI'). Free-form pattern — labs come and go via mergers; enum-locking would force a schema bump on every market event."
+    },
+    "cross_monitor_flags.flags": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^cmf-\\d{3}$"},
+      "describe": "Cross-monitor flag identifiers. Pattern lock matches the cmf-NNN scheme in live state. The shared cross-monitor flag registry uses this id-shape contract — prevents the LLM from rotating to CMF-001 / cmf001 / flag-001 variants."
+    },
+    "gpai_compliance.labs": {
+      "key_field": "lab",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "GPAI Code-of-Practice signatory compliance tracker. `lab` is the lab name (overlaps with ongoing_lab_postures but is the GPAI-specific row)."
+    },
+    "country_grid_status.jurisdictions": {
+      "key_field": "jurisdiction",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-jurisdiction AI-law status grid. `jurisdiction` is currently free-form (EU, USA, UK, China, India, Canada, Brazil...); ISO-3166-1 alpha-2 normalisation deferred (Phase 3 ESA precedent may motivate a later bump)."
+    },
+    "calibration_log": {
+      "key_field": "date",
+      "key_constraint": {"pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+      "describe": "Append-only calibration log (one entry per material methodology change). `date` is ISO date or full ISO-8601 timestamp — the engine treats this array as additive-only by construction."
+    },
+    "gaps_register": {
+      "key_field": "gap_id",
+      "key_constraint": {"pattern": "^AGM-GAP-\\d{3}$"},
+      "describe": "Open-findings register (gaps the monitor has identified but not yet resolved). Pattern lock matches the AGM-GAP-NNN scheme — prevents Interpreter from rotating to free-form gap_ids."
+    },
+    "jurisdiction_risk_matrix": {
+      "key_field": "jurisdiction",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "AGM per-jurisdiction risk matrix declared in the interpreter-schema. Currently an interpreter-output transient (not yet promoted to persistent-state at the top level), but forward-declared here so the Phase 2 coverage gate exits clean. If/when promoted, engine merge semantics apply automatically."
+    },
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {"pattern": "^AGM-KJ-\\d+$"},
+      "describe": "AGM key-judgments array declared in the interpreter-schema. Currently an interpreter-output transient (not yet promoted to persistent-state at the top level), but forward-declared here so the Phase 2 coverage gate exits clean. Pattern lock against AGM-KJ-NNN scheme."
     }
   }
 }
