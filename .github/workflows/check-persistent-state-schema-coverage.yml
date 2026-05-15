@@ -45,8 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      # Phase 2 bootstrap — flip to '' (empty) once Phase 3 closes the 8 gaps.
-      SPRINT_5_PHASE_2_BOOTSTRAP: "1"
+      # Phase 2 bootstrap — flipped to '' (empty) 2026-05-15 once Phase 3 closed all 8 gaps.
+      # Gate is now FATAL: missing/invalid schema or interpreter-schema coverage gap fails CI.
+      SPRINT_5_PHASE_2_BOOTSTRAP: ""
     steps:
       - name: Checkout main repo
         id: checkout-main
