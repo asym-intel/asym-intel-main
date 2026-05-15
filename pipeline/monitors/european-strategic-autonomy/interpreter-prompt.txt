@@ -588,7 +588,7 @@ All string values must avoid apostrophes and contractions — use full words onl
 29. **Rule 29 — `eu_legislation_tracker`**
 
 Populate `eu_legislation_tracker` as a list of EU legislative and regulatory instruments relevant to strategic autonomy. Each entry must include:
-- `id` (string): stable identifier, e.g. `"EUL-001"`
+- `id` (string): stable identifier conforming to `eu_legislation_tracker.id` pattern in persistent-state-schema (currently `^LEG-\d{3}$`). REUSE existing identifiers from STORED-STATE INVENTORY for updates; MINT new identifiers ONLY for genuinely new entries, using the next-available identifier the inventory names.
 - `name` (string): full name or short title of the instrument
 - `status` (string): current legislative status (e.g. `"In Force"`, `"Trilogues"`, `"Commission Proposal"`, `"Council Position"`, `"EP Vote Pending"`)
 - `last_update` (string): ISO 8601 date of the most recent status change or significant development
@@ -620,7 +620,7 @@ proposed_patches[].rationale = <one sentence>
 31. **Rule 31 — `active_actor_campaigns`**
 
 Populate `active_actor_campaigns` as a dict keyed by actor code (e.g. `"RU"`, `"CN"`, `"US"`, `"IL"`, `"TR"`, `"GCC"`). Each actor maps to a list of campaign objects. Each campaign must include:
-- `id` (string): stable identifier, e.g. `"RU-CAM-003"`
+- `id` (string): stable identifier conforming to `active_actor_campaigns.<actor>[].id` pattern in persistent-state-schema (currently `^[A-Z]{2,3}-\d{3}$`, e.g. `"RU-001"`). REUSE existing identifiers from STORED-STATE INVENTORY for updates; MINT new identifiers ONLY for genuinely new entries, using the next-available identifier the inventory names.
 - `name` (string): campaign name or label
 - `status` (string): exactly one of `"ACTIVE"`, `"SUSPENDED"`, `"CONCLUDED"`
 - `target` (string): primary target (country, institution, or sector)
