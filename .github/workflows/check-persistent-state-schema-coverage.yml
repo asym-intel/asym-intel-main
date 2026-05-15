@@ -1,0 +1,89 @@
+name: persistent-state-schema-coverage
+
+# Sprint-5 Phase 2 — E10 cure foundation gate.
+# Authority: asym-intel-internal:docs/sprints/2026-05-15-sprint-5-persistent-state-key-lock/BRIEF.md
+# (committed at SHA cf14eabd), §4 Phase 2 task 3.
+#
+# Walks every commons monitor under pipeline/synthesisers/<slug>/ and every
+# monitor under pipeline/monitors/<slug>/ and asserts:
+#   1. persistent-state-schema.json exists.
+#   2. It validates against the meta-schema in asym-intel-internal:policy/contracts/.
+#   3. Every interpreter-schema array with a key-shaped item field
+#      (id, country, code, case_id, actor_id, module_id, iso, jurisdiction)
+#      is declared in the persistent-state-schema's arrays block.
+#
+# Bootstrap exemption: this Phase 2 PR ships AGM-only coverage; the other 8
+# monitors land schemas in Phase 3 (one PR per monitor, parallelisable). Until
+# Phase 3 completes, SPRINT_5_PHASE_2_BOOTSTRAP=1 makes the gate WARN-only.
+# Remove the env var once all 8 Phase 3 PRs merge.
+#
+# Linked: bugs.json::E10-PERSISTENT-STATE-KEY-SCHEME-DRIFT
+
+on:
+  pull_request:
+    paths:
+      - "pipeline/synthesisers/**/persistent-state-schema.json"
+      - "pipeline/monitors/**/persistent-state-schema.json"
+      - "pipeline/monitors/**/interpreter-schema.json"
+      - "tools/check_persistent_state_schema_coverage.py"
+      - ".github/workflows/check-persistent-state-schema-coverage.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/synthesisers/**/persistent-state-schema.json"
+      - "pipeline/monitors/**/persistent-state-schema.json"
+      - "pipeline/monitors/**/interpreter-schema.json"
+      - "tools/check_persistent_state_schema_coverage.py"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    name: persistent-state-schema coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      # Phase 2 bootstrap — flip to '' (empty) once Phase 3 closes the 8 gaps.
+      SPRINT_5_PHASE_2_BOOTSTRAP: "1"
+    steps:
+      - name: Checkout main repo
+        id: checkout-main
+        uses: actions/checkout@v6
+        with:
+          path: main
+
+      - name: Checkout internal repo (for meta-schema)
+        id: checkout-internal
+        continue-on-error: true
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_ENGINE_PUBLISHER }}
+          path: internal
+
+      - name: BOOTSTRAP-WARN if internal checkout failed
+        if: steps.checkout-internal.outcome != 'success'
+        run: |
+          echo "::warning title=BOOTSTRAP-WARN::Could not check out asym-intel-internal (ASYM_ENGINE_PUBLISHER secret unavailable, revoked, or asym-intel-main not in repo-access list). Gate emits WARN and exits 0. See BRIEF gate-cure-pr338 §4.1."
+          exit 0
+
+      - name: Set up Python
+        id: setup-python
+        if: steps.checkout-internal.outcome == 'success'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        id: install-deps
+        if: steps.checkout-internal.outcome == 'success'
+        run: pip install jsonschema
+
+      - name: Run persistent-state-schema coverage gate
+        if: steps.checkout-internal.outcome == 'success'
+        run: |
+          python3 main/tools/check_persistent_state_schema_coverage.py \
+            --repo-root main \
+            --meta-schema internal/policy/contracts/persistent-state-schema-meta-schema.json
