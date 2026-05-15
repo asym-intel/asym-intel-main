@@ -2,7 +2,7 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "conflict-escalation",
-    "applied_at": "2026-05-15T12:42:40Z",
+    "applied_at": "2026-05-15T18:11:58Z",
     "applier_model": null,
     "applier_deterministic": true,
     "cycle_disposition": "material_change",
@@ -14,7 +14,15 @@
       "compose:scem-compose-v1.0->aim-compose-v1.0"
     ],
     "applier_error": false,
-    "applier_error_reason": null
+    "applier_error_reason": null,
+    "force_reissue": {
+      "previous_artefact_sha": "425d7d2c50a42ab4154c3a915da45cda21c67ad47533e392762bd9f789c8bea3",
+      "previous_artefact_written_at": "2026-05-15T12:42:40Z",
+      "reason": "Envelope-1 7-green bake per AD-2026-05-15-SINGLE-WRITER-APPLIER §4. Cross-monitor manual dispatch confirms state-contract-violation gate (PR #1168 a41d9551) cures E13/E15 without regression. Fleet fleet-2026-05-15-78863913.",
+      "ad_reference": "AD-2026-05-15-SINGLE-WRITER-APPLIER",
+      "operator": "peterhowitt",
+      "forced_at": "2026-05-15T18:11:58.139473+00:00"
+    }
   },
   "cycle_id": "scem-2026-05-15",
   "methodology_version": "conflict-escalation-methodology-2026-Q2",
@@ -108,23 +116,9 @@
       "expected_prior_value": null
     },
     {
-      "patch_id": "scem-2026-05-15-002-f-flag-history",
-      "target_kb_path": "f_flag_history",
-      "applier_rejection_reason": "disjoint_key_scheme",
-      "observed_value": null,
-      "expected_prior_value": null
-    },
-    {
-      "patch_id": "scem-2026-05-15-003-mediation-deescalation-architecture",
-      "target_kb_path": "mediation_deescalation_architecture",
-      "applier_rejection_reason": "cycle_aborted_disjoint_key_scheme",
-      "observed_value": null,
-      "expected_prior_value": null
-    },
-    {
       "patch_id": "scem-2026-05-15-004-treaty-posture",
       "target_kb_path": "treaty_posture",
-      "applier_rejection_reason": "cycle_aborted_disjoint_key_scheme",
+      "applier_rejection_reason": "disjoint_key_scheme",
       "observed_value": null,
       "expected_prior_value": null
     }
@@ -132,6 +126,7 @@
   "patches_actually_applied": [],
   "persistent_state_snapshot": null,
   "persistent_state_updated": false,
+  "arrays_schema_loaded": true,
   "publication": {
     "ready_to_publish": false,
     "hold_reason": "patch_apply_failed",
@@ -154,19 +149,19 @@
   "persistent_state_pre_merge_snapshot": "static/monitors/conflict-escalation/data/persistent-state-2026-05-15-pre-merge.json",
   "disjoint_key_scheme_error": {
     "slug": "conflict-escalation",
-    "target_kb_path": "f_flag_history",
+    "target_kb_path": "treaty_posture",
     "stored_key_scheme_sample": [
-      null,
-      null,
-      null
+      "SCEM-BASE-arms-control-001",
+      "SCEM-BASE-arms-control-002",
+      "SCEM-BASE-arms-control-003"
     ],
     "incoming_key_scheme_sample": [
       null,
       null,
       null
     ],
-    "stored_count": 14,
-    "incoming_count": 5,
+    "stored_count": 8,
+    "incoming_count": 3,
     "key_field": null
   }
 }
