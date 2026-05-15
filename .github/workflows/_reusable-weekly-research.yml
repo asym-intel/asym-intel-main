@@ -1,0 +1,149 @@
+name: _reusable-weekly-research
+
+# Authored 2026-05-15 by pipeline-hardening Phase 4 (BRIEF §11) — class fix
+# for 7 inline weekly-research callers. Cures F1 (push race) class-wide by
+# adopting the retry-3x push pattern from _reusable-applier.yml:162-167.
+#
+# Authority: docs/sprints/2026-05-15-pipeline-hardening-registry/BRIEF.md §11
+# Anchor: esa-weekly-research.yml (operator-set structural template).
+
+on:
+  workflow_call:
+    inputs:
+      slug:
+        description: "Monitor slug (e.g. european-strategic-autonomy)."
+        type: string
+        required: true
+      bot_name:
+        description: "Git author display name. Per BRIEF §11.5, default caller pattern is '<X> Weekly Research Bot'."
+        type: string
+        required: true
+      bot_email:
+        description: "Git author email. Per BRIEF §11.5, default caller pattern is '<slug>-weekly@asym-intel.info'."
+        type: string
+        required: true
+      commit_scope:
+        description: "Commit message scope (e.g. european-strategic-autonomy-weekly)."
+        type: string
+        required: true
+      force:
+        description: "Manual-dispatch force semantics, mirroring the other reusables."
+        type: boolean
+        required: false
+        default: false
+      force_reason:
+        description: "Reason for forcing. Required by validators when force=true."
+        type: string
+        required: false
+        default: ""
+      force_ad:
+        description: "AD reference authorising the force."
+        type: string
+        required: false
+        default: ""
+      force_operator:
+        description: "Operator name accepting responsibility for the force."
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  research:
+    name: Weekly Deep Research (${{ inputs.slug }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout public repo (asym-intel-main)
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+
+      # ── Phase 4 class fix — engine + bespoke config live in internal ──
+      - name: Checkout internal repo (engine + bespoke config)
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+          sparse-checkout: |
+            pipeline/engine
+            pipeline/policy
+            pipeline/monitors/${{ inputs.slug }}
+          sparse-checkout-cone-mode: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r internal/pipeline/engine/requirements.txt
+
+      # The engine reads bespoke files via paths like
+      # `pipeline/monitors/{slug}/weekly-research-prompt.txt`, resolved
+      # relative to the process CWD (public-main root). Stage those files
+      # from the internal checkout into the expected public-root path.
+      # §15 IP boundary preserved — they are never committed back.
+      #
+      # Bespoke-config normalisation per BRIEF §11.4: ESA's shape is the
+      # template. Legacy `weekly-research-domain.md` is REMOVED — superseded
+      # by `domain.md` + `instructions.md`. `|| true` keeps the workflow
+      # tolerant when a monitor has not yet adopted the new shape.
+      - name: Stage bespoke config into expected paths
+        run: |
+          mkdir -p pipeline/monitors/${{ inputs.slug }}
+          cp -v internal/pipeline/monitors/${{ inputs.slug }}/metadata.yml                pipeline/monitors/${{ inputs.slug }}/
+          cp -v internal/pipeline/monitors/${{ inputs.slug }}/weekly-research-prompt.txt  pipeline/monitors/${{ inputs.slug }}/
+          cp -v internal/pipeline/monitors/${{ inputs.slug }}/domain.md                   pipeline/monitors/${{ inputs.slug }}/ || true
+          cp -v internal/pipeline/monitors/${{ inputs.slug }}/instructions.md             pipeline/monitors/${{ inputs.slug }}/ || true
+          cp -v internal/pipeline/monitors/${{ inputs.slug }}/weekly-research-schema.json pipeline/monitors/${{ inputs.slug }}/ || true
+
+      - name: Run weekly deep research (engine dispatch)
+        env:
+          PPLX_API_KEY:      ${{ secrets.PPLX_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN:          ${{ secrets.ASYM_INTEL_PIPELINE }}
+          PYTHONPATH:        internal
+          FORCE:             ${{ inputs.force }}
+          FORCE_REASON:      ${{ inputs.force_reason }}
+          FORCE_AD:          ${{ inputs.force_ad }}
+          FORCE_OPERATOR:    ${{ inputs.force_operator }}
+        run: python -m pipeline.engine.weekly_research_base --monitor ${{ inputs.slug }}
+
+      # Commit + push with retry-3x — cures F1 push race class-wide.
+      # Pattern lifted verbatim in shape from _reusable-applier.yml:162-167.
+      - name: Commit research output (with retry-3x push)
+        run: |
+          git config user.name  "${{ inputs.bot_name }}"
+          git config user.email "${{ inputs.bot_email }}"
+          # Only stage output dirs — bespoke files in-tree are ephemeral-runtime only
+          git add pipeline/monitors/${{ inputs.slug }}/weekly/
+          if git diff --staged --quiet; then
+            echo "No research output to commit"
+            exit 0
+          fi
+          git commit -m "data(${{ inputs.commit_scope }}): weekly deep research — $(date -u +%Y-%m-%d)"
+          # Retry loop guards against concurrent bot pushes losing this stage's
+          # output: a successful rebase can still be followed by a push race.
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main
+            if git push; then
+              echo "✓ push succeeded on attempt $attempt"
+              break
+            fi
+            echo "Push attempt $attempt/3 failed — retrying in $((attempt * 10))s..."
+            sleep $((attempt * 10))
+            if [ "$attempt" = "3" ]; then
+              echo "::error::weekly-research push failed after 3 attempts"
+              exit 1
+            fi
+          done
+
+      - name: Archive prompt exchanges to internal repo
+        if: always()
+        env:
+          GH_TOKEN:      ${{ secrets.ASYM_INTEL_PIPELINE }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: python tools/commit_exchange_log.py
