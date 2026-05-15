@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FIM Persistent-State Schema (fim-persistent-state-v1.0)",
+  "description": "Schema for the Financial-Integrity Monitor's `persistent-state.json` — the canonical knowledge-base file the Applier writes to. The MVP shape is intentionally permissive on per-module structure (`additionalProperties: true` everywhere outside `_meta`); per-module strictness is the responsibility of the MBC sweeps that own each module's contract. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. The Applier engine bumps `_meta.last_updated` and `_meta.last_issue` on any cycle that lands at least one patch; null cycles are no-ops. Sprint-5 Phase 3 (BRIEF cf14eabd, E10 cure) adds a top-level `arrays` block declaring, for every persistent-state array FIM cares about, the merge `key_field` and a `key_constraint` (regex pattern OR string enum). FIM is currently paused (Lane B operator standing rule); BYTE_FLOOR_CANARY is NOT enabled here — that gating is in Phase 1's config flag. Schema authoring is approved for paused monitors.",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "enum": ["aim-persistent-state-v1.0", "2.0", 2.0],
+          "description": "Schema version of this file. New canonical value: `aim-persistent-state-v1.0`. Legacy bake value `2.0` (string or number) is accepted during the AD-2026-04-26Y bake window."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change. Either ISO date (YYYY-MM-DD, what the Applier writes per Q5 ratification) or full ISO-8601 timestamp (legacy MBC-stamped). Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer; left untouched otherwise."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "description": "Owning monitor slug ('financial-integrity' for FIM)."
+        }
+      }
+    }
+  },
+  "arrays": {
+    "jurisdiction_risk_tracker": {
+      "key_field": "jurisdiction",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-jurisdiction financial-integrity risk direction and enforcement/enablement balance (top-level array in persistent-state). `jurisdiction` is free-form (e.g. 'USA', 'EU', 'UK', 'UAE'). Free-form pattern — FIM jurisdictions are not a fixed closed set; ISO-3166-1 normalisation deferred per AGM precedent."
+    },
+    "domain_tracker.developments": {
+      "key_field": "jurisdiction",
+      "key_constraint": {"pattern": "^.+$"},
+      "describe": "Per-development entries nested under each domain_tracker item (D1-D5). `jurisdiction` identifies the regulatory or geographic context of the development. Free-form pattern — same jurisdiction vocabulary as jurisdiction_risk_tracker; not enum-locked."
+    }
+  }
+}
