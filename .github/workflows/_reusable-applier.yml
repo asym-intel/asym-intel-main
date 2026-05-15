@@ -153,6 +153,9 @@ jobs:
           # committed to the public repo — per engine docstring §3.1.
           rm -f "pipeline/monitors/${SLUG}/applied/apply-debug-*.json"
           git add "pipeline/monitors/${SLUG}/applied/"
+          git add "static/monitors/${SLUG}/data/persistent-state.json" || true
+          git add "static/monitors/${SLUG}/data/persistent-state-*.json" || true
+          git add "docs/monitors/${SLUG}/data/persistent-state.json" || true
           git diff --cached --quiet || git commit -m "chore(${SLUG}): applier run $(date -u +%Y-%m-%d)"
           # Retry loop guards against concurrent bot pushes losing this stage's
           # output: a successful rebase can still be followed by a push race.
