@@ -261,13 +261,14 @@ def check_synthesis_valid(synthesis: dict) -> bool:
 def build_meta(prev_report: dict, synthesis: dict, publish_date: str, config: dict) -> dict:
     prev_meta = prev_report.get("meta", {})
     prev_issue = prev_meta.get("issue", 0)
-    # Use publish date for the week label (not forward-looking week_ending from synthesis)
+    # Publication date — periodic-collection cadence, doctrinally not "week-ending"
+    # (per BR-10 doctrine landing PR #620; W/E prefix removed per operator direction 2026-05-15)
     week_date = publish_date
 
     try:
-        week_label = f"W/E {datetime.strptime(week_date, '%Y-%m-%d').strftime('%-d %B %Y')}"
+        week_label = datetime.strptime(week_date, '%Y-%m-%d').strftime('%-d %B %Y')
     except ValueError:
-        week_label = f"W/E {week_date}"
+        week_label = week_date
 
     return {
         "issue": prev_issue + 1,
@@ -3197,7 +3198,8 @@ def main():
                      incident_type="floor_gate_skipped", severity="warning",
                      detail="publisher_floor_gate import failed — gate not enforced")
 
-        write_text(brief_dir / f"{publish_date}-weekly-brief.md", hugo_brief)
+    # ── Public writes (post-gate, unconditional on gate availability) ──────────
+    write_text(brief_dir / f"{publish_date}-weekly-brief.md", hugo_brief)
     write_text(data_dir / "report-latest.md", report_md)
     write_json(docs_data_dir / f"report-{publish_date}.json", public_report)
     write_json(docs_data_dir / "report-latest.json", public_report)

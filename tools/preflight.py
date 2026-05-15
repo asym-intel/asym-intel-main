@@ -636,6 +636,12 @@ PUBLISHER_RULES = {
     "test_publication_eligibility.py": {
         "allowed_substrings": set(),
     },
+    # Unit test for publisher write-path (E8 render-gap regression guard) and
+    # build_meta week_label format (E9 bare-date guard). No archive interaction —
+    # exercises in-memory write_text(...) calls into tmp_path only.
+    "test_publisher_writes.py": {
+        "allowed_substrings": set(),
+    },
 }
 
 _JS_PUBLISHERS_SKIPPED = {"generate-site.js", "generate-static.js"}
