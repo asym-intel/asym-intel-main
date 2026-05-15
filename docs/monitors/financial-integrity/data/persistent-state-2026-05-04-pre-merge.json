@@ -1,0 +1,261 @@
+{
+  "_meta": {
+    "monitor_slug": "financial-integrity",
+    "schema_version": "2.0",
+    "last_updated": null,
+    "last_issue": 0
+  },
+  "jurisdiction_baselines": [],
+  "scheme_inventory": [],
+  "enforcement_gap_log": [],
+  "regulatory_horizon": [],
+  "ctf_cpf_flags": [],
+  "standing_trackers": [],
+  "cross_monitor_flags": {},
+  "_challenge": {
+    "challenger_schema_version": "1.0",
+    "challenger_model": "sonar-pro",
+    "challenger_prompt_hash": "71938691983f23e5",
+    "ts": "2026-05-12T17:16:28Z",
+    "duration_ms": 62218,
+    "verdict": "publish_with_flags",
+    "justification": "The brief is analytically coherent and grounded in T1–T2 sources, but several claims overstate confidence or misattribute specific details to the cited sources and should be caveated or verified before publication.",
+    "null_challenge_week": false,
+    "null_challenge_reason": null,
+    "flag_counts": {
+      "findings": 8,
+      "hard": 0,
+      "soft": 8,
+      "info": 0,
+      "top_category": "overstated_confidence"
+    },
+    "findings": [
+      {
+        "id": "f-001",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[0].developments[1].summary",
+        "quoted_claim": "The Lukoil designation — alongside Rosneft — represents the most significant expansion of Russian energy-sector sanctions since 2022.",
+        "finding_preliminary": "The brief claims that the Lukoil designation plus Rosneft represents the most significant expansion of Russian energy sanctions since 2022, but OFAC and Treasury materials describe GL 131E as a wind‑down authorization for divestiture, not a new designation or expansion of the energy‑sector sanctions architecture. The statement overstates the novelty and scale of the action relative to prior energy‑sector designations and GLs.",
+        "evidence": [
+          {
+            "source": "OFAC FAQ 1225 on GL 131E",
+            "source_url": "https://ofac.treasury.gov/faqs/1225",
+            "source_date": "2024-07-11",
+            "source_tier": "T1",
+            "relevance": "Describes GL 131E as authorizing wind‑down of Lukoil International GmbH asset divestiture activities, not as a new designation or expansion of the Russian energy‑sector sanctions list."
+          },
+          {
+            "source": "OFAC Russian Harmful Foreign Activities Sanctions Program overview",
+            "source_url": "https://ofac.treasury.gov/sanctions-programs-and-country-information/russian-harmful-foreign-activities-sanctions",
+            "source_date": "2025-12-16",
+            "source_tier": "T1",
+            "relevance": "Shows that major Russian energy‑sector designations (including Rosneft and Lukoil entities) occurred in 2022 and 2023; GL 131E is framed as a time‑limited wind‑down mechanism, not a new wave of designations."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-002",
+        "severity": "soft_flag",
+        "categories": [
+          "causal_overreach",
+          "overstated_confidence"
+        ],
+        "claim_location": "domain_tracker[0].developments[1].filters_applied.f2_sanctions_architecture",
+        "quoted_claim": "Scheme: Russian energy revenue preservation via international subsidiary divestiture delay. Architecture: GL boundary exploitation, non-US intermediary reliance, blocked-account structuring. Strategic consequence: May 30 cliff creates enforcement moment — non-compliant entities face retroactive blocking exposure",
+        "finding_preliminary": "The brief frames the GL 131E expiry as creating a clear scheme of revenue preservation via divestiture delay and retroactive blocking exposure, but OFAC guidance does not state that entities will face retroactive blocking for actions taken under the GL; it only prohibits transactions after expiry and requires wind‑down within the GL period. The causal link between the GL expiry and a new evasion scheme is speculative and not directly supported by the cited T1 source.",
+        "evidence": [
+          {
+            "source": "OFAC FAQ 1225 on GL 131E",
+            "source_url": "https://ofac.treasury.gov/faqs/1225",
+            "source_date": "2024-07-11",
+            "source_tier": "T1",
+            "relevance": "Clarifies that GL 131E authorizes wind‑down of divestiture activities and that after expiry, transactions involving Lukoil International GmbH are prohibited; it does not mention retroactive blocking for compliant wind‑down activities."
+          },
+          {
+            "source": "US Treasury press release on Russian energy sanctions",
+            "source_url": "https://home.treasury.gov/news/press-releases/jy0923",
+            "source_date": "2022-04-06",
+            "source_tier": "T1",
+            "relevance": "Describes prior Russian energy‑sector designations and GLs as targeting specific entities and activities, not as creating a generalized retroactive blocking regime for divestiture delays."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-003",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[0].developments[1].filters_applied.f4_conflict_finance",
+        "quoted_claim": "Lukoil/Rosneft revenue streams historically financed Russian state budget, which funds military operations in Ukraine",
+        "finding_preliminary": "The brief asserts that Lukoil and Rosneft revenue streams directly finance the Russian state budget and thus military operations in Ukraine, but the cited OFAC FAQ does not quantify or trace this specific revenue‑to‑military pipeline. While it is plausible that Russian energy revenues support the state budget, the direct causal link to military operations in Ukraine is not explicitly documented in the T1 source and should be treated as assessed rather than implied as confirmed.",
+        "evidence": [
+          {
+            "source": "OFAC FAQ 1225 on GL 131E",
+            "source_url": "https://ofac.treasury.gov/faqs/1225",
+            "source_date": "2024-07-11",
+            "source_tier": "T1",
+            "relevance": "Focuses on the authorization and scope of GL 131E and does not provide a detailed breakdown of how Lukoil/Rosneft revenues flow into the Russian state budget or military spending."
+          },
+          {
+            "source": "IMF Russian Federation 2025 Article IV consultation",
+            "source_url": "https://www.imf.org/en/Publications/CR/Issues/2025/04/17/Russian-Federation-2025-Article-IV-Consultation-Press-Release-Staff-Report-and-Statement-by-the-Executive-Director-for-the-Russian-Federation",
+            "source_date": "2025-04-17",
+            "source_tier": "T4",
+            "relevance": "Notes that energy revenues remain a key source of Russian government revenue but does not explicitly trace Lukoil/Rosneft revenues to specific military operations in Ukraine."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-004",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[0].developments[0].filters_applied.f4_conflict_finance",
+        "quoted_claim": "Venezuelan crude revenues historically financed Maduro security apparatus; post-transition, residual networks retain infrastructure for illicit commodity flows",
+        "finding_preliminary": "The brief claims that Venezuelan crude revenues historically financed the Maduro security apparatus and that residual networks retain infrastructure for illicit commodity flows, but the cited OFAC / US Treasury source focuses on sanctions designations and GL revisions, not on a detailed tracing of crude revenues to the security apparatus. The statement is consistent with broader reporting but is not directly substantiated by the T1 source and should be treated as assessed rather than implied as confirmed.",
+        "evidence": [
+          {
+            "source": "OFAC recent actions page on Venezuela sanctions",
+            "source_url": "https://ofac.treasury.gov/recent-actions",
+            "source_date": "2026-05-04",
+            "source_tier": "T1",
+            "relevance": "Describes sanctions designations and GL revisions but does not provide a detailed revenue‑to‑security‑apparatus tracing for Venezuelan crude."
+          },
+          {
+            "source": "Global Witness report on Venezuelan oil and corruption",
+            "source_url": "https://www.globalwitness.org/en/campaigns/oil-gas-mining/venezuela/",
+            "source_date": "2023-11-15",
+            "source_tier": "T2",
+            "relevance": "Documents links between Venezuelan oil revenues and corruption and security forces but is not the source cited in the brief."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-005",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[3].developments[0].summary",
+        "quoted_claim": "FinCEN final rule cuts Huione Group correspondent access; OFAC designates as TCO for scam proceeds laundering.",
+        "finding_preliminary": "The brief states that FinCEN has issued a final rule severing Huione Group from the US system and that OFAC has designated it as a TCO for scam proceeds laundering, but the cited Gibson Dunn year‑end AML developments piece does not describe a FinCEN final rule or an OFAC TCO designation for Huione Group. The source discusses broader AML developments and enforcement trends, not this specific action, so the claim is not directly supported by the cited T2 source.",
+        "evidence": [
+          {
+            "source": "Gibson Dunn 2025 year‑end developments in AML",
+            "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+            "source_date": "2025-12-31",
+            "source_tier": "T2",
+            "relevance": "Summarizes key AML enforcement and regulatory developments in 2025 but does not mention a FinCEN final rule severing Huione Group or an OFAC TCO designation for that entity."
+          },
+          {
+            "source": "FinCEN website search for Huione Group",
+            "source_url": "https://www.fincen.gov/search/site/Huione%20Group",
+            "source_date": "2026-05-12",
+            "source_tier": "T1",
+            "relevance": "Returns no results for a FinCEN final rule severing Huione Group from the US system, indicating that the specific action described in the brief is not documented in the primary source."
+          }
+        ],
+        "suggested_action": "verify_before_publish"
+      },
+      {
+        "id": "f-006",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "domain_tracker[4].developments[0].summary",
+        "quoted_claim": "Roman Storm trial in SDNY on money laundering, unlicensed transmission, sanctions violations for Tornado Cash protocol laundering $1B+ illicit funds.",
+        "finding_preliminary": "The brief claims that Roman Storm is on trial in SDNY for laundering over 1 billion dollars in illicit funds via Tornado Cash, but the cited Gibson Dunn year‑end AML developments piece does not provide this specific figure or confirm that the trial is framed as laundering 1 billion dollars. The source discusses the Tornado Cash case and related enforcement but does not quantify the laundered amount at that level, so the 1 billion dollar figure is not directly supported by the cited T2 source.",
+        "evidence": [
+          {
+            "source": "Gibson Dunn 2025 year‑end developments in AML",
+            "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+            "source_date": "2025-12-31",
+            "source_tier": "T2",
+            "relevance": "Discusses the Tornado Cash enforcement actions and related cases but does not state that Roman Storm is on trial for laundering 1 billion dollars."
+          },
+          {
+            "source": "DOJ press release on Tornado Cash sanctions and enforcement",
+            "source_url": "https://www.justice.gov/opa/pr/department-justice-charges-developers-tornado-cash-cryptocurrency-mixer",
+            "source_date": "2022-08-03",
+            "source_tier": "T1",
+            "relevance": "Describes the charges against Tornado Cash developers but does not quantify the laundered amount at 1 billion dollars in the context of Roman Storm's trial."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-007",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "jurisdiction_risk_tracker[5].key_finding",
+        "quoted_claim": "Repression EO tightens state-apparatus designations amid non-US correspondent channel exposure.",
+        "finding_preliminary": "The brief claims that the Cuban repression EO tightens state‑apparatus designations and exposes non‑US correspondent channels, but the cited OFAC / US Treasury source focuses on designations of individuals and entities linked to repression in Cuba and does not explicitly discuss non‑US correspondent channel exposure. The link to correspondent channels is inferred rather than directly documented in the T1 source and should be treated as assessed rather than implied as confirmed.",
+        "evidence": [
+          {
+            "source": "OFAC recent actions page on Cuba sanctions",
+            "source_url": "https://ofac.treasury.gov/recent-actions",
+            "source_date": "2026-05-01",
+            "source_tier": "T1",
+            "relevance": "Describes the Cuba repression EO and related designations but does not mention non‑US correspondent channels or correspondent‑bank exposure."
+          },
+          {
+            "source": "Reuters reporting on Cuba sanctions and financial isolation",
+            "source_url": "https://www.reuters.com/world/americas/us-imposes-new-sanctions-cuba-over-repression-2026-05-01/",
+            "source_date": "2026-05-01",
+            "source_tier": "T3",
+            "relevance": "Notes that the sanctions target individuals and entities linked to repression but does not explicitly discuss correspondent‑bank exposure or non‑US channels."
+          }
+        ],
+        "suggested_action": "add_caveat"
+      },
+      {
+        "id": "f-008",
+        "severity": "soft_flag",
+        "categories": [
+          "overstated_confidence",
+          "source_misattribution"
+        ],
+        "claim_location": "jurisdiction_risk_tracker[6].key_finding",
+        "quoted_claim": "Huachicol/crude smuggling architecture reveals state-adjacent cartel commodity revenue persistence.",
+        "finding_preliminary": "The brief claims that huachicol/crude smuggling architecture reveals state‑adjacent cartel commodity revenue persistence, but the cited Gibson Dunn year‑end AML developments piece does not discuss Mexican huachicol or crude smuggling or state‑adjacent cartel revenue persistence. The source focuses on broader AML trends and enforcement, not this specific Mexican case, so the claim is not directly supported by the cited T2 source.",
+        "evidence": [
+          {
+            "source": "Gibson Dunn 2025 year‑end developments in AML",
+            "source_url": "https://www.gibsondunn.com/2025-year-end-developments-in-anti-money-laundering/",
+            "source_date": "2025-12-31",
+            "source_tier": "T2",
+            "relevance": "Summarizes key AML enforcement and regulatory developments in 2025 but does not mention Mexican huachicol or crude smuggling or state‑adjacent cartel revenue persistence."
+          },
+          {
+            "source": "Reuters reporting on Mexican cartel crude smuggling",
+            "source_url": "https://www.reuters.com/world/americas/mexican-cartels-steal-crude-oil-state-firm-pemex-2023-09-12/",
+            "source_date": "2023-09-12",
+            "source_tier": "T3",
+            "relevance": "Documents Mexican cartel crude smuggling but is not the source cited in the brief."
+          }
+        ],
+        "suggested_action": "verify_before_publish"
+      }
+    ],
+    "status": "ok",
+    "schema_version": "1.0"
+  }
+}
