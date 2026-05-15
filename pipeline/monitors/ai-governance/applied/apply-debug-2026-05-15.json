@@ -2,14 +2,25 @@
   "_meta": {
     "schema_version": "aim-apply-v1.0",
     "monitor_slug": "ai-governance",
-    "applied_at": "2026-05-15T12:36:12Z",
+    "applied_at": "2026-05-15T18:12:02Z",
     "applier_model": null,
     "applier_deterministic": true,
     "cycle_disposition": "material_change",
-    "applier_flags": [],
+    "applier_flags": [
+      "target_missing:module_9",
+      "target_missing:module_14"
+    ],
     "schema_canonicalizations": [],
     "applier_error": false,
-    "applier_error_reason": null
+    "applier_error_reason": null,
+    "force_reissue": {
+      "previous_artefact_sha": "a600abbdfdcc886f5356fbf566de5d824b75c59de48d5fb4f4bbccb86009b40e",
+      "previous_artefact_written_at": "2026-05-15T12:36:12Z",
+      "reason": "Envelope-1 7-green bake per AD-2026-05-15-SINGLE-WRITER-APPLIER §4. Cross-monitor manual dispatch confirms state-contract-violation gate (PR #1168 a41d9551) cures E13/E15 without regression. Fleet fleet-2026-05-15-78863913.",
+      "ad_reference": "AD-2026-05-15-SINGLE-WRITER-APPLIER",
+      "operator": "peterhowitt",
+      "forced_at": "2026-05-15T18:12:02.885823+00:00"
+    }
   },
   "cycle_id": "agm-2026-05-15",
   "methodology_version": "agm-methodology-2026-Q2",
@@ -110,6 +121,21 @@
       "expected_prior_value": null
     },
     {
+      "patch_id": "aim-2026-05-15-003-anthropic-mythos-preview",
+      "target_kb_path": "module_2.models[Claude Mythos Preview]",
+      "applier_rejection_reason": "create_target_exists:Claude Mythos Preview",
+      "observed_value": {
+        "name": "Claude Mythos Preview",
+        "lab": "Anthropic",
+        "tier": 1,
+        "released": "2026-05-10",
+        "headline": "Unreleased frontier model demonstrating offensive cyber capability at scale, surpassing all but the most skilled humans at finding and exploiting software vulnerabilities",
+        "asymmetric": "Claude Mythos Preview is the first documented instance of a frontier AI model crossing the offensive cyber capability threshold at scale. The model identified thousands of zero-day vulnerabilities across major operating systems and browsers, including flaws that survived decades of human review. While Anthropic is deploying the capability defensively with controlled access, the dual-use nature of the capability elevates the risk profile for misuse if similar capability diffuses to less controlled actors. This is a material safety signal.",
+        "flag": false
+      },
+      "expected_prior_value": null
+    },
+    {
       "patch_id": "aim-2026-05-15-004-us-china-frontier-gap",
       "target_kb_path": "module_14.concentration_index.domains[Models].trend",
       "applier_rejection_reason": "target_missing:module_14",
@@ -127,12 +153,6 @@
       "applier_path_alias": "module_7.vectors[Standards Vacuum].rating->module_7_risk_vectors[Standards Vacuum].rating"
     },
     {
-      "patch_id": "aim-2026-05-15-003-anthropic-mythos-preview",
-      "target_kb_path": "module_2.models[Claude Mythos Preview]",
-      "operation": "create",
-      "rule_applied": "Frontier model release"
-    },
-    {
       "patch_id": "aim-2026-05-15-005-anthropic-lab-posture",
       "target_kb_path": "ongoing_lab_postures[Anthropic]",
       "operation": "update",
@@ -141,6 +161,7 @@
   ],
   "persistent_state_snapshot": "static/monitors/ai-governance/data/persistent-state-2026-05-15.json",
   "persistent_state_updated": true,
+  "arrays_schema_loaded": true,
   "publication": {
     "ready_to_publish": false,
     "hold_reason": "patch_apply_failed",

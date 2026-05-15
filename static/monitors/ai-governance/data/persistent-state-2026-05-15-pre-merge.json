@@ -1,8 +1,8 @@
 {
   "_meta": {
     "description": "Persistent knowledge base for the AI Governance Monitor. Updated only when material changes occur. Never delete entries — archive closed episodes instead.",
-    "last_updated": "2026-05-12T11:13:23Z",
-    "last_issue": 17,
+    "last_updated": "2026-05-15",
+    "last_issue": 18,
     "schema_version": "2.0",
     "source_url": "https://asym-intel.info/monitors/ai-governance/2026-04-01-weekly-digest/",
     "monitor_slug": "ai-governance",
@@ -36,7 +36,7 @@
   },
   "module_2": {
     "title": "Model Frontier",
-    "last_updated": "2026-05-05",
+    "last_updated": "2026-05-15",
     "last_verified": "2026-05-05",
     "scaffold_basis": "Methodology v2.4 Rule 4 declares module_2.models[] as the canonical Model Frontier registry. AGM-GAP-002 (curator, 2026-04-28) explicitly identified module_2 as a methodology-canonical destination missing from the 2026-04-28 baseline. This scaffold materialises the destination so Interpreter patches against module_2.models[<lab>/<name>] resolve cleanly. Tier convention: 1 = frontier, 2 = capable, 3 = reported/unverified (per interpreter-prompt rule 4).",
     "models": [
@@ -50,6 +50,15 @@
         "flag": false,
         "first_seen_in_state": "2026-05-05",
         "scaffold_seed": true
+      },
+      {
+        "name": "Claude Mythos Preview",
+        "lab": "Anthropic",
+        "tier": 1,
+        "released": "2026-05-10",
+        "headline": "Unreleased frontier model demonstrating offensive cyber capability at scale, surpassing all but the most skilled humans at finding and exploiting software vulnerabilities",
+        "asymmetric": "Claude Mythos Preview is the first documented instance of a frontier AI model crossing the offensive cyber capability threshold at scale. The model identified thousands of zero-day vulnerabilities across major operating systems and browsers, including flaws that survived decades of human review. While Anthropic is deploying the capability defensively with controlled access, the dual-use nature of the capability elevates the risk profile for misuse if similar capability diffuses to less controlled actors. This is a material safety signal.",
+        "flag": false
       }
     ],
     "version_history": [
@@ -59,6 +68,13 @@
         "reason": "Methodology gap closure — AGM-GAP-002. module_2 declared canonical in interpreter-prompt v2.4 Rule 4; persistent-state baseline 2026-04-28 omitted it. Seeded with one entry (OpenAI/GPT-5.5) sourced verbatim from interpret-latest.json module_2.models[0] (cycle agm-2026-05-05).",
         "prior_value": null,
         "patch_id": "scaffold-module_2-2026-05-05"
+      },
+      {
+        "date": "2026-05-15",
+        "change": "create",
+        "reason": "Frontier model release — Claude Mythos Preview crosses offensive cyber capability threshold, first documented instance of frontier AI model at this capability level",
+        "prior_value": null,
+        "patch_id": "aim-2026-05-15-003-anthropic-mythos-preview"
       }
     ]
   },
@@ -1107,44 +1123,11 @@
   "ongoing_lab_postures": [
     {
       "actor": "Anthropic",
-      "posture": "RSP v3.1 (April 2, 2026) — separate company commitments from industry recommendations; GPAI Code of Practice signatory; Illinois SB 3261 backer; Mythos CMS rollout ongoing; Pentagon litigation ongoing",
-      "last_material_change": "2026-04-10",
-      "last_verified": "2026-04-28",
-      "confidence": "Confirmed",
-      "unchanged_since": "2026-03-30",
-      "version_history": [
-        {
-          "date": "2026-03-30",
-          "change": "Initial entry: Pentagon injunction granted; RSP v3.0 pause commitment removed",
-          "reason": "Issue 1 research",
-          "prior_value": null
-        },
-        {
-          "date": "2026-04-01",
-          "change": "Injunction granted (26 March); Mythos/Capybara existence confirmed; Claude Code source-map leak (31 March)",
-          "reason": "Issue 2 research — three material events in window",
-          "prior_value": "Pentagon litigation active; RSP v3.0 pause commitment removed"
-        },
-        {
-          "date": "2026-04-10",
-          "change": "Issue 4 update — material new evidence",
-          "reason": "KAIROS/BUDDY/undercover mode dual opsec failure; Mythos CMS leak; GPAI Code of Practice signatory; Pentagon litigation ongoing",
-          "prior_value": "Pentagon litigation active (injunction granted 26 March); RSP v3.0 pause commitment removed; healthc"
-        },
-        {
-          "date": "2026-04-28",
-          "change": "carry-forward-verified + RSP v3.1 confirmed",
-          "reason": "Anthropic RSP v3.1 confirmed at anthropic.com CDN (April 2 2026) — clarifies AI R&D capability threshold, separates company vs industry obligations. Illinois SB 3261 backing confirmed (Fortune April 17). Mythos cyber escalation concern active per IAPP April 10. Hybrid Horizons Substack April 26 confirms April 2026 RSP v3.1 update.",
-          "prior_value": null
-        }
-      ],
-      "safety_posture": "Leading",
-      "transparency": "HIGH",
-      "regulatory_engagement": "Proactive",
-      "trajectory": "Stable",
-      "rsp_version": "3.1",
-      "rsp_date": "2026-04-02",
-      "rsp_url": "https://www-cdn.anthropic.com/files/4zrzovbb/website/bf04581e4f329735fd90634f6a1962c13c0bd351.pdf"
+      "posture": "Anthropic launched Project Glasswing on approximately 10 May 2026, centred on Claude Mythos Preview, demonstrating frontier offensive cyber capability with controlled defensive deployment. The lab is committing up to 100 million dollars in usage credits and 4 million dollars in direct donations to open-source security organisations, with access extended to over 40 critical infrastructure organisations for defensive use. This is the largest documented corporate commitment to open-source security in the AI era and represents a proactive safety posture.",
+      "last_material_change": "2026-05-10",
+      "last_verified": "2026-05-15",
+      "confidence": "High",
+      "unchanged_since": ""
     },
     {
       "actor": "OpenAI",
@@ -1869,13 +1852,7 @@
       "summary": "Re-verification pass. Core ratings unchanged. Key updates: Anthropic RSP v3.1 (Apr 2), OpenAI principles update (Apr 26, removes AGI co-assistance), Musk v. Altman trial commenced (Apr 28), GPAI CoP final confirmed (Jul 2025), CEN-CENELEC exceptional acceleration confirmed (Oct 2025), UK AISI Beaumont interim confirmed, CAISI AI Agent Standards Initiative + GSA MOU + OpenMined CRADA."
     }
   ],
-  "last_updated": {
-    "slug": "2026-04-21",
-    "week_label": "W/E 21 April 2026",
-    "volume": 1,
-    "issue": 5,
-    "source_url": "https://ramparts.gi/ai-frontier-monitor-issue-2026-04-21/"
-  },
+  "last_updated": "2026-05-15",
   "last_issue": {
     "slug": "2026-04-21",
     "week_label": "W/E 21 April 2026",
