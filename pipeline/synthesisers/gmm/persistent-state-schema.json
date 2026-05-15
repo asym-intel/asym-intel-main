@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GMM Persistent-State Schema (gmm-persistent-state-v1.0)",
+  "description": "Schema for the GMM (Global Macro Monitor / macro-monitor) `persistent-state.json` — the canonical knowledge-base file the Applier writes to. The MVP shape is intentionally permissive on per-key structure (`additionalProperties: true`); per-key strictness is the responsibility of future MBC sweeps. The strict layer is the `_meta` block — `schema_version`, `last_updated`, `last_issue`, `monitor_slug`. Sprint-5 Phase 3 (BRIEF cf14eabd, E10 cure) adds a top-level `arrays` block declaring, for every persistent-state array GMM cares about, the merge `key_field` and a `key_constraint` (regex pattern OR string enum). The engine (`pipeline.engine.persistent_state.apply_patches_to_persistent_state`, amended in Phase 1) reads these declarations to enforce additive merge semantics and raise `DisjointKeySchemeError` on key-scheme rotation. GMM green-run acceptance target: Tue 2026-05-19.",
+  "type": "object",
+  "required": ["_meta"],
+  "additionalProperties": true,
+  "properties": {
+    "_meta": {
+      "type": "object",
+      "required": ["schema_version", "last_updated", "last_issue", "monitor_slug"],
+      "additionalProperties": true,
+      "properties": {
+        "schema_version": {
+          "type": ["string", "number"],
+          "description": "Schema version of this file. New canonical value: `gmm-persistent-state-v1.0`. Legacy bake value `2.0` (string or number) is accepted during the AD-2026-04-26Y bake window."
+        },
+        "last_updated": {
+          "type": "string",
+          "description": "Most recent material state change. Either ISO date (YYYY-MM-DD) or full ISO-8601 timestamp. Bumped by the Applier on cycles that land at least one patch; NOT bumped on null cycles."
+        },
+        "last_issue": {
+          "type": ["integer", "string"],
+          "description": "Issue counter. The Applier increments this by 1 on cycles that land at least one patch when the current value is an integer; left untouched otherwise."
+        },
+        "monitor_slug": {
+          "type": "string",
+          "description": "Owning monitor slug.",
+          "const": "macro-monitor"
+        }
+      }
+    }
+  },
+  "arrays": {
+    "asset_class_baseline": {
+      "key_field": "asset_class",
+      "key_constraint": {
+        "enum": [
+          "Equities",
+          "Bonds",
+          "Commodities",
+          "FX",
+          "Crypto",
+          "Metals",
+          "Energy",
+          "Tech",
+          "Consumer Staples",
+          "EM Equities",
+          "Real Estate"
+        ]
+      },
+      "describe": "Per-asset-class baseline and current-state rows. `asset_class` is a closed taxonomy — enum-locked to prevent the LLM from rotating to free-form names mid-cycle. Live state carries: Metals, Energy, Bonds, Crypto, Tech, Consumer Staples, EM Equities, Real Estate. Broader canonical taxonomy extended to include Equities, Commodities, FX."
+    },
+    "active_tactical_alerts": {
+      "key_field": "alert_id",
+      "key_constraint": {
+        "pattern": "^ALERT-\\d{3}$"
+      },
+      "describe": "Named tactical alert conditions with traffic-light state. `alert_id` uses the ALERT-NNN scheme in live state (ALERT-001, ALERT-002, ALERT-003). Pattern lock prevents LLM from rotating to free-form IDs or alternate zero-padding."
+    },
+    "blind_spot_overrides": {
+      "key_field": "indicator",
+      "key_constraint": {
+        "pattern": "^.+$"
+      },
+      "describe": "Analyst blind-spot override rules. `indicator` is the machine-readable indicator name (e.g. earnings_revisions, m2_money_supply). Free-form pattern — indicator vocabulary may expand."
+    },
+    "conviction_history": {
+      "key_field": "date",
+      "key_constraint": {
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+      },
+      "describe": "Chronological weekly conviction assessments — append only. `date` is ISO date (YYYY-MM-DD). One entry per cycle; the engine treats this as additive-only by construction."
+    },
+    "blind_spots": {
+      "key_field": "id",
+      "key_constraint": {
+        "pattern": "^BS\\d+$"
+      },
+      "describe": "Identified structural gaps in data coverage or analytical scope. `id` uses the BS<N> scheme in live state (BS5, BS6, BS7, BS8). Pattern lock prevents free-form id rotation."
+    },
+    "calibration_log": {
+      "key_field": "date",
+      "key_constraint": {
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"
+      },
+      "describe": "Append-only calibration log (one entry per material methodology change). `date` is ISO date or full ISO-8601 timestamp — the engine treats this array as additive-only by construction."
+    },
+    "gaps_register": {
+      "key_field": "gap_id",
+      "key_constraint": {
+        "pattern": "^GAP-\\d{3}$"
+      },
+      "describe": "Open-findings register. `gap_id` uses the GAP-NNN scheme in live state (GAP-001 … GAP-004). Pattern lock prevents free-form gap_id rotation."
+    },
+    "jurisdiction_risk_matrix": {
+      "key_field": "jurisdiction",
+      "key_constraint": {
+        "pattern": "^.+$"
+      },
+      "describe": "Per-jurisdiction macro-risk matrix declared in the interpreter-schema. `jurisdiction` is free-form (e.g. US, Euro Area, China, Japan, UK, EM). ISO-3166 normalisation deferred; free-form pattern accepted."
+    },
+    "key_judgments": {
+      "key_field": "id",
+      "key_constraint": {
+        "pattern": "^GMM-KJ-\\d+$"
+      },
+      "describe": "GMM key-judgments array declared in the interpreter-schema. `id` pattern-locked against GMM-KJ-NNN scheme to prevent LLM from rotating to alternate id formats."
+    }
+  }
+}
