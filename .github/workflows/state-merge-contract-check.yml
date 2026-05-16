@@ -1,0 +1,106 @@
+name: state-merge-contract-check
+
+# Runs the 26-test additive-merge contract suite (BX-36 D2) against any PR
+# that could alter merge behaviour.
+#
+# Authority: FLEET-2026-05-16-005 (P2). BRIEF-D authored fleet-20260516T1824Z.
+#
+# Gate calibration: outcome-gated bootstrap primitive applied at authoring per
+# AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE §4. Environmental prerequisites
+# are id:-tagged; validator runs only on outcome == 'success'; bootstrap failure
+# degrades to BOOTSTRAP-WARN (exit 0) — environmental signal does not mask the
+# gate's own FATAL/WARN logic.
+#
+# OBSERVATION WINDOW: This gate is NOT added to required_status_checks.
+# 1-week observation window per AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE.
+# Promote to required after the observation window passes without climbdown.
+#
+# Auth: uses secrets.ASYM_INTEL_PIPELINE — org-level token already provisioned
+# for asym-intel-main (used by 7+ existing workflows: composer, curator,
+# interpreter, publisher, reviewer, applier, weekly-research). If the cross-repo
+# checkout fails for any other reason, BOOTSTRAP-WARN fires and the gate exits 0.
+#
+# deps.py output for tests/test_state_merge_properties.py (asym-intel-internal):
+#   asym-intel-internal (0 direct consumers):
+#     (no files import test_state_merge_properties directly)
+#   Fixture directory: tools/fixtures/state_merge_properties/ (3 JSON fixtures)
+#   Module under test: pipeline/engine/state_merge.py (imports pipeline.engine.persistent_state)
+#   NOTE: test_state_merge_properties.py sits in asym-intel-internal:tests/,
+#   not tools/ — BRIEF sketch had wrong path; corrected here. Sparse-checkout
+#   updated accordingly. The test resolves REPO_ROOT as the _internal/ parent,
+#   so all pipeline.engine imports are satisfied by the internal engine tree.
+
+on:
+  pull_request:
+    paths:
+      - 'pipeline/engine/**'
+      - 'pipeline/monitors/**'
+      - 'pipeline/shared/**state*'
+
+jobs:
+  state-merge-contract:
+    name: State-merge contract check (BX-36 D2)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout asym-intel-main (PR HEAD)
+        id: checkout_main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Sparse-checkout asym-intel-internal for the test file, fixtures, and
+      # the full pipeline/engine/ module tree (needed for persistent_state.py
+      # and other engine imports). Uses secrets.ASYM_INTEL_PIPELINE — the
+      # org-level token established for asym-intel-main → asym-intel-internal
+      # reads (see _reusable-composer.yml, _reusable-curator.yml, etc).
+      - name: Checkout asym-intel-internal (read-only, sparse)
+        id: checkout_internal
+        if: steps.checkout_main.outcome == 'success'
+        uses: actions/checkout@v4
+        with:
+          repository: asym-intel/asym-intel-internal
+          path: _internal
+          sparse-checkout: |
+            tests/test_state_merge_properties.py
+            tools/fixtures/state_merge_properties
+            pipeline/engine
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+
+      - name: Setup Python
+        id: setup_python
+        if: steps.checkout_internal.outcome == 'success'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependencies
+        id: install_deps
+        if: steps.setup_python.outcome == 'success'
+        run: |
+          pip install pytest hypothesis
+
+      - name: Run contract tests
+        id: run_tests
+        if: steps.install_deps.outcome == 'success'
+        run: |
+          cd _internal
+          python3 -m pytest tests/test_state_merge_properties.py -v
+
+      - name: Bootstrap warn (cross-repo checkout or setup failed)
+        if: |
+          steps.checkout_main.outcome == 'success' &&
+          (steps.checkout_internal.outcome != 'success' ||
+           steps.setup_python.outcome != 'success' ||
+           steps.install_deps.outcome != 'success')
+        run: |
+          echo "BOOTSTRAP-WARN: cross-repo checkout or environment setup failed."
+          echo "  checkout_main=${{ steps.checkout_main.outcome }}"
+          echo "  checkout_internal=${{ steps.checkout_internal.outcome }}"
+          echo "  setup_python=${{ steps.setup_python.outcome }}"
+          echo "  install_deps=${{ steps.install_deps.outcome }}"
+          echo ""
+          echo "If checkout_internal failed, ASYM_INTEL_PIPELINE auth failed unexpectedly."
+          echo "See FLEET-2026-05-16-005 and PR body for context."
+          echo "Contract tests NOT run — gate degraded to WARN for this PR."
+          exit 0
