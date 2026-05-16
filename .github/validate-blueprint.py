@@ -20,6 +20,24 @@ MONITOR_SLUGS = [
 errors   = []   # FAIL — blocks build
 warnings = []   # WARN — printed, build continues
 
+
+def is_redirect_stub(content: str) -> bool:
+    """
+    True if `content` is a minimal redirect page (e.g. report.html → persistent.html).
+    Detection: meta-refresh OR JS redirect. Chrome-content checks (nav.js, base.css)
+    do not apply to redirect stubs because they exist solely to bounce the visitor.
+    Gate-calibration primitive: self-exemption.
+    Ref: AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE
+    """
+    if 'meta http-equiv="refresh"' in content.lower() or "meta http-equiv='refresh'" in content.lower():
+        return True
+    if "window.location.replace(" in content or "window.location.href" in content:
+        # only treat as redirect stub if the body is otherwise trivial (no <main>, <article>, <section>)
+        body = content.lower()
+        if "<main" not in body and "<article" not in body and "<section" not in body:
+            return True
+    return False
+
 def fail(msg):  errors.append(f"  FAIL  {msg}")
 def warn(msg):  warnings.append(f"  WARN  {msg}")
 
@@ -39,6 +57,8 @@ for slug in MONITOR_SLUGS:
         path = f"{MONITORS_DIR}/{slug}/{page}.html"
         if not os.path.exists(path): continue
         with open(path) as f: c = f.read()
+        if is_redirect_stub(c):  # gate calibration: redirect stubs exempt from chrome checks
+            continue
         if "padding-top:40px" in c or "padding-top: 40px" in c:
             warn(f"{slug}/{page}.html — inline padding-top:40px (stale; base.css owns this)")
 
@@ -49,6 +69,8 @@ for slug in MONITOR_SLUGS:
         path = f"{MONITORS_DIR}/{slug}/{page}.html"
         if not os.path.exists(path): continue
         with open(path) as f: c = f.read()
+        if is_redirect_stub(c):  # gate calibration: redirect stubs exempt from chrome checks
+            continue
         if "shared/js/nav.js" not in c:
             fail(f"{slug}/{page}.html — nav.js not referenced (network bar won't inject)")
 
@@ -59,6 +81,8 @@ for slug in MONITOR_SLUGS:
         path = f"{MONITORS_DIR}/{slug}/{page}.html"
         if not os.path.exists(path): continue
         with open(path) as f: c = f.read()
+        if is_redirect_stub(c):  # gate calibration: redirect stubs exempt from chrome checks
+            continue
         if "shared/css/base.css" not in c:
             fail(f"{slug}/{page}.html — base.css not referenced")
 
@@ -187,6 +211,8 @@ for slug in MONITOR_SLUGS:
         path = f"{MONITORS_DIR}/{slug}/{page}.html"
         if not os.path.exists(path): continue
         with open(path) as _f: _c = _f.read()
+        if is_redirect_stub(_c):  # gate calibration: redirect stubs exempt from chrome checks
+            continue
         _head_end = _c.find('</head>')
         _nav_pos  = _c.find('nav.js')
         if _nav_pos == -1:
@@ -201,6 +227,8 @@ for slug in MONITOR_SLUGS:
         path = f"{MONITORS_DIR}/{slug}/{page}.html"
         if not os.path.exists(path): continue
         with open(path) as _f: _c = _f.read()
+        if is_redirect_stub(_c):  # gate calibration: redirect stubs exempt from chrome checks
+            continue
         if '<canvas' in _c or 'new Chart(' in _c:
             if 'cdn.jsdelivr.net/npm/chart.js' not in _c and 'chart.umd' not in _c:
                 fail(f"{slug}/{page}.html — uses Chart.js but CDN not loaded (Chart is not defined error)")
@@ -212,6 +240,8 @@ for slug in MONITOR_SLUGS:
         path = f"{MONITORS_DIR}/{slug}/{page}.html"
         if not os.path.exists(path): continue
         with open(path) as _f: _c = _f.read()
+        if is_redirect_stub(_c):  # gate calibration: redirect stubs exempt from chrome checks
+            continue
         _styles = _re2.findall(r'<style[^>]*>(.*?)</style>', _c, _re2.DOTALL)
         for _s in _styles:
             _hits = _re2.findall(r'(?:monitor-layout|monitor-main|\.monitor-layout|\.monitor-main)[^}]*overflow[^}]*hidden', _s, _re2.DOTALL)
