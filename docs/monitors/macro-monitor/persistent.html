@@ -322,10 +322,20 @@
       <div id="ps-blind-spots-register"><div class="loading-state">Loading…</div></div>
     </section>
 
+    <!-- Gaps Register -->
+    <section class="module-section" id="section-gaps-register">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
+        <div class="module-num-large">11</div>
+        <h2 class="section-title" style="margin:0">Gaps Register</h2>
+      </div>
+      <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Known methodology gaps and open questions that require operator or analyst review.</p>
+      <div id="ps-gaps-register"><div class="loading-state">Loading…</div></div>
+    </section>
+
     <!-- Calibration Log -->
     <section class="module-section" id="section-calibration">
       <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4)">
-        <div class="module-num-large">11</div>
+        <div class="module-num-large">12</div>
         <h2 class="section-title" style="margin:0">Calibration Log</h2>
       </div>
       <p class="text-sm text-muted" style="margin-bottom:var(--space-6)">Audit trail of methodology updates and calibration changes applied to the GMM scoring model.</p>
@@ -348,7 +358,8 @@
       <li><a href="#section-ai-capex"><span class="sidebar-num">08</span> AI Capex Watch</a></li>
       <li><a href="#section-imf-weo"><span class="sidebar-num">09</span> IMF WEO</a></li>
       <li><a href="#section-blind-spots-register"><span class="sidebar-num">10</span> Blind Spots</a></li>
-      <li><a href="#section-calibration"><span class="sidebar-num">11</span> Calibration Log</a></li>
+      <li><a href="#section-gaps-register"><span class="sidebar-num">11</span> Gaps Register</a></li>
+      <li><a href="#section-calibration"><span class="sidebar-num">12</span> Calibration Log</a></li>
     </ul>
   </nav>
 </div>
@@ -681,6 +692,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         calHtml += '</div>';
         calEl.innerHTML = calHtml;
+      }
+    }
+
+
+    // ── Gaps Register (MOVED-TO-PERSISTENT per W1 reconciliation) ───────────
+    var grEl = document.getElementById('ps-gaps-register');
+    if (grEl) {
+      var gapsList = ps.gaps_register || [];
+      if (!gapsList.length) {
+        grEl.innerHTML = '<p class="text-muted text-sm">No gaps registered.</p>';
+      } else {
+        grEl.innerHTML = gapsList.map(function(g) {
+          return '<div class="card" style="margin-bottom:var(--space-3)">' +
+            '<div class="card__label">' + esc(g.gap_id || '') + ' · ' + esc(g.category || '') + ' · ' + esc(g.date_added || '') + '</div>' +
+            '<div class="card__title" style="font-size:var(--text-sm)">' + esc(g.finding || '') + '</div>' +
+            (g.suggested_action ? '<div class="card__footer" style="font-size:var(--text-xs);margin-top:var(--space-2)"><strong>Suggested action:</strong> ' + esc(g.suggested_action) + '</div>' : '') +
+          '</div>';
+        }).join('');
       }
     }
 
