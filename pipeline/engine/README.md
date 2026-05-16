@@ -52,3 +52,22 @@ _Authored: BX-9-PUBLISH-FLOOR-GATE (2026-05-14). Authority: AD-2026-05-14-SPRINT
 The `pipeline_flow_audit.py` harness (`pipeline/tools/`) and `_reusable-curator.yml` both read this contract at runtime. Any deviation from the contract is a data-quality defect reportable by the audit harness.
 
 _Authored: BX-3-engine-wide-pipeline-flow-quality-contract (2026-05-14). Authority: AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH._
+
+## ERM Module Naming Convention (m00 sentinel)
+
+**Context (HK-2026-05-14-erm-m00-legacy-key-emission):** The Environmental Risks Monitor (ERM) curator
+emits `m00_*` keys alongside the fleet-standard `m01..mNN` module naming convention.
+
+**`m00` is the canonical index/sentinel module** for ERM — it aggregates cross-module signals that
+apply to the monitor as a whole rather than to any individual thematic module. The naming follows
+the ERM module structure where `m00` is the zero-indexed sentinel/index position, consistent with
+how `m00` is used in the ERM applier persistent-state schema.
+
+**This is deliberate**, not drift. The fleet convention `m01..mNN` applies to thematic content
+modules; `m00` is orthogonal — it is a structural sentinel, not a content module. Future monitors
+that need a sentinel slot should follow this pattern.
+
+**Authority:** W4-A cure (HK-2026-05-14-erm-m00-legacy-key-emission, session hk-20260516-183132).
+Cross-reference: `pipeline/engine/flow_quality_contract.json` notes field for `environmental-risks`.
+
+_Authored: W4-A (2026-05-16). Authority: AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH._

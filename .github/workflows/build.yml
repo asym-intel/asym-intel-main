@@ -20,6 +20,16 @@ on:
       - 'pipeline/monitors/**/applied/**'
       - 'pipeline/monitors/**/daily/**'
       - 'pipeline/monitors/**/weekly/**'
+      # W4-A cure (HK-2026-05-14-PATHS-IGNORE-PROMPT-FILES): prompt files are
+      # bespoke per-monitor text inputs to LLM stages. Edits to prompt files
+      # do not change the static site output (HTML/JS/layouts/assets) — they
+      # only affect subsequent pipeline runs. Including them in paths-ignore
+      # prevents redundant build/deploy runs triggered by prompt-text tuning.
+      # False-negative risk: none — prompt changes are engine-internal and do
+      # not affect the Jekyll/static build output consumed by readers.
+      # Authority: HK-2026-05-14-PATHS-IGNORE-PROMPT-FILES (session hk-20260516-183132).
+      - 'pipeline/monitors/**/*-api-prompt.txt'
+      - 'pipeline/monitors/**/*-prompt.txt'
   workflow_dispatch:
 
 env:

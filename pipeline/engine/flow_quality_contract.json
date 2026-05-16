@@ -4,82 +4,185 @@
   "authored": "2026-05-14",
   "authority": "AD-2026-05-14-SPRINT-3-BX-READER-IMPACT-BATCH",
   "brief": "BRIEF-BX-3-engine-wide-pipeline-flow-quality-contract",
-  "contract_states": ["present", "absent_explained", "absent_unknown", "blocked"],
+  "contract_states": [
+    "present",
+    "absent_explained",
+    "absent_unknown",
+    "blocked"
+  ],
   "silent_empty_is_never_valid": true,
   "monitors": {
     "ai-governance": {
       "abbr": "AIM",
       "curator_schema": "pipeline/synthesisers/agm/aim-curator-drift-schema.json",
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
-      "required_slots": ["module_1", "module_2", "module_3", "module_4", "module_5", "module_6", "module_7", "module_8", "module_9", "module_10", "module_11", "module_12", "module_13", "module_14", "module_15", "module_16"],
-      "notes": "module_3 Investment and M&A is the known BX-3 fixture: must carry present, absent_explained, or absent_unknown — never silent-empty. module_2 models entries suspected classification drift source."
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
+      "required_slots": [
+        "module_1",
+        "module_2",
+        "module_3",
+        "module_4",
+        "module_5",
+        "module_6",
+        "module_7",
+        "module_8",
+        "module_9",
+        "module_10",
+        "module_11",
+        "module_12",
+        "module_13",
+        "module_14",
+        "module_15",
+        "module_16"
+      ],
+      "notes": "module_3 Investment and M&A is the known BX-3 fixture: must carry present, absent_explained, or absent_unknown \u2014 never silent-empty. module_2 models entries suspected classification drift source."
     },
     "macro-monitor": {
       "abbr": "GMM",
-      "curator_schema": null,
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "curator_schema": "pipeline/synthesisers/gmm/gmm-curator-drift-schema.json",
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
       "required_slots": [],
-      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+      "notes": "Curator drift schema ratified W4-A (hk-20260516-183132). Schema at pipeline/synthesisers/gmm/gmm-curator-drift-schema.json."
     },
     "fimi-cognitive-warfare": {
       "abbr": "FCW",
-      "curator_schema": null,
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "curator_schema": "pipeline/synthesisers/fcw/fcw-curator-drift-schema.json",
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
       "required_slots": [],
-      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+      "notes": "Curator drift schema ratified W4-A (hk-20260516-183132). Schema at pipeline/synthesisers/fcw/fcw-curator-drift-schema.json."
     },
     "european-strategic-autonomy": {
       "abbr": "ESA",
-      "curator_schema": null,
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "curator_schema": "pipeline/synthesisers/esa/esa-curator-drift-schema.json",
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
       "required_slots": [],
-      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+      "notes": "Curator drift schema ratified W4-A (hk-20260516-183132). Schema at pipeline/synthesisers/esa/esa-curator-drift-schema.json."
     },
     "democratic-integrity": {
       "abbr": "WDM",
-      "curator_schema": null,
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "curator_schema": "pipeline/synthesisers/wdm/wdm-curator-drift-schema.json",
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
       "required_slots": [],
-      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+      "notes": "Curator drift schema ratified W4-A (hk-20260516-183132). Schema at pipeline/synthesisers/wdm/wdm-curator-drift-schema.json."
     },
     "environmental-risks": {
       "abbr": "ERM",
-      "curator_schema": null,
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "curator_schema": "pipeline/synthesisers/erm/erm-curator-drift-schema.json",
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
       "required_slots": [],
-      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning. ERM emitting m00_* legacy keys — separate HK item."
+      "notes": "Curator drift schema ratified W4-A (hk-20260516-183132). Schema at pipeline/synthesisers/erm/erm-curator-drift-schema.json. ERM emitting m00_* legacy keys \u2014 m00 is the canonical index/sentinel module (see pipeline/engine/README.md \u00a7ERM Module Naming Convention)."
     },
     "conflict-escalation": {
       "abbr": "SCEM",
-      "curator_schema": null,
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "curator_schema": "pipeline/synthesisers/scem/scem-curator-drift-schema.json",
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
       "required_slots": [],
-      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+      "notes": "Curator drift schema ratified W4-A (hk-20260516-183132). Schema at pipeline/synthesisers/scem/scem-curator-drift-schema.json."
     },
     "financial-integrity": {
       "abbr": "FIM",
-      "curator_schema": null,
-      "flow_stages": ["collect", "interpret", "review", "compose", "apply", "curate", "publish"],
+      "curator_schema": "pipeline/synthesisers/fim/fim-curator-drift-schema.json",
+      "flow_stages": [
+        "collect",
+        "interpret",
+        "review",
+        "compose",
+        "apply",
+        "curate",
+        "publish"
+      ],
       "required_slots": [],
-      "notes": "Curator drift schema not yet authored; schema validation skipped with HK warning."
+      "notes": "Curator drift schema ratified W4-A (hk-20260516-183132). Schema at pipeline/synthesisers/fim/fim-curator-drift-schema.json."
     }
   },
   "applier_contract": {
-    "required_fields": ["cycle_id", "methodology_version", "week_ending", "inputs", "publication"],
+    "required_fields": [
+      "cycle_id",
+      "methodology_version",
+      "week_ending",
+      "inputs",
+      "publication"
+    ],
     "publication_eligibility_rule": "review.verdict in {APPROVE, APPROVE_WITH_FLAGS, SKIP_NULL_CYCLE} AND compose.composer_error == false",
     "hold_must_block_publish": true
   },
   "curator_contract": {
-    "triggers": ["T1", "T2", "T3", "T4"],
+    "triggers": [
+      "T1",
+      "T2",
+      "T3",
+      "T4"
+    ],
     "severity": "advisory",
     "blocking": false,
     "runs_on_null_cycles": true,
     "schema_validation_posture": "WARN",
-    "schema_validation_note": "Missing curator drift schema is a separate HK item — does not block curator run. Gate calibration doctrine: AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE."
+    "schema_validation_note": "Missing curator drift schema is a separate HK item \u2014 does not block curator run. Gate calibration doctrine: AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE."
   },
   "absence_provenance_contract": {
     "interpreter_must_stamp": true,
-    "placeholder_structures_not_meaningful": ["[{}]", "[]", "null", "\"null\"", ""],
+    "placeholder_structures_not_meaningful": [
+      "[{}]",
+      "[]",
+      "null",
+      "\"null\"",
+      ""
+    ],
     "absence_states": {
       "absent_explained": "No meaningful content; reason is known and machine-readable.",
       "absent_unknown": "No meaningful content; reason is not known but uncertainty is explicit.",
