@@ -932,7 +932,20 @@ def check_persistent_state_routing(r: Results):
     _baseline_contract_routes = {}  # {slug: {key: route}}, populated on success
 
     # Fetch the baseline contract text via git show.
+    # In CI with fetch-depth:1, origin/main may not be locally available.
+    # Attempt git fetch origin <BASE_REF> --depth=1 first to ensure it is.
     _contract_rel = "docs/monitors/persistent-state-routing.md"
+    try:
+        # Best-effort fetch: enables baseline comparison in shallow CI clones.
+        # If fetch fails (no network, detached, etc.) git show will handle the
+        # returncode != 0 case below and emit BOOTSTRAP-WARN.
+        _sp.run(
+            ["git", "fetch", "origin", _base_ref_name, "--depth=1"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT)
+        )
+    except Exception:
+        pass  # fetch failure will surface at git-show time below
+
     try:
         _proc = _sp.run(
             ["git", "show", f"{_baseline_ref}:{_contract_rel}"],
