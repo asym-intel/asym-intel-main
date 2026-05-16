@@ -516,7 +516,7 @@ proposed_patches[].rationale = <one sentence>
 29. **Rule 29 — `blind_spots`**
 
 Populate `blind_spots` as a list of identified structural gaps in the model's data coverage or analytical scope. Each entry must include:
-- `id` (string): stable identifier, e.g. `"BS-001"`
+- `id` (string): stable identifier conforming to the `blind_spots.id` pattern in persistent-state-schema (`^BS\d+$`). REUSE existing identifiers from STORED-STATE INVENTORY for updates (current stored identifiers: BS5, BS6, BS7, BS8). MINT new identifiers only for genuinely new blind spots, using the next-available integer suffix (e.g. `"BS9"`, `"BS10"`).
 - `name` (string): short label for the blind spot
 - `description` (string): 1-2 sentence description of the gap and its potential consequence
 - `evidence_id` (string): reference to the research bundle item or module that surfaced this gap
@@ -531,7 +531,7 @@ proposed_patches[].rationale = <one sentence>
 30. **Rule 30 — `active_tactical_alerts`**
 
 Populate `active_tactical_alerts` as a list of named tactical alert conditions. Each entry must include:
-- `alert_id` (string): stable identifier, e.g. `"TA-001"`
+- `alert_id` (string): stable identifier conforming to the `active_tactical_alerts.alert_id` pattern in persistent-state-schema (`^ALERT-\d{3}$`). REUSE existing identifiers from STORED-STATE INVENTORY for updates (current stored identifiers: ALERT-001, ALERT-002, ALERT-003). MINT new identifiers only for genuinely new alerts, using the next-available number (e.g. `"ALERT-004"`).
 - `name` (string): alert name
 - `current_state` (string): exactly one of `"WARNING"`, `"WATCH"`, `"CLEAR"`
 - `last_state_change` (string): ISO 8601 date of most recent state transition
