@@ -158,6 +158,8 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  var persistentState = null;
+
   fetch('data/report-latest.json')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -256,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
       // Additional Intelligence (BW-7)
-      renderAdditionalIntelligence(d);
+      renderAdditionalIntelligence(d, persistentState);
     })
     .catch(function (err) {
       console.error(err);
@@ -270,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
   fetch('data/persistent-state.json')
     .then(function(r) { return r.json(); })
     .then(function(ps) {
+      persistentState = ps;
       var kpi = ps.kpi_state || {};
       var lagDims = kpi.lagrange_point_dimensions || {};
       var lagProgress = kpi.lagrange_point_progress || '';
@@ -483,11 +486,14 @@ document.addEventListener('DOMContentLoaded', function () {
     html += '</div>';
     el.innerHTML = html;
   }
-  function renderAdditionalIntelligence(report) {
-    renderLegislationTracker(report.eu_legislation_tracker || []);
-    renderStateCapture(report.state_capture_cases || []);
-    renderActorCampaigns(report.active_actor_campaigns || {});
-    renderOpenFindings(report.open_findings || []);
+  function renderAdditionalIntelligence(report, ps) {
+    // eu_legislation_tracker: HYBRID-DIVERGENT — ps_len=12 > rpt_len=4 — source from persistent-state (S11 W3)
+    // state_capture_cases: HYBRID-DIVERGENT — ps_len=7 > rpt_len=6 — source from persistent-state (S11 W3)
+    var psData = ps || {};
+    renderLegislationTracker(psData.eu_legislation_tracker || []);
+    renderStateCapture(psData.state_capture_cases || []);
+    renderActorCampaigns(report.active_actor_campaigns || {});  // HYBRID-CONSISTENT — stays on report-latest
+    renderOpenFindings(report.open_findings || []);               // WEEKLY-ONLY — stays on report-latest
   }
 });
 
