@@ -236,9 +236,7 @@
       <div class="sidebar-nav" style="margin-top:var(--space-6)">
         <div class="sidebar-nav__title">Quick Links</div>
         <ul>
-          <li><a href="report.html">Full Report →</a></li>
-          <li><a href="report.html#module-7">Risk Indicators</a></li>
-          <li><a href="report.html#module-9">EU AI Act Tracker</a></li>
+          <li><a href="persistent.html">Living Knowledge →</a></li>
           <li><a href="persistent.html">Living Knowledge</a></li>
         </ul>
       </div>
@@ -302,12 +300,9 @@
     }
 
     // Parallel fetch: report + persistent
-    Promise.all([
-      fetch('data/report-latest.json').then(function(r){return r.json();}),
-      fetch('data/persistent-state.json').then(function(r){return r.json();}).catch(function(){return {};})
-    ]).then(function(results) {
-      var d = results[0];
-      var persistent = results[1];
+    fetch('data/report-latest.json')
+      .then(function(r){return r.json();})
+      .then(function(d) {
       var meta = d.meta || {};
       var m0 = d.module_0 || {};
       var signal = m0.title || '';
@@ -407,7 +402,7 @@
           '</div>';
         });
         gridHtml += '</div>';
-        gridHtml += '<a class="more-link" href="report.html#module-7">Full risk analysis in report →</a>';
+        gridHtml += '<a class="more-link" href="persistent.html">Full risk analysis in Living Knowledge →</a>';
         document.getElementById('risk-heat-content').innerHTML = gridHtml;
       } else {
         document.getElementById('risk-heat-content').innerHTML = '<p class="empty-state">No risk vectors available.</p>';
@@ -436,7 +431,7 @@
             return '<tr><td style="white-space:nowrap">' + label + '</td><td class="text-sm">' + esc(row.signal) + '</td></tr>';
           }).join('') + '</tbody>' +
           '</table>' +
-          '<a class="more-link" href="report.html">Full analysis in latest report →</a>';
+          '<a class="more-link" href="persistent.html">Full analysis in Living Knowledge →</a>';
       } else {
         document.getElementById('country-grid-content').innerHTML = '<p class="empty-state">No country grid data.</p>';
       }
@@ -540,7 +535,7 @@
           '<div class="tier-legend-item"><span class="tier-legend-tier">Tier 3</span><span class="tier-legend-desc">Emerging / specialist — notable capabilities in specific domains</span></div>' +
         '</div>';
 
-        mfHtml += '<a class="more-link" href="report.html#module-2" style="margin-top:var(--space-3);display:inline-block">Full model frontier in report →</a>';
+        mfHtml += '<a class="more-link" href="persistent.html" style="margin-top:var(--space-3);display:inline-block">Full model frontier in Living Knowledge →</a>';
         document.getElementById('model-frontier-content').innerHTML = mfHtml;
       } else {
         /* module_2 currently tracks regulatory frameworks, not models.
