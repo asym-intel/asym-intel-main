@@ -231,18 +231,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btn) btn.textContent = open ? 'Hide history' : ('Show history (' + el.querySelectorAll('tbody tr').length + ')');
   };
 
-  // Fetch both data files — CMF may be in report if not in persistent
-  Promise.all([
-    fetch('data/persistent-state.json').then(function(r){return r.json();}),
-    fetch('data/report-latest.json').then(function(r){return r.json();}).catch(function(){return {};})
-  ]).then(function(results) {
-    var d = results[0];
-    var report = results[1];
-
-    // CMF fallback: if persistent doesn't have cross_monitor_flags, use report's
-    if (!d.cross_monitor_flags && report.cross_monitor_flags) {
-      d.cross_monitor_flags = report.cross_monitor_flags;
-    }
+  // Single-source fetch — persistent-state.json only (S11 renderer-split)
+  fetch('data/persistent-state.json')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
 
     // ══════════════════════════════════════════════════════════════
     // PLANETARY BOUNDARY STATUS
