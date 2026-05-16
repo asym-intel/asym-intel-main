@@ -183,19 +183,27 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         env:
           SLUG: ${{ inputs.slug }}
+          SLUG_ABBR: ${{ inputs.slug_abbr }}
         run: |
           python3 - <<'PY'
           import json, os, sys
           from pathlib import Path
 
           slug = os.environ["SLUG"]
-          # Canonical schema location (AGM-pattern).
-          # For non-AGM monitors without a monitor-specific schema, fall
-          # back to the engine's generic drift schema if present.
+          slug_abbr = os.environ.get("SLUG_ABBR", "")
+          # Canonical schema location.
+          # W4-A (HK-2026-05-14-curator-drift-schemas-7-monitors-missing):
+          # Per-monitor schema at pipeline/synthesisers/<abbr>/<abbr>-curator-drift-schema.json.
+          # The AGM path (aim-curator-drift-schema.json) is the fallback for all monitors
+          # when a per-monitor schema is absent (POSTURE-WARN behaviour preserved).
           schema_candidates = [
+              # Per-monitor schema (preferred): keyed by slug_abbr, not slug[:3]
+              Path(f"pipeline/synthesisers/{slug_abbr}/{slug_abbr}-curator-drift-schema.json") if slug_abbr else None,
+              # AGM shared schema (original fallback — remains valid for all monitors
+              # while per-monitor schemas are being ratified).
               Path(f"pipeline/synthesisers/agm/aim-curator-drift-schema.json"),
-              Path(f"pipeline/synthesisers/{slug}/{slug[:3]}-curator-drift-schema.json"),
           ]
+          schema_candidates = [p for p in schema_candidates if p is not None]
           schema_path = next((p for p in schema_candidates if p.exists()), None)
 
           register_path = Path(f"pipeline/monitors/{slug}/curator/drift-register-latest.json")
