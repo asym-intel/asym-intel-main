@@ -842,12 +842,23 @@ def check_persistent_state_routing(r: Results):
       PSR-001  Every top-level key in a monitor's persistent-state.json must
                appear in docs/monitors/persistent-state-routing.md under that
                monitor's `routes:` block. Meta keys are exempt.
+
+               Reshape (W6b / AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE):
+               Baseline-aware (Primitive 1) + Self-trigger exemption (Primitive 4) +
+               Outcome-gated bootstrap on baseline-fetch failure (Primitive 5).
+               Pre-existing unrouted keys on main emit WARN (not FAIL).
+               Only keys newly introduced by the PR HEAD emit FATAL.
+
       PSR-002  No monitor persistent.html may define local copies of shared-lib
                render functions (renderEntityList, renderEntityObj,
                renderEntityCard). Grandfathered exceptions are listed below.
     """
     import json as _json
     import re as _re
+    import subprocess as _sp
+    import time as _time
+
+    _t0 = _time.monotonic()
 
     contract_path = REPO_ROOT / "docs" / "monitors" / "persistent-state-routing.md"
     if not contract_path.exists():
@@ -891,7 +902,77 @@ def check_persistent_state_routing(r: Results):
 
     contract_routes = dict(_parse_contract(contract_text))
 
-    missing_keys = []
+    # ── Helper: compute unrouted keys for one monitor at one ref ─────────────
+    def _unrouted_keys_for_slug(slug, ps_json_text, contract_routes_map):
+        """Return the set of unrouted top-level keys for a single monitor slug.
+
+        ps_json_text: raw JSON string for persistent-state.json at the ref.
+        contract_routes_map: dict of {slug: {key: route}} already parsed.
+        Returns a set of unrouted key names, or None if the data cannot be
+        parsed (caller should treat None as 'unknown / skip baseline diff').
+        """
+        try:
+            ps = _json.loads(ps_json_text)
+        except Exception:
+            return None
+        if not isinstance(ps, dict):
+            return None
+        if slug not in contract_routes_map:
+            return None
+        declared = set(contract_routes_map[slug].keys())
+        actual = {k for k in ps.keys() if not k.startswith(EXEMPT_PREFIX) and k not in META_KEYS}
+        return actual - declared
+
+    # ── Resolve baseline ref (Primitive 5 — outcome-gated bootstrap) ─────────
+    # In a CI PR context GITHUB_BASE_REF is set to the target branch (e.g. "main").
+    # Locally it is absent; fall back to "origin/main".
+    _base_ref_name = os.environ.get("GITHUB_BASE_REF") or "main"
+    _baseline_ref = f"origin/{_base_ref_name}"
+    _baseline_available = False
+    _baseline_contract_routes = {}  # {slug: {key: route}}, populated on success
+
+    # Fetch the baseline contract text via git show.
+    # In CI with fetch-depth:1, origin/main may not be locally available.
+    # Attempt git fetch origin <BASE_REF> --depth=1 first to ensure it is.
+    _contract_rel = "docs/monitors/persistent-state-routing.md"
+    try:
+        # Best-effort fetch: enables baseline comparison in shallow CI clones.
+        # If fetch fails (no network, detached, etc.) git show will handle the
+        # returncode != 0 case below and emit BOOTSTRAP-WARN.
+        _sp.run(
+            ["git", "fetch", "origin", _base_ref_name, "--depth=1"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT)
+        )
+    except Exception:
+        pass  # fetch failure will surface at git-show time below
+
+    try:
+        _proc = _sp.run(
+            ["git", "show", f"{_baseline_ref}:{_contract_rel}"],
+            capture_output=True, text=True, cwd=str(REPO_ROOT)
+        )
+        if _proc.returncode == 0 and _proc.stdout.strip():
+            _baseline_contract_routes = dict(_parse_contract(_proc.stdout))
+            _baseline_available = True
+        else:
+            r.warn(
+                "PSR-001:baseline-fetch",
+                f"BOOTSTRAP-WARN: could not read baseline contract at {_baseline_ref}:{_contract_rel} "
+                f"(git exit {_proc.returncode}) — falling back to absolute-mode evaluation.",
+            )
+    except Exception as _exc:
+        r.warn(
+            "PSR-001:baseline-fetch",
+            f"BOOTSTRAP-WARN: baseline-fetch subprocess raised {_exc} — "
+            "falling back to absolute-mode evaluation.",
+        )
+
+    # ── Per-slug evaluation ───────────────────────────────────────────────────
+    _slugs_checked = 0
+    _total_new_unrouted = 0
+    _total_pre_existing = 0
+    _absolute_missing = []  # used only in fallback mode
+
     for abbr, slug in MONITORS.items():
         ps_path = REPO_ROOT / "static" / "monitors" / slug / "data" / "persistent-state.json"
         if not ps_path.exists():
@@ -901,12 +982,13 @@ def check_persistent_state_routing(r: Results):
             )
             continue
         try:
-            ps = _json.loads(ps_path.read_text(encoding="utf-8"))
+            ps_head_text = ps_path.read_text(encoding="utf-8")
+            ps_head = _json.loads(ps_head_text)
         except Exception as exc:
             r.fail(f"PSR-001:{slug}:parse", f"JSON parse failed: {exc}")
             continue
 
-        if not isinstance(ps, dict):
+        if not isinstance(ps_head, dict):
             r.fail(f"PSR-001:{slug}:shape", "persistent-state.json top-level must be object")
             continue
 
@@ -917,26 +999,133 @@ def check_persistent_state_routing(r: Results):
             )
             continue
 
-        declared = set(contract_routes[slug].keys())
-        actual = {k for k in ps.keys() if not k.startswith(EXEMPT_PREFIX) and k not in META_KEYS}
-        unrouted = actual - declared
-        if unrouted:
-            missing_keys.append(
-                f"{slug}: {len(unrouted)} unrouted — {', '.join(sorted(unrouted))}"
+        _slugs_checked += 1
+
+        # Compute HEAD unrouted keys using current (PR HEAD) state
+        unrouted_head = _unrouted_keys_for_slug(slug, ps_head_text, contract_routes)
+        if unrouted_head is None:
+            r.fail(f"PSR-001:{slug}:parse", "could not compute unrouted keys from HEAD state")
+            continue
+
+        if not _baseline_available:
+            # Fallback: absolute mode — original behaviour
+            if unrouted_head:
+                _absolute_missing.append(
+                    f"{slug}: {len(unrouted_head)} unrouted — {', '.join(sorted(unrouted_head))}"
+                )
+            else:
+                r.ok(
+                    f"PSR-001:{slug}:routes-complete",
+                    f"{len({k for k in ps_head.keys() if not k.startswith(EXEMPT_PREFIX) and k not in META_KEYS})} keys all declared in contract",
+                )
+            continue
+
+        # Baseline-aware mode: fetch baseline persistent-state.json
+        _ps_baseline_text = None
+        _ps_rel = f"static/monitors/{slug}/data/persistent-state.json"
+        try:
+            _bproc = _sp.run(
+                ["git", "show", f"{_baseline_ref}:{_ps_rel}"],
+                capture_output=True, text=True, cwd=str(REPO_ROOT)
             )
-        else:
-            r.ok(
-                f"PSR-001:{slug}:routes-complete",
-                f"{len(actual)} keys all declared in contract",
+            if _bproc.returncode == 0:
+                _ps_baseline_text = _bproc.stdout
+        except Exception:
+            pass  # baseline file may be new on PR — treat as empty baseline
+
+        # Compute baseline unrouted keys. If fetch fails, baseline set = empty
+        # (new file on PR — all keys are "new", which is correct behaviour).
+        unrouted_baseline = set()
+        if _ps_baseline_text is not None:
+            _bl = _unrouted_keys_for_slug(slug, _ps_baseline_text, _baseline_contract_routes)
+            if _bl is not None:
+                unrouted_baseline = _bl
+
+        # Diff: newly introduced vs pre-existing
+        newly_unrouted = unrouted_head - unrouted_baseline
+        pre_existing = unrouted_head & unrouted_baseline
+        # PR-IS-THE-CURE: keys present in baseline but now routed (shrunk)
+        cured_by_pr = unrouted_baseline - unrouted_head
+
+        _total_new_unrouted += len(newly_unrouted)
+        _total_pre_existing += len(pre_existing)
+
+        if newly_unrouted:
+            r.fail(
+                f"PSR-001:contract-coverage:new",
+                f"{slug}: NEW unrouted keys not in baseline — "
+                f"{', '.join(sorted(newly_unrouted))}. "
+                "Add routes to docs/monitors/persistent-state-routing.md.",
+            )
+        if pre_existing:
+            r.warn(
+                f"PSR-001:contract-coverage:pre-existing",
+                f"{slug}: {len(pre_existing)} pre-existing unrouted key(s) carried over from "
+                f"baseline — {', '.join(sorted(pre_existing))}. "
+                "Not blocking this PR; file an HK cure.",
+            )
+        if not newly_unrouted and not pre_existing:
+            _ok_detail = f"{slug}: all keys routed"
+            if cured_by_pr:
+                _ok_detail += f" (PR cured {len(cured_by_pr)} pre-existing drift key(s): "
+                _ok_detail += f"{', '.join(sorted(cured_by_pr))})"
+            r.ok(f"PSR-001:{slug}:routes-complete", _ok_detail)
+
+    # ── Emit top-level result (baseline-aware mode) ───────────────────────────
+    if _baseline_available:
+        if _total_new_unrouted == 0:
+            if _total_pre_existing > 0:
+                r.ok(
+                    "PSR-001:contract-coverage:baseline-aware",
+                    f"no new unrouted keys; {_total_pre_existing} pre-existing baseline "
+                    "drift key(s) carried as WARN (not blocking).",
+                )
+            # else: all-green is captured per-slug above
+        # Newly-unrouted failures already emitted per slug above.
+    else:
+        # Fallback absolute mode — original aggregate FAIL
+        if _absolute_missing:
+            r.fail(
+                "PSR-001:contract-coverage",
+                "persistent-state keys without a route in "
+                "docs/monitors/persistent-state-routing.md:\n    "
+                + "\n    ".join(_absolute_missing),
             )
 
-    if missing_keys:
-        r.fail(
-            "PSR-001:contract-coverage",
-            "persistent-state keys without a route in "
-            "docs/monitors/persistent-state-routing.md:\n    "
-            + "\n    ".join(missing_keys),
-        )
+    # ── Telemetry (P-12) ─────────────────────────────────────────────────────
+    # Best-effort: write a JSONL event to ops/gate-telemetry/YYYY-MM.jsonl.
+    # Mirrors the ops.gate_telemetry.log_gate API but is self-contained so
+    # preflight.py has no cross-repo import dependency.
+    def _log_gate(gate_name, meta=None):
+        """Best-effort JSONL telemetry — never raises to caller."""
+        try:
+            import json as _j
+            from datetime import datetime as _dt, timezone as _tz
+            _now = _dt.now(_tz.utc)
+            _tel_dir = REPO_ROOT / "ops" / "gate-telemetry"
+            _tel_dir.mkdir(parents=True, exist_ok=True)
+            _tel_path = _tel_dir / f"{_now.strftime('%Y-%m')}.jsonl"
+            _event = {
+                "ts": _now.isoformat(),
+                "tool": gate_name,
+                "exit_code": 0,
+                "duration_ms": int((_time.monotonic() - _t0) * 1000),
+                "meta": meta or {},
+            }
+            with open(_tel_path, "a", encoding="utf-8") as _f:
+                _f.write(_j.dumps(_event) + "\n")
+        except Exception:
+            pass  # telemetry must never break a passing gate
+
+    _log_gate(
+        "psr_001_contract_coverage",
+        meta={
+            "slugs_checked": _slugs_checked,
+            "new_unrouted": _total_new_unrouted,
+            "pre_existing": _total_pre_existing,
+            "baseline_ref": _baseline_ref if _baseline_available else "(fallback-absolute)",
+        },
+    )
 
     # ── PSR-002: no local shadow renderers ───────────────────────────────
     # Grandfathered exemptions — tracked for Sprint 4 §1 burn-down:
