@@ -1,4 +1,4 @@
-# Global Environmental Risks Monitor — Issue 17
+# Global Environmental Risks Monitor — Issue 18
 
 **16 May 2026** | Published 2026-05-16T05:00:00Z
 
@@ -94,12 +94,12 @@ Across the planetary boundaries framework, the composite picture is one of a cli
 - **El Niño forecast risks rice, coffee, palm oil output disruptions in Southeast Asia and Central America** (macro-monitor) — Active — verified (adjacent Issue 16)
 - **1.5 degrees C breach projection by 2034 signals NDC structural insufficiency, pressuring Paris ratifiers** (democratic-integrity) — Active — verified (adjacent Issue 16)
 - **High-salience C3S 1.5 degrees C exceedance and AMOC findings are disinformation targets** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
-- **El Niño drought forecast elevates food insecurity and displacement risk in Central America Dry Corridor with historical links to political instability** (conflict-escalation) — Active — NEW
-- **AMOC slowdown modulates monsoon rainfall patterns across Sahel and South Asia, creating long-lead cascade risk for food and water security** (conflict-escalation) — Active — NEW
-- **AMOC carbon feedback of plus 47 to 83 ppm CO2 alters long-run physical risk pricing for fossil and coastal assets** (macro-monitor) — Active — NEW
-- **El Niño conditions risk rice, coffee, and palm oil output disruptions in Southeast Asia and Central America** (macro-monitor) — Active — NEW
-- **1.5°C breach projection by 2034 signals NDC structural insufficiency, pressuring Paris Agreement ratifiers** (democratic-integrity) — Active — NEW
-- **High-salience C3S 1.5°C exceedance and AMOC findings are disinformation targets** (fimi-cognitive-warfare) — Active — NEW
+- **El Niño drought forecast elevates food insecurity and displacement risk in Central America Dry Corridor with historical links to political instability** (conflict-escalation) — Active — verified (adjacent Issue 15)
+- **AMOC slowdown modulates monsoon rainfall patterns across Sahel and South Asia, creating long-lead cascade risk for food and water security** (conflict-escalation) — Active — verified (adjacent Issue 15)
+- **AMOC carbon feedback of plus 47 to 83 ppm CO2 alters long-run physical risk pricing for fossil and coastal assets** (macro-monitor) — Active — verified (adjacent Issue 16)
+- **El Niño conditions risk rice, coffee, and palm oil output disruptions in Southeast Asia and Central America** (macro-monitor) — Active — verified (adjacent Issue 16)
+- **1.5°C breach projection by 2034 signals NDC structural insufficiency, pressuring Paris Agreement ratifiers** (democratic-integrity) — Active — verified (adjacent Issue 16)
+- **High-salience C3S 1.5°C exceedance and AMOC findings are disinformation targets** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 
 ---
 
