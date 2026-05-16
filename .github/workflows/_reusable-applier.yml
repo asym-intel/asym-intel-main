@@ -69,6 +69,7 @@ jobs:
             pipeline/engine
             pipeline/policy
             pipeline/monitors/${{ inputs.slug }}
+            tools
           sparse-checkout-cone-mode: false
 
       - name: Set up Python 3.12
@@ -140,6 +141,16 @@ jobs:
               --force-operator "${FORCE_OPERATOR}")
           fi
           python -m pipeline.engine.apply_base "${ARGS[@]}"
+
+      - name: Contradiction gate (BX-36 D1, FLEET-2026-05-16-003)
+        if: steps.check.outputs.skip != 'true'
+        env:
+          SLUG: ${{ inputs.slug }}
+        run: |
+          set -euo pipefail
+          python internal/tools/check_applier_manifest_contradiction.py \
+            --monitors "${SLUG}" \
+            --repo-root "${GITHUB_WORKSPACE}"
 
       - name: Commit applier output
         if: steps.check.outputs.skip != 'true'
