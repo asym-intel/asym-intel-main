@@ -97,13 +97,13 @@ def check_workflows(r: Results):
         # Skip non-pipeline workflows
         if name in ("build.yml", "staging-deploy.yml", "compress-images.yml",
                      "inject-network-bar.yml", "generate-triage-strip.yml",
+                     "engine-preflight.yml",  # script curl-fetched from internal repo at runtime into ops/ — not a repo file
                      "engine-post-deploy-smoke.yml",  # Layer B — script from internal repo
+                     "engine-runtime-audit.yml",  # Layer C — scripts curl-fetched from internal repo into ops/ — not repo files
                      "commons-drift-lint.yml"):  # reusable workflow; runs in calling per-project repo, fetches scanner from this repo via sparse-checkout into a runtime staging dir (AD-2026-04-30-BL)
-                     # NOTE (W7a): engine-preflight.yml, engine-runtime-audit.yml, and
-                     # cf-speed-setup.yml were in this skip list as workarounds for the
-                     # [^-]*? regex bug cured above. They are removed here — the gate
-                     # now correctly extracts checkout paths from steps with hyphenated
-                     # repo names (e.g. repository: asym-intel/asym-intel-internal).
+                     # cf-speed-setup.yml was in this skip list as a workaround for the [^-]*? regex
+                     # bug (W7a). It uses actions/checkout with path: _engine and the fixed regex
+                     # now correctly extracts '_engine' as a sibling-checkout path. Removed.
             continue
 
         content = wf_file.read_text()
