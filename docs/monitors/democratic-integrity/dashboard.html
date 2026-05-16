@@ -404,13 +404,10 @@
   /* ── Main fetch & render ── */
   document.addEventListener('DOMContentLoaded', function () {
 
-    Promise.all([
-      fetch('data/report-latest.json').then(function(r){ return r.json(); }),
-      fetch('data/persistent-state.json').then(function(r){ return r.json(); }).catch(function(){ return {}; })
-    ])
-      .then(function(payload){
-        var d = payload[0] || {};
-        var persistent = payload[1] || {};
+    fetch('data/report-latest.json')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        d = d || {};
 
         var meta      = d.meta    || {};
         var signalObj = d.signal  || d.signal_panel || {};
@@ -418,10 +415,7 @@
         var rawHeatmap = d.heatmap || [];
         var intel     = d.intelligence_items || [];
         var calWatch  = d.electoral_calendar_watch || [];
-        var dashboardMimicryChains =
-          (Array.isArray(d.mimicry_chains) && d.mimicry_chains.length)
-            ? d.mimicry_chains
-            : ((Array.isArray(persistent.mimicry_chains) && persistent.mimicry_chains.length) ? persistent.mimicry_chains : []);
+        var dashboardMimicryChains = Array.isArray(d.mimicry_chains) ? d.mimicry_chains : [];
 
         /* ── Normalise heatmap ── */
         var hm = normaliseHeatmap(rawHeatmap);
@@ -625,7 +619,7 @@
         }
 
         /* ── Additional Intelligence (BW-7) ─────────────────────── */
-        renderAdditionalIntelligence(d, persistent);
+        renderAdditionalIntelligence(d);
 
       })
       .catch(function(err){
@@ -745,17 +739,12 @@
     html += '</div>';
     el.innerHTML = html;
   }
-  function renderAdditionalIntelligence(report, persistent) {
+  /* S11 renderer-split: reads from report-latest.json only */
+  function renderAdditionalIntelligence(report) {
     report = report || {};
-    persistent = persistent || {};
-    var institutionalFlags =
-      (Array.isArray(persistent.institutional_integrity_active_flags) && persistent.institutional_integrity_active_flags.length)
-        ? persistent.institutional_integrity_active_flags
-        : (Array.isArray(report.institutional_integrity_active_flags) ? report.institutional_integrity_active_flags : []);
-    var mimicryChains =
-      (Array.isArray(report.mimicry_chains) && report.mimicry_chains.length)
-        ? report.mimicry_chains
-        : ((Array.isArray(persistent.mimicry_chains) && persistent.mimicry_chains.length) ? persistent.mimicry_chains : []);
+    var institutionalFlags = Array.isArray(report.institutional_integrity_active_flags)
+      ? report.institutional_integrity_active_flags : [];
+    var mimicryChains = Array.isArray(report.mimicry_chains) ? report.mimicry_chains : [];
     renderInstitutionalFlags(institutionalFlags);
     renderMimicryChains(mimicryChains);
     renderOpenFindings(report.open_findings || []);

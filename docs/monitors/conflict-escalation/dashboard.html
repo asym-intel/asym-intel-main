@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* ─── § 11 ADDITIONAL INTELLIGENCE (BW-7) ─────────────────────── */
-    renderAdditionalIntelligence(d);
+    renderAdditionalIntelligence(d, ps);
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -818,11 +818,14 @@ document.addEventListener('DOMContentLoaded', function () {
     html += '</div>';
     el.innerHTML = html;
   }
-  function renderAdditionalIntelligence(report) {
-    renderActiveEscalationEvents(report.active_escalation_events || []);
-    renderFFlagHistory(report.f_flag_history || []);
-    renderMediationArchitecture(report.mediation_deescalation_architecture || []);
-    renderTreatyPosture(report.treaty_posture || [], Object.prototype.hasOwnProperty.call(report, 'treaty_posture'));
+  function renderAdditionalIntelligence(report, ps) {
+    /* HYBRID-DIVERGENT keys: flip to ps (persistent-state is canonical per S11 §4.1) */
+    renderActiveEscalationEvents((ps || {}).active_escalation_events || []);
+    renderFFlagHistory((ps || {}).f_flag_history || []);
+    renderMediationArchitecture((ps || {}).mediation_deescalation_architecture || []);
+    /* PERSISTENT-ONLY: treaty_posture sourced from ps */
+    renderTreatyPosture((ps || {}).treaty_posture || [], Object.prototype.hasOwnProperty.call(ps || {}, 'treaty_posture'));
+    /* WEEKLY-ONLY: open_findings stays on report */
     renderOpenFindings(report.open_findings || []);
   }
 
