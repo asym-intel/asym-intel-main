@@ -15,10 +15,10 @@ name: state-merge-contract-check
 # 1-week observation window per AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE.
 # Promote to required after the observation window passes without climbdown.
 #
-# Auth: sparse-checkout of asym-intel-internal uses CROSS_REPO_READ_PAT if
-# provisioned; falls back to GITHUB_TOKEN. If the cross-repo checkout fails
-# (GITHUB_TOKEN cannot read a private repo), BOOTSTRAP-WARN fires and the gate
-# exits 0 cleanly. See auth fallback note in PR body.
+# Auth: uses secrets.ASYM_INTEL_PIPELINE — org-level token already provisioned
+# for asym-intel-main (used by 7+ existing workflows: composer, curator,
+# interpreter, publisher, reviewer, applier, weekly-research). If the cross-repo
+# checkout fails for any other reason, BOOTSTRAP-WARN fires and the gate exits 0.
 #
 # deps.py output for tests/test_state_merge_properties.py (asym-intel-internal):
 #   asym-intel-internal (0 direct consumers):
@@ -51,9 +51,9 @@ jobs:
 
       # Sparse-checkout asym-intel-internal for the test file, fixtures, and
       # the full pipeline/engine/ module tree (needed for persistent_state.py
-      # and other engine imports). Uses CROSS_REPO_READ_PAT if provisioned;
-      # falls back to GITHUB_TOKEN (will degrade to BOOTSTRAP-WARN on private
-      # repo if token lacks read access).
+      # and other engine imports). Uses secrets.ASYM_INTEL_PIPELINE — the
+      # org-level token established for asym-intel-main → asym-intel-internal
+      # reads (see _reusable-composer.yml, _reusable-curator.yml, etc).
       - name: Checkout asym-intel-internal (read-only, sparse)
         id: checkout_internal
         if: steps.checkout_main.outcome == 'success'
@@ -65,7 +65,7 @@ jobs:
             tests/test_state_merge_properties.py
             tools/fixtures/state_merge_properties
             pipeline/engine
-          token: ${{ secrets.CROSS_REPO_READ_PAT || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
 
       - name: Setup Python
         id: setup_python
@@ -100,7 +100,7 @@ jobs:
           echo "  setup_python=${{ steps.setup_python.outcome }}"
           echo "  install_deps=${{ steps.install_deps.outcome }}"
           echo ""
-          echo "If checkout_internal failed, CROSS_REPO_READ_PAT may need to be provisioned."
-          echo "See FLEET-2026-05-16-005 and PR body for auth requirements."
+          echo "If checkout_internal failed, ASYM_INTEL_PIPELINE auth failed unexpectedly."
+          echo "See FLEET-2026-05-16-005 and PR body for context."
           echo "Contract tests NOT run — gate degraded to WARN for this PR."
           exit 0
