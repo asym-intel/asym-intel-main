@@ -97,11 +97,13 @@ def check_workflows(r: Results):
         # Skip non-pipeline workflows
         if name in ("build.yml", "staging-deploy.yml", "compress-images.yml",
                      "inject-network-bar.yml", "generate-triage-strip.yml",
-                     "engine-preflight.yml",  # script fetched from internal repo at runtime
                      "engine-post-deploy-smoke.yml",  # Layer B — script from internal repo
-                     "engine-runtime-audit.yml",  # Layer C — script from internal repo
-                     "cf-speed-setup.yml",  # script fetched from internal repo via sparse checkout
                      "commons-drift-lint.yml"):  # reusable workflow; runs in calling per-project repo, fetches scanner from this repo via sparse-checkout into a runtime staging dir (AD-2026-04-30-BL)
+                     # NOTE (W7a): engine-preflight.yml, engine-runtime-audit.yml, and
+                     # cf-speed-setup.yml were in this skip list as workarounds for the
+                     # [^-]*? regex bug cured above. They are removed here — the gate
+                     # now correctly extracts checkout paths from steps with hyphenated
+                     # repo names (e.g. repository: asym-intel/asym-intel-internal).
             continue
 
         content = wf_file.read_text()
@@ -111,9 +113,18 @@ def check_workflows(r: Results):
         # (sibling-repo / multi-checkout pattern). When a `path:` field is present on
         # an actions/checkout step, paths starting with `<path>/` are CI-mount
         # artefacts, not repo paths. Treat them analogously to `_internal/`.
+        #
+        # Reshape note (W7a): the previous `[^-]*?` quantifier excluded the hyphen
+        # character and stopped scanning at the first `-` in field values like
+        # `repository: asym-intel/asym-intel-internal`, so checkout_paths was empty
+        # whenever a checkout step referenced a hyphenated repo name. Cure: use a
+        # negative-lookahead sentinel `(?!\n\s*-\s)` that permits hyphens in
+        # field values but stops at the next YAML list-item boundary (the `-` that
+        # starts the following step). No re.DOTALL flag is needed because `[\s\S]`
+        # is explicitly cross-line.
         checkout_paths = set(re.findall(
-            r'uses:\s*actions/checkout@v\d+\s*\n[^-]*?path:\s*([\w./-]+)',
-            content
+            r'uses:\s*actions/checkout@v\d+\s*\n(?:(?!\n\s*-\s)[\s\S])*?path:\s*([\w./-]+)',
+            content,
         ))
 
         py_matches = re.findall(r'python3?\s+([\w/.-]+\.py)', content)
