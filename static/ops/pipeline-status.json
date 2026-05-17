@@ -1,6 +1,6 @@
 {
   "schema_version": "4.2",
-  "generated_at": "2026-05-17T09:55:17Z",
+  "generated_at": "2026-05-17T14:51:35Z",
   "engine": {
     "status": "red",
     "last_updated": "2026-05-17T09:30:54Z"
@@ -135,7 +135,7 @@
   "_trigger_health": {
     "schema_version": "1.0",
     "window_days": 7,
-    "computed_at": "2026-05-17T09:55:17Z",
+    "computed_at": "2026-05-17T14:51:35Z",
     "tolerance": {
       "late_minutes_cf_dispatcher": 5,
       "late_minutes_github_native": 60,
@@ -145,17 +145,6 @@
     "manifest_version": "1.0.0",
     "manifest_sha": "adf1b076e79439bc3dd71c452d97c7c0e5fd58b6",
     "expected_fires": [
-      {
-        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
-        "source_kind": "github_native",
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "cron": "0 14 * * *",
-        "utc_time": "14:00",
-        "dow": null,
-        "monitor": null,
-        "expected_at": "2026-05-10T14:00:00Z"
-      },
       {
         "trigger_id": "gh:asym-intel/asym-intel-main:cross-monitor-synthesiser.yml:30 18 * * 0:18:30",
         "source_kind": "github_native",
@@ -562,14 +551,43 @@
         "dow": 0,
         "monitor": "scem",
         "expected_at": "2026-05-17T09:30:00Z"
+      },
+      {
+        "trigger_id": "gh:asym-intel/asym-intel-main:update-pipeline-status.yml:0 14 * * *:14:00",
+        "source_kind": "github_native",
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "cron": "0 14 * * *",
+        "utc_time": "14:00",
+        "dow": null,
+        "monitor": null,
+        "expected_at": "2026-05-17T14:00:00Z"
       }
     ],
     "actual_fires": [
       {
+        "workflow": "cross-monitor-synthesiser.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-10T19:37:53Z",
+        "conclusion": "success",
+        "event": "schedule",
+        "run_number": 8,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25637884642"
+      },
+      {
+        "workflow": "update-pipeline-status.yml",
+        "repo": "asym-intel/asym-intel-main",
+        "started_at": "2026-05-17T14:51:05Z",
+        "conclusion": "in_progress",
+        "event": "schedule",
+        "run_number": 130,
+        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25994080964"
+      },
+      {
         "workflow": "update-pipeline-status.yml",
         "repo": "asym-intel/asym-intel-main",
         "started_at": "2026-05-17T09:54:38Z",
-        "conclusion": "in_progress",
+        "conclusion": "success",
         "event": "schedule",
         "run_number": 129,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25987642720"
@@ -753,24 +771,6 @@
         "event": "schedule",
         "run_number": 109,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25631606230"
-      },
-      {
-        "workflow": "update-pipeline-status.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-10T09:44:16Z",
-        "conclusion": "success",
-        "event": "schedule",
-        "run_number": 108,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25625518879"
-      },
-      {
-        "workflow": "cross-monitor-synthesiser.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-10T19:37:53Z",
-        "conclusion": "success",
-        "event": "schedule",
-        "run_number": 8,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25637884642"
       },
       {
         "workflow": "engine-runtime-audit.yml",
@@ -1410,15 +1410,6 @@
         "event": "workflow_dispatch",
         "run_number": 23,
         "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25728665489"
-      },
-      {
-        "workflow": "conflict-escalation-publisher.yml",
-        "repo": "asym-intel/asym-intel-main",
-        "started_at": "2026-05-10T09:30:07Z",
-        "conclusion": "success",
-        "event": "workflow_dispatch",
-        "run_number": 22,
-        "html_url": "https://github.com/asym-intel/asym-intel-main/actions/runs/25625239770"
       }
     ],
     "missed_fires": [
