@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Checkout asym-intel-main (PR HEAD)
         id: checkout_main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -57,7 +57,7 @@ jobs:
       - name: Checkout asym-intel-internal (read-only, sparse)
         id: checkout_internal
         if: steps.checkout_main.outcome == 'success'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: asym-intel/asym-intel-internal
           path: _internal
