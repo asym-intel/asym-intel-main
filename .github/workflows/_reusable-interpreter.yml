@@ -188,12 +188,70 @@ jobs:
           python -m pipeline.engine.interpret_base "${ARGS[@]}"
 
       - name: Commit interpret output
+        # Metadata-driven git add: post-AT canonicalisation, the canonical
+        # interpreter output directory is `paths.interpreter_out_dir` in each
+        # monitor's metadata.yml (read by pipeline/engine/interpret_base.py via
+        # _require_path). Pre-cure this step hardcoded
+        # `pipeline/monitors/${SLUG}/synthesised/`, which matched
+        # FIM/AGM/GMM/WDM/FIMI/ESA/ERM/SCEM but mismatched advennt
+        # (`pipeline/monitors/{slug}/jurisdictions`). On advennt the git add
+        # exited 128 with `pathspec ... did not match any files`. For FIM-class
+        # the bug was latent — `git diff --cached --quiet` short-circuits when
+        # nothing was added, masking the missing path until a real commit was
+        # needed.
+        #
+        # Class-cure: resolve `paths.interpreter_out_dir` from
+        # `internal/pipeline/monitors/${SLUG}/metadata.yml` (or
+        # `fan_out.interpreter_out_dir` for fan_out monitors), substitute
+        # `{slug}`, and git add that path. Falls back to `synthesised/` if no
+        # metadata is found or the key is absent, preserving prior behaviour.
+        #
+        # Authority: BRIEF-STAGE-2-OPERATOR-SMOKE Mode F (fleet-2026-05-18-0016).
+        # Evidence pack: /tmp/fleet-2026-05-18-0016/stage-2-failure-f/evidence-pack.json.
+        # Operator approval: 2026-05-18T13:05 CEST (F1).
         env:
           SLUG: ${{ inputs.slug }}
         run: |
           git config user.name  "monitor-bot"
           git config user.email "monitor-bot@asym-intel.info"
-          git add "pipeline/monitors/${SLUG}/synthesised/"
+
+          META="internal/pipeline/monitors/${SLUG}/metadata.yml"
+          OUT_DIR=""
+          if [ -f "${META}" ]; then
+            # Prefer fan_out.interpreter_out_dir (per-fragment out_dir) when present;
+            # else paths.interpreter_out_dir (single-monitor canonical key);
+            # else legacy paths.synthesiser_out_dir (pre-rename alt_key in interpret_base.py).
+            OUT_DIR="$(python3 -c '
+          import os, sys, yaml
+          slug = os.environ["SLUG"]
+          meta_path = f"internal/pipeline/monitors/{slug}/metadata.yml"
+          try:
+              with open(meta_path) as f:
+                  m = yaml.safe_load(f) or {}
+          except Exception:
+              sys.exit(0)
+          fan_out = (m.get("fan_out") or {})
+          paths = (m.get("paths") or {})
+          for candidate in (fan_out.get("interpreter_out_dir"),
+                            paths.get("interpreter_out_dir"),
+                            paths.get("synthesiser_out_dir")):
+              if candidate:
+                  print(candidate.replace("{slug}", slug))
+                  break
+          ')"
+          fi
+          if [ -z "${OUT_DIR}" ]; then
+            OUT_DIR="pipeline/monitors/${SLUG}/synthesised"
+            echo "::notice::Mode F cure — no interpreter_out_dir in metadata.yml; falling back to ${OUT_DIR}"
+          else
+            echo "::notice::Mode F cure — interpreter_out_dir resolved to ${OUT_DIR}"
+          fi
+
+          # Trailing slash so git add treats it as a directory; harmless on files.
+          git add "${OUT_DIR%/}/" || {
+            echo "::warning::git add ${OUT_DIR%/}/ failed (path may not exist); falling back to synthesised/"
+            git add "pipeline/monitors/${SLUG}/synthesised/" || true
+          }
           git diff --cached --quiet || git commit -m "chore(${SLUG}): interpreter run $(date -u +%Y-%m-%d)"
           git pull --rebase --autostash origin main
           git push
