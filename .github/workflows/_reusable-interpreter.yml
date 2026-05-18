@@ -45,6 +45,25 @@ on:
         required: false
         default: ''
     secrets:
+      # Mode G class-cure (FLEET-2026-05-18-015): split token lanes per
+      # canonical TOKEN-REGISTRY.md doctrine. Three lanes:
+      #   - CALLER_WRITE_TOKEN: step "Checkout public repo" + step "Push commit"
+      #     (NEEDS WRITE on caller repo). Cross-repo callers must map this from
+      #     ASYM_ENGINE_PUBLISHER. Same-repo callers using `secrets: inherit`
+      #     can omit (legacy ASYM_INTEL_PIPELINE fallback below).
+      #   - INTERNAL_READ_TOKEN: step "Checkout internal repo" (sparse) + runtime
+      #     GH_TOKEN for gh api reads. READ-only sufficient. Cross-repo callers
+      #     must map this from COMPUTER_SHIM_INTERNAL_READ. Same-repo callers
+      #     using `secrets: inherit` can omit (legacy ASYM_INTEL_PIPELINE fallback below).
+      #   - ASYM_INTEL_PIPELINE: legacy single-token alias. Kept required for
+      #     back-compat with `secrets: inherit` same-repo callers in
+      #     asym-intel-main. Token-lane discipline cures token-scope-creep
+      #     (TOKEN-REGISTRY.md lines 162-174). Removal in next cycle once all
+      #     callers migrated. Authority: AD-2026-05-18-MODE-G-TOKEN-LANE-SPLIT.
+      CALLER_WRITE_TOKEN:
+        required: false
+      INTERNAL_READ_TOKEN:
+        required: false
       ASYM_INTEL_PIPELINE:
         required: true
       PPLX_API_KEY:
@@ -59,16 +78,26 @@ jobs:
 
     steps:
       - name: Checkout public repo (asym-intel-main)
+        # Mode G class-cure: WRITE lane. Step 13 (Push commit) reuses the
+        # credentials this checkout configures. Prefer CALLER_WRITE_TOKEN
+        # (cross-repo callers map this to ASYM_ENGINE_PUBLISHER) and fall
+        # back to legacy ASYM_INTEL_PIPELINE for same-repo `secrets: inherit`
+        # callers that have not yet migrated.
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          token: ${{ secrets.CALLER_WRITE_TOKEN || secrets.ASYM_INTEL_PIPELINE }}
           ref: main
 
       - name: Checkout internal repo (engine + bespoke config)
+        # Mode G class-cure: READ lane (sparse-checkout of asym-intel-internal).
+        # Prefer INTERNAL_READ_TOKEN (cross-repo callers map this to
+        # COMPUTER_SHIM_INTERNAL_READ — registry doctrine §1: "Default to
+        # COMPUTER_SHIM_INTERNAL_READ for any consumer workflow that needs to
+        # READ from asym-intel-internal"). Fall back to ASYM_INTEL_PIPELINE.
         uses: actions/checkout@v6
         with:
           repository: asym-intel/asym-intel-internal
-          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          token: ${{ secrets.INTERNAL_READ_TOKEN || secrets.ASYM_INTEL_PIPELINE }}
           path: internal
           sparse-checkout: |
             pipeline/engine
@@ -94,8 +123,11 @@ jobs:
           echo "slug_id=${SLUG_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Fetch methodology + identity from internal repo
+        # Mode G class-cure: READ lane (curl asym-intel-internal raw contents).
+        # Prefer INTERNAL_READ_TOKEN; fall back to ASYM_INTEL_PIPELINE for
+        # legacy `secrets: inherit` callers.
         env:
-          GH_TOKEN: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          GH_TOKEN: ${{ secrets.INTERNAL_READ_TOKEN || secrets.ASYM_INTEL_PIPELINE }}
           SLUG: ${{ inputs.slug }}
           SLUG_ID: ${{ steps.slug_map.outputs.slug_id }}
         run: |
@@ -159,6 +191,87 @@ jobs:
           cp -v "internal/pipeline/monitors/${SLUG}/monitor-config.yml"      "pipeline/monitors/${SLUG}/" || true
           cp -v "internal/pipeline/monitors/${SLUG}/interpreter-output-schema.txt" "pipeline/monitors/${SLUG}/" || true
 
+      - name: Cure fan_out source-data layout split (FLEET-INBOX Stage 2 Failure Mode E)
+        # Class-cure for fan_out path-resolution mismatch in two-repo layouts.
+        #
+        # Engine `pipeline/engine/metadata.py` derives `_REPO_ROOT` from
+        # `Path(__file__).resolve().parent.parent.parent` — in CI this is the
+        # sparse-checkout dir `internal/`. `resolve_paths_fanout()` enumerates
+        # `enumerate_from.path` against `_REPO_ROOT` (e.g.
+        # `internal/pipeline/monitors/advennt/jurisdictions`). Downstream
+        # `resolve_paths()` returns RELATIVE path strings that are then
+        # `open()`-ed from CWD (= workspace root, ${github.workspace}).
+        #
+        # For consumers whose jurisdiction/entity data lives in the caller repo
+        # (per BT.3 IP boundary: metadata in internal, data in caller) — today
+        # advennt is the only such consumer — the engine's fan_out enumeration
+        # cannot find the data: it's at workspace-root
+        # `pipeline/monitors/${SLUG}/jurisdictions/`, not under `internal/`.
+        #
+        # Class-cure: when caller-repo fan_out data exists at workspace root
+        # AND the engine-rooted location is empty/absent, symlink the latter to
+        # the former. Both views (engine-rooted enum + CWD-rooted open) now see
+        # the same directory; writes from the interpreter land in the caller
+        # checkout naturally; no copy cost; no engine code change required.
+        #
+        # Monitors without fan_out (FIM/AGM/GMM/WDM/FIMI/ESA/ERM/SCEM today) skip
+        # this step harmlessly because the caller-repo jurisdictions dir does
+        # not exist for them.
+        #
+        # Authority: BRIEF-STAGE-2-OPERATOR-SMOKE Mode E (fleet-2026-05-18-0016).
+        # Evidence pack: /tmp/fleet-2026-05-18-0016/stage-2-failure-e/evidence-pack.json.
+        # Operator approval: 2026-05-18T12:53 CEST.
+        env:
+          SLUG: ${{ inputs.slug }}
+        run: |
+          CALLER_JX="pipeline/monitors/${SLUG}/jurisdictions"
+          ENGINE_JX="internal/pipeline/monitors/${SLUG}/jurisdictions"
+          if [ -d "${CALLER_JX}" ]; then
+            CALLER_COUNT=$(find "${CALLER_JX}" -mindepth 1 -maxdepth 1 -type d | wc -l)
+            echo "::notice::Mode E class-cure — caller-repo fan_out data detected: ${CALLER_COUNT} entries at ${CALLER_JX}"
+            if [ -e "${ENGINE_JX}" ]; then
+              echo "::notice::Engine-rooted ${ENGINE_JX} already present — leaving untouched (no symlink needed)"
+            else
+              mkdir -p "$(dirname "${ENGINE_JX}")"
+              # Symlink target is absolute to make it independent of where the
+              # symlink is resolved from.
+              ln -s "${GITHUB_WORKSPACE}/${CALLER_JX}" "${ENGINE_JX}"
+              echo "::notice::Symlinked ${ENGINE_JX} -> ${GITHUB_WORKSPACE}/${CALLER_JX}"
+              ls -la "${ENGINE_JX}" | head -3
+            fi
+          else
+            echo "::notice::No caller-repo fan_out data at ${CALLER_JX} — Mode E not triggered for this consumer"
+          fi
+
+      - name: Cure caller-repo pipeline/engine shadowing (FLEET-INBOX Stage 2 Failure Mode D)
+        # Class-cure for shadowing: if the calling consumer repo carries a legacy
+        # `pipeline/engine/__init__.py` at workspace root (e.g. advennt did, post-LIFT-v2
+        # tombstone files), Python resolves `pipeline.engine` as a regular package
+        # rooted there — shadowing `internal/pipeline/engine/` and breaking
+        # `python -m pipeline.engine.interpret_base` with `No module named
+        # pipeline.engine.interpret_base`.
+        #
+        # Namespace-package merge (PEP 420) works only when NEITHER portion has
+        # `__init__.py`. asym-intel-main's `pipeline/engine/` has no __init__.py,
+        # so namespace merge succeeds for commons callers (FIM/AGM/GMM/WDM etc).
+        # advennt-style consumer callers carry an __init__.py and fail.
+        #
+        # Runner workspace is ephemeral. Step 11 (Commit interpret output) only
+        # `git add`s pipeline/monitors/${SLUG}/synthesised/, so removing the
+        # workspace-root pipeline/engine/ does not affect the commit or the
+        # source-of-truth consumer repo. Defensive runner-only mutation.
+        #
+        # Authority: BRIEF-STAGE-2-OPERATOR-SMOKE Mode D (fleet-2026-05-18-0016).
+        # Evidence pack: /tmp/fleet-2026-05-18-0016/stage-2-failure-d/evidence-pack.json.
+        run: |
+          if [ -d pipeline/engine ]; then
+            echo "::notice::Mode D class-cure — removing caller-repo pipeline/engine/ (would shadow internal/pipeline/engine/)"
+            ls -la pipeline/engine/ | head -20
+            rm -rf pipeline/engine
+          else
+            echo "::notice::No caller-repo pipeline/engine/ found — Mode D not triggered for this consumer"
+          fi
+
       - name: Run interpreter (engine dispatch)
         # SYNTH_MODEL is set ONLY when the operator passes an explicit `model`
         # via workflow_dispatch. Empty `inputs.model` => SYNTH_MODEL unset =>
@@ -170,7 +283,7 @@ jobs:
         env:
           PPLX_API_KEY:         ${{ secrets.PPLX_API_KEY }}
           ANTHROPIC_API_KEY:    ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN:             ${{ secrets.ASYM_INTEL_PIPELINE }}
+          GH_TOKEN:             ${{ secrets.INTERNAL_READ_TOKEN || secrets.ASYM_INTEL_PIPELINE }}
           REPO_ROOT:            ${{ github.workspace }}
           SYNTH_MODEL:          ${{ inputs.model }}
           WEEKLY_FILE_OVERRIDE: ${{ inputs.weekly_file }}
