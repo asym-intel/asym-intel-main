@@ -1,4 +1,4 @@
-# Global Environmental Risks Monitor — Issue 20
+# Global Environmental Risks Monitor — Issue 21
 
 **19 May 2026** | Published 2026-05-19T05:00:00Z
 
