@@ -1,5 +1,5 @@
 {
-  "$comment": "sprint-bw: added conviction_history, blind_spots, active_tactical_alerts, open_findings",
+  "$comment": "sprint-bw: added active_escalation_events, f_flag_history, mediation_deescalation_architecture, treaty_posture, open_findings",
   "type": "object",
   "properties": {
     "_meta": {
@@ -8,13 +8,12 @@
         "schema_version": {
           "type": "string",
           "enum": [
-            "gmm-interpret-v1.0"
+            "scem-interpret-v1.0"
           ],
-          "description": "Must be exactly 'gmm-interpret-v1.0'."
+          "description": "Must be exactly 'scem-interpret-v1.0'."
         },
         "monitor_slug": {
-          "type": "string",
-          "const": "macro-monitor"
+          "type": "string"
         },
         "synthesised_at": {
           "type": "string"
@@ -26,10 +25,7 @@
           "type": "boolean"
         },
         "null_signal_reason": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "cycle_disposition": {
           "type": "string",
@@ -60,6 +56,18 @@
               "type": "integer",
               "minimum": 0
             },
+            "llm_fallback_model": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "llm_fallback_temperature": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
             "llm_fallback_timestamp": {
               "type": [
                 "string",
@@ -75,7 +83,7 @@
         },
         "replay_window": {
           "type": "object",
-          "description": "Required iff replay_mode is true. Holds the replay cycle window. Not model-derived.",
+          "description": "Required iff replay_mode is true. Holds the replay cycle window read from the override weekly bundle's _meta.week_ending.",
           "properties": {
             "start": {
               "type": "string",
@@ -91,17 +99,12 @@
             "end"
           ]
         }
-      },
-      "required": [
-        "week_ending",
-        "cycle_disposition"
-      ]
+      }
     },
     "lead_signal": {
       "type": "object",
       "required": [
         "headline",
-        "domain",
         "body",
         "source_url",
         "confidence_preliminary"
@@ -109,17 +112,6 @@
       "properties": {
         "headline": {
           "type": "string"
-        },
-        "domain": {
-          "type": "string",
-          "enum": [
-            "growth_recession",
-            "inflation_central_bank",
-            "financial_stability",
-            "trade_tariff",
-            "currency_fx",
-            "sovereign_debt"
-          ]
         },
         "body": {
           "type": "string"
@@ -193,21 +185,21 @@
     "module_2": {
       "type": "object",
       "properties": {
-        "title": {
-          "type": "string"
-        },
-        "announcements": {
+        "force_posture_events": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "institution": {
+              "name": {
                 "type": "string"
               },
-              "type": {
+              "actor": {
                 "type": "string"
               },
-              "released": {
+              "tier": {
+                "type": "integer"
+              },
+              "reported": {
                 "type": "string"
               },
               "headline": {
@@ -242,19 +234,19 @@
         "title": {
           "type": "string"
         },
-        "flow_events": {
+        "treaty_status": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "liquidity_conditions": {
+        "doctrine_shifts": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "reserve_movements": {
+        "capability_developments": {
           "type": "array",
           "items": {
             "type": "object"
@@ -280,38 +272,19 @@
         "title": {
           "type": "string"
         },
-        "domains": {
+        "theatres": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "domain": {
-                "type": "string",
-                "enum": [
-                  "growth_recession",
-                  "inflation_central_bank",
-                  "financial_stability",
-                  "trade_tariff",
-                  "currency_fx",
-                  "sovereign_debt"
-                ]
+              "theatre": {
+                "type": "string"
               },
-              "stress_level": {
-                "type": "string",
-                "enum": [
-                  "Green",
-                  "Amber",
-                  "Red",
-                  "Crisis"
-                ]
+              "intensity": {
+                "type": "string"
               },
-              "direction": {
-                "type": "string",
-                "enum": [
-                  "Worsening",
-                  "Stable",
-                  "Improving"
-                ]
+              "intensity_delta": {
+                "type": "string"
               },
               "headline_developments": {
                 "type": "array",
@@ -319,7 +292,10 @@
                   "type": "string"
                 }
               },
-              "key_data_point": {
+              "deterrence_to_escalation_gap": {
+                "type": "string"
+              },
+              "stealth_flag": {
                 "type": "string"
               },
               "asymmetric": {
@@ -354,11 +330,54 @@
         "title": {
           "type": "string"
         },
-        "currency_signals": {
-          "type": "object"
+        "european": {
+          "type": "object",
+          "properties": {
+            "headline": {
+              "type": "string"
+            },
+            "nato_developments": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "eu_security_developments": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "ukraine_russia_status": {
+              "type": "string"
+            },
+            "balkan_watch": {
+              "type": "string"
+            },
+            "baltic_nordic_watch": {
+              "type": "string"
+            }
+          }
         },
-        "sovereign_debt": {
-          "type": "object"
+        "indo_pacific": {
+          "type": "object",
+          "properties": {
+            "headline": {
+              "type": "string"
+            },
+            "taiwan_strait": {
+              "type": "string"
+            },
+            "korean_peninsula": {
+              "type": "string"
+            },
+            "south_china_sea": {
+              "type": "string"
+            },
+            "india_pakistan": {
+              "type": "string"
+            }
+          }
         },
         "null_signal": {
           "type": "boolean",
@@ -380,7 +399,13 @@
         "title": {
           "type": "string"
         },
-        "threshold_assessments": {
+        "threshold_events": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "programme_updates": {
           "type": "array",
           "items": {
             "type": "object"
@@ -421,13 +446,7 @@
                 "type": "string"
               },
               "rating": {
-                "type": "string",
-                "enum": [
-                  "HIGH",
-                  "ELEVATED",
-                  "MODERATE",
-                  "LOW"
-                ]
+                "type": "string"
               },
               "summary": {
                 "type": "string"
@@ -436,21 +455,13 @@
                 "type": "string"
               },
               "confidence": {
-                "type": "string",
-                "enum": [
-                  "High",
-                  "Assessed",
-                  "Possible"
-                ]
+                "type": "string"
               },
               "changed": {
                 "type": "boolean"
               },
               "unchanged_since": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "string"
               },
               "sources": {
                 "type": "array",
@@ -513,25 +524,31 @@
             "null"
           ]
         },
-        "new_developments": {
+        "law_highlights": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "no_change": {
+        "standards_highlights": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "friction_analysis": {
-          "type": "string"
+        "accountability_highlights": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         },
-        "tariff_escalation_rung": {
-          "type": "string"
+        "icc_icj_highlights": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         },
-        "retaliation_chain": {
+        "sanctions_highlights": {
           "type": "array",
           "items": {
             "type": "object"
@@ -557,25 +574,25 @@
         "title": {
           "type": "string"
         },
-        "multilateral_signals": {
+        "international_frameworks": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "central_bank_coordination": {
+        "crisis_management_mechanisms": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "fiscal_governance": {
+        "ceasefire_negotiations": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "governance_gaps": {
+        "stability_gaps": {
           "type": "array",
           "items": {
             "type": "object"
@@ -605,6 +622,84 @@
           "type": "array",
           "items": {
             "type": "object"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_12": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "f_flag_watch": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_13": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            }
           }
         },
         "structural_trends": {
@@ -641,38 +736,149 @@
         }
       }
     },
+    "module_14": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "concentration_index": {
+          "type": "object",
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "trend": {
+                    "type": "string"
+                  },
+                  "top_actors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "unchanged_since": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_15": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "command_movements": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "diplomatic_personnel": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "leadership_signals": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
     "delta_strip": {
       "type": "array",
       "items": {
         "type": "object"
       }
     },
-    "jurisdiction_risk_matrix": {
+    "theatre_risk_matrix": {
       "type": "array",
+      "description": "SCEM equivalent of AGM jurisdiction_risk_matrix. Covers active conflict theatres and their escalation posture.",
       "items": {
         "type": "object",
         "properties": {
-          "jurisdiction": {
+          "theatre": {
             "type": "string"
           },
-          "monetary_policy_stance": {
+          "intensity": {
             "type": "string",
             "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
+              "I1",
+              "I2",
+              "I3",
+              "I4"
             ]
           },
-          "fiscal_sustainability": {
+          "nuclear_threshold_concern": {
+            "type": "boolean"
+          },
+          "deterrence_stability": {
             "type": "string",
             "enum": [
               "Stable",
-              "Deteriorating",
-              "Improving"
+              "Fragile",
+              "Collapsed"
             ]
           },
-          "external_vulnerability": {
+          "escalation_velocity": {
             "type": "string",
             "enum": [
               "HIGH",
@@ -680,13 +886,53 @@
               "LOW"
             ]
           },
-          "overall_stress": {
+          "key_development": {
+            "type": "string"
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": [
+              "Worsening",
+              "Stable",
+              "Improving"
+            ]
+          }
+        }
+      }
+    },
+    "actor_posture_scorecard": {
+      "type": "array",
+      "description": "SCEM equivalent of AGM lab_posture_scorecard. Covers major state and alliance actors.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "actor": {
+            "type": "string"
+          },
+          "deterrence_posture": {
+            "type": "string",
+            "enum": [
+              "Assertive",
+              "Adequate",
+              "Degraded",
+              "Opaque"
+            ]
+          },
+          "transparency": {
             "type": "string",
             "enum": [
               "HIGH",
-              "ELEVATED",
-              "MODERATE",
+              "MEDIUM",
               "LOW"
+            ]
+          },
+          "arms_control_engagement": {
+            "type": "string",
+            "enum": [
+              "Cooperative",
+              "Compliant",
+              "Resistant",
+              "Absent"
             ]
           },
           "key_development": {
@@ -703,54 +949,14 @@
         }
       }
     },
-    "central_bank_scorecard": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "institution": {
-            "type": "string"
-          },
-          "posture": {
-            "type": "string",
-            "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
-            ]
-          },
-          "last_action": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "forward_guidance": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "key_development": {
-            "type": "string"
-          },
-          "trajectory": {
-            "type": "string",
-            "enum": [
-              "Hawkish",
-              "Stable",
-              "Dovish"
-            ]
-          }
-        }
-      }
-    },
-    "macro_health_composite": {
+    "stability_health_composite": {
       "type": "object",
+      "description": "SCEM equivalent of AGM governance_health_composite. Composite score across five strategic-stability dimensions.",
       "properties": {
         "score": {
-          "type": "number"
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
         },
         "direction": {
           "type": "string",
@@ -763,27 +969,27 @@
         "components": {
           "type": "object",
           "properties": {
-            "growth_stability": {
+            "deterrence_stability": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "inflation_anchor": {
+            "diplomatic_channel_health": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "financial_stability": {
+            "arms_control_coverage": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "external_balance": {
+            "escalation_risk_aggregate": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "policy_coherence": {
+            "alliance_cohesion": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
@@ -807,29 +1013,13 @@
             "type": "string"
           },
           "confidence_preliminary": {
-            "type": "string",
-            "enum": [
-              "High",
-              "Assessed",
-              "Possible"
-            ]
+            "type": "string"
           },
-          "stress_domain": {
+          "theatre_affected": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string",
-            "enum": [
-              "Worsening",
-              "Stable",
-              "Improving"
-            ]
-          },
-          "source_urls": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string"
           }
         }
       }
@@ -849,12 +1039,7 @@
             "type": "string"
           },
           "confidence_preliminary": {
-            "type": "string",
-            "enum": [
-              "Low",
-              "Medium",
-              "High"
-            ]
+            "type": "string"
           }
         }
       }
@@ -876,8 +1061,8 @@
         "properties": {
           "claim_id": {
             "type": "string",
-            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
-            "description": "Stable within a cycle. Format: gmm-int-{ISO-date}-{4-digit-sequence}."
+            "pattern": "^scem-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+            "description": "Stable within a cycle. Format: scem-int-{ISO-date}-{4-digit-sequence}."
           },
           "entity": {
             "type": "string",
@@ -944,7 +1129,7 @@
         "properties": {
           "gap_id": {
             "type": "string",
-            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
+            "pattern": "^scem-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
           },
           "description": {
             "type": "string",
@@ -962,7 +1147,7 @@
     },
     "proposed_patches": {
       "type": "array",
-      "description": "OPTIONAL. Material-change patches proposed to the Applier. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries the 5 Appendix A required fields.",
+      "description": "Optional top-level array naming the material-change patches this interpretation proposes to the Applier. Under null_cycle the prompt contract requires an empty array. Each patch carries 5 required fields per pipeline-doctrine Appendix A.",
       "items": {
         "type": "object",
         "required": [
@@ -1028,75 +1213,34 @@
         "additionalProperties": true
       }
     },
-    "conviction_history": {
+    "active_escalation_events": {
       "type": "array",
-      "description": "Chronological weekly conviction assessments — append only.",
+      "description": "Chronological log of significant escalation events — append only.",
       "items": {
         "type": "object",
         "required": [
-          "date",
-          "system_average",
-          "conviction",
-          "regime",
-          "regime_conviction",
-          "rationale"
-        ],
-        "properties": {
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "system_average": {
-            "type": "number",
-            "minimum": 0.0,
-            "maximum": 1.0
-          },
-          "conviction": {
-            "type": "string",
-            "enum": [
-              "MEDIUM",
-              "HIGH"
-            ]
-          },
-          "regime": {
-            "type": "string"
-          },
-          "regime_conviction": {
-            "type": "string",
-            "enum": [
-              "MEDIUM",
-              "HIGH"
-            ]
-          },
-          "rationale": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "blind_spots": {
-      "type": "array",
-      "description": "Identified structural gaps in data coverage or analytical scope.",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "description",
-          "evidence_id",
+          "event_id",
+          "conflict_id",
+          "event_date",
+          "event",
+          "strategic_significance",
           "source_url"
         ],
         "properties": {
-          "id": {
+          "event_id": {
             "type": "string"
           },
-          "name": {
+          "conflict_id": {
             "type": "string"
           },
-          "description": {
+          "event_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "event": {
             "type": "string"
           },
-          "evidence_id": {
+          "strategic_significance": {
             "type": "string"
           },
           "source_url": {
@@ -1105,38 +1249,125 @@
         }
       }
     },
-    "active_tactical_alerts": {
+    "f_flag_history": {
       "type": "array",
-      "description": "Named tactical alert conditions with traffic-light state.",
+      "description": "Log of F-flags (F1-F4) applied to conflicts; status updated to Resolved when conditions clear.",
       "items": {
         "type": "object",
         "required": [
-          "alert_id",
-          "name",
-          "current_state",
-          "last_state_change",
-          "description"
+          "flag",
+          "conflict",
+          "indicator",
+          "detail",
+          "applied",
+          "status"
         ],
         "properties": {
-          "alert_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "current_state": {
+          "flag": {
             "type": "string",
             "enum": [
-              "WARNING",
-              "WATCH",
-              "CLEAR"
+              "F1",
+              "F2",
+              "F3",
+              "F4"
             ]
           },
-          "last_state_change": {
+          "conflict": {
+            "type": "string"
+          },
+          "indicator": {
+            "type": "string",
+            "enum": [
+              "I1",
+              "I2",
+              "I3",
+              "I4",
+              "I5",
+              "I6"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          },
+          "applied": {
             "type": "string",
             "format": "date"
           },
-          "description": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "Active",
+              "Resolved"
+            ]
+          }
+        }
+      }
+    },
+    "mediation_deescalation_architecture": {
+      "type": "array",
+      "description": "Per-conflict-pair mediation and de-escalation mechanism assessments.",
+      "items": {
+        "type": "object",
+        "required": [
+          "conflict_id",
+          "frameworks",
+          "un_security_council",
+          "evidence_id"
+        ],
+        "properties": {
+          "conflict_id": {
+            "type": "string"
+          },
+          "frameworks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "un_security_council": {
+            "type": "string"
+          },
+          "evidence_id": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "treaty_posture": {
+      "type": "array",
+      "description": "Treaties relevant to active or monitored conflicts with current status.",
+      "items": {
+        "type": "object",
+        "required": [
+          "treaty",
+          "parties",
+          "status",
+          "expiry_date",
+          "details"
+        ],
+        "properties": {
+          "treaty": {
+            "type": "string"
+          },
+          "parties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in-force",
+              "lapsed",
+              "denounced",
+              "suspended"
+            ]
+          },
+          "expiry_date": {
+            "type": "string"
+          },
+          "details": {
             "type": "string"
           }
         }
@@ -1144,7 +1375,7 @@
     },
     "open_findings": {
       "type": "array",
-      "description": "Salient macro findings from the weekly research bundle not captured in other structured fields.",
+      "description": "Salient conflict-escalation findings from the weekly research bundle not captured in other structured fields.",
       "items": {
         "type": "object",
         "required": [
@@ -1178,6 +1409,96 @@
           }
         }
       }
+    },
+    "reverse_cascade_check": {
+      "type": "object",
+      "required": [
+        "checked",
+        "note"
+      ],
+      "properties": {
+        "checked": {
+          "type": "boolean"
+        },
+        "geopolitical_event": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "accelerates_boundary": {
+          "type": "boolean"
+        },
+        "affected_boundary": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cascade_description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "conflict_roster": {
+      "type": "array",
+      "description": "REQUIRED every cycle. List of active and monitored conflicts. Carry forward stable entries from prior cycle. Publisher validates roster continuity — a drop of >50% triggers a hard block.",
+      "items": {
+        "type": "object",
+        "required": [
+          "conflict_id",
+          "name",
+          "status"
+        ],
+        "properties": {
+          "conflict_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "FROZEN",
+              "RESOLVED",
+              "MONITORING"
+            ]
+          },
+          "theatre": {
+            "type": "string"
+          },
+          "intensity": {
+            "type": "string",
+            "enum": [
+              "HIGH",
+              "ELEVATED",
+              "MODERATE",
+              "LOW"
+            ]
+          },
+          "trajectory": {
+            "type": "string",
+            "enum": [
+              "Escalating",
+              "Stable",
+              "De-escalating"
+            ]
+          },
+          "week_update": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "required": [
@@ -1195,16 +1516,17 @@
     "module_9",
     "module_10",
     "module_11",
+    "module_12",
+    "module_13",
+    "module_14",
+    "module_15",
     "delta_strip",
-    "jurisdiction_risk_matrix",
-    "central_bank_scorecard",
-    "macro_health_composite",
+    "theatre_risk_matrix",
+    "actor_posture_scorecard",
+    "stability_health_composite",
     "key_judgments",
     "cross_monitor_candidates",
     "structured_claims",
-    "conviction_history",
-    "blind_spots",
-    "active_tactical_alerts",
-    "open_findings"
+    "conflict_roster"
   ]
 }
