@@ -621,9 +621,10 @@ All string values must avoid apostrophes and contractions — use full words onl
 24. No weekly_brief_draft: do NOT emit a weekly_brief_draft field. The Composer stage renders prose separately.
 25. Claim-module consistency: if a claim appears in structured_claims[], its source_module reference must point to a module or field that actually contains the claim. Never credit a claim to a module that does not surface it.
 26. gaps_register[] is optional but recommended when Uncertain or Possible confidence dominates a module — name the evidence that would upgrade.
-27. proposed_patches[] is an OPTIONAL top-level array that names the material-change patches this interpretation wants the Applier to apply to the living knowledge base. Follow pipeline-doctrine Appendix A. Each patch MUST contain five fields: (a) rule_applied — the methodology rule you invoked; (b) evidence_ids — array of evidence IDs from the weekly-research bundle or KB; (c) confidence; (d) material_change_justification; (e) target_kb_path. NULL-CYCLE CONTRACT: if the evidence bundle carries no material change, emit proposed_patches: [] (empty array), not an omitted field. Never manufacture a patch under a null cycle. If this cycle is material_change, aim for one patch per major KB target touched. Do NOT emit patches for cosmetic rewording of existing KB prose; patches are for state changes.
+27. proposed_patches[] — For material_change cycles, MUST emit at least one patch for each sub-rule (28, 29) where a material change occurred. For null_cycle, emit proposed_patches: [] (empty array — never omit the field). Each patch MUST contain six fields: (a) rule_applied — the methodology rule you invoked; (b) evidence_ids — array of evidence IDs from the weekly-research bundle or KB (must be non-empty); (c) confidence — one of {"Confirmed","High","Assessed","Possible"}; (d) material_change_justification — one sentence rationale for why this change is material; (e) target_kb_path — the KB path being updated; (f) new_value — the exact replacement value the Applier should write at target_kb_path. (g) patch_id (REQUIRED): emit a stable deterministic identifier of the form {monitor_abbr}-{cycle_date}-{idx:03d}-{target_kb_path_slug}, e.g. wdm-2026-05-15-000-institutional-integrity-active-flags. Never emit a field named value; the engine reads new_value. If this cycle is material_change, aim for one patch per major KB target touched (typically 2-4 patches for a normal WDM weekly). Do NOT emit patches for cosmetic rewording of existing KB prose; patches are for state changes. Follow pipeline-doctrine Appendix A.
 
 
+# Version: v1.1 | Updated: 2026-05-19 | Change: Rule 27 — proposed_patches strengthened from OPTIONAL to REQUIRED for material_change cycles; patch_id field added; new_value field name standardised (was value); Rules 28/29 patch examples corrected to use new_value/update (was value/replace). Fixes E15 silent-failure on WDM 2026-05-15 (13 claims, 0 patches). Evidence: session arti-20260519T074724Z wave2-wdm-0515.
 # Version: v1.0 | Updated: 2026-04-24 | Change: NEW file — Sprint C.E Phase 1 structural parity to AGM (AD-2026-04-24n). Topic-adapted from AGM interpreter-prompt.txt. WDM domain: electoral integrity / democratic backsliding. AGM->WDM reword map applied per monitor-guidance.md.
 28. **Rule 28 — `institutional_integrity_active_flags`**
 
@@ -639,8 +640,8 @@ Only include flags with current evidentiary support in the research bundle. Remo
 
 When a material change is detected in any flag (new flag, severity escalation, new evidence), propose a patch:
 proposed_patches[].target_kb_path = "institutional_integrity_active_flags"
-proposed_patches[].operation = "replace"   // full list replacement
-proposed_patches[].value = <updated full list>
+proposed_patches[].operation = "update"
+proposed_patches[].new_value = <updated full list>
 proposed_patches[].rationale = <one sentence>
 
 29. **Rule 29 — `mimicry_chains`**
@@ -656,8 +657,8 @@ Update `last_verified` for existing chains when new evidence is present. Add new
 
 When material changes occur, propose a patch:
 proposed_patches[].target_kb_path = "mimicry_chains"
-proposed_patches[].operation = "replace"
-proposed_patches[].value = <updated full list>
+proposed_patches[].operation = "update"
+proposed_patches[].new_value = <updated full list>
 proposed_patches[].rationale = <one sentence>
 
 30. **Rule 30 — `open_findings`**
