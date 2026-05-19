@@ -518,16 +518,20 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ── Main fetch & render ──────────────────────────────────────────────────
-  fetch('data/report-latest.json')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      renderDashboard(d);
+  var reportPromise = fetch('data/report-latest.json').then(function(r){ return r.json(); });
+  var psPromise = fetch('data/persistent-state.json').then(function(r){ return r.json(); });
+
+  Promise.all([reportPromise, psPromise])
+    .then(function(results) {
+      var d = results[0];
+      var ps = results[1];
+      renderDashboard(d, ps);
     })
     .catch(function (e) {
       document.getElementById('triage-container').innerHTML = '<div class="error-state">Failed to load dashboard data: ' + esc(e.message) + '</div>';
     });
 
-  function renderDashboard(d) {
+  function renderDashboard(d, ps) {
     var meta     = d.meta || {};
     // Remap: JSON stores stress/regime inside signal; asset data in asset_outlook
     var signalObj = d.signal || {};
@@ -704,7 +708,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Additional Intelligence (BW-7)
-    renderAdditionalIntelligence(d);
+    renderAdditionalIntelligence(d, ps);
+
+    // Score history chart (consolidated from separate ps fetch)
+    renderScoreHistoryChart(ps.asset_class_baseline || []);
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -829,10 +836,10 @@ document.addEventListener('DOMContentLoaded', function () {
     html += '</div>';
     el.innerHTML = html;
   }
-  function renderAdditionalIntelligence(report) {
-    renderConvictionHistory(report.conviction_history || []);
-    renderBlindSpots(report.blind_spots || []);
-    renderTacticalAlerts(report.active_tactical_alerts || []);
+  function renderAdditionalIntelligence(report, ps) {
+    renderConvictionHistory(ps.conviction_history || []);
+    renderBlindSpots(ps.blind_spots || []);
+    renderTacticalAlerts(ps.active_tactical_alerts || []);
     renderOpenFindings(report.open_findings || []);
   }
 
@@ -1360,20 +1367,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Fetch persistent-state.json for score history
-  fetch('data/persistent-state.json')
-    .then(function(r) { return r.json(); })
-    .then(function(ps) {
-      var baselines = ps.asset_class_baseline || [];
-      renderScoreHistoryChart(baselines);
-    })
-    .catch(function(e) {
-      var section = document.getElementById('section-score-history');
-      if (section) {
-        var wrap = section.querySelector('.score-history-wrap');
-        if (wrap) wrap.innerHTML = '<p class="text-muted" style="font-size:var(--text-sm);padding:var(--space-4)">Score history unavailable: ' + esc(e.message) + '</p>';
-      }
-    });
+  // Note: persistent-state.json fetch consolidated into Promise.all above (W3 renderer split)
 
     // ── Indicator display label map ─────────────────────────────────────
   // Maps snake_case indicator keys to human-readable labels.
