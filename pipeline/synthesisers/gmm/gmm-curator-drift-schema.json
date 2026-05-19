@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "GMM Curator Drift Register (gmm-curator-drift-v1.0)",
-  "description": "File-output schema for the deterministic Curator stage for the Global Macro Monitor (macro-monitor). LLM-free: no curator_model, no advisory_notes, no structured_claims. Output is a drift register emitted every cycle (including null cycles) with four typed triggers (T1-T4) firing at advisory severity only. Non-blocking by design (F5/F6). W4-A cure (HK-2026-05-14-curator-drift-schemas-7-monitors-missing, session hk-20260516-183132). Pattern: aim-curator-drift-schema.json.",
+  "description": "File-output schema for the deterministic Curator stage for the Global Macro Monitor (macro-monitor). LLM-free: no curator_model, no advisory_notes, no structured_claims. Output is a drift register emitted every cycle (including null cycles) with four typed triggers (T1-T4) firing at advisory severity only. Non-blocking by design (F5/F6). Generated from pipeline/synthesisers/_shared/curator-drift-schema.template.json by generate_curator_schemas.py \u2014 DO NOT EDIT BY HAND.",
   "type": "object",
   "required": [
     "_meta",
@@ -79,12 +79,32 @@
           ],
           "additionalProperties": false,
           "properties": {
-            "previous_artefact_sha": {"type": "string", "description": "SHA of the artefact being replaced."},
-            "previous_artefact_written_at": {"type": "string", "format": "date-time", "description": "When the replaced artefact was written."},
-            "reason": {"type": "string", "description": "Why force re-issue was authorised."},
-            "ad_reference": {"type": "string", "description": "AD authorising the force path (e.g. AD-2026-04-24l)."},
-            "operator": {"type": "string", "description": "Operator who authorised the force re-issue."},
-            "forced_at": {"type": "string", "format": "date-time", "description": "Timestamp of the force re-issue dispatch."}
+            "previous_artefact_sha": {
+              "type": "string",
+              "description": "SHA of the artefact being replaced."
+            },
+            "previous_artefact_written_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "When the replaced artefact was written."
+            },
+            "reason": {
+              "type": "string",
+              "description": "Why force re-issue was authorised."
+            },
+            "ad_reference": {
+              "type": "string",
+              "description": "AD authorising the force path (e.g. AD-2026-04-24l)."
+            },
+            "operator": {
+              "type": "string",
+              "description": "Operator who authorised the force re-issue."
+            },
+            "forced_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Timestamp of the force re-issue dispatch."
+            }
           }
         }
       }

@@ -1,0 +1,76 @@
+{
+  "_meta": {
+    "description": "Audit trail for generate_curator_schemas.py. Records the source canonical register SHA + per-schema SHA256. CI sync gate uses this to detect drift.",
+    "generator": "pipeline/synthesisers/_shared/generate_curator_schemas.py",
+    "template": "pipeline/synthesisers/_shared/curator-drift-schema.template.json",
+    "source_register": "ops/canonical/monitors.json",
+    "source_register_sha256_16": "acc60473161588ce",
+    "monitor_count": 8
+  },
+  "monitors": [
+    {
+      "slug": "ai-governance",
+      "abbr": "AIM",
+      "status": "active",
+      "schema_path": "pipeline/synthesisers/agm/aim-curator-drift-schema.json",
+      "schema_version": "aim-curator-drift-v1.0",
+      "sha256_of_rendered": "b79323a2a0dda197d2f06ddce40072becb903ebd0ec139d63737d94703644ce4"
+    },
+    {
+      "slug": "environmental-risks",
+      "abbr": "ERM",
+      "status": "active",
+      "schema_path": "pipeline/synthesisers/erm/erm-curator-drift-schema.json",
+      "schema_version": "erm-curator-drift-v1.0",
+      "sha256_of_rendered": "60e87480d7f41f42985845650ff22bcaaa5638961820832c7718d9a428bea76d"
+    },
+    {
+      "slug": "european-strategic-autonomy",
+      "abbr": "ESA",
+      "status": "active",
+      "schema_path": "pipeline/synthesisers/esa/esa-curator-drift-schema.json",
+      "schema_version": "esa-curator-drift-v1.0",
+      "sha256_of_rendered": "9f476c553421a0e167e34ae5d7074d96c5ad8af9a692d67b02ca1e0f844353e5"
+    },
+    {
+      "slug": "fimi-cognitive-warfare",
+      "abbr": "FCW",
+      "status": "active",
+      "schema_path": "pipeline/synthesisers/fcw/fcw-curator-drift-schema.json",
+      "schema_version": "fcw-curator-drift-v1.0",
+      "sha256_of_rendered": "142bed11537edaed1c369adf0d3a9ea749faaa8a6f807ee4c818de206fc69d73"
+    },
+    {
+      "slug": "financial-integrity",
+      "abbr": "FIM",
+      "status": "paused",
+      "schema_path": "pipeline/synthesisers/fim/fim-curator-drift-schema.json",
+      "schema_version": "fim-curator-drift-v1.0",
+      "sha256_of_rendered": "f71901595c59b60a379dfe081fc3eb89333edefaa1248876602bd5b4bc2324e9"
+    },
+    {
+      "slug": "macro-monitor",
+      "abbr": "GMM",
+      "status": "active",
+      "schema_path": "pipeline/synthesisers/gmm/gmm-curator-drift-schema.json",
+      "schema_version": "gmm-curator-drift-v1.0",
+      "sha256_of_rendered": "9d1357fc3e22f3621ea9a1cdeb90d6339026cc43575556347c5722fb16e2991d"
+    },
+    {
+      "slug": "conflict-escalation",
+      "abbr": "SCEM",
+      "status": "active",
+      "schema_path": "pipeline/synthesisers/scem/scem-curator-drift-schema.json",
+      "schema_version": "scem-curator-drift-v1.0",
+      "sha256_of_rendered": "316ed842541fdccfbd34203d1e2f25e151d5d22ad69d07486bd5c2e1d28dc947"
+    },
+    {
+      "slug": "democratic-integrity",
+      "abbr": "WDM",
+      "status": "active",
+      "schema_path": "pipeline/synthesisers/wdm/wdm-curator-drift-schema.json",
+      "schema_version": "wdm-curator-drift-v1.0",
+      "sha256_of_rendered": "3da74a3b813b9fef66175e74ae4ad59d5c5c606bbdff0eefaf9ec08a5e6d049e"
+    }
+  ]
+}

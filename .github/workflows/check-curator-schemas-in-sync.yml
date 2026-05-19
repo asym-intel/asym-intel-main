@@ -1,0 +1,94 @@
+name: curator-schemas-in-sync
+
+# A2 cure gate — keeps per-monitor curator drift schemas in lockstep with the
+# canonical template + canonical monitor register.
+#
+# Authority:
+#   - asym-intel-main PR #374 (A1: force_reissue _meta block added to 8 schemas,
+#     SHA 5f5139b7548e02f66d95e9c1f8e7a4f2f83b1577, merged 2026-05-19T10:33:13Z)
+#   - Operator doctrine 2026-05-19: "the fix must be template or pipeline class
+#     not copy paste instance" + "we also have a canonical monitor registry so
+#     we should call in rather than copy paste"
+#   - A2 design: generator reads asym-intel-internal:ops/canonical/monitors.json
+#     and emits pipeline/synthesisers/<slug>/<abbr>-curator-drift-schema.json
+#     from pipeline/synthesisers/_shared/curator-drift-schema.template.json
+#
+# What it does:
+#   Runs the generator in --check mode. If regeneration would change any per-monitor
+#   curator drift schema (or the manifest sha256 set), the PR is out of sync with
+#   the canonical template or register, and the gate fails closed.
+#
+# Reshape primitives in use (per AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE):
+#   - Outcome-gated bootstrap: internal-repo checkout failure → BOOTSTRAP-WARN, exit 0.
+#     The validator owns FATAL/WARN for its own decisions; environmental signal
+#     degrades to WARN at the workflow layer.
+#   - PR-HEAD refs: pull_request event evaluates the PR HEAD, so a PR that itself
+#     re-runs the generator passes immediately.
+#   - Self-trigger exemption: this PR (which introduces the gate + the regenerated
+#     schemas in one commit) is itself the cure for any prior drift, so the gate
+#     evaluates against the post-regeneration HEAD.
+
+on:
+  pull_request:
+    paths:
+      - "pipeline/synthesisers/_shared/**"
+      - "pipeline/synthesisers/**/curator-drift-schema.json"
+      - "pipeline/synthesisers/**/*-curator-drift-schema.json"
+      - ".github/workflows/check-curator-schemas-in-sync.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/synthesisers/_shared/**"
+      - "pipeline/synthesisers/**/curator-drift-schema.json"
+      - "pipeline/synthesisers/**/*-curator-drift-schema.json"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  in-sync:
+    name: curator schemas in sync with template + canonical register
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout main repo
+        id: checkout-main
+        uses: actions/checkout@v6
+        with:
+          path: main
+
+      - name: Checkout internal repo (for canonical monitor register)
+        id: checkout-internal
+        continue-on-error: true
+        uses: actions/checkout@v6
+        with:
+          repository: asym-intel/asym-intel-internal
+          token: ${{ secrets.ASYM_INTEL_PIPELINE }}
+          path: internal
+
+      - name: BOOTSTRAP-WARN if internal checkout failed
+        if: steps.checkout-internal.outcome != 'success'
+        run: |
+          echo "::warning title=BOOTSTRAP-WARN::Could not check out asym-intel-internal (ASYM_INTEL_PIPELINE secret unavailable, revoked, or asym-intel-main not in repo-access list). Gate emits WARN and exits 0. See AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE §outcome-gated bootstrap."
+          exit 0
+
+      - name: Set up Python
+        id: setup-python
+        if: steps.checkout-internal.outcome == 'success'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        id: install-deps
+        if: steps.checkout-internal.outcome == 'success'
+        run: pip install jsonschema pyyaml
+
+      - name: Run curator-schemas-in-sync check
+        if: steps.checkout-internal.outcome == 'success'
+        run: |
+          python3 main/pipeline/synthesisers/_shared/generate_curator_schemas.py \
+            --check \
+            --repo-root main \
+            --canonical-register internal/ops/canonical/monitors.json
