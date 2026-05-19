@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$comment": "sprint-bw: added active_escalation_events, f_flag_history, mediation_deescalation_architecture, treaty_posture, open_findings",
   "type": "object",
   "properties": {
@@ -1204,7 +1205,7 @@
     },
     "active_escalation_events": {
       "type": "array",
-      "description": "Chronological log of significant escalation events \u2014 append only.",
+      "description": "Chronological log of significant escalation events — append only.",
       "items": {
         "type": "object",
         "required": [
@@ -1437,7 +1438,7 @@
     },
     "conflict_roster": {
       "type": "array",
-      "description": "REQUIRED every cycle. List of active and monitored conflicts. Carry forward stable entries from prior cycle. Publisher validates roster continuity \u2014 a drop of >50% triggers a hard block.",
+      "description": "REQUIRED every cycle. List of active and monitored conflicts. Carry forward stable entries from prior cycle. Publisher validates roster continuity — a drop of >50% triggers a hard block.",
       "items": {
         "type": "object",
         "required": [
@@ -1517,5 +1518,69 @@
     "cross_monitor_candidates",
     "structured_claims",
     "conflict_roster"
+  ],
+  "allOf": [
+    {
+      "$comment": "Cure 1: if cycle_disposition==material_change then structured_claims must have >=1 item. Prevents WDM 05-18 class of defect (material_change with empty claims reaching reviewer).",
+      "if": {
+        "properties": {
+          "_meta": {
+            "properties": {
+              "cycle_disposition": {
+                "const": "material_change"
+              }
+            },
+            "required": [
+              "cycle_disposition"
+            ]
+          }
+        },
+        "required": [
+          "_meta"
+        ]
+      },
+      "then": {
+        "properties": {
+          "structured_claims": {
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "structured_claims"
+        ]
+      }
+    },
+    {
+      "$comment": "Cure 1: if null_signal_week==true then gaps_register must have >=1 item. Prevents FCW 05-15 class of defect (null_signal_week=true with empty gaps_register reaching reviewer).",
+      "if": {
+        "properties": {
+          "_meta": {
+            "properties": {
+              "null_signal_week": {
+                "const": true
+              }
+            },
+            "required": [
+              "null_signal_week"
+            ]
+          }
+        },
+        "required": [
+          "_meta"
+        ]
+      },
+      "then": {
+        "properties": {
+          "gaps_register": {
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "gaps_register"
+        ]
+      }
+    }
   ]
 }
