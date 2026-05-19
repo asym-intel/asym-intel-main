@@ -1,3 +1,25 @@
+# ════════════════════════════════════════════════════════════════════
+# DEPRECATED 2026-05-19 — chatter + daily surfaces are deprecated.
+# ════════════════════════════════════════════════════════════════════
+# Authority: operator instruction 2026-05-19 ("Chatter and daily are
+# deprecated please note in canonical docs that so we stop discussing
+# and talking about fixing them"). Workflow_dispatch retained for
+# emergency manual single-fire only — DO NOT add a `schedule:` block
+# and DO NOT add a `06:00` / `07:00` slot to `pipeline-dispatcher`
+# (asym-intel-internal:workers/pipeline-dispatcher/wrangler.toml).
+#
+# Canonical doc: asym-intel-internal:docs/PIPELINE-CANONICAL.md §
+# "Deprecated surfaces" (v2.5+, 2026-05-19).
+# Dispatcher pin: asym-intel-internal:workers/pipeline-dispatcher/
+#   wrangler.toml — chatter (06:00) + daily collector (07:00) cron slots
+#   are PERMANENTLY OUT OF SCOPE; src/index.ts L206–L215 dispatch
+#   branches now throw if reached.
+# Reader surface deprecation: the homepage no longer consumes
+# `/monitors/{slug}/data/chatter-latest.json`. Stale chatter-latest.json
+# files in `asym-intel-main:docs/monitors/{slug}/data/` are tombstoned
+# (not deleted) per Rule 7(b) workspace/repo no-delete protection.
+# ════════════════════════════════════════════════════════════════════
+
 name: FIM Chatter — Standalone fallback (emergency single-monitor re-run)
 
 on:
