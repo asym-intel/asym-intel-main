@@ -65,6 +65,27 @@
               "minimum": 0
             }
           }
+        },
+        "force_reissue": {
+          "type": "object",
+          "description": "Audit block written when curator artefact is force-reissued (governed --force path, AD-2026-04-24l). Optional: only present on forced re-issues.",
+          "required": [
+            "previous_artefact_sha",
+            "previous_artefact_written_at",
+            "reason",
+            "ad_reference",
+            "operator",
+            "forced_at"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "previous_artefact_sha": {"type": "string", "description": "SHA of the artefact being replaced."},
+            "previous_artefact_written_at": {"type": "string", "format": "date-time", "description": "When the replaced artefact was written."},
+            "reason": {"type": "string", "description": "Why force re-issue was authorised."},
+            "ad_reference": {"type": "string", "description": "AD authorising the force path (e.g. AD-2026-04-24l)."},
+            "operator": {"type": "string", "description": "Operator who authorised the force re-issue."},
+            "forced_at": {"type": "string", "format": "date-time", "description": "Timestamp of the force re-issue dispatch."}
+          }
         }
       }
     },
