@@ -1,4 +1,4 @@
-# European Strategic Autonomy Monitor — Issue 19
+# European Strategic Autonomy Monitor — Issue 20
 
 **19 May 2026** | Published 2026-05-19T19:00:00Z
 
@@ -84,32 +84,32 @@ On the hybrid side, the European Union will need to show whether it can compensa
 - **Russian hybrid escalation includes FIMI components** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Russian FIMI targeting German elections via Telegram.** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Chinese influence operations in Italian media environment.** (democratic-integrity) — Active — verified (adjacent Issue 16)
-- **Belarusian drone probes on Polish infrastructure.** (conflict-escalation) — Active — verified (adjacent Issue 17)
+- **Belarusian drone probes on Polish infrastructure.** (conflict-escalation) — Active — verified (adjacent Issue 18)
 - **AI-generated content in 27% of FIMI incidents; Russia targeted elections in 6 countries in 2025 with 8 more flagged for 2026** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Russia targeted elections in Germany, Poland, Romania, Moldova, Czech Republic in 2025; 8 additional member states flagged for 2026** (democratic-integrity) — Active — verified (adjacent Issue 16)
-- **SAFE EUR150bn loan facility and EDF-Ukraine association create structural link between EU defence industrial base and conflict-adjacent capability supply** (conflict-escalation) — Active — verified (adjacent Issue 17)
+- **SAFE EUR150bn loan facility and EDF-Ukraine association create structural link between EU defence industrial base and conflict-adjacent capability supply** (conflict-escalation) — Active — verified (adjacent Issue 18)
 - **EU gas storage at 30% entering May 2026; Russian LNG imports 21bcm in 2024; Chinese 80% rare earth dominance create macro leverage points** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **AI-generated synthetic media operationalised at scale in 27% of FIMI incidents; EU AI Act and DSA do not yet address FIMI-specific deployment** (ai-governance) — Active — verified (adjacent Issue 18)
 - **AI-generated content operationalised at scale in FIMI campaigns: 27% of 2025 incidents** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
-- **SAFE adoption and Ukraine EDF association create direct EU defence industrial-conflict supply linkage** (conflict-escalation) — Active — verified (adjacent Issue 17)
+- **SAFE adoption and Ukraine EDF association create direct EU defence industrial-conflict supply linkage** (conflict-escalation) — Active — verified (adjacent Issue 18)
 - **Chinese rare earth dominance creates structural economic coercion leverage; EU gas storage crisis creates energy cost vulnerability** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **AI-generated synthetic media now core FIMI TTP; Horizon Europe dual-use extension creates new defence AI funding pathway** (ai-governance) — Active — verified (adjacent Issue 18)
 - **Russia targeted elections in 6 countries in 2025; 8 EU states flagged high-risk 2026** (democratic-integrity) — Active — verified (adjacent Issue 16)
 - **Russian FIMI operational backbone targets eight EU member state elections using Moldova 2025 infrastructure** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
-- **Russian drone incursions into Polish and Danish airspace trigger NATO Article 4 consultations** (conflict-escalation) — Active — verified (adjacent Issue 17)
+- **Russian drone incursions into Polish and Danish airspace trigger NATO Article 4 consultations** (conflict-escalation) — Active — verified (adjacent Issue 18)
 - **Eight EU member state elections face Russian FIMI threat without US counter-pressure** (democratic-integrity) — Active — verified (adjacent Issue 16)
 - **Russian FIMI operational backbone pivots from Moldova to Armenia with 8 EU elections at risk using Doppelganger, African Initiative, Portal Kombat networks** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Eight EU member states holding elections in 2026 face Russian FIMI interference patterns at moment of maximum vulnerability following US withdrawal from counter-FIMI work** (democratic-integrity) — Active — verified (adjacent Issue 16)
-- **Russian drone incursions into Polish and Danish airspace trigger NATO Article 4 consultations signaling proximity to collective defence threshold** (conflict-escalation) — Active — verified (adjacent Issue 17)
+- **Russian drone incursions into Polish and Danish airspace trigger NATO Article 4 consultations signaling proximity to collective defence threshold** (conflict-escalation) — Active — verified (adjacent Issue 18)
 - **SAFE 150 billion euro loan facility adopted by Council carries sovereign debt implications; crypto financing of Russian sabotage networks evading sanctions enforcement** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **AI-generated content and deepfake videos documented in Russian FIMI campaigns; CADA delay affects AI sovereignty policy development** (ai-governance) — Active — verified (adjacent Issue 18)
 - **EEAS 4th FIMI Threat Report documents 540 incidents in 2025, 27 percent AI-enabled, with Russia pivoting infrastructure from Moldova to Armenia** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Eight EU member states face elections in 2026 with Russian FIMI infrastructure threat per EEAS assessment** (democratic-integrity) — Active — verified (adjacent Issue 16)
-- **EEAS confirms escalating and integrated Russian hybrid campaign encompassing cyber, sabotage, infrastructure disruption, and FIMI** (conflict-escalation) — Active — verified (adjacent Issue 17)
+- **EEAS confirms escalating and integrated Russian hybrid campaign encompassing cyber, sabotage, infrastructure disruption, and FIMI** (conflict-escalation) — Active — verified (adjacent Issue 18)
 - **27 percent of FIMI incidents in 2025 involved AI-generated content including synthetic audio and manipulated video** (ai-governance) — Active — verified (adjacent Issue 18)
 - **EEAS 4th FIMI Threat Report documents 540 incidents in 2025, 29 percent attributed to Russia, 27 percent involving AI-generated content** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Russia pivots FIMI infrastructure from Moldova 2025 elections to Armenia 2026 elections; eight EU member states face similar interference patterns** (democratic-integrity) — Active — verified (adjacent Issue 16)
-- **Systematic Russian hybrid campaign pattern: cyber, sabotage, FIMI, and political meddling as integrated toolkit** (conflict-escalation) — Active — verified (adjacent Issue 17)
+- **Systematic Russian hybrid campaign pattern: cyber, sabotage, FIMI, and political meddling as integrated toolkit** (conflict-escalation) — Active — verified (adjacent Issue 18)
 - **AI-generated content in 27 percent of FIMI incidents signals accelerating dual-use AI exploitation in influence operations** (ai-governance) — Active — verified (adjacent Issue 18)
 
 ---
