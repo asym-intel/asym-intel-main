@@ -1,4 +1,4 @@
-# Global Macro Monitor — Issue 18
+# Global Macro Monitor — Issue 19
 
 **19 May 2026** | Published 2026-05-19T08:00:00Z
 
