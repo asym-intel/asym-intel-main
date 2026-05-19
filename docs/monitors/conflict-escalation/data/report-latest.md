@@ -1,4 +1,4 @@
-# Strategic Conflict & Escalation Monitor — Issue 17
+# Strategic Conflict & Escalation Monitor — Issue 18
 
 **19 May 2026** | Published 2026-05-19T18:00:00Z
 
@@ -87,37 +87,37 @@ In the Russia Ukraine and Sudan theatres, the main watchpoints are whether Russi
 - **** (European Geopolitical & Hybrid Threat Monitor) — Active
 - **** (Global Environmental Risks & Planetary Boundaries Monitor) — Active
 - **** (FIMI & Cognitive Warfare) — Active
-- **Sudan and Gaza food systems collapse with high displacement** (environmental-risks) — Active — verified (adjacent Issue 18)
+- **Sudan and Gaza food systems collapse with high displacement** (environmental-risks) — Active — verified (adjacent Issue 19)
 - **Multiple F flags active Russia-Ukraine Gaza DRC Israel-Lebanon US-Iran** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Hormuz closure I4 Crisis US-Israel-Iran; coltan coercion DRC** (macro-monitor) — Active — verified (adjacent Issue 19)
-- **I6 Crisis displacement Sudan Gaza Lebanon** (environmental-risks) — Active — verified (adjacent Issue 18)
+- **I6 Crisis displacement Sudan Gaza Lebanon** (environmental-risks) — Active — verified (adjacent Issue 19)
 - **Hormuz closure I4=5 DRC coltan I4=3** (macro-monitor) — Active — verified (adjacent Issue 19)
-- **Sudan I6=5 Lebanon I6=5 Gaza I6=5** (environmental-risks) — Active — verified (adjacent Issue 18)
+- **Sudan I6=5 Lebanon I6=5 Gaza I6=5** (environmental-risks) — Active — verified (adjacent Issue 19)
 - **F3/F4 active Iran Russia Gaza** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Ukraine I5 Myanmar fragmentation** (wdm) — Active — NEW
 - **F3/F4 in Iran I2/I5; FIMI strike signals** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Houthi Red Sea threats risk trade disruption** (macro-monitor) — Active — verified (adjacent Issue 19)
-- **Sudan/Gaza I6 displacement surges** (environmental-risks) — Active — verified (adjacent Issue 18)
+- **Sudan/Gaza I6 displacement surges** (environmental-risks) — Active — verified (adjacent Issue 19)
 - **SAF strikes on RSF-controlled gold mines in South Darfur–South Sudan borderlands as economic warfare targeting illicit revenue streams** (macro-monitor) — Active — verified (adjacent Issue 19)
-- **Sudan Blue Nile front expansion threatens agricultural zones and water infrastructure in one of Sudan's most food-insecure regions; displacement acceleration likely** (environmental-risks) — Active — verified (adjacent Issue 18)
+- **Sudan Blue Nile front expansion threatens agricultural zones and water infrastructure in one of Sudan's most food-insecure regions; displacement acceleration likely** (environmental-risks) — Active — verified (adjacent Issue 19)
 - **Iran presses Houthis for renewed Red Sea shipping attacks, threatening 10 percent of global seaborne trade via Bab al-Mandeb** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **Sudan conflict remains systematically underreported in international media per ACLED and ICG; information vacuum creates conditions for FIMI exploitation of the narrative space** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
-- **Russia post-Easter mass strikes and multi-oblast advances signal deliberate strategy to maximize battlefield leverage before summer diplomatic pressure; NATO ISR implications from degraded Ukrainian drone advantage** (european-strategic-autonomy) — Active — verified (adjacent Issue 17)
+- **Russia post-Easter mass strikes and multi-oblast advances signal deliberate strategy to maximize battlefield leverage before summer diplomatic pressure; NATO ISR implications from degraded Ukrainian drone advantage** (european-strategic-autonomy) — Active — verified (adjacent Issue 18)
 - **Israeli cabinet deliberations on resuming Gaza operations occur in context of October 2026 Israeli elections; domestic electoral calculus shaping operational tempo** (wdm) — Active — NEW
 - **Sudan 4M+ displacement surge with new Blue Nile and Kordofan waves; agricultural and water infrastructure risk** (erm) — Active — NEW
 - **Gulf GDP contraction projections (Qatar and Kuwait up to 14%, Saudi Arabia 3%, UAE 5%) constrain external funding for proxy conflicts; Iran strikes on UAE Fujairah petroleum zone threaten global energy export infrastructure** (gmm) — Active — NEW
 - **Iranian state media framing of UAE strikes as defensive retaliation constitutes active FIMI operation; disarmament impasse actively exploited in information space by both Hamas and Israeli government actors** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
-- **US diplomatic de-weighting in multilateral frameworks creates structural gap in crisis management capacity; European, Gulf, and AU mediation channels lack equivalent convening power** (european-strategic-autonomy) — Active — verified (adjacent Issue 17)
+- **US diplomatic de-weighting in multilateral frameworks creates structural gap in crisis management capacity; European, Gulf, and AU mediation channels lack equivalent convening power** (european-strategic-autonomy) — Active — verified (adjacent Issue 18)
 - **Medvedev publishes European drone manufacturer target list as hybrid FIMI and coercion operation** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Russian pre-ceasefire escalation likely accompanied by information operations framing strikes as Ukrainian provocation** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
-- **Transatlantic divergence on Russia sanctions (EU 20th package vs US oil waiver) undermines EU coherence and signals marginalisation of European diplomatic agency** (european-strategic-autonomy) — Active — verified (adjacent Issue 17)
+- **Transatlantic divergence on Russia sanctions (EU 20th package vs US oil waiver) undermines EU coherence and signals marginalisation of European diplomatic agency** (european-strategic-autonomy) — Active — verified (adjacent Issue 18)
 - **Sudan SAF gold mine strikes as economic warfare targeting RSF revenue; potential illicit gold flow reduction via UAE networks** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **Houthi Red Sea intervention warnings create dual-chokepoint risk (Hormuz + Bab al-Mandeb) threatening 30 percent of global seaborne oil trade** (macro-monitor) — Active — verified (adjacent Issue 19)
-- **Sudan displacement surges to 4M+ refugees with new Blue Nile and Kordofan waves; agricultural and water infrastructure at risk** (environmental-risks) — Active — verified (adjacent Issue 18)
+- **Sudan displacement surges to 4M+ refugees with new Blue Nile and Kordofan waves; agricultural and water infrastructure at risk** (environmental-risks) — Active — verified (adjacent Issue 19)
 - **Shoigu Article 51 warning to Finland and Baltic states creates legal predicate for future kinetic action against NATO members, potentially affecting democratic publics** (democratic-integrity) — Active — verified (adjacent Issue 16)
-- **Sudan 4M+ refugees and IDPs; Blue Nile offensive threatens agricultural infrastructure and water access** (environmental-risks) — Active — verified (adjacent Issue 18)
+- **Sudan 4M+ refugees and IDPs; Blue Nile offensive threatens agricultural infrastructure and water access** (environmental-risks) — Active — verified (adjacent Issue 19)
 - **Houthi Red Sea intervention threat tied to Iran escalation; threatens 10% of global seaborne trade via Bab al-Mandeb** (macro-monitor) — Active — verified (adjacent Issue 19)
-- **US-EU sanctions divergence on Russia oil creates transatlantic coordination gap and undermines Ukrainian strategy** (european-strategic-autonomy) — Active — verified (adjacent Issue 17)
+- **US-EU sanctions divergence on Russia oil creates transatlantic coordination gap and undermines Ukrainian strategy** (european-strategic-autonomy) — Active — verified (adjacent Issue 18)
 - **Hamas counter-narrative framing disarmament as sovereignty issue; Russia pre-ceasefire strike surge likely accompanied by information operations** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **Israel October elections create domestic political pressure that may override diplomatic channels; democratic accountability mechanisms shaping military decision-making** (democratic-integrity) — Active — verified (adjacent Issue 16)
 
