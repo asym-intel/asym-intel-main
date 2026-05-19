@@ -1,6 +1,6 @@
-# Global Environmental Risks Monitor — Issue 18
+# Global Environmental Risks Monitor — Issue 19
 
-**16 May 2026** | Published 2026-05-16T05:00:00Z
+**19 May 2026** | Published 2026-05-19T05:00:00Z
 
 Publisher: Asymmetric Intelligence — <https://asym-intel.info>
 
@@ -74,30 +74,30 @@ Across the planetary boundaries framework, the composite picture is one of a cli
 
 ## Cross-Monitor Flags
 
-- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 15)
-- **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 16)
+- **Approximately 40 percent of intrastate conflicts over recent decades linked to natural resource pressures. Environmental stress exacerbates economic risks and acts as driver of social instability. Food stress, water stress, and resource competition create conflict precursors in climate-vulnerable regions.** (conflict-escalation) — Active — verified (adjacent Issue 16)
+- **Economic losses from weather and climate extremes now approximately 500 billion USD in Europe alone, with much damage remaining uninsured. Creates financial stability risk, government fiscal stress, and stranded asset exposure in climate-vulnerable regions.** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **Environmental governance gaps and regulatory vacuums create space for political capture and austerity-driven policy reversals. Climate policy suppression and environmental activist repression indicate civic space constraints in climate-vulnerable states.** (democratic-integrity) — Active — verified (adjacent Issue 16)
 - **AMOC-driven African droughts** (scem) — Active — NEW
 - **Record climate displacement 83.4M** (scem) — Active — NEW
 - **US drought food insecurity** (gmm) — Active — NEW
-- **AMOC weakening El Nino drought elevate Europe Asia food energy conflict risks** (conflict-escalation) — Active — verified (adjacent Issue 15)
-- **AMOC trajectory acceleration El Nino commodity risks Europe infrastructure stress** (macro-monitor) — Active — verified (adjacent Issue 16)
+- **AMOC weakening El Nino drought elevate Europe Asia food energy conflict risks** (conflict-escalation) — Active — verified (adjacent Issue 16)
+- **AMOC trajectory acceleration El Nino commodity risks Europe infrastructure stress** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **Governance lag versus 1.5C exceedance AMOC signals** (democratic-integrity) — Active — verified (adjacent Issue 16)
-- **AMOC collapse carbon feedback quantified at 47-83 ppm CO2 would materially alter long-run physical risk pricing and stranded asset timelines across fossil fuel and coastal real estate sectors** (macro-monitor) — Active — verified (adjacent Issue 16)
-- **El Niño drought forecast escalates food insecurity and displacement pressure in Central America Dry Corridor, with historical links to northward migration surges and political instability** (conflict-escalation) — Active — verified (adjacent Issue 15)
-- **AMOC slowdown-driven tropical rainfall redistribution would intensify drought in Sahel and monsoon disruption in South Asia, amplifying food insecurity and conflict risk** (conflict-escalation) — Active — verified (adjacent Issue 15)
+- **AMOC collapse carbon feedback quantified at 47-83 ppm CO2 would materially alter long-run physical risk pricing and stranded asset timelines across fossil fuel and coastal real estate sectors** (macro-monitor) — Active — verified (adjacent Issue 19)
+- **El Niño drought forecast escalates food insecurity and displacement pressure in Central America Dry Corridor, with historical links to northward migration surges and political instability** (conflict-escalation) — Active — verified (adjacent Issue 16)
+- **AMOC slowdown-driven tropical rainfall redistribution would intensify drought in Sahel and monsoon disruption in South Asia, amplifying food insecurity and conflict risk** (conflict-escalation) — Active — verified (adjacent Issue 16)
 - **Accelerating 1.5C trajectory undermines NDC credibility and creates political pressure on governments with weak climate commitments, potentially triggering democratic accountability crises** (democratic-integrity) — Active — verified (adjacent Issue 16)
 - **AMOC tipping point science and C3S 1.5C exceedance findings are documented targets of climate disinformation campaigns; new bistability findings may trigger coordinated counter-messaging** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 - **C3S multi-system seasonal forecast ensemble represents operational AI-assisted climate prediction infrastructure; forecast skill under El Niño onset conditions is benchmark test for ensemble reliability** (ai-governance) — Active — verified (adjacent Issue 18)
-- **El Niño drought forecast elevates food insecurity and displacement risk in Central America Dry Corridor, with historical links to political instability** (conflict-escalation) — Active — verified (adjacent Issue 15)
-- **AMOC carbon cycle feedback of 47 to 83 ppm CO2 alters long-run physical risk pricing for fossil and coastal assets** (macro-monitor) — Active — verified (adjacent Issue 16)
-- **El Niño forecast risks rice, coffee, palm oil output disruptions in Southeast Asia and Central America** (macro-monitor) — Active — verified (adjacent Issue 16)
+- **El Niño drought forecast elevates food insecurity and displacement risk in Central America Dry Corridor, with historical links to political instability** (conflict-escalation) — Active — verified (adjacent Issue 16)
+- **AMOC carbon cycle feedback of 47 to 83 ppm CO2 alters long-run physical risk pricing for fossil and coastal assets** (macro-monitor) — Active — verified (adjacent Issue 19)
+- **El Niño forecast risks rice, coffee, palm oil output disruptions in Southeast Asia and Central America** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **1.5 degrees C breach projection by 2034 signals NDC structural insufficiency, pressuring Paris ratifiers** (democratic-integrity) — Active — verified (adjacent Issue 16)
 - **High-salience C3S 1.5 degrees C exceedance and AMOC findings are disinformation targets** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
-- **El Niño drought forecast elevates food insecurity and displacement risk in Central America Dry Corridor with historical links to political instability** (conflict-escalation) — Active — verified (adjacent Issue 15)
-- **AMOC slowdown modulates monsoon rainfall patterns across Sahel and South Asia, creating long-lead cascade risk for food and water security** (conflict-escalation) — Active — verified (adjacent Issue 15)
-- **AMOC carbon feedback of plus 47 to 83 ppm CO2 alters long-run physical risk pricing for fossil and coastal assets** (macro-monitor) — Active — verified (adjacent Issue 16)
-- **El Niño conditions risk rice, coffee, and palm oil output disruptions in Southeast Asia and Central America** (macro-monitor) — Active — verified (adjacent Issue 16)
+- **El Niño drought forecast elevates food insecurity and displacement risk in Central America Dry Corridor with historical links to political instability** (conflict-escalation) — Active — verified (adjacent Issue 16)
+- **AMOC slowdown modulates monsoon rainfall patterns across Sahel and South Asia, creating long-lead cascade risk for food and water security** (conflict-escalation) — Active — verified (adjacent Issue 16)
+- **AMOC carbon feedback of plus 47 to 83 ppm CO2 alters long-run physical risk pricing for fossil and coastal assets** (macro-monitor) — Active — verified (adjacent Issue 19)
+- **El Niño conditions risk rice, coffee, and palm oil output disruptions in Southeast Asia and Central America** (macro-monitor) — Active — verified (adjacent Issue 19)
 - **1.5°C breach projection by 2034 signals NDC structural insufficiency, pressuring Paris Agreement ratifiers** (democratic-integrity) — Active — verified (adjacent Issue 16)
 - **High-salience C3S 1.5°C exceedance and AMOC findings are disinformation targets** (fimi-cognitive-warfare) — Active — verified (adjacent Issue 12)
 
