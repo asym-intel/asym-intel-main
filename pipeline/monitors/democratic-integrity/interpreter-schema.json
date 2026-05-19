@@ -1,5 +1,5 @@
 {
-  "$comment": "sprint-bw: added conviction_history, blind_spots, active_tactical_alerts, open_findings",
+  "$comment": "sprint-bw: added institutional_integrity_active_flags, mimicry_chains, open_findings",
   "type": "object",
   "properties": {
     "_meta": {
@@ -8,13 +8,12 @@
         "schema_version": {
           "type": "string",
           "enum": [
-            "gmm-interpret-v1.0"
+            "wdm-interpret-v1.0"
           ],
-          "description": "Must be exactly 'gmm-interpret-v1.0'."
+          "description": "Must be exactly 'wdm-interpret-v1.0'."
         },
         "monitor_slug": {
-          "type": "string",
-          "const": "macro-monitor"
+          "type": "string"
         },
         "synthesised_at": {
           "type": "string"
@@ -39,7 +38,7 @@
             "partial_cycle",
             "error_cycle"
           ],
-          "description": "Interpreter's judgment on the cycle. 'material_change' = at least one module has new content; 'null_cycle' = evidence bundle carries no material change; 'partial_cycle' = mixed; 'error_cycle' = reserved for engine-level failure paths (engine stamps, prompt does not emit)."
+          "description": "Interpreter judgment on the cycle. 'material_change' = at least one module has new content; 'null_cycle' = evidence bundle carries no material change; 'partial_cycle' = mixed; 'error_cycle' = reserved for engine-level failure paths (engine stamps, prompt does not emit)."
         },
         "cycle_disposition_reason": {
           "type": [
@@ -60,7 +59,25 @@
               "type": "integer",
               "minimum": 0
             },
+            "llm_fallback_model": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "llm_fallback_temperature": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
             "llm_fallback_timestamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source": {
               "type": [
                 "string",
                 "null"
@@ -71,7 +88,7 @@
         },
         "replay_mode": {
           "type": "boolean",
-          "description": "Engine-stamped true when WEEKLY_FILE_OVERRIDE was active on the dispatch. Absent or false in production dispatches. Not model-derived; the Interpreter does not emit this field."
+          "description": "Engine-stamped true when WEEKLY_FILE_OVERRIDE was active on the dispatch. Absent/false in production dispatches. Not model-derived; the Interpreter LLM does not emit this field."
         },
         "replay_window": {
           "type": "object",
@@ -101,7 +118,6 @@
       "type": "object",
       "required": [
         "headline",
-        "domain",
         "body",
         "source_url",
         "confidence_preliminary"
@@ -109,17 +125,6 @@
       "properties": {
         "headline": {
           "type": "string"
-        },
-        "domain": {
-          "type": "string",
-          "enum": [
-            "growth_recession",
-            "inflation_central_bank",
-            "financial_stability",
-            "trade_tariff",
-            "currency_fx",
-            "sovereign_debt"
-          ]
         },
         "body": {
           "type": "string"
@@ -193,21 +198,21 @@
     "module_2": {
       "type": "object",
       "properties": {
-        "title": {
-          "type": "string"
-        },
-        "announcements": {
+        "election_cycle_events": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "institution": {
+              "country": {
                 "type": "string"
               },
-              "type": {
+              "country_code": {
                 "type": "string"
               },
-              "released": {
+              "election_type": {
+                "type": "string"
+              },
+              "election_date": {
                 "type": "string"
               },
               "headline": {
@@ -242,19 +247,19 @@
         "title": {
           "type": "string"
         },
-        "flow_events": {
+        "executive_overreach": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "liquidity_conditions": {
+        "legislative_capture": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "reserve_movements": {
+        "mimicry_chain_updates": {
           "type": "array",
           "items": {
             "type": "object"
@@ -280,38 +285,19 @@
         "title": {
           "type": "string"
         },
-        "domains": {
+        "electoral_contexts": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "domain": {
-                "type": "string",
-                "enum": [
-                  "growth_recession",
-                  "inflation_central_bank",
-                  "financial_stability",
-                  "trade_tariff",
-                  "currency_fx",
-                  "sovereign_debt"
-                ]
+              "country": {
+                "type": "string"
               },
-              "stress_level": {
-                "type": "string",
-                "enum": [
-                  "Green",
-                  "Amber",
-                  "Red",
-                  "Crisis"
-                ]
+              "electoral_environment": {
+                "type": "string"
               },
-              "direction": {
-                "type": "string",
-                "enum": [
-                  "Worsening",
-                  "Stable",
-                  "Improving"
-                ]
+              "status": {
+                "type": "string"
               },
               "headline_developments": {
                 "type": "array",
@@ -319,7 +305,10 @@
                   "type": "string"
                 }
               },
-              "key_data_point": {
+              "integrity_gap": {
+                "type": "string"
+              },
+              "stealth_flag": {
                 "type": "string"
               },
               "asymmetric": {
@@ -354,10 +343,10 @@
         "title": {
           "type": "string"
         },
-        "currency_signals": {
+        "european": {
           "type": "object"
         },
-        "sovereign_debt": {
+        "global_south": {
           "type": "object"
         },
         "null_signal": {
@@ -380,13 +369,19 @@
         "title": {
           "type": "string"
         },
-        "threshold_assessments": {
+        "research_and_reports": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "research_highlights": {
+        "resilience_indicators": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "index_updates": {
           "type": "array",
           "items": {
             "type": "object"
@@ -421,13 +416,7 @@
                 "type": "string"
               },
               "rating": {
-                "type": "string",
-                "enum": [
-                  "HIGH",
-                  "ELEVATED",
-                  "MODERATE",
-                  "LOW"
-                ]
+                "type": "string"
               },
               "summary": {
                 "type": "string"
@@ -436,12 +425,7 @@
                 "type": "string"
               },
               "confidence": {
-                "type": "string",
-                "enum": [
-                  "High",
-                  "Assessed",
-                  "Possible"
-                ]
+                "type": "string"
               },
               "changed": {
                 "type": "boolean"
@@ -513,25 +497,19 @@
             "null"
           ]
         },
-        "new_developments": {
+        "law_highlights": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "no_change": {
+        "standards_highlights": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "friction_analysis": {
-          "type": "string"
-        },
-        "tariff_escalation_rung": {
-          "type": "string"
-        },
-        "retaliation_chain": {
+        "litigation_highlights": {
           "type": "array",
           "items": {
             "type": "object"
@@ -557,19 +535,25 @@
         "title": {
           "type": "string"
         },
-        "multilateral_signals": {
+        "international_frameworks": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "central_bank_coordination": {
+        "electoral_management_bodies": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "fiscal_governance": {
+        "observer_missions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "accountability_mechanisms": {
           "type": "array",
           "items": {
             "type": "object"
@@ -607,6 +591,78 @@
             "type": "object"
           }
         },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_12": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "bodies": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_13": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "structural_trends": {
           "type": "array",
           "items": {
@@ -641,6 +697,118 @@
         }
       }
     },
+    "module_14": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "concentration_index": {
+          "type": "object",
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "trend": {
+                    "type": "string"
+                  },
+                  "top_actors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "unchanged_since": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_15": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "electoral_body_movements": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "government_electoral_bodies": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "revolving_door": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
     "delta_strip": {
       "type": "array",
       "items": {
@@ -655,55 +823,28 @@
           "jurisdiction": {
             "type": "string"
           },
-          "monetary_policy_stance": {
-            "type": "string",
-            "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
-            ]
+          "integrity_readiness": {
+            "type": "string"
           },
-          "fiscal_sustainability": {
-            "type": "string",
-            "enum": [
-              "Stable",
-              "Deteriorating",
-              "Improving"
-            ]
+          "resilience_capacity": {
+            "type": "string"
           },
-          "external_vulnerability": {
-            "type": "string",
-            "enum": [
-              "HIGH",
-              "MEDIUM",
-              "LOW"
-            ]
+          "fimi_exposure": {
+            "type": "string"
           },
-          "overall_stress": {
-            "type": "string",
-            "enum": [
-              "HIGH",
-              "ELEVATED",
-              "MODERATE",
-              "LOW"
-            ]
+          "overall_risk": {
+            "type": "string"
           },
           "key_development": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string",
-            "enum": [
-              "Improving",
-              "Stable",
-              "Deteriorating"
-            ]
+            "type": "string"
           }
         }
       }
     },
-    "central_bank_scorecard": {
+    "institutional_health_scorecard": {
       "type": "array",
       "items": {
         "type": "object",
@@ -711,79 +852,57 @@
           "institution": {
             "type": "string"
           },
-          "posture": {
-            "type": "string",
-            "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
-            ]
+          "independence_posture": {
+            "type": "string"
           },
-          "last_action": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "transparency": {
+            "type": "string"
           },
-          "forward_guidance": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "accountability_engagement": {
+            "type": "string"
           },
           "key_development": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string",
-            "enum": [
-              "Hawkish",
-              "Stable",
-              "Dovish"
-            ]
+            "type": "string"
           }
         }
       }
     },
-    "macro_health_composite": {
+    "democracy_health_composite": {
       "type": "object",
       "properties": {
         "score": {
           "type": "number"
         },
         "direction": {
-          "type": "string",
-          "enum": [
-            "Improving",
-            "Stable",
-            "Deteriorating"
-          ]
+          "type": "string"
         },
         "components": {
           "type": "object",
           "properties": {
-            "growth_stability": {
+            "electoral_integrity": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "inflation_anchor": {
+            "rule_of_law": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "financial_stability": {
+            "civil_society_space": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "external_balance": {
+            "resilience": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "policy_coherence": {
+            "international_alignment": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
@@ -807,29 +926,13 @@
             "type": "string"
           },
           "confidence_preliminary": {
-            "type": "string",
-            "enum": [
-              "High",
-              "Assessed",
-              "Possible"
-            ]
+            "type": "string"
           },
-          "stress_domain": {
+          "framework_affected": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string",
-            "enum": [
-              "Worsening",
-              "Stable",
-              "Improving"
-            ]
-          },
-          "source_urls": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string"
           }
         }
       }
@@ -849,12 +952,7 @@
             "type": "string"
           },
           "confidence_preliminary": {
-            "type": "string",
-            "enum": [
-              "Low",
-              "Medium",
-              "High"
-            ]
+            "type": "string"
           }
         }
       }
@@ -876,8 +974,8 @@
         "properties": {
           "claim_id": {
             "type": "string",
-            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
-            "description": "Stable within a cycle. Format: gmm-int-{ISO-date}-{4-digit-sequence}."
+            "pattern": "^wdm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+            "description": "Stable within a cycle. Format: wdm-int-{ISO-date}-{4-digit-sequence}."
           },
           "entity": {
             "type": "string",
@@ -900,9 +998,12 @@
               },
               {
                 "type": "array"
+              },
+              {
+                "type": "boolean"
               }
             ],
-            "description": "The asserted value. Accept string/number/object/array."
+            "description": "The asserted value. Accept string/number/object/array/boolean."
           },
           "evidence_id": {
             "type": "string",
@@ -944,7 +1045,7 @@
         "properties": {
           "gap_id": {
             "type": "string",
-            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
+            "pattern": "^wdm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
           },
           "description": {
             "type": "string",
@@ -962,7 +1063,7 @@
     },
     "proposed_patches": {
       "type": "array",
-      "description": "OPTIONAL. Material-change patches proposed to the Applier. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries the 5 Appendix A required fields.",
+      "description": "Pipeline-doctrine Appendix A patch emission. OPTIONAL top-level array naming the material-change patches this interpretation proposes to the Applier. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries 5 required fields: rule_applied, evidence_ids, confidence, material_change_justification, target_kb_path.",
       "items": {
         "type": "object",
         "required": [
@@ -1013,7 +1114,8 @@
               "create",
               "update",
               "archive",
-              "carry-forward-verified"
+              "carry-forward-verified",
+              "verify"
             ]
           },
           "prior_value": {},
@@ -1028,123 +1130,86 @@
         "additionalProperties": true
       }
     },
-    "conviction_history": {
+    "institutional_integrity_active_flags": {
       "type": "array",
-      "description": "Chronological weekly conviction assessments — append only.",
+      "description": "Currently active institutional-integrity signal flags with evidentiary support.",
       "items": {
         "type": "object",
         "required": [
-          "date",
-          "system_average",
-          "conviction",
-          "regime",
-          "regime_conviction",
-          "rationale"
+          "country",
+          "indicator",
+          "severity",
+          "signal",
+          "lead_time",
+          "first_seen"
         ],
         "properties": {
-          "date": {
+          "country": {
+            "type": "string"
+          },
+          "indicator": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "High",
+              "Med",
+              "Low"
+            ]
+          },
+          "signal": {
+            "type": "string"
+          },
+          "lead_time": {
+            "type": "string"
+          },
+          "first_seen": {
             "type": "string",
             "format": "date"
-          },
-          "system_average": {
-            "type": "number",
-            "minimum": 0.0,
-            "maximum": 1.0
-          },
-          "conviction": {
-            "type": "string",
-            "enum": [
-              "MEDIUM",
-              "HIGH"
-            ]
-          },
-          "regime": {
-            "type": "string"
-          },
-          "regime_conviction": {
-            "type": "string",
-            "enum": [
-              "MEDIUM",
-              "HIGH"
-            ]
-          },
-          "rationale": {
-            "type": "string"
           }
         }
       }
     },
-    "blind_spots": {
+    "mimicry_chains": {
       "type": "array",
-      "description": "Identified structural gaps in data coverage or analytical scope.",
+      "description": "Documented influence/narrative-mimicry chains.",
       "items": {
         "type": "object",
         "required": [
-          "id",
-          "name",
-          "description",
-          "evidence_id",
-          "source_url"
+          "chain_id",
+          "headline",
+          "links",
+          "first_documented",
+          "last_verified"
         ],
         "properties": {
-          "id": {
+          "chain_id": {
             "type": "string"
           },
-          "name": {
+          "headline": {
             "type": "string"
           },
-          "description": {
-            "type": "string"
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
-          "evidence_id": {
-            "type": "string"
-          },
-          "source_url": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "active_tactical_alerts": {
-      "type": "array",
-      "description": "Named tactical alert conditions with traffic-light state.",
-      "items": {
-        "type": "object",
-        "required": [
-          "alert_id",
-          "name",
-          "current_state",
-          "last_state_change",
-          "description"
-        ],
-        "properties": {
-          "alert_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "current_state": {
-            "type": "string",
-            "enum": [
-              "WARNING",
-              "WATCH",
-              "CLEAR"
-            ]
-          },
-          "last_state_change": {
+          "first_documented": {
             "type": "string",
             "format": "date"
           },
-          "description": {
-            "type": "string"
+          "last_verified": {
+            "type": "string",
+            "format": "date"
           }
         }
       }
     },
     "open_findings": {
       "type": "array",
-      "description": "Salient macro findings from the weekly research bundle not captured in other structured fields.",
+      "description": "Salient findings from the weekly research bundle not captured in other structured fields.",
       "items": {
         "type": "object",
         "required": [
@@ -1195,16 +1260,19 @@
     "module_9",
     "module_10",
     "module_11",
+    "module_12",
+    "module_13",
+    "module_14",
+    "module_15",
     "delta_strip",
     "jurisdiction_risk_matrix",
-    "central_bank_scorecard",
-    "macro_health_composite",
+    "institutional_health_scorecard",
+    "democracy_health_composite",
     "key_judgments",
     "cross_monitor_candidates",
     "structured_claims",
-    "conviction_history",
-    "blind_spots",
-    "active_tactical_alerts",
+    "institutional_integrity_active_flags",
+    "mimicry_chains",
     "open_findings"
   ]
 }
