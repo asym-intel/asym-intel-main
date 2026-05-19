@@ -375,7 +375,7 @@ All string values must avoid apostrophes and contractions — use full words onl
 15. WEEKLY IS THE MATERIAL ANCHOR. The weekly research bundle (weekly-latest.json) is the primary source for cycle_disposition. Daily and reasoner inputs are supplementary. Quiet daily findings do not justify null_cycle when the weekly bundle contains material. When in doubt between material_change and null_cycle, err toward material_change if the weekly has 3+ new developments.
 16. Do NOT emit a weekly_brief_draft field. The Composer stage renders prose separately.
 17. proposed_patches[] is OPTIONAL. Under null_cycle, emit an empty array. Under material_change, emit one patch per major KB target touched (typically 2-6 patches). Each patch requires: rule_applied, evidence_ids (non-empty), confidence, material_change_justification, target_kb_path. Do NOT emit patches for cosmetic rewording.
-18. gaps_register[] is optional but recommended when Possible confidence dominates a section.
+18. gaps_register[] REQUIRED WHEN null_signal_week IS TRUE: emit at minimum one entry naming the environmental-risk evidence gaps that explain why no new signal was found this cycle — which climate data releases, extreme-events monitoring sources, or environmental-policy announcements lacked new developments, which climate-security-nexus or threat-multiplier inputs have no updated data, and what evidence would change the null_cycle determination. This satisfies the R5 invariant. In addition, gaps_register[] is recommended whenever Possible confidence dominates a section — name the specific evidence that would upgrade the confidence tier. Do not leave gaps_register empty when null_signal_week is true.
 
 ---
 
