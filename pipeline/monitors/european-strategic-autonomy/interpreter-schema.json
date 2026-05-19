@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$comment": "sprint-bw: added eu_legislation_tracker, state_capture_cases, active_actor_campaigns, open_findings",
   "type": "object",
   "properties": {
@@ -26,7 +27,10 @@
           "type": "boolean"
         },
         "null_signal_reason": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "cycle_disposition": {
           "type": "string",
@@ -39,7 +43,10 @@
           "description": "Interpreter's judgment on the cycle. 'material_change' = at least one module has new content; 'null_cycle' = evidence bundle carries no material change; 'partial_cycle' = mixed; 'error_cycle' = reserved for engine-level failure paths (engine stamps, prompt does not emit)."
         },
         "cycle_disposition_reason": {
-          "type": ["string", "null"],
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "One-sentence justification. Required for null_cycle and partial_cycle; optional otherwise."
         },
         "triple_extraction_manifest": {
@@ -55,13 +62,22 @@
               "minimum": 0
             },
             "llm_fallback_model": {
-              "type": ["string", "null"]
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "llm_fallback_temperature": {
-              "type": ["number", "null"]
+              "type": [
+                "number",
+                "null"
+              ]
             },
             "llm_fallback_timestamp": {
-              "type": ["string", "null"]
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "additionalProperties": false
@@ -83,16 +99,29 @@
               "description": "ISO-8601 date (YYYY-MM-DD)."
             }
           },
-          "required": ["start", "end"]
+          "required": [
+            "start",
+            "end"
+          ]
         }
       }
     },
     "lead_signal": {
       "type": "object",
-      "required": ["headline", "body", "domain", "source_url", "confidence_preliminary"],
+      "required": [
+        "headline",
+        "body",
+        "domain",
+        "source_url",
+        "confidence_preliminary"
+      ],
       "properties": {
-        "headline": {"type": "string"},
-        "body": {"type": "string"},
+        "headline": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
         "domain": {
           "type": "string",
           "enum": [
@@ -104,19 +133,29 @@
             "space_satellite"
           ]
         },
-        "source_url": {"type": "string"},
+        "source_url": {
+          "type": "string"
+        },
         "confidence_preliminary": {
           "type": "string",
-          "enum": ["Confirmed", "High", "Assessed", "Possible"]
+          "enum": [
+            "Confirmed",
+            "High",
+            "Assessed",
+            "Possible"
+          ]
         }
       }
     },
     "module_0": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
-        "body": {"type": "string"}
-      ,
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -136,13 +175,16 @@
       "properties": {
         "mainstream": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "underweighted": {
           "type": "array",
-          "items": {"type": "object"}
-        }
-      ,
+          "items": {
+            "type": "object"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -160,23 +202,38 @@
     "module_2": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "milestones": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "name": {"type": "string"},
-              "actor": {"type": "string"},
-              "tier": {"type": "integer"},
-              "announced": {"type": "string"},
-              "headline": {"type": "string"},
-              "asymmetric": {"type": "string"},
-              "flag": {"type": "boolean"}
+              "name": {
+                "type": "string"
+              },
+              "actor": {
+                "type": "string"
+              },
+              "tier": {
+                "type": "integer"
+              },
+              "announced": {
+                "type": "string"
+              },
+              "headline": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "flag": {
+                "type": "boolean"
+              }
             }
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -194,20 +251,27 @@
     "module_3": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "edip_edf_rounds": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "bilateral_deals": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "capability_gaps": {
           "type": "array",
-          "items": {"type": "object"}
-        }
-      ,
+          "items": {
+            "type": "object"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -225,45 +289,93 @@
     "module_4": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "dependency_vectors": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "vector": {"type": "string"},
-              "name": {"type": "string"},
+              "vector": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
               "rating": {
                 "type": "string",
-                "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
+                "enum": [
+                  "HIGH",
+                  "ELEVATED",
+                  "MODERATE",
+                  "LOW"
+                ]
               },
               "level": {
                 "type": "string",
-                "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
+                "enum": [
+                  "HIGH",
+                  "ELEVATED",
+                  "MODERATE",
+                  "LOW"
+                ]
               },
               "color": {
                 "type": "string",
-                "enum": ["red", "amber", "yellow", "green"]
+                "enum": [
+                  "red",
+                  "amber",
+                  "yellow",
+                  "green"
+                ]
               },
-              "headline": {"type": "string"},
-              "summary": {"type": "string"},
-              "detail": {"type": "string"},
-              "asymmetric": {"type": "string"},
-              "confidence": {"type": "string"},
+              "headline": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string"
+              },
               "actor": {
-                "type": ["string", "null"],
-                "enum": ["RU", "CN", "US", "IL", null]
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "RU",
+                  "CN",
+                  "US",
+                  "IL",
+                  null
+                ]
               },
-              "changed": {"type": "boolean"},
-              "unchanged_since": {"type": ["string", "null"]},
+              "changed": {
+                "type": "boolean"
+              },
+              "unchanged_since": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "sources": {
                 "type": "array",
-                "items": {"type": "string"}
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -281,16 +393,21 @@
     "module_5": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "frameworks": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "asymmetric_flags": {
           "type": "array",
-          "items": {"type": "string"}
-        }
-      ,
+          "items": {
+            "type": "string"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -308,17 +425,24 @@
     "module_6": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "energy_independence": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "critical_materials": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
-        "climate_security_nexus": {"type": "string"}
-      ,
+        "climate_security_nexus": {
+          "type": "string"
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -336,41 +460,80 @@
     "module_7": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "vectors": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "vector": {"type": "string"},
-              "name": {"type": "string"},
+              "vector": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
               "rating": {
                 "type": "string",
-                "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
+                "enum": [
+                  "HIGH",
+                  "ELEVATED",
+                  "MODERATE",
+                  "LOW"
+                ]
               },
               "level": {
                 "type": "string",
-                "enum": ["HIGH", "ELEVATED", "MODERATE", "LOW"]
+                "enum": [
+                  "HIGH",
+                  "ELEVATED",
+                  "MODERATE",
+                  "LOW"
+                ]
               },
               "color": {
                 "type": "string",
-                "enum": ["red", "amber", "yellow", "green"]
+                "enum": [
+                  "red",
+                  "amber",
+                  "yellow",
+                  "green"
+                ]
               },
-              "headline": {"type": "string"},
-              "summary": {"type": "string"},
-              "detail": {"type": "string"},
-              "asymmetric": {"type": "string"},
-              "confidence": {"type": "string"},
-              "changed": {"type": "boolean"},
-              "unchanged_since": {"type": ["string", "null"]},
+              "headline": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string"
+              },
+              "changed": {
+                "type": "boolean"
+              },
+              "unchanged_since": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "sources": {
                 "type": "array",
-                "items": {"type": "string"}
+                "items": {
+                  "type": "string"
+                }
               }
             }
           }
-        }
-      ,
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -388,12 +551,15 @@
     "module_8": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "incidents": {
           "type": "array",
-          "items": {"type": "object"}
-        }
-      ,
+          "items": {
+            "type": "object"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -411,21 +577,33 @@
     "module_9": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "digest_note": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "new_developments": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "no_change": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
-        "friction_analysis": {"type": "string"},
-        "framework_layered": {"type": "string"}
-      ,
+        "friction_analysis": {
+          "type": "string"
+        },
+        "framework_layered": {
+          "type": "string"
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -443,24 +621,33 @@
     "module_10": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "eu_institutions": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "nato_eu": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "member_state_bilateral": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "autonomy_gaps": {
           "type": "array",
-          "items": {"type": "object"}
-        }
-      ,
+          "items": {
+            "type": "object"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -478,12 +665,15 @@
     "module_11": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "items": {
           "type": "array",
-          "items": {"type": "object"}
-        }
-      ,
+          "items": {
+            "type": "object"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -501,20 +691,27 @@
     "module_12": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "items": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "standards_and_certification": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "asymmetric_flags": {
           "type": "array",
-          "items": {"type": "string"}
-        }
-      ,
+          "items": {
+            "type": "string"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -532,17 +729,29 @@
     "module_13": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "items": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "title": {"type": "string"},
-              "country": {"type": "string"},
-              "summary": {"type": "string"},
-              "asymmetric": {"type": "string"},
-              "source_url": {"type": "string"}
+              "title": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
             }
           }
         },
@@ -551,16 +760,21 @@
           "items": {
             "type": "object",
             "properties": {
-              "title": {"type": "string"},
-              "trend": {"type": "string"}
+              "title": {
+                "type": "string"
+              },
+              "trend": {
+                "type": "string"
+              }
             }
           }
         },
         "asymmetric_flags": {
           "type": "array",
-          "items": {"type": "string"}
-        }
-      ,
+          "items": {
+            "type": "string"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -578,10 +792,14 @@
     "module_14": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "items": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "dependency_index": {
           "type": "object",
@@ -591,14 +809,27 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "domain": {"type": "string"},
-                  "trend": {"type": "string"},
+                  "domain": {
+                    "type": "string"
+                  },
+                  "trend": {
+                    "type": "string"
+                  },
                   "top_actors": {
                     "type": "array",
-                    "items": {"type": "string"}
+                    "items": {
+                      "type": "string"
+                    }
                   },
-                  "note": {"type": "string"},
-                  "unchanged_since": {"type": ["string", "null"]}
+                  "note": {
+                    "type": "string"
+                  },
+                  "unchanged_since": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
                 }
               }
             }
@@ -606,9 +837,10 @@
         },
         "asymmetric_flags": {
           "type": "array",
-          "items": {"type": "string"}
-        }
-      ,
+          "items": {
+            "type": "string"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -626,20 +858,27 @@
     "module_15": {
       "type": "object",
       "properties": {
-        "title": {"type": "string"},
+        "title": {
+          "type": "string"
+        },
         "institution_movements": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "capacity_changes": {
           "type": "array",
-          "items": {"type": "object"}
+          "items": {
+            "type": "object"
+          }
         },
         "asymmetric_flags": {
           "type": "array",
-          "items": {"type": "string"}
-        }
-      ,
+          "items": {
+            "type": "string"
+          }
+        },
         "null_signal": {
           "type": "boolean",
           "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
@@ -656,32 +895,67 @@
     },
     "delta_strip": {
       "type": "array",
-      "items": {"type": "object"}
+      "items": {
+        "type": "object"
+      }
     },
     "member_state_risk_matrix": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "country": {"type": "string"},
-          "country_name": {"type": "string"},
-          "state_capture_risk": {"type": "string"},
+          "country": {
+            "type": "string"
+          },
+          "country_name": {
+            "type": "string"
+          },
+          "state_capture_risk": {
+            "type": "string"
+          },
           "foreign_dependency": {
             "type": "string",
-            "enum": ["HIGH", "MEDIUM", "LOW"]
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
           },
           "dependency_actor": {
-            "type": ["string", "null"],
-            "enum": ["RU", "CN", "US", "IL", null]
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "RU",
+              "CN",
+              "US",
+              "IL",
+              null
+            ]
           },
           "veto_risk": {
-            "type": ["string", "null"],
-            "enum": ["HIGH", "MEDIUM", "LOW", null]
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              null
+            ]
           },
-          "key_development": {"type": "string"},
+          "key_development": {
+            "type": "string"
+          },
           "trajectory": {
             "type": "string",
-            "enum": ["Improving", "Stable", "Worsening"]
+            "enum": [
+              "Improving",
+              "Stable",
+              "Worsening"
+            ]
           }
         }
       }
@@ -693,24 +967,49 @@
         "properties": {
           "actor": {
             "type": "string",
-            "enum": ["RU", "CN", "US", "IL"]
+            "enum": [
+              "RU",
+              "CN",
+              "US",
+              "IL"
+            ]
           },
           "coercion_posture": {
             "type": "string",
-            "enum": ["Escalating", "Stable", "De-escalating", "Opaque"]
+            "enum": [
+              "Escalating",
+              "Stable",
+              "De-escalating",
+              "Opaque"
+            ]
           },
           "dependency_leverage": {
             "type": "string",
-            "enum": ["HIGH", "MEDIUM", "LOW"]
+            "enum": [
+              "HIGH",
+              "MEDIUM",
+              "LOW"
+            ]
           },
           "engagement_mode": {
             "type": "string",
-            "enum": ["Coercive", "Competitive", "Cooperative", "Disengaged"]
+            "enum": [
+              "Coercive",
+              "Competitive",
+              "Cooperative",
+              "Disengaged"
+            ]
           },
-          "key_development": {"type": "string"},
+          "key_development": {
+            "type": "string"
+          },
           "trajectory": {
             "type": "string",
-            "enum": ["Improving", "Stable", "Worsening"]
+            "enum": [
+              "Improving",
+              "Stable",
+              "Worsening"
+            ]
           }
         }
       }
@@ -718,22 +1017,40 @@
     "autonomy_health_composite": {
       "type": "object",
       "properties": {
-        "score": {"type": "number"},
+        "score": {
+          "type": "number"
+        },
         "direction": {
           "type": "string",
-          "enum": ["Improving", "Stable", "Worsening"]
+          "enum": [
+            "Improving",
+            "Stable",
+            "Worsening"
+          ]
         },
         "components": {
           "type": "object",
           "properties": {
-            "sovereignty_coverage": {"type": "string"},
-            "dependency_reduction": {"type": "string"},
-            "capability_building": {"type": "string"},
-            "alliance_coherence": {"type": "string"},
-            "institutional_capacity": {"type": "string"}
+            "sovereignty_coverage": {
+              "type": "string"
+            },
+            "dependency_reduction": {
+              "type": "string"
+            },
+            "capability_building": {
+              "type": "string"
+            },
+            "alliance_coherence": {
+              "type": "string"
+            },
+            "institutional_capacity": {
+              "type": "string"
+            }
           }
         },
-        "note": {"type": "string"}
+        "note": {
+          "type": "string"
+        }
       }
     },
     "key_judgments": {
@@ -741,20 +1058,36 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": {"type": "string"},
-          "judgment": {"type": "string"},
+          "id": {
+            "type": "string"
+          },
+          "judgment": {
+            "type": "string"
+          },
           "confidence_preliminary": {
             "type": "string",
-            "enum": ["High", "Assessed", "Possible"]
+            "enum": [
+              "High",
+              "Assessed",
+              "Possible"
+            ]
           },
-          "domain_affected": {"type": "string"},
+          "domain_affected": {
+            "type": "string"
+          },
           "trajectory": {
             "type": "string",
-            "enum": ["Improving", "Stable", "Worsening"]
+            "enum": [
+              "Improving",
+              "Stable",
+              "Worsening"
+            ]
           },
           "source_urls": {
             "type": "array",
-            "items": {"type": "string"}
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
@@ -764,12 +1097,23 @@
       "items": {
         "type": "object",
         "properties": {
-          "target_monitor": {"type": "string"},
-          "signal": {"type": "string"},
-          "type": {"type": "string"},
+          "target_monitor": {
+            "type": "string"
+          },
+          "signal": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
           "confidence_preliminary": {
             "type": "string",
-            "enum": ["Confirmed", "High", "Assessed", "Possible"]
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
           }
         }
       }
@@ -804,10 +1148,18 @@
           },
           "value": {
             "oneOf": [
-              {"type": "string"},
-              {"type": "number"},
-              {"type": "object"},
-              {"type": "array"}
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              }
             ],
             "description": "The asserted value. Accept string/number/object/array."
           },
@@ -818,14 +1170,22 @@
           },
           "confidence": {
             "type": "string",
-            "enum": ["Confirmed", "High", "Assessed", "Possible"]
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
           },
           "source_module": {
             "type": "string",
             "description": "Which module or field the claim first appears in."
           },
           "notes": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "additionalProperties": false
@@ -836,7 +1196,10 @@
       "description": "Optional. What evidence would improve Uncertain claims.",
       "items": {
         "type": "object",
-        "required": ["gap_id", "description"],
+        "required": [
+          "gap_id",
+          "description"
+        ],
         "properties": {
           "gap_id": {
             "type": "string",
@@ -848,7 +1211,9 @@
           },
           "affected_claims": {
             "type": "array",
-            "items": {"type": "string"}
+            "items": {
+              "type": "string"
+            }
           }
         },
         "additionalProperties": true
@@ -868,93 +1233,201 @@
           "new_value"
         ],
         "properties": {
-          "rule_applied": {"type": "string", "minLength": 1},
+          "rule_applied": {
+            "type": "string",
+            "minLength": 1
+          },
           "evidence_ids": {
             "type": "array",
             "minItems": 1,
-            "items": {"type": "string", "minLength": 1}
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           },
           "confidence": {
             "type": "string",
-            "enum": ["Confirmed", "High", "Assessed", "Possible"]
+            "enum": [
+              "Confirmed",
+              "High",
+              "Assessed",
+              "Possible"
+            ]
           },
-          "material_change_justification": {"type": "string", "minLength": 1},
-          "target_kb_path": {"type": "string", "minLength": 1},
-          "patch_id": {"type": "string"},
+          "material_change_justification": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_kb_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "patch_id": {
+            "type": "string"
+          },
           "operation": {
             "type": "string",
-            "enum": ["create", "update", "archive", "carry-forward-verified"]
+            "enum": [
+              "create",
+              "update",
+              "archive",
+              "carry-forward-verified"
+            ]
           },
           "prior_value": {},
           "new_value": {},
-          "notes": {"type": ["string", "null"]}
+          "notes": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         },
         "additionalProperties": true
       }
-    }
-,
-  "eu_legislation_tracker": {
-    "type": "array",
-    "description": "EU legislative and regulatory instruments relevant to strategic autonomy.",
-    "items": {
-      "type": "object",
-      "required": ["id", "name", "status", "last_update", "source_url"],
-      "properties": {
-        "id":          { "type": "string" },
-        "name":        { "type": "string" },
-        "status":      { "type": "string" },
-        "last_update": { "type": "string", "format": "date" },
-        "source_url":  { "type": "string" }
-      }
-    }
-  },
-  "state_capture_cases": {
-    "type": "array",
-    "description": "Per-country state-capture severity assessments.",
-    "items": {
-      "type": "object",
-      "required": ["country", "severity", "status", "arrow", "key_indicator"],
-      "properties": {
-        "country":       { "type": "string" },
-        "severity":      { "type": "number", "minimum": 1.0, "maximum": 5.0 },
-        "status":        { "type": "string" },
-        "arrow":         { "type": "string", "enum": ["↑", "→", "↓"] },
-        "key_indicator": { "type": "string" }
-      }
-    }
-  },
-  "active_actor_campaigns": {
-    "type": "object",
-    "description": "Foreign-actor campaigns grouped by actor code (RU, CN, US, IL, TR, GCC, etc.).",
-    "additionalProperties": {
+    },
+    "eu_legislation_tracker": {
       "type": "array",
+      "description": "EU legislative and regulatory instruments relevant to strategic autonomy.",
       "items": {
         "type": "object",
-        "required": ["id", "name", "status", "target"],
+        "required": [
+          "id",
+          "name",
+          "status",
+          "last_update",
+          "source_url"
+        ],
         "properties": {
-          "id":     { "type": "string" },
-          "name":   { "type": "string" },
-          "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "CONCLUDED"] },
-          "target": { "type": "string" }
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "last_update": {
+            "type": "string",
+            "format": "date"
+          },
+          "source_url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "state_capture_cases": {
+      "type": "array",
+      "description": "Per-country state-capture severity assessments.",
+      "items": {
+        "type": "object",
+        "required": [
+          "country",
+          "severity",
+          "status",
+          "arrow",
+          "key_indicator"
+        ],
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "number",
+            "minimum": 1.0,
+            "maximum": 5.0
+          },
+          "status": {
+            "type": "string"
+          },
+          "arrow": {
+            "type": "string",
+            "enum": [
+              "↑",
+              "→",
+              "↓"
+            ]
+          },
+          "key_indicator": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "active_actor_campaigns": {
+      "type": "object",
+      "description": "Foreign-actor campaigns grouped by actor code (RU, CN, US, IL, TR, GCC, etc.).",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "status",
+            "target"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "SUSPENDED",
+                "CONCLUDED"
+              ]
+            },
+            "target": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "open_findings": {
+      "type": "array",
+      "description": "Salient ESA findings from the weekly research bundle not captured in other structured fields.",
+      "items": {
+        "type": "object",
+        "required": [
+          "headline",
+          "why_it_matters",
+          "source_url",
+          "source_name",
+          "source_tier"
+        ],
+        "properties": {
+          "headline": {
+            "type": "string"
+          },
+          "why_it_matters": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "source_name": {
+            "type": "string"
+          },
+          "source_tier": {
+            "type": "string",
+            "enum": [
+              "T1",
+              "T2",
+              "T3"
+            ]
+          }
         }
       }
     }
-  },
-  "open_findings": {
-    "type": "array",
-    "description": "Salient ESA findings from the weekly research bundle not captured in other structured fields.",
-    "items": {
-      "type": "object",
-      "required": ["headline", "why_it_matters", "source_url", "source_name", "source_tier"],
-      "properties": {
-        "headline":       { "type": "string" },
-        "why_it_matters": { "type": "string" },
-        "source_url":     { "type": "string", "format": "uri" },
-        "source_name":    { "type": "string" },
-        "source_tier":    { "type": "string", "enum": ["T1", "T2", "T3"] }
-      }
-    }
-  }
   },
   "required": [
     "_meta",
@@ -986,5 +1459,69 @@
     "state_capture_cases",
     "active_actor_campaigns",
     "open_findings"
+  ],
+  "allOf": [
+    {
+      "$comment": "Cure 1: if cycle_disposition==material_change then structured_claims must have >=1 item. Prevents WDM 05-18 class of defect (material_change with empty claims reaching reviewer).",
+      "if": {
+        "properties": {
+          "_meta": {
+            "properties": {
+              "cycle_disposition": {
+                "const": "material_change"
+              }
+            },
+            "required": [
+              "cycle_disposition"
+            ]
+          }
+        },
+        "required": [
+          "_meta"
+        ]
+      },
+      "then": {
+        "properties": {
+          "structured_claims": {
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "structured_claims"
+        ]
+      }
+    },
+    {
+      "$comment": "Cure 1: if null_signal_week==true then gaps_register must have >=1 item. Prevents FCW 05-15 class of defect (null_signal_week=true with empty gaps_register reaching reviewer).",
+      "if": {
+        "properties": {
+          "_meta": {
+            "properties": {
+              "null_signal_week": {
+                "const": true
+              }
+            },
+            "required": [
+              "null_signal_week"
+            ]
+          }
+        },
+        "required": [
+          "_meta"
+        ]
+      },
+      "then": {
+        "properties": {
+          "gaps_register": {
+            "type": "array",
+            "minItems": 1
+          }
+        },
+        "required": [
+          "gaps_register"
+        ]
+      }
+    }
   ]
 }
