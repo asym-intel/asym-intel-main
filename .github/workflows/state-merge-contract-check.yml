@@ -4,6 +4,13 @@ name: state-merge-contract-check
 # that could alter merge behaviour.
 #
 # Authority: FLEET-2026-05-16-005 (P2). BRIEF-D authored fleet-20260516T1824Z.
+# Primitive-5 completion: Cure-3 mirror PR (session arti-20260519T074724Z) —
+# add pyyaml to install_deps so the transitive import chain
+# pipeline.engine.__init__ -> canonical_settings -> yaml resolves at test
+# collection time. Without it, run_tests fails with ModuleNotFoundError before
+# any contract assertion runs; that is a bootstrap defect, not a contract
+# violation, and the outcome-gated bootstrap pattern requires bootstrap to
+# fully prepare the environment before the validator runs.
 #
 # Gate calibration: outcome-gated bootstrap primitive applied at authoring per
 # AD-2026-05-13-CI-GATE-CALIBRATION-DOCTRINE §4. Environmental prerequisites
@@ -78,7 +85,11 @@ jobs:
         id: install_deps
         if: steps.setup_python.outcome == 'success'
         run: |
-          pip install pytest hypothesis
+          # pyyaml: pipeline.engine.__init__ imports canonical_settings which imports yaml.
+          # Without pyyaml, test collection fails with ModuleNotFoundError before any
+          # contract assertion can run — primitive-5 requires the bootstrap to fully
+          # prepare the environment so run_tests' outcome is a true gate signal.
+          pip install pytest hypothesis pyyaml
 
       - name: Run contract tests
         id: run_tests

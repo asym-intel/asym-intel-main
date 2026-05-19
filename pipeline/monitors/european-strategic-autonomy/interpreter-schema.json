@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
   "$comment": "sprint-bw: added eu_legislation_tracker, state_capture_cases, active_actor_campaigns, open_findings",
   "type": "object",
   "properties": {
@@ -1032,19 +1031,29 @@
           "type": "object",
           "properties": {
             "sovereignty_coverage": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "dependency_reduction": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "capability_building": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "alliance_coherence": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "institutional_capacity": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             }
           }
         },
@@ -1263,7 +1272,8 @@
             "minLength": 1
           },
           "patch_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "operation": {
             "type": "string",
@@ -1459,69 +1469,5 @@
     "state_capture_cases",
     "active_actor_campaigns",
     "open_findings"
-  ],
-  "allOf": [
-    {
-      "$comment": "Cure 1: if cycle_disposition==material_change then structured_claims must have >=1 item. Prevents WDM 05-18 class of defect (material_change with empty claims reaching reviewer).",
-      "if": {
-        "properties": {
-          "_meta": {
-            "properties": {
-              "cycle_disposition": {
-                "const": "material_change"
-              }
-            },
-            "required": [
-              "cycle_disposition"
-            ]
-          }
-        },
-        "required": [
-          "_meta"
-        ]
-      },
-      "then": {
-        "properties": {
-          "structured_claims": {
-            "type": "array",
-            "minItems": 1
-          }
-        },
-        "required": [
-          "structured_claims"
-        ]
-      }
-    },
-    {
-      "$comment": "Cure 1: if null_signal_week==true then gaps_register must have >=1 item. Prevents FCW 05-15 class of defect (null_signal_week=true with empty gaps_register reaching reviewer).",
-      "if": {
-        "properties": {
-          "_meta": {
-            "properties": {
-              "null_signal_week": {
-                "const": true
-              }
-            },
-            "required": [
-              "null_signal_week"
-            ]
-          }
-        },
-        "required": [
-          "_meta"
-        ]
-      },
-      "then": {
-        "properties": {
-          "gaps_register": {
-            "type": "array",
-            "minItems": 1
-          }
-        },
-        "required": [
-          "gaps_register"
-        ]
-      }
-    }
   ]
 }

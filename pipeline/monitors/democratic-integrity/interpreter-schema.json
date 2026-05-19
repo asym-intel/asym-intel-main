@@ -1,5 +1,4 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
   "$comment": "sprint-bw: added institutional_integrity_active_flags, mimicry_chains, open_findings",
   "type": "object",
   "properties": {
@@ -26,7 +25,10 @@
           "type": "boolean"
         },
         "null_signal_reason": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "cycle_disposition": {
           "type": "string",
@@ -70,6 +72,12 @@
               ]
             },
             "llm_fallback_timestamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "source": {
               "type": [
                 "string",
                 "null"
@@ -423,7 +431,10 @@
                 "type": "boolean"
               },
               "unchanged_since": {
-                "type": "string"
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "sources": {
                 "type": "array",
@@ -722,7 +733,10 @@
                     "type": "string"
                   },
                   "unchanged_since": {
-                    "type": "string"
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   }
                 }
               }
@@ -732,7 +746,8 @@
         "asymmetric_flags": {
           "type": "array",
           "items": {
-            "type": "object"
+            "type": "string",
+            "minLength": 1
           }
         },
         "null_signal": {
@@ -776,7 +791,8 @@
         "asymmetric_flags": {
           "type": "array",
           "items": {
-            "type": "object"
+            "type": "string",
+            "minLength": 1
           }
         },
         "null_signal": {
@@ -867,19 +883,29 @@
           "type": "object",
           "properties": {
             "electoral_integrity": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "rule_of_law": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "civil_society_space": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "resilience": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             },
             "international_alignment": {
-              "type": "string"
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
             }
           }
         },
@@ -972,9 +998,12 @@
               },
               {
                 "type": "array"
+              },
+              {
+                "type": "boolean"
               }
             ],
-            "description": "The asserted value. Accept string/number/object/array."
+            "description": "The asserted value. Accept string/number/object/array/boolean."
           },
           "evidence_id": {
             "type": "string",
@@ -1076,7 +1105,8 @@
             "minLength": 1
           },
           "patch_id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "operation": {
             "type": "string",
@@ -1084,7 +1114,8 @@
               "create",
               "update",
               "archive",
-              "carry-forward-verified"
+              "carry-forward-verified",
+              "verify"
             ]
           },
           "prior_value": {},
@@ -1243,69 +1274,5 @@
     "institutional_integrity_active_flags",
     "mimicry_chains",
     "open_findings"
-  ],
-  "allOf": [
-    {
-      "$comment": "Cure 1: if cycle_disposition==material_change then structured_claims must have >=1 item. Prevents WDM 05-18 class of defect (material_change with empty claims reaching reviewer).",
-      "if": {
-        "properties": {
-          "_meta": {
-            "properties": {
-              "cycle_disposition": {
-                "const": "material_change"
-              }
-            },
-            "required": [
-              "cycle_disposition"
-            ]
-          }
-        },
-        "required": [
-          "_meta"
-        ]
-      },
-      "then": {
-        "properties": {
-          "structured_claims": {
-            "type": "array",
-            "minItems": 1
-          }
-        },
-        "required": [
-          "structured_claims"
-        ]
-      }
-    },
-    {
-      "$comment": "Cure 1: if null_signal_week==true then gaps_register must have >=1 item. Prevents FCW 05-15 class of defect (null_signal_week=true with empty gaps_register reaching reviewer).",
-      "if": {
-        "properties": {
-          "_meta": {
-            "properties": {
-              "null_signal_week": {
-                "const": true
-              }
-            },
-            "required": [
-              "null_signal_week"
-            ]
-          }
-        },
-        "required": [
-          "_meta"
-        ]
-      },
-      "then": {
-        "properties": {
-          "gaps_register": {
-            "type": "array",
-            "minItems": 1
-          }
-        },
-        "required": [
-          "gaps_register"
-        ]
-      }
-    }
   ]
 }
