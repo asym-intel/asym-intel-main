@@ -1,5 +1,5 @@
 {
-  "$comment": "sprint-bw: added conviction_history, blind_spots, active_tactical_alerts, open_findings",
+  "$comment": "sprint-bw: added ongoing_lab_postures, gpai_compliance, open_findings",
   "type": "object",
   "properties": {
     "_meta": {
@@ -8,13 +8,15 @@
         "schema_version": {
           "type": "string",
           "enum": [
-            "gmm-interpret-v1.0"
+            "aim-interpret-v1.0"
           ],
-          "description": "Must be exactly 'gmm-interpret-v1.0'."
+          "description": "Must be exactly 'aim-interpret-v1.0'."
+        },
+        "research_model": {
+          "type": "string"
         },
         "monitor_slug": {
-          "type": "string",
-          "const": "macro-monitor"
+          "type": "string"
         },
         "synthesised_at": {
           "type": "string"
@@ -26,10 +28,7 @@
           "type": "boolean"
         },
         "null_signal_reason": {
-          "type": [
-            "string",
-            "null"
-          ]
+          "type": "string"
         },
         "cycle_disposition": {
           "type": "string",
@@ -60,6 +59,18 @@
               "type": "integer",
               "minimum": 0
             },
+            "llm_fallback_model": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "llm_fallback_temperature": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
             "llm_fallback_timestamp": {
               "type": [
                 "string",
@@ -71,11 +82,11 @@
         },
         "replay_mode": {
           "type": "boolean",
-          "description": "Engine-stamped true when WEEKLY_FILE_OVERRIDE was active on the dispatch. Absent or false in production dispatches. Not model-derived; the Interpreter does not emit this field."
+          "description": "Sprint 3 Step 4a.3 (AD-2026-04-23 Option C). Engine-stamped true when WEEKLY_FILE_OVERRIDE was active on the dispatch. Absent/false in production dispatches. Not model-derived; the Interpreter LLM does not emit this field."
         },
         "replay_window": {
           "type": "object",
-          "description": "Required iff replay_mode is true. Holds the replay cycle window. Not model-derived.",
+          "description": "Sprint 3 Step 4a.3 (AD-2026-04-23 Option C). Required iff replay_mode is true. Holds the replay cycle window read from the override weekly bundle's `_meta.week_ending` (end) and end-6d (start). Not model-derived.",
           "properties": {
             "start": {
               "type": "string",
@@ -101,7 +112,6 @@
       "type": "object",
       "required": [
         "headline",
-        "domain",
         "body",
         "source_url",
         "confidence_preliminary"
@@ -109,17 +119,6 @@
       "properties": {
         "headline": {
           "type": "string"
-        },
-        "domain": {
-          "type": "string",
-          "enum": [
-            "growth_recession",
-            "inflation_central_bank",
-            "financial_stability",
-            "trade_tariff",
-            "currency_fx",
-            "sovereign_debt"
-          ]
         },
         "body": {
           "type": "string"
@@ -193,19 +192,19 @@
     "module_2": {
       "type": "object",
       "properties": {
-        "title": {
-          "type": "string"
-        },
-        "announcements": {
+        "models": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "institution": {
+              "name": {
                 "type": "string"
               },
-              "type": {
+              "lab": {
                 "type": "string"
+              },
+              "tier": {
+                "type": "integer"
               },
               "released": {
                 "type": "string"
@@ -238,23 +237,24 @@
     },
     "module_3": {
       "type": "object",
+      "$comment": "BRIEF BX-3 absence contract: when this module has no funding/strategic-deal/energy-wall signals, it MUST carry the three-field absence stamp { null_signal: true, empty_reason, absence_basis }. The interpreter prompt Rules 4b/4c/4d enforce this upstream; this schema documents the contract and the audit harness (pipeline/tools/pipeline_flow_audit.py) flags violations as silent_empty. classification_note is an optional companion field used when module_2.models is suspected of holding misclassified funding/M&A rows.",
       "properties": {
         "title": {
           "type": "string"
         },
-        "flow_events": {
+        "funding_rounds": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "liquidity_conditions": {
+        "strategic_deals": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "reserve_movements": {
+        "energy_wall": {
           "type": "array",
           "items": {
             "type": "object"
@@ -266,12 +266,33 @@
         },
         "empty_reason": {
           "type": "string",
-          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal', 'potential_classification_drift_module_2'). Required when null_signal is true."
         },
         "absence_basis": {
           "type": "string",
-          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+          "description": "BRIEF BX-3: which stage stamped this absence. Use 'interpreter_module_level' for upstream-stamped module_3 absence per interpreter prompt Rule 4c. Free-form pending BRIEF 4 enum."
+        },
+        "classification_note": {
+          "type": "string",
+          "description": "BRIEF BX-3 Rule 4d: optional note when suspected classification drift between module_2.models (capability releases) and module_3 (funding/M&A) cannot be re-routed confidently. Names the suspect module_2.models entries and rationale."
         }
+      },
+      "if": {
+        "properties": {
+          "null_signal": {
+            "const": true
+          }
+        },
+        "required": [
+          "null_signal"
+        ]
+      },
+      "then": {
+        "required": [
+          "null_signal",
+          "empty_reason",
+          "absence_basis"
+        ]
       }
     },
     "module_4": {
@@ -280,38 +301,16 @@
         "title": {
           "type": "string"
         },
-        "domains": {
+        "sectors": {
           "type": "array",
           "items": {
             "type": "object",
             "properties": {
-              "domain": {
-                "type": "string",
-                "enum": [
-                  "growth_recession",
-                  "inflation_central_bank",
-                  "financial_stability",
-                  "trade_tariff",
-                  "currency_fx",
-                  "sovereign_debt"
-                ]
+              "sector": {
+                "type": "string"
               },
-              "stress_level": {
-                "type": "string",
-                "enum": [
-                  "Green",
-                  "Amber",
-                  "Red",
-                  "Crisis"
-                ]
-              },
-              "direction": {
-                "type": "string",
-                "enum": [
-                  "Worsening",
-                  "Stable",
-                  "Improving"
-                ]
+              "status": {
+                "type": "string"
               },
               "headline_developments": {
                 "type": "array",
@@ -319,7 +318,10 @@
                   "type": "string"
                 }
               },
-              "key_data_point": {
+              "capability_to_deployment_gap": {
+                "type": "string"
+              },
+              "stealth_flag": {
                 "type": "string"
               },
               "asymmetric": {
@@ -354,11 +356,17 @@
         "title": {
           "type": "string"
         },
-        "currency_signals": {
-          "type": "object"
+        "european": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         },
-        "sovereign_debt": {
-          "type": "object"
+        "china": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         },
         "null_signal": {
           "type": "boolean",
@@ -380,13 +388,19 @@
         "title": {
           "type": "string"
         },
-        "threshold_assessments": {
+        "threshold_events": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "research_highlights": {
+        "programme_updates": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "arxiv_highlights": {
           "type": "array",
           "items": {
             "type": "object"
@@ -421,13 +435,7 @@
                 "type": "string"
               },
               "rating": {
-                "type": "string",
-                "enum": [
-                  "HIGH",
-                  "ELEVATED",
-                  "MODERATE",
-                  "LOW"
-                ]
+                "type": "string"
               },
               "summary": {
                 "type": "string"
@@ -436,21 +444,13 @@
                 "type": "string"
               },
               "confidence": {
-                "type": "string",
-                "enum": [
-                  "High",
-                  "Assessed",
-                  "Possible"
-                ]
+                "type": "string"
               },
               "changed": {
                 "type": "boolean"
               },
               "unchanged_since": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": "string"
               },
               "sources": {
                 "type": "array",
@@ -513,29 +513,36 @@
             "null"
           ]
         },
-        "new_developments": {
+        "law_highlights": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "no_change": {
+        "standards_highlights": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "friction_analysis": {
-          "type": "string"
-        },
-        "tariff_escalation_rung": {
-          "type": "string"
-        },
-        "retaliation_chain": {
+        "litigation_highlights": {
           "type": "array",
           "items": {
             "type": "object"
           }
+        },
+        "eu_ai_act_layered_week_updates": {
+          "type": "array",
+          "description": "Per-layer delta sentences for this week. Must be exactly 7 items (one per layer).",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 7,
+          "maxItems": 7
+        },
+        "eu_ai_act_layered_note": {
+          "type": "string",
+          "description": "One paragraph framing this week's overall EU AI Act layered status."
         },
         "null_signal": {
           "type": "boolean",
@@ -557,19 +564,25 @@
         "title": {
           "type": "string"
         },
-        "multilateral_signals": {
+        "international_soft_law": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "central_bank_coordination": {
+        "corporate_governance": {
           "type": "array",
           "items": {
             "type": "object"
           }
         },
-        "fiscal_governance": {
+        "product_liability": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "algorithmic_accountability": {
           "type": "array",
           "items": {
             "type": "object"
@@ -607,6 +620,84 @@
             "type": "object"
           }
         },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_12": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "capability_watch": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_13": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "asymmetric": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "structural_trends": {
           "type": "array",
           "items": {
@@ -641,6 +732,113 @@
         }
       }
     },
+    "module_14": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "concentration_index": {
+          "type": "object",
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "trend": {
+                    "type": "string"
+                  },
+                  "top_actors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "note": {
+                    "type": "string"
+                  },
+                  "unchanged_since": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
+    "module_15": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "lab_movements": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "government_ai_bodies": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "revolving_door": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "asymmetric_flags": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "null_signal": {
+          "type": "boolean",
+          "description": "BRIEF BX-3: explicit module-level absence flag. True when this module body is empty for this cycle. Optional; omitted when the module carries content."
+        },
+        "empty_reason": {
+          "type": "string",
+          "description": "BRIEF BX-3: short reason explaining why this module body is empty (e.g. 'interpreter_no_signal'). Required when null_signal is true."
+        },
+        "absence_basis": {
+          "type": "string",
+          "description": "BRIEF BX-3: which stage stamped this absence (e.g. 'interpreter_module_level', 'module_null_signal'). Free-form pending BRIEF 4 enum."
+        }
+      }
+    },
     "delta_strip": {
       "type": "array",
       "items": {
@@ -655,135 +853,86 @@
           "jurisdiction": {
             "type": "string"
           },
-          "monetary_policy_stance": {
-            "type": "string",
-            "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
-            ]
+          "regulatory_readiness": {
+            "type": "string"
           },
-          "fiscal_sustainability": {
-            "type": "string",
-            "enum": [
-              "Stable",
-              "Deteriorating",
-              "Improving"
-            ]
+          "enforcement_capacity": {
+            "type": "string"
           },
-          "external_vulnerability": {
-            "type": "string",
-            "enum": [
-              "HIGH",
-              "MEDIUM",
-              "LOW"
-            ]
+          "ai_dependency": {
+            "type": "string"
           },
-          "overall_stress": {
-            "type": "string",
-            "enum": [
-              "HIGH",
-              "ELEVATED",
-              "MODERATE",
-              "LOW"
-            ]
+          "overall_risk": {
+            "type": "string"
           },
           "key_development": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string",
-            "enum": [
-              "Improving",
-              "Stable",
-              "Deteriorating"
-            ]
+            "type": "string"
           }
         }
       }
     },
-    "central_bank_scorecard": {
+    "lab_posture_scorecard": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "institution": {
+          "lab": {
             "type": "string"
           },
-          "posture": {
-            "type": "string",
-            "enum": [
-              "Tightening",
-              "Neutral",
-              "Easing",
-              "Emergency"
-            ]
+          "safety_posture": {
+            "type": "string"
           },
-          "last_action": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "transparency": {
+            "type": "string"
           },
-          "forward_guidance": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "regulatory_engagement": {
+            "type": "string"
           },
           "key_development": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string",
-            "enum": [
-              "Hawkish",
-              "Stable",
-              "Dovish"
-            ]
+            "type": "string"
           }
         }
       }
     },
-    "macro_health_composite": {
+    "governance_health_composite": {
       "type": "object",
       "properties": {
         "score": {
           "type": "number"
         },
         "direction": {
-          "type": "string",
-          "enum": [
-            "Improving",
-            "Stable",
-            "Deteriorating"
-          ]
+          "type": "string"
         },
         "components": {
           "type": "object",
           "properties": {
-            "growth_stability": {
+            "regulatory_coverage": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "inflation_anchor": {
+            "enforcement_capacity": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "financial_stability": {
+            "standards_readiness": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "external_balance": {
+            "safety_alignment": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
             },
-            "policy_coherence": {
+            "international_coordination": {
               "type": "number",
               "minimum": 0,
               "maximum": 1
@@ -807,29 +956,13 @@
             "type": "string"
           },
           "confidence_preliminary": {
-            "type": "string",
-            "enum": [
-              "High",
-              "Assessed",
-              "Possible"
-            ]
+            "type": "string"
           },
-          "stress_domain": {
+          "framework_affected": {
             "type": "string"
           },
           "trajectory": {
-            "type": "string",
-            "enum": [
-              "Worsening",
-              "Stable",
-              "Improving"
-            ]
-          },
-          "source_urls": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string"
           }
         }
       }
@@ -849,19 +982,14 @@
             "type": "string"
           },
           "confidence_preliminary": {
-            "type": "string",
-            "enum": [
-              "Low",
-              "Medium",
-              "High"
-            ]
+            "type": "string"
           }
         }
       }
     },
     "structured_claims": {
       "type": "array",
-      "description": "Triple store of every factual assertion in this interpretation. Populated by the Interpreter; consumed by the Composer (for claim_trace[] provenance) and the Reviewer gate.",
+      "description": "Triple store of every factual assertion in this interpretation. Populated by the Interpreter; consumed by the Composer (for claim_trace[] provenance) and the Reviewer gate (Step 2).",
       "items": {
         "type": "object",
         "required": [
@@ -876,8 +1004,8 @@
         "properties": {
           "claim_id": {
             "type": "string",
-            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
-            "description": "Stable within a cycle. Format: gmm-int-{ISO-date}-{4-digit-sequence}."
+            "pattern": "^aim-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}$",
+            "description": "Stable within a cycle. Format: aim-int-{ISO-date}-{4-digit-sequence}."
           },
           "entity": {
             "type": "string",
@@ -944,7 +1072,7 @@
         "properties": {
           "gap_id": {
             "type": "string",
-            "pattern": "^gmm-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
+            "pattern": "^aim-int-[0-9]{4}-[0-9]{2}-[0-9]{2}-G[0-9]{3}$"
           },
           "description": {
             "type": "string",
@@ -962,7 +1090,7 @@
     },
     "proposed_patches": {
       "type": "array",
-      "description": "OPTIONAL. Material-change patches proposed to the Applier. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries the 5 Appendix A required fields.",
+      "description": "Sprint 3 Step 4a.2 (AD-2026-04-23l §4.2) — Appendix A patch emission. OPTIONAL top-level array naming the material-change patches this interpretation proposes to the Applier, per pipeline-doctrine Appendix A. Under null_cycle the prompt contract requires an empty array (never omission). Each patch carries the Appendix A required fields: rule_applied, evidence_ids, confidence, material_change_justification, target_kb_path, new_value. The Reviewer and Applier reject malformed patches; this schema block performs structural gatekeeping before review.",
       "items": {
         "type": "object",
         "required": [
@@ -976,7 +1104,8 @@
         "properties": {
           "rule_applied": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "The methodology rule invoked to justify this patch. Free-form string until the enum is formalised (Sprint 4)."
           },
           "evidence_ids": {
             "type": "array",
@@ -984,7 +1113,8 @@
             "items": {
               "type": "string",
               "minLength": 1
-            }
+            },
+            "description": "Array of evidence IDs from the weekly-research bundle or KB that support the patch. Must be non-empty."
           },
           "confidence": {
             "type": "string",
@@ -997,14 +1127,17 @@
           },
           "material_change_justification": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "One-sentence rationale for why this change is material (not cosmetic rewording of existing KB state)."
           },
           "target_kb_path": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "The KB path being updated (e.g. 'module_2.models[Anthropic/Claude Opus 4.6]' or 'module_7.vectors[ai_fimi_layer].rating')."
           },
           "patch_id": {
             "type": "string",
+            "description": "Optional stable patch ID. Applier may stamp one if absent.",
             "minLength": 1
           },
           "operation": {
@@ -1014,10 +1147,15 @@
               "update",
               "archive",
               "carry-forward-verified"
-            ]
+            ],
+            "description": "Optional Appendix A operation. Applier defaults to 'update' if absent."
           },
-          "prior_value": {},
-          "new_value": {},
+          "prior_value": {
+            "description": "Optional prior-value snapshot for optimistic concurrency. Applier rejects if current KB state does not match."
+          },
+          "new_value": {
+            "description": "Required value the patch applies. For carry-forward-verified, set this equal to prior_value/the observed value being re-verified; for archive, set the explicit archival replacement value or null if the target is intentionally cleared."
+          },
           "notes": {
             "type": [
               "string",
@@ -1028,123 +1166,82 @@
         "additionalProperties": true
       }
     },
-    "conviction_history": {
+    "ongoing_lab_postures": {
       "type": "array",
-      "description": "Chronological weekly conviction assessments — append only.",
+      "description": "Safety and governance posture assessments for frontier AI labs.",
       "items": {
         "type": "object",
         "required": [
-          "date",
-          "system_average",
-          "conviction",
-          "regime",
-          "regime_conviction",
-          "rationale"
+          "actor",
+          "posture",
+          "last_material_change",
+          "last_verified",
+          "confidence",
+          "unchanged_since"
         ],
         "properties": {
-          "date": {
+          "actor": {
+            "type": "string"
+          },
+          "posture": {
+            "type": "string"
+          },
+          "last_material_change": {
             "type": "string",
             "format": "date"
           },
-          "system_average": {
-            "type": "number",
-            "minimum": 0.0,
-            "maximum": 1.0
+          "last_verified": {
+            "type": "string",
+            "format": "date"
           },
-          "conviction": {
+          "confidence": {
             "type": "string",
             "enum": [
-              "MEDIUM",
-              "HIGH"
+              "High",
+              "Medium",
+              "Low"
             ]
           },
-          "regime": {
-            "type": "string"
-          },
-          "regime_conviction": {
-            "type": "string",
-            "enum": [
-              "MEDIUM",
-              "HIGH"
-            ]
-          },
-          "rationale": {
+          "unchanged_since": {
             "type": "string"
           }
         }
       }
     },
-    "blind_spots": {
-      "type": "array",
-      "description": "Identified structural gaps in data coverage or analytical scope.",
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "description",
-          "evidence_id",
-          "source_url"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "evidence_id": {
-            "type": "string"
-          },
-          "source_url": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "active_tactical_alerts": {
-      "type": "array",
-      "description": "Named tactical alert conditions with traffic-light state.",
-      "items": {
-        "type": "object",
-        "required": [
-          "alert_id",
-          "name",
-          "current_state",
-          "last_state_change",
-          "description"
-        ],
-        "properties": {
-          "alert_id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "current_state": {
-            "type": "string",
-            "enum": [
-              "WARNING",
-              "WATCH",
-              "CLEAR"
-            ]
-          },
-          "last_state_change": {
-            "type": "string",
-            "format": "date"
-          },
-          "description": {
-            "type": "string"
+    "gpai_compliance": {
+      "type": "object",
+      "description": "GPAI compliance record — keyed by 'labs', containing per-lab compliance booleans.",
+      "required": [
+        "labs"
+      ],
+      "properties": {
+        "labs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "lab",
+              "signatory",
+              "transparency_report",
+              "compute_disclosure"
+            ],
+            "properties": {
+              "lab": {
+                "type": "string"
+              },
+              "signatory": {
+                "type": "boolean"
+              },
+              "transparency_report": {},
+              "compute_disclosure": {}
+            }
           }
         }
       }
     },
     "open_findings": {
       "type": "array",
-      "description": "Salient macro findings from the weekly research bundle not captured in other structured fields.",
+      "description": "Salient AI-governance findings from the weekly research bundle not captured in other structured fields.",
       "items": {
         "type": "object",
         "required": [
@@ -1195,16 +1292,19 @@
     "module_9",
     "module_10",
     "module_11",
+    "module_12",
+    "module_13",
+    "module_14",
+    "module_15",
     "delta_strip",
     "jurisdiction_risk_matrix",
-    "central_bank_scorecard",
-    "macro_health_composite",
+    "lab_posture_scorecard",
+    "governance_health_composite",
     "key_judgments",
     "cross_monitor_candidates",
     "structured_claims",
-    "conviction_history",
-    "blind_spots",
-    "active_tactical_alerts",
+    "ongoing_lab_postures",
+    "gpai_compliance",
     "open_findings"
   ]
 }
