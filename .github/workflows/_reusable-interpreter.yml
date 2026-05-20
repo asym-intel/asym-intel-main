@@ -248,8 +248,10 @@ jobs:
         # `pipeline/engine/__init__.py` at workspace root (e.g. advennt did, post-LIFT-v2
         # tombstone files), Python resolves `pipeline.engine` as a regular package
         # rooted there — shadowing `internal/pipeline/engine/` and breaking
-        # `python -m pipeline.engine.interpret_base` with `No module named
-        # pipeline.engine.interpret_base`.
+        # `python -m pipeline.engine.run.interpret` with `No module named
+        # pipeline.engine.run.interpret`.
+        # NOTE: The runner must install pipeline/engine/ dependencies before step.
+        # Dispatch is via python -m pipeline.engine.run.interpret (canonical W4.7+).
         #
         # Namespace-package merge (PEP 420) works only when NEITHER portion has
         # `__init__.py`. asym-intel-main's `pipeline/engine/` has no __init__.py,
@@ -298,7 +300,7 @@ jobs:
             ARGS+=(--force --force-reason "${FORCE_REASON}" --force-ad "${FORCE_AD}" --force-operator "${FORCE_OPERATOR}")
             echo "::notice::Force-reissue requested: ad=${FORCE_AD} operator=${FORCE_OPERATOR}"
           fi
-          python -m pipeline.engine.interpret_base "${ARGS[@]}"
+          python -m pipeline.engine.run.interpret "${ARGS[@]}"
 
       - name: Commit interpret output
         # Metadata-driven git add: post-AT canonicalisation, the canonical
