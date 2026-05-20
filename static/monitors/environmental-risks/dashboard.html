@@ -372,9 +372,12 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ══════════════════════════════════════════════════════════════
      REPORT DATA — report-latest.json
      ══════════════════════════════════════════════════════════════ */
-  fetch('data/report-latest.json')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
+  Promise.all([
+    fetch('data/report-latest.json').then(function(r){return r.json();}),
+    fetch('data/persistent-state.json').then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(results) {
+    var d = results[0];
+    var persistent = results[1];
       var meta = d.meta || {};
 
       /* ── Signal data: flatten from multiple possible locations ── */
