@@ -196,7 +196,7 @@ jobs:
       - name: Run composer (engine dispatch)
         # SYNTH_MODEL is set ONLY when the operator passes an explicit `model`
         # via workflow_dispatch. Empty `inputs.model` => SYNTH_MODEL unset =>
-        # compose_base.py resolves model via metadata + pipeline/engine/
+        # run/compose.py resolves model via metadata + pipeline/engine/
         # model_routing.yml (central registry). DO NOT reintroduce a per-caller
         # default here.
         if: steps.disposition.outputs.skip != 'true'
@@ -220,7 +220,7 @@ jobs:
               --force-ad "${FORCE_AD}" \
               --force-operator "${FORCE_OPERATOR}")
           fi
-          python -m pipeline.engine.compose_base "${ARGS[@]}"
+          python -m pipeline.engine.run.compose "${ARGS[@]}"
 
       - name: Commit compose output
         if: steps.disposition.outputs.skip != 'true'
