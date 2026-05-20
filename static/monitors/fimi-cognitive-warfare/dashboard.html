@@ -349,9 +349,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Actor colour config
-  fetch('data/report-latest.json')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
+  Promise.all([
+    fetch('data/report-latest.json').then(function(r){return r.json();}),
+    fetch('data/persistent-state.json').then(function(r){return r.json();}).catch(function(){return {};})
+  ]).then(function(results) {
+    var d = results[0];
+    var persistent = results[1];
       var meta = d.meta || {};
       var signalObj = d.lead_signal || d.signal || {};
       var signal = signalObj.headline || '';
