@@ -121,7 +121,7 @@ jobs:
           cp -v "internal/pipeline/monitors/${SLUG}/reviewer-schema.json"  "pipeline/monitors/${SLUG}/"
           # Engine-v1.0 Jinja2 template path (PR #1046, AD-2026-05-14-BX-PGTR).
           # Stage the shared engine .j2 template AND per-monitor config + output-schema
-          # block into the monitor dir so review_base.py's prompt_p.parent lookup
+          # block into the monitor dir so run/review.py's prompt_p.parent lookup
           # of monitor-config.yml resolves correctly. Best-effort — `|| true` keeps
           # the workflow green for monitors still on the legacy .txt path.
           # Activation is per-monitor: flip metadata.yml::paths.reviewer_prompt to
@@ -166,7 +166,7 @@ jobs:
               --force-ad "${FORCE_AD}" \
               --force-operator "${FORCE_OPERATOR}")
           fi
-          python -m pipeline.engine.review_base "${ARGS[@]}"
+          python -m pipeline.engine.run.review "${ARGS[@]}"
 
       - name: Commit review output
         if: steps.check.outputs.skip != 'true'
